@@ -4,6 +4,8 @@
 #include <dcmtk/config/osconfig.h>
 #include <dcmtk/dcmdata/dctk.h>
 
+#include <vector>
+
 /**
  * @brief Traits allowing generically getting and setting values inside a DICOM
  * element.
@@ -41,6 +43,7 @@ struct ElementTraits<vr> \
     typedef element_type ElementType; \
     static OFCondition setter(DcmElement * element, ValueType const value); \
     static OFCondition array_setter(DcmElement * element, ValueType const * value, unsigned int const size); \
+    static std::vector<ValueType> array_getter(DcmElement * element); \
 };
 
 DECLARE_STRING_ELEMENT_TRAITS(EVR_AE, OFString, DcmCodeString)

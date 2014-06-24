@@ -161,7 +161,22 @@ ElementMatch<VR>
         throw std::runtime_error(message.str());
     }
     
-    // TODO compare values
+    // Get values
+    auto vect = ElementTraits<VR>::array_getter(element);
+    
+    // Compare Size
+    if (vect.size() != element->getVM() ||
+        this->_array.size() != vect.size())
+    {
+        return false;
+    }
+    
+    // Compare values
+    for (unsigned int i = 0; i < vect.size(); i++)
+    {
+        if (this->_array[i] != vect[i])
+            return false;
+    }
     
     return true;
 }

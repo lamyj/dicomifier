@@ -23,7 +23,7 @@ ElementTraits<vr> \
     return (element->*Self::element_array_setter)(value, size); \
 }
 
-#define DEFINE_STRING_ELEMENT_TRAITS(vr) \
+#define DEFINE_STRING_ELEMENT_TRAITS(vr, value_type) \
 OFCondition \
 ElementTraits<vr> \
 ::setter(DcmElement * element, ValueType const value) \
@@ -45,15 +45,28 @@ ElementTraits<vr> \
         } \
     } \
     return element->putOFStringArray(stream.str().c_str()); \
+} \
+std::vector<ElementTraits<vr>::ValueType> \
+ElementTraits<vr> \
+::array_getter(DcmElement * element) \
+{ \
+    std::vector<ValueType> returnVector; \
+    for (unsigned long i = 0; i < element->getVM(); i++) \
+    { \
+        ValueType value; \
+        element->get##value_type(value, i); \
+        returnVector.push_back(value); \
+    } \
+    return returnVector; \
 }
 
-DEFINE_STRING_ELEMENT_TRAITS(EVR_AE)
-DEFINE_STRING_ELEMENT_TRAITS(EVR_AS)
-DEFINE_STRING_ELEMENT_TRAITS(EVR_CS)
-DEFINE_STRING_ELEMENT_TRAITS(EVR_DS)
+DEFINE_STRING_ELEMENT_TRAITS(EVR_AE, OFString)
+DEFINE_STRING_ELEMENT_TRAITS(EVR_AS, OFString)
+DEFINE_STRING_ELEMENT_TRAITS(EVR_CS, OFString)
+DEFINE_STRING_ELEMENT_TRAITS(EVR_DS, Float64)
 DEFINE_ELEMENT_TRAITS(EVR_FD, Float64)
 DEFINE_ELEMENT_TRAITS(EVR_FL, Float32)
-DEFINE_STRING_ELEMENT_TRAITS(EVR_IS)
+DEFINE_STRING_ELEMENT_TRAITS(EVR_IS, Sint32)
 DEFINE_ELEMENT_TRAITS(EVR_SL, Sint32)
 DEFINE_ELEMENT_TRAITS(EVR_SS, Sint16)
 DEFINE_ELEMENT_TRAITS(EVR_UL, Uint32)
