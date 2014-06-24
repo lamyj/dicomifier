@@ -144,7 +144,7 @@ ElementMatch<VR>
     }
     
     // Tag Exist
-    if(!this->_dataset->tagExists(this->_tag))
+    if( ! this->_dataset->tagExists(this->_tag))
     {
         return false;
     }
