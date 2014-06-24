@@ -3,6 +3,9 @@
 /*! \file BrukerDirectory.h
 */
 
+#include <dcmtk/config/osconfig.h>
+#include <dcmtk/dcmdata/dctk.h>
+
 #include <boost/filesystem.hpp>
 #include <boost/algorithm/string.hpp>
 

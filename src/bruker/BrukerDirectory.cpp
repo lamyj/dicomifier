@@ -241,14 +241,20 @@ void BrukerDirectory::GenerateDICOMRules(std::string const & outputdir)
         rdoc.AddAction(AT_Set_Element, "Patient ID",
                        (*it).second->GetFieldData("SUBJECT_name_string"), VR_LO,
                        true);
+                       
+        char uidstudy[128];
+        dcmGenerateUniqueIdentifier(uidstudy, SITE_STUDY_UID_ROOT);
 
         // Study Instance UID           0x0020,0x000d
-        /*rdoc.AddAction(AT_Set_Element, "Study Instance UID",
-                       ????, VR_UI); TODO generate an UID */
+        rdoc.AddAction(AT_Set_Element, "Study Instance UID",
+                       BrukerFieldData(std::string(uidstudy)), VR_UI);
+                       
+        char uidseries[128];
+        dcmGenerateUniqueIdentifier(uidseries, SITE_SERIES_UID_ROOT);
 
         // Series Instance UID          0x0020,0x000e
-        /*rdoc.AddAction(AT_Set_Element, "Series Instance UID",
-                       ????, VR_UI); TODO generate an UID */
+        rdoc.AddAction(AT_Set_Element, "Series Instance UID",
+                       BrukerFieldData(std::string(uidseries)), VR_UI);
 
         std::string datetime = (*it).second->GetFieldData("SUBJECT_date").GetValueToString(true);
 
@@ -287,7 +293,9 @@ void BrukerDirectory::GenerateDICOMRules(std::string const & outputdir)
                        , VR_DS); 
         TODO look how to get this information*/
 
-        /*std::string method = (*it).second->GetFieldData("Method").GetValueToString(true);
+        /* 
+        
+        std::string method = (*it).second->GetFieldData("Method").GetValueToString(true);
         
         // Private dictionary
         if (method == "DtiEpi" || method == "DtiStandard")
