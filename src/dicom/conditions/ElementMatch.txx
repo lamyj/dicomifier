@@ -156,13 +156,11 @@ ElementMatch<VR>
 
     if(element_ok.bad())
     {
-        std::ostringstream message;
-        message << "Could not get element: " << element_ok.text();
-        throw std::runtime_error(message.str());
+        return false;
     }
     
     // Get values
-    auto vect = ElementTraits<VR>::array_getter(element);
+    auto const vect = ElementTraits<VR>::array_getter(element);
     
     // Compare Size
     if (vect.size() != element->getVM() ||
@@ -171,14 +169,8 @@ ElementMatch<VR>
         return false;
     }
     
-    // Compare values
-    for (unsigned int i = 0; i < vect.size(); i++)
-    {
-        if (this->_array[i] != vect[i])
-            return false;
-    }
-    
-    return true;
+    // Compare values    
+    return this->_array == vect;
 }
 
 } // namespace conditions

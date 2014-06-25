@@ -1,5 +1,5 @@
-#ifndef NOT_H
-#define NOT_H
+#ifndef _1e3d4e5a_5d40_4459_9b06_062c1f7115be
+#define _1e3d4e5a_5d40_4459_9b06_062c1f7115be
 
 #include "Condition.h"
 
