@@ -23,9 +23,7 @@ struct TestDataCS
     }
 };
 
-BOOST_FIXTURE_TEST_SUITE(ElementCS, TestDataCS)
-
-BOOST_AUTO_TEST_CASE(MatchCS01)
+BOOST_FIXTURE_TEST_CASE(MatchCS01, TestDataCS)
 {
     auto testmatch = 
         router::conditions::ElementMatch<EVR_CS>::New(dataset, 
@@ -34,7 +32,7 @@ BOOST_AUTO_TEST_CASE(MatchCS01)
     BOOST_CHECK_EQUAL(testmatch->eval(), true);
 }
 
-BOOST_AUTO_TEST_CASE(MatchCS02)
+BOOST_FIXTURE_TEST_CASE(MatchCS02, TestDataCS)
 {
     auto testmatch = 
         router::conditions::ElementMatch<EVR_CS>::New(dataset, 
@@ -43,7 +41,7 @@ BOOST_AUTO_TEST_CASE(MatchCS02)
     BOOST_CHECK_EQUAL(testmatch->eval(), false);
 }
 
-BOOST_AUTO_TEST_CASE(MatchCS03)
+BOOST_FIXTURE_TEST_CASE(MatchCS03, TestDataCS)
 {
     auto testmatch = 
         router::conditions::ElementMatch<EVR_CS>::New(dataset, 
@@ -51,8 +49,6 @@ BOOST_AUTO_TEST_CASE(MatchCS03)
                                                       {"value1", "value2", "value3"});
     BOOST_CHECK_EQUAL(testmatch->eval(), false);
 }
-
-BOOST_AUTO_TEST_SUITE_END()
 
 struct TestDataDS
 {
@@ -62,7 +58,7 @@ struct TestDataDS
     {
         dataset = new DcmDataset();
         // Insert testing value
-        dataset->putAndInsertOFStringArray(DCM_PatientWeight, "60");        // insert DS
+        dataset->putAndInsertOFStringArray(DCM_PatientWeight, "60.5");        // insert DS
     }
  
     ~TestDataDS()
@@ -71,18 +67,14 @@ struct TestDataDS
     }
 };
 
-BOOST_FIXTURE_TEST_SUITE(ElementDS, TestDataDS)
-
-BOOST_AUTO_TEST_CASE(MatchDS01)
+BOOST_FIXTURE_TEST_CASE(MatchDS01, TestDataDS)
 {
     auto testmatch = 
         router::conditions::ElementMatch<EVR_DS>::New(dataset, 
                                                       DCM_PatientWeight, 
-                                                      (Float64)60);
+                                                      60.5);
     BOOST_CHECK_EQUAL(testmatch->eval(), true);
 }
-
-BOOST_AUTO_TEST_SUITE_END()
 
 struct TestDataIS
 {
@@ -101,15 +93,11 @@ struct TestDataIS
     }
 };
 
-BOOST_FIXTURE_TEST_SUITE(ElementIS, TestDataIS)
-
-BOOST_AUTO_TEST_CASE(MatchIS01)
+BOOST_FIXTURE_TEST_CASE(MatchIS01, TestDataIS)
 {
     auto testmatch = 
         router::conditions::ElementMatch<EVR_IS>::New(dataset, 
                                                       DCM_StageNumber, 
-                                                      (Sint32)12);
+                                                      12);
     BOOST_CHECK_EQUAL(testmatch->eval(), true);
 }
-
-BOOST_AUTO_TEST_SUITE_END()
