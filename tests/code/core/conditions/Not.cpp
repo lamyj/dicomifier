@@ -1,9 +1,9 @@
 #define BOOST_TEST_MODULE ModuleNot
 #include <boost/test/unit_test.hpp>
 
+#include "core/conditions/False.h"
 #include "core/conditions/Not.h"
 #include "core/conditions/True.h"
-#include "core/conditions/False.h"
 
 struct TestData
 {
