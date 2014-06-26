@@ -2,8 +2,8 @@
 #include <boost/test/unit_test.hpp>
 
 #include "core/conditions/Any.h"
-#include "core/conditions/True.h"
 #include "core/conditions/False.h"
+#include "core/conditions/True.h"
 
 struct TestData
 {

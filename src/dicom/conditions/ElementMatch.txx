@@ -1,5 +1,5 @@
-#ifndef ELEMENTMATCH_CPP
-#define ELEMENTMATCH_CPP
+#ifndef _1d031fdc_6f06_4415_8b31_3b9270fb67de
+#define _1d031fdc_6f06_4415_8b31_3b9270fb67de
 
 #include <sstream>
 #include <stdexcept>
@@ -177,4 +177,4 @@ ElementMatch<VR>
 
 } // namespace router
 
-#endif // ELEMENTMATCH_CPP
+#endif // _1d031fdc_6f06_4415_8b31_3b9270fb67de
