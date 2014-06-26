@@ -21,30 +21,26 @@ struct TestData
     }
 };
 
-BOOST_FIXTURE_TEST_SUITE(All, TestData)
- 
-BOOST_AUTO_TEST_CASE(TrueAndTrue)
+BOOST_FIXTURE_TEST_CASE(TrueAndTrue, TestData)
 {
     auto allTT = router::conditions::All::New(_true, _true);
     BOOST_CHECK_EQUAL(allTT->eval(), true);
 }
  
-BOOST_AUTO_TEST_CASE(TrueAndFalse)
+BOOST_FIXTURE_TEST_CASE(TrueAndFalse, TestData)
 {
     auto allTF = router::conditions::All::New(_true, _false);
     BOOST_CHECK_EQUAL(allTF->eval(), false);
 }
 
-BOOST_AUTO_TEST_CASE(FalseAndTrue)
+BOOST_FIXTURE_TEST_CASE(FalseAndTrue, TestData)
 {
     auto allFT = router::conditions::All::New(_false, _true);
     BOOST_CHECK_EQUAL(allFT->eval(), false);
 }
 
-BOOST_AUTO_TEST_CASE(FalseAndFalse)
+BOOST_FIXTURE_TEST_CASE(FalseAndFalse, TestData)
 {
     auto allFF = router::conditions::All::New(_false, _false);
     BOOST_CHECK_EQUAL(allFF->eval(), false);
 }
- 
-BOOST_AUTO_TEST_SUITE_END()

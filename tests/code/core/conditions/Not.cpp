@@ -21,18 +21,14 @@ struct TestData
     }
 };
 
-BOOST_FIXTURE_TEST_SUITE(Not, TestData)
- 
-BOOST_AUTO_TEST_CASE(NotTrue)
+BOOST_FIXTURE_TEST_CASE(NotTrue, TestData)
 {
     auto nottrue = router::conditions::Not::New(_true);
     BOOST_CHECK_EQUAL(nottrue->eval(), false);
 }
  
-BOOST_AUTO_TEST_CASE(NotFalse)
+BOOST_FIXTURE_TEST_CASE(NotFalse, TestData)
 {
     auto notfalse = router::conditions::Not::New(_false);
     BOOST_CHECK_EQUAL(notfalse->eval(), true);
 }
- 
-BOOST_AUTO_TEST_SUITE_END()
