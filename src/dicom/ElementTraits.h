@@ -32,6 +32,7 @@ struct ElementTraits<vr> \
     static ElementArraySetterType const element_array_setter; \
     static OFCondition setter(DcmElement * element, ValueType const value); \
     static OFCondition array_setter(DcmElement * element, ValueType const * value, unsigned int const size); \
+    static std::vector<ValueType> array_getter(DcmElement * element); \
 };
 
 #define DECLARE_STRING_ELEMENT_TRAITS(vr, value_type, element_type) \
@@ -59,5 +60,6 @@ DECLARE_ELEMENT_TRAITS(EVR_UL, Uint32, DcmUnsignedLong)
 DECLARE_ELEMENT_TRAITS(EVR_US, Uint16, DcmUnsignedShort)
 
 #undef DECLARE_ELEMENT_TRAITS
+#undef DECLARE_STRING_ELEMENT_TRAITS
 
 #endif // _9b35ef04_0df7_49bc_81e6_c5e616af003e

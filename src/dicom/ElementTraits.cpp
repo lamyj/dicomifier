@@ -21,6 +21,19 @@ ElementTraits<vr> \
 ::array_setter(DcmElement * element, ValueType const * value, unsigned int const size) \
 { \
     return (element->*Self::element_array_setter)(value, size); \
+} \
+std::vector<ElementTraits<vr>::ValueType> \
+ElementTraits<vr> \
+::array_getter(DcmElement * element) \
+{ \
+    std::vector<ValueType> returnVector; \
+    for (unsigned long i = 0; i < element->getVM(); i++) \
+    { \
+        ValueType value; \
+        element->get##value_type(value, i); \
+        returnVector.push_back(value); \
+    } \
+    return returnVector; \
 }
 
 #define DEFINE_STRING_ELEMENT_TRAITS(vr, value_type) \
@@ -73,3 +86,4 @@ DEFINE_ELEMENT_TRAITS(EVR_UL, Uint32)
 DEFINE_ELEMENT_TRAITS(EVR_US, Uint16)
 
 #undef DEFINE_ELEMENT_TRAITS
+#undef DEFINE_STRING_ELEMENT_TRAITS

@@ -1,21 +1,38 @@
-#include <iostream>
+#define BOOST_TEST_MODULE ModuleNot
+#include <boost/test/unit_test.hpp>
 
 #include "core/conditions/Not.h"
 #include "core/conditions/True.h"
 #include "core/conditions/False.h"
 
-int main()
+struct TestData
 {
-    auto true_ = router::conditions::True::New();
-    auto false_ = router::conditions::False::New();
-    
-    // testing with True condition
-    auto nottrue = router::conditions::Not::New(true_);
-    std::cout << "Not true = " << nottrue->eval() << std::endl;
-    
-    // testing with False condition
-    auto notfalse = router::conditions::Not::New(false_);
-    std::cout << "Not false = " << notfalse->eval() << std::endl;
-    
-    return EXIT_SUCCESS;
+    router::conditions::True::Pointer _true;
+    router::conditions::False::Pointer _false;
+ 
+    TestData()
+    {
+        _true = router::conditions::True::New();
+        _false = router::conditions::False::New();
+    }
+ 
+    ~TestData()
+    {
+    }
+};
+
+BOOST_FIXTURE_TEST_SUITE(Not, TestData)
+ 
+BOOST_AUTO_TEST_CASE(NotTrue)
+{
+    auto nottrue = router::conditions::Not::New(_true);
+    BOOST_CHECK_EQUAL(nottrue->eval(), false);
 }
+ 
+BOOST_AUTO_TEST_CASE(NotFalse)
+{
+    auto notfalse = router::conditions::Not::New(_false);
+    BOOST_CHECK_EQUAL(notfalse->eval(), true);
+}
+ 
+BOOST_AUTO_TEST_SUITE_END()
