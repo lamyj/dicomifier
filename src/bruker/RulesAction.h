@@ -1,12 +1,16 @@
-#ifndef RULESACTION_H
-#define RULESACTION_H
+#ifndef _e4059feb_bb51_4bc4_8b3d_0096f4908ee8
+#define _e4059feb_bb51_4bc4_8b3d_0096f4908ee8
 /*! \file RulesAction.h
 */
 
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/xml_parser.hpp>
 
-#include "BrukerSystem.h"
+#include <dcmtk/config/osconfig.h>
+#include <dcmtk/dcmdata/dctk.h>
+
+namespace router
+{
 
 enum EActionType {
     AT_Set_Element,
@@ -14,42 +18,11 @@ enum EActionType {
     AT_Delete_Element
 };
 
-enum EValueRepresentation {
-    VR_AE,
-    VR_AS,
-    VR_AT,
-    VR_CS,
-    VR_DA,
-    VR_DS,
-    VR_DT,
-    VR_FL,
-    VR_FD,
-    VR_IS,
-    VR_LO,
-    VR_LT,
-    VR_OB,
-    VR_OD,
-    VR_OF,
-    VR_OW,
-    VR_PN,
-    VR_SH,
-    VR_SL,
-    VR_SQ,
-    VR_SS,
-    VR_ST,
-    VR_TM,
-    VR_UI,
-    VR_UL,
-    VR_UN,
-    VR_US,
-    VR_UT
-};
-
 /**
  * \class RulesAction
  * \brief This class defines Actions for Bruker to DICOM converting rules
  */
-class creaBruker_ICUBE_EXPORT RulesAction
+class RulesAction
 {
 public:
     /**
@@ -72,10 +45,8 @@ public:
     inline void SetValue(std::string const & value)
         { this->_Value = value; }
         
-    inline void SetVR(EValueRepresentation vr)
+    inline void SetVR(DcmEVR vr)
         { this->_VR = vr; }
-        
-    static std::string GetValueRepresentationAsString(EValueRepresentation vr);
 
 protected:
 
@@ -86,8 +57,10 @@ private:
     
     std::string _Value;
 
-    EValueRepresentation _VR;
+    DcmEVR _VR;
 };
 
-#endif
+} // namespace router
+
+#endif // _e4059feb_bb51_4bc4_8b3d_0096f4908ee8
 

@@ -1,19 +1,20 @@
-
-#ifndef BRUKERDATASET_H
-#define BRUKERDATASET_H
+#ifndef _1f35fffc_e764_42fe_883b_6aa220e3d65c
+#define _1f35fffc_e764_42fe_883b_6aa220e3d65c
 /*! \file BrukerDataset.h
 */
 
 #include <string>
 #include <fstream>
 
-#include "BrukerSystem.h"
 #include "BrukerFieldData.h"
+    
+namespace router
+{
     
 /*! \class  BrukerDataset
     \brief This class purpose is to extract information from a bruker experiment and setup the extracted information for an easy use
 */
-class creaBruker_ICUBE_EXPORT BrukerDataset
+class BrukerDataset
 {
     typedef std::map<std::string, BrukerFieldData> BrukerMapType;
     
@@ -87,4 +88,6 @@ private:
     BrukerMapType BrukerHeaderMap;
 };
 
-#endif
+} // namespace router
+
+#endif // _1f35fffc_e764_42fe_883b_6aa220e3d65c

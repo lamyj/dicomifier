@@ -1,4 +1,3 @@
-
 #include "Bruker2Dicom.h"
 
 namespace router
@@ -69,4 +68,3 @@ bool Bruker2Dicom::Execute(std::string const & inputdir,
 }
 
 } // namespace router
-

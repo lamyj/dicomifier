@@ -1,7 +1,9 @@
-
 #include "BrukerDirectory.h"
 #include "RulesDocument.h"
 
+namespace router
+{
+    
 BrukerDirectory::BrukerDirectory()
 {
     _BrukerDatasetList.clear();
@@ -187,59 +189,59 @@ void BrukerDirectory::GenerateDICOMRules(std::string const & outputdir)
         
         // Columns                      0x0028,0x0011
         rdoc.AddAction(AT_Set_Element, "Columns", 
-                       (*it).second->GetFieldData("IM_SIX"), VR_US);
+                       (*it).second->GetFieldData("IM_SIX"), EVR_US);
         
         // Rows                         0x0028,0x0010
         rdoc.AddAction(AT_Set_Element, "Rows",
-                       (*it).second->GetFieldData("IM_SIY"), VR_US);
+                       (*it).second->GetFieldData("IM_SIY"), EVR_US);
                        
         // Number of Frames             0x0028,0x0008
         rdoc.AddAction(AT_Set_Element, "Number of Frames",
-                       (*it).second->GetFieldData("IM_SIZ"), VR_IS);
+                       (*it).second->GetFieldData("IM_SIZ"), EVR_IS);
                        
         int pixelSize;
         getImhDataType((*it).second->GetFieldData("DATTYPE"), pixelSize);
         
         // Bits allocated               0x0028,0x0100
         rdoc.AddAction(AT_Set_Element, "Bits Allocated",
-                       BrukerFieldData(pixelSize * 8), VR_US);
+                       BrukerFieldData(pixelSize * 8), EVR_US);
 
         // Bits stored                  0x0028,0x0101
         rdoc.AddAction(AT_Set_Element, "Bits Stored",
-                       BrukerFieldData(pixelSize * 8), VR_US);
+                       BrukerFieldData(pixelSize * 8), EVR_US);
 
         // High Bit                     0x0028,0x0102
         rdoc.AddAction(AT_Set_Element, "High Bit",
-                       BrukerFieldData(pixelSize * 8 - 1), VR_US);
+                       BrukerFieldData(pixelSize * 8 - 1), EVR_US);
 
         // pixel representation         0x0028,0x0103
         rdoc.AddAction(AT_Set_Element, "Pixel Representation",
-                       BrukerFieldData("1"), VR_US);
+                       BrukerFieldData("1"), EVR_US);
 
         // sample per pixel             0x0028,0x0002
         rdoc.AddAction(AT_Set_Element, "Samples per Pixel",
-                       BrukerFieldData("1"), VR_US);
+                       BrukerFieldData("1"), EVR_US);
                        
         // Slice Thickness              0x0018,0x0050
         rdoc.AddAction(AT_Set_Element, "Slice Thickness",
-                       (*it).second->GetFieldData("PVM_SPackArrSliceDistance"), VR_DS);
+                       (*it).second->GetFieldData("PVM_SPackArrSliceDistance"), EVR_DS);
 
         // Series Number                0x0020,0x0011
         rdoc.AddAction(AT_Set_Element, "Series Number",
-                       BrukerFieldData("0"), VR_IS);
+                       BrukerFieldData("0"), EVR_IS);
 
         // Instance Number              0x0020,0x0013
         rdoc.AddAction(AT_Set_Element, "Instance Number",
-                       BrukerFieldData(++count), VR_IS);
+                       BrukerFieldData(++count), EVR_IS);
                        
         // Patient Name                 0x0010,0x0010
         rdoc.AddAction(AT_Set_Element, "Patient Name",
-                       (*it).second->GetFieldData("SUBJECT_name_string"), VR_PN,
+                       (*it).second->GetFieldData("SUBJECT_name_string"), EVR_PN,
                        true);
 
         // Patient's ID                 0x0010,0x0020
         rdoc.AddAction(AT_Set_Element, "Patient ID",
-                       (*it).second->GetFieldData("SUBJECT_name_string"), VR_LO,
+                       (*it).second->GetFieldData("SUBJECT_name_string"), EVR_LO,
                        true);
                        
         char uidstudy[128];
@@ -247,28 +249,28 @@ void BrukerDirectory::GenerateDICOMRules(std::string const & outputdir)
 
         // Study Instance UID           0x0020,0x000d
         rdoc.AddAction(AT_Set_Element, "Study Instance UID",
-                       BrukerFieldData(std::string(uidstudy)), VR_UI);
+                       BrukerFieldData(std::string(uidstudy)), EVR_UI);
                        
         char uidseries[128];
         dcmGenerateUniqueIdentifier(uidseries, SITE_SERIES_UID_ROOT);
 
         // Series Instance UID          0x0020,0x000e
         rdoc.AddAction(AT_Set_Element, "Series Instance UID",
-                       BrukerFieldData(std::string(uidseries)), VR_UI);
+                       BrukerFieldData(std::string(uidseries)), EVR_UI);
 
         std::string datetime = (*it).second->GetFieldData("SUBJECT_date").GetValueToString(true);
 
         // Study Date                   0x0008,0x0020
         rdoc.AddAction(AT_Set_Element, "Study Date",
-                       BrukerFieldData(datetime.substr(9,11)), VR_DA);
+                       BrukerFieldData(datetime.substr(9,11)), EVR_DA);
 
         // Study Time                   0x0008,0x0030
         rdoc.AddAction(AT_Set_Element, "Study Time",
-                       BrukerFieldData(datetime.substr(0,8)), VR_TM);
+                       BrukerFieldData(datetime.substr(0,8)), EVR_TM);
 
         // Study Description            0x0008,0x1030
         rdoc.AddAction(AT_Set_Element, "Study Description",
-                       (*it).second->GetFieldData("SUBJECT_study_name"), VR_LO,
+                       (*it).second->GetFieldData("SUBJECT_study_name"), EVR_LO,
                        true);
 
         std::string strSerieDescr = (*it).first + "." +
@@ -277,20 +279,20 @@ void BrukerDirectory::GenerateDICOMRules(std::string const & outputdir)
                                     
         // Series Description           0x0008,0x103e
         rdoc.AddAction(AT_Set_Element, "Series Description",
-                       BrukerFieldData(strSerieDescr), VR_LO);
+                       BrukerFieldData(strSerieDescr), EVR_LO);
 
         // Modality                     0x0008,0x0060
         rdoc.AddAction(AT_Set_Element, "Modality",
-                       BrukerFieldData("MR"), VR_CS);
+                       BrukerFieldData("MR"), EVR_CS);
                        
         // Image Orientation Patient    0x0020,0x0037
         /*rdoc.AddAction(AT_Set_Element, "Image Orientation (Patient)",
-                       , VR_DS); 
+                       , EVR_DS); 
         TODO look how to get this information*/
 
         // Image Position Patient    0x0020,0x0032
         /*rdoc.AddAction(AT_Set_Element, "Image Position (Patient)",
-                       , VR_DS); 
+                       , EVR_DS); 
         TODO look how to get this information*/
 
         /* 
@@ -302,22 +304,24 @@ void BrukerDirectory::GenerateDICOMRules(std::string const & outputdir)
         {
             //0x0029,0x0101
             rdoc.AddAction(AT_Set_Element, "0x0029,0x0101", 
-                           (*it).second->GetFieldData("PVM_DwNDiffDir"), VR_US);
+                           (*it).second->GetFieldData("PVM_DwNDiffDir"), EVR_US);
 
             //0x0029,0x0102
             rdoc.AddAction(AT_Set_Element, "0x0029,0x0102", 
-                           (*it).second->GetFieldData("PVM_DwNDiffExpEach"), VR_US);
+                           (*it).second->GetFieldData("PVM_DwNDiffExpEach"), EVR_US);
 
             //0x0029,0x0103
             rdoc.AddAction(AT_Set_Element, "0x0029,0x0103", 
-                           (*it).second->GetFieldData("PVM_DwAoImages"), VR_US);
+                           (*it).second->GetFieldData("PVM_DwAoImages"), EVR_US);
         
             //0x0029,0x0104
             rdoc.AddAction(AT_Set_Element, "0x0029,0x0104", 
-                           (*it).second->GetFieldData("PVM_DwBvalEach"), VR_DS);
+                           (*it).second->GetFieldData("PVM_DwBvalEach"), EVR_DS);
         }*/
         
         std::string rdocfile = outputdir + VALID_FILE_SEPARATOR + xmlfilename;
         rdoc.WriteDocument(rdocfile);
     }
 }
+
+} // namespace router
