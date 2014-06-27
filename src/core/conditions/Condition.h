@@ -3,6 +3,9 @@
 
 #include <memory>
 
+#include "core/Object.h"
+
+
 namespace router
 {
 
@@ -12,7 +15,7 @@ namespace conditions
 /**
  * @brief Abstract base class for all conditions.
  */
-class Condition
+class Condition : public Object
 {
 public:
     typedef Condition Self;
@@ -30,6 +33,8 @@ public:
      * @brief Evaluate the condition.
      */
     virtual bool eval() const =0;
+    
+    static std::string get_class_name() { return "Condition"; }
 
 protected:
     /**

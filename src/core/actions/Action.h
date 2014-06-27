@@ -3,6 +3,8 @@
 
 #include <memory>
 
+#include "core/Object.h"
+
 namespace router
 {
 
@@ -12,7 +14,7 @@ namespace actions
 /**
  * @brief Abstract base class for all actions.
  */
-class Action
+class Action : public Object
 {
 public:
     typedef Action Self;
@@ -31,6 +33,8 @@ public:
      */
     virtual void run() const =0;
 
+    static std::string get_class_name() { return "Action"; }
+    
 protected:
     /**
      * @brief Constructor.

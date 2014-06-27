@@ -26,6 +26,8 @@ public:
     ~Any();
 
     virtual bool eval() const;
+    
+    static std::string get_class_name() { return "Any"; }
 
 protected:
     Any();

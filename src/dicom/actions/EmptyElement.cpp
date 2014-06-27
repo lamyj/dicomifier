@@ -1,6 +1,7 @@
 #include <sstream>
 #include <stdexcept>
 
+#include "core/Factory.h"
 #include "EmptyElement.h"
 
 namespace router
@@ -8,6 +9,8 @@ namespace router
     
 namespace actions
 {
+
+static unsigned int const registration = Factory::get_instance().register_<EmptyElement>();
     
 EmptyElement
 ::EmptyElement():
