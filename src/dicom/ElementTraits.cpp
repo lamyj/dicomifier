@@ -11,6 +11,9 @@
 #include <dcmtk/config/osconfig.h>
 #include <dcmtk/dcmdata/dctk.h>
 
+namespace dicomifier
+{
+
 #define SETTER(vr, value_type) \
 OFCondition \
 ElementTraits<vr> \
@@ -105,3 +108,5 @@ DEFINE_STRING_ELEMENT_TRAITS(EVR_UT, OFString)
 #undef SETTER
 #undef ARRAY_SETTER
 #undef ARRAY_GETTER
+
+} // namespace dicomifier

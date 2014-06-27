@@ -14,6 +14,9 @@
 #include <dcmtk/config/osconfig.h>
 #include <dcmtk/dcmdata/dctk.h>
 
+namespace dicomifier
+{
+
 /**
  * @brief Traits allowing generically getting and setting values inside a DICOM
  * element.
@@ -69,5 +72,7 @@ DECLARE_ELEMENT_TRAITS(EVR_US, Uint16, DcmUnsignedShort)
 DECLARE_ELEMENT_TRAITS(EVR_UT, OFString, DcmUnlimitedText)
 
 #undef DECLARE_ELEMENT_TRAITS
+
+} // namespace dicomifier
 
 #endif // _9b35ef04_0df7_49bc_81e6_c5e616af003e
