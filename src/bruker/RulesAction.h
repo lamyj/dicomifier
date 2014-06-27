@@ -9,7 +9,7 @@
 #include <dcmtk/config/osconfig.h>
 #include <dcmtk/dcmdata/dctk.h>
 
-namespace router
+namespace dicomifier
 {
 
 enum EActionType {
@@ -60,7 +60,7 @@ private:
     DcmEVR _VR;
 };
 
-} // namespace router
+} // namespace dicomifier
 
 #endif // _e4059feb_bb51_4bc4_8b3d_0096f4908ee8
 

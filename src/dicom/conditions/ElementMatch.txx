@@ -6,7 +6,7 @@
 
 #include "ElementMatch.h"
 
-namespace router
+namespace dicomifier
 {
     
 namespace conditions
@@ -175,6 +175,6 @@ ElementMatch<VR>
 
 } // namespace conditions
 
-} // namespace router
+} // namespace dicomifier
 
 #endif // _1d031fdc_6f06_4415_8b31_3b9270fb67de

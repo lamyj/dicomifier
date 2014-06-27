@@ -7,7 +7,7 @@
 
 #include "Object.h"
 
-namespace router
+namespace dicomifier
 {
     
 class Factory
@@ -41,7 +41,7 @@ private:
     
 };
     
-} // namespace router
+} // namespace dicomifier
 
 #include "Factory.txx"
 

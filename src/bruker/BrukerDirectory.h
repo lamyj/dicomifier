@@ -21,7 +21,7 @@
 #define VALID_FILE_SEPARATOR "/"
 #endif
 
-namespace router
+namespace dicomifier
 {
     
 /*! \class  BrukerDirectory
@@ -76,6 +76,6 @@ private:
 
 };
 
-} // namespace router
+} // namespace dicomifier
 
 #endif // _cb9cda38_bd32_4915_8b3e_e9b01c16497d

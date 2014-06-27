@@ -4,7 +4,7 @@
 #include "core/Factory.h"
 #include "DeleteElement.h"
 
-namespace router
+namespace dicomifier
 {
     
 namespace actions
@@ -95,4 +95,4 @@ DeleteElement
     
 } // namespace actions
     
-} // namespace router
+} // namespace dicomifier

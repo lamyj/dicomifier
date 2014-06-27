@@ -3,7 +3,7 @@
 
 #include <string>
 
-namespace router
+namespace dicomifier
 {
     
 class Object
@@ -28,6 +28,6 @@ private:
     
 };
     
-} // namespace router
+} // namespace dicomifier
 
 #endif // _aadcd4c0_06e4_4f4b_a971_84a27d60375c

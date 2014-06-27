@@ -1,6 +1,6 @@
 #include "RulesAction.h"
 
-namespace router
+namespace dicomifier
 {
 
 RulesAction::RulesAction(EActionType actiontype):
@@ -46,4 +46,4 @@ std::string RulesAction::GetTypeToString() const
     return "Unknown";
 }
 
-} // namespace router
+} // namespace dicomifier

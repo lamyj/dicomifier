@@ -6,7 +6,7 @@
 #include <exception>
 #include <string>
 
-namespace router
+namespace dicomifier
 {
 
 /**
@@ -98,6 +98,6 @@ private:
 
 };
 
-} // namespace router
+} // namespace dicomifier
 
 #endif // _7cf59eab_abed_423e_b69d_0ae0ee4d4339

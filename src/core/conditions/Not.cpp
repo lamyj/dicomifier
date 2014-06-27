@@ -1,7 +1,7 @@
 #include "core/Factory.h"
 #include "Not.h"
 
-namespace router
+namespace dicomifier
 {
     
 namespace conditions
@@ -31,4 +31,4 @@ static unsigned int const registration = Factory::get_instance().register_<Not>(
     
 }
     
-} // namespace router
+} // namespace dicomifier

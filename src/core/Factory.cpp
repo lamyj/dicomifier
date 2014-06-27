@@ -1,6 +1,6 @@
 #include "Factory.h"
 
-namespace router
+namespace dicomifier
 {
     
 Factory * Factory::_instance = NULL;
@@ -47,4 +47,4 @@ Factory
     }
 }
     
-} // namespace router
+} // namespace dicomifier

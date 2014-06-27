@@ -1,6 +1,6 @@
 #include "Condition.h"
 
-namespace router
+namespace dicomifier
 {
 
 namespace conditions
@@ -20,4 +20,4 @@ Condition
 
 } // namespace conditions
 
-} // namespace router
+} // namespace dicomifier

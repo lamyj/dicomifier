@@ -6,7 +6,7 @@
 
 #include "core/actions/Action.h"
 
-namespace router
+namespace dicomifier
 {
     
 namespace actions
@@ -53,6 +53,6 @@ private:
     
 } // namespace actions
 
-} // namespace router
+} // namespace dicomifier
 
 #endif // _221f51f1_559b_41f0_ad3a_b97ece3ecf91

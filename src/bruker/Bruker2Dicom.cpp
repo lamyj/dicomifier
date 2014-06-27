@@ -1,6 +1,6 @@
 #include "Bruker2Dicom.h"
 
-namespace router
+namespace dicomifier
 {
 
 Bruker2Dicom::Bruker2Dicom():
@@ -67,4 +67,4 @@ bool Bruker2Dicom::Execute(std::string const & inputdir,
     return Execute();
 }
 
-} // namespace router
+} // namespace dicomifier

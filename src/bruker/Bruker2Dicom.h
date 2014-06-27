@@ -7,7 +7,7 @@
 
 #include "BrukerDirectory.h"
 
-namespace router
+namespace dicomifier
 {
 
 /**
@@ -74,6 +74,6 @@ private:
     
 };
 
-} // namespace router
+} // namespace dicomifier
 
 #endif // _ceda42cb_0295_4528_9196_a427b22fd568

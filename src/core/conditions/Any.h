@@ -5,7 +5,7 @@
 
 #include "Condition.h"
 
-namespace router
+namespace dicomifier
 {
 
 namespace conditions
@@ -42,6 +42,6 @@ private:
 
 } // namespace conditions
 
-} // namespace router
+} // namespace dicomifier
 
 #endif // _805413fc_20b1_422c_9b88_3395c07a47ca

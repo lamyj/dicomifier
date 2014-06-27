@@ -7,13 +7,13 @@
 
 struct TestData
 {
-    router::conditions::True::Pointer _true;
-    router::conditions::False::Pointer _false;
+    dicomifier::conditions::True::Pointer _true;
+    dicomifier::conditions::False::Pointer _false;
  
     TestData()
     {
-        _true = router::conditions::True::New();
-        _false = router::conditions::False::New();
+        _true = dicomifier::conditions::True::New();
+        _false = dicomifier::conditions::False::New();
     }
  
     ~TestData()
@@ -23,25 +23,25 @@ struct TestData
 
 BOOST_FIXTURE_TEST_CASE(TrueOrTrue, TestData)
 {
-    auto anyTT = router::conditions::Any::New(_true, _true);
+    auto anyTT = dicomifier::conditions::Any::New(_true, _true);
     BOOST_CHECK_EQUAL(anyTT->eval(), true);
 }
  
 BOOST_FIXTURE_TEST_CASE(TrueOrFalse, TestData)
 {
-    auto anyTF = router::conditions::Any::New(_true, _false);
+    auto anyTF = dicomifier::conditions::Any::New(_true, _false);
     BOOST_CHECK_EQUAL(anyTF->eval(), true);
 }
 
 BOOST_FIXTURE_TEST_CASE(FalseOrTrue, TestData)
 {
-    auto anyFT = router::conditions::Any::New(_false, _true);
+    auto anyFT = dicomifier::conditions::Any::New(_false, _true);
     BOOST_CHECK_EQUAL(anyFT->eval(), true);
 }
 
 BOOST_FIXTURE_TEST_CASE(FalseOrFalse, TestData)
 {
-    auto anyFF = router::conditions::Any::New(_false, _false);
+    auto anyFF = dicomifier::conditions::Any::New(_false, _false);
     BOOST_CHECK_EQUAL(anyFF->eval(), false);
 }
 
