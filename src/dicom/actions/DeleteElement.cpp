@@ -79,13 +79,16 @@ DeleteElement
 {
     if (this->_dataset != NULL)
     {
-        OFCondition ret = this->_dataset->findAndDeleteElement(this->_tag);
-        
-        if (ret.bad())
+        if (this->_dataset->tagExists(this->_tag))
         {
-            std::ostringstream message;
-            message << "Could not remove element: " << ret.text();
-            throw std::runtime_error(message.str());
+            OFCondition ret = this->_dataset->findAndDeleteElement(this->_tag);
+            
+            if (ret.bad())
+            {
+                std::ostringstream message;
+                message << "Could not remove element: " << ret.text();
+                throw std::runtime_error(message.str());
+            }
         }
     }
 }
