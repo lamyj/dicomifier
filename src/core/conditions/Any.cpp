@@ -1,6 +1,7 @@
-#include "Any.h"
-
 #include <algorithm>
+
+#include "Any.h"
+#include "core/Factory.h"
 
 namespace router
 {
@@ -34,6 +35,8 @@ Any
     this->_children.push_back(left);
     this->_children.push_back(right);
 }
+
+static unsigned int const registration = Factory::get_instance().register_<Any>();
 
 } // namespace conditions
 

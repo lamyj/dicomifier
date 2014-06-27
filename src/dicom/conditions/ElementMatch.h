@@ -6,9 +6,9 @@
 #include <dcmtk/config/osconfig.h>
 #include <dcmtk/dcmdata/dctk.h>
 
-#include "core/conditions/Condition.h"
-
 #include "../ElementTraits.h"
+#include "core/conditions/Condition.h"
+#include "core/Factory.h"
 
 namespace router
 {
@@ -50,6 +50,10 @@ public:
     void set_value(ArrayType const & array);
 
     virtual bool eval() const;
+    
+    static std::string get_class_name() { return "ElementMatch"; }
+
+    static unsigned int const registration = Factory::get_instance().register_<ElementMatch>();
 
 protected:
     /**
@@ -76,4 +80,4 @@ private:
 
 #include "ElementMatch.txx"
 
-#endif // ELEMENTMATCH_H
+#endif // _99df1b4a_c205_45f9_b1d7_2bb54df6a624

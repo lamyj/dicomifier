@@ -7,8 +7,8 @@
 #include <dcmtk/dcmdata/dctk.h>
 
 #include "core/actions/Action.h"
-
-#include "../ElementTraits.h"
+#include "core/Factory.h"
+#include "dicom/ElementTraits.h"
 
 namespace router
 {
@@ -50,6 +50,10 @@ public:
     void set_value(ArrayType const & array);
 
     virtual void run() const;
+    
+    static std::string get_class_name() { return "SetElement"; }
+
+    static unsigned int const registration = Factory::get_instance().register_<SetElement>();
 
 protected:
     SetElement();

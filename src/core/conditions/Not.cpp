@@ -1,3 +1,4 @@
+#include "core/Factory.h"
 #include "Not.h"
 
 namespace router
@@ -25,6 +26,8 @@ bool Not::eval() const
 {
     return ! this->_condition->eval();
 }
+
+static unsigned int const registration = Factory::get_instance().register_<Not>();
     
 }
     

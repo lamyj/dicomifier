@@ -20,9 +20,11 @@ public:
     typedef std::shared_ptr<Self const> ConstPointer;
 
     static Pointer New() { return Pointer(new Self()); }
-    ~True();
+    virtual ~True();
 
     virtual bool eval() const;
+    
+    static std::string get_class_name() { return "True"; }
 
 protected:
     True();
@@ -30,6 +32,7 @@ protected:
 private:
     True(Self const & other); // Purposely not implemented
     Self const & operator=(Self const & other); // Purposely not implemented
+    
 };
 
 } // namespace conditions

@@ -35,6 +35,8 @@ public:
     void set_tag(DcmTag const & tag);
 
     virtual void run() const;
+    
+    static std::string get_class_name() { return "DeleteElement"; }
 
 protected:
     DeleteElement();

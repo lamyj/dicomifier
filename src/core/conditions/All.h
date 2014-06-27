@@ -31,6 +31,8 @@ public:
 
     virtual bool eval() const;
     
+    static std::string get_class_name() { return "All"; }
+    
 protected:
     /**
      * Constructor
