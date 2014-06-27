@@ -6,7 +6,7 @@
 
 #include "core/actions/Action.h"
 
-namespace router
+namespace dicomifier
 {
     
 namespace actions

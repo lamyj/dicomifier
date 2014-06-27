@@ -1,6 +1,6 @@
 #include "BrukerException.h"
 
-namespace router
+namespace dicomifier
 {
     
-} // namespace router
+} // namespace dicomifier

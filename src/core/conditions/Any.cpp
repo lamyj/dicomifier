@@ -3,7 +3,7 @@
 #include "Any.h"
 #include "core/Factory.h"
 
-namespace router
+namespace dicomifier
 {
 
 namespace conditions
@@ -40,4 +40,4 @@ static unsigned int const registration = Factory::get_instance().register_<Any>(
 
 } // namespace conditions
 
-} // namespace router
+} // namespace dicomifier

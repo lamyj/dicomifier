@@ -1,6 +1,6 @@
 #include "RulesDocument.h"
 
-namespace router
+namespace dicomifier
 {
 
 RulesDocument::RulesDocument()
@@ -68,4 +68,4 @@ void RulesDocument::WriteDocument(std::string const & file)
     boost::property_tree::write_xml(file, proptree, std::locale(), settings);
 }
 
-} // namespace router
+} // namespace dicomifier

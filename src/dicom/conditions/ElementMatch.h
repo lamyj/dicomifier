@@ -10,7 +10,7 @@
 #include "core/conditions/Condition.h"
 #include "core/Factory.h"
 
-namespace router
+namespace dicomifier
 {
     
 namespace conditions
@@ -76,7 +76,7 @@ private:
     
 } // namespace conditions
 
-} // namespace router
+} // namespace dicomifier
 
 #include "ElementMatch.txx"
 

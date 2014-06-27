@@ -7,7 +7,7 @@
 
 #include "boost/regex.hpp"
 
-namespace router
+namespace dicomifier
 {
 
 const boost::regex RegEx_KeyWord("^##\\$?([^[:cntrl:]]+)=.*");
@@ -196,6 +196,6 @@ private:
     
 };
 
-} // namespace router
+} // namespace dicomifier
 
 #endif // _719ceafd_9e20_455b_870f_ad693842fb37

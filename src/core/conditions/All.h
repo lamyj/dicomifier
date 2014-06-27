@@ -5,7 +5,7 @@
 
 #include <vector>
 
-namespace router
+namespace dicomifier
 {
     
 namespace conditions
@@ -50,6 +50,6 @@ private:
     
 } // namespace conditions
     
-} // namespace router
+} // namespace dicomifier
 
 #endif // ALL_H

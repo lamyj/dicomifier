@@ -1,6 +1,6 @@
 #include "BrukerFieldData.h"
 
-namespace router
+namespace dicomifier
 {
     
 BrukerFieldData::BrukerFieldData():
@@ -378,4 +378,4 @@ std::string BrukerFieldData::RemoveNewlines(std::string file)
     return s;
  }
 
-} // namespace router
+} // namespace dicomifier

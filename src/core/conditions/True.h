@@ -3,7 +3,7 @@
 
 #include "Condition.h"
 
-namespace router
+namespace dicomifier
 {
 
 namespace conditions
@@ -37,6 +37,6 @@ private:
 
 } // namespace conditions
 
-} // namespace router
+} // namespace dicomifier
 
 #endif // _470a2cf4_c361_436f_9f8e_b0c22980b983

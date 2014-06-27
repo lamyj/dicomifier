@@ -8,7 +8,7 @@
 
 #include "BrukerFieldData.h"
     
-namespace router
+namespace dicomifier
 {
     
 /*! \class  BrukerDataset
@@ -88,6 +88,6 @@ private:
     BrukerMapType BrukerHeaderMap;
 };
 
-} // namespace router
+} // namespace dicomifier
 
 #endif // _1f35fffc_e764_42fe_883b_6aa220e3d65c

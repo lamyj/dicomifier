@@ -6,7 +6,7 @@
 #include "core/Object.h"
 
 
-namespace router
+namespace dicomifier
 {
 
 namespace conditions
@@ -51,6 +51,6 @@ private:
 
 } // namespace conditions
 
-} // namespace router
+} // namespace dicomifier
 
 #endif // _710cae4e_7211_4717_bf63_cd9181ce16d7

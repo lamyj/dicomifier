@@ -1,6 +1,6 @@
 #include "Action.h"
 
-namespace router
+namespace dicomifier
 {
 
 namespace actions
@@ -20,4 +20,4 @@ Action
 
 } // namespace conditions
 
-} // namespace router
+} // namespace dicomifier

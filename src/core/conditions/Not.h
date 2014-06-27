@@ -3,7 +3,7 @@
 
 #include "Condition.h"
 
-namespace router
+namespace dicomifier
 {
     
 namespace conditions
@@ -48,6 +48,6 @@ private:
     
 } // namespace conditions
     
-} // namespace router
+} // namespace dicomifier
 
 #endif // NOT_H

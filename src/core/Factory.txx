@@ -5,7 +5,7 @@
 
 #include <memory>
 
-namespace router
+namespace dicomifier
 {
     
 template<typename T>
@@ -18,6 +18,6 @@ Factory
     return this->_creators.size();
 }
     
-} // namespace router
+} // namespace dicomifier
 
 #endif // _cae2b9c2_c9ae_411e_ae03_5e41d3fa55e4

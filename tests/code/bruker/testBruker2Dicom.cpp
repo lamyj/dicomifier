@@ -21,7 +21,7 @@
 
 int main(int argc, char *argv[])
 {    
-    router::Bruker2Dicom converter;
+    dicomifier::Bruker2Dicom converter;
     
     try
     {

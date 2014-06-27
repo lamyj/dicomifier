@@ -7,7 +7,7 @@
 #include <stdexcept>
 #include <vector>
 
-namespace router
+namespace dicomifier
 {
 
 namespace actions
@@ -159,6 +159,6 @@ SetElement<VR>
 
 } // namespace actions
 
-} // namespace router
+} // namespace dicomifier
 
 #endif // _011c6f7f_9d18_430c_88d5_d3dc2c015cd6

@@ -4,7 +4,7 @@
 #include "core/Factory.h"
 #include "EmptyElement.h"
 
-namespace router
+namespace dicomifier
 {
     
 namespace actions
@@ -92,4 +92,4 @@ EmptyElement
     
 } // namespace actions
     
-} // namespace router
+} // namespace dicomifier

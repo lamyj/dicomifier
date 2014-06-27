@@ -10,7 +10,7 @@
 #include "core/Factory.h"
 #include "dicom/ElementTraits.h"
 
-namespace router
+namespace dicomifier
 {
 
 namespace actions
@@ -73,7 +73,7 @@ private:
 
 } // namespace actions
 
-} // namespace router
+} // namespace dicomifier
 
 #include "SetElement.txx"
 

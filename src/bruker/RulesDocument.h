@@ -9,7 +9,7 @@
 #include "BrukerDirectory.h"
 #include "RulesAction.h"
 
-namespace router
+namespace dicomifier
 {
 
 /**
@@ -49,6 +49,6 @@ private:
 
 };
 
-} // namespace router
+} // namespace dicomifier
 
 #endif // _a516a283_e1b8_4ab0_aa51_7133c6ffb90e

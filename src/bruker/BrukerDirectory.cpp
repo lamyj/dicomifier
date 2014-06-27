@@ -1,7 +1,7 @@
 #include "BrukerDirectory.h"
 #include "RulesDocument.h"
 
-namespace router
+namespace dicomifier
 {
     
 BrukerDirectory::BrukerDirectory()
@@ -324,4 +324,4 @@ void BrukerDirectory::GenerateDICOMRules(std::string const & outputdir)
     }
 }
 
-} // namespace router
+} // namespace dicomifier
