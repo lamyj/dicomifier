@@ -1,3 +1,11 @@
+/*************************************************************************
+ * Dicomifier - Copyright (C) Universite de Strasbourg
+ * Distributed under the terms of the CeCILL-B license, as published by
+ * the CEA-CNRS-INRIA. Refer to the LICENSE file or to
+ * http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html
+ * for details.
+ ************************************************************************/
+
 #ifndef _fb0e1e31_d194_46fb_84ea_73b7278b093d
 #define _fb0e1e31_d194_46fb_84ea_73b7278b093d
 
@@ -5,7 +13,7 @@
 
 #include "core/Object.h"
 
-namespace router
+namespace dicomifier
 {
 
 namespace actions
@@ -50,6 +58,6 @@ private:
 
 } // namespace actions
 
-} // namespace router
+} // namespace dicomifier
 
 #endif // _fb0e1e31_d194_46fb_84ea_73b7278b093d

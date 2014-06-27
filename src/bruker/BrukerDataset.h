@@ -1,3 +1,11 @@
+/*************************************************************************
+ * creaBruker - Copyright (C) CREATIS
+ * Distributed under the terms of the CeCILL-B license, as published by
+ * the CEA-CNRS-INRIA. Refer to the LICENSE file or to
+ * http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html
+ * for details.
+ ************************************************************************/
+
 #ifndef _1f35fffc_e764_42fe_883b_6aa220e3d65c
 #define _1f35fffc_e764_42fe_883b_6aa220e3d65c
 /*! \file BrukerDataset.h
@@ -8,7 +16,7 @@
 
 #include "BrukerFieldData.h"
     
-namespace router
+namespace dicomifier
 {
     
 /*! \class  BrukerDataset
@@ -88,6 +96,6 @@ private:
     BrukerMapType BrukerHeaderMap;
 };
 
-} // namespace router
+} // namespace dicomifier
 
 #endif // _1f35fffc_e764_42fe_883b_6aa220e3d65c
