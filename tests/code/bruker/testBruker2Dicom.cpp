@@ -1,11 +1,11 @@
 /*************************************************************************
- * ParseBruker - Copyright (C) Universite de Strasbourg
+ * Dicomifier - Copyright (C) Universite de Strasbourg
  * Distributed under the terms of the CeCILL-B license, as published by
  * the CEA-CNRS-INRIA. Refer to the LICENSE file or to
  * http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html
  * for details.
  ************************************************************************/
- 
+
 /**
  * Transform private Bruker tree structure
  * into the equivalent, with DICOM files. 
@@ -21,7 +21,7 @@
 
 int main(int argc, char *argv[])
 {    
-    router::Bruker2Dicom converter;
+    dicomifier::Bruker2Dicom converter;
     
     try
     {

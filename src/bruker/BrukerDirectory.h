@@ -1,3 +1,11 @@
+/*************************************************************************
+ * creaBruker - Copyright (C) CREATIS
+ * Distributed under the terms of the CeCILL-B license, as published by
+ * the CEA-CNRS-INRIA. Refer to the LICENSE file or to
+ * http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html
+ * for details.
+ ************************************************************************/
+
 #ifndef _cb9cda38_bd32_4915_8b3e_e9b01c16497d
 #define _cb9cda38_bd32_4915_8b3e_e9b01c16497d
 /*! \file BrukerDirectory.h
@@ -21,7 +29,7 @@
 #define VALID_FILE_SEPARATOR "/"
 #endif
 
-namespace router
+namespace dicomifier
 {
     
 /*! \class  BrukerDirectory
@@ -76,6 +84,6 @@ private:
 
 };
 
-} // namespace router
+} // namespace dicomifier
 
 #endif // _cb9cda38_bd32_4915_8b3e_e9b01c16497d
