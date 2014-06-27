@@ -1,5 +1,5 @@
-#ifndef BRUKERFIELDDATA_H
-#define BRUKERFIELDDATA_H
+#ifndef _719ceafd_9e20_455b_870f_ad693842fb37
+#define _719ceafd_9e20_455b_870f_ad693842fb37
 /*! \file BrukerFieldData.h
 */
 
@@ -7,7 +7,8 @@
 
 #include "boost/regex.hpp"
 
-#include "BrukerSystem.h"
+namespace router
+{
 
 const boost::regex RegEx_KeyWord("^##\\$?([^[:cntrl:]]+)=.*");
 const boost::regex RegEx_Dimensionnality("=\\( ([^[:cntrl:]]+) \\)");
@@ -21,7 +22,7 @@ const boost::regex RegEx_IntOrFloat("([\\-\\+eE0-9\\.]+)");
  * \class BrukerFieldData
  * \brief This class is an atom to generate a BrukerDataSet
  */
-class creaBruker_ICUBE_EXPORT BrukerFieldData
+class BrukerFieldData
 {
 public:
     /**
@@ -195,4 +196,6 @@ private:
     
 };
 
-#endif
+} // namespace router
+
+#endif // _719ceafd_9e20_455b_870f_ad693842fb37

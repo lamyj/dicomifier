@@ -1,5 +1,5 @@
-#ifndef BRUKER2DICOM_H
-#define BRUKER2DICOM_H
+#ifndef _ceda42cb_0295_4528_9196_a427b22fd568
+#define _ceda42cb_0295_4528_9196_a427b22fd568
 /*! \file Bruker2Dicom.h
 */
 
@@ -14,7 +14,7 @@ namespace router
  * \class Bruker2Dicom
  * \brief This class is a Brucker File converter to DICOM
  */
-class creaBruker_ICUBE_EXPORT  Bruker2Dicom 
+class Bruker2Dicom 
 {
 public:
     /**
@@ -76,4 +76,4 @@ private:
 
 } // namespace router
 
-#endif
+#endif // _ceda42cb_0295_4528_9196_a427b22fd568

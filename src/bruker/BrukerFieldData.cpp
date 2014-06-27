@@ -1,6 +1,8 @@
-
 #include "BrukerFieldData.h"
 
+namespace router
+{
+    
 BrukerFieldData::BrukerFieldData():
     DimensionNumber(0),
     DataType(""),
@@ -375,3 +377,5 @@ std::string BrukerFieldData::RemoveNewlines(std::string file)
     std::string s(t.str());
     return s;
  }
+
+} // namespace router

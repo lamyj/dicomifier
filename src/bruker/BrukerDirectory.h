@@ -1,17 +1,16 @@
-#ifndef BRUKERDIRECTORY_H
-#define BRUKERDIRECTORY_H
+#ifndef _cb9cda38_bd32_4915_8b3e_e9b01c16497d
+#define _cb9cda38_bd32_4915_8b3e_e9b01c16497d
 /*! \file BrukerDirectory.h
 */
 
 #include <dcmtk/config/osconfig.h>
 #include <dcmtk/dcmdata/dctk.h>
 
-#include <boost/filesystem.hpp>
 #include <boost/algorithm/string.hpp>
+#include <boost/filesystem.hpp>
 
-#include "BrukerSystem.h"
-#include "BrukerException.h"
 #include "BrukerDataset.h"
+#include "BrukerException.h"
 
 // file separator
 #if defined(_WIN32)
@@ -22,10 +21,13 @@
 #define VALID_FILE_SEPARATOR "/"
 #endif
 
+namespace router
+{
+    
 /*! \class  BrukerDirectory
     \brief This class purpose is to contains hierarchy of bruker dataset
 */
-class creaBruker_ICUBE_EXPORT BrukerDirectory
+class BrukerDirectory
 {
     typedef std::map<std::string, BrukerDataset*> BrukerMapDirectory;
     
@@ -74,4 +76,6 @@ private:
 
 };
 
-#endif
+} // namespace router
+
+#endif // _cb9cda38_bd32_4915_8b3e_e9b01c16497d

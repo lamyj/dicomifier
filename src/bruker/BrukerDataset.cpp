@@ -3,6 +3,9 @@
 
 #include "BrukerDataset.h"
 
+namespace router
+{
+    
 BrukerDataset::BrukerDataset()
 {
 }
@@ -173,3 +176,4 @@ bool BrukerDataset::HasFieldData(std::string key) const
     return element != BrukerHeaderMap.end();
 }
 
+} // namespace router

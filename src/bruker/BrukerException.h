@@ -1,19 +1,19 @@
-//
-#ifndef BRUKEREXCEPTION_H
-#define BRUKEREXCEPTION_H
+#ifndef _7cf59eab_abed_423e_b69d_0ae0ee4d4339
+#define _7cf59eab_abed_423e_b69d_0ae0ee4d4339
 /*! \file BrukerException.h
 */
 
 #include <exception>
 #include <string>
 
-#include "BrukerSystem.h"
+namespace router
+{
 
 /**
  * \class BrukerException
  * \brief Generic exception
  */
-class creaBruker_ICUBE_EXPORT BrukerException: public std::exception
+class BrukerException: public std::exception
 {
 public:
     BrukerException(const std::string& message):
@@ -36,7 +36,7 @@ private:
  * \class BrukerSizeException
  * \brief 
  */
-class creaBruker_ICUBE_EXPORT BrukerSizeException: public BrukerException
+class BrukerSizeException: public BrukerException
 {
 public:
     BrukerSizeException( const std::string& message,
@@ -66,7 +66,7 @@ private:
  * \class BrukerInitException
  * \brief 
  */
-class creaBruker_ICUBE_EXPORT BrukerInitException: public BrukerException
+class BrukerInitException: public BrukerException
 {
 public:
     BrukerInitException( const std::string& message
@@ -84,7 +84,7 @@ private:
  * \class BrukerHopelessException
  * \brief 
  */
-class creaBruker_ICUBE_EXPORT BrukerHopelessException: public BrukerException
+class BrukerHopelessException: public BrukerException
 {
 public:
     BrukerHopelessException( const std::string& message
@@ -98,4 +98,6 @@ private:
 
 };
 
-#endif
+} // namespace router
+
+#endif // _7cf59eab_abed_423e_b69d_0ae0ee4d4339

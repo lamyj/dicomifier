@@ -1,5 +1,7 @@
-
 #include "RulesDocument.h"
+
+namespace router
+{
 
 RulesDocument::RulesDocument()
 {
@@ -25,14 +27,14 @@ void RulesDocument::AddAction(RulesAction* action)
 void RulesDocument::AddAction(EActionType type, 
                               std::string const & elementName,
                               BrukerFieldData const & data, 
-                              EValueRepresentation vr,
+                              DcmEVR evr,
                               bool clean)
 {
     RulesAction * action = new RulesAction(type);
 
     action->SetElement(elementName);
     action->SetValue(data.GetValueToString(clean));
-    action->SetVR(vr);
+    action->SetVR(evr);
         
     AddAction(action);
 }
@@ -65,3 +67,5 @@ void RulesDocument::WriteDocument(std::string const & file)
     boost::property_tree::xml_writer_settings<char> settings('\t', 1);
     boost::property_tree::write_xml(file, proptree, std::locale(), settings);
 }
+
+} // namespace router
