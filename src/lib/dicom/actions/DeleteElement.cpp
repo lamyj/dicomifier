@@ -17,8 +17,6 @@ namespace dicomifier
     
 namespace actions
 {
-
-static unsigned int const registration = Factory::get_instance().register_<DeleteElement>();
     
 DeleteElement
 ::DeleteElement():

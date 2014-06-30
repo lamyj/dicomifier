@@ -34,8 +34,6 @@ False
     // Nothing to do
 }
 
-static unsigned int const registration = Factory::get_instance().register_<False>();
-
 } // namespace conditions
 
 } // namespace dicomifier

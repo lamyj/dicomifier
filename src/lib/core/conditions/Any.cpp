@@ -44,7 +44,12 @@ Any
     this->_children.push_back(right);
 }
 
-static unsigned int const registration = Factory::get_instance().register_<Any>();
+void
+Any
+::add_child(Condition::ConstPointer child)
+{
+    this->_children.push_back(child);
+}
 
 } // namespace conditions
 

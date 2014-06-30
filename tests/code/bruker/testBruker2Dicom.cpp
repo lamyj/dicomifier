@@ -14,7 +14,7 @@
 #include <cstdlib>
 #include <exception>
 
-#include "lib/bruker/Bruker2Dicom.h"
+#include "bruker/Bruker2Dicom.h"
 
 // ===================================================================================================
 

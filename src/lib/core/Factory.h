@@ -14,6 +14,7 @@
 #include <memory>
 
 #include "Object.h"
+#include "factory/core/CreatorBase.h"
 
 namespace dicomifier
 {
@@ -30,12 +31,12 @@ public:
     
     bool can_create(std::string const & class_) const;
     
-    std::shared_ptr<Object> create(std::string const & class_) const;
+    std::shared_ptr<Object> create(boost::property_tree::ptree::value_type & value) const;
     
 protected:
 
 private:
-    typedef std::function<std::shared_ptr<Object>()> Creator;
+    typedef std::function<std::shared_ptr<dicomifier::factory::CreatorBase>()> Creator;
     typedef std::map<std::string, Creator> CreatorMap;
 
     Factory();

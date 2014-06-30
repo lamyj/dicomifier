@@ -11,7 +11,7 @@
 
 #include <dcmtk/dcmdata/dctk.h>
 
-#include "lib/dicom/conditions/ElementMatch.h"
+#include "dicom/conditions/ElementMatch.h"
 
 struct TestDataCS
 {
