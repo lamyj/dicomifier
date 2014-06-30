@@ -13,8 +13,8 @@
 
 #include <dcmtk/dcmdata/dctk.h>
 
-#include "core/Factory.h"
-#include "dicom/actions/EmptyElement.h"
+#include "lib/core/Factory.h"
+#include "lib/dicom/actions/EmptyElement.h"
 
 struct TestData
 {

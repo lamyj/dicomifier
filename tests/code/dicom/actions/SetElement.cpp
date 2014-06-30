@@ -10,7 +10,7 @@
 
 #include <dcmtk/dcmdata/dctk.h>
 
-#include "dicom/actions/SetElement.h"
+#include "lib/dicom/actions/SetElement.h"
 
 int main()
 {

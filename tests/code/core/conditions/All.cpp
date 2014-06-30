@@ -9,9 +9,9 @@
 #define BOOST_TEST_MODULE ModuleAll
 #include <boost/test/unit_test.hpp>
 
-#include "core/conditions/All.h"
-#include "core/conditions/False.h"
-#include "core/conditions/True.h"
+#include "lib/core/conditions/All.h"
+#include "lib/core/conditions/False.h"
+#include "lib/core/conditions/True.h"
 
 struct TestData
 {

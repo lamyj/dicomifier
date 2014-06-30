@@ -14,9 +14,9 @@
 #include <dcmtk/config/osconfig.h>
 #include <dcmtk/dcmdata/dctk.h>
 
-#include "core/actions/Action.h"
-#include "core/Factory.h"
-#include "dicom/ElementTraits.h"
+#include "lib/core/actions/Action.h"
+#include "lib/core/Factory.h"
+#include "lib/dicom/ElementTraits.h"
 
 namespace dicomifier
 {

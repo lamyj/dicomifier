@@ -13,8 +13,8 @@
 
 #include <dcmtk/dcmdata/dctk.h>
 
-#include "core/Factory.h"
-#include "dicom/actions/DeleteElement.h"
+#include "lib/core/Factory.h"
+#include "lib/dicom/actions/DeleteElement.h"
 
 struct TestData
 {
