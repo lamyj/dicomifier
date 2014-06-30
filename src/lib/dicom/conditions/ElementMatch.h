@@ -15,8 +15,8 @@
 #include <dcmtk/dcmdata/dctk.h>
 
 #include "../ElementTraits.h"
-#include "core/conditions/Condition.h"
-#include "core/Factory.h"
+#include "lib/core/conditions/Condition.h"
+#include "lib/core/Factory.h"
 
 namespace dicomifier
 {

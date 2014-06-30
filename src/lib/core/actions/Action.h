@@ -11,7 +11,7 @@
 
 #include <memory>
 
-#include "core/Object.h"
+#include "lib/core/Object.h"
 
 namespace dicomifier
 {
