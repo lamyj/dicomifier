@@ -12,7 +12,7 @@
 #include <dcmtk/config/osconfig.h>
 #include <dcmtk/dcmdata/dctk.h>
 
-#include "lib/core/actions/Action.h"
+#include "core/actions/Action.h"
 
 namespace dicomifier
 {

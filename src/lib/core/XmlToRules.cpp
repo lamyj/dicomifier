@@ -7,7 +7,9 @@
  ************************************************************************/
 
 #include <iostream>
+
 #include <boost/foreach.hpp>
+
 #include "Factory.h"
 #include "XmlToRules.h"
 
@@ -40,7 +42,7 @@ std::vector<Object::Pointer> XmlToRules::Convert(boost::property_tree::ptree & p
     BOOST_FOREACH(boost::property_tree::ptree::value_type &v,
             pt)
     {
-        std::cout << v.first.data() << std::endl;
+        rules.push_back(Factory::get_instance().create(v));
     }
     
     return rules;

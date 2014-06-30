@@ -6,6 +6,8 @@
  * for details.
  ************************************************************************/
 
+#include <boost/foreach.hpp>
+
 #include "Factory.h"
 
 namespace dicomifier
@@ -42,17 +44,14 @@ Factory
 
 std::shared_ptr<Object> 
 Factory
-::create(std::string const & class_) const
+::create(boost::property_tree::ptree::value_type & value) const
 {
-    CreatorMap::const_iterator const creators_it = this->_creators.find(class_);
-    if(creators_it == this->_creators.end())
+    CreatorMap::const_iterator const creators_it = this->_creators.find(value.first.data());
+    if(creators_it != this->_creators.end())
     {
-        return NULL;
+        return (creators_it->second()->Create(value));
     }
-    else
-    {
-        return creators_it->second();
-    }
+    return NULL;
 }
     
 } // namespace dicomifier

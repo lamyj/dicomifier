@@ -6,35 +6,22 @@
  * for details.
  ************************************************************************/
 
-#include "core/Factory.h"
-#include "Not.h"
+#include "CreatorBase.h"
 
 namespace dicomifier
 {
     
-namespace conditions
+namespace factory
 {
     
-Not::Not()
+CreatorBase::CreatorBase()
 {
-    // Nothing to do
 }
 
-Not::Not(Condition::ConstPointer condition)
+CreatorBase::~CreatorBase()
 {
-    this->_condition = condition;
-}
-
-Not::~Not()
-{
-    // Nothing to do
-}
-
-bool Not::eval() const
-{
-    return ! this->_condition->eval();
 }
     
-}
+} // namespace factory
     
 } // namespace dicomifier

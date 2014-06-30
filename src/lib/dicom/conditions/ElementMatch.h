@@ -14,9 +14,9 @@
 #include <dcmtk/config/osconfig.h>
 #include <dcmtk/dcmdata/dctk.h>
 
-#include "../ElementTraits.h"
-#include "lib/core/conditions/Condition.h"
-#include "lib/core/Factory.h"
+#include "core/conditions/Condition.h"
+#include "core/Factory.h"
+#include "dicom/ElementTraits.h"
 
 namespace dicomifier
 {
@@ -60,8 +60,6 @@ public:
     virtual bool eval() const;
     
     static std::string get_class_name() { return "ElementMatch"; }
-
-    static unsigned int const registration = Factory::get_instance().register_<ElementMatch>();
 
 protected:
     /**

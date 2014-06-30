@@ -38,8 +38,6 @@ bool All::eval() const
     return std::all_of(this->_children.begin(), this->_children.end(),
         [] (Condition::ConstPointer c) { return c->eval(); } );
 }
-
-static unsigned int const registration = Factory::get_instance().register_<All>();
     
 } // namespace conditions
     

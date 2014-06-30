@@ -6,35 +6,34 @@
  * for details.
  ************************************************************************/
 
+#include "core/conditions/False.h"
 #include "core/Factory.h"
-#include "Not.h"
+#include "FalseCreator.h"
 
 namespace dicomifier
 {
     
-namespace conditions
+namespace factory
 {
     
-Not::Not()
+static unsigned int const registration = Factory::get_instance().register_<FalseCreator>();
+    
+FalseCreator::FalseCreator()
 {
-    // Nothing to do
+    // nothing to do
 }
 
-Not::Not(Condition::ConstPointer condition)
+FalseCreator::~FalseCreator()
 {
-    this->_condition = condition;
+    // nothing to do
 }
 
-Not::~Not()
+Object::Pointer FalseCreator::Create(boost::property_tree::ptree::value_type & value) const
 {
-    // Nothing to do
-}
-
-bool Not::eval() const
-{
-    return ! this->_condition->eval();
+    return dicomifier::conditions::False::New();
 }
     
-}
+} // namespace factory
     
 } // namespace dicomifier
+

@@ -11,7 +11,7 @@
 
 #include <memory>
 
-#include "lib/core/Object.h"
+#include "core/Object.h"
 
 namespace dicomifier
 {
@@ -40,8 +40,6 @@ public:
      * @brief Run the action.
      */
     virtual void run() const =0;
-
-    static std::string get_class_name() { return "Action"; }
     
 protected:
     /**

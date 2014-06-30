@@ -6,35 +6,33 @@
  * for details.
  ************************************************************************/
 
+#include "core/conditions/True.h"
 #include "core/Factory.h"
-#include "Not.h"
+#include "TrueCreator.h"
 
 namespace dicomifier
 {
     
-namespace conditions
+namespace factory
 {
     
-Not::Not()
+static unsigned int const registration = Factory::get_instance().register_<TrueCreator>();
+    
+TrueCreator::TrueCreator()
 {
-    // Nothing to do
+    // nothing to do
 }
 
-Not::Not(Condition::ConstPointer condition)
+TrueCreator::~TrueCreator()
 {
-    this->_condition = condition;
+    // nothing to do
 }
 
-Not::~Not()
+Object::Pointer TrueCreator::Create(boost::property_tree::ptree::value_type & value) const
 {
-    // Nothing to do
-}
-
-bool Not::eval() const
-{
-    return ! this->_condition->eval();
+    return dicomifier::conditions::True::New();
 }
     
-}
+} // namespace factory
     
 } // namespace dicomifier

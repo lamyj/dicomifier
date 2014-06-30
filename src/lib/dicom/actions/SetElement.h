@@ -14,9 +14,9 @@
 #include <dcmtk/config/osconfig.h>
 #include <dcmtk/dcmdata/dctk.h>
 
-#include "lib/core/actions/Action.h"
-#include "lib/core/Factory.h"
-#include "lib/dicom/ElementTraits.h"
+#include "core/actions/Action.h"
+#include "core/Factory.h"
+#include "dicom/ElementTraits.h"
 
 namespace dicomifier
 {
@@ -60,8 +60,6 @@ public:
     virtual void run() const;
     
     static std::string get_class_name() { return "SetElement"; }
-
-    static unsigned int const registration = Factory::get_instance().register_<SetElement>();
 
 protected:
     SetElement();

@@ -6,35 +6,30 @@
  * for details.
  ************************************************************************/
 
+#include "RuleCreator.h"
 #include "core/Factory.h"
-#include "Not.h"
 
 namespace dicomifier
 {
     
-namespace conditions
+namespace factory
 {
     
-Not::Not()
-{
-    // Nothing to do
-}
-
-Not::Not(Condition::ConstPointer condition)
-{
-    this->_condition = condition;
-}
-
-Not::~Not()
-{
-    // Nothing to do
-}
-
-bool Not::eval() const
-{
-    return ! this->_condition->eval();
-}
+static unsigned int const registration = Factory::get_instance().register_<RuleCreator>();
     
+RuleCreator::RuleCreator()
+{
 }
-    
+
+RuleCreator::~RuleCreator()
+{
+}
+
+Object::Pointer RuleCreator::Create(boost::property_tree::ptree::value_type & value) const
+{
+    return Object::New();
+}
+   
+} // namespace factory
+
 } // namespace dicomifier
