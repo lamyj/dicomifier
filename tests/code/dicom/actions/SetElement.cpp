@@ -6,23 +6,58 @@
  * for details.
  ************************************************************************/
 
-#include <iostream>
+#define BOOST_TEST_MODULE ModuleSetElement
+#include <boost/test/unit_test.hpp>
 
 #include <dcmtk/dcmdata/dctk.h>
 
 #include "dicom/actions/SetElement.h"
 
-int main()
+struct TestData
 {
-    DcmDataset * dataset = new DcmDataset();
+    DcmDataset * dataset;
+ 
+    TestData()
+    {
+        dataset = new DcmDataset();
+    }
+ 
+    ~TestData()
+    {
+        delete dataset;
+    }
+};
 
+BOOST_FIXTURE_TEST_CASE(SetCS01, TestData)
+{
     auto cs_single = dicomifier::actions::SetElement<EVR_CS>::New();
     cs_single->set_dataset(dataset);
     cs_single->set_tag(DCM_Modality);
     cs_single->set_value("MR");
     cs_single->run();
-    //dicomifier::actions::SetElement<EVR_CS>::New(dataset, DCM_Modality, "MR")->run();
-    dicomifier::actions::SetElement<EVR_CS>::New(dataset, DCM_SelectorCSValue, {"AB", "CD"})->run();
+    
+    OFString str;
+    OFCondition cond = dataset->findAndGetOFStringArray(DCM_Modality, str);
+    BOOST_CHECK_EQUAL(cond.good(), true);
+    BOOST_CHECK_EQUAL(str, "MR");
+}
+
+BOOST_FIXTURE_TEST_CASE(SetCS02, TestData)
+{
+    auto cs_single = dicomifier::actions::SetElement<EVR_CS>::New();
+    cs_single->set_dataset(dataset);
+    cs_single->set_tag(DCM_SelectorCSValue);
+    cs_single->set_value({"AB", "CD"});
+    cs_single->run();
+    
+    OFString str;
+    OFCondition cond = dataset->findAndGetOFStringArray(DCM_SelectorCSValue, str);
+    BOOST_CHECK_EQUAL(cond.good(), true);
+    BOOST_CHECK_EQUAL(str, "AB\\CD");
+}
+/*int main()
+{
+    DcmDataset * dataset = new DcmDataset();
 
     dicomifier::actions::SetElement<EVR_DS>::New(dataset, DCM_PatientWeight, 75.57)->run();
     dicomifier::actions::SetElement<EVR_DS>::New(dataset, DCM_RadialPosition, {1.23, -4.56})->run();
@@ -48,5 +83,4 @@ int main()
     dicomifier::actions::SetElement<EVR_US>::New(dataset, DCM_FailureReason, 456)->run();
     dicomifier::actions::SetElement<EVR_US>::New(dataset, DCM_SelectorUSValue, {456, 789})->run();
 
-    dataset->print(std::cout);
-}
+}*/
