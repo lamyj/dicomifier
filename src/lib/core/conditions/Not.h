@@ -37,6 +37,12 @@ public:
     
     virtual bool eval() const;
     
+    inline Condition::ConstPointer get_condition() const
+        { return this->_condition; }
+        
+    inline void set_condition(Condition::ConstPointer condition)
+        { this->_condition = condition; }
+    
     static std::string get_class_name() { return "Not"; }
     
 protected:

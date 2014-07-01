@@ -38,6 +38,13 @@ bool All::eval() const
     return std::all_of(this->_children.begin(), this->_children.end(),
         [] (Condition::ConstPointer c) { return c->eval(); } );
 }
+
+void
+All
+::add_child(Condition::ConstPointer child)
+{
+    this->_children.push_back(child);
+}
     
 } // namespace conditions
     

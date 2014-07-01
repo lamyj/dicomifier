@@ -6,60 +6,43 @@
  * for details.
  ************************************************************************/
 
-#ifndef _758ae8d5_2926_460b_9489_1e280b3d05f8
-#define _758ae8d5_2926_460b_9489_1e280b3d05f8
+#ifndef _b1d06209_27d4_42e6_a1d6_26b8fe3bd4a8
+#define _b1d06209_27d4_42e6_a1d6_26b8fe3bd4a8
 
-#include "Condition.h"
-
-#include <vector>
+#include "factory/core/CreatorBase.h"
 
 namespace dicomifier
 {
     
-namespace conditions
+namespace factory
 {
     
-/**
- * @brief And-combination of several conditions.
- */
-class All: public Condition
+class AllCreator : public CreatorBase
 {
 public:
-    typedef All Self;
+    typedef AllCreator Self;
     typedef std::shared_ptr<Self> Pointer;
     typedef std::shared_ptr<Self const> ConstPointer;
     
     static Pointer New() { return Pointer(new Self()); }
-    static Pointer New(Condition::ConstPointer left, Condition::ConstPointer right) { return Pointer(new Self(left, right)); }
-    
-    /**
-     * Destructor
-     */
-    virtual ~All();
 
-    virtual bool eval() const;
+    virtual ~AllCreator();
     
-    void add_child(Condition::ConstPointer child);
-    
+    virtual Object::Pointer Create(boost::property_tree::ptree::value_type & value) const;
+
     static std::string get_class_name() { return "All"; }
-    
+
 protected:
-    /**
-     * Constructor
-     */
-    All();
-    All(Condition::ConstPointer left, Condition::ConstPointer right);
+    AllCreator();
 
 private:
-    std::vector<Condition::ConstPointer> _children;
-
-    All(Self const & other); // Purposely not implemented
+    AllCreator(Self const & other); // Purposely not implemented
     Self const & operator=(Self const & other); // Purposely not implemented
 
 };
     
-} // namespace conditions
+} // namespace factory
     
 } // namespace dicomifier
 
-#endif // ALL_H
+#endif // _b1d06209_27d4_42e6_a1d6_26b8fe3bd4a8
