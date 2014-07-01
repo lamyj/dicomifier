@@ -12,7 +12,6 @@
 #include <dcmtk/dcmdata/dctk.h>
 
 #include "core/XmlToRules.h"
-#include "core/conditions/False.h"
 
 int main(int argc, char *argv[])
 {

@@ -22,15 +22,6 @@ std::vector<Object::Pointer> XmlToRules::Convert(std::string const & filename)
     boost::property_tree::xml_parser::read_xml(filename, pt);
     
     std::vector<Object::Pointer> rules = XmlToRules::Convert(pt);
-    
-    /*BOOST_FOREACH(boost::property_tree::ptree::value_type &v,
-            pt.get_child("Rule"))
-    {
-        std::string const second = v.second.get_child("<xmlattr>.type").data();
-        auto object = Factory::get_instance().create(second);
-        
-        rules.push_back(object);
-    }*/
         
     return rules;
 }
