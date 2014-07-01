@@ -9,6 +9,8 @@
 #ifndef _de4665d1_8ae0_401b_8a64_ec821b387f5b
 #define _de4665d1_8ae0_401b_8a64_ec821b387f5b
 
+#include "core/actions/Action.h"
+#include "core/conditions/Condition.h"
 #include "Object.h"
 
 namespace dicomifier
@@ -25,12 +27,19 @@ public:
     
     virtual ~Rule();
     
+    void add_condition(conditions::Condition::ConstPointer condition);
+    
+    void add_action(actions::Action::ConstPointer action);
+    
     static std::string get_class_name() { return "Rule"; }
 
 protected:
     Rule();
 
 private:
+    std::vector<conditions::Condition::ConstPointer> _conditions;
+    std::vector<actions::Action::ConstPointer> _actions;
+
     Rule(Self const & other); // Purposely not implemented
     Self const & operator=(Self const & other); // Purposely not implemented
 

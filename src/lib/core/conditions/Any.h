@@ -31,7 +31,8 @@ public:
 
     static Pointer New() { return Pointer(new Self()); }
     static Pointer New(Condition::ConstPointer left, Condition::ConstPointer right) { return Pointer(new Self(left, right)); }
-    ~Any();
+    
+    virtual ~Any();
 
     virtual bool eval() const;
     

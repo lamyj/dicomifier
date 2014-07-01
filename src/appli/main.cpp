@@ -9,6 +9,8 @@
 #include <iostream>
 #include <memory>
 
+#include <dcmtk/dcmdata/dctk.h>
+
 #include "core/XmlToRules.h"
 #include "core/conditions/False.h"
 
@@ -26,6 +28,5 @@ int main(int argc, char *argv[])
                     dicomifier::XmlToRules::Convert(filename);
     
     std::cout << "rules.size = " << rules.size() << std::endl;
-    std::cout << "rules[0] = " << std::dynamic_pointer_cast<dicomifier::conditions::False>(rules[0]) << std::endl;
     return EXIT_SUCCESS;
 }
