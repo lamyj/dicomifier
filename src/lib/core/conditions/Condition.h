@@ -11,6 +11,8 @@
 
 #include <memory>
 
+#include <boost/any.hpp>
+
 #include "core/Object.h"
 
 
@@ -43,6 +45,11 @@ public:
     virtual bool eval() const =0;
     
     static std::string get_class_name() { return "Condition"; }
+    
+    void set_input(boost::any const & object, int pos = 0);
+    
+    template<typename T>
+    void set_input(T const & object, int pos = 0);
 
 protected:
     /**
@@ -53,6 +60,8 @@ protected:
     Condition();
 
 private:
+    std::vector<boost::any> _inputs;
+
     Condition(Self const & other); // Purposely not implemented
     Self const & operator=(Self const & other); // Purposely not implemented
 };

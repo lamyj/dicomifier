@@ -44,7 +44,8 @@ RuleCreator
             std::dynamic_pointer_cast<dicomifier::conditions::Condition>(object);
         if (cond != NULL)
         {
-            rule->add_condition(cond);
+            rule->set_condition(cond);
+            break;
         }
     }
     

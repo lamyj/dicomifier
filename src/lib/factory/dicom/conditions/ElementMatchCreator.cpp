@@ -9,6 +9,7 @@
 #include <boost/algorithm/string.hpp>
 #include <boost/algorithm/string/split.hpp>
 
+#include "core/DicomifierException.h"
 #include "dicom/conditions/ElementMatch.h"
 #include "ElementMatchCreator.h"
 
@@ -34,55 +35,76 @@ Object::Pointer
 ElementMatchCreator
 ::Create(boost::property_tree::ptree::value_type & value) const
 {
-    // get the VR
-    std::string const vrstr = value.second.get_child("<xmlattr>.VR").data();
-    DcmVR vr(vrstr.c_str());
-    DcmEVR const evr = vr.getEVR();
-    
-    // get value
-    std::string const attrvalue = value.second.get_child("<xmlattr>.value").data();
-    
     // get tag
-    std::string const tag = value.second.get_child("<xmlattr>.tag").data();
+    std::string const tag = value.second.get<std::string>("tag");
     DcmTag dcmtag;
     OFCondition result = DcmTag::findTagFromName(tag.c_str(), dcmtag);
     if (result.good())
     {
-        if      (evr == EVR_AE) return this->Create<EVR_AE>(dcmtag, attrvalue);
-        else if (evr == EVR_AS) return this->Create<EVR_AS>(dcmtag, attrvalue);
-// TODO: EVR_AT
-        else if (evr == EVR_CS) return this->Create<EVR_CS>(dcmtag, attrvalue);
-        else if (evr == EVR_DA) return this->Create<EVR_DA>(dcmtag, attrvalue);
-        else if (evr == EVR_DS) return this->Create<EVR_DS>(dcmtag, attrvalue);
-        else if (evr == EVR_DT) return this->Create<EVR_DT>(dcmtag, attrvalue);
-        else if (evr == EVR_FD) return this->Create<EVR_FD>(dcmtag, attrvalue);
-        else if (evr == EVR_FL) return this->Create<EVR_FL>(dcmtag, attrvalue);
-        else if (evr == EVR_IS) return this->Create<EVR_IS>(dcmtag, attrvalue);
-        else if (evr == EVR_LO) return this->Create<EVR_LO>(dcmtag, attrvalue);
-        else if (evr == EVR_LT) return this->Create<EVR_LT>(dcmtag, attrvalue);
-// TODO: OB
-// TODO: OF
-// TODO: OW
-        else if (evr == EVR_PN) return this->Create<EVR_PN>(dcmtag, attrvalue);
-        else if (evr == EVR_SH) return this->Create<EVR_SH>(dcmtag, attrvalue);
-        else if (evr == EVR_SL) return this->Create<EVR_SL>(dcmtag, attrvalue);
-// TODO: SQ
-        else if (evr == EVR_SS) return this->Create<EVR_SS>(dcmtag, attrvalue);
-        else if (evr == EVR_UI) return this->Create<EVR_UI>(dcmtag, attrvalue);
-        else if (evr == EVR_TM) return this->Create<EVR_TM>(dcmtag, attrvalue);
-        else if (evr == EVR_ST) return this->Create<EVR_ST>(dcmtag, attrvalue);
-        else if (evr == EVR_UL) return this->Create<EVR_UL>(dcmtag, attrvalue);
-// TODO: UN
-        else if (evr == EVR_US) return this->Create<EVR_US>(dcmtag, attrvalue);
-        else if (evr == EVR_UT) return this->Create<EVR_UT>(dcmtag, attrvalue);
+        // get dataset
+        std::string const filename = value.second.get<std::string>("dataset");
+        DcmFileFormat fileformat;
+        result = fileformat.loadFile(filename.c_str());
+        if (result.good())
+        {
+            DcmDataset* dataset = fileformat.getAndRemoveDataset();
+            
+            // get the VR
+            std::string const vrstr = value.second.get<std::string>("VR");
+            DcmVR vr(vrstr.c_str());
+            DcmEVR const evr = vr.getEVR();
+            
+            // get value
+            std::string const attrvalue = value.second.get<std::string>("value");
+    
+            if      (evr == EVR_AE) return this->Create<EVR_AE>(dataset, dcmtag, attrvalue);
+            else if (evr == EVR_AS) return this->Create<EVR_AS>(dataset, dcmtag, attrvalue);
+            // TODO: EVR_AT
+            else if (evr == EVR_CS) return this->Create<EVR_CS>(dataset, dcmtag, attrvalue);
+            else if (evr == EVR_DA) return this->Create<EVR_DA>(dataset, dcmtag, attrvalue);
+            else if (evr == EVR_DS) return this->Create<EVR_DS>(dataset, dcmtag, attrvalue);
+            else if (evr == EVR_DT) return this->Create<EVR_DT>(dataset, dcmtag, attrvalue);
+            else if (evr == EVR_FD) return this->Create<EVR_FD>(dataset, dcmtag, attrvalue);
+            else if (evr == EVR_FL) return this->Create<EVR_FL>(dataset, dcmtag, attrvalue);
+            else if (evr == EVR_IS) return this->Create<EVR_IS>(dataset, dcmtag, attrvalue);
+            else if (evr == EVR_LO) return this->Create<EVR_LO>(dataset, dcmtag, attrvalue);
+            else if (evr == EVR_LT) return this->Create<EVR_LT>(dataset, dcmtag, attrvalue);
+            // TODO: OB
+            // TODO: OF
+            // TODO: OW
+            else if (evr == EVR_PN) return this->Create<EVR_PN>(dataset, dcmtag, attrvalue);
+            else if (evr == EVR_SH) return this->Create<EVR_SH>(dataset, dcmtag, attrvalue);
+            else if (evr == EVR_SL) return this->Create<EVR_SL>(dataset, dcmtag, attrvalue);
+            // TODO: SQ
+            else if (evr == EVR_SS) return this->Create<EVR_SS>(dataset, dcmtag, attrvalue);
+            else if (evr == EVR_UI) return this->Create<EVR_UI>(dataset, dcmtag, attrvalue);
+            else if (evr == EVR_TM) return this->Create<EVR_TM>(dataset, dcmtag, attrvalue);
+            else if (evr == EVR_ST) return this->Create<EVR_ST>(dataset, dcmtag, attrvalue);
+            else if (evr == EVR_UL) return this->Create<EVR_UL>(dataset, dcmtag, attrvalue);
+            // TODO: UN
+            else if (evr == EVR_US) return this->Create<EVR_US>(dataset, dcmtag, attrvalue);
+            else if (evr == EVR_UT) return this->Create<EVR_UT>(dataset, dcmtag, attrvalue);
+            
+            else throw DicomifierException("Error: Unknown VR '" + vrstr + "'.");
+        }
+        else
+        {
+            throw DicomifierException("Error: Unable to load dataset '" + filename + "'.");
+        }
     }
+    else
+    {
+        throw DicomifierException("Error: Unknown tag '" + tag + "'.");
+    }
+    
+    // never happend
     return NULL;
 }
 
 template<DcmEVR VR>
 Object::Pointer 
 ElementMatchCreator
-::Create(DcmTag const & tag, std::string const & value) const
+::Create(DcmDataset* dataset, DcmTag const & tag, std::string const & value) const
 {           
     // parse values
     std::vector<std::string> splitvalues;
@@ -98,7 +120,7 @@ ElementMatchCreator
         values.push_back(item);
     }
             
-    return dicomifier::conditions::ElementMatch<VR>::New(NULL, tag, values);
+    return dicomifier::conditions::ElementMatch<VR>::New(dataset, tag, values, true);
 }
    
 } // namespace factory

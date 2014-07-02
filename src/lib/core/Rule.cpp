@@ -4,7 +4,8 @@
 namespace dicomifier
 {
     
-Rule::Rule()
+Rule::Rule():
+    _condition(NULL)
 {
     // Nothing to do
 }
@@ -16,9 +17,9 @@ Rule::~Rule()
 
 void 
 Rule
-::add_condition(conditions::Condition::ConstPointer condition)
+::set_condition(conditions::Condition::ConstPointer condition)
 {
-    this->_conditions.push_back(condition);
+    this->_condition = condition;
 }
     
 void
@@ -26,6 +27,19 @@ Rule
 ::add_action(actions::Action::ConstPointer action)
 {
     this->_actions.push_back(action);
+}
+
+void 
+Rule
+::Execute()
+{
+    if (this->_condition->eval())
+    {
+        for (auto action: this->_actions)
+        {
+            action->run();
+        }
+    }
 }
     
 } // namespace dicomifier

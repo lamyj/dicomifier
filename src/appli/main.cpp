@@ -11,6 +11,7 @@
 
 #include <dcmtk/dcmdata/dctk.h>
 
+#include "core/Rule.h"
 #include "core/XmlToRules.h"
 
 int main(int argc, char *argv[])
@@ -26,6 +27,26 @@ int main(int argc, char *argv[])
     std::vector<dicomifier::Object::Pointer> rules = 
                     dicomifier::XmlToRules::Convert(filename);
     
-    std::cout << "rules.size = " << rules.size() << std::endl;
+    if (rules.size() > 0)
+    {
+        dicomifier::Rule::Pointer rule = 
+                std::dynamic_pointer_cast<dicomifier::Rule>(rules[0]);
+           
+        if (rule != NULL)
+        {
+            rule->Execute();
+        }
+        else
+        {
+            std::cout << "Error: Created object is not a Rule." << std::endl;
+            return EXIT_FAILURE;
+        }
+    }
+    else
+    {
+        std::cout << "Error: Creation failure." << std::endl;
+        return EXIT_FAILURE;
+    }
+            
     return EXIT_SUCCESS;
 }

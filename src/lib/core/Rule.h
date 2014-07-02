@@ -27,9 +27,11 @@ public:
     
     virtual ~Rule();
     
-    void add_condition(conditions::Condition::ConstPointer condition);
+    void set_condition(conditions::Condition::ConstPointer condition);
     
     void add_action(actions::Action::ConstPointer action);
+    
+    void Execute();
     
     static std::string get_class_name() { return "Rule"; }
 
@@ -37,7 +39,7 @@ protected:
     Rule();
 
 private:
-    std::vector<conditions::Condition::ConstPointer> _conditions;
+    conditions::Condition::ConstPointer _condition;
     std::vector<actions::Action::ConstPointer> _actions;
 
     Rule(Self const & other); // Purposely not implemented

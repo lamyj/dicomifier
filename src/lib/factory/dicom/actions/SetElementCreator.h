@@ -33,7 +33,8 @@ public:
     static std::string get_class_name() { return "SetElement"; }
     
     template<DcmEVR VR>
-    Object::Pointer Create(DcmTag const & tag, std::string const & value) const;
+    Object::Pointer Create(DcmDataset* dataset, DcmTag const & tag, 
+                           std::string const & value) const;
     
 protected:
     SetElementCreator();
