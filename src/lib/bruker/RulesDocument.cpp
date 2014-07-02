@@ -65,11 +65,14 @@ void RulesDocument::WriteDocument(std::string const & file)
         actionNode.add_child((*it)->GetTypeToString(), (*it)->toXMLNode());
     }
     
+    boost::property_tree::ptree emptyNode;
+    
     // add node to root
+    rootNode.add_child("Condition", emptyNode);
     rootNode.add_child("Actions", actionNode);
     
     // add node to document tree
-    proptree.add_child("Rules", rootNode);
+    proptree.add_child("Rule", rootNode);
     
     // Write file
     boost::property_tree::xml_writer_settings<char> settings('\t', 1);

@@ -27,7 +27,7 @@ boost::property_tree::ptree RulesAction::toXMLNode()
 {
     boost::property_tree::ptree node;
     
-    node.put("<xmlattr>.element", this->_Element);
+    node.put("<xmlattr>.tag", this->_Element);
     node.put("<xmlattr>.value", this->_Value);
     DcmVR vr(this->_VR);
     node.put("<xmlattr>.VR", std::string(vr.getVRName()));
