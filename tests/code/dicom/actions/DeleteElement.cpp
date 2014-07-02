@@ -29,7 +29,7 @@ struct TestData
  
     ~TestData()
     {
-        //delete dataset;
+        delete dataset;
     }
 };
 

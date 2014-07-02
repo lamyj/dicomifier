@@ -22,9 +22,6 @@ struct TestData
     TestData()
     {
         boost::property_tree::ptree anynode;
-        boost::property_tree::ptree emptynode;
-        anynode.add_child("True", emptynode);
-        anynode.add_child("False", emptynode);
         ptr.add_child("Any", anynode);
     }
  
