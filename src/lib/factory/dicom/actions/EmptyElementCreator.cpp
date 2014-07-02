@@ -32,17 +32,12 @@ Object::Pointer
 EmptyElementCreator
 ::Create(boost::property_tree::ptree::value_type & value) const
 {
-    dicomifier::actions::EmptyElement::Pointer emptyElement = 
-        dicomifier::actions::EmptyElement::New();
-
-    // Get 'tag' attribut like 'XXXX,YYYY':
+    // Get 'tag' attribut:
     std::string const second = value.second.get_child("<xmlattr>.tag").data();
-    std::string const group = second.substr(0,4);
-    std::string const element = second.substr(5,4);
+    DcmTag dcmtag;
+    DcmTag::findTagFromName(second.c_str(), dcmtag);
     
-    emptyElement->set_tag(DcmTag(atoi(group.c_str()), atoi(element.c_str())));
-
-    return emptyElement;
+    return dicomifier::actions::EmptyElement::New(NULL, dcmtag);
 }
     
 } // namespace factory
