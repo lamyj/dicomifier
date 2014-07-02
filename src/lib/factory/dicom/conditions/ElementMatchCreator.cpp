@@ -8,7 +8,6 @@
 
 #include <boost/algorithm/string.hpp>
 #include <boost/algorithm/string/split.hpp>
-#include <boost/lexical_cast.hpp>
 
 #include "dicom/conditions/ElementMatch.h"
 #include "ElementMatchCreator.h"
@@ -84,30 +83,22 @@ template<DcmEVR VR>
 Object::Pointer 
 ElementMatchCreator
 ::Create(DcmTag const & tag, std::string const & value) const
-{
-    // create return object
-    typename dicomifier::conditions::ElementMatch<VR>::Pointer elementmatch = 
-        dicomifier::conditions::ElementMatch<VR>::New();
-           
+{           
     // parse values
-    typename dicomifier::conditions::ElementMatch<VR>::ArrayType values;
-    
     std::vector<std::string> splitvalues;
-    boost::split(splitvalues, value, boost::is_any_of("\\"), 
-                 boost::algorithm::token_compress_on);
+    boost::split(splitvalues, value, boost::is_any_of("\\"));
     
     // Convert string to 'ValueType'
-    std::vector<std::string>::iterator it = splitvalues.begin();
-    for (; it != splitvalues.end(); ++it)
+    typename dicomifier::conditions::ElementMatch<VR>::ArrayType values;
+    for (auto it = splitvalues.begin(); it != splitvalues.end(); ++it)
     {
-        values.push_back(boost::lexical_cast<typename dicomifier::conditions::ElementMatch<VR>::ValueType>(*it));
+        std::stringstream stream(*it);
+        typename dicomifier::conditions::ElementMatch<VR>::ValueType item;
+        stream >> item;
+        values.push_back(item);
     }
-    
-    // set element (tag / value)
-    elementmatch->set_tag(tag);
-    elementmatch->set_value(values);
             
-    return elementmatch;
+    return dicomifier::conditions::ElementMatch<VR>::New(NULL, tag, values);
 }
    
 } // namespace factory

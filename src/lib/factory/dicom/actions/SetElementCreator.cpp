@@ -8,7 +8,6 @@
 
 #include <boost/algorithm/string.hpp>
 #include <boost/algorithm/string/split.hpp>
-#include <boost/lexical_cast.hpp>
 
 #include "dicom/actions/SetElement.h"
 #include "SetElementCreator.h"
@@ -85,29 +84,21 @@ Object::Pointer
 SetElementCreator
 ::Create(DcmTag const & tag, std::string const & value) const
 {
-    // create return object
-    typename dicomifier::actions::SetElement<VR>::Pointer setelement = 
-        dicomifier::actions::SetElement<VR>::New();
-           
     // parse values
-    typename dicomifier::actions::SetElement<VR>::ArrayType values;
-    
     std::vector<std::string> splitvalues;
-    boost::split(splitvalues, value, boost::is_any_of("\\"), 
-                 boost::algorithm::token_compress_on);
+    boost::split(splitvalues, value, boost::is_any_of("\\"));
     
     // Convert string to 'ValueType'
-    std::vector<std::string>::iterator it = splitvalues.begin();
-    for (; it != splitvalues.end(); ++it)
+    typename dicomifier::actions::SetElement<VR>::ArrayType values;
+    for (auto it = splitvalues.begin(); it != splitvalues.end(); ++it)
     {
-        values.push_back(boost::lexical_cast<typename dicomifier::actions::SetElement<VR>::ValueType>(*it));
+        std::stringstream stream(*it);
+        typename dicomifier::actions::SetElement<VR>::ValueType item;
+        stream >> item;
+        values.push_back(item);
     }
     
-    // set element (tag / value)
-    setelement->set_tag(tag);
-    setelement->set_value(values);
-            
-    return setelement;
+    return dicomifier::actions::SetElement<VR>::New(NULL, tag, values);
 }
 
 } // namespace factory
