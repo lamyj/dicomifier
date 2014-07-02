@@ -6,6 +6,7 @@
  * for details.
  ************************************************************************/
 
+#include "core/DicomifierException.h"
 #include "core/Factory.h"
 #include "dicom/actions/EmptyElement.h"
 #include "EmptyElementCreator.h"
@@ -33,11 +34,26 @@ EmptyElementCreator
 ::Create(boost::property_tree::ptree::value_type & value) const
 {
     // Get 'tag' attribut:
-    std::string const second = value.second.get_child("<xmlattr>.tag").data();
+    std::string const second = value.second.get<std::string>("tag");
     DcmTag dcmtag;
-    DcmTag::findTagFromName(second.c_str(), dcmtag);
+    OFCondition status = DcmTag::findTagFromName(second.c_str(), dcmtag);
+    if (status.bad())
+    {
+        throw DicomifierException("Error: Unknown tag '" + second + "'.");
+    }
     
-    return dicomifier::actions::EmptyElement::New(NULL, dcmtag);
+    // get dataset
+    std::string const filename = value.second.get<std::string>("dataset");
+    DcmFileFormat fileformat;
+    status = fileformat.loadFile(filename.c_str());
+    if (status.bad())
+    {
+        throw DicomifierException("Error: Unable to load dataset '" + filename + "'.");
+    }
+    
+    DcmDataset* dataset = fileformat.getAndRemoveDataset();
+    
+    return dicomifier::actions::EmptyElement::New(dataset, dcmtag, true);
 }
     
 } // namespace factory

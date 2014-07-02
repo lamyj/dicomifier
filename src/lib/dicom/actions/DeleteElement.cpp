@@ -9,6 +9,7 @@
 #include <sstream>
 #include <stdexcept>
 
+#include "core/DicomifierException.h"
 #include "core/Factory.h"
 #include "DeleteElement.h"
 
@@ -20,21 +21,27 @@ namespace actions
     
 DeleteElement
 ::DeleteElement():
-    _dataset(NULL)
+    _dataset(NULL),
+    _destructDataset(false)
 {
 }
 
 DeleteElement
-::DeleteElement(DcmDataset * dataset, DcmTagKey tag):
+::DeleteElement(DcmDataset * dataset, DcmTagKey tag, bool destructDataset):
     _dataset(dataset),
-    _tag(tag)
+    _tag(tag),
+    _destructDataset(destructDataset)
 {
 }
 
 DeleteElement
 ::~DeleteElement()
 {
-    // nothing to do
+    if (this->_destructDataset && this->_dataset != NULL)
+    {
+        delete this->_dataset;
+        this->_dataset = NULL;
+    }
 }
 
 typename DeleteElement::Pointer
@@ -46,9 +53,9 @@ DeleteElement
 
 typename DeleteElement::Pointer
 DeleteElement
-::New(DcmDataset * dataset, DcmTagKey tag)
+::New(DcmDataset * dataset, DcmTagKey tag, bool destructDataset)
 {
-    return Pointer(new Self(dataset, tag));
+    return Pointer(new Self(dataset, tag, destructDataset));
 }
 
 DcmDataset *
@@ -60,9 +67,10 @@ DeleteElement
 
 void
 DeleteElement
-::set_dataset(DcmDataset * dataset)
+::set_dataset(DcmDataset * dataset, bool destructDataset)
 {
     this->_dataset = dataset;
+    this->_destructDataset = destructDataset;
 }
 
 DcmTag const &
@@ -93,7 +101,7 @@ DeleteElement
             {
                 std::ostringstream message;
                 message << "Could not remove element: " << ret.text();
-                throw std::runtime_error(message.str());
+                throw DicomifierException(message.str());
             }
         }
     }

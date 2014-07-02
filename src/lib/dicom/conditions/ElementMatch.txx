@@ -31,16 +31,18 @@ ElementMatch<VR>::New()
 
 template<DcmEVR VR>
 typename ElementMatch<VR>::Pointer
-ElementMatch<VR>::New(DcmDataset * dataset, DcmTagKey tag, ValueType const & value)
+ElementMatch<VR>::New(DcmDataset * dataset, DcmTagKey tag, 
+                      ValueType const & value, bool destructDataset)
 {
-    return Pointer(new Self(dataset, tag, value));
+    return Pointer(new Self(dataset, tag, value, destructDataset));
 }
     
 template<DcmEVR VR>
 typename ElementMatch<VR>::Pointer
-ElementMatch<VR>::New(DcmDataset * dataset, DcmTagKey tag, ArrayType const & array)
+ElementMatch<VR>::New(DcmDataset * dataset, DcmTagKey tag, 
+                      ArrayType const & array, bool destructDataset)
 {
-    return Pointer(new Self(dataset, tag, array));
+    return Pointer(new Self(dataset, tag, array, destructDataset));
 }
 
 /******************* CONSTRUCTORS *******************/
@@ -48,26 +50,29 @@ ElementMatch<VR>::New(DcmDataset * dataset, DcmTagKey tag, ArrayType const & arr
 template<DcmEVR VR>
 ElementMatch<VR>
 ::ElementMatch():
-    _dataset(NULL)
+    _dataset(NULL),
+    _destructDataset(false)
 {
     // Nothing to do
 }
 
 template<DcmEVR VR>
 ElementMatch<VR>
-::ElementMatch(DcmDataset * dataset, DcmTagKey tag, ValueType const & value):
+::ElementMatch(DcmDataset * dataset, DcmTagKey tag, ValueType const & value, bool destructDataset):
     _dataset(dataset),
-    _tag(tag)
+    _tag(tag),
+    _destructDataset(destructDataset)
 {
     this->_array = { value };
 }
 
 template<DcmEVR VR>
 ElementMatch<VR>
-::ElementMatch(DcmDataset * dataset, DcmTagKey tag, ArrayType const & array):
+::ElementMatch(DcmDataset * dataset, DcmTagKey tag, ArrayType const & array, bool destructDataset):
     _dataset(dataset),
     _tag(tag),
-    _array(array)
+    _array(array),
+    _destructDataset(destructDataset)
 {
 }
 
@@ -77,7 +82,11 @@ template<DcmEVR VR>
 ElementMatch<VR>
 ::~ElementMatch()
 {
-    // Nothing to do
+    if (this->_destructDataset && this->_dataset != NULL)
+    {
+        delete this->_dataset;
+        this->_dataset = NULL;
+    }
 }
 
 /******************* ACCESSORS *******************/
@@ -93,9 +102,10 @@ ElementMatch<VR>
 template<DcmEVR VR>
 void
 ElementMatch<VR>
-::set_dataset(DcmDataset * dataset)
+::set_dataset(DcmDataset * dataset, bool destructDataset)
 {
     this->_dataset = dataset;
+    this->_destructDataset = destructDataset;
 }
 
 template<DcmEVR VR>
@@ -150,13 +160,13 @@ ElementMatch<VR>
     {
         return false;
     }
-    
+   
     // Tag Exist
     if( ! this->_dataset->tagExists(this->_tag))
     {
         return false;
     }
-    
+   
     // Get the element
     DcmElement * element = NULL;
     OFCondition const element_ok =

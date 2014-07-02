@@ -39,7 +39,8 @@ Object::Pointer AnyCreator::Create(boost::property_tree::ptree::value_type & val
             value.second)
     {
         Object::Pointer object = Factory::get_instance().create(v);
-        dicomifier::conditions::Condition::Pointer cond = std::dynamic_pointer_cast<dicomifier::conditions::Condition>(object);
+        dicomifier::conditions::Condition::Pointer cond = 
+            std::dynamic_pointer_cast<dicomifier::conditions::Condition>(object);
         if (cond != NULL)
         {
             any->add_child(cond);

@@ -9,11 +9,12 @@
 #ifndef _011c6f7f_9d18_430c_88d5_d3dc2c015cd6
 #define _011c6f7f_9d18_430c_88d5_d3dc2c015cd6
 
-#include "SetElement.h"
-
 #include <sstream>
 #include <stdexcept>
 #include <vector>
+
+#include "core/DicomifierException.h"
+#include "SetElement.h"
 
 namespace dicomifier
 {
@@ -32,24 +33,28 @@ SetElement<VR>
 template<DcmEVR VR>
 typename SetElement<VR>::Pointer
 SetElement<VR>
-::New(DcmDataset * dataset, DcmTagKey tag, ValueType const & value)
+::New(DcmDataset * dataset, DcmTagKey tag, ValueType const & value, bool destructDataset)
 {
-    return Pointer(new Self(dataset, tag, value));
+    return Pointer(new Self(dataset, tag, value, destructDataset));
 }
 
 template<DcmEVR VR>
 typename SetElement<VR>::Pointer
 SetElement<VR>
-::New(DcmDataset * dataset, DcmTagKey tag, ArrayType const & array)
+::New(DcmDataset * dataset, DcmTagKey tag, ArrayType const & array, bool destructDataset)
 {
-    return Pointer(new Self(dataset, tag, array));
+    return Pointer(new Self(dataset, tag, array, destructDataset));
 }
 
 template<DcmEVR VR>
 SetElement<VR>
 ::~SetElement()
 {
-    // Nothing to do
+    if (this->_destructDataset && this->_dataset != NULL)
+    {
+        delete this->_dataset;
+        this->_dataset = NULL;
+    }
 }
 
 template<DcmEVR VR>
@@ -63,9 +68,10 @@ SetElement<VR>
 template<DcmEVR VR>
 void
 SetElement<VR>
-::set_dataset(DcmDataset * dataset)
+::set_dataset(DcmDataset * dataset, bool destructDataset)
 {
     this->_dataset = dataset;
+    this->_destructDataset = destructDataset;
 }
 
 template<DcmEVR VR>
@@ -128,7 +134,7 @@ SetElement<VR>
         {
             std::ostringstream message;
             message << "Could not get element: " << element_ok.text();
-            throw std::runtime_error(message.str());
+            throw DicomifierException(message.str());
         }
 
         OFCondition const set_ok = ElementTraits<VR>::array_setter(element, &this->_array[0], this->_array.size());
@@ -136,7 +142,7 @@ SetElement<VR>
         {
             std::ostringstream message;
             message << "Could not get array: " << set_ok.text();
-            throw std::runtime_error(message.str());
+            throw DicomifierException(message.str());
         }
     }
 }
@@ -144,23 +150,26 @@ SetElement<VR>
 template<DcmEVR VR>
 SetElement<VR>
 ::SetElement()
-: _dataset(NULL)
+: _dataset(NULL),
+  _destructDataset(false)
 {
     // Nothing else
 }
 
 template<DcmEVR VR>
 SetElement<VR>
-::SetElement(DcmDataset * dataset, DcmTagKey tag, ValueType const & value)
-: _dataset(dataset), _tag(tag)
+::SetElement(DcmDataset * dataset, DcmTagKey tag, 
+             ValueType const & value, bool destructDataset)
+: _dataset(dataset), _tag(tag), _destructDataset(destructDataset)
 {
     this->_array = { value };
 }
 
 template<DcmEVR VR>
 SetElement<VR>
-::SetElement(DcmDataset * dataset, DcmTagKey tag, ArrayType const & value)
-: _dataset(dataset), _tag(tag), _array(value)
+::SetElement(DcmDataset * dataset, DcmTagKey tag, 
+             ArrayType const & value, bool destructDataset)
+: _dataset(dataset), _tag(tag), _array(value), _destructDataset(destructDataset)
 {
     // Nothing else
 }

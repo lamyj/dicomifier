@@ -9,6 +9,7 @@
 #include <sstream>
 #include <stdexcept>
 
+#include "core/DicomifierException.h"
 #include "core/Factory.h"
 #include "EmptyElement.h"
 
@@ -20,21 +21,27 @@ namespace actions
     
 EmptyElement
 ::EmptyElement():
-    _dataset(NULL)
+    _dataset(NULL),
+    _destructDataset(false)
 {
 }
 
 EmptyElement
-::EmptyElement(DcmDataset * dataset, DcmTagKey tag):
+::EmptyElement(DcmDataset * dataset, DcmTagKey tag, bool destructDataset):
     _dataset(dataset),
-    _tag(tag)
+    _tag(tag),
+    _destructDataset(destructDataset)
 {
 }
 
 EmptyElement
 ::~EmptyElement()
 {
-    // nothing to do
+    if (this->_destructDataset && this->_dataset != NULL)
+    {
+        delete this->_dataset;
+        this->_dataset = NULL;
+    }
 }
 
 typename EmptyElement::Pointer
@@ -46,9 +53,9 @@ EmptyElement
 
 typename EmptyElement::Pointer
 EmptyElement
-::New(DcmDataset * dataset, DcmTagKey tag)
+::New(DcmDataset * dataset, DcmTagKey tag, bool destructDataset)
 {
-    return Pointer(new Self(dataset, tag));
+    return Pointer(new Self(dataset, tag, destructDataset));
 }
 
 DcmDataset *
@@ -60,9 +67,10 @@ EmptyElement
 
 void
 EmptyElement
-::set_dataset(DcmDataset * dataset)
+::set_dataset(DcmDataset * dataset, bool destructDataset)
 {
     this->_dataset = dataset;
+    this->_destructDataset = destructDataset;
 }
 
 DcmTag const &
@@ -91,7 +99,7 @@ EmptyElement
         {
             std::ostringstream message;
             message << "Could not insert empty element: " << ret.text();
-            throw std::runtime_error(message.str());
+            throw DicomifierException(message.str());
         }
     }
 }

@@ -42,13 +42,15 @@ public:
     typedef std::vector<ValueType> ArrayType;
 
     static Pointer New();
-    static Pointer New(DcmDataset * dataset, DcmTagKey tag, ValueType const & value);
-    static Pointer New(DcmDataset * dataset, DcmTagKey tag, ArrayType const & array);
+    static Pointer New(DcmDataset * dataset, DcmTagKey tag,
+                       ValueType const & value, bool destructDataset = false);
+    static Pointer New(DcmDataset * dataset, DcmTagKey tag, 
+                       ArrayType const & array, bool destructDataset = false);
 
     ~SetElement();
 
     DcmDataset * get_dataset() const;
-    void set_dataset(DcmDataset * dataset);
+    void set_dataset(DcmDataset * dataset, bool destructDataset = false);
 
     DcmTag const & get_tag() const;
     void set_tag(DcmTag const & tag);
@@ -64,14 +66,18 @@ public:
 protected:
     SetElement();
 
-    SetElement(DcmDataset * dataset, DcmTagKey tag, ValueType const & value);
-    SetElement(DcmDataset * dataset, DcmTagKey tag, ArrayType const & array);
+    SetElement(DcmDataset * dataset, DcmTagKey tag, 
+               ValueType const & value, bool destructDataset = false);
+    SetElement(DcmDataset * dataset, DcmTagKey tag, 
+               ArrayType const & array, bool destructDataset = false);
 
 private:
     DcmDataset * _dataset;
     DcmTag _tag;
 
     ArrayType _array;
+    
+    bool _destructDataset;
 
     SetElement(Self const & other); // Purposely not implemented
     Self const & operator=(Self const & other); // Purposely not implemented
