@@ -15,6 +15,36 @@
 #include "core/Object.h"
 #include "factory/core/conditions/AllCreator.h"
 
+struct TestDataEmpty
+{
+    boost::property_tree::ptree ptr;
+ 
+    TestDataEmpty()
+    {
+        boost::property_tree::ptree allnode;
+        ptr.add_child("All", allnode);
+    }
+ 
+    ~TestDataEmpty()
+    {
+    }
+};
+
+BOOST_FIXTURE_TEST_CASE(CreationEmpty, TestDataEmpty)
+{
+    auto testall = dicomifier::factory::AllCreator::New();
+    
+    BOOST_FOREACH(boost::property_tree::ptree::value_type &v, ptr)
+    {
+        dicomifier::Object::Pointer object = testall->Create(v);
+        
+        dicomifier::conditions::All::Pointer cond = 
+                std::dynamic_pointer_cast<dicomifier::conditions::All>(object);
+        
+        BOOST_CHECK_EQUAL(cond != NULL, true);
+    }
+}
+
 struct TestData
 {
     boost::property_tree::ptree ptr;
@@ -22,6 +52,8 @@ struct TestData
     TestData()
     {
         boost::property_tree::ptree allnode;
+        boost::property_tree::ptree emptynode;
+        allnode.add_child("True", emptynode);
         ptr.add_child("All", allnode);
     }
  
@@ -44,5 +76,3 @@ BOOST_FIXTURE_TEST_CASE(Creation, TestData)
         BOOST_CHECK_EQUAL(cond != NULL, true);
     }
 }
-
-
