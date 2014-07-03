@@ -56,17 +56,19 @@ void BrukerDirectory::CreateMap(std::string const & inputDir)
         if(! boost::filesystem::is_directory( (*it) ) )
         {
             // Should we parse this file ?
-            if (isFileToRead((*it).filename()))
+            if (isFileToRead((*it).path().filename().c_str()))
             {// yes
                 // Parse file
-                std::string file = inputDir + VALID_FILE_SEPARATOR + (*it).filename();
+                std::string file = inputDir + 
+								   VALID_FILE_SEPARATOR + 
+								   std::string((*it).path().filename().c_str());
                 mainDataset->LoadFile(file);
             }
         }
         // Else element is a directory
         else
         {
-            subDirectoryName.push_back((*it).filename());
+            subDirectoryName.push_back((*it).path().filename().c_str());
         }
     }
     
@@ -98,8 +100,6 @@ void BrukerDirectory::ParseDirectory(BrukerDataset * bdataset, std::string const
         return;
     }
     
-    //std::cout << bdataset->toString() << std::endl;
-    
     // scan inputDir
     boost::filesystem::directory_iterator iter(inputDir), it_end;
     for(; iter != it_end; ++iter)
@@ -108,9 +108,11 @@ void BrukerDirectory::ParseDirectory(BrukerDataset * bdataset, std::string const
         if(! boost::filesystem::is_directory( (*iter) ) )
         {
             // Should we parse this file ?
-            if (isFileToRead((*iter).filename()))
+            if (isFileToRead((*iter).path().filename().c_str()))
             {// yes
-                std::string file = inputDir + VALID_FILE_SEPARATOR + (*iter).filename();
+                std::string file = inputDir + 
+								   VALID_FILE_SEPARATOR + 
+								   std::string((*iter).path().filename().c_str());
                 // Parse file
                 bdataset->LoadFile(file);
             }
@@ -119,7 +121,9 @@ void BrukerDirectory::ParseDirectory(BrukerDataset * bdataset, std::string const
         else
         {
             // recursively scan directory
-            std::string subdir = inputDir + VALID_FILE_SEPARATOR + (*iter).filename();
+            std::string subdir = inputDir + 
+								 VALID_FILE_SEPARATOR + 
+								 std::string((*iter).path().filename().c_str());
             ParseDirectory(bdataset, subdir);
         }
     }
