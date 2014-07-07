@@ -28,7 +28,7 @@ TrueCreator::~TrueCreator()
     // nothing to do
 }
 
-Object::Pointer TrueCreator::Create(boost::property_tree::ptree::value_type & value) const
+Object::Pointer TrueCreator::Create(boost::property_tree::ptree::value_type & value)
 {
     return dicomifier::conditions::True::New();
 }

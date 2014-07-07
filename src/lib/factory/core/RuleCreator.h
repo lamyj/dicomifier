@@ -28,7 +28,7 @@ public:
     
     virtual ~RuleCreator();
     
-    virtual Object::Pointer Create(boost::property_tree::ptree::value_type & value) const;
+    virtual Object::Pointer Create(boost::property_tree::ptree::value_type & value);
 
     static std::string get_class_name() { return "Rule"; }
     
@@ -36,6 +36,10 @@ protected:
     RuleCreator();
 
 private:
+	boost::any CreateAnyObject(std::string const & type, 
+							   std::string const & name, 
+							   std::string const & value);
+
     RuleCreator(Self const & other); // Purposely not implemented
     Self const & operator=(Self const & other); // Purposely not implemented
 

@@ -32,13 +32,13 @@ AllCreator::~AllCreator()
     // Nothing to do
 }
 
-Object::Pointer AllCreator::Create(boost::property_tree::ptree::value_type & value) const
+Object::Pointer AllCreator::Create(boost::property_tree::ptree::value_type & value)
 {
     dicomifier::conditions::All::Pointer all = dicomifier::conditions::All::New();
     BOOST_FOREACH(boost::property_tree::ptree::value_type &v,
             value.second)
     {
-        Object::Pointer object = Factory::get_instance().create(v);
+        Object::Pointer object = Factory::get_instance().create(v, this->_inputs, this->_outputs);
         dicomifier::conditions::Condition::Pointer cond = 
             std::dynamic_pointer_cast<dicomifier::conditions::Condition>(object);
         if (cond != NULL)

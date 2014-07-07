@@ -31,10 +31,10 @@ DeleteElementCreator::~DeleteElementCreator()
 
 Object::Pointer 
 DeleteElementCreator
-::Create(boost::property_tree::ptree::value_type & value) const
+::Create(boost::property_tree::ptree::value_type & value)
 {
     // Get 'tag' attribut:
-    std::string const second = value.second.get<std::string>("tag");
+    std::string const second = value.second.get<std::string>("<xmlattr>.tag"); // Warning: throw exception if attribut is missing
     DcmTag dcmtag;
     OFCondition status = DcmTag::findTagFromName(second.c_str(), dcmtag);
     if (status.bad())
@@ -42,18 +42,21 @@ DeleteElementCreator
         throw DicomifierException("Error: Unknown tag '" + second + "'.");
     }
     
-    // get dataset
-    std::string const filename = value.second.get<std::string>("dataset");
-    DcmFileFormat fileformat;
-    status = fileformat.loadFile(filename.c_str());
-    if (status.bad())
+    // get 'dataset' attribut
+    std::string filename = value.second.get<std::string>("<xmlattr>.dataset"); // Warning: throw exception if attribut is missing
+    if (filename[0] != '#')
+	{
+		throw DicomifierException("Error: bad value for dataset attribut.");
+	}
+	filename = filename.replace(0,1,"");
+        
+    DcmDataset* dataset = boost::any_cast<DcmDataset*>(this->_inputs->find(filename)->second);
+    if (dataset == NULL)
     {
         throw DicomifierException("Error: Unable to load dataset '" + filename + "'.");
     }
     
-    DcmDataset* dataset = fileformat.getAndRemoveDataset();
-    
-    return dicomifier::actions::DeleteElement::New(dataset, dcmtag, true);
+    return dicomifier::actions::DeleteElement::New(dataset, dcmtag);
 }
     
 } // namespace factory

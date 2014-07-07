@@ -9,10 +9,12 @@
 #ifndef _af7ae5f1_969d_404d_be7a_4cfe95455eac
 #define _af7ae5f1_969d_404d_be7a_4cfe95455eac
 
+#include <map>
 #include <memory>
 
 #include <boost/property_tree/ptree.hpp>
 
+#include "core/DicomifierException.h"
 #include "core/Object.h"
 
 namespace dicomifier
@@ -28,12 +30,20 @@ public:
     typedef std::shared_ptr<Self> Pointer;
     typedef std::shared_ptr<Self const> ConstPointer;
     
+    typedef std::map<std::string, boost::any> InOutPutType;
+    
     virtual ~CreatorBase();
     
-    virtual Object::Pointer Create(boost::property_tree::ptree::value_type & value) const = 0;
+    void set_inputs(std::shared_ptr<InOutPutType> const inputs);
+    void set_outputs(std::shared_ptr<InOutPutType> const outputs);
+    
+    virtual Object::Pointer Create(boost::property_tree::ptree::value_type & value) = 0;
 
 protected:
     CreatorBase();
+    
+    std::shared_ptr<InOutPutType> _inputs;
+    std::shared_ptr<InOutPutType> _outputs;
 
 private:
     CreatorBase(Self const & other); // Purposely not implemented

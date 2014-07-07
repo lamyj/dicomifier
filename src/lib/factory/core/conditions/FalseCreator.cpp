@@ -28,7 +28,7 @@ FalseCreator::~FalseCreator()
     // nothing to do
 }
 
-Object::Pointer FalseCreator::Create(boost::property_tree::ptree::value_type & value) const
+Object::Pointer FalseCreator::Create(boost::property_tree::ptree::value_type & value)
 {
     return dicomifier::conditions::False::New();
 }

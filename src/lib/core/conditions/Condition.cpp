@@ -26,25 +26,6 @@ Condition
     // Nothing to do
 }
 
-void 
-Condition
-::set_input(boost::any const & object, int pos)
-{
-    if (this->_inputs.size() < pos + 1)
-    {
-        this->_inputs.resize(pos + 1);
-    }
-    this->_inputs.insert(this->_inputs.begin() + pos, object);
-}
-
-template<typename T>
-void 
-Condition
-::set_input(T const & object, int pos)
-{
-    this->set_input(boost::any(object), pos);
-}
-
 } // namespace conditions
 
 } // namespace dicomifier

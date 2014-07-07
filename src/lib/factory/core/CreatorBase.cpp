@@ -16,10 +16,22 @@ namespace factory
     
 CreatorBase::CreatorBase()
 {
+	this->_inputs = std::make_shared<InOutPutType>();
+	this->_outputs = std::make_shared<InOutPutType>();
 }
 
 CreatorBase::~CreatorBase()
 {
+}
+
+void CreatorBase::set_inputs(std::shared_ptr<InOutPutType> const inputs)
+{
+	this->_inputs = inputs;
+}
+
+void CreatorBase::set_outputs(std::shared_ptr<InOutPutType> const outputs)
+{
+	this->_outputs = outputs;
 }
     
 } // namespace factory
