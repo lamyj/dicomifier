@@ -134,6 +134,10 @@ RuleCreator
 		DcmDataset * dataset = fileformat.getAndRemoveDataset();
 		return boost::any(dataset);
 	}
+	else if (type == "file")
+	{
+		return boost::any(value);
+	}
 	
 	return NULL;
 }
