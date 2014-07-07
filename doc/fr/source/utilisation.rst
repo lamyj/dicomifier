@@ -100,6 +100,8 @@ Contient un ensemble d'actions.
 +---------------------------------------------+----------------+--------------+
 | :ref:`None <Balise_None>`                   | Optionnel      |      0-n     |
 +---------------------------------------------+----------------+--------------+
+| :ref:`SaveDataset <Balise_SaveDataset>`     | Optionnel      |      0-n     |
++---------------------------------------------+----------------+--------------+
 | :ref:`SetElement <Balise_SetElement>`       | Optionnel      |      0-n     |
 +---------------------------------------------+----------------+--------------+
 
@@ -126,9 +128,7 @@ Balise Input
 +-----------------+--------------+------------------------------------+
 | type            | Obligatoire  | Type d'entrée. Valeurs possibles : |
 |                 |              |                                    |
-|                 |              | - dicomfile                        |
-|                 |              | - bruker_dir                       |
-|                 |              | - directory                        |
+|                 |              | - dataset                          |
 |                 |              | - file                             |
 |                 |              |                                    |
 +-----------------+--------------+------------------------------------+
@@ -153,9 +153,7 @@ Balise Output
 +-----------------+--------------+-------------------------------------+
 | type            | Obligatoire  | Type de sortie. Valeurs possibles : |
 |                 |              |                                     |
-|                 |              | - dicomfile                         |
-|                 |              | - bruker_dir                        |
-|                 |              | - directory                         |
+|                 |              | - dataset                           |
 |                 |              | - file                              |
 |                 |              |                                     |
 +-----------------+--------------+-------------------------------------+
@@ -353,6 +351,28 @@ Exemple :
 
 	<EmptyElement tag="PatientName" dataset="#identifiant" />
 
+.. _Balise_SaveDataset:
+
+Balise SaveDataset
+^^^^^^^^^^^^^^^^^^
+
++---------------+---------------+--------------+--------------------------------------------------------------+
+| Attributs     | Usage         | Multiplicité | Description                                                  |
++===============+===============+==============+==============================================================+
+| dataset       | Obligatoire   |       1      | Contient une référence vers un identifiant unique défini par |
+|               |               |              | une balise :ref:`Input <Balise_Input>`                       |
++---------------+---------------+--------------+--------------------------------------------------------------+
+| outputfile    | Obligatoire   |       1      | Contient le chemin du fichier dans lequel sera écrit le      |
+|               |               |              | dataset, ou une référence vers un identifiant unique défini  |
+|               |               |              | par une balise :ref:`Output <Balise_Output>`                 |
++---------------+---------------+--------------+--------------------------------------------------------------+
+
+Exemple :
+
+.. code-block:: xml
+
+	<SaveDataset dataset="#identifiant" outputfile="#output_identifiant" />
+	
 Exemple de fichier XML
 ----------------------
 
@@ -370,6 +390,8 @@ Exemple de fichier XML
 		<Actions>
 			<DeleteElement tag="PatientName" dataset="#input_dataset" />
 			<SetElement tag="PatientID" value="123456789" VR="LO" dataset="#input_dataset" />
+			<SaveDataset dataset="#input_dataset" outputfile="#output_dataset" />
 		</Actions>
-		<Input type="dicomfile" name="input_dataset" value="/home/dicomfile" />
+		<Input type="dataset" name="input_dataset" value="/home/dicomfile" />
+		<Output type="file" name="output_dataset" value="/home/fichier_sortie.dcm" />
 	</Rule>
