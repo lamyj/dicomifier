@@ -29,17 +29,23 @@ Rule
     this->_actions.push_back(action);
 }
 
-void 
+bool 
 Rule
 ::Execute()
 {
-    if (this->_condition->eval())
+	// If there is a condition and condition return false
+    if (this->_condition != NULL && this->_condition->eval() == false)
     {
-        for (auto action: this->_actions)
-        {
-            action->run();
-        }
-    }
+		return false;
+	}
+	
+	// No condition or condition return true
+	for (auto action: this->_actions)
+	{
+		action->run();
+	}
+	
+	return true;
 }
     
 } // namespace dicomifier

@@ -30,7 +30,7 @@ BOOST_AUTO_TEST_CASE(Create)
 	ptrOK.add_child("True", emptynode);
     BOOST_FOREACH(boost::property_tree::ptree::value_type &v1, ptrOK)
     {
-        dicomifier::Object::Pointer object = dicomifier::Factory::get_instance().create(v1);
+        dicomifier::Object::Pointer object = dicomifier::Factory::get_instance().create(v1, NULL, NULL);
         BOOST_CHECK_EQUAL(object != NULL, true);
     }
     
@@ -38,7 +38,7 @@ BOOST_AUTO_TEST_CASE(Create)
 	ptrKO.add_child("UnknownNode", emptynode);
     BOOST_FOREACH(boost::property_tree::ptree::value_type &v2, ptrKO)
     {
-        dicomifier::Object::Pointer object = dicomifier::Factory::get_instance().create(v2);
+        dicomifier::Object::Pointer object = dicomifier::Factory::get_instance().create(v2, NULL, NULL);
         BOOST_CHECK_EQUAL(object == NULL, true);
     }
 }

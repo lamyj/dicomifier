@@ -30,10 +30,9 @@ std::vector<Object::Pointer> XmlToRules::Convert(boost::property_tree::ptree & p
 {
     std::vector<Object::Pointer> rules;
     
-    BOOST_FOREACH(boost::property_tree::ptree::value_type &v,
-            pt)
+    BOOST_FOREACH(boost::property_tree::ptree::value_type &v, pt)
     {
-        rules.push_back(Factory::get_instance().create(v));
+        rules.push_back(Factory::get_instance().create(v, NULL, NULL));
     }
     
     return rules;

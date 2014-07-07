@@ -28,7 +28,7 @@ NoneCreator::~NoneCreator()
     // nothing to do
 }
 
-Object::Pointer NoneCreator::Create(boost::property_tree::ptree::value_type & value) const
+Object::Pointer NoneCreator::Create(boost::property_tree::ptree::value_type & value)
 {
     return dicomifier::actions::None::New();
 }

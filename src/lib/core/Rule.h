@@ -31,7 +31,7 @@ public:
     
     void add_action(actions::Action::ConstPointer action);
     
-    void Execute();
+    bool Execute();
     
     static std::string get_class_name() { return "Rule"; }
 

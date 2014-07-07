@@ -33,29 +33,32 @@ ElementMatchCreator::~ElementMatchCreator()
     
 Object::Pointer 
 ElementMatchCreator
-::Create(boost::property_tree::ptree::value_type & value) const
+::Create(boost::property_tree::ptree::value_type & value)
 {
     // get tag
-    std::string const tag = value.second.get<std::string>("tag");
+    std::string const tag = value.second.get<std::string>("<xmlattr>.tag"); // Warning: throw exception if attribut is missing
     DcmTag dcmtag;
     OFCondition result = DcmTag::findTagFromName(tag.c_str(), dcmtag);
     if (result.good())
     {
         // get dataset
-        std::string const filename = value.second.get<std::string>("dataset");
-        DcmFileFormat fileformat;
-        result = fileformat.loadFile(filename.c_str());
-        if (result.good())
+        std::string filename = value.second.get<std::string>("<xmlattr>.dataset"); // Warning: throw exception if attribut is missing
+        if (filename[0] != '#')
         {
-            DcmDataset* dataset = fileformat.getAndRemoveDataset();
-            
+			throw DicomifierException("Error: bad value for dataset attribut.");
+		}
+        filename = filename.replace(0,1,"");
+        
+        DcmDataset* dataset = boost::any_cast<DcmDataset*>(this->_inputs->find(filename)->second);
+        if (dataset != NULL)
+        {
             // get the VR
-            std::string const vrstr = value.second.get<std::string>("VR");
+            std::string const vrstr = value.second.get<std::string>("<xmlattr>.VR"); // Warning: throw exception if attribut is missing
             DcmVR vr(vrstr.c_str());
             DcmEVR const evr = vr.getEVR();
             
             // get value
-            std::string const attrvalue = value.second.get<std::string>("value");
+            std::string const attrvalue = value.second.get<std::string>("<xmlattr>.value"); // Warning: throw exception if attribut is missing
     
             if      (evr == EVR_AE) return this->Create<EVR_AE>(dataset, dcmtag, attrvalue);
             else if (evr == EVR_AS) return this->Create<EVR_AS>(dataset, dcmtag, attrvalue);
@@ -89,7 +92,7 @@ ElementMatchCreator
         }
         else
         {
-            throw DicomifierException("Error: Unable to load dataset '" + filename + "'.");
+            throw DicomifierException("Error: no input dataset '" + filename + "'.");
         }
     }
     else
@@ -104,7 +107,7 @@ ElementMatchCreator
 template<DcmEVR VR>
 Object::Pointer 
 ElementMatchCreator
-::Create(DcmDataset* dataset, DcmTag const & tag, std::string const & value) const
+::Create(DcmDataset* dataset, DcmTag const & tag, std::string const & value)
 {           
     // parse values
     std::vector<std::string> splitvalues;

@@ -28,12 +28,12 @@ public:
     
     virtual ~ElementMatchCreator();
     
-    virtual Object::Pointer Create(boost::property_tree::ptree::value_type & value) const;
+    virtual Object::Pointer Create(boost::property_tree::ptree::value_type & value);
 
     static std::string get_class_name() { return "ElementMatch"; }
     
     template<DcmEVR VR>
-    Object::Pointer Create(DcmDataset* dataset, DcmTag const & tag, std::string const & value) const;
+    Object::Pointer Create(DcmDataset* dataset, DcmTag const & tag, std::string const & value);
 
 protected:
     ElementMatchCreator();

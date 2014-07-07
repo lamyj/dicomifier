@@ -21,27 +21,20 @@ namespace actions
     
 DeleteElement
 ::DeleteElement():
-    _dataset(NULL),
-    _destructDataset(false)
+    _dataset(NULL)
 {
 }
 
 DeleteElement
-::DeleteElement(DcmDataset * dataset, DcmTagKey tag, bool destructDataset):
+::DeleteElement(DcmDataset * dataset, DcmTagKey tag):
     _dataset(dataset),
-    _tag(tag),
-    _destructDataset(destructDataset)
+    _tag(tag)
 {
 }
 
 DeleteElement
 ::~DeleteElement()
 {
-    if (this->_destructDataset && this->_dataset != NULL)
-    {
-        delete this->_dataset;
-        this->_dataset = NULL;
-    }
 }
 
 typename DeleteElement::Pointer
@@ -53,9 +46,9 @@ DeleteElement
 
 typename DeleteElement::Pointer
 DeleteElement
-::New(DcmDataset * dataset, DcmTagKey tag, bool destructDataset)
+::New(DcmDataset * dataset, DcmTagKey tag)
 {
-    return Pointer(new Self(dataset, tag, destructDataset));
+    return Pointer(new Self(dataset, tag));
 }
 
 DcmDataset *
@@ -67,10 +60,9 @@ DeleteElement
 
 void
 DeleteElement
-::set_dataset(DcmDataset * dataset, bool destructDataset)
+::set_dataset(DcmDataset * dataset)
 {
     this->_dataset = dataset;
-    this->_destructDataset = destructDataset;
 }
 
 DcmTag const &

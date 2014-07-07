@@ -21,27 +21,20 @@ namespace actions
     
 EmptyElement
 ::EmptyElement():
-    _dataset(NULL),
-    _destructDataset(false)
+    _dataset(NULL)
 {
 }
 
 EmptyElement
-::EmptyElement(DcmDataset * dataset, DcmTagKey tag, bool destructDataset):
+::EmptyElement(DcmDataset * dataset, DcmTagKey tag):
     _dataset(dataset),
-    _tag(tag),
-    _destructDataset(destructDataset)
+    _tag(tag)
 {
 }
 
 EmptyElement
 ::~EmptyElement()
 {
-    if (this->_destructDataset && this->_dataset != NULL)
-    {
-        delete this->_dataset;
-        this->_dataset = NULL;
-    }
 }
 
 typename EmptyElement::Pointer
@@ -53,9 +46,9 @@ EmptyElement
 
 typename EmptyElement::Pointer
 EmptyElement
-::New(DcmDataset * dataset, DcmTagKey tag, bool destructDataset)
+::New(DcmDataset * dataset, DcmTagKey tag)
 {
-    return Pointer(new Self(dataset, tag, destructDataset));
+    return Pointer(new Self(dataset, tag));
 }
 
 DcmDataset *
@@ -67,10 +60,9 @@ EmptyElement
 
 void
 EmptyElement
-::set_dataset(DcmDataset * dataset, bool destructDataset)
+::set_dataset(DcmDataset * dataset)
 {
     this->_dataset = dataset;
-    this->_destructDataset = destructDataset;
 }
 
 DcmTag const &

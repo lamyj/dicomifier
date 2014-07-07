@@ -27,10 +27,10 @@ int main(int argc, char *argv[])
     std::vector<dicomifier::Object::Pointer> rules = 
                     dicomifier::XmlToRules::Convert(filename);
     
-    if (rules.size() > 0)
+    for (auto it = rules.begin(); it != rules.end(); it++)
     {
         dicomifier::Rule::Pointer rule = 
-                std::dynamic_pointer_cast<dicomifier::Rule>(rules[0]);
+                std::dynamic_pointer_cast<dicomifier::Rule>(*it);
            
         if (rule != NULL)
         {
@@ -39,13 +39,7 @@ int main(int argc, char *argv[])
         else
         {
             std::cout << "Error: Created object is not a Rule." << std::endl;
-            return EXIT_FAILURE;
         }
-    }
-    else
-    {
-        std::cout << "Error: Creation failure." << std::endl;
-        return EXIT_FAILURE;
     }
             
     return EXIT_SUCCESS;

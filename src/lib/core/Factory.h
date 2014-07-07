@@ -31,7 +31,9 @@ public:
     
     bool can_create(std::string const & class_) const;
     
-    std::shared_ptr<Object> create(boost::property_tree::ptree::value_type & value) const;
+    std::shared_ptr<Object> create(boost::property_tree::ptree::value_type & value,
+								   std::shared_ptr<dicomifier::factory::CreatorBase::InOutPutType> const inputs,
+								   std::shared_ptr<dicomifier::factory::CreatorBase::InOutPutType> const outputs) const;
     
 protected:
 

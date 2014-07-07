@@ -28,7 +28,7 @@ public:
     
     virtual ~FalseCreator();
     
-    virtual Object::Pointer Create(boost::property_tree::ptree::value_type & value) const;
+    virtual Object::Pointer Create(boost::property_tree::ptree::value_type & value);
 
     static std::string get_class_name() { return "False"; }
 

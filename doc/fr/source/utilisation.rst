@@ -34,9 +34,9 @@ Il est composé des balises suivantes :
 +---------------------------------------+----------------+----------------+
 | :ref:`Condition <Balise_Condition>`   | Obligatoire    |       1        |
 +---------------------------------------+----------------+----------------+
-| :ref:`Inputs <Balise_Inputs>`         | Obligatoire    |       1        |
+| :ref:`Inputs <Balise_Input>`          | Optionnel      |      0-n       |
 +---------------------------------------+----------------+----------------+
-| :ref:`Outputs <Balise_Outputs>`       | Obligatoire    |       1        |
+| :ref:`Outputs <Balise_Output>`        | Optionnel      |      0-n       |
 +---------------------------------------+----------------+----------------+
 
 Exemple :
@@ -46,8 +46,8 @@ Exemple :
 	<Rule>
 		<Condition />
 		<Actions />
-		<Inputs />
-		<Outputs />
+		<Input />
+		<Output />
 	</Rule>
 
 .. _Balise_Condition:
@@ -113,52 +113,6 @@ Exemple :
 		<EmptyElement />
 		<DeleteElement />
 	</Actions>
-	
-.. _Balise_Inputs:
-
-Balise Inputs
-^^^^^^^^^^^^^
-
-Contient un ensemble de balises :ref:`Input <Balise_Input>`.
-
-+---------------------------------+----------------+--------------+
-| Balises                         | Usage          | Multiplicité |
-+=================================+================+==============+
-| :ref:`Input <Balise_Input>`     | Optionnel      |      0-n     |
-+---------------------------------+----------------+--------------+
-
-Exemple :
-
-.. code-block:: xml
-
-	<Inputs>
-		<Input />
-		<Input />
-		<Input />
-	</Inputs>
-	
-.. _Balise_Outputs:
-
-Balise Outputs
-^^^^^^^^^^^^^^
-
-Contient un ensemble de balises :ref:`Output <Balise_Output>`.
-
-+---------------------------------+----------------+--------------+
-| Balises                         | Usage          | Multiplicité |
-+=================================+================+==============+
-| :ref:`Output <Balise_Output>`   | Optionnel      |      0-n     |
-+---------------------------------+----------------+--------------+
-
-Exemple :
-
-.. code-block:: xml
-
-	<Outputs>
-		<Output />
-		<Output />
-		<Output />
-	</Outputs>
 	
 .. _Balise_Input:
 
@@ -247,21 +201,7 @@ Balise Not
 
 Contient une et une seule condition.
 
-+-------------------------------------------+----------------+--------------+
-| Balises                                   | Usage          | Multiplicité |
-+===========================================+================+==============+
-| :ref:`All <Balise_All>`                   | Conditionnel   |      0-1     |
-+-------------------------------------------+----------------+--------------+
-| :ref:`Any <Balise_Any>`                   | Conditionnel   |      0-1     |
-+-------------------------------------------+----------------+--------------+
-| :ref:`ElementMatch <Balise_ElementMatch>` | Conditionnel   |      0-1     |
-+-------------------------------------------+----------------+--------------+
-| :ref:`False <Balise_False>`               | Conditionnel   |      0-1     |
-+-------------------------------------------+----------------+--------------+
-| :ref:`Not <Balise_Not>`                   | Conditionnel   |      0-1     |
-+-------------------------------------------+----------------+--------------+
-| :ref:`True <Balise_True>`                 | Conditionnel   |      0-1     |
-+-------------------------------------------+----------------+--------------+
+Les différentes balises possibles sont listées dans le paragraphe :ref:`Balise Condition <Balise_Condition>`.
 
 Pour chaque balise, celle-ci est présente à condition qu'aucune autre balise ne 
 soit présente.
@@ -281,21 +221,7 @@ Balise Any
 
 Contient un ensemble de conditions.
 
-+-------------------------------------------+-------------+--------------+
-| Balises                                   | Usage       | Multiplicité |
-+===========================================+=============+==============+
-| :ref:`All <Balise_All>`                   | Optionnel   |      0-n     |
-+-------------------------------------------+-------------+--------------+
-| :ref:`Any <Balise_Any>`                   | Optionnel   |      0-n     |
-+-------------------------------------------+-------------+--------------+
-| :ref:`ElementMatch <Balise_ElementMatch>` | Optionnel   |      0-n     |
-+-------------------------------------------+-------------+--------------+
-| :ref:`False <Balise_False>`               | Optionnel   |      0-n     |
-+-------------------------------------------+-------------+--------------+
-| :ref:`Not <Balise_Not>`                   | Optionnel   |      0-n     |
-+-------------------------------------------+-------------+--------------+
-| :ref:`True <Balise_True>`                 | Optionnel   |      0-n     |
-+-------------------------------------------+-------------+--------------+
+Les différentes balises possibles sont listées dans le paragraphe :ref:`Balise Condition <Balise_Condition>`.
 
 Exemple :
 
@@ -314,21 +240,7 @@ Balise All
 
 Contient un ensemble de conditions.
 
-+-------------------------------------------+-------------+--------------+
-| Balises                                   | Usage       | Multiplicité |
-+===========================================+=============+==============+
-| :ref:`All <Balise_All>`                   | Optionnel   |      0-n     |
-+-------------------------------------------+-------------+--------------+
-| :ref:`Any <Balise_Any>`                   | Optionnel   |      0-n     |
-+-------------------------------------------+-------------+--------------+
-| :ref:`ElementMatch <Balise_ElementMatch>` | Optionnel   |      0-n     |
-+-------------------------------------------+-------------+--------------+
-| :ref:`False <Balise_False>`               | Optionnel   |      0-n     |
-+-------------------------------------------+-------------+--------------+
-| :ref:`Not <Balise_Not>`                   | Optionnel   |      0-n     |
-+-------------------------------------------+-------------+--------------+
-| :ref:`True <Balise_True>`                 | Optionnel   |      0-n     |
-+-------------------------------------------+-------------+--------------+
+Les différentes balises possibles sont listées dans le paragraphe :ref:`Balise Condition <Balise_Condition>`.
 
 Exemple :
 
@@ -346,7 +258,7 @@ Balise ElementMatch
 ^^^^^^^^^^^^^^^^^^^
 
 +---------------+---------------+--------------+--------------------------------------------------------------+
-| Balises       | Usage         | Multiplicité | Description                                                  |
+| Attributs     | Usage         | Multiplicité | Description                                                  |
 +===============+===============+==============+==============================================================+
 | dataset       | Obligatoire   |       1      | Contient une référence vers un identifiant unique défini par |
 |               |               |              | une balise :ref:`Input <Balise_Input>`                       |
@@ -362,12 +274,7 @@ Exemple :
 
 .. code-block:: xml
 
-	<ElementMatch>
-		<tag>PatientName</tag>
-		<value>John</value>
-		<VR>PN</VR>
-		<dataset>#identifiant</dataset>
-	</ElementMatch>
+	<ElementMatch tag="PatientName" value="John" VR="PN" dataset="#identifiant" />
 
 .. _Balise_None:
 
@@ -388,7 +295,7 @@ Balise SetElement
 ^^^^^^^^^^^^^^^^^
 
 +---------------+---------------+--------------+--------------------------------------------------------------+
-| Balises       | Usage         | Multiplicité | Description                                                  |
+| Attributs     | Usage         | Multiplicité | Description                                                  |
 +===============+===============+==============+==============================================================+
 | dataset       | Obligatoire   |       1      | Contient une référence vers un identifiant unique défini par |
 |               |               |              | une balise :ref:`Input <Balise_Input>`                       |
@@ -404,12 +311,7 @@ Exemple :
 
 .. code-block:: xml
 
-	<SetElement>
-		<tag>PatientName</tag>
-		<value>John</value>
-		<VR>PN</VR>
-		<dataset>#identifiant</dataset>
-	</SetElement>
+	<SetElement tag="PatientName" value="John" VR="PN" dataset="#identifiant" />
 
 .. _Balise_DeleteElement:
 
@@ -417,7 +319,7 @@ Balise DeleteElement
 ^^^^^^^^^^^^^^^^^^^^
 
 +---------------+---------------+--------------+--------------------------------------------------------------+
-| Balises       | Usage         | Multiplicité | Description                                                  |
+| Attributs     | Usage         | Multiplicité | Description                                                  |
 +===============+===============+==============+==============================================================+
 | dataset       | Obligatoire   |       1      | Contient une référence vers un identifiant unique défini par |
 |               |               |              | une balise :ref:`Input <Balise_Input>`                       |
@@ -429,10 +331,7 @@ Exemple :
 
 .. code-block:: xml
 
-	<DeleteElement>
-		<tag>PatientName</tag>
-		<dataset>#identifiant</dataset>
-	</DeleteElement>
+	<DeleteElement tag="PatientName" dataset="#identifiant" />
 
 .. _Balise_EmptyElement:
 
@@ -440,7 +339,7 @@ Balise EmptyElement
 ^^^^^^^^^^^^^^^^^^^
 
 +---------------+---------------+--------------+--------------------------------------------------------------+
-| Balises       | Usage         | Multiplicité | Description                                                  |
+| Attributs     | Usage         | Multiplicité | Description                                                  |
 +===============+===============+==============+==============================================================+
 | dataset       | Obligatoire   |       1      | Contient une référence vers un identifiant unique défini par |
 |               |               |              | une balise :ref:`Input <Balise_Input>`                       |
@@ -452,10 +351,7 @@ Exemple :
 
 .. code-block:: xml
 
-	<EmptyElement>
-		<tag>PatientName</tag>
-		<dataset>#identifiant</dataset>
-	</EmptyElement>
+	<EmptyElement tag="PatientName" dataset="#identifiant" />
 
 Exemple de fichier XML
 ----------------------
@@ -465,36 +361,15 @@ Exemple de fichier XML
 	<Rule>
 		<Condition>
 			<All>
-				<ElementMatch>
-					<tag>PatientName</tag>
-					<value>Doe^John</value>
-					<VR>PN</VR>
-					<dataset>#input_dataset</dataset>
-				</ElementMatch>
+				<ElementMatch tag="PatientName" value="Doe^John" VR="PN" dataset="#input_dataset" />
 				<Not>
-					<ElementMatch>
-						<tag>0010,0020</tag>
-						<value>123456789</value>
-						<VR>LO</VR>
-						<dataset>#input_dataset</dataset>
-					</ElementMatch>
+					<ElementMatch tag="0010,0020" value="123456789" VR="LO" dataset="#input_dataset" />
 				</Not>
 			</All>
 		</Condition>
 		<Actions>
-			<DeleteElement>
-				<tag>PatientName</tag>
-				<dataset>#input_dataset</dataset>
-			</DeleteElement>
-			<SetElement>
-				<tag>PatientID</tag>
-				<value>123456789</value>
-				<VR>LO</VR>
-				<dataset>#input_dataset</dataset>
-			</SetElement>
+			<DeleteElement tag="PatientName" dataset="#input_dataset" />
+			<SetElement tag="PatientID" value="123456789" VR="LO" dataset="#input_dataset" />
 		</Actions>
-		<Inputs>
-			<Input type="dicomfile" name="input_dataset" value="/home/dicomfile" />
-		</Inputs>
-		<Outputs />
+		<Input type="dicomfile" name="input_dataset" value="/home/dicomfile" />
 	</Rule>

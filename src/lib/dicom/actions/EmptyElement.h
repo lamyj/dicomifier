@@ -32,12 +32,12 @@ public:
     typedef std::shared_ptr<Self const> ConstPointer;
     
     static Pointer New();
-    static Pointer New(DcmDataset * dataset, DcmTagKey tag, bool destructDataset = false);
+    static Pointer New(DcmDataset * dataset, DcmTagKey tag);
     
     virtual ~EmptyElement();
 
     DcmDataset * get_dataset() const;
-    void set_dataset(DcmDataset * dataset, bool destructDataset = false);
+    void set_dataset(DcmDataset * dataset);
 
     DcmTag const & get_tag() const;
     void set_tag(DcmTag const & tag);
@@ -48,13 +48,11 @@ public:
 
 protected:
     EmptyElement();
-    EmptyElement(DcmDataset * dataset, DcmTagKey tag, bool destructDataset = false);
+    EmptyElement(DcmDataset * dataset, DcmTagKey tag);
 
 private:
     DcmDataset * _dataset;
     DcmTag _tag;
-    
-    bool _destructDataset;
 
     EmptyElement(Self const & other); // Purposely not implemented
     Self const & operator=(Self const & other); // Purposely not implemented
