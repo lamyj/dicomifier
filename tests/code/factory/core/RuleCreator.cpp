@@ -84,3 +84,46 @@ BOOST_FIXTURE_TEST_CASE(Creation, TestData)
         BOOST_CHECK_EQUAL(rule != NULL, true);
     }
 }
+
+struct TestDataMissingNode
+{
+    boost::property_tree::ptree ptr1;
+    boost::property_tree::ptree ptr2;
+ 
+    TestDataMissingNode()
+    {
+        boost::property_tree::ptree rule1node;
+        boost::property_tree::ptree rule2node;
+        boost::property_tree::ptree emptynode;
+        
+        rule1node.add_child("Actions", emptynode);
+        ptr1.add_child("Rule", rule1node);
+        
+        rule2node.add_child("Condition", emptynode);
+        ptr2.add_child("Rule", rule2node);
+    }
+ 
+    ~TestDataMissingNode()
+    {
+    }
+};
+
+BOOST_FIXTURE_TEST_CASE(MissingNodeCondition, TestDataMissingNode)
+{
+    auto testrule = dicomifier::factory::RuleCreator::New();
+    
+    BOOST_FOREACH(boost::property_tree::ptree::value_type &v, ptr1)
+    {
+        BOOST_REQUIRE_THROW(testrule->Create(v), dicomifier::DicomifierException);
+    }
+}
+
+BOOST_FIXTURE_TEST_CASE(MissingNodeActions, TestDataMissingNode)
+{
+    auto testrule = dicomifier::factory::RuleCreator::New();
+    
+    BOOST_FOREACH(boost::property_tree::ptree::value_type &v, ptr2)
+    {
+        BOOST_REQUIRE_THROW(testrule->Create(v), dicomifier::DicomifierException);
+    }
+}

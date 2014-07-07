@@ -20,6 +20,7 @@
 struct TestData
 {
     boost::property_tree::ptree ptr;
+    std::shared_ptr<dicomifier::factory::CreatorBase::InOutPutType> inputs;
  
     TestData()
     {
@@ -27,26 +28,26 @@ struct TestData
         DcmDataset* dataset = new DcmDataset();
         OFString name("John");
         dataset->putAndInsertOFStringArray(DCM_PatientName, name, true);
-        dataset->saveFile("./tempfile", EXS_LittleEndianExplicit);
-        delete dataset;
         
         // Create XML tree
         boost::property_tree::ptree emptynode;
-        emptynode.put("tag", "0010,0010");
-        emptynode.put("dataset", "./tempfile");
+        emptynode.put("<xmlattr>.tag", "0010,0010");
+        emptynode.put("<xmlattr>.dataset", "#input");
         ptr.add_child("DeleteElement", emptynode);
+        
+        inputs = std::make_shared<dicomifier::factory::CreatorBase::InOutPutType>();
+        inputs->insert(std::pair<std::string, boost::any>("input", boost::any(dataset)));
     }
  
     ~TestData()
     {
-        // Delete Test file
-        remove("./tempfile");
     }
 };
 
 BOOST_FIXTURE_TEST_CASE(Creation, TestData)
 {
     auto testdelete = dicomifier::factory::DeleteElementCreator::New();
+    testdelete->set_inputs(inputs);
     
     BOOST_FOREACH(boost::property_tree::ptree::value_type &v, ptr)
     {
@@ -62,6 +63,7 @@ BOOST_FIXTURE_TEST_CASE(Creation, TestData)
 struct TestDataBadTag
 {
     boost::property_tree::ptree ptr;
+    std::shared_ptr<dicomifier::factory::CreatorBase::InOutPutType> inputs;
  
     TestDataBadTag()
     {
@@ -69,26 +71,26 @@ struct TestDataBadTag
         DcmDataset* dataset = new DcmDataset();
         OFString name("John");
         dataset->putAndInsertOFStringArray(DCM_PatientName, name, true);
-        dataset->saveFile("./tempfilebadtag", EXS_LittleEndianExplicit);
-        delete dataset;
         
         // Create XML tree
         boost::property_tree::ptree emptynode;
-        emptynode.put("tag", "bad tag");
-        emptynode.put("dataset", "./tempfilebadtag");
+        emptynode.put("<xmlattr>.tag", "bad tag");
+        emptynode.put("<xmlattr>.dataset", "#input");
         ptr.add_child("EmptyElement", emptynode);
+        
+        inputs = std::make_shared<dicomifier::factory::CreatorBase::InOutPutType>();
+        inputs->insert(std::pair<std::string, boost::any>("input", boost::any(dataset)));
     }
  
     ~TestDataBadTag()
     {
-        // Delete Test file
-        remove("./tempfilebadtag");
     }
 };
 
 BOOST_FIXTURE_TEST_CASE(ThrowBadTag, TestDataBadTag)
 {
     auto testdelete = dicomifier::factory::DeleteElementCreator::New();
+    testdelete->set_inputs(inputs);
     
     BOOST_FOREACH(boost::property_tree::ptree::value_type &v, ptr)
     {
@@ -99,14 +101,23 @@ BOOST_FIXTURE_TEST_CASE(ThrowBadTag, TestDataBadTag)
 struct TestDataBadFile
 {
     boost::property_tree::ptree ptr;
+    std::shared_ptr<dicomifier::factory::CreatorBase::InOutPutType> inputs;
  
     TestDataBadFile()
     {        
+        // Create Test file
+        DcmDataset* dataset = new DcmDataset();
+        OFString name("John");
+        dataset->putAndInsertOFStringArray(DCM_PatientName, name, true);
+        
         // Create XML tree
         boost::property_tree::ptree emptynode;
-        emptynode.put("tag", "PatientName");
-        emptynode.put("dataset", "./unknownfile");
+        emptynode.put("<xmlattr>.tag", "PatientName");
+        emptynode.put("<xmlattr>.dataset", "#unknownfile");
         ptr.add_child("ElementMatch", emptynode);
+        
+        inputs = std::make_shared<dicomifier::factory::CreatorBase::InOutPutType>();
+        inputs->insert(std::pair<std::string, boost::any>("input", boost::any(dataset)));
     }
  
     ~TestDataBadFile()
@@ -117,6 +128,7 @@ struct TestDataBadFile
 BOOST_FIXTURE_TEST_CASE(ThrowBadFile, TestDataBadFile)
 {
     auto testdelete = dicomifier::factory::DeleteElementCreator::New();
+    testdelete->set_inputs(inputs);
     
     BOOST_FOREACH(boost::property_tree::ptree::value_type &v, ptr)
     {

@@ -49,6 +49,10 @@ ElementMatchCreator
 		}
         filename = filename.replace(0,1,"");
         
+        if (this->_inputs->find(filename) == this->_inputs->end())
+        {
+            throw DicomifierException("Error: no input dataset '" + filename + "'.");
+		}
         DcmDataset* dataset = boost::any_cast<DcmDataset*>(this->_inputs->find(filename)->second);
         if (dataset != NULL)
         {
@@ -59,7 +63,7 @@ ElementMatchCreator
             
             // get value
             std::string const attrvalue = value.second.get<std::string>("<xmlattr>.value"); // Warning: throw exception if attribut is missing
-    
+  
             if      (evr == EVR_AE) return this->Create<EVR_AE>(dataset, dcmtag, attrvalue);
             else if (evr == EVR_AS) return this->Create<EVR_AS>(dataset, dcmtag, attrvalue);
             // TODO: EVR_AT
