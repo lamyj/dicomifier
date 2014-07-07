@@ -50,6 +50,10 @@ EmptyElementCreator
 	}
 	filename = filename.replace(0,1,"");
 	
+	if (this->_inputs->find(filename) == this->_inputs->end())
+	{
+		throw DicomifierException("Error: no input dataset '" + filename + "'.");
+	}
     DcmDataset* dataset = boost::any_cast<DcmDataset*>(this->_inputs->find(filename)->second);
     if (dataset == NULL)
     {
