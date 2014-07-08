@@ -6,8 +6,8 @@
  * for details.
  ************************************************************************/
 
-#ifndef _b2acff4b_4252_4850_9a62_a9ecdc5f9520
-#define _b2acff4b_4252_4850_9a62_a9ecdc5f9520
+#ifndef _a1d24eb4_37bb_46b4_a769_d76392230052
+#define _a1d24eb4_37bb_46b4_a769_d76392230052
 
 #include <dcmtk/config/osconfig.h>
 #include <dcmtk/dcmdata/dctk.h>
@@ -16,48 +16,48 @@
 
 namespace dicomifier
 {
-
+    
 namespace actions
 {
-
-class SaveDataset : public Action
+    
+class EnhanceBrukerDicom : public Action
 {
 public:
-    typedef SaveDataset Self;
+    typedef EnhanceBrukerDicom Self;
     typedef std::shared_ptr<Self> Pointer;
     typedef std::shared_ptr<Self const> ConstPointer;
     
     static Pointer New() { return Pointer(new Self()); }
-    static Pointer New(DcmDataset * dataset, std::string filename) 
-            { return Pointer(new Self(dataset, filename)); }
-
-    virtual ~SaveDataset();
+    static Pointer New(DcmDataset * dataset, std::string brukerDir) 
+                { return Pointer(new Self(dataset, brukerDir)); }
+    
+    virtual ~EnhanceBrukerDicom();
 
     DcmDataset * get_dataset() const;
     void set_dataset(DcmDataset * dataset);
     
-    std::string const & get_filename() const;
-    void set_filename(std::string const & filename);
+    std::string const & get_brukerDir() const;
+    void set_brukerDir(std::string const & brukerDir);
 
     virtual void run() const;
     
-    static std::string get_class_name() { return "SaveDataset"; }
+    static std::string get_class_name() { return "EnhanceBrukerDicom"; }
 
 protected:
-    SaveDataset();
-    SaveDataset(DcmDataset * dataset, std::string filename);
+    EnhanceBrukerDicom();
+    EnhanceBrukerDicom(DcmDataset * dataset, std::string brukerDir);
 
 private:
     DcmDataset * _dataset;
-    std::string _filename;
-
-    SaveDataset(Self const & other); // Purposely not implemented
+    std::string _brukerDir;
+    
+    EnhanceBrukerDicom(Self const & other); // Purposely not implemented
     Self const & operator=(Self const & other); // Purposely not implemented
-
+    
 };
-	
+    
 } // namespace actions
-	
+    
 } // namespace dicomifier
 
-#endif // _b2acff4b_4252_4850_9a62_a9ecdc5f9520
+#endif // _a1d24eb4_37bb_46b4_a769_d76392230052

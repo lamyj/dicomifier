@@ -6,8 +6,8 @@
  * for details.
  ************************************************************************/
 
-#ifndef _42212e5f_ed03_4c90_8e18_43f137a7b260
-#define _42212e5f_ed03_4c90_8e18_43f137a7b260
+#ifndef _1a579cc1_2225_4838_ad84_f61bf7806b7e
+#define _1a579cc1_2225_4838_ad84_f61bf7806b7e
 
 #include "factory/core/CreatorBase.h"
 
@@ -16,27 +16,27 @@ namespace dicomifier
 
 namespace factory
 {
-
-class SaveDatasetCreator : public CreatorBase
+    
+class EnhanceBrukerDicomCreator : public CreatorBase
 {
 public:
-    typedef SaveDatasetCreator Self;
+    typedef EnhanceBrukerDicomCreator Self;
     typedef std::shared_ptr<Self> Pointer;
     typedef std::shared_ptr<Self const> ConstPointer;
     
     static Pointer New() { return Pointer(new Self()); }
 
-    virtual ~SaveDatasetCreator();
+    virtual ~EnhanceBrukerDicomCreator();
     
     virtual Object::Pointer Create(boost::property_tree::ptree::value_type & value);
 
-    static std::string get_class_name() { return "SaveDataset"; }
+    static std::string get_class_name() { return "EnhanceBrukerDicom"; }
 
 protected:
-    SaveDatasetCreator();
-
+    EnhanceBrukerDicomCreator();
+    
 private:
-    SaveDatasetCreator(Self const & other); // Purposely not implemented
+    EnhanceBrukerDicomCreator(Self const & other); // Purposely not implemented
     Self const & operator=(Self const & other); // Purposely not implemented
 
 };
@@ -45,4 +45,4 @@ private:
 
 } // namespace dicomifier
 
-#endif // _42212e5f_ed03_4c90_8e18_43f137a7b260
+#endif // _1a579cc1_2225_4838_ad84_f61bf7806b7e
