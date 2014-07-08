@@ -57,12 +57,12 @@ SaveDatasetCreator
 	{
 		filename = filename.replace(0,1,"");
 		
-		if (this->_inputs->find(filename) == this->_inputs->end())
+		if (this->_outputs->find(filename) == this->_outputs->end())
 		{
 			throw DicomifierException("Error: no output with name='" + filename + "'.");
 		}
 		
-		filename = boost::any_cast<std::string>(this->_inputs->find(filename)->second);
+		filename = boost::any_cast<std::string>(this->_outputs->find(filename)->second);
 	}
     
 	return dicomifier::actions::SaveDataset::New(dataset, filename);
