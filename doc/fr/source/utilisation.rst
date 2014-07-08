@@ -6,7 +6,7 @@ Syntaxe
 
 Commande : ::
 
-	dicomifier XmlFile
+    dicomifier XmlFile
 
 Format du fichier XML
 ---------------------
@@ -43,12 +43,12 @@ Exemple :
 
 .. code-block:: xml
 
-	<Rule>
-		<Condition />
-		<Actions />
-		<Input />
-		<Output />
-	</Rule>
+    <Rule>
+        <Condition />
+        <Actions />
+        <Input />
+        <Output />
+    </Rule>
 
 .. _Balise_Condition:
 
@@ -80,9 +80,9 @@ Exemple :
 
 .. code-block:: xml
 
-	<Condition>
-		<True />
-	</Condition>
+    <Condition>
+        <True />
+    </Condition>
 
 .. _Balise_Actions:
 
@@ -91,31 +91,33 @@ Balise Actions
 
 Contient un ensemble d'actions.
 
-+---------------------------------------------+----------------+--------------+
-| Balises                                     | Usage          | Multiplicité |
-+=============================================+================+==============+
-| :ref:`DeleteElement <Balise_DeleteElement>` | Optionnel      |      0-n     |
-+---------------------------------------------+----------------+--------------+
-| :ref:`EmptyElement <Balise_EmptyElement>`   | Optionnel      |      0-n     |
-+---------------------------------------------+----------------+--------------+
-| :ref:`None <Balise_None>`                   | Optionnel      |      0-n     |
-+---------------------------------------------+----------------+--------------+
-| :ref:`SaveDataset <Balise_SaveDataset>`     | Optionnel      |      0-n     |
-+---------------------------------------------+----------------+--------------+
-| :ref:`SetElement <Balise_SetElement>`       | Optionnel      |      0-n     |
-+---------------------------------------------+----------------+--------------+
++-------------------------------------------------------+----------------+--------------+
+| Balises                                               | Usage          | Multiplicité |
++=======================================================+================+==============+
+| :ref:`DeleteElement <Balise_DeleteElement>`           | Optionnel      |      0-n     |
++-------------------------------------------------------+----------------+--------------+
+| :ref:`EmptyElement <Balise_EmptyElement>`             | Optionnel      |      0-n     |
++-------------------------------------------------------+----------------+--------------+
+| :ref:`EnhanceBrukerDicom <Balise_EnhanceBrukerDicom>` | Optionnel      |      0-n     |
++-------------------------------------------------------+----------------+--------------+
+| :ref:`None <Balise_None>`                             | Optionnel      |      0-n     |
++-------------------------------------------------------+----------------+--------------+
+| :ref:`SaveDataset <Balise_SaveDataset>`               | Optionnel      |      0-n     |
++-------------------------------------------------------+----------------+--------------+
+| :ref:`SetElement <Balise_SetElement>`                 | Optionnel      |      0-n     |
++-------------------------------------------------------+----------------+--------------+
 
 Exemple :
 
 .. code-block:: xml
 
-	<Actions>
-		<None />
-		<SetElement />
-		<EmptyElement />
-		<DeleteElement />
-	</Actions>
-	
+    <Actions>
+        <None />
+        <SetElement />
+        <EmptyElement />
+        <DeleteElement />
+    </Actions>
+
 .. _Balise_Input:
 
 Balise Input
@@ -139,7 +141,7 @@ Exemple :
 
 .. code-block:: xml
 
-	<Input type="" name="" value="" />
+    <Input type="" name="" value="" />
 
 .. _Balise_Output:
 
@@ -164,7 +166,7 @@ Exemple :
 
 .. code-block:: xml
 
-	<Output type="" name="" value="" />
+    <Output type="" name="" value="" />
 
 .. _Balise_True:
 
@@ -177,7 +179,7 @@ Exemple :
 
 .. code-block:: xml
 
-	<True />
+    <True />
 
 .. _Balise_False:
 
@@ -190,7 +192,7 @@ Exemple :
 
 .. code-block:: xml
 
-	<False />
+    <False />
 
 .. _Balise_Not:
 
@@ -208,9 +210,9 @@ Exemple :
 
 .. code-block:: xml
 
-	<Not>
-		<True />
-	</Not>
+    <Not>
+        <True />
+    </Not>
 
 .. _Balise_Any:
 
@@ -225,11 +227,11 @@ Exemple :
 
 .. code-block:: xml
 
-	<All>
-		<True />
-		<False />
-		<True />
-	</All>
+    <All>
+        <True />
+        <False />
+        <True />
+    </All>
 
 .. _Balise_All:
 
@@ -244,11 +246,11 @@ Exemple :
 
 .. code-block:: xml
 
-	<Any>
-		<True />
-		<False />
-		<True />
-	</Any>
+    <Any>
+        <True />
+        <False />
+        <True />
+    </Any>
 
 .. _Balise_ElementMatch:
 
@@ -272,7 +274,7 @@ Exemple :
 
 .. code-block:: xml
 
-	<ElementMatch tag="PatientName" value="John" VR="PN" dataset="#identifiant" />
+    <ElementMatch tag="PatientName" value="John" VR="PN" dataset="#identifiant" />
 
 .. _Balise_None:
 
@@ -285,7 +287,7 @@ Exemple :
 
 .. code-block:: xml
 
-	<None />
+    <None />
 
 .. _Balise_SetElement:
 
@@ -309,7 +311,7 @@ Exemple :
 
 .. code-block:: xml
 
-	<SetElement tag="PatientName" value="John" VR="PN" dataset="#identifiant" />
+    <SetElement tag="PatientName" value="John" VR="PN" dataset="#identifiant" />
 
 .. _Balise_DeleteElement:
 
@@ -329,7 +331,7 @@ Exemple :
 
 .. code-block:: xml
 
-	<DeleteElement tag="PatientName" dataset="#identifiant" />
+    <DeleteElement tag="PatientName" dataset="#identifiant" />
 
 .. _Balise_EmptyElement:
 
@@ -349,7 +351,7 @@ Exemple :
 
 .. code-block:: xml
 
-	<EmptyElement tag="PatientName" dataset="#identifiant" />
+    <EmptyElement tag="PatientName" dataset="#identifiant" />
 
 .. _Balise_SaveDataset:
 
@@ -371,27 +373,49 @@ Exemple :
 
 .. code-block:: xml
 
-	<SaveDataset dataset="#identifiant" outputfile="#output_identifiant" />
-	
+    <SaveDataset dataset="#identifiant" outputfile="#output_identifiant" />
+
+.. _Balise_EnhanceBrukerDicom:
+
+Balise EnhanceBrukerDicom
+^^^^^^^^^^^^^^^^^^^^^^^^^
+
++---------------+---------------+--------------+---------------------------------------------------------------+
+| Attributs     | Usage         | Multiplicité | Description                                                   |
++===============+===============+==============+===============================================================+
+| dataset       | Obligatoire   |       1      | Contient une référence vers un identifiant unique défini par  |
+|               |               |              | une balise :ref:`Input <Balise_Input>`                        |
++---------------+---------------+--------------+---------------------------------------------------------------+
+| brukerdir     | Obligatoire   |       1      | Contient le chemin du répertoire dans lequel se trouvent      |
+|               |               |              | tous les fichiers Bruker ou une référence vers un identifiant |
+|               |               |              | unique défini par une balise :ref:`Input <Balise_Input>`      |
++---------------+---------------+--------------+---------------------------------------------------------------+
+
+Exemple :
+
+.. code-block:: xml
+
+    <EnhanceBrukerDicom dataset="#dataset_identifiant" brukerdir="#bruker_identifiant" />
+
 Exemple de fichier XML
 ----------------------
 
 .. code-block:: xml
 
-	<Rule>
-		<Condition>
-			<All>
-				<ElementMatch tag="PatientName" value="Doe^John" VR="PN" dataset="#input_dataset" />
-				<Not>
-					<ElementMatch tag="0010,0020" value="123456789" VR="LO" dataset="#input_dataset" />
-				</Not>
-			</All>
-		</Condition>
-		<Actions>
-			<DeleteElement tag="PatientName" dataset="#input_dataset" />
-			<SetElement tag="PatientID" value="123456789" VR="LO" dataset="#input_dataset" />
-			<SaveDataset dataset="#input_dataset" outputfile="#output_dataset" />
-		</Actions>
-		<Input type="dataset" name="input_dataset" value="/home/dicomfile" />
-		<Output type="file" name="output_dataset" value="/home/fichier_sortie.dcm" />
-	</Rule>
+    <Rule>
+        <Condition>
+            <All>
+                <ElementMatch tag="PatientName" value="Doe^John" VR="PN" dataset="#input_dataset" />
+                <Not>
+                    <ElementMatch tag="0010,0020" value="123456789" VR="LO" dataset="#input_dataset" />
+                </Not>
+            </All>
+        </Condition>
+        <Actions>
+            <DeleteElement tag="PatientName" dataset="#input_dataset" />
+            <SetElement tag="PatientID" value="123456789" VR="LO" dataset="#input_dataset" />
+            <SaveDataset dataset="#input_dataset" outputfile="#output_dataset" />
+        </Actions>
+        <Input type="dataset" name="input_dataset" value="/home/dicomfile" />
+        <Output type="file" name="output_dataset" value="/home/fichier_sortie.dcm" />
+    </Rule>

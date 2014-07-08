@@ -6,9 +6,9 @@
  * for details.
  ************************************************************************/
 
+#include "bruker/actions/EnhanceBrukerDicom.h"
 #include "core/Factory.h"
-#include "dicom/actions/SaveDataset.h"
-#include "SaveDatasetCreator.h"
+#include "EnhanceBrukerDicomCreator.h"
 
 namespace dicomifier
 {
@@ -16,20 +16,20 @@ namespace dicomifier
 namespace factory
 {
     
-static unsigned int const registration = Factory::get_instance().register_<SaveDatasetCreator>();
-
-SaveDatasetCreator::SaveDatasetCreator()
+static unsigned int const registration = Factory::get_instance().register_<EnhanceBrukerDicomCreator>();
+    
+EnhanceBrukerDicomCreator::EnhanceBrukerDicomCreator()
 {
     // Nothing to do
 }
 
-SaveDatasetCreator::~SaveDatasetCreator()
+EnhanceBrukerDicomCreator::~EnhanceBrukerDicomCreator()
 {
     // Nothing to do
 }
 
 Object::Pointer 
-SaveDatasetCreator
+EnhanceBrukerDicomCreator
 ::Create(boost::property_tree::ptree::value_type & value)
 {
     // get 'dataset' attribut
@@ -50,24 +50,24 @@ SaveDatasetCreator
         throw DicomifierException("Error: Unable to load dataset '" + filename + "'.");
     }
     
-    // get 'outputfile' attribut
-    filename = value.second.get<std::string>("<xmlattr>.outputfile"); // Warning: throw exception if attribut is missing
+    // get 'brukerdir' attribut
+    filename = value.second.get<std::string>("<xmlattr>.brukerdir"); // Warning: throw exception if attribut is missing
     
     if (filename[0] == '#')
     {
         filename = filename.replace(0,1,"");
         
-        if (this->_outputs->find(filename) == this->_outputs->end())
+        if (this->_inputs->find(filename) == this->_inputs->end())
         {
-            throw DicomifierException("Error: no output with name='" + filename + "'.");
+            throw DicomifierException("Error: no input brukerdir '" + filename + "'.");
         }
         
-        filename = boost::any_cast<std::string>(this->_outputs->find(filename)->second);
+        filename = boost::any_cast<std::string>(this->_inputs->find(filename)->second);
     }
     
-    return dicomifier::actions::SaveDataset::New(dataset, filename);
+    return dicomifier::actions::EnhanceBrukerDicom::New(dataset, filename);
 }
-
+    
 } // namespace factory
 
 } // namespace dicomifier
