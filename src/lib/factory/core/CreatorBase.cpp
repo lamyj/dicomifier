@@ -22,6 +22,7 @@ CreatorBase::CreatorBase()
 
 CreatorBase::~CreatorBase()
 {
+	// Nothing to do
 }
 
 void CreatorBase::set_inputs(std::shared_ptr<InOutPutType> const inputs)

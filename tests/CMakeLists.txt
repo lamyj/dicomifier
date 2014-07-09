@@ -11,7 +11,7 @@ file(GLOB_RECURSE tests *.cpp)
 foreach(test_file ${tests})
     get_filename_component(test ${test_file} NAME_WE)
     add_executable(${test} ${test_file})
-    target_link_libraries(${test} librouter ${Boost_LIBRARIES})
+    target_link_libraries(${test} libdicomifier ${Boost_LIBRARIES})
     file(READ ${test_file} content)
     
     set(pattern "BOOST_(AUTO|FIXTURE)_TEST_CASE\\(([^),]+)")
