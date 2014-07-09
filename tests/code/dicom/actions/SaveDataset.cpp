@@ -40,6 +40,9 @@ BOOST_FIXTURE_TEST_CASE(Save, TestData)
     testsave->set_dataset(dataset);
     testsave->set_filename(filename);
     testsave->run();
+    
+    BOOST_CHECK_EQUAL(testsave->get_dataset() != NULL, true);
+    BOOST_CHECK_EQUAL(testsave->get_filename() == filename, true);
         
     BOOST_CHECK_EQUAL(boost::filesystem::exists(filename), true);
 }

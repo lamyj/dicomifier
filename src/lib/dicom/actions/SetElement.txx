@@ -132,17 +132,13 @@ SetElement<VR>
 
         if(element_ok.bad())
         {
-            std::ostringstream message;
-            message << "Could not get element: " << element_ok.text();
-            throw DicomifierException(message.str());
+            throw DicomifierException("Error: SetElement::run(): Could not get element.");
         }
 
         OFCondition const set_ok = ElementTraits<VR>::array_setter(element, &this->_array[0], this->_array.size());
         if(set_ok.bad())
         {
-            std::ostringstream message;
-            message << "Could not get array: " << set_ok.text();
-            throw DicomifierException(message.str());
+            throw DicomifierException("Error: SetElement::run(): Could not set array");
         }
     }
 }

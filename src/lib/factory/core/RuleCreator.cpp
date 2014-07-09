@@ -79,16 +79,21 @@ RuleCreator
     {
         throw DicomifierException("Error: Too many Condition element.");
     }
+    
+    bool alreadyset = false;
     BOOST_FOREACH(boost::property_tree::ptree::value_type &v,
             value.second.get_child("Condition"))
     {
-        Object::Pointer object = Factory::get_instance().create(v, this->_inputs, this->_outputs);
-        dicomifier::conditions::Condition::Pointer cond = 
-            std::dynamic_pointer_cast<dicomifier::conditions::Condition>(object);
-        if (cond != NULL)
+        if ( ! alreadyset)
         {
-            rule->set_condition(cond);
-            break;
+            Object::Pointer object = Factory::get_instance().create(v, this->_inputs, this->_outputs);
+            dicomifier::conditions::Condition::Pointer cond = 
+                std::dynamic_pointer_cast<dicomifier::conditions::Condition>(object);
+            if (cond != NULL)
+            {
+                rule->set_condition(cond);
+                alreadyset = true; // only one condition
+            }
         }
     }
     
@@ -139,7 +144,7 @@ RuleCreator
         return boost::any(value);
     }
 
-    return NULL;
+    throw DicomifierException("Error: Unknown type '" + type + "' for Input or Output element.");
 }
    
 } // namespace factory
