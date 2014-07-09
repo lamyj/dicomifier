@@ -12,6 +12,8 @@ Contents:
    :maxdepth: 2
 
    utilisation
+   actions
+   condition
 
 Indices and tables
 ==================
