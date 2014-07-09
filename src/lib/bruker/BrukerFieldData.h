@@ -17,6 +17,9 @@
 
 namespace dicomifier
 {
+    
+namespace bruker
+{
 
 const boost::regex RegEx_KeyWord("^##\\$?([^[:cntrl:]]+)=.*");
 const boost::regex RegEx_Dimensionnality("=\\( ([^[:cntrl:]]+) \\)");
@@ -99,6 +102,9 @@ public:
         
     inline std::vector<int> GetIntValue() const
         { return this->IntValue; }
+        
+    inline std::vector<double> GetDoubleValue() const
+        { return this->DoubleValue; }
     
     /**
      * 
@@ -203,6 +209,8 @@ private:
     std::vector<double> DoubleValue;
     
 };
+
+} // namespace bruker
 
 } // namespace dicomifier
 

@@ -14,13 +14,13 @@
 #include <cstdlib>
 #include <exception>
 
-#include "bruker/Bruker2Dicom.h"
+//#include "bruker/Bruker2Dicom.h"
 
 // ===================================================================================================
 
 int main(int argc, char *argv[])
 {    
-    dicomifier::Bruker2Dicom converter;
+    /*dicomifier::Bruker2Dicom converter;
     
     try
     {
@@ -36,7 +36,7 @@ int main(int argc, char *argv[])
     catch (std::exception& e)
     {
         std::cout << "Error: " << e.what() << std::endl;
-    }
+    }*/
 
     return EXIT_SUCCESS;
 }

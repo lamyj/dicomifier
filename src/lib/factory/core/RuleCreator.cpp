@@ -36,32 +36,32 @@ Object::Pointer
 RuleCreator
 ::Create(boost::property_tree::ptree::value_type & value)
 {
-	this->_inputs = std::make_shared<CreatorBase::InOutPutType>();
-	this->_outputs = std::make_shared<CreatorBase::InOutPutType>();
-	
+    this->_inputs = std::make_shared<CreatorBase::InOutPutType>();
+    this->_outputs = std::make_shared<CreatorBase::InOutPutType>();
+
     // Parsing <Input />
-	BOOST_FOREACH(boost::property_tree::ptree::value_type &input, 
-				  value.second.equal_range("Input"))
-	{
-		std::string type = input.second.get("<xmlattr>.type","");
-		std::string name = input.second.get("<xmlattr>.name","");
-		std::string value = input.second.get("<xmlattr>.value","");
-		
-		boost::any obj = CreateAnyObject(type, name, value);
-		this->_inputs->insert(std::pair<std::string, boost::any>(name, obj));
-	}
-	
+    BOOST_FOREACH(boost::property_tree::ptree::value_type &input, 
+              value.second.equal_range("Input"))
+    {
+        std::string type = input.second.get("<xmlattr>.type","");
+        std::string name = input.second.get("<xmlattr>.name","");
+        std::string value = input.second.get("<xmlattr>.value","");
+
+        boost::any obj = CreateAnyObject(type, name, value);
+        this->_inputs->insert(std::pair<std::string, boost::any>(name, obj));
+    }
+
     // Parsing <Output />
-	BOOST_FOREACH(boost::property_tree::ptree::value_type &output, 
-				  value.second.equal_range("Output"))
-	{
-		std::string type = output.second.get("<xmlattr>.type","");
-		std::string name = output.second.get("<xmlattr>.name","");
-		std::string value = output.second.get("<xmlattr>.value","");
-		
-		boost::any obj = CreateAnyObject(type, name, value);
-		this->_outputs->insert(std::pair<std::string, boost::any>(name, obj));
-	}
+    BOOST_FOREACH(boost::property_tree::ptree::value_type &output, 
+                  value.second.equal_range("Output"))
+    {
+        std::string type = output.second.get("<xmlattr>.type","");
+        std::string name = output.second.get("<xmlattr>.name","");
+        std::string value = output.second.get("<xmlattr>.value","");
+        
+        boost::any obj = CreateAnyObject(type, name, value);
+        this->_outputs->insert(std::pair<std::string, boost::any>(name, obj));
+    }
     
     dicomifier::Rule::Pointer rule = dicomifier::Rule::New();
     
@@ -70,15 +70,15 @@ RuleCreator
     // throw exception if value Condition element is missing.
     if (conditions.first == conditions.second)
     {
-		throw DicomifierException("Error: Missing Condition element.");
-	}
-	auto it = conditions.first;
-	it++;
+        throw DicomifierException("Error: Missing Condition element.");
+    }
+    auto it = conditions.first;
+    it++;
     // throw exception if value contains several Condition elements.
-	if (it != conditions.second)
-	{
-		throw DicomifierException("Error: Too many Condition element.");
-	}
+    if (it != conditions.second)
+    {
+        throw DicomifierException("Error: Too many Condition element.");
+    }
     BOOST_FOREACH(boost::property_tree::ptree::value_type &v,
             value.second.get_child("Condition"))
     {
@@ -97,15 +97,15 @@ RuleCreator
     // throw exception if value Actions element is missing.
     if (actions.first == actions.second)
     {
-		throw DicomifierException("Error: Missing Actions element.");
-	}
-	auto it_action = actions.first;
-	it_action++;
+        throw DicomifierException("Error: Missing Actions element.");
+    }
+    auto it_action = actions.first;
+    it_action++;
     // throw exception if value contains several Actions elements.
-	if (it_action != actions.second)
-	{
-		throw DicomifierException("Error: Too many Actions element.");
-	}
+    if (it_action != actions.second)
+    {
+        throw DicomifierException("Error: Too many Actions element.");
+    }
     BOOST_FOREACH(boost::property_tree::ptree::value_type &v,
             value.second.get_child("Actions"))
     {
@@ -124,22 +124,22 @@ RuleCreator
 boost::any 
 RuleCreator
 ::CreateAnyObject(std::string const & type, 
-				  std::string const & name, 
-				  std::string const & value)
+                  std::string const & name, 
+                  std::string const & value)
 {
-	if (type == "dataset")
-	{
-		DcmFileFormat fileformat;
-		fileformat.loadFile(value.c_str());
-		DcmDataset * dataset = fileformat.getAndRemoveDataset();
-		return boost::any(dataset);
-	}
-	else if (type == "file")
-	{
-		return boost::any(value);
-	}
-	
-	return NULL;
+    if (type == "dataset")
+    {
+        DcmFileFormat fileformat;
+        fileformat.loadFile(value.c_str());
+        DcmDataset * dataset = fileformat.getAndRemoveDataset();
+        return boost::any(dataset);
+    }
+    else if (type == "file")
+    {
+        return boost::any(value);
+    }
+
+    return NULL;
 }
    
 } // namespace factory

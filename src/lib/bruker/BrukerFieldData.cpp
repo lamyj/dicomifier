@@ -11,6 +11,9 @@
 namespace dicomifier
 {
     
+namespace bruker
+{
+    
 BrukerFieldData::BrukerFieldData():
     DimensionNumber(0),
     DataType(""),
@@ -384,6 +387,8 @@ std::string BrukerFieldData::RemoveNewlines(std::string file)
                         boost::match_default | boost::format_all);
     std::string s(t.str());
     return s;
- }
+}
+
+} // namespace bruker
 
 } // namespace dicomifier

@@ -18,7 +18,7 @@
 #include <boost/filesystem.hpp>
 
 #include "BrukerDataset.h"
-#include "BrukerException.h"
+#include "core/Rule.h"
 
 // file separator
 #if defined(_WIN32)
@@ -30,6 +30,9 @@
 #endif
 
 namespace dicomifier
+{
+    
+namespace bruker
 {
     
 /*! \class  BrukerDirectory
@@ -58,14 +61,7 @@ public:
      */
     void ParseDirectory(BrukerDataset * bdataset, std::string const & inputDir);
     
-    /**
-     * Create a directory
-     * @param OutputDir : Directory name to create
-     * @return true if directory creation is succeful, false otherwise
-     */
-    static bool CreateDirectory(std::string const & OutputDir);
-    
-    void GenerateDICOMRules(std::string const & outputdir);
+    dicomifier::Rule::Pointer GenerateDICOMRules(DcmDataset * dataset);
 
 protected:
     /**
@@ -83,6 +79,8 @@ private:
     std::vector<std::string> FilesToRead;
 
 };
+
+} // namespace bruker
 
 } // namespace dicomifier
 
