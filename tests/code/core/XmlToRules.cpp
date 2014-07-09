@@ -15,12 +15,12 @@
 
 struct TestData
 {
-	std::string filename;
-	 
+    std::string filename;
+     
     TestData()
     {
-		boost::property_tree::ptree ptr;
-		filename = "./testfile_xmltorule.xml";
+        boost::property_tree::ptree ptr;
+        filename = "./testfile_xmltorule.xml";
         boost::property_tree::ptree emptynode;
         ptr.add_child("True", emptynode);
         
@@ -29,7 +29,7 @@ struct TestData
  
     ~TestData()
     {
-		remove(filename.c_str());
+        remove(filename.c_str());
     }
 };
 
