@@ -33,19 +33,19 @@ bool
 Rule
 ::Execute()
 {
-	// If there is a condition and condition return false
+    // If there is a condition and condition return false
     if (this->_condition != NULL && this->_condition->eval() == false)
     {
-		return false;
-	}
-	
-	// No condition or condition return true
-	for (auto action: this->_actions)
-	{
-		action->run();
-	}
-	
-	return true;
+        return false;
+    }
+
+    // No condition or condition return true
+    for (auto action: this->_actions)
+    {
+        action->run();
+    }
+
+    return true;
 }
     
 } // namespace dicomifier

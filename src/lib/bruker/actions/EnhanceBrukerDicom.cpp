@@ -81,8 +81,6 @@ EnhanceBrukerDicom
     rules->Execute();
     
     delete brukerdirectory;
-    
-    this->_dataset->print(std::cout);
 }
     
 } // namespace actions
