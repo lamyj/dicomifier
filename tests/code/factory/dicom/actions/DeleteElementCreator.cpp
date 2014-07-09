@@ -76,7 +76,7 @@ struct TestDataBadTag
         boost::property_tree::ptree emptynode;
         emptynode.put("<xmlattr>.tag", "bad tag");
         emptynode.put("<xmlattr>.dataset", "#input");
-        ptr.add_child("EmptyElement", emptynode);
+        ptr.add_child("DeleteElement", emptynode);
         
         inputs = std::make_shared<dicomifier::factory::CreatorBase::InOutPutType>();
         inputs->insert(std::pair<std::string, boost::any>("input", boost::any(dataset)));
@@ -114,7 +114,7 @@ struct TestDataBadFile
         boost::property_tree::ptree emptynode;
         emptynode.put("<xmlattr>.tag", "PatientName");
         emptynode.put("<xmlattr>.dataset", "#unknownfile");
-        ptr.add_child("ElementMatch", emptynode);
+        ptr.add_child("DeleteElement", emptynode);
         
         inputs = std::make_shared<dicomifier::factory::CreatorBase::InOutPutType>();
         inputs->insert(std::pair<std::string, boost::any>("input", boost::any(dataset)));
@@ -126,6 +126,80 @@ struct TestDataBadFile
 };
 
 BOOST_FIXTURE_TEST_CASE(ThrowBadFile, TestDataBadFile)
+{
+    auto testdelete = dicomifier::factory::DeleteElementCreator::New();
+    testdelete->set_inputs(inputs);
+    
+    BOOST_FOREACH(boost::property_tree::ptree::value_type &v, ptr)
+    {
+        BOOST_REQUIRE_THROW(testdelete->Create(v), dicomifier::DicomifierException);
+    }
+}
+
+struct TestDataError01
+{
+    boost::property_tree::ptree ptr;
+    std::shared_ptr<dicomifier::factory::CreatorBase::InOutPutType> inputs;
+ 
+    TestDataError01()
+    {        
+        // Create Test file
+        DcmDataset* dataset = new DcmDataset();
+        OFString name("John");
+        dataset->putAndInsertOFStringArray(DCM_PatientName, name, true);
+        
+        // Create XML tree
+        boost::property_tree::ptree emptynode;
+        emptynode.put("<xmlattr>.tag", "PatientName");
+        emptynode.put("<xmlattr>.dataset", "input");
+        ptr.add_child("DeleteElement", emptynode);
+        
+        inputs = std::make_shared<dicomifier::factory::CreatorBase::InOutPutType>();
+        inputs->insert(std::pair<std::string, boost::any>("input", boost::any(dataset)));
+    }
+ 
+    ~TestDataError01()
+    {
+    }
+};
+
+BOOST_FIXTURE_TEST_CASE(ThrowError01, TestDataError01)
+{
+    auto testdelete = dicomifier::factory::DeleteElementCreator::New();
+    testdelete->set_inputs(inputs);
+    
+    BOOST_FOREACH(boost::property_tree::ptree::value_type &v, ptr)
+    {
+        BOOST_REQUIRE_THROW(testdelete->Create(v), dicomifier::DicomifierException);
+    }
+}
+
+struct TestDataError02
+{
+    boost::property_tree::ptree ptr;
+    std::shared_ptr<dicomifier::factory::CreatorBase::InOutPutType> inputs;
+ 
+    TestDataError02()
+    {        
+        // Create Test file
+        DcmDataset* dataset = NULL;
+        
+        // Create XML tree
+        boost::property_tree::ptree emptynode;
+        emptynode.put("<xmlattr>.tag", "PatientName");
+        emptynode.put("<xmlattr>.dataset", "#input");
+        ptr.add_child("DeleteElement", emptynode);
+        
+        inputs = std::make_shared<dicomifier::factory::CreatorBase::InOutPutType>();
+        inputs->insert(std::pair<std::string, boost::any>("input", boost::any(dataset)));
+    }
+ 
+    ~TestDataError02()
+    {
+    }
+};
+
+BOOST_FIXTURE_TEST_CASE(ThrowError02, TestDataError02)
 {
     auto testdelete = dicomifier::factory::DeleteElementCreator::New();
     testdelete->set_inputs(inputs);
