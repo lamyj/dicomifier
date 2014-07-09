@@ -38,6 +38,9 @@ BOOST_FIXTURE_TEST_CASE(EmptyExisting, TestData)
     testempty->set_dataset(dataset);
     testempty->set_tag(DCM_Modality);
     testempty->run();
+    
+    BOOST_CHECK_EQUAL(testempty->get_dataset() != NULL, true);
+    BOOST_CHECK_EQUAL(testempty->get_tag() == DCM_Modality, true);
         
     DcmElement * element = NULL;
     OFCondition const element_ok = dataset->findAndGetElement(DCM_Modality, element);

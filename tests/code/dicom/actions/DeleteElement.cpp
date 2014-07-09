@@ -42,6 +42,9 @@ BOOST_FIXTURE_TEST_CASE(DeleteExisting, TestData)
     testdelete->set_dataset(dataset);
     testdelete->set_tag(DCM_Modality);
     testdelete->run();
+    
+    BOOST_CHECK_EQUAL(testdelete->get_dataset() != NULL, true);
+    BOOST_CHECK_EQUAL(testdelete->get_tag() == DCM_Modality, true);
         
     // check DCM_Modality delete
     BOOST_CHECK_EQUAL(dataset->tagExists(DCM_Modality), false);
