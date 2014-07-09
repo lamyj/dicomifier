@@ -6,6 +6,8 @@
  * for details.
  ************************************************************************/
 
+#include "bruker/BrukerDirectory.h"
+#include "core/DicomifierException.h"
 #include "EnhanceBrukerDicom.h"
 
 namespace dicomifier
@@ -63,6 +65,24 @@ void
 EnhanceBrukerDicom
 ::run() const
 {
+    // ----- Check input directory name -----
+    if ( ! boost::filesystem::is_directory(this->_brukerDir) )
+    {
+        throw DicomifierException("Input not a Directory: " + this->_brukerDir);
+    }
+    
+    dicomifier::bruker::BrukerDirectory* brukerdirectory = new dicomifier::bruker::BrukerDirectory();
+    
+    // Parse input bruker directory
+    brukerdirectory->CreateMap(this->_brukerDir);
+    
+    dicomifier::Rule::Pointer rules = brukerdirectory->GenerateDICOMRules(this->_dataset);
+    
+    rules->Execute();
+    
+    delete brukerdirectory;
+    
+    this->_dataset->print(std::cout);
 }
     
 } // namespace actions

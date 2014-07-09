@@ -13,6 +13,9 @@
 namespace dicomifier
 {
     
+namespace bruker
+{
+    
 BrukerDataset::BrukerDataset()
 {
 }
@@ -86,10 +89,9 @@ void BrukerDataset::Parse(std::string const & data)
         
         // Get data key
         currentKey = BrukerFieldData::MatchBufferForText(Substring, RegEx_KeyWord);
-        
         // Get key data
         currentData.Parse(Substring);
-        
+            
         // Protection against duplication key
         if ( ! this->HasFieldData(currentKey))
         {
@@ -182,5 +184,7 @@ bool BrukerDataset::HasFieldData(std::string key) const
     // Return true if key exist, false otherwise
     return element != BrukerHeaderMap.end();
 }
+
+} // namespace bruker
 
 } // namespace dicomifier

@@ -6,10 +6,16 @@
  * for details.
  ************************************************************************/
 
+#include <boost/lexical_cast.hpp>
+
 #include "BrukerDirectory.h"
-#include "RulesDocument.h"
+#include "core/DicomifierException.h"
+#include "dicom/actions/SetElement.h"
 
 namespace dicomifier
+{
+    
+namespace bruker
 {
     
 BrukerDirectory::BrukerDirectory()
@@ -60,8 +66,8 @@ void BrukerDirectory::CreateMap(std::string const & inputDir)
             {// yes
                 // Parse file
                 std::string file = inputDir + 
-								   VALID_FILE_SEPARATOR + 
-								   std::string((*it).path().filename().c_str());
+                                   VALID_FILE_SEPARATOR + 
+                                   std::string((*it).path().filename().c_str());
                 mainDataset->LoadFile(file);
             }
         }
@@ -111,8 +117,8 @@ void BrukerDirectory::ParseDirectory(BrukerDataset * bdataset, std::string const
             if (isFileToRead((*iter).path().filename().c_str()))
             {// yes
                 std::string file = inputDir + 
-								   VALID_FILE_SEPARATOR + 
-								   std::string((*iter).path().filename().c_str());
+                                   VALID_FILE_SEPARATOR + 
+                                   std::string((*iter).path().filename().c_str());
                 // Parse file
                 bdataset->LoadFile(file);
             }
@@ -122,26 +128,11 @@ void BrukerDirectory::ParseDirectory(BrukerDataset * bdataset, std::string const
         {
             // recursively scan directory
             std::string subdir = inputDir + 
-								 VALID_FILE_SEPARATOR + 
-								 std::string((*iter).path().filename().c_str());
+                                 VALID_FILE_SEPARATOR + 
+                                 std::string((*iter).path().filename().c_str());
             ParseDirectory(bdataset, subdir);
         }
     }
-}
-
-bool BrukerDirectory::CreateDirectory(std::string const & OutputDir)
-{
-    std::string systemCommand;
-
-    boost::filesystem::directory_entry ent(OutputDir);
-    if ( ! boost::filesystem::is_directory(ent) )    // dirout not found
-    {
-        systemCommand = "mkdir " + OutputDir;        // create it!      
-        system (systemCommand.c_str());
-    }
-    
-    // Return true if directory exist (creation done), false otherwise
-    return boost::filesystem::is_directory(ent);
 }
 
 bool BrukerDirectory::isFileToRead(std::string const & file)
@@ -188,114 +179,301 @@ void BrukerDirectory::getImhDataType(BrukerFieldData const & bDPT, int & pixelSi
     }
 }
 
-void BrukerDirectory::GenerateDICOMRules(std::string const & outputdir)
+dicomifier::Rule::Pointer BrukerDirectory::GenerateDICOMRules(DcmDataset * dataset)
 {
-    int count = 0;
-    BrukerMapDirectory::iterator it = _BrukerDatasetList.begin();
-    for (; it != _BrukerDatasetList.end(); ++it)
+    // Search SeriesNumber dicom element
+    OFString str;
+    OFCondition cond = dataset->findAndGetOFStringArray(DCM_SeriesNumber, str);
+    if (cond.bad())
     {
-        std::string xmlfilename = (*it).first;
-        xmlfilename = "Rules_" + xmlfilename + ".xml";
-        
-        RulesDocument rdoc;
-        
+        throw dicomifier::DicomifierException("Error: Can't read SeriesNumber attribut, error = " + 
+                                              std::string(cond.text()));
+    }
+    
+    auto rule = dicomifier::Rule::New();
+    
+    int count = 0;
+    //auto it = _BrukerDatasetList.find(std::string(str.c_str()));
+    auto it = _BrukerDatasetList.find("pdata");
+    if (it != _BrukerDatasetList.end())
+    {
         // Columns                      0x0028,0x0011
-        rdoc.AddAction(AT_Set_Element, "Columns", 
-                       (*it).second->GetFieldData("IM_SIX"), EVR_US);
+        if ((*it).second->HasFieldData("IM_SIX"))
+        {
+            auto action = dicomifier::actions::SetElement<EVR_US>::New();
+            action->set_dataset(dataset);
+            action->set_tag(DCM_Columns);
+            
+            dicomifier::actions::SetElement<EVR_US>::ArrayType vect;
+            for (auto value : (*it).second->GetFieldData("IM_SIX").GetIntValue())
+            {
+                vect.push_back(boost::lexical_cast<dicomifier::actions::SetElement<EVR_US>::ValueType>(value));
+            }
+            action->set_value(vect);
+            
+            rule->add_action(action);
+        }
         
         // Rows                         0x0028,0x0010
-        rdoc.AddAction(AT_Set_Element, "Rows",
-                       (*it).second->GetFieldData("IM_SIY"), EVR_US);
+        if ((*it).second->HasFieldData("IM_SIY"))
+        {
+            auto action = dicomifier::actions::SetElement<EVR_US>::New();
+            action->set_dataset(dataset);
+            action->set_tag(DCM_Rows);
+            
+            dicomifier::actions::SetElement<EVR_US>::ArrayType vect;
+            for (auto value : (*it).second->GetFieldData("IM_SIY").GetIntValue())
+            {
+                vect.push_back(boost::lexical_cast<dicomifier::actions::SetElement<EVR_US>::ValueType>(value));
+            }
+            action->set_value(vect);
+            
+            rule->add_action(action);
+        }
                        
         // Number of Frames             0x0028,0x0008
-        rdoc.AddAction(AT_Set_Element, "Number of Frames",
-                       (*it).second->GetFieldData("IM_SIZ"), EVR_IS);
+        if ((*it).second->HasFieldData("IM_SIZ"))
+        {
+            auto action = dicomifier::actions::SetElement<EVR_IS>::New();
+            action->set_dataset(dataset);
+            action->set_tag(DCM_NumberOfFrames);
+            
+            dicomifier::actions::SetElement<EVR_IS>::ArrayType vect;
+            for (auto value : (*it).second->GetFieldData("IM_SIZ").GetIntValue())
+            {
+                vect.push_back(boost::lexical_cast<dicomifier::actions::SetElement<EVR_IS>::ValueType>(value));
+            }
+            action->set_value(vect);
+            
+            rule->add_action(action);
+        }
                        
-        int pixelSize;
-        getImhDataType((*it).second->GetFieldData("DATTYPE"), pixelSize);
+        if ((*it).second->HasFieldData("DATTYPE"))
+        {
+            int pixelSize;
+            getImhDataType((*it).second->GetFieldData("DATTYPE"), pixelSize);
         
-        // Bits allocated               0x0028,0x0100
-        rdoc.AddAction(AT_Set_Element, "Bits Allocated",
-                       BrukerFieldData(pixelSize * 8), EVR_US);
+            // Bits allocated               0x0028,0x0100
+            {
+                auto action = dicomifier::actions::SetElement<EVR_US>::New();
+                action->set_dataset(dataset);
+                action->set_tag(DCM_BitsAllocated);
+                action->set_value(pixelSize * 8);
+                
+                rule->add_action(action);
+            }
 
-        // Bits stored                  0x0028,0x0101
-        rdoc.AddAction(AT_Set_Element, "Bits Stored",
-                       BrukerFieldData(pixelSize * 8), EVR_US);
+            // Bits stored                  0x0028,0x0101
+            {
+                auto action = dicomifier::actions::SetElement<EVR_US>::New();
+                action->set_dataset(dataset);
+                action->set_tag(DCM_BitsStored);
+                action->set_value(pixelSize * 8);
+                
+                rule->add_action(action);
+            }
 
-        // High Bit                     0x0028,0x0102
-        rdoc.AddAction(AT_Set_Element, "High Bit",
-                       BrukerFieldData(pixelSize * 8 - 1), EVR_US);
+            // High Bit                     0x0028,0x0102
+            {
+                auto action = dicomifier::actions::SetElement<EVR_US>::New();
+                action->set_dataset(dataset);
+                action->set_tag(DCM_HighBit);
+                action->set_value(pixelSize * 8);
+                
+                rule->add_action(action);
+            }
+        }
 
         // pixel representation         0x0028,0x0103
-        rdoc.AddAction(AT_Set_Element, "Pixel Representation",
-                       BrukerFieldData("1"), EVR_US);
+        {
+            auto action = dicomifier::actions::SetElement<EVR_US>::New();
+            action->set_dataset(dataset);
+            action->set_tag(DCM_PixelRepresentation);
+            action->set_value(1);
+            
+            rule->add_action(action);
+        }
 
         // sample per pixel             0x0028,0x0002
-        rdoc.AddAction(AT_Set_Element, "Samples per Pixel",
-                       BrukerFieldData("1"), EVR_US);
+        {
+            auto action = dicomifier::actions::SetElement<EVR_US>::New();
+            action->set_dataset(dataset);
+            action->set_tag(DCM_SamplesPerPixel);
+            action->set_value(1);
+            
+            rule->add_action(action);
+        }
                        
         // Slice Thickness              0x0018,0x0050
-        rdoc.AddAction(AT_Set_Element, "Slice Thickness",
-                       (*it).second->GetFieldData("PVM_SPackArrSliceDistance"), EVR_DS);
-
+        if ((*it).second->HasFieldData("PVM_SPackArrSliceDistance"))
+        {
+            auto action = dicomifier::actions::SetElement<EVR_DS>::New();
+            action->set_dataset(dataset);
+            action->set_tag(DCM_SliceThickness);
+            
+            dicomifier::actions::SetElement<EVR_DS>::ArrayType vect;
+            for (auto value : (*it).second->GetFieldData("PVM_SPackArrSliceDistance").GetDoubleValue())
+            {
+                vect.push_back(boost::lexical_cast<dicomifier::actions::SetElement<EVR_DS>::ValueType>(value));
+            }
+            action->set_value(vect);
+            
+            rule->add_action(action);
+        }
+        
         // Series Number                0x0020,0x0011
-        rdoc.AddAction(AT_Set_Element, "Series Number",
-                       BrukerFieldData("0"), EVR_IS);
+        {
+            auto action = dicomifier::actions::SetElement<EVR_IS>::New();
+            action->set_dataset(dataset);
+            action->set_tag(DCM_SeriesNumber);
+            action->set_value(0);
+            
+            rule->add_action(action);
+        }
 
         // Instance Number              0x0020,0x0013
-        rdoc.AddAction(AT_Set_Element, "Instance Number",
-                       BrukerFieldData(++count), EVR_IS);
+        {
+            auto action = dicomifier::actions::SetElement<EVR_IS>::New();
+            action->set_dataset(dataset);
+            action->set_tag(DCM_InstanceNumber);
+            action->set_value(++count);
+            
+            rule->add_action(action);
+        }
                        
         // Patient Name                 0x0010,0x0010
-        rdoc.AddAction(AT_Set_Element, "Patient Name",
-                       (*it).second->GetFieldData("SUBJECT_name_string"), EVR_PN,
-                       true);
+        if ((*it).second->HasFieldData("SUBJECT_name_string"))
+        {
+            auto action = dicomifier::actions::SetElement<EVR_PN>::New();
+            action->set_dataset(dataset);
+            action->set_tag(DCM_PatientName);
+            
+            dicomifier::actions::SetElement<EVR_PN>::ArrayType vect;
+            for (auto value : (*it).second->GetFieldData("SUBJECT_name_string").GetStringValue())
+            {
+                BrukerFieldData::CleanString(value);
+                vect.push_back(boost::lexical_cast<dicomifier::actions::SetElement<EVR_PN>::ValueType>(value));
+            }
+            action->set_value(vect);
+            
+            rule->add_action(action);
+        }
 
         // Patient's ID                 0x0010,0x0020
-        rdoc.AddAction(AT_Set_Element, "Patient ID",
-                       (*it).second->GetFieldData("SUBJECT_name_string"), EVR_LO,
-                       true);
+        if ((*it).second->HasFieldData("SUBJECT_name_string"))
+        {
+            auto action = dicomifier::actions::SetElement<EVR_LO>::New();
+            action->set_dataset(dataset);
+            action->set_tag(DCM_PatientID);
+            
+            dicomifier::actions::SetElement<EVR_LO>::ArrayType vect;
+            for (auto value : (*it).second->GetFieldData("SUBJECT_name_string").GetStringValue())
+            {
+                BrukerFieldData::CleanString(value);
+                vect.push_back(boost::lexical_cast<dicomifier::actions::SetElement<EVR_LO>::ValueType>(value));
+            }
+            action->set_value(vect);
+            
+            rule->add_action(action);
+        }
                        
         char uidstudy[128];
         dcmGenerateUniqueIdentifier(uidstudy, SITE_STUDY_UID_ROOT);
 
         // Study Instance UID           0x0020,0x000d
-        rdoc.AddAction(AT_Set_Element, "Study Instance UID",
-                       BrukerFieldData(std::string(uidstudy)), EVR_UI);
+        {
+            auto action = dicomifier::actions::SetElement<EVR_UI>::New();
+            action->set_dataset(dataset);
+            action->set_tag(DCM_StudyInstanceUID);
+            action->set_value(OFString(uidstudy));
+            
+            rule->add_action(action);
+        }
                        
         char uidseries[128];
         dcmGenerateUniqueIdentifier(uidseries, SITE_SERIES_UID_ROOT);
 
         // Series Instance UID          0x0020,0x000e
-        rdoc.AddAction(AT_Set_Element, "Series Instance UID",
-                       BrukerFieldData(std::string(uidseries)), EVR_UI);
+        {
+            auto action = dicomifier::actions::SetElement<EVR_UI>::New();
+            action->set_dataset(dataset);
+            action->set_tag(DCM_SeriesInstanceUID);
+            action->set_value(OFString(uidseries));
+            
+            rule->add_action(action);
+        }
 
-        std::string datetime = (*it).second->GetFieldData("SUBJECT_date").GetValueToString(true);
+        if ((*it).second->HasFieldData("SUBJECT_date"))
+        {
+            std::string datetime = (*it).second->GetFieldData("SUBJECT_date").GetValueToString(true);
 
-        // Study Date                   0x0008,0x0020
-        rdoc.AddAction(AT_Set_Element, "Study Date",
-                       BrukerFieldData(datetime.substr(9,11)), EVR_DA);
+            // Study Date                   0x0008,0x0020
+            {
+                auto action = dicomifier::actions::SetElement<EVR_DA>::New();
+                action->set_dataset(dataset);
+                action->set_tag(DCM_StudyDate);
+                
+                std::string date = datetime.substr(9,11);
+                action->set_value(OFString(date.c_str()));
+                
+                rule->add_action(action);
+            }
 
-        // Study Time                   0x0008,0x0030
-        rdoc.AddAction(AT_Set_Element, "Study Time",
-                       BrukerFieldData(datetime.substr(0,8)), EVR_TM);
-
+            // Study Time                   0x0008,0x0030
+            {
+                auto action = dicomifier::actions::SetElement<EVR_TM>::New();
+                action->set_dataset(dataset);
+                action->set_tag(DCM_StudyTime);
+                
+                std::string time = datetime.substr(0,8);
+                action->set_value(OFString(time.c_str()));
+                
+                rule->add_action(action);
+            }
+        }
+        
         // Study Description            0x0008,0x1030
-        rdoc.AddAction(AT_Set_Element, "Study Description",
-                       (*it).second->GetFieldData("SUBJECT_study_name"), EVR_LO,
-                       true);
-
-        std::string strSerieDescr = (*it).first + "." +
-                                    (*it).second->GetFieldData("ACQ_scan_name").GetValueToString(true) + "." +
-                                    (*it).second->GetFieldData("ACQ_method").GetValueToString(true);
-                                    
-        // Series Description           0x0008,0x103e
-        rdoc.AddAction(AT_Set_Element, "Series Description",
-                       BrukerFieldData(strSerieDescr), EVR_LO);
+        if ((*it).second->HasFieldData("SUBJECT_study_name"))
+        {
+            auto action = dicomifier::actions::SetElement<EVR_LO>::New();
+            action->set_dataset(dataset);
+            action->set_tag(DCM_StudyDescription);
+            
+            dicomifier::actions::SetElement<EVR_LO>::ArrayType vect;
+            for (auto value : (*it).second->GetFieldData("SUBJECT_study_name").GetStringValue())
+            {
+                BrukerFieldData::CleanString(value);
+                vect.push_back(boost::lexical_cast<dicomifier::actions::SetElement<EVR_LO>::ValueType>(value));
+            }
+            action->set_value(vect);
+            
+            rule->add_action(action);
+        }
+        
+        if ((*it).second->HasFieldData("ACQ_scan_name") && (*it).second->HasFieldData("ACQ_method"))
+        {
+            std::string strSerieDescr = (*it).first + "." +
+                                        (*it).second->GetFieldData("ACQ_scan_name").GetValueToString(true) + "." +
+                                        (*it).second->GetFieldData("ACQ_method").GetValueToString(true);
+                                        
+            // Series Description           0x0008,0x103e
+            auto action = dicomifier::actions::SetElement<EVR_LO>::New();
+            action->set_dataset(dataset);
+            action->set_tag(DCM_SeriesDescription);
+            action->set_value(OFString(strSerieDescr.c_str()));
+            
+            rule->add_action(action);
+        }
 
         // Modality                     0x0008,0x0060
-        rdoc.AddAction(AT_Set_Element, "Modality",
-                       BrukerFieldData("MR"), EVR_CS);
+        {
+            auto action = dicomifier::actions::SetElement<EVR_CS>::New();
+            action->set_dataset(dataset);
+            action->set_tag(DCM_Modality);
+            action->set_value("MR");
+            
+            rule->add_action(action);
+        }
                        
         // Image Orientation Patient    0x0020,0x0037
         /*rdoc.AddAction(AT_Set_Element, "Image Orientation (Patient)",
@@ -306,34 +484,11 @@ void BrukerDirectory::GenerateDICOMRules(std::string const & outputdir)
         /*rdoc.AddAction(AT_Set_Element, "Image Position (Patient)",
                        , EVR_DS); 
         TODO look how to get this information*/
-
-        /* 
-        
-        std::string method = (*it).second->GetFieldData("Method").GetValueToString(true);
-        
-        // Private dictionary
-        if (method == "DtiEpi" || method == "DtiStandard")
-        {
-            //0x0029,0x0101
-            rdoc.AddAction(AT_Set_Element, "0x0029,0x0101", 
-                           (*it).second->GetFieldData("PVM_DwNDiffDir"), EVR_US);
-
-            //0x0029,0x0102
-            rdoc.AddAction(AT_Set_Element, "0x0029,0x0102", 
-                           (*it).second->GetFieldData("PVM_DwNDiffExpEach"), EVR_US);
-
-            //0x0029,0x0103
-            rdoc.AddAction(AT_Set_Element, "0x0029,0x0103", 
-                           (*it).second->GetFieldData("PVM_DwAoImages"), EVR_US);
-        
-            //0x0029,0x0104
-            rdoc.AddAction(AT_Set_Element, "0x0029,0x0104", 
-                           (*it).second->GetFieldData("PVM_DwBvalEach"), EVR_DS);
-        }*/
-        
-        std::string rdocfile = outputdir + VALID_FILE_SEPARATOR + xmlfilename;
-        rdoc.WriteDocument(rdocfile);
     }
+    
+    return rule;
 }
+
+} // namespace bruker
 
 } // namespace dicomifier

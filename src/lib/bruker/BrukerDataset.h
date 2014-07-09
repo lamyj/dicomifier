@@ -19,6 +19,9 @@
 namespace dicomifier
 {
     
+namespace bruker
+{
+    
 /*! \class  BrukerDataset
     \brief This class purpose is to extract information from a bruker experiment and setup the extracted information for an easy use
 */
@@ -30,7 +33,7 @@ public:
     /**
      * Constructor
      */
-	BrukerDataset();
+    BrukerDataset();
     
     /**
      * Copy Constructor
@@ -40,14 +43,14 @@ public:
     /**
      * Destructor
      */
-	virtual ~BrukerDataset();
+    virtual ~BrukerDataset();
     
     /**
      * Read (and parse) a given file
      * @param FileToRead : file path
      * @return : true if read is succeful, false otherwise
      */
-	bool LoadFile(std::string FileToRead);
+    bool LoadFile(std::string FileToRead);
     
     /**
      * Parse a given string
@@ -95,6 +98,8 @@ private:
      */
     BrukerMapType BrukerHeaderMap;
 };
+
+} // namespace bruker
 
 } // namespace dicomifier
 
