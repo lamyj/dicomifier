@@ -16,10 +16,10 @@
 BOOST_AUTO_TEST_CASE(Execute)
 {
     auto rule = dicomifier::Rule::New();
-	
-	rule->set_condition(dicomifier::conditions::True::New());
-	rule->add_action(dicomifier::actions::None::New());
-	
-	rule->Execute();
+
+    rule->set_condition(dicomifier::conditions::True::New());
+    rule->add_action(dicomifier::actions::None::New());
+
+    rule->Execute();
 }
  
