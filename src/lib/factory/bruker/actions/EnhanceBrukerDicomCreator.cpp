@@ -36,18 +36,18 @@ EnhanceBrukerDicomCreator
     std::string filename = value.second.get<std::string>("<xmlattr>.dataset"); // Warning: throw exception if attribut is missing
     if (filename[0] != '#')
     {
-        throw DicomifierException("Error: bad value for dataset attribut.");
+        throw DicomifierException("Bad value for dataset attribut.");
     }
     filename = filename.replace(0,1,"");
         
     if (this->_inputs->find(filename) == this->_inputs->end())
     {
-        throw DicomifierException("Error: no input dataset '" + filename + "'.");
+        throw DicomifierException("No input dataset '" + filename + "'.");
     }
     DcmDataset* dataset = boost::any_cast<DcmDataset*>(this->_inputs->find(filename)->second);
     if (dataset == NULL)
     {
-        throw DicomifierException("Error: Unable to load dataset '" + filename + "'.");
+        throw DicomifierException("Unable to load dataset '" + filename + "'.");
     }
     
     // get 'brukerdir' attribut
@@ -59,7 +59,7 @@ EnhanceBrukerDicomCreator
         
         if (this->_inputs->find(filename) == this->_inputs->end())
         {
-            throw DicomifierException("Error: no input brukerdir '" + filename + "'.");
+            throw DicomifierException("No input brukerdir '" + filename + "'.");
         }
         
         filename = boost::any_cast<std::string>(this->_inputs->find(filename)->second);

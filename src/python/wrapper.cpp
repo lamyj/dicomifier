@@ -5,25 +5,17 @@
  * http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html
  * for details.
  ************************************************************************/
-
-#include <iostream>
+ 
 #include <memory>
 
 #include "core/Rule.h"
 #include "core/XmlToRules.h"
+#include "wrapper.h"
 
-int main(int argc, char *argv[])
+void execute(std::string xmlfile) throw (dicomifier::DicomifierException)
 {
-    if (argc < 2)
-    {
-        std::cout << "Argument is missing." << std::endl;
-        return EXIT_FAILURE;
-    }
-    
-    std::string const filename = argv[1];
-    
     std::vector<dicomifier::Object::Pointer> rules = 
-                    dicomifier::XmlToRules::Convert(filename);
+                    dicomifier::XmlToRules::Convert(xmlfile);
     
     for (auto it = rules.begin(); it != rules.end(); it++)
     {
@@ -34,11 +26,5 @@ int main(int argc, char *argv[])
         {
             rule->Execute();
         }
-        else
-        {
-            std::cout << "Error: Created object is not a Rule." << std::endl;
-        }
     }
-            
-    return EXIT_SUCCESS;
 }
