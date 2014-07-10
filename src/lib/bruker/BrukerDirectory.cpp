@@ -74,22 +74,28 @@ void BrukerDirectory::CreateMap(std::string const & inputDir)
         // Else element is a directory
         else
         {
-            subDirectoryName.push_back((*it).path().filename().c_str());
+            if (isDirToParse((*it).path().filename().c_str()))
+            {
+                subDirectoryName.push_back((*it).path().filename().c_str());
+            }
         }
     }
     
+    // Create Studies BrukerDatasets
     if (subDirectoryName.size() != 0)
     {
-        std::vector<std::string>::iterator iter = subDirectoryName.begin();
-        for (; iter != subDirectoryName.end(); ++iter)
-        {
-            BrukerDataset * dataset = new BrukerDataset(*mainDataset);
-            
+        for (auto iter = subDirectoryName.begin(); iter != subDirectoryName.end(); ++iter)
+        {            
             std::string file = inputDir + VALID_FILE_SEPARATOR + (*iter);
-                    
-            this->ParseDirectory(dataset, file);
             
-            this->_BrukerDatasetList[ (*iter) ] = dataset;
+            if ((*iter) == "pdata")
+            { // find series directory
+                ParseSeriesDirectory(mainDataset, file, "0");
+            }
+            else
+            { // find studies directory
+                ParseStudiesDirectory(mainDataset, file, (*iter));
+            }
         }
         delete mainDataset;
     }
@@ -99,7 +105,118 @@ void BrukerDirectory::CreateMap(std::string const & inputDir)
     }
 }
 
-void BrukerDirectory::ParseDirectory(BrukerDataset * bdataset, std::string const & inputDir)
+void 
+BrukerDirectory
+::ParseStudiesDirectory(BrukerDataset * bdataset, 
+                        std::string const & inputDir, 
+                        std::string const & StudyNumber)
+{
+    BrukerDataset * studyDataset = new BrukerDataset(*bdataset);
+    std::vector<std::string> subDirectoryName;
+    
+    // Update Main BrukerDataset with current study data
+    boost::filesystem::directory_iterator it(inputDir), it_end;
+    for(; it != it_end; ++it)
+    {
+        // If element is a file
+        if(! boost::filesystem::is_directory( (*it) ) )
+        {
+            // Should we parse this file ?
+            if (isFileToRead((*it).path().filename().c_str()))
+            {// yes
+                // Parse file
+                std::string file = inputDir + 
+                                   VALID_FILE_SEPARATOR + 
+                                   std::string((*it).path().filename().c_str());
+                studyDataset->LoadFile(file);
+            }
+        }
+        // Else element is a directory
+        else
+        {
+            if (isDirToParse((*it).path().filename().c_str()))
+            {
+                subDirectoryName.push_back((*it).path().filename().c_str());
+            }
+        }
+    }
+    
+    // Create Studies BrukerDatasets
+    if (subDirectoryName.size() != 0)
+    {
+        for (auto iter = subDirectoryName.begin(); iter != subDirectoryName.end(); ++iter)
+        {            
+            std::string file = inputDir + VALID_FILE_SEPARATOR + (*iter);
+            
+            if ((*iter) == "pdata")
+            { // find series directory
+                ParseSeriesDirectory(studyDataset, file, StudyNumber);
+            }
+        }
+    }
+}
+
+void 
+BrukerDirectory
+::ParseSeriesDirectory(BrukerDataset * bdataset, 
+                       std::string const & inputDir, 
+                       std::string const & StudyNumber)
+{
+    BrukerDataset * seriesdataset = new BrukerDataset(*bdataset);
+    std::vector<std::string> subDirectoryName;
+    
+    // Update Main BrukerDataset with current serie data
+    boost::filesystem::directory_iterator it(inputDir), it_end;
+    for(; it != it_end; ++it)
+    {
+        // If element is a file
+        if(! boost::filesystem::is_directory( (*it) ) )
+        {
+            // Should we parse this file ?
+            if (isFileToRead((*it).path().filename().c_str()))
+            {// yes
+                // Parse file
+                std::string file = inputDir + 
+                                   VALID_FILE_SEPARATOR + 
+                                   std::string((*it).path().filename().c_str());
+                seriesdataset->LoadFile(file);
+            }
+        }
+        // Else element is a directory
+        else
+        {
+            if (isDirToParse((*it).path().filename().c_str()))
+            {
+                subDirectoryName.push_back((*it).path().filename().c_str());
+            }
+        }
+    }
+    
+    // Create Series BrukerDatasets
+    if (subDirectoryName.size() != 0)
+    {
+        for (auto iter = subDirectoryName.begin(); iter != subDirectoryName.end(); ++iter)
+        {
+            BrukerDataset * dataset = new BrukerDataset(*seriesdataset);
+            
+            std::string file = inputDir + VALID_FILE_SEPARATOR + (*iter);
+                    
+            this->ParseDirectory(dataset, file);
+            
+            std::string name = (*iter);
+            while (name.length() < 4)
+            {
+                name = "0" + name;
+            }
+            name = StudyNumber + name;
+            
+            this->_BrukerDatasetList[ name ] = dataset;
+        }
+    }
+}
+
+void BrukerDirectory::ParseDirectory(BrukerDataset * bdataset, 
+                                     std::string const & inputDir)
 {
     if (bdataset == NULL)
     {
@@ -139,6 +256,28 @@ bool BrukerDirectory::isFileToRead(std::string const & file)
 {
     return std::find(FilesToRead.begin(), 
                      FilesToRead.end(), file) != FilesToRead.end();
+}
+
+bool BrukerDirectory::isDirToParse(std::string const & dir)
+{
+    if (dir == "pdata")
+    {
+        return true;
+    }
+    
+    try
+    {
+        unsigned int result = std::stoul(dir);
+        if (0 < result && result < 1000)
+        {
+            return true;
+        }
+    }
+    catch (std::exception &e)
+    {
+    }
+    
+    return false;
 }
 
 void BrukerDirectory::getImhDataType(BrukerFieldData const & bDPT, int & pixelSize)
@@ -190,11 +329,17 @@ dicomifier::Rule::Pointer BrukerDirectory::GenerateDICOMRules(DcmDataset * datas
                                               std::string(cond.text()));
     }
     
+    std::string seriesnumber(str.c_str());
+    // check value
+    if (seriesnumber.length() == 6)
+    {
+        seriesnumber = "0" + seriesnumber.substr(2,4);
+    }
+    
     auto rule = dicomifier::Rule::New();
     
     int count = 0;
-    //auto it = _BrukerDatasetList.find(std::string(str.c_str()));
-    auto it = _BrukerDatasetList.find("pdata");
+    auto it = _BrukerDatasetList.find(seriesnumber);
     if (it != _BrukerDatasetList.end())
     {
         // Columns                      0x0028,0x0011
@@ -247,7 +392,7 @@ dicomifier::Rule::Pointer BrukerDirectory::GenerateDICOMRules(DcmDataset * datas
             
             rule->add_action(action);
         }
-                       
+        
         if ((*it).second->HasFieldData("DATTYPE"))
         {
             int pixelSize;
@@ -283,7 +428,7 @@ dicomifier::Rule::Pointer BrukerDirectory::GenerateDICOMRules(DcmDataset * datas
                 rule->add_action(action);
             }
         }
-
+        
         // pixel representation         0x0028,0x0103
         {
             auto action = dicomifier::actions::SetElement<EVR_US>::New();
@@ -330,7 +475,7 @@ dicomifier::Rule::Pointer BrukerDirectory::GenerateDICOMRules(DcmDataset * datas
             
             rule->add_action(action);
         }
-
+        
         // Instance Number              0x0020,0x0013
         {
             auto action = dicomifier::actions::SetElement<EVR_IS>::New();
@@ -340,7 +485,7 @@ dicomifier::Rule::Pointer BrukerDirectory::GenerateDICOMRules(DcmDataset * datas
             
             rule->add_action(action);
         }
-                       
+        
         // Patient Name                 0x0010,0x0010
         if ((*it).second->HasFieldData("SUBJECT_name_string"))
         {
@@ -352,13 +497,14 @@ dicomifier::Rule::Pointer BrukerDirectory::GenerateDICOMRules(DcmDataset * datas
             for (auto value : (*it).second->GetFieldData("SUBJECT_name_string").GetStringValue())
             {
                 BrukerFieldData::CleanString(value);
-                vect.push_back(boost::lexical_cast<dicomifier::actions::SetElement<EVR_PN>::ValueType>(value));
+                // Warning: cannot lexical_cast String to OFString
+                vect.push_back(OFString(value.c_str()));
             }
             action->set_value(vect);
             
             rule->add_action(action);
         }
-
+        
         // Patient's ID                 0x0010,0x0020
         if ((*it).second->HasFieldData("SUBJECT_name_string"))
         {
@@ -370,13 +516,14 @@ dicomifier::Rule::Pointer BrukerDirectory::GenerateDICOMRules(DcmDataset * datas
             for (auto value : (*it).second->GetFieldData("SUBJECT_name_string").GetStringValue())
             {
                 BrukerFieldData::CleanString(value);
-                vect.push_back(boost::lexical_cast<dicomifier::actions::SetElement<EVR_LO>::ValueType>(value));
+                // Warning: cannot lexical_cast String to OFString
+                vect.push_back(OFString(value.c_str()));
             }
             action->set_value(vect);
             
             rule->add_action(action);
         }
-                       
+        
         char uidstudy[128];
         dcmGenerateUniqueIdentifier(uidstudy, SITE_STUDY_UID_ROOT);
 
@@ -389,7 +536,7 @@ dicomifier::Rule::Pointer BrukerDirectory::GenerateDICOMRules(DcmDataset * datas
             
             rule->add_action(action);
         }
-                       
+        
         char uidseries[128];
         dcmGenerateUniqueIdentifier(uidseries, SITE_SERIES_UID_ROOT);
 
@@ -443,7 +590,8 @@ dicomifier::Rule::Pointer BrukerDirectory::GenerateDICOMRules(DcmDataset * datas
             for (auto value : (*it).second->GetFieldData("SUBJECT_study_name").GetStringValue())
             {
                 BrukerFieldData::CleanString(value);
-                vect.push_back(boost::lexical_cast<dicomifier::actions::SetElement<EVR_LO>::ValueType>(value));
+                // Warning: cannot lexical_cast String to OFString
+                vect.push_back(OFString(value.c_str()));
             }
             action->set_value(vect);
             
