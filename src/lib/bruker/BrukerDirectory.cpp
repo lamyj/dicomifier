@@ -325,7 +325,7 @@ dicomifier::Rule::Pointer BrukerDirectory::GenerateDICOMRules(DcmDataset * datas
     OFCondition cond = dataset->findAndGetOFStringArray(DCM_SeriesNumber, str);
     if (cond.bad())
     {
-        throw dicomifier::DicomifierException("Error: Can't read SeriesNumber attribut, error = " + 
+        throw dicomifier::DicomifierException("Can't read SeriesNumber attribut, error = " + 
                                               std::string(cond.text()));
     }
     
