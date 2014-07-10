@@ -70,14 +70,14 @@ RuleCreator
     // throw exception if value Condition element is missing.
     if (conditions.first == conditions.second)
     {
-        throw DicomifierException("Error: Missing Condition element.");
+        throw DicomifierException("Missing Condition element.");
     }
     auto it = conditions.first;
     it++;
     // throw exception if value contains several Condition elements.
     if (it != conditions.second)
     {
-        throw DicomifierException("Error: Too many Condition element.");
+        throw DicomifierException("Too many Condition element.");
     }
     
     bool alreadyset = false;
@@ -102,14 +102,14 @@ RuleCreator
     // throw exception if value Actions element is missing.
     if (actions.first == actions.second)
     {
-        throw DicomifierException("Error: Missing Actions element.");
+        throw DicomifierException("Missing Actions element.");
     }
     auto it_action = actions.first;
     it_action++;
     // throw exception if value contains several Actions elements.
     if (it_action != actions.second)
     {
-        throw DicomifierException("Error: Too many Actions element.");
+        throw DicomifierException("Too many Actions element.");
     }
     BOOST_FOREACH(boost::property_tree::ptree::value_type &v,
             value.second.get_child("Actions"))
@@ -144,7 +144,7 @@ RuleCreator
         return boost::any(value);
     }
 
-    throw DicomifierException("Error: Unknown type '" + type + "' for Input or Output element.");
+    throw DicomifierException("Unknown type '" + type + "' for Input or Output element.");
 }
    
 } // namespace factory
