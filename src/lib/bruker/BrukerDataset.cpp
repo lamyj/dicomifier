@@ -99,6 +99,7 @@ void BrukerDataset::Parse(std::string const & data)
         }
         else
         {
+#if DEBUG
             // duplicate key with different value
             if (BrukerHeaderMap[ currentKey ].toString() != currentData.toString())
             {
@@ -107,6 +108,7 @@ void BrukerDataset::Parse(std::string const & data)
                 std::cout << "\tvalue1 = " << BrukerHeaderMap[ currentKey ].toString() << std::endl;
                 std::cout << "\tvalue2 = " << currentData.toString() << std::endl;
             }
+#endif
         }
         
         currentData.Reset();

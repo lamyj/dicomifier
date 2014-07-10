@@ -71,7 +71,13 @@ protected:
      */
     bool isFileToRead(std::string const & file);
     
+    bool isDirToParse(std::string const & dir);
+    
     void getImhDataType(BrukerFieldData const & bDPT, int & pixelSize);
+    
+    void ParseStudiesDirectory(BrukerDataset * bdataset, std::string const & inputDir, std::string const & StudyNumber);
+    
+    void ParseSeriesDirectory(BrukerDataset * bdataset, std::string const & inputDir, std::string const & StudyNumber);
 
 private:
     BrukerMapDirectory _BrukerDatasetList;
