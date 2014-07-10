@@ -39,25 +39,25 @@ EmptyElementCreator
     OFCondition status = DcmTag::findTagFromName(second.c_str(), dcmtag);
     if (status.bad())
     {
-        throw DicomifierException("Error: Unknown tag '" + second + "'.");
+        throw DicomifierException("Unknown tag '" + second + "'.");
     }
     
     // get 'dataset' attribut
     std::string filename = value.second.get<std::string>("<xmlattr>.dataset"); // Warning: throw exception if attribut is missing
     if (filename[0] != '#')
     {
-        throw DicomifierException("Error: bad value for dataset attribut.");
+        throw DicomifierException("Bad value for dataset attribut.");
     }
     filename = filename.replace(0,1,"");
 
     if (this->_inputs->find(filename) == this->_inputs->end())
     {
-        throw DicomifierException("Error: no input dataset '" + filename + "'.");
+        throw DicomifierException("No input dataset '" + filename + "'.");
     }
     DcmDataset* dataset = boost::any_cast<DcmDataset*>(this->_inputs->find(filename)->second);
     if (dataset == NULL)
     {
-        throw DicomifierException("Error: Unable to load dataset '" + filename + "'.");
+        throw DicomifierException("Unable to load dataset '" + filename + "'.");
     }
     
     return dicomifier::actions::EmptyElement::New(dataset, dcmtag);

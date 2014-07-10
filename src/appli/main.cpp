@@ -9,8 +9,6 @@
 #include <iostream>
 #include <memory>
 
-#include <dcmtk/dcmdata/dctk.h>
-
 #include "core/Rule.h"
 #include "core/XmlToRules.h"
 
@@ -18,7 +16,7 @@ int main(int argc, char *argv[])
 {
     if (argc < 2)
     {
-        std::cout << "Error: Argument is missing." << std::endl;
+        std::cout << "Argument is missing." << std::endl;
         return EXIT_FAILURE;
     }
     

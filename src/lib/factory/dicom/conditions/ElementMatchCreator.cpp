@@ -45,14 +45,14 @@ ElementMatchCreator
         std::string filename = value.second.get<std::string>("<xmlattr>.dataset"); // Warning: throw exception if attribut is missing
         if (filename[0] != '#')
         {
-			throw DicomifierException("Error: bad value for dataset attribut.");
-		}
+            throw DicomifierException("Bad value for dataset attribut.");
+        }
         filename = filename.replace(0,1,"");
         
         if (this->_inputs->find(filename) == this->_inputs->end())
         {
-            throw DicomifierException("Error: no input dataset '" + filename + "'.");
-		}
+            throw DicomifierException("No input dataset '" + filename + "'.");
+        }
         DcmDataset* dataset = boost::any_cast<DcmDataset*>(this->_inputs->find(filename)->second);
         if (dataset != NULL)
         {
@@ -92,16 +92,16 @@ ElementMatchCreator
             else if (evr == EVR_US) return this->Create<EVR_US>(dataset, dcmtag, attrvalue);
             else if (evr == EVR_UT) return this->Create<EVR_UT>(dataset, dcmtag, attrvalue);
             
-            else throw DicomifierException("Error: Unknown VR '" + vrstr + "'.");
+            else throw DicomifierException("Unknown VR '" + vrstr + "'.");
         }
         else
         {
-            throw DicomifierException("Error: no input dataset '" + filename + "'.");
+            throw DicomifierException("No input dataset '" + filename + "'.");
         }
     }
     else
     {
-        throw DicomifierException("Error: Unknown tag '" + tag + "'.");
+        throw DicomifierException("Unknown tag '" + tag + "'.");
     }
     
     // never happend
