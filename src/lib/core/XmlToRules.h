@@ -22,8 +22,14 @@ namespace dicomifier
 class XmlToRules
 {
 public:
+    /**
+     * @brief Load given XML file and return a list of Object elements
+     */
     static std::vector<Object::Pointer> Convert(std::string const & filename);
     
+    /**
+     * @brief Convert given XML tree into list of Object elements
+     */
     static std::vector<Object::Pointer> Convert(boost::property_tree::ptree & pt);
 
 protected:
