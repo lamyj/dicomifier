@@ -26,10 +26,12 @@ static unsigned int const registration = Factory::get_instance().register_<RuleC
     
 RuleCreator::RuleCreator()
 {
+    // Nothing to do
 }
 
 RuleCreator::~RuleCreator()
 {
+    // Nothing to do
 }
 
 Object::Pointer 
@@ -37,7 +39,6 @@ RuleCreator
 ::Create(boost::property_tree::ptree::value_type & value)
 {
     this->_inputs = std::make_shared<CreatorBase::InOutPutType>();
-    this->_outputs = std::make_shared<CreatorBase::InOutPutType>();
 
     // Parsing <Input />
     BOOST_FOREACH(boost::property_tree::ptree::value_type &input, 
@@ -50,6 +51,8 @@ RuleCreator
         boost::any obj = CreateAnyObject(type, name, value);
         this->_inputs->insert(std::pair<std::string, boost::any>(name, obj));
     }
+    
+    this->_outputs = std::make_shared<CreatorBase::InOutPutType>();
 
     // Parsing <Output />
     BOOST_FOREACH(boost::property_tree::ptree::value_type &output, 

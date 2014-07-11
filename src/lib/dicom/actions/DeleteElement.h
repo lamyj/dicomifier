@@ -59,8 +59,8 @@ private:
 
 };
     
-} // actions
+} // namespace actions
 
-} // router
+} // namespace dicomifier
 
 #endif // _7d7419ea_a474_491a_8a5a_86cd918c7629
