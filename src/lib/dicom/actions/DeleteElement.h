@@ -13,6 +13,7 @@
 #include <dcmtk/dcmdata/dctk.h>
 
 #include "core/actions/Action.h"
+#include "dicom/TagAndRange.h"
 
 namespace dicomifier
 {
@@ -32,15 +33,15 @@ public:
     typedef std::shared_ptr<Self const> ConstPointer;
     
     static Pointer New();
-    static Pointer New(DcmDataset * dataset, DcmTagKey tag);
+    static Pointer New(DcmDataset * dataset, std::vector<TagAndRange> tags);
     
     virtual ~DeleteElement();
 
     DcmDataset * get_dataset() const;
     void set_dataset(DcmDataset * dataset);
 
-    DcmTag const & get_tag() const;
-    void set_tag(DcmTag const & tag);
+    std::vector<TagAndRange> const & get_tags() const { return this->_tags; }
+    void set_tags(std::vector<TagAndRange> const & tags) { this->_tags = tags; }
 
     virtual void run() const;
     
@@ -48,11 +49,19 @@ public:
 
 protected:
     DeleteElement();
-    DeleteElement(DcmDataset * dataset, DcmTagKey tag);
+    DeleteElement(DcmDataset * dataset, std::vector<TagAndRange> tags);
+    
+    void removeItem(int indice, DcmItem* dataset) const;
+    
+    template<DcmEVR VR>
+    void removeElement(DcmItem* dataset, DcmElement* dcmelement, TagAndRange const & tagandrange) const;
+    
+    void removeElementSQ(DcmItem* dataset, DcmElement* dcmelement, TagAndRange const & tagandrange) const;
 
 private:
     DcmDataset * _dataset;
-    DcmTag _tag;
+    
+    std::vector<TagAndRange> _tags;
 
     DeleteElement(Self const & other); // Purposely not implemented
     Self const & operator=(Self const & other); // Purposely not implemented

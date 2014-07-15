@@ -1,5 +1,7 @@
 cmake_minimum_required(VERSION 2.8)
 
+add_definitions(-DHAVE_CONFIG_H)
+
 macro(swig_python_module name)
     # Build a SWIG Python module. This macro is a wrapper around swig_add_module.
     find_package(SWIG REQUIRED)
