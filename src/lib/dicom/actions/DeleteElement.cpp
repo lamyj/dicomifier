@@ -13,7 +13,6 @@
 #include "core/DicomifierException.h"
 #include "core/Factory.h"
 #include "DeleteElement.h"
-#include "dicom/ElementTraits.h"
 
 namespace dicomifier
 {
@@ -96,35 +95,11 @@ void DeleteElement::removeItem(int indice, DcmItem* dataset) const
         
         if (ret.good())
         {
-            if      (dcmelement->getVR() == EVR_AE) this->removeElement<EVR_AE>(dataset, dcmelement, tar);
-            else if (dcmelement->getVR() == EVR_AS) this->removeElement<EVR_AS>(dataset, dcmelement, tar);
-            // TODO: EVR_AT
-            else if (dcmelement->getVR() == EVR_CS) this->removeElement<EVR_CS>(dataset, dcmelement, tar);
-            else if (dcmelement->getVR() == EVR_DA) this->removeElement<EVR_DA>(dataset, dcmelement, tar);
-            else if (dcmelement->getVR() == EVR_DS) this->removeElement<EVR_DS>(dataset, dcmelement, tar);
-            else if (dcmelement->getVR() == EVR_DT) this->removeElement<EVR_DT>(dataset, dcmelement, tar);
-            else if (dcmelement->getVR() == EVR_FD) this->removeElement<EVR_FD>(dataset, dcmelement, tar);
-            else if (dcmelement->getVR() == EVR_FL) this->removeElement<EVR_FL>(dataset, dcmelement, tar);
-            else if (dcmelement->getVR() == EVR_IS) this->removeElement<EVR_IS>(dataset, dcmelement, tar);
-            else if (dcmelement->getVR() == EVR_LO) this->removeElement<EVR_LO>(dataset, dcmelement, tar);
-            else if (dcmelement->getVR() == EVR_LT) this->removeElement<EVR_LT>(dataset, dcmelement, tar);
-            // TODO: OB
-            // TODO: OF
-            // TODO: OW
-            else if (dcmelement->getVR() == EVR_PN) this->removeElement<EVR_PN>(dataset, dcmelement, tar);
-            else if (dcmelement->getVR() == EVR_SH) this->removeElement<EVR_SH>(dataset, dcmelement, tar);
-            else if (dcmelement->getVR() == EVR_SL) this->removeElement<EVR_SL>(dataset, dcmelement, tar);
-
-            else if (dcmelement->getVR() == EVR_SQ) this->removeElementSQ(dataset, dcmelement, tar);
+            RemoveElement action;
+            action.dataset =  dataset;
+            action.tagandrange = tar;
             
-            else if (dcmelement->getVR() == EVR_SS) this->removeElement<EVR_SS>(dataset, dcmelement, tar);
-            else if (dcmelement->getVR() == EVR_UI) this->removeElement<EVR_UI>(dataset, dcmelement, tar);
-            else if (dcmelement->getVR() == EVR_TM) this->removeElement<EVR_TM>(dataset, dcmelement, tar);
-            else if (dcmelement->getVR() == EVR_ST) this->removeElement<EVR_ST>(dataset, dcmelement, tar);
-            else if (dcmelement->getVR() == EVR_UL) this->removeElement<EVR_UL>(dataset, dcmelement, tar);
-            // TODO: UN
-            else if (dcmelement->getVR() == EVR_US) this->removeElement<EVR_US>(dataset, dcmelement, tar);
-            else if (dcmelement->getVR() == EVR_UT) this->removeElement<EVR_UT>(dataset, dcmelement, tar);
+            dicomifier::vr_loop(action, dcmelement);
         }
     }
     else
@@ -147,17 +122,46 @@ void DeleteElement::removeItem(int indice, DcmItem* dataset) const
         }
     }
 }
-    
-template<DcmEVR VR>
+
 void 
-DeleteElement
-::removeElement(DcmItem* dataset, DcmElement* dcmelement, TagAndRange const & tagandrange) const
+RemoveElement
+::runSQ(DcmElement* element) const
 {
-    auto values = dicomifier::ElementTraits<VR>::array_getter(dcmelement);
+    DcmSequenceOfItems* seq = dynamic_cast<DcmSequenceOfItems*>(element);
+    
+    std::vector<DcmItem*> vect;
+    for (unsigned int i = tagandrange._range._min; 
+         i < std::min(tagandrange._range._max, (int)element->getVM()); 
+         i++)
+    {
+        vect.push_back(seq->getItem(i));
+    }
+    
+    if (vect.size() == (int)element->getVM())
+    {
+        dataset->findAndDeleteElement(tagandrange._tag);
+    }
+    else
+    {
+        for (auto item : vect)
+        {
+            seq->remove(item);
+        }
+    }
+}
+
+template<DcmEVR VR> 
+void 
+RemoveElement
+::run(DcmElement* element) const
+{
+    auto values = dicomifier::ElementTraits<VR>::array_getter(element);
 
     int size = values.size();
     int pos = tagandrange._range._min;
-    for (unsigned int i = tagandrange._range._min; i < std::max(tagandrange._range._max, size); i++)
+    for (unsigned int i = tagandrange._range._min; 
+         i < std::min(tagandrange._range._max, size); 
+         i++)
     {
         values.erase(values.begin() + pos);
     }
@@ -168,34 +172,7 @@ DeleteElement
     }
     else
     {
-        dicomifier::ElementTraits<VR>::array_setter(dcmelement, &values[0], values.size());
-    }
-}
-
-void 
-DeleteElement
-::removeElementSQ(DcmItem* dataset, DcmElement* dcmelement, TagAndRange const & tagandrange) const
-{
-    DcmSequenceOfItems* seq = dynamic_cast<DcmSequenceOfItems*>(dcmelement);
-    
-    std::vector<DcmItem*> vect;
-    for (unsigned int i = tagandrange._range._min; 
-         i < std::max(tagandrange._range._max, (int)dcmelement->getVR()); 
-         i++)
-    {
-        vect.push_back(seq->getItem(i));
-    }
-    
-    if (vect.size() == (int)dcmelement->getVR())
-    {
-        dataset->findAndDeleteElement(tagandrange._tag);
-    }
-    else
-    {
-        for (auto item : vect)
-        {
-            seq->remove(item);
-        }
+        dicomifier::ElementTraits<VR>::array_setter(element, &values[0], values.size());
     }
 }
     

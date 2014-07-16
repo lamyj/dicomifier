@@ -13,6 +13,7 @@
 #include <dcmtk/dcmdata/dctk.h>
 
 #include "core/actions/Action.h"
+#include "dicom/ElementTraits.h"
 #include "dicom/TagAndRange.h"
 
 namespace dicomifier
@@ -20,6 +21,16 @@ namespace dicomifier
     
 namespace actions
 {
+    
+
+struct RemoveElement
+{
+    DcmItem* dataset;
+    TagAndRange tagandrange;
+    
+    template<DcmEVR VR> void run(DcmElement* element) const;
+    void runSQ(DcmElement* element) const;
+};
 
 /**
  * @brief Remove an element from a dataset. 
@@ -52,11 +63,6 @@ protected:
     DeleteElement(DcmDataset * dataset, std::vector<TagAndRange> tags);
     
     void removeItem(int indice, DcmItem* dataset) const;
-    
-    template<DcmEVR VR>
-    void removeElement(DcmItem* dataset, DcmElement* dcmelement, TagAndRange const & tagandrange) const;
-    
-    void removeElementSQ(DcmItem* dataset, DcmElement* dcmelement, TagAndRange const & tagandrange) const;
 
 private:
     DcmDataset * _dataset;

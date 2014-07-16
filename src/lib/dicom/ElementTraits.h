@@ -73,6 +73,38 @@ DECLARE_ELEMENT_TRAITS(EVR_UT, OFString, DcmUnlimitedText)
 
 #undef DECLARE_ELEMENT_TRAITS
 
+template<typename Action>
+static void vr_loop(Action const & action, DcmElement* e)
+{
+    if      (e->getVR() == EVR_AE) action.template run<EVR_AE>(e);
+    else if (e->getVR() == EVR_AS) action.template run<EVR_AS>(e);
+    // TODO: EVR_AT
+    else if (e->getVR() == EVR_CS) action.template run<EVR_CS>(e);
+    else if (e->getVR() == EVR_DA) action.template run<EVR_DA>(e);
+    else if (e->getVR() == EVR_DS) action.template run<EVR_DS>(e);
+    else if (e->getVR() == EVR_DT) action.template run<EVR_DT>(e);
+    else if (e->getVR() == EVR_FD) action.template run<EVR_FD>(e);
+    else if (e->getVR() == EVR_FL) action.template run<EVR_FL>(e);
+    else if (e->getVR() == EVR_IS) action.template run<EVR_IS>(e);
+    else if (e->getVR() == EVR_LO) action.template run<EVR_LO>(e);
+    else if (e->getVR() == EVR_LT) action.template run<EVR_LT>(e);
+    // TODO: EVR_OB
+    // TODO: EVR_OF
+    // TODO: EVR_OW
+    else if (e->getVR() == EVR_PN) action.template run<EVR_PN>(e);
+    else if (e->getVR() == EVR_SH) action.template run<EVR_SH>(e);
+    else if (e->getVR() == EVR_SL) action.template run<EVR_SL>(e);
+    else if (e->getVR() == EVR_SQ) action.runSQ(e);
+    else if (e->getVR() == EVR_SS) action.template run<EVR_SS>(e);
+    else if (e->getVR() == EVR_UI) action.template run<EVR_UI>(e);
+    else if (e->getVR() == EVR_TM) action.template run<EVR_TM>(e);
+    else if (e->getVR() == EVR_ST) action.template run<EVR_ST>(e);
+    else if (e->getVR() == EVR_UL) action.template run<EVR_UL>(e);
+    // TODO: EVR_UN
+    else if (e->getVR() == EVR_US) action.template run<EVR_US>(e);
+    else if (e->getVR() == EVR_UT) action.template run<EVR_UT>(e);
+}
+
 } // namespace dicomifier
 
 #endif // _9b35ef04_0df7_49bc_81e6_c5e616af003e
