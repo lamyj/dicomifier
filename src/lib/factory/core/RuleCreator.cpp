@@ -146,6 +146,10 @@ RuleCreator
     {
         return boost::any(value);
     }
+    else if (type == "directory")
+    {
+        return boost::any(value);
+    }
 
     throw DicomifierException("Unknown type '" + type + "' for Input or Output element.");
 }

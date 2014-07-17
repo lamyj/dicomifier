@@ -13,6 +13,8 @@
 #include <dcmtk/dcmdata/dctk.h>
 
 #include "core/actions/Action.h"
+#include "dicom/ElementTraits.h"
+#include "dicom/TagAndRange.h"
 
 namespace dicomifier
 {
@@ -32,15 +34,15 @@ public:
     typedef std::shared_ptr<Self const> ConstPointer;
     
     static Pointer New();
-    static Pointer New(DcmDataset * dataset, DcmTagKey tag);
+    static Pointer New(DcmDataset * dataset, std::vector<TagAndRange> tags);
     
     virtual ~EmptyElement();
 
     DcmDataset * get_dataset() const;
     void set_dataset(DcmDataset * dataset);
 
-    DcmTag const & get_tag() const;
-    void set_tag(DcmTag const & tag);
+    std::vector<TagAndRange> const & get_tags() const { return this->_tags; }
+    void set_tags(std::vector<TagAndRange> const & tags) { this->_tags = tags; }
 
     virtual void run() const;
     
@@ -48,14 +50,24 @@ public:
 
 protected:
     EmptyElement();
-    EmptyElement(DcmDataset * dataset, DcmTagKey tag);
+    EmptyElement(DcmDataset * dataset, std::vector<TagAndRange> tags);
+    
+    void emptyItem(int indice, DcmItem* dataset) const;
 
 private:
     DcmDataset * _dataset;
-    DcmTag _tag;
+    std::vector<TagAndRange> _tags;
 
     EmptyElement(Self const & other); // Purposely not implemented
     Self const & operator=(Self const & other); // Purposely not implemented
+
+    struct ActionEmptyElement
+    {
+        DcmItem* dataset;
+        TagAndRange tagandrange;
+        DcmElement* element;
+        template<DcmEVR VR> void run() const;
+    };
 
 };
     

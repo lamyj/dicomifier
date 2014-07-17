@@ -33,28 +33,23 @@ SetElement<VR>
 template<DcmEVR VR>
 typename SetElement<VR>::Pointer
 SetElement<VR>
-::New(DcmDataset * dataset, DcmTagKey tag, ValueType const & value, bool destructDataset)
+::New(DcmDataset * dataset, std::vector<TagAndRange> tags, ValueType const & value)
 {
-    return Pointer(new Self(dataset, tag, value, destructDataset));
+    return Pointer(new Self(dataset, tags, value));
 }
 
 template<DcmEVR VR>
 typename SetElement<VR>::Pointer
 SetElement<VR>
-::New(DcmDataset * dataset, DcmTagKey tag, ArrayType const & array, bool destructDataset)
+::New(DcmDataset * dataset, std::vector<TagAndRange> tags, ArrayType const & array)
 {
-    return Pointer(new Self(dataset, tag, array, destructDataset));
+    return Pointer(new Self(dataset, tags, array));
 }
 
 template<DcmEVR VR>
 SetElement<VR>
 ::~SetElement()
 {
-    if (this->_destructDataset && this->_dataset != NULL)
-    {
-        delete this->_dataset;
-        this->_dataset = NULL;
-    }
 }
 
 template<DcmEVR VR>
@@ -68,26 +63,9 @@ SetElement<VR>
 template<DcmEVR VR>
 void
 SetElement<VR>
-::set_dataset(DcmDataset * dataset, bool destructDataset)
+::set_dataset(DcmDataset * dataset)
 {
     this->_dataset = dataset;
-    this->_destructDataset = destructDataset;
-}
-
-template<DcmEVR VR>
-DcmTag const &
-SetElement<VR>
-::get_tag() const
-{
-    return this->_tag;
-}
-
-template<DcmEVR VR>
-void
-SetElement<VR>
-::set_tag(DcmTag const & tag)
-{
-    this->_tag = tag;
 }
 
 template<DcmEVR VR>
@@ -122,23 +100,63 @@ SetElement<VR>
 {
     if(this->_dataset != NULL)
     {
-        if(!this->_dataset->tagExists(this->_tag))
-        {
-            this->_dataset->insertEmptyElement(this->_tag);
-        }
-        DcmElement * element = NULL;
-        OFCondition const element_ok =
-            this->_dataset->findAndGetElement(this->_tag, element);
+        this->setItem(0, this->_dataset);
+    }
+}
 
-        if(element_ok.bad())
+template<DcmEVR VR>
+void 
+SetElement<VR>
+::setItem(int indice, DcmItem* dataset) const
+{
+    if (dataset == NULL)
+    {
+        return;
+    }
+    
+    TagAndRange tar = this->_tags[indice];
+        
+    if (indice == this->_tags.size() - 1)
+    {
+        if (VR != EVR_SQ)
         {
-            throw DicomifierException("SetElement::run(): Could not get element.");
-        }
+            if(!this->_dataset->tagExists(tar._tag))
+            {
+                this->_dataset->insertEmptyElement(tar._tag);
+            }
+            DcmElement * element = NULL;
+            OFCondition const element_ok =
+                this->_dataset->findAndGetElement(tar._tag, element);
 
-        OFCondition const set_ok = ElementTraits<VR>::array_setter(element, &this->_array[0], this->_array.size());
-        if(set_ok.bad())
+            if(element_ok.bad())
+            {
+                throw DicomifierException("SetElement::run(): Could not get element.");
+            }
+
+            OFCondition const set_ok = ElementTraits<VR>::array_setter(element, &this->_array[0], this->_array.size());
+            if(set_ok.bad())
+            {
+                throw DicomifierException("SetElement::run(): Could not set array");
+            }
+        }
+    }
+    else
+    {
+        DcmStack dcmstack;
+        OFCondition ret = dataset->findAndGetElements(tar._tag, dcmstack);
+        
+        if (ret.good())
         {
-            throw DicomifierException("SetElement::run(): Could not set array");
+            for (unsigned long i = tar._range._min; i < std::max(tar._range._max, (int)dcmstack.card()); i++)
+            {
+                DcmObject* obj = dcmstack.elem(i);
+                DcmItem* seq = dynamic_cast<DcmItem*>(obj);
+                
+                if (seq != NULL)
+                {
+                    setItem(indice+1, seq);
+                }
+            }
         }
     }
 }
@@ -146,26 +164,25 @@ SetElement<VR>
 template<DcmEVR VR>
 SetElement<VR>
 ::SetElement()
-: _dataset(NULL),
-  _destructDataset(false)
+: _dataset(NULL)
 {
     // Nothing else
 }
 
 template<DcmEVR VR>
 SetElement<VR>
-::SetElement(DcmDataset * dataset, DcmTagKey tag, 
-             ValueType const & value, bool destructDataset)
-: _dataset(dataset), _tag(tag), _destructDataset(destructDataset)
+::SetElement(DcmDataset * dataset, std::vector<TagAndRange> tags, 
+             ValueType const & value)
+: _dataset(dataset), _tags(tags)
 {
     this->_array = { value };
 }
 
 template<DcmEVR VR>
 SetElement<VR>
-::SetElement(DcmDataset * dataset, DcmTagKey tag, 
-             ArrayType const & value, bool destructDataset)
-: _dataset(dataset), _tag(tag), _array(value), _destructDataset(destructDataset)
+::SetElement(DcmDataset * dataset, std::vector<TagAndRange> tags, 
+             ArrayType const & value)
+: _dataset(dataset), _tags(tags), _array(value)
 {
     // Nothing else
 }

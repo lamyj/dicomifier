@@ -9,7 +9,9 @@
 #ifndef _7a6fdce5_5d17_49f0_8604_2e37b96d427d
 #define _7a6fdce5_5d17_49f0_8604_2e37b96d427d
 
-#include "factory/core/CreatorBase.h"
+#include "factory/dicom/DicomCreatorBase.h"
+#include "dicom/ElementTraits.h"
+#include "dicom/TagAndRange.h"
 
 namespace dicomifier
 {
@@ -17,7 +19,7 @@ namespace dicomifier
 namespace factory
 {
     
-class SetElementCreator : public CreatorBase
+class SetElementCreator : public DicomCreatorBase
 {
 public:
     typedef SetElementCreator Self;
@@ -32,16 +34,21 @@ public:
 
     static std::string get_class_name() { return "SetElement"; }
     
-    template<DcmEVR VR>
-    Object::Pointer Create(DcmDataset* dataset, DcmTag const & tag, 
-                           std::string const & value) const;
-    
 protected:
     SetElementCreator();
     
 private:
     SetElementCreator(Self const & other); // Purposely not implemented
     Self const & operator=(Self const & other); // Purposely not implemented
+
+    struct CreateSetElement
+    {
+        DcmItem* dataset;
+        std::vector<TagAndRange> tags;
+        std::string value;
+        mutable dicomifier::Object::Pointer setElement;
+        template<DcmEVR VR> void run() const;
+    };
 
 };
 

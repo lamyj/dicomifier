@@ -26,9 +26,9 @@ EmptyElement
 }
 
 EmptyElement
-::EmptyElement(DcmDataset * dataset, DcmTagKey tag):
+::EmptyElement(DcmDataset * dataset, std::vector<TagAndRange> tags):
     _dataset(dataset),
-    _tag(tag)
+    _tags(tags)
 {
 }
 
@@ -46,9 +46,9 @@ EmptyElement
 
 typename EmptyElement::Pointer
 EmptyElement
-::New(DcmDataset * dataset, DcmTagKey tag)
+::New(DcmDataset * dataset, std::vector<TagAndRange> tags)
 {
-    return Pointer(new Self(dataset, tag));
+    return Pointer(new Self(dataset, tags));
 }
 
 DcmDataset *
@@ -65,35 +65,67 @@ EmptyElement
     this->_dataset = dataset;
 }
 
-DcmTag const &
-EmptyElement
-::get_tag() const
-{
-    return this->_tag;
-}
-
-void
-EmptyElement
-::set_tag(DcmTag const & tag)
-{
-    this->_tag = tag;
-}
-
 void
 EmptyElement
 ::run() const
 {
     if (this->_dataset != NULL)
     {
-        OFCondition ret = this->_dataset->insertEmptyElement(this->_tag, true);
+        this->emptyItem(0, this->_dataset);
+    }
+}
+
+void EmptyElement::emptyItem(int indice, DcmItem* dataset) const
+{
+    if (dataset == NULL)
+    {
+        return;
+    }
+    
+    TagAndRange tar = this->_tags[indice];
         
-        if (ret.bad())
+    if (indice == this->_tags.size() - 1)
+    {
+        DcmElement* dcmelement = NULL;
+        OFCondition ret = dataset->findAndGetElement(tar._tag, dcmelement);
+        
+        if (ret.good())
         {
-            std::ostringstream message;
-            message << "Could not insert empty element: " << ret.text();
-            throw DicomifierException(message.str());
+            ActionEmptyElement action;
+            action.dataset =  dataset;
+            action.tagandrange = tar;
+            action.element = dcmelement;
+            
+            dicomifier::vr_dispatch(action, dcmelement->getVR());
         }
     }
+    else
+    {
+        DcmStack dcmstack;
+        OFCondition ret = dataset->findAndGetElements(tar._tag, dcmstack);
+        
+        if (ret.good())
+        {
+            for (unsigned long i = tar._range._min; i < std::max(tar._range._max, (int)dcmstack.card()); i++)
+            {
+                DcmObject* obj = dcmstack.elem(i);
+                DcmItem* seq = dynamic_cast<DcmItem*>(obj);
+                
+                if (seq != NULL)
+                {
+                    emptyItem(indice+1, seq);
+                }
+            }
+        }
+    }
+}
+
+template<DcmEVR VR> 
+void 
+EmptyElement::ActionEmptyElement
+::run() const
+{
+    dataset->insertEmptyElement(tagandrange._tag, true);
 }
     
 } // namespace actions

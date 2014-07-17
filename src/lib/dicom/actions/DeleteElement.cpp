@@ -98,8 +98,9 @@ void DeleteElement::removeItem(int indice, DcmItem* dataset) const
             RemoveElement action;
             action.dataset =  dataset;
             action.tagandrange = tar;
+            action.element = dcmelement;
             
-            dicomifier::vr_loop(action, dcmelement);
+            dicomifier::vr_dispatch(action, dcmelement->getVR());
         }
     }
     else
@@ -123,9 +124,10 @@ void DeleteElement::removeItem(int indice, DcmItem* dataset) const
     }
 }
 
+template<>
 void 
-RemoveElement
-::runSQ(DcmElement* element) const
+DeleteElement::RemoveElement
+::run<EVR_SQ>() const
 {
     DcmSequenceOfItems* seq = dynamic_cast<DcmSequenceOfItems*>(element);
     
@@ -152,8 +154,8 @@ RemoveElement
 
 template<DcmEVR VR> 
 void 
-RemoveElement
-::run(DcmElement* element) const
+DeleteElement::RemoveElement
+::run() const
 {
     auto values = dicomifier::ElementTraits<VR>::array_getter(element);
 

@@ -10,6 +10,7 @@
 #define _aadcd4c0_06e4_4f4b_a971_84a27d60375c
 
 #include <string>
+#include <memory>
 
 namespace dicomifier
 {

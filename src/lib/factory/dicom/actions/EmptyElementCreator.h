@@ -9,7 +9,7 @@
 #ifndef _d620edec_8f58_4338_94bd_0b5d1a7fdeb8
 #define _d620edec_8f58_4338_94bd_0b5d1a7fdeb8
 
-#include "factory/core/CreatorBase.h"
+#include "factory/dicom/DicomCreatorBase.h"
 
 namespace dicomifier
 {
@@ -17,7 +17,7 @@ namespace dicomifier
 namespace factory
 {
     
-class EmptyElementCreator : public CreatorBase
+class EmptyElementCreator : public DicomCreatorBase
 {
 public:
     typedef EmptyElementCreator Self;

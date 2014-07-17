@@ -11,6 +11,7 @@
 #include "BrukerDirectory.h"
 #include "core/DicomifierException.h"
 #include "dicom/actions/SetElement.h"
+#include "dicom/TagAndRange.h"
 
 namespace dicomifier
 {
@@ -347,7 +348,9 @@ dicomifier::Rule::Pointer BrukerDirectory::GenerateDICOMRules(DcmDataset * datas
         {
             auto action = dicomifier::actions::SetElement<EVR_US>::New();
             action->set_dataset(dataset);
-            action->set_tag(DCM_Columns);
+            std::vector<TagAndRange> tarvect;
+            tarvect.push_back(TagAndRange(DCM_Columns, Range(0,1)));
+            action->set_tags(tarvect);
             
             dicomifier::actions::SetElement<EVR_US>::ArrayType vect;
             for (auto value : (*it).second->GetFieldData("IM_SIX").GetIntValue())
@@ -364,7 +367,9 @@ dicomifier::Rule::Pointer BrukerDirectory::GenerateDICOMRules(DcmDataset * datas
         {
             auto action = dicomifier::actions::SetElement<EVR_US>::New();
             action->set_dataset(dataset);
-            action->set_tag(DCM_Rows);
+            std::vector<TagAndRange> tarvect;
+            tarvect.push_back(TagAndRange(DCM_Rows, Range(0,1)));
+            action->set_tags(tarvect);
             
             dicomifier::actions::SetElement<EVR_US>::ArrayType vect;
             for (auto value : (*it).second->GetFieldData("IM_SIY").GetIntValue())
@@ -381,7 +386,9 @@ dicomifier::Rule::Pointer BrukerDirectory::GenerateDICOMRules(DcmDataset * datas
         {
             auto action = dicomifier::actions::SetElement<EVR_IS>::New();
             action->set_dataset(dataset);
-            action->set_tag(DCM_NumberOfFrames);
+            std::vector<TagAndRange> tarvect;
+            tarvect.push_back(TagAndRange(DCM_NumberOfFrames, Range(0,1)));
+            action->set_tags(tarvect);
             
             dicomifier::actions::SetElement<EVR_IS>::ArrayType vect;
             for (auto value : (*it).second->GetFieldData("IM_SIZ").GetIntValue())
@@ -402,7 +409,9 @@ dicomifier::Rule::Pointer BrukerDirectory::GenerateDICOMRules(DcmDataset * datas
             {
                 auto action = dicomifier::actions::SetElement<EVR_US>::New();
                 action->set_dataset(dataset);
-                action->set_tag(DCM_BitsAllocated);
+                std::vector<TagAndRange> tarvect;
+                tarvect.push_back(TagAndRange(DCM_BitsAllocated, Range(0,1)));
+                action->set_tags(tarvect);
                 action->set_value(pixelSize * 8);
                 
                 rule->add_action(action);
@@ -412,7 +421,9 @@ dicomifier::Rule::Pointer BrukerDirectory::GenerateDICOMRules(DcmDataset * datas
             {
                 auto action = dicomifier::actions::SetElement<EVR_US>::New();
                 action->set_dataset(dataset);
-                action->set_tag(DCM_BitsStored);
+                std::vector<TagAndRange> tarvect;
+                tarvect.push_back(TagAndRange(DCM_BitsStored, Range(0,1)));
+                action->set_tags(tarvect);
                 action->set_value(pixelSize * 8);
                 
                 rule->add_action(action);
@@ -422,7 +433,9 @@ dicomifier::Rule::Pointer BrukerDirectory::GenerateDICOMRules(DcmDataset * datas
             {
                 auto action = dicomifier::actions::SetElement<EVR_US>::New();
                 action->set_dataset(dataset);
-                action->set_tag(DCM_HighBit);
+                std::vector<TagAndRange> tarvect;
+                tarvect.push_back(TagAndRange(DCM_HighBit, Range(0,1)));
+                action->set_tags(tarvect);
                 action->set_value(pixelSize * 8);
                 
                 rule->add_action(action);
@@ -433,7 +446,9 @@ dicomifier::Rule::Pointer BrukerDirectory::GenerateDICOMRules(DcmDataset * datas
         {
             auto action = dicomifier::actions::SetElement<EVR_US>::New();
             action->set_dataset(dataset);
-            action->set_tag(DCM_PixelRepresentation);
+            std::vector<TagAndRange> tarvect;
+            tarvect.push_back(TagAndRange(DCM_PixelRepresentation, Range(0,1)));
+            action->set_tags(tarvect);
             action->set_value(1);
             
             rule->add_action(action);
@@ -443,7 +458,9 @@ dicomifier::Rule::Pointer BrukerDirectory::GenerateDICOMRules(DcmDataset * datas
         {
             auto action = dicomifier::actions::SetElement<EVR_US>::New();
             action->set_dataset(dataset);
-            action->set_tag(DCM_SamplesPerPixel);
+            std::vector<TagAndRange> tarvect;
+            tarvect.push_back(TagAndRange(DCM_SamplesPerPixel, Range(0,1)));
+            action->set_tags(tarvect);
             action->set_value(1);
             
             rule->add_action(action);
@@ -454,7 +471,9 @@ dicomifier::Rule::Pointer BrukerDirectory::GenerateDICOMRules(DcmDataset * datas
         {
             auto action = dicomifier::actions::SetElement<EVR_DS>::New();
             action->set_dataset(dataset);
-            action->set_tag(DCM_SliceThickness);
+            std::vector<TagAndRange> tarvect;
+            tarvect.push_back(TagAndRange(DCM_SliceThickness, Range(0,1)));
+            action->set_tags(tarvect);
             
             dicomifier::actions::SetElement<EVR_DS>::ArrayType vect;
             for (auto value : (*it).second->GetFieldData("PVM_SPackArrSliceDistance").GetDoubleValue())
@@ -470,7 +489,9 @@ dicomifier::Rule::Pointer BrukerDirectory::GenerateDICOMRules(DcmDataset * datas
         {
             auto action = dicomifier::actions::SetElement<EVR_IS>::New();
             action->set_dataset(dataset);
-            action->set_tag(DCM_SeriesNumber);
+            std::vector<TagAndRange> tarvect;
+            tarvect.push_back(TagAndRange(DCM_SeriesNumber, Range(0,1)));
+            action->set_tags(tarvect);
             action->set_value(0);
             
             rule->add_action(action);
@@ -480,7 +501,9 @@ dicomifier::Rule::Pointer BrukerDirectory::GenerateDICOMRules(DcmDataset * datas
         {
             auto action = dicomifier::actions::SetElement<EVR_IS>::New();
             action->set_dataset(dataset);
-            action->set_tag(DCM_InstanceNumber);
+            std::vector<TagAndRange> tarvect;
+            tarvect.push_back(TagAndRange(DCM_InstanceNumber, Range(0,1)));
+            action->set_tags(tarvect);
             action->set_value(++count);
             
             rule->add_action(action);
@@ -491,7 +514,9 @@ dicomifier::Rule::Pointer BrukerDirectory::GenerateDICOMRules(DcmDataset * datas
         {
             auto action = dicomifier::actions::SetElement<EVR_PN>::New();
             action->set_dataset(dataset);
-            action->set_tag(DCM_PatientName);
+            std::vector<TagAndRange> tarvect;
+            tarvect.push_back(TagAndRange(DCM_PatientName, Range(0,1)));
+            action->set_tags(tarvect);
             
             dicomifier::actions::SetElement<EVR_PN>::ArrayType vect;
             for (auto value : (*it).second->GetFieldData("SUBJECT_name_string").GetStringValue())
@@ -510,7 +535,9 @@ dicomifier::Rule::Pointer BrukerDirectory::GenerateDICOMRules(DcmDataset * datas
         {
             auto action = dicomifier::actions::SetElement<EVR_LO>::New();
             action->set_dataset(dataset);
-            action->set_tag(DCM_PatientID);
+            std::vector<TagAndRange> tarvect;
+            tarvect.push_back(TagAndRange(DCM_PatientID, Range(0,1)));
+            action->set_tags(tarvect);
             
             dicomifier::actions::SetElement<EVR_LO>::ArrayType vect;
             for (auto value : (*it).second->GetFieldData("SUBJECT_name_string").GetStringValue())
@@ -531,7 +558,9 @@ dicomifier::Rule::Pointer BrukerDirectory::GenerateDICOMRules(DcmDataset * datas
         {
             auto action = dicomifier::actions::SetElement<EVR_UI>::New();
             action->set_dataset(dataset);
-            action->set_tag(DCM_StudyInstanceUID);
+            std::vector<TagAndRange> tarvect;
+            tarvect.push_back(TagAndRange(DCM_StudyInstanceUID, Range(0,1)));
+            action->set_tags(tarvect);
             action->set_value(OFString(uidstudy));
             
             rule->add_action(action);
@@ -544,7 +573,9 @@ dicomifier::Rule::Pointer BrukerDirectory::GenerateDICOMRules(DcmDataset * datas
         {
             auto action = dicomifier::actions::SetElement<EVR_UI>::New();
             action->set_dataset(dataset);
-            action->set_tag(DCM_SeriesInstanceUID);
+            std::vector<TagAndRange> tarvect;
+            tarvect.push_back(TagAndRange(DCM_SeriesInstanceUID, Range(0,1)));
+            action->set_tags(tarvect);
             action->set_value(OFString(uidseries));
             
             rule->add_action(action);
@@ -558,7 +589,9 @@ dicomifier::Rule::Pointer BrukerDirectory::GenerateDICOMRules(DcmDataset * datas
             {
                 auto action = dicomifier::actions::SetElement<EVR_DA>::New();
                 action->set_dataset(dataset);
-                action->set_tag(DCM_StudyDate);
+                std::vector<TagAndRange> tarvect;
+                tarvect.push_back(TagAndRange(DCM_StudyDate, Range(0,1)));
+                action->set_tags(tarvect);
                 
                 std::string date = datetime.substr(9,11);
                 action->set_value(OFString(date.c_str()));
@@ -570,7 +603,9 @@ dicomifier::Rule::Pointer BrukerDirectory::GenerateDICOMRules(DcmDataset * datas
             {
                 auto action = dicomifier::actions::SetElement<EVR_TM>::New();
                 action->set_dataset(dataset);
-                action->set_tag(DCM_StudyTime);
+                std::vector<TagAndRange> tarvect;
+                tarvect.push_back(TagAndRange(DCM_StudyTime, Range(0,1)));
+                action->set_tags(tarvect);
                 
                 std::string time = datetime.substr(0,8);
                 action->set_value(OFString(time.c_str()));
@@ -584,7 +619,9 @@ dicomifier::Rule::Pointer BrukerDirectory::GenerateDICOMRules(DcmDataset * datas
         {
             auto action = dicomifier::actions::SetElement<EVR_LO>::New();
             action->set_dataset(dataset);
-            action->set_tag(DCM_StudyDescription);
+            std::vector<TagAndRange> tarvect;
+            tarvect.push_back(TagAndRange(DCM_StudyDescription, Range(0,1)));
+            action->set_tags(tarvect);
             
             dicomifier::actions::SetElement<EVR_LO>::ArrayType vect;
             for (auto value : (*it).second->GetFieldData("SUBJECT_study_name").GetStringValue())
@@ -607,7 +644,9 @@ dicomifier::Rule::Pointer BrukerDirectory::GenerateDICOMRules(DcmDataset * datas
             // Series Description           0x0008,0x103e
             auto action = dicomifier::actions::SetElement<EVR_LO>::New();
             action->set_dataset(dataset);
-            action->set_tag(DCM_SeriesDescription);
+            std::vector<TagAndRange> tarvect;
+            tarvect.push_back(TagAndRange(DCM_SeriesDescription, Range(0,1)));
+            action->set_tags(tarvect);
             action->set_value(OFString(strSerieDescr.c_str()));
             
             rule->add_action(action);
@@ -617,7 +656,9 @@ dicomifier::Rule::Pointer BrukerDirectory::GenerateDICOMRules(DcmDataset * datas
         {
             auto action = dicomifier::actions::SetElement<EVR_CS>::New();
             action->set_dataset(dataset);
-            action->set_tag(DCM_Modality);
+            std::vector<TagAndRange> tarvect;
+            tarvect.push_back(TagAndRange(DCM_Modality, Range(0,1)));
+            action->set_tags(tarvect);
             action->set_value("MR");
             
             rule->add_action(action);
