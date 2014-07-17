@@ -36,79 +36,58 @@ SetElementCreator
 {
     // get tag
     std::string const tag = value.second.get<std::string>("<xmlattr>.tag"); // Warning: throw exception if attribut is missing
-    DcmTag dcmtag;
-    OFCondition result = DcmTag::findTagFromName(tag.c_str(), dcmtag);
-    if (result.good())
+    auto vect = DicomCreatorBase::Parse_Tag(tag);
+    
+    // get dataset
+    std::string filename = value.second.get<std::string>("<xmlattr>.dataset"); // Warning: throw exception if attribut is missing
+    if (filename[0] != '#')
     {
-        // get dataset
-        std::string filename = value.second.get<std::string>("<xmlattr>.dataset"); // Warning: throw exception if attribut is missing
-        if (filename[0] != '#')
-        {
-            throw DicomifierException("Bad value for dataset attribut.");
-        }
-        filename = filename.replace(0,1,"");
+        throw DicomifierException("Bad value for dataset attribut.");
+    }
+    filename = filename.replace(0,1,"");
+    
+    if (this->_inputs->find(filename) == this->_inputs->end())
+    {
+        throw DicomifierException("No input dataset '" + filename + "'.");
+    }
+    DcmDataset* dataset = boost::any_cast<DcmDataset*>(this->_inputs->find(filename)->second);
+    if (dataset != NULL)
+    {
+        // get the VR
+        std::string const vrstr = value.second.get<std::string>("<xmlattr>.VR"); // Warning: throw exception if attribut is missing
+        DcmVR vr(vrstr.c_str());
+        DcmEVR const evr = vr.getEVR();
         
-        if (this->_inputs->find(filename) == this->_inputs->end())
-        {
-            throw DicomifierException("No input dataset '" + filename + "'.");
-        }
-        DcmDataset* dataset = boost::any_cast<DcmDataset*>(this->_inputs->find(filename)->second);
-        if (dataset != NULL)
-        {
-            // get the VR
-            std::string const vrstr = value.second.get<std::string>("<xmlattr>.VR"); // Warning: throw exception if attribut is missing
-            DcmVR vr(vrstr.c_str());
-            DcmEVR const evr = vr.getEVR();
-            
-            // get value
-            std::string const attrvalue = value.second.get<std::string>("<xmlattr>.value"); // Warning: throw exception if attribut is missing
-            
-            if      (evr == EVR_AE) return this->Create<EVR_AE>(dataset, dcmtag, attrvalue);
-            else if (evr == EVR_AS) return this->Create<EVR_AS>(dataset, dcmtag, attrvalue);
-    // TODO: EVR_AT
-            else if (evr == EVR_CS) return this->Create<EVR_CS>(dataset, dcmtag, attrvalue);
-            else if (evr == EVR_DA) return this->Create<EVR_DA>(dataset, dcmtag, attrvalue);
-            else if (evr == EVR_DS) return this->Create<EVR_DS>(dataset, dcmtag, attrvalue);
-            else if (evr == EVR_DT) return this->Create<EVR_DT>(dataset, dcmtag, attrvalue);
-            else if (evr == EVR_FD) return this->Create<EVR_FD>(dataset, dcmtag, attrvalue);
-            else if (evr == EVR_FL) return this->Create<EVR_FL>(dataset, dcmtag, attrvalue);
-            else if (evr == EVR_IS) return this->Create<EVR_IS>(dataset, dcmtag, attrvalue);
-            else if (evr == EVR_LO) return this->Create<EVR_LO>(dataset, dcmtag, attrvalue);
-            else if (evr == EVR_LT) return this->Create<EVR_LT>(dataset, dcmtag, attrvalue);
-    // TODO: OB
-    // TODO: OF
-    // TODO: OW
-            else if (evr == EVR_PN) return this->Create<EVR_PN>(dataset, dcmtag, attrvalue);
-            else if (evr == EVR_SH) return this->Create<EVR_SH>(dataset, dcmtag, attrvalue);
-            else if (evr == EVR_SL) return this->Create<EVR_SL>(dataset, dcmtag, attrvalue);
-    // TODO: SQ
-            else if (evr == EVR_SS) return this->Create<EVR_SS>(dataset, dcmtag, attrvalue);
-            else if (evr == EVR_UI) return this->Create<EVR_UI>(dataset, dcmtag, attrvalue);
-            else if (evr == EVR_TM) return this->Create<EVR_TM>(dataset, dcmtag, attrvalue);
-            else if (evr == EVR_ST) return this->Create<EVR_ST>(dataset, dcmtag, attrvalue);
-            else if (evr == EVR_UL) return this->Create<EVR_UL>(dataset, dcmtag, attrvalue);
-    // TODO: UN
-            else if (evr == EVR_US) return this->Create<EVR_US>(dataset, dcmtag, attrvalue);
-            else if (evr == EVR_UT) return this->Create<EVR_UT>(dataset, dcmtag, attrvalue);
-            
-            else throw DicomifierException("Unknown VR '" + vrstr + "'.");
-        }
-        else
-        {
-            throw DicomifierException("No input dataset '" + filename + "'.");
-        }
+        // get value
+        std::string const attrvalue = value.second.get<std::string>("<xmlattr>.value"); // Warning: throw exception if attribut is missing
+        
+        CreateSetElement action;
+        action.dataset =  dataset;
+        action.tags = vect;
+        action.value = attrvalue;
+        
+        dicomifier::vr_dispatch(action, evr);
+        
+        return action.setElement;
     }
     else
     {
-        throw DicomifierException("Unknown tag '" + tag + "'.");
+        throw DicomifierException("No input dataset '" + filename + "'.");
     }
     return NULL;
 }
 
-template<DcmEVR VR>
-Object::Pointer 
-SetElementCreator
-::Create(DcmDataset* dataset, DcmTag const & tag, std::string const & value) const
+template<>
+void 
+SetElementCreator::CreateSetElement
+::run<EVR_SQ>() const
+{
+}
+
+template<DcmEVR VR> 
+void 
+SetElementCreator::CreateSetElement
+::run() const
 {
     // parse values
     std::vector<std::string> splitvalues;
@@ -124,7 +103,9 @@ SetElementCreator
         values.push_back(item);
     }
     
-    return dicomifier::actions::SetElement<VR>::New(dataset, tag, values, true);
+    DcmDataset* dcmdataset = dynamic_cast<DcmDataset*>(dataset);
+    
+    setElement = dicomifier::actions::SetElement<VR>::New(dcmdataset, tags, values);
 }
 
 } // namespace factory

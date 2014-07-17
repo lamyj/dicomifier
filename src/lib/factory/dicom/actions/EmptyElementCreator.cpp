@@ -35,12 +35,7 @@ EmptyElementCreator
 {
     // Get 'tag' attribut:
     std::string const second = value.second.get<std::string>("<xmlattr>.tag"); // Warning: throw exception if attribut is missing
-    DcmTag dcmtag;
-    OFCondition status = DcmTag::findTagFromName(second.c_str(), dcmtag);
-    if (status.bad())
-    {
-        throw DicomifierException("Unknown tag '" + second + "'.");
-    }
+    auto vect = DicomCreatorBase::Parse_Tag(second);
     
     // get 'dataset' attribut
     std::string filename = value.second.get<std::string>("<xmlattr>.dataset"); // Warning: throw exception if attribut is missing
@@ -60,7 +55,7 @@ EmptyElementCreator
         throw DicomifierException("Unable to load dataset '" + filename + "'.");
     }
     
-    return dicomifier::actions::EmptyElement::New(dataset, dcmtag);
+    return dicomifier::actions::EmptyElement::New(dataset, vect);
 }
     
 } // namespace factory

@@ -21,16 +21,6 @@ namespace dicomifier
     
 namespace actions
 {
-    
-
-struct RemoveElement
-{
-    DcmItem* dataset;
-    TagAndRange tagandrange;
-    
-    template<DcmEVR VR> void run(DcmElement* element) const;
-    void runSQ(DcmElement* element) const;
-};
 
 /**
  * @brief Remove an element from a dataset. 
@@ -72,6 +62,14 @@ private:
     DeleteElement(Self const & other); // Purposely not implemented
     Self const & operator=(Self const & other); // Purposely not implemented
 
+    struct RemoveElement
+    {
+        DcmItem* dataset;
+        TagAndRange tagandrange;
+        DcmElement* element;
+        template<DcmEVR VR> void run() const;
+    };
+    
 };
     
 } // namespace actions
