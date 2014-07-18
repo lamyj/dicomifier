@@ -61,7 +61,7 @@ SetElementCreator
         // get value
         std::string const attrvalue = value.second.get<std::string>("<xmlattr>.value"); // Warning: throw exception if attribut is missing
         
-        CreateSetElement action;
+        ActionSetElementCreator action;
         action.dataset =  dataset;
         action.tags = vect;
         action.value = attrvalue;
@@ -79,14 +79,15 @@ SetElementCreator
 
 template<>
 void 
-SetElementCreator::CreateSetElement
+SetElementCreator::ActionSetElementCreator
 ::run<EVR_SQ>() const
 {
+    throw DicomifierException("Impossible to Set SQ Element");
 }
 
 template<DcmEVR VR> 
 void 
-SetElementCreator::CreateSetElement
+SetElementCreator::ActionSetElementCreator
 ::run() const
 {
     // parse values

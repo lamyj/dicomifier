@@ -33,13 +33,14 @@ public:
     typedef std::shared_ptr<Self> Pointer;
     typedef std::shared_ptr<Self const> ConstPointer;
     
-    static Pointer New();
-    static Pointer New(DcmDataset * dataset, std::vector<TagAndRange> tags);
+    static Pointer New() { return Pointer(new Self()); }
+    static Pointer New(DcmDataset * dataset, std::vector<TagAndRange> tags)
+        { return Pointer(new Self(dataset, tags)); }
     
     virtual ~DeleteElement();
 
-    DcmDataset * get_dataset() const;
-    void set_dataset(DcmDataset * dataset);
+    DcmDataset * get_dataset() const { return this->_dataset; }
+    void set_dataset(DcmDataset * dataset) { this->_dataset = dataset; }
 
     std::vector<TagAndRange> const & get_tags() const { return this->_tags; }
     void set_tags(std::vector<TagAndRange> const & tags) { this->_tags = tags; }
@@ -62,7 +63,7 @@ private:
     DeleteElement(Self const & other); // Purposely not implemented
     Self const & operator=(Self const & other); // Purposely not implemented
 
-    struct RemoveElement
+    struct ActionDeleteElement
     {
         DcmItem* dataset;
         TagAndRange tagandrange;

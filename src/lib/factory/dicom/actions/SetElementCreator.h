@@ -41,7 +41,7 @@ private:
     SetElementCreator(Self const & other); // Purposely not implemented
     Self const & operator=(Self const & other); // Purposely not implemented
 
-    struct CreateSetElement
+    struct ActionSetElementCreator
     {
         DcmItem* dataset;
         std::vector<TagAndRange> tags;

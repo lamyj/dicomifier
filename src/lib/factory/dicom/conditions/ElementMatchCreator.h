@@ -9,7 +9,7 @@
 #ifndef _b07764f2_55d7_4b6a_970e_ee741b69f1b0
 #define _b07764f2_55d7_4b6a_970e_ee741b69f1b0
 
-#include "factory/core/CreatorBase.h"
+#include "factory/dicom/DicomCreatorBase.h"
 
 namespace dicomifier
 {
@@ -17,7 +17,7 @@ namespace dicomifier
 namespace factory
 {
     
-class ElementMatchCreator : public CreatorBase
+class ElementMatchCreator : public DicomCreatorBase
 {
 public:
     typedef ElementMatchCreator Self;
@@ -31,9 +31,6 @@ public:
     virtual Object::Pointer Create(boost::property_tree::ptree::value_type & value);
 
     static std::string get_class_name() { return "ElementMatch"; }
-    
-    template<DcmEVR VR>
-    Object::Pointer Create(DcmDataset* dataset, DcmTag const & tag, std::string const & value);
 
 protected:
     ElementMatchCreator();
@@ -41,6 +38,15 @@ protected:
 private:
     ElementMatchCreator(Self const & other); // Purposely not implemented
     Self const & operator=(Self const & other); // Purposely not implemented
+
+    struct ActionElementMatchCreator
+    {
+        DcmItem* dataset;
+        std::vector<TagAndRange> tags;
+        std::string value;
+        mutable dicomifier::Object::Pointer matchElement;
+        template<DcmEVR VR> void run() const;
+    };
 
 };
     
