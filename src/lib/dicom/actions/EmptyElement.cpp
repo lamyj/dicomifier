@@ -18,11 +18,14 @@ namespace dicomifier
     
 namespace actions
 {
-    
+
+/****************************** Constructor ***************************/
+
 EmptyElement
 ::EmptyElement():
     _dataset(NULL)
 {
+    // Nothing to do
 }
 
 EmptyElement
@@ -30,40 +33,19 @@ EmptyElement
     _dataset(dataset),
     _tags(tags)
 {
+    // Nothing to do
 }
+
+
+/****************************** Destructor ****************************/
 
 EmptyElement
 ::~EmptyElement()
 {
+    // Nothing to do
 }
 
-typename EmptyElement::Pointer
-EmptyElement
-::New()
-{
-    return Pointer(new Self());
-}
-
-typename EmptyElement::Pointer
-EmptyElement
-::New(DcmDataset * dataset, std::vector<TagAndRange> tags)
-{
-    return Pointer(new Self(dataset, tags));
-}
-
-DcmDataset *
-EmptyElement
-::get_dataset() const
-{
-    return this->_dataset;
-}
-
-void
-EmptyElement
-::set_dataset(DcmDataset * dataset)
-{
-    this->_dataset = dataset;
-}
+/****************************** Other Functions ***********************/
 
 void
 EmptyElement
@@ -119,6 +101,8 @@ void EmptyElement::emptyItem(int indice, DcmItem* dataset) const
         }
     }
 }
+
+/****************************** ActionEmptyElement ********************/
 
 template<DcmEVR VR> 
 void 

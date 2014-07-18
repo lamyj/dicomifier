@@ -14,7 +14,7 @@
 #include "dicom/conditions/ElementMatch.h"
 
 /********************************* TEST ELEMENT TYPE AE *********************************/
-
+/*
 struct TestDataAE
 {
     DcmDataset * dataset;
@@ -42,7 +42,7 @@ BOOST_FIXTURE_TEST_CASE(MatchAE01, TestDataAE)
 }
 
 /********************************* TEST ELEMENT TYPE AS *********************************/
-
+/*
 struct TestDataAS
 {
     DcmDataset * dataset;
@@ -70,7 +70,7 @@ BOOST_FIXTURE_TEST_CASE(MatchAS01, TestDataAS)
 }
 
 /********************************* TEST ELEMENT TYPE CS *********************************/
-
+/*
 struct TestDataCS
 {
     DcmDataset * dataset;
@@ -117,7 +117,7 @@ BOOST_FIXTURE_TEST_CASE(MatchCS03, TestDataCS)
 }
 
 /********************************* TEST ELEMENT TYPE DA *********************************/
-
+/*
 struct TestDataDA
 {
     DcmDataset * dataset;
@@ -145,7 +145,7 @@ BOOST_FIXTURE_TEST_CASE(MatchDA01, TestDataDA)
 }
 
 /********************************* TEST ELEMENT TYPE DS *********************************/
-
+/*
 struct TestDataDS
 {
     DcmDataset * dataset;
@@ -173,7 +173,7 @@ BOOST_FIXTURE_TEST_CASE(MatchDS01, TestDataDS)
 }
 
 /********************************* TEST ELEMENT TYPE DT *********************************/
-
+/*
 struct TestDataDT
 {
     DcmDataset * dataset;
@@ -201,7 +201,7 @@ BOOST_FIXTURE_TEST_CASE(MatchDT01, TestDataDT)
 }
 
 /********************************* TEST ELEMENT TYPE FD *********************************/
-
+/*
 struct TestDataFD
 {
     DcmDataset * dataset;
@@ -229,7 +229,7 @@ BOOST_FIXTURE_TEST_CASE(MatchFD01, TestDataFD)
 }
 
 /********************************* TEST ELEMENT TYPE FL *********************************/
-
+/*
 struct TestDataFL
 {
     DcmDataset * dataset;
@@ -257,7 +257,7 @@ BOOST_FIXTURE_TEST_CASE(MatchFL01, TestDataFL)
 }
 
 /********************************* TEST ELEMENT TYPE IS *********************************/
-
+/*
 struct TestDataIS
 {
     DcmDataset * dataset;
@@ -285,7 +285,7 @@ BOOST_FIXTURE_TEST_CASE(MatchIS01, TestDataIS)
 }
 
 /********************************* TEST ELEMENT TYPE LO *********************************/
-
+/*
 struct TestDataLO
 {
     DcmDataset * dataset;
@@ -313,7 +313,7 @@ BOOST_FIXTURE_TEST_CASE(MatchLO01, TestDataLO)
 }
 
 /********************************* TEST ELEMENT TYPE LT *********************************/
-
+/*
 struct TestDataLT
 {
     DcmDataset * dataset;
@@ -341,7 +341,7 @@ BOOST_FIXTURE_TEST_CASE(MatchLT01, TestDataLT)
 }
 
 /********************************* TEST ELEMENT TYPE PN *********************************/
-
+/*
 struct TestDataPN
 {
     DcmDataset * dataset;
@@ -369,7 +369,7 @@ BOOST_FIXTURE_TEST_CASE(MatchPN01, TestDataPN)
 }
 
 /********************************* TEST ELEMENT TYPE SH *********************************/
-
+/*
 struct TestDataSH
 {
     DcmDataset * dataset;
@@ -397,7 +397,7 @@ BOOST_FIXTURE_TEST_CASE(MatchSH01, TestDataSH)
 }
 
 /********************************* TEST ELEMENT TYPE SL *********************************/
-
+/*
 struct TestDataSL
 {
     DcmDataset * dataset;
@@ -425,7 +425,7 @@ BOOST_FIXTURE_TEST_CASE(MatchSL01, TestDataSL)
 }
 
 /********************************* TEST ELEMENT TYPE SS *********************************/
-
+/*
 struct TestDataSS
 {
     DcmDataset * dataset;
@@ -453,7 +453,7 @@ BOOST_FIXTURE_TEST_CASE(MatchSS01, TestDataSS)
 }
 
 /********************************* TEST ELEMENT TYPE UI *********************************/
-
+/*
 struct TestDataUI
 {
     DcmDataset * dataset;
@@ -481,7 +481,7 @@ BOOST_FIXTURE_TEST_CASE(MatchUI01, TestDataUI)
 }
 
 /********************************* TEST ELEMENT TYPE TM *********************************/
-
+/*
 struct TestDataTM
 {
     DcmDataset * dataset;
@@ -509,7 +509,7 @@ BOOST_FIXTURE_TEST_CASE(MatchTM01, TestDataTM)
 }
 
 /********************************* TEST ELEMENT TYPE ST *********************************/
-
+/*
 struct TestDataST
 {
     DcmDataset * dataset;
@@ -537,7 +537,7 @@ BOOST_FIXTURE_TEST_CASE(MatchST01, TestDataST)
 }
 
 /********************************* TEST ELEMENT TYPE UL *********************************/
-
+/*
 struct TestDataUL
 {
     DcmDataset * dataset;
@@ -565,7 +565,7 @@ BOOST_FIXTURE_TEST_CASE(MatchUL01, TestDataUL)
 }
 
 /********************************* TEST ELEMENT TYPE US *********************************/
-
+/*
 struct TestDataUS
 {
     DcmDataset * dataset;
@@ -593,7 +593,7 @@ BOOST_FIXTURE_TEST_CASE(MatchUS01, TestDataUS)
 }
 
 /********************************* TEST ELEMENT TYPE UT *********************************/
-
+/*
 struct TestDataUT
 {
     DcmDataset * dataset;
@@ -621,7 +621,7 @@ BOOST_FIXTURE_TEST_CASE(MatchUT01, TestDataUT)
 }
 
 /********************************* TEST ERROR *********************************/
-
+/*
 struct TestDataError
 {
     DcmDataset * dataset;
@@ -666,3 +666,4 @@ BOOST_FIXTURE_TEST_CASE(Error_badvalue, TestDataError)
                                                       "badvalue");
     BOOST_CHECK_EQUAL(testmatch->eval(), false);
 }
+*/

@@ -18,7 +18,7 @@
 #include "factory/dicom/conditions/ElementMatchCreator.h"
 
 /*************************************** TEST ELEMENT TYPE AE ****************************************/
-
+/*
 struct TestDataAE
 {
     boost::property_tree::ptree ptr;
@@ -65,7 +65,7 @@ BOOST_FIXTURE_TEST_CASE(CreationAE, TestDataAE)
 }
 
 /*************************************** TEST ELEMENT TYPE AS ****************************************/
-
+/*
 struct TestDataAS
 {
     boost::property_tree::ptree ptr;
@@ -112,7 +112,7 @@ BOOST_FIXTURE_TEST_CASE(CreationAS, TestDataAS)
 }
 
 /*************************************** TEST ELEMENT TYPE CS ****************************************/
-
+/*
 struct TestDataCS
 {
     boost::property_tree::ptree ptr;
@@ -159,7 +159,7 @@ BOOST_FIXTURE_TEST_CASE(CreationCS, TestDataCS)
 }
 
 /*************************************** TEST ELEMENT TYPE DA ****************************************/
-
+/*
 struct TestDataDA
 {
     boost::property_tree::ptree ptr;
@@ -206,7 +206,7 @@ BOOST_FIXTURE_TEST_CASE(CreationDA, TestDataDA)
 }
 
 /*************************************** TEST ELEMENT TYPE DS ****************************************/
-
+/*
 struct TestDataDS
 {
     boost::property_tree::ptree ptr;
@@ -253,7 +253,7 @@ BOOST_FIXTURE_TEST_CASE(CreationDS, TestDataDS)
 }
 
 /*************************************** TEST ELEMENT TYPE DT ****************************************/
-
+/*
 struct TestDataDT
 {
     boost::property_tree::ptree ptr;
@@ -300,7 +300,7 @@ BOOST_FIXTURE_TEST_CASE(CreationDT, TestDataDT)
 }
 
 /*************************************** TEST ELEMENT TYPE FD ****************************************/
-
+/*
 struct TestDataFD
 {
     boost::property_tree::ptree ptr;
@@ -347,7 +347,7 @@ BOOST_FIXTURE_TEST_CASE(CreationFD, TestDataFD)
 }
 
 /*************************************** TEST ELEMENT TYPE FL ****************************************/
-
+/*
 struct TestDataFL
 {
     boost::property_tree::ptree ptr;
@@ -394,7 +394,7 @@ BOOST_FIXTURE_TEST_CASE(CreationFL, TestDataFL)
 }
 
 /*************************************** TEST ELEMENT TYPE IS ****************************************/
-
+/*
 struct TestDataIS
 {
     boost::property_tree::ptree ptr;
@@ -441,7 +441,7 @@ BOOST_FIXTURE_TEST_CASE(CreationIS, TestDataIS)
 }
 
 /*************************************** TEST ELEMENT TYPE LO ****************************************/
-
+/*
 struct TestDataLO
 {
     boost::property_tree::ptree ptr;
@@ -488,7 +488,7 @@ BOOST_FIXTURE_TEST_CASE(CreationLO, TestDataLO)
 }
 
 /*************************************** TEST ELEMENT TYPE LT ****************************************/
-
+/*
 struct TestDataLT
 {
     boost::property_tree::ptree ptr;
@@ -535,7 +535,7 @@ BOOST_FIXTURE_TEST_CASE(CreationLT, TestDataLT)
 }
 
 /*************************************** TEST ELEMENT TYPE PN ****************************************/
-
+/*
 struct TestDataPN
 {
     boost::property_tree::ptree ptr;
@@ -581,7 +581,7 @@ BOOST_FIXTURE_TEST_CASE(CreationPN, TestDataPN)
 }
 
 /*************************************** TEST ELEMENT TYPE SH ****************************************/
-
+/*
 struct TestDataSH
 {
     boost::property_tree::ptree ptr;
@@ -628,7 +628,7 @@ BOOST_FIXTURE_TEST_CASE(CreationSH, TestDataSH)
 }
 
 /*************************************** TEST ELEMENT TYPE SL ****************************************/
-
+/*
 struct TestDataSL
 {
     boost::property_tree::ptree ptr;
@@ -675,7 +675,7 @@ BOOST_FIXTURE_TEST_CASE(CreationSL, TestDataSL)
 }
 
 /*************************************** TEST ELEMENT TYPE SS ****************************************/
-
+/*
 struct TestDataSS
 {
     boost::property_tree::ptree ptr;
@@ -722,7 +722,7 @@ BOOST_FIXTURE_TEST_CASE(CreationSS, TestDataSS)
 }
 
 /*************************************** TEST ELEMENT TYPE UI ****************************************/
-
+/*
 struct TestDataUI
 {
     boost::property_tree::ptree ptr;
@@ -769,7 +769,7 @@ BOOST_FIXTURE_TEST_CASE(CreationUI, TestDataUI)
 }
 
 /*************************************** TEST ELEMENT TYPE TM ****************************************/
-
+/*
 struct TestDataTM
 {
     boost::property_tree::ptree ptr;
@@ -816,7 +816,7 @@ BOOST_FIXTURE_TEST_CASE(CreationTM, TestDataTM)
 }
 
 /*************************************** TEST ELEMENT TYPE ST ****************************************/
-
+/*
 struct TestDataST
 {
     boost::property_tree::ptree ptr;
@@ -863,7 +863,7 @@ BOOST_FIXTURE_TEST_CASE(CreationST, TestDataST)
 }
 
 /*************************************** TEST ELEMENT TYPE UL ****************************************/
-
+/*
 struct TestDataUL
 {
     boost::property_tree::ptree ptr;
@@ -910,7 +910,7 @@ BOOST_FIXTURE_TEST_CASE(CreationUL, TestDataUL)
 }
 
 /*************************************** TEST ELEMENT TYPE US ****************************************/
-
+/*
 struct TestDataUS
 {
     boost::property_tree::ptree ptr;
@@ -957,7 +957,7 @@ BOOST_FIXTURE_TEST_CASE(CreationUS, TestDataUS)
 }
 
 /*************************************** TEST ELEMENT TYPE UT ****************************************/
-
+/*
 struct TestDataUT
 {
     boost::property_tree::ptree ptr;
@@ -1004,7 +1004,7 @@ BOOST_FIXTURE_TEST_CASE(CreationUT, TestDataUT)
 }
 
 /*************************************** TEST ERROR ****************************************/
-
+/*
 struct TestDataBadTag
 {
     boost::property_tree::ptree ptr;
@@ -1162,3 +1162,4 @@ BOOST_FIXTURE_TEST_CASE(ThrowError02, TestDataError02)
         BOOST_REQUIRE_THROW(testmatch->Create(v), dicomifier::DicomifierException);
     }
 }
+*/

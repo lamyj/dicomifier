@@ -17,6 +17,7 @@
 #include "core/conditions/Condition.h"
 #include "core/Factory.h"
 #include "dicom/ElementTraits.h"
+#include "dicom/TagAndRange.h"
 
 namespace dicomifier
 {
@@ -39,10 +40,10 @@ public:
     typedef std::vector<ValueType> ArrayType;
     
     static Pointer New();
-    static Pointer New(DcmDataset * dataset, DcmTagKey tag, 
-                       ValueType const & value, bool destructDataset = false);
-    static Pointer New(DcmDataset * dataset, DcmTagKey tag, 
-                       ArrayType const & array, bool destructDataset = false);
+    static Pointer New(DcmDataset * dataset, std::vector<TagAndRange> tags, 
+                       ValueType const & value);
+    static Pointer New(DcmDataset * dataset, std::vector<TagAndRange> tags, 
+                       ArrayType const & array);
     
     /**
      * @brief Destructor
@@ -50,10 +51,10 @@ public:
     virtual ~ElementMatch();
 
     DcmDataset * get_dataset() const;
-    void set_dataset(DcmDataset * dataset, bool destructDataset = false);
+    void set_dataset(DcmDataset * dataset);
 
-    DcmTag const & get_tag() const;
-    void set_tag(DcmTag const & tag);
+    std::vector<TagAndRange> const & get_tags() const { return this->_tags; }
+    void set_tags(std::vector<TagAndRange> const & tags) { this->_tags = tags; }
 
     ArrayType const & get_value() const;
     void set_value(ValueType const & value);
@@ -68,18 +69,19 @@ protected:
      * @brief Constructor
      */
     ElementMatch();
-    ElementMatch(DcmDataset * dataset, DcmTagKey tag, 
-                 ValueType const & value, bool destructDataset = false);
-    ElementMatch(DcmDataset * dataset, DcmTagKey tag, 
-                 ArrayType const & array, bool destructDataset = false);
+    ElementMatch(DcmDataset * dataset, std::vector<TagAndRange> tags, 
+                 ValueType const & value);
+    ElementMatch(DcmDataset * dataset, std::vector<TagAndRange> tags, 
+                 ArrayType const & array);
+               
+    bool matchItem(int indice, DcmItem* dataset) const;
 
 private:
     DcmDataset * _dataset;
-    DcmTag _tag;
+    
+    std::vector<TagAndRange> _tags;
 
     ArrayType _array;
-    
-    bool _destructDataset;
 
     ElementMatch(Self const & other); // Purposely not implemented
     Self const & operator=(Self const & other); // Purposely not implemented

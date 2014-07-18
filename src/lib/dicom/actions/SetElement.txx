@@ -50,6 +50,7 @@ template<DcmEVR VR>
 SetElement<VR>
 ::~SetElement()
 {
+    // Nothing to do
 }
 
 template<DcmEVR VR>
@@ -154,7 +155,7 @@ SetElement<VR>
                 
                 if (seq != NULL)
                 {
-                    setItem(indice+1, seq);
+                    this->setItem(indice+1, seq);
                 }
             }
         }

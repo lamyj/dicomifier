@@ -20,6 +20,8 @@ namespace dicomifier
 namespace actions
 {
     
+/****************************** Constructor ***************************/
+
 DeleteElement
 ::DeleteElement():
     _dataset(NULL)
@@ -35,39 +37,15 @@ DeleteElement
     // Nothing to do
 }
 
+/****************************** Destructor ****************************/
+
 DeleteElement
 ::~DeleteElement()
 {
     // Nothing to do
 }
 
-typename DeleteElement::Pointer
-DeleteElement
-::New()
-{
-    return Pointer(new Self());
-}
-
-typename DeleteElement::Pointer
-DeleteElement
-::New(DcmDataset * dataset, std::vector<TagAndRange> tags)
-{
-    return Pointer(new Self(dataset, tags));
-}
-
-DcmDataset *
-DeleteElement
-::get_dataset() const
-{
-    return this->_dataset;
-}
-
-void
-DeleteElement
-::set_dataset(DcmDataset * dataset)
-{
-    this->_dataset = dataset;
-}
+/****************************** Other Functions ***********************/
 
 void
 DeleteElement
@@ -95,7 +73,7 @@ void DeleteElement::removeItem(int indice, DcmItem* dataset) const
         
         if (ret.good())
         {
-            RemoveElement action;
+            ActionDeleteElement action;
             action.dataset =  dataset;
             action.tagandrange = tar;
             action.element = dcmelement;
@@ -124,9 +102,11 @@ void DeleteElement::removeItem(int indice, DcmItem* dataset) const
     }
 }
 
+/****************************** ActionDeleteElement *******************/
+
 template<>
 void 
-DeleteElement::RemoveElement
+DeleteElement::ActionDeleteElement
 ::run<EVR_SQ>() const
 {
     DcmSequenceOfItems* seq = dynamic_cast<DcmSequenceOfItems*>(element);
@@ -154,7 +134,7 @@ DeleteElement::RemoveElement
 
 template<DcmEVR VR> 
 void 
-DeleteElement::RemoveElement
+DeleteElement::ActionDeleteElement
 ::run() const
 {
     auto values = dicomifier::ElementTraits<VR>::array_getter(element);
