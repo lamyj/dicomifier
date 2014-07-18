@@ -155,14 +155,14 @@ ElementMatch<VR>
     {
         if (VR != EVR_SQ)
         {
-            if(!this->_dataset->tagExists(tar._tag))
+            if(!dataset->tagExists(tar._tag))
             {
                 return false;
             }
             
             DcmElement * element = NULL;
             OFCondition const element_ok =
-                this->_dataset->findAndGetElement(tar._tag, element);
+                dataset->findAndGetElement(tar._tag, element);
 
             if(element_ok.bad())
             {

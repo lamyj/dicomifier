@@ -14,7 +14,7 @@
 #include "dicom/conditions/ElementMatch.h"
 
 /********************************* TEST ELEMENT TYPE AE *********************************/
-/*
+
 struct TestDataAE
 {
     DcmDataset * dataset;
@@ -34,15 +34,18 @@ struct TestDataAE
 
 BOOST_FIXTURE_TEST_CASE(MatchAE01, TestDataAE)
 {
+    std::vector<dicomifier::TagAndRange> vect;
+    vect.push_back(dicomifier::TagAndRange(DCM_RetrieveAETitle, dicomifier::Range(0,1)));
+    
     auto testmatch = 
         dicomifier::conditions::ElementMatch<EVR_AE>::New(dataset, 
-                                                      DCM_RetrieveAETitle, 
+                                                      vect, 
                                                       "test_AE");
     BOOST_CHECK_EQUAL(testmatch->eval(), true);
 }
 
 /********************************* TEST ELEMENT TYPE AS *********************************/
-/*
+
 struct TestDataAS
 {
     DcmDataset * dataset;
@@ -62,15 +65,18 @@ struct TestDataAS
 
 BOOST_FIXTURE_TEST_CASE(MatchAS01, TestDataAS)
 {
+    std::vector<dicomifier::TagAndRange> vect;
+    vect.push_back(dicomifier::TagAndRange(DCM_PatientAge, dicomifier::Range(0,1)));
+    
     auto testmatch = 
         dicomifier::conditions::ElementMatch<EVR_AS>::New(dataset, 
-                                                      DCM_PatientAge, 
+                                                      vect, 
                                                       "test_AS");
     BOOST_CHECK_EQUAL(testmatch->eval(), true);
 }
 
 /********************************* TEST ELEMENT TYPE CS *********************************/
-/*
+
 struct TestDataCS
 {
     DcmDataset * dataset;
@@ -91,33 +97,42 @@ struct TestDataCS
 
 BOOST_FIXTURE_TEST_CASE(MatchCS01, TestDataCS)
 {
+    std::vector<dicomifier::TagAndRange> vect;
+    vect.push_back(dicomifier::TagAndRange(DCM_Modality, dicomifier::Range(0,1)));
+    
     auto testmatch = 
         dicomifier::conditions::ElementMatch<EVR_CS>::New(dataset, 
-                                                      DCM_Modality, 
+                                                      vect, 
                                                       {"value1", "value2", "value3"});
     BOOST_CHECK_EQUAL(testmatch->eval(), true);
 }
 
 BOOST_FIXTURE_TEST_CASE(MatchCS02, TestDataCS)
 {
+    std::vector<dicomifier::TagAndRange> vect;
+    vect.push_back(dicomifier::TagAndRange(DCM_Modality, dicomifier::Range(0,1)));
+    
     auto testmatch = 
         dicomifier::conditions::ElementMatch<EVR_CS>::New(dataset, 
-                                                      DCM_Modality, 
+                                                      vect, 
                                                       {"value1", "badValue", "value3"});
     BOOST_CHECK_EQUAL(testmatch->eval(), false);
 }
 
 BOOST_FIXTURE_TEST_CASE(MatchCS03, TestDataCS)
 {
+    std::vector<dicomifier::TagAndRange> vect;
+    vect.push_back(dicomifier::TagAndRange(DCM_PatientSex, dicomifier::Range(0,1)));
+    
     auto testmatch = 
         dicomifier::conditions::ElementMatch<EVR_CS>::New(dataset, 
-                                                      DCM_PatientSex, 
+                                                      vect, 
                                                       {"value1", "value2", "value3"});
     BOOST_CHECK_EQUAL(testmatch->eval(), false);
 }
 
 /********************************* TEST ELEMENT TYPE DA *********************************/
-/*
+
 struct TestDataDA
 {
     DcmDataset * dataset;
@@ -137,15 +152,18 @@ struct TestDataDA
 
 BOOST_FIXTURE_TEST_CASE(MatchDA01, TestDataDA)
 {
+    std::vector<dicomifier::TagAndRange> vect;
+    vect.push_back(dicomifier::TagAndRange(DCM_PatientBirthDate, dicomifier::Range(0,1)));
+    
     auto testmatch = 
         dicomifier::conditions::ElementMatch<EVR_DA>::New(dataset, 
-                                                      DCM_PatientBirthDate, 
+                                                      vect, 
                                                       "01/01/2001");
     BOOST_CHECK_EQUAL(testmatch->eval(), true);
 }
 
 /********************************* TEST ELEMENT TYPE DS *********************************/
-/*
+
 struct TestDataDS
 {
     DcmDataset * dataset;
@@ -165,15 +183,18 @@ struct TestDataDS
 
 BOOST_FIXTURE_TEST_CASE(MatchDS01, TestDataDS)
 {
+    std::vector<dicomifier::TagAndRange> vect;
+    vect.push_back(dicomifier::TagAndRange(DCM_PatientWeight, dicomifier::Range(0,1)));
+    
     auto testmatch = 
         dicomifier::conditions::ElementMatch<EVR_DS>::New(dataset, 
-                                                      DCM_PatientWeight, 
+                                                      vect, 
                                                       60.5);
     BOOST_CHECK_EQUAL(testmatch->eval(), true);
 }
 
 /********************************* TEST ELEMENT TYPE DT *********************************/
-/*
+
 struct TestDataDT
 {
     DcmDataset * dataset;
@@ -193,15 +214,18 @@ struct TestDataDT
 
 BOOST_FIXTURE_TEST_CASE(MatchDT01, TestDataDT)
 {
+    std::vector<dicomifier::TagAndRange> vect;
+    vect.push_back(dicomifier::TagAndRange(DCM_FrameAcquisitionDateTime, dicomifier::Range(0,1)));
+    
     auto testmatch = 
         dicomifier::conditions::ElementMatch<EVR_DT>::New(dataset, 
-                                                      DCM_FrameAcquisitionDateTime, 
+                                                      vect, 
                                                       "01/01/2001 09:09:09");
     BOOST_CHECK_EQUAL(testmatch->eval(), true);
 }
 
 /********************************* TEST ELEMENT TYPE FD *********************************/
-/*
+
 struct TestDataFD
 {
     DcmDataset * dataset;
@@ -221,15 +245,18 @@ struct TestDataFD
 
 BOOST_FIXTURE_TEST_CASE(MatchFD01, TestDataFD)
 {
+    std::vector<dicomifier::TagAndRange> vect;
+    vect.push_back(dicomifier::TagAndRange(DCM_PupilSize, dicomifier::Range(0,1)));
+    
     auto testmatch = 
         dicomifier::conditions::ElementMatch<EVR_FD>::New(dataset, 
-                                                      DCM_PupilSize, 
+                                                      vect, 
                                                       42.5);
     BOOST_CHECK_EQUAL(testmatch->eval(), true);
 }
 
 /********************************* TEST ELEMENT TYPE FL *********************************/
-/*
+
 struct TestDataFL
 {
     DcmDataset * dataset;
@@ -249,15 +276,18 @@ struct TestDataFL
 
 BOOST_FIXTURE_TEST_CASE(MatchFL01, TestDataFL)
 {
+    std::vector<dicomifier::TagAndRange> vect;
+    vect.push_back(dicomifier::TagAndRange(DCM_RecommendedDisplayFrameRateInFloat, dicomifier::Range(0,1)));
+    
     auto testmatch = 
         dicomifier::conditions::ElementMatch<EVR_FL>::New(dataset, 
-                                                      DCM_RecommendedDisplayFrameRateInFloat, 
+                                                      vect, 
                                                       15.2);
     BOOST_CHECK_EQUAL(testmatch->eval(), true);
 }
 
 /********************************* TEST ELEMENT TYPE IS *********************************/
-/*
+
 struct TestDataIS
 {
     DcmDataset * dataset;
@@ -277,15 +307,18 @@ struct TestDataIS
 
 BOOST_FIXTURE_TEST_CASE(MatchIS01, TestDataIS)
 {
+    std::vector<dicomifier::TagAndRange> vect;
+    vect.push_back(dicomifier::TagAndRange(DCM_StageNumber, dicomifier::Range(0,1)));
+    
     auto testmatch = 
         dicomifier::conditions::ElementMatch<EVR_IS>::New(dataset, 
-                                                      DCM_StageNumber, 
+                                                      vect, 
                                                       12);
     BOOST_CHECK_EQUAL(testmatch->eval(), true);
 }
 
 /********************************* TEST ELEMENT TYPE LO *********************************/
-/*
+
 struct TestDataLO
 {
     DcmDataset * dataset;
@@ -305,15 +338,18 @@ struct TestDataLO
 
 BOOST_FIXTURE_TEST_CASE(MatchLO01, TestDataLO)
 {
+    std::vector<dicomifier::TagAndRange> vect;
+    vect.push_back(dicomifier::TagAndRange(DCM_Manufacturer, dicomifier::Range(0,1)));
+    
     auto testmatch = 
         dicomifier::conditions::ElementMatch<EVR_LO>::New(dataset, 
-                                                      DCM_Manufacturer, 
+                                                      vect, 
                                                       "MyManufacturer");
     BOOST_CHECK_EQUAL(testmatch->eval(), true);
 }
 
 /********************************* TEST ELEMENT TYPE LT *********************************/
-/*
+
 struct TestDataLT
 {
     DcmDataset * dataset;
@@ -333,15 +369,18 @@ struct TestDataLT
 
 BOOST_FIXTURE_TEST_CASE(MatchLT01, TestDataLT)
 {
+    std::vector<dicomifier::TagAndRange> vect;
+    vect.push_back(dicomifier::TagAndRange(DCM_AdditionalPatientHistory, dicomifier::Range(0,1)));
+    
     auto testmatch = 
         dicomifier::conditions::ElementMatch<EVR_LT>::New(dataset, 
-                                                      DCM_AdditionalPatientHistory, 
+                                                      vect, 
                                                       "test_valueLT");
     BOOST_CHECK_EQUAL(testmatch->eval(), true);
 }
 
 /********************************* TEST ELEMENT TYPE PN *********************************/
-/*
+
 struct TestDataPN
 {
     DcmDataset * dataset;
@@ -361,15 +400,18 @@ struct TestDataPN
 
 BOOST_FIXTURE_TEST_CASE(MatchPN01, TestDataPN)
 {
+    std::vector<dicomifier::TagAndRange> vect;
+    vect.push_back(dicomifier::TagAndRange(DCM_PatientName, dicomifier::Range(0,1)));
+    
     auto testmatch = 
         dicomifier::conditions::ElementMatch<EVR_PN>::New(dataset, 
-                                                      DCM_PatientName, 
+                                                      vect, 
                                                       "Doe^John");
     BOOST_CHECK_EQUAL(testmatch->eval(), true);
 }
 
 /********************************* TEST ELEMENT TYPE SH *********************************/
-/*
+
 struct TestDataSH
 {
     DcmDataset * dataset;
@@ -389,15 +431,18 @@ struct TestDataSH
 
 BOOST_FIXTURE_TEST_CASE(MatchSH01, TestDataSH)
 {
+    std::vector<dicomifier::TagAndRange> vect;
+    vect.push_back(dicomifier::TagAndRange(DCM_EthnicGroup, dicomifier::Range(0,1)));
+    
     auto testmatch = 
         dicomifier::conditions::ElementMatch<EVR_SH>::New(dataset, 
-                                                      DCM_EthnicGroup, 
+                                                      vect, 
                                                       "test_valueSH");
     BOOST_CHECK_EQUAL(testmatch->eval(), true);
 }
 
 /********************************* TEST ELEMENT TYPE SL *********************************/
-/*
+
 struct TestDataSL
 {
     DcmDataset * dataset;
@@ -417,15 +462,54 @@ struct TestDataSL
 
 BOOST_FIXTURE_TEST_CASE(MatchSL01, TestDataSL)
 {
+    std::vector<dicomifier::TagAndRange> vect;
+    vect.push_back(dicomifier::TagAndRange(DCM_ReferencePixelX0, dicomifier::Range(0,1)));
+    
     auto testmatch = 
         dicomifier::conditions::ElementMatch<EVR_SL>::New(dataset, 
-                                                      DCM_ReferencePixelX0, 
+                                                      vect, 
                                                       10);
     BOOST_CHECK_EQUAL(testmatch->eval(), true);
 }
 
+/********************************* TEST ELEMENT TYPE SQ *********************************/
+
+struct TestDataSQ
+{
+    DcmDataset * dataset;
+ 
+    TestDataSQ()
+    {
+        dataset = new DcmDataset();
+        // Insert testing value
+        DcmItem* item = new DcmItem(DCM_OtherPatientIDsSequence);
+        item->putAndInsertOFStringArray(DCM_PatientID, "123");
+        dataset->insertSequenceItem(DCM_OtherPatientIDsSequence, item);
+    }
+ 
+    ~TestDataSQ()
+    {
+        delete dataset;
+    }
+};
+
+BOOST_FIXTURE_TEST_CASE(MatchSQ01, TestDataSQ)
+{
+    std::vector<dicomifier::TagAndRange> vect;
+    vect.push_back(dicomifier::TagAndRange(DCM_OtherPatientIDsSequence, dicomifier::Range(0,1)));
+    vect.push_back(dicomifier::TagAndRange(DCM_PatientID, dicomifier::Range(0,1)));
+    
+    auto testmatch = 
+        dicomifier::conditions::ElementMatch<EVR_LO>::New(dataset, 
+                                                      vect, 
+                                                      "123");
+    BOOST_CHECK_EQUAL(testmatch->eval(), true);
+}
+
+// Impossible to create SQ ElementMatch
+
 /********************************* TEST ELEMENT TYPE SS *********************************/
-/*
+
 struct TestDataSS
 {
     DcmDataset * dataset;
@@ -445,15 +529,18 @@ struct TestDataSS
 
 BOOST_FIXTURE_TEST_CASE(MatchSS01, TestDataSS)
 {
+    std::vector<dicomifier::TagAndRange> vect;
+    vect.push_back(dicomifier::TagAndRange(DCM_TagAngleSecondAxis, dicomifier::Range(0,1)));
+    
     auto testmatch = 
         dicomifier::conditions::ElementMatch<EVR_SS>::New(dataset, 
-                                                      DCM_TagAngleSecondAxis, 
+                                                      vect, 
                                                       10);
     BOOST_CHECK_EQUAL(testmatch->eval(), true);
 }
 
 /********************************* TEST ELEMENT TYPE UI *********************************/
-/*
+
 struct TestDataUI
 {
     DcmDataset * dataset;
@@ -473,15 +560,18 @@ struct TestDataUI
 
 BOOST_FIXTURE_TEST_CASE(MatchUI01, TestDataUI)
 {
+    std::vector<dicomifier::TagAndRange> vect;
+    vect.push_back(dicomifier::TagAndRange(DCM_SOPClassUID, dicomifier::Range(0,1)));
+    
     auto testmatch = 
         dicomifier::conditions::ElementMatch<EVR_UI>::New(dataset, 
-                                                      DCM_SOPClassUID, 
+                                                      vect, 
                                                       "1.2.3.4.5.6");
     BOOST_CHECK_EQUAL(testmatch->eval(), true);
 }
 
 /********************************* TEST ELEMENT TYPE TM *********************************/
-/*
+
 struct TestDataTM
 {
     DcmDataset * dataset;
@@ -501,15 +591,18 @@ struct TestDataTM
 
 BOOST_FIXTURE_TEST_CASE(MatchTM01, TestDataTM)
 {
+    std::vector<dicomifier::TagAndRange> vect;
+    vect.push_back(dicomifier::TagAndRange(DCM_InstanceCreationTime, dicomifier::Range(0,1)));
+    
     auto testmatch = 
         dicomifier::conditions::ElementMatch<EVR_TM>::New(dataset, 
-                                                      DCM_InstanceCreationTime, 
+                                                      vect, 
                                                       "08:08:08");
     BOOST_CHECK_EQUAL(testmatch->eval(), true);
 }
 
 /********************************* TEST ELEMENT TYPE ST *********************************/
-/*
+
 struct TestDataST
 {
     DcmDataset * dataset;
@@ -529,15 +622,18 @@ struct TestDataST
 
 BOOST_FIXTURE_TEST_CASE(MatchST01, TestDataST)
 {
+    std::vector<dicomifier::TagAndRange> vect;
+    vect.push_back(dicomifier::TagAndRange(DCM_InstitutionAddress, dicomifier::Range(0,1)));
+    
     auto testmatch = 
         dicomifier::conditions::ElementMatch<EVR_ST>::New(dataset, 
-                                                      DCM_InstitutionAddress, 
+                                                      vect, 
                                                       "MyAdress");
     BOOST_CHECK_EQUAL(testmatch->eval(), true);
 }
 
 /********************************* TEST ELEMENT TYPE UL *********************************/
-/*
+
 struct TestDataUL
 {
     DcmDataset * dataset;
@@ -557,15 +653,18 @@ struct TestDataUL
 
 BOOST_FIXTURE_TEST_CASE(MatchUL01, TestDataUL)
 {
+    std::vector<dicomifier::TagAndRange> vect;
+    vect.push_back(dicomifier::TagAndRange(DCM_SimpleFrameList, dicomifier::Range(0,1)));
+    
     auto testmatch = 
         dicomifier::conditions::ElementMatch<EVR_UL>::New(dataset, 
-                                                      DCM_SimpleFrameList, 
+                                                      vect, 
                                                       11);
     BOOST_CHECK_EQUAL(testmatch->eval(), true);
 }
 
 /********************************* TEST ELEMENT TYPE US *********************************/
-/*
+
 struct TestDataUS
 {
     DcmDataset * dataset;
@@ -585,15 +684,18 @@ struct TestDataUS
 
 BOOST_FIXTURE_TEST_CASE(MatchUS01, TestDataUS)
 {
+    std::vector<dicomifier::TagAndRange> vect;
+    vect.push_back(dicomifier::TagAndRange(DCM_FailureReason, dicomifier::Range(0,1)));
+    
     auto testmatch = 
         dicomifier::conditions::ElementMatch<EVR_US>::New(dataset, 
-                                                      DCM_FailureReason, 
+                                                      vect, 
                                                       5);
     BOOST_CHECK_EQUAL(testmatch->eval(), true);
 }
 
 /********************************* TEST ELEMENT TYPE UT *********************************/
-/*
+
 struct TestDataUT
 {
     DcmDataset * dataset;
@@ -613,15 +715,18 @@ struct TestDataUT
 
 BOOST_FIXTURE_TEST_CASE(MatchUT01, TestDataUT)
 {
+    std::vector<dicomifier::TagAndRange> vect;
+    vect.push_back(dicomifier::TagAndRange(DCM_PixelDataProviderURL, dicomifier::Range(0,1)));
+    
     auto testmatch = 
         dicomifier::conditions::ElementMatch<EVR_UT>::New(dataset, 
-                                                      DCM_PixelDataProviderURL, 
+                                                      vect, 
                                                       "test_valueUT");
     BOOST_CHECK_EQUAL(testmatch->eval(), true);
 }
 
 /********************************* TEST ERROR *********************************/
-/*
+
 struct TestDataError
 {
     DcmDataset * dataset;
@@ -642,28 +747,36 @@ struct TestDataError
 
 BOOST_FIXTURE_TEST_CASE(Error_nodataset, TestDataError)
 {
+    std::vector<dicomifier::TagAndRange> vect;
+    vect.push_back(dicomifier::TagAndRange(DCM_Modality, dicomifier::Range(0,1)));
+    
     auto testmatch = 
         dicomifier::conditions::ElementMatch<EVR_CS>::New(NULL, 
-                                                      DCM_Modality, 
+                                                      vect, 
                                                       "value1");
     BOOST_CHECK_EQUAL(testmatch->eval(), false);
 }
 
 BOOST_FIXTURE_TEST_CASE(Error_badtag, TestDataError)
 {
+    std::vector<dicomifier::TagAndRange> vect;
+    vect.push_back(dicomifier::TagAndRange(DCM_PatientSex, dicomifier::Range(0,1)));
+    
     auto testmatch = 
         dicomifier::conditions::ElementMatch<EVR_CS>::New(dataset, 
-                                                      DCM_PatientSex, 
+                                                      vect, 
                                                       "value1");
     BOOST_CHECK_EQUAL(testmatch->eval(), false);
 }
 
 BOOST_FIXTURE_TEST_CASE(Error_badvalue, TestDataError)
 {
+    std::vector<dicomifier::TagAndRange> vect;
+    vect.push_back(dicomifier::TagAndRange(DCM_Modality, dicomifier::Range(0,1)));
+    
     auto testmatch = 
         dicomifier::conditions::ElementMatch<EVR_CS>::New(dataset, 
-                                                      DCM_Modality, 
+                                                      vect, 
                                                       "badvalue");
     BOOST_CHECK_EQUAL(testmatch->eval(), false);
 }
-*/

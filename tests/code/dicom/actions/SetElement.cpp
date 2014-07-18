@@ -545,6 +545,43 @@ BOOST_FIXTURE_TEST_CASE(SetSL02, TestData)
 
 /*************************************** TEST ELEMENT TYPE SQ ****************************************/
 
+struct TestDataSQ
+{
+    DcmDataset * dataset;
+ 
+    TestDataSQ()
+    {
+        dataset = new DcmDataset();
+        // Insert testing value
+        DcmItem* item = new DcmItem(DCM_OtherPatientIDsSequence);
+        item->putAndInsertOFStringArray(DCM_PatientID, "123");
+        dataset->insertSequenceItem(DCM_OtherPatientIDsSequence, item);
+    }
+ 
+    ~TestDataSQ()
+    {
+        delete dataset;
+    }
+};
+
+BOOST_FIXTURE_TEST_CASE(SetSQ01, TestDataSQ)
+{
+    std::vector<dicomifier::TagAndRange> vect;
+    vect.push_back(dicomifier::TagAndRange(DCM_OtherPatientIDsSequence, dicomifier::Range(0,1)));
+    vect.push_back(dicomifier::TagAndRange(DCM_PatientID, dicomifier::Range(0,1)));
+    
+    auto cs_single = 
+        dicomifier::actions::SetElement<EVR_LO>::New(dataset, 
+                                                      vect, 
+                                                      "456");
+    cs_single->run();
+    
+    OFString str;
+    OFCondition cond = dataset->findAndGetOFStringArray(DCM_PatientID, str, true);
+    BOOST_CHECK_EQUAL(cond.good(), true);
+    BOOST_CHECK_EQUAL(str, "456");
+}
+
 // Impossible to create SQ SetElement
 
 /*************************************** TEST ELEMENT TYPE SS ****************************************/
