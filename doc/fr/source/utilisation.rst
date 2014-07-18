@@ -34,9 +34,9 @@ Il est composé des balises suivantes :
 +---------------------------------------+----------------+----------------+
 | :ref:`Condition <Balise_Condition>`   | Obligatoire    |       1        |
 +---------------------------------------+----------------+----------------+
-| :ref:`Inputs <Balise_Input>`          | Optionnel      |      0-n       |
+| :ref:`Input <Balise_Input>`           | Optionnel      |      0-n       |
 +---------------------------------------+----------------+----------------+
-| :ref:`Outputs <Balise_Output>`        | Optionnel      |      0-n       |
+| :ref:`Output <Balise_Output>`         | Optionnel      |      0-n       |
 +---------------------------------------+----------------+----------------+
 
 Exemple :
@@ -135,6 +135,7 @@ Balise Input
 | type            | Obligatoire  | Type d'entrée. Valeurs possibles : |
 |                 |              |                                    |
 |                 |              | - dataset                          |
+|                 |              | - directory                        |
 |                 |              | - file                             |
 |                 |              |                                    |
 +-----------------+--------------+------------------------------------+
@@ -160,6 +161,7 @@ Balise Output
 | type            | Obligatoire  | Type de sortie. Valeurs possibles : |
 |                 |              |                                     |
 |                 |              | - dataset                           |
+|                 |              | - directory                         |
 |                 |              | - file                              |
 |                 |              |                                     |
 +-----------------+--------------+-------------------------------------+

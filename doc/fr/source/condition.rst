@@ -36,9 +36,6 @@ Contient une et une seule condition.
 
 Les différentes balises possibles sont listées dans le paragraphe :ref:`Balise Condition <Balise_Condition>`.
 
-Pour chaque balise, celle-ci est présente à condition qu'aucune autre balise ne 
-soit présente.
-
 Exemple :
 
 .. code-block:: xml
@@ -97,6 +94,8 @@ Balise ElementMatch
 |               |               |              | une balise :ref:`Input <Balise_Input>`                       |
 +---------------+---------------+--------------+--------------------------------------------------------------+
 | tag           | Obligatoire   |       1      | Tag ou Keyword d'un élément DICOM à comparer                 |
+|               |               |              | Remarque : il peut s'agir d'un tag composé du type           |
+|               |               |              |            Sequence.SubSequence.Keyword                      |
 +---------------+---------------+--------------+--------------------------------------------------------------+
 | value         | Obligatoire   |       1      | Valeur de l'élément à comparer                               |
 +---------------+---------------+--------------+--------------------------------------------------------------+

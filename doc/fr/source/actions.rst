@@ -26,6 +26,8 @@ Balise SetElement
 |               |               |              | une balise :ref:`Input <Balise_Input>`                       |
 +---------------+---------------+--------------+--------------------------------------------------------------+
 | tag           | Obligatoire   |       1      | Tag ou Keyword d'un élément DICOM à modifier                 |
+|               |               |              | Remarque : il peut s'agir d'un tag composé du type           |
+|               |               |              |            Sequence.SubSequence.Keyword                      |
 +---------------+---------------+--------------+--------------------------------------------------------------+
 | value         | Obligatoire   |       1      | Nouvelle Valeur de l'élément                                 |
 +---------------+---------------+--------------+--------------------------------------------------------------+
@@ -50,6 +52,8 @@ Balise DeleteElement
 |               |               |              | une balise :ref:`Input <Balise_Input>`                       |
 +---------------+---------------+--------------+--------------------------------------------------------------+
 | tag           | Obligatoire   |       1      | Tag ou Keyword d'un élément DICOM à supprimer                |
+|               |               |              | Remarque : il peut s'agir d'un tag composé du type           |
+|               |               |              |            Sequence.SubSequence.Keyword                      |
 +---------------+---------------+--------------+--------------------------------------------------------------+
 
 Exemple :
@@ -70,6 +74,8 @@ Balise EmptyElement
 |               |               |              | une balise :ref:`Input <Balise_Input>`                       |
 +---------------+---------------+--------------+--------------------------------------------------------------+
 | tag           | Obligatoire   |       1      | Tag ou Keyword d'un élément DICOM à effacer                  |
+|               |               |              | Remarque : il peut s'agir d'un tag composé du type           |
+|               |               |              |            Sequence.SubSequence.Keyword                      |
 +---------------+---------------+--------------+--------------------------------------------------------------+
 
 Exemple :
