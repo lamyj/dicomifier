@@ -121,13 +121,13 @@ SetElement<VR>
     {
         if (VR != EVR_SQ)
         {
-            if(!this->_dataset->tagExists(tar._tag))
+            if(!dataset->tagExists(tar._tag))
             {
-                this->_dataset->insertEmptyElement(tar._tag);
+                dataset->insertEmptyElement(tar._tag);
             }
             DcmElement * element = NULL;
             OFCondition const element_ok =
-                this->_dataset->findAndGetElement(tar._tag, element);
+                dataset->findAndGetElement(tar._tag, element);
 
             if(element_ok.bad())
             {
