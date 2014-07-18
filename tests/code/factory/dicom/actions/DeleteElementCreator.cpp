@@ -331,6 +331,50 @@ BOOST_FIXTURE_TEST_CASE(TEST_OK_07, TestDataOK07)
     }
 }
 
+struct TestDataOK08
+{
+    boost::property_tree::ptree ptr;
+    std::shared_ptr<dicomifier::factory::CreatorBase::InOutPutType> inputs;
+ 
+    TestDataOK08()
+    {
+        // Create Test file
+        DcmDataset* dataset = new DcmDataset();
+        OFString name("John");
+        dataset->putAndInsertOFStringArray(DCM_PatientName, name, true);
+        dataset->putAndInsertOFStringArray(DCM_PatientID, "123\\456\\789\\101");
+        
+        // Create XML tree
+        boost::property_tree::ptree emptynode;
+        emptynode.put("<xmlattr>.tag", "PatientID[1]");
+        emptynode.put("<xmlattr>.dataset", "#input");
+        ptr.add_child("DeleteElement", emptynode);
+        
+        inputs = std::make_shared<dicomifier::factory::CreatorBase::InOutPutType>();
+        inputs->insert(std::pair<std::string, boost::any>("input", boost::any(dataset)));
+    }
+ 
+    ~TestDataOK08()
+    {
+    }
+};
+
+BOOST_FIXTURE_TEST_CASE(TEST_OK_08, TestDataOK08)
+{
+    auto testdelete = dicomifier::factory::DeleteElementCreator::New();
+    testdelete->set_inputs(inputs);
+    
+    BOOST_FOREACH(boost::property_tree::ptree::value_type &v, ptr)
+    {
+        dicomifier::Object::Pointer object = testdelete->Create(v);
+        
+        dicomifier::actions::DeleteElement::Pointer act = 
+                std::dynamic_pointer_cast<dicomifier::actions::DeleteElement>(object);
+        
+        BOOST_CHECK_EQUAL(act != NULL, true);
+    }
+}
+
 struct TestDataKO01
 {
     boost::property_tree::ptree ptr;

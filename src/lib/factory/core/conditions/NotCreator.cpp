@@ -11,6 +11,7 @@
 
 #include "core/conditions/Condition.h"
 #include "core/conditions/Not.h"
+#include "core/DicomifierException.h"
 #include "core/Factory.h"
 #include "NotCreator.h"
 
@@ -47,7 +48,7 @@ Object::Pointer NotCreator::Create(boost::property_tree::ptree::value_type & val
             return not_; // only one condition
         }
     }
-    return not_;
+    throw DicomifierException("Missing Condition for Not node");
 }
     
 } // namespace factory

@@ -130,6 +130,27 @@ BOOST_FIXTURE_TEST_CASE(DeleteSpeValueInSeq, TestData)
     BOOST_CHECK_EQUAL(array[0], OFString("789"));
 }
 
+BOOST_FIXTURE_TEST_CASE(DeleteSequence, TestData)
+{
+    // check DCM_Modality in dataset
+    BOOST_CHECK_EQUAL(dataset->tagExists(DCM_OtherPatientIDsSequence, OFTrue), true);
+    
+    DcmElement* dcmelement = NULL;
+    dataset->findAndGetElement(DCM_Modality, dcmelement);
+    BOOST_CHECK_EQUAL(dcmelement->getVM(), 4);
+    
+    std::vector<dicomifier::TagAndRange> vect;
+    vect.push_back(dicomifier::TagAndRange(DCM_OtherPatientIDsSequence, dicomifier::Range(0,1)));
+    
+    auto testdelete = dicomifier::actions::DeleteElement::New(dataset, vect);
+    
+    testdelete->run();
+        
+    // check DCM_Modality still present
+    BOOST_CHECK_EQUAL(dataset->tagExists(DCM_OtherPatientIDsSequence, OFTrue), false);
+}
+
+
 BOOST_FIXTURE_TEST_CASE(DeleteNotExisting, TestData)
 {
     // check DCM_PatientSex not in dataset
