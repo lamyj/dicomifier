@@ -11,9 +11,11 @@
 
 #include <memory>
 
+#include <dcmtk/config/osconfig.h>
 #include <dcmtk/dcmdata/dctk.h>
 
 #include "dicom/actions/DeleteElement.h"
+#include "dicom/ElementTraits.h"
 
 struct TestData
 {
@@ -24,21 +26,9 @@ struct TestData
         dataset = new DcmDataset();
         // Insert testing value
         dataset->putAndInsertOFStringArray(DCM_Modality, "value1\\value2\\value3\\value4");
-        dataset->putAndInsertOFStringArray(DCM_PatientWeight, "60.5");
-        
         DcmItem* item = new DcmItem(DCM_OtherPatientIDsSequence);
-        DcmItem* item2 = new DcmItem(DCM_OtherPatientIDsSequence);
-        item2->putAndInsertOFStringArray(DCM_PatientID, "123\\456\\789");
-        item2->putAndInsertOFStringArray(DCM_Modality, "123\\456\\789");
-        
-        item->insertSequenceItem(DCM_OtherPatientIDsSequence, item2);
-        item->putAndInsertOFStringArray(DCM_Modality, "123\\456\\789");
-        
+        item->putAndInsertOFStringArray(DCM_PatientID, "123\\456\\789");
         dataset->insertSequenceItem(DCM_OtherPatientIDsSequence, item);
-        
-        dataset->insertSequenceItem(DCM_OtherPatientIDsSequence, new DcmItem(DCM_PatientWeight));
-        
-        dataset->print(std::cout);
     }
  
     ~TestData()
@@ -47,41 +37,110 @@ struct TestData
     }
 };
 
-BOOST_FIXTURE_TEST_CASE(DeleteExisting, TestData)
+BOOST_FIXTURE_TEST_CASE(DeleteAll, TestData)
 {
     // check DCM_Modality in dataset
-    //BOOST_CHECK_EQUAL(dataset->tagExists(DCM_Modality), true);
+    BOOST_CHECK_EQUAL(dataset->tagExists(DCM_Modality), true);
     
     std::vector<dicomifier::TagAndRange> vect;
-    vect.push_back(dicomifier::TagAndRange(DCM_OtherPatientIDsSequence, dicomifier::Range(0,6)));
-    vect.push_back(dicomifier::TagAndRange(DCM_OtherPatientIDsSequence, dicomifier::Range(0,1)));
-    //vect.push_back(dicomifier::TagAndRange(DCM_PatientID, dicomifier::Range(0,2)));
+    vect.push_back(dicomifier::TagAndRange(DCM_Modality, dicomifier::Range(0,std::numeric_limits<int>::max())));
     
-    auto testdelete = dicomifier::actions::DeleteElement::New();
-    testdelete->set_dataset(dataset);
-    testdelete->set_tags(vect);
+    auto testdelete = dicomifier::actions::DeleteElement::New(dataset, vect);
+    
     testdelete->run();
-    dataset->print(std::cout);
-    //BOOST_CHECK_EQUAL(testdelete->get_dataset() != NULL, true);
-    //BOOST_CHECK_EQUAL(testdelete->get_tag() == DCM_Modality, true);
         
     // check DCM_Modality delete
-    //BOOST_CHECK_EQUAL(dataset->tagExists(DCM_Modality), false);
+    BOOST_CHECK_EQUAL(dataset->tagExists(DCM_Modality), false);
     
     // check Other tag already exist
-    BOOST_CHECK_EQUAL(dataset->tagExists(DCM_PatientWeight), true);
+    BOOST_CHECK_EQUAL(dataset->tagExists(DCM_OtherPatientIDsSequence), true);
 }
 
-/*BOOST_FIXTURE_TEST_CASE(DeleteNotExisting, TestData)
+BOOST_FIXTURE_TEST_CASE(DeleteSpecificValue, TestData)
+{
+    // check DCM_Modality in dataset
+    BOOST_CHECK_EQUAL(dataset->tagExists(DCM_Modality), true);
+    
+    DcmElement* dcmelement = NULL;
+    dataset->findAndGetElement(DCM_Modality, dcmelement);
+    BOOST_CHECK_EQUAL(dcmelement->getVM(), 4);
+    
+    std::vector<dicomifier::TagAndRange> vect;
+    vect.push_back(dicomifier::TagAndRange(DCM_Modality, dicomifier::Range(1,3)));
+    
+    auto testdelete = dicomifier::actions::DeleteElement::New(dataset, vect);
+    
+    testdelete->run();
+        
+    // check DCM_Modality still present
+    BOOST_CHECK_EQUAL(dataset->tagExists(DCM_Modality), true);
+    
+    dcmelement = NULL;
+    dataset->findAndGetElement(DCM_Modality, dcmelement);
+    BOOST_CHECK_EQUAL(dcmelement->getVM(), 2);
+    auto const array = dicomifier::ElementTraits<EVR_CS>::array_getter(dcmelement);
+    BOOST_CHECK_EQUAL(array[0], OFString("value1"));
+    BOOST_CHECK_EQUAL(array[1], OFString("value4"));
+}
+
+BOOST_FIXTURE_TEST_CASE(DeleteAllInSequence, TestData)
+{
+    // check DCM_Modality in dataset
+    BOOST_CHECK_EQUAL(dataset->tagExists(DCM_PatientID, OFTrue), true);
+    
+    std::vector<dicomifier::TagAndRange> vect;
+    vect.push_back(dicomifier::TagAndRange(DCM_OtherPatientIDsSequence, dicomifier::Range(0,1)));
+    vect.push_back(dicomifier::TagAndRange(DCM_PatientID, dicomifier::Range(0,std::numeric_limits<int>::max())));
+    
+    auto testdelete = dicomifier::actions::DeleteElement::New(dataset, vect);
+    
+    testdelete->run();
+        
+    // check DCM_Modality delete
+    BOOST_CHECK_EQUAL(dataset->tagExists(DCM_PatientID, OFTrue), false);
+    
+    // check Other tag already exist
+    BOOST_CHECK_EQUAL(dataset->tagExists(DCM_OtherPatientIDsSequence), true);
+}
+
+BOOST_FIXTURE_TEST_CASE(DeleteSpeValueInSeq, TestData)
+{
+    // check DCM_Modality in dataset
+    BOOST_CHECK_EQUAL(dataset->tagExists(DCM_PatientID, OFTrue), true);
+    
+    DcmElement* dcmelement = NULL;
+    dataset->findAndGetElement(DCM_Modality, dcmelement);
+    BOOST_CHECK_EQUAL(dcmelement->getVM(), 4);
+    
+    std::vector<dicomifier::TagAndRange> vect;
+    vect.push_back(dicomifier::TagAndRange(DCM_OtherPatientIDsSequence, dicomifier::Range(0,1)));
+    vect.push_back(dicomifier::TagAndRange(DCM_PatientID, dicomifier::Range(0,2)));
+    
+    auto testdelete = dicomifier::actions::DeleteElement::New(dataset, vect);
+    
+    testdelete->run();
+        
+    // check DCM_Modality still present
+    BOOST_CHECK_EQUAL(dataset->tagExists(DCM_PatientID, OFTrue), true);
+    
+    dcmelement = NULL;
+    dataset->findAndGetElement(DCM_PatientID, dcmelement, OFTrue);
+    BOOST_CHECK_EQUAL(dcmelement->getVM(), 1);
+    auto const array = dicomifier::ElementTraits<EVR_LO>::array_getter(dcmelement);
+    BOOST_CHECK_EQUAL(array[0], OFString("789"));
+}
+
+BOOST_FIXTURE_TEST_CASE(DeleteNotExisting, TestData)
 {
     // check DCM_PatientSex not in dataset
     BOOST_CHECK_EQUAL(dataset->tagExists(DCM_PatientSex), false);
     
-    auto testdelete = dicomifier::actions::DeleteElement::New();
-    testdelete->set_dataset(dataset);
-    //testdelete->set_tag(DCM_PatientSex);
+    std::vector<dicomifier::TagAndRange> vect;
+    vect.push_back(dicomifier::TagAndRange(DCM_PatientSex, dicomifier::Range(0,std::numeric_limits<int>::max())));
+    
+    auto testdelete = dicomifier::actions::DeleteElement::New(dataset, vect);
     testdelete->run();
         
     // check DCM_PatientSex not in dataset
     BOOST_CHECK_EQUAL(dataset->tagExists(DCM_PatientSex), false);
-}*/
+}
