@@ -15,78 +15,76 @@
 
 #include "dicom/actions/EmptyElement.h"
 
-struct TestData
+struct TestDataOK01
 {
     DcmDataset * dataset;
  
-    TestData()
+    TestDataOK01()
     {
         dataset = new DcmDataset();
         // Insert testing value
         dataset->putAndInsertOFStringArray(DCM_Modality, "value1\\value2\\value3\\value4");
-        dataset->putAndInsertOFStringArray(DCM_PatientWeight, "60.5");
-        
         DcmItem* item = new DcmItem(DCM_OtherPatientIDsSequence);
-        DcmItem* item2 = new DcmItem(DCM_OtherPatientIDsSequence);
-        item2->putAndInsertOFStringArray(DCM_PatientID, "123\\456\\789");
-        item2->putAndInsertOFStringArray(DCM_Modality, "123\\456\\789");
-        
-        item->insertSequenceItem(DCM_OtherPatientIDsSequence, item2);
-        item->putAndInsertOFStringArray(DCM_Modality, "123\\456\\789");
-        
+        item->putAndInsertOFStringArray(DCM_PatientID, "123\\456\\789");
         dataset->insertSequenceItem(DCM_OtherPatientIDsSequence, item);
-        
-        dataset->insertSequenceItem(DCM_OtherPatientIDsSequence, new DcmItem(DCM_PatientWeight));
-        
-        dataset->print(std::cout);
     }
  
-    ~TestData()
+    ~TestDataOK01()
     {
         delete dataset;
     }
 };
 
-BOOST_FIXTURE_TEST_CASE(EmptyExisting, TestData)
+BOOST_FIXTURE_TEST_CASE(TEST_OK_01, TestDataOK01)
 {
     std::vector<dicomifier::TagAndRange> vect;
-    vect.push_back(dicomifier::TagAndRange(DCM_OtherPatientIDsSequence, dicomifier::Range(0,6)));
-    vect.push_back(dicomifier::TagAndRange(DCM_OtherPatientIDsSequence, dicomifier::Range(0,1)));
-    //vect.push_back(dicomifier::TagAndRange(DCM_PatientID, dicomifier::Range(0,2)));
+    vect.push_back(dicomifier::TagAndRange(DCM_Modality, dicomifier::Range(0,1)));
     
-    auto testempty = dicomifier::actions::EmptyElement::New();
-    testempty->set_dataset(dataset);
-    testempty->set_tags(vect);
+    auto testempty = dicomifier::actions::EmptyElement::New(dataset, vect);
     testempty->run();
-    dataset->print(std::cout);
-    
-    
-    /*auto testempty = dicomifier::actions::EmptyElement::New();
-    testempty->set_dataset(dataset);
-    //testempty->set_tag(DCM_Modality);
-    testempty->run();
-    
-    BOOST_CHECK_EQUAL(testempty->get_dataset() != NULL, true);
-    //BOOST_CHECK_EQUAL(testempty->get_tag() == DCM_Modality, true);
         
     DcmElement * element = NULL;
     OFCondition const element_ok = dataset->findAndGetElement(DCM_Modality, element);
     BOOST_CHECK_EQUAL(element_ok.good(), true);
-    BOOST_CHECK_EQUAL(element != NULL, true);*/
+    BOOST_CHECK_EQUAL(element != NULL, true);
     
     OFString str;
-    //OFCondition cond = dataset->findAndGetOFStringArray(DCM_Modality, str);
-    //BOOST_CHECK_EQUAL(cond.good(), true);
+    OFCondition cond = dataset->findAndGetOFStringArray(DCM_Modality, str);
+    BOOST_CHECK_EQUAL(cond.good(), true);
     
     BOOST_CHECK_EQUAL(str, "");
 }
 
-/*
-BOOST_FIXTURE_TEST_CASE(EmptyNotExisting, TestData)
+BOOST_FIXTURE_TEST_CASE(TEST_OK_02, TestDataOK01)
 {
-    auto testempty = dicomifier::actions::EmptyElement::New();
-    testempty->set_dataset(dataset);
-    //testempty->set_tag(DCM_PatientSex);
+    // check DCM_Modality in dataset
+    BOOST_CHECK_EQUAL(dataset->tagExists(DCM_PatientID, OFTrue), true);
+    
+    std::vector<dicomifier::TagAndRange> vect;
+    vect.push_back(dicomifier::TagAndRange(DCM_OtherPatientIDsSequence, dicomifier::Range(0,1)));
+    vect.push_back(dicomifier::TagAndRange(DCM_PatientID, dicomifier::Range(0,std::numeric_limits<int>::max())));
+    
+    auto testdelete = dicomifier::actions::EmptyElement::New(dataset, vect);
+    
+    testdelete->run();
+        
+    // check DCM_Modality delete
+    BOOST_CHECK_EQUAL(dataset->tagExists(DCM_PatientID, OFTrue), true);
+    
+    OFString str;
+    OFCondition cond = dataset->findAndGetOFStringArray(DCM_PatientID, str, true);
+    BOOST_CHECK_EQUAL(cond.good(), true);
+    
+    BOOST_CHECK_EQUAL(str, "");
+}
+
+
+BOOST_FIXTURE_TEST_CASE(TEST_OK_03, TestDataOK01)
+{
+    std::vector<dicomifier::TagAndRange> vect;
+    vect.push_back(dicomifier::TagAndRange(DCM_PatientSex, dicomifier::Range(0,1)));
+    
+    auto testempty = dicomifier::actions::EmptyElement::New(dataset, vect);
     testempty->run();
         
     DcmElement * element = NULL;
@@ -99,4 +97,4 @@ BOOST_FIXTURE_TEST_CASE(EmptyNotExisting, TestData)
     BOOST_CHECK_EQUAL(cond.good(), true);
     
     BOOST_CHECK_EQUAL(str, "");
-}*/
+}
