@@ -675,6 +675,57 @@ BOOST_FIXTURE_TEST_CASE(CreationSL, TestDataSL)
     }
 }
 
+/*************************************** TEST ELEMENT TYPE SQ ****************************************/
+
+struct TestDataSQ
+{
+    boost::property_tree::ptree ptr;
+    std::shared_ptr<dicomifier::factory::CreatorBase::InOutPutType> inputs;
+ 
+    TestDataSQ()
+    {
+        // Create Test file
+        DcmDataset* dataset = new DcmDataset();
+        dataset->putAndInsertOFStringArray(DCM_PatientName, OFString("John"), true);
+        DcmItem* item = new DcmItem(DCM_OtherPatientIDsSequence);
+        item->putAndInsertOFStringArray(DCM_PatientID, "123");
+        dataset->insertSequenceItem(DCM_OtherPatientIDsSequence, item);
+        
+        // Create XML tree
+        boost::property_tree::ptree emptynode;
+        emptynode.put("<xmlattr>.tag", "0010,1002.0010,0020");
+        emptynode.put("<xmlattr>.value", "456");
+        emptynode.put("<xmlattr>.VR", "LO");
+        emptynode.put("<xmlattr>.dataset", "#input");
+        ptr.add_child("SetElement", emptynode);
+        
+        inputs = std::make_shared<dicomifier::factory::CreatorBase::InOutPutType>();
+        inputs->insert(std::pair<std::string, boost::any>("input", boost::any(dataset)));
+    }
+ 
+    ~TestDataSQ()
+    {
+    }
+};
+
+BOOST_FIXTURE_TEST_CASE(SetSQOK01, TestDataSQ)
+{
+    auto testset = dicomifier::factory::SetElementCreator::New();
+    testset->set_inputs(inputs);
+    
+    BOOST_FOREACH(boost::property_tree::ptree::value_type &v, ptr)
+    {
+        dicomifier::Object::Pointer object = testset->Create(v);
+        
+        dicomifier::actions::SetElement<EVR_LO>::Pointer cond = 
+                std::dynamic_pointer_cast<dicomifier::actions::SetElement<EVR_LO>>(object);
+        
+        BOOST_CHECK_EQUAL(cond != NULL, true);
+    }
+}
+
+// Impossible to create SetElement with EVR_SQ
+
 /*************************************** TEST ELEMENT TYPE SS ****************************************/
 
 struct TestDataSS

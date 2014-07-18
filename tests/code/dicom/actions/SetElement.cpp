@@ -29,12 +29,15 @@ struct TestData
 };
 
 /*************************************** TEST ELEMENT TYPE AE ****************************************/
-/*
+
 BOOST_FIXTURE_TEST_CASE(SetAE01, TestData)
 {
+    std::vector<dicomifier::TagAndRange> vect;
+    vect.push_back(dicomifier::TagAndRange(DCM_PerformedStationAETitle, dicomifier::Range(0,1)));
+    
     auto cs_single = dicomifier::actions::SetElement<EVR_AE>::New();
     cs_single->set_dataset(dataset);
-    cs_single->set_tag(DCM_PerformedStationAETitle);
+    cs_single->set_tags(vect);
     cs_single->set_value("AB");
     cs_single->run();
     
@@ -46,9 +49,12 @@ BOOST_FIXTURE_TEST_CASE(SetAE01, TestData)
 
 BOOST_FIXTURE_TEST_CASE(SetAE02, TestData)
 {
+    std::vector<dicomifier::TagAndRange> vect;
+    vect.push_back(dicomifier::TagAndRange(DCM_RetrieveAETitle, dicomifier::Range(0,2)));
+    
     auto cs_single = dicomifier::actions::SetElement<EVR_AE>::New();
     cs_single->set_dataset(dataset);
-    cs_single->set_tag(DCM_RetrieveAETitle);
+    cs_single->set_tags(vect);
     cs_single->set_value({"AB", "CD"});
     cs_single->run();
     
@@ -59,12 +65,15 @@ BOOST_FIXTURE_TEST_CASE(SetAE02, TestData)
 }
 
 /*************************************** TEST ELEMENT TYPE AS ****************************************/
-/*
+
 BOOST_FIXTURE_TEST_CASE(SetAS01, TestData)
 {
+    std::vector<dicomifier::TagAndRange> vect;
+    vect.push_back(dicomifier::TagAndRange(DCM_PatientAge, dicomifier::Range(0,1)));
+    
     auto cs_single = dicomifier::actions::SetElement<EVR_AS>::New();
     cs_single->set_dataset(dataset);
-    cs_single->set_tag(DCM_PatientAge);
+    cs_single->set_tags(vect);
     cs_single->set_value("42Y");
     cs_single->run();
     
@@ -76,9 +85,12 @@ BOOST_FIXTURE_TEST_CASE(SetAS01, TestData)
 
 BOOST_FIXTURE_TEST_CASE(SetAS02, TestData)
 {
+    std::vector<dicomifier::TagAndRange> vect;
+    vect.push_back(dicomifier::TagAndRange(DCM_PatientAge, dicomifier::Range(0,2)));
+    
     auto cs_single = dicomifier::actions::SetElement<EVR_AS>::New();
     cs_single->set_dataset(dataset);
-    cs_single->set_tag(DCM_PatientAge);
+    cs_single->set_tags(vect);
     cs_single->set_value({"AB", "CD"});
     cs_single->run();
     
@@ -89,12 +101,15 @@ BOOST_FIXTURE_TEST_CASE(SetAS02, TestData)
 }
 
 /*************************************** TEST ELEMENT TYPE CS ****************************************/
-/*
+
 BOOST_FIXTURE_TEST_CASE(SetCS01, TestData)
 {
+    std::vector<dicomifier::TagAndRange> vect;
+    vect.push_back(dicomifier::TagAndRange(DCM_Modality, dicomifier::Range(0,1)));
+    
     auto cs_single = dicomifier::actions::SetElement<EVR_CS>::New();
     cs_single->set_dataset(dataset);
-    cs_single->set_tag(DCM_Modality);
+    cs_single->set_tags(vect);
     cs_single->set_value("MR");
     cs_single->run();
     
@@ -106,9 +121,12 @@ BOOST_FIXTURE_TEST_CASE(SetCS01, TestData)
 
 BOOST_FIXTURE_TEST_CASE(SetCS02, TestData)
 {
+    std::vector<dicomifier::TagAndRange> vect;
+    vect.push_back(dicomifier::TagAndRange(DCM_SelectorCSValue, dicomifier::Range(0,2)));
+    
     auto cs_single = dicomifier::actions::SetElement<EVR_CS>::New();
     cs_single->set_dataset(dataset);
-    cs_single->set_tag(DCM_SelectorCSValue);
+    cs_single->set_tags(vect);
     cs_single->set_value({"AB", "CD"});
     cs_single->run();
     
@@ -119,12 +137,15 @@ BOOST_FIXTURE_TEST_CASE(SetCS02, TestData)
 }
 
 /*************************************** TEST ELEMENT TYPE DA ****************************************/
-/*
+
 BOOST_FIXTURE_TEST_CASE(SetDA01, TestData)
 {
+    std::vector<dicomifier::TagAndRange> vect;
+    vect.push_back(dicomifier::TagAndRange(DCM_StudyDate, dicomifier::Range(0,1)));
+    
     auto cs_single = dicomifier::actions::SetElement<EVR_DA>::New();
     cs_single->set_dataset(dataset);
-    cs_single->set_tag(DCM_StudyDate);
+    cs_single->set_tags(vect);
     cs_single->set_value("12122012");
     cs_single->run();
     
@@ -136,9 +157,12 @@ BOOST_FIXTURE_TEST_CASE(SetDA01, TestData)
 
 BOOST_FIXTURE_TEST_CASE(SetDA02, TestData)
 {
+    std::vector<dicomifier::TagAndRange> vect;
+    vect.push_back(dicomifier::TagAndRange(DCM_DateOfLastCalibration, dicomifier::Range(0,2)));
+    
     auto cs_single = dicomifier::actions::SetElement<EVR_DA>::New();
     cs_single->set_dataset(dataset);
-    cs_single->set_tag(DCM_DateOfLastCalibration);
+    cs_single->set_tags(vect);
     cs_single->set_value({"12122012", "12122013"});
     cs_single->run();
     
@@ -149,12 +173,15 @@ BOOST_FIXTURE_TEST_CASE(SetDA02, TestData)
 }
 
 /*************************************** TEST ELEMENT TYPE DS ****************************************/
-/*
+
 BOOST_FIXTURE_TEST_CASE(SetDS01, TestData)
 {
+    std::vector<dicomifier::TagAndRange> vect;
+    vect.push_back(dicomifier::TagAndRange(DCM_PatientWeight, dicomifier::Range(0,1)));
+    
     auto cs_single = dicomifier::actions::SetElement<EVR_DS>::New();
     cs_single->set_dataset(dataset);
-    cs_single->set_tag(DCM_PatientWeight);
+    cs_single->set_tags(vect);
     cs_single->set_value(75.57);
     cs_single->run();
     
@@ -166,9 +193,12 @@ BOOST_FIXTURE_TEST_CASE(SetDS01, TestData)
 
 BOOST_FIXTURE_TEST_CASE(SetDS02, TestData)
 {
+    std::vector<dicomifier::TagAndRange> vect;
+    vect.push_back(dicomifier::TagAndRange(DCM_EventElapsedTimes, dicomifier::Range(0,2)));
+    
     auto cs_single = dicomifier::actions::SetElement<EVR_DS>::New();
     cs_single->set_dataset(dataset);
-    cs_single->set_tag(DCM_EventElapsedTimes);
+    cs_single->set_tags(vect);
     cs_single->set_value({1.23, -4.56});
     cs_single->run();
     
@@ -179,12 +209,15 @@ BOOST_FIXTURE_TEST_CASE(SetDS02, TestData)
 }
 
 /*************************************** TEST ELEMENT TYPE DT ****************************************/
-/*
+
 BOOST_FIXTURE_TEST_CASE(SetDT01, TestData)
 {
+    std::vector<dicomifier::TagAndRange> vect;
+    vect.push_back(dicomifier::TagAndRange(DCM_AcquisitionDateTime, dicomifier::Range(0,1)));
+    
     auto cs_single = dicomifier::actions::SetElement<EVR_DT>::New();
     cs_single->set_dataset(dataset);
-    cs_single->set_tag(DCM_AcquisitionDateTime);
+    cs_single->set_tags(vect);
     cs_single->set_value("01234501122012");
     cs_single->run();
     
@@ -196,9 +229,12 @@ BOOST_FIXTURE_TEST_CASE(SetDT01, TestData)
 
 BOOST_FIXTURE_TEST_CASE(SetDT02, TestData)
 {
+    std::vector<dicomifier::TagAndRange> vect;
+    vect.push_back(dicomifier::TagAndRange(DCM_AcquisitionDateTime, dicomifier::Range(0,2)));
+    
     auto cs_single = dicomifier::actions::SetElement<EVR_DT>::New();
     cs_single->set_dataset(dataset);
-    cs_single->set_tag(DCM_AcquisitionDateTime);
+    cs_single->set_tags(vect);
     cs_single->set_value({"01234501122012", "01234501122013"});
     cs_single->run();
     
@@ -209,12 +245,15 @@ BOOST_FIXTURE_TEST_CASE(SetDT02, TestData)
 }
 
 /*************************************** TEST ELEMENT TYPE FD ****************************************/
-/*
+
 BOOST_FIXTURE_TEST_CASE(SetFD01, TestData)
 {
+    std::vector<dicomifier::TagAndRange> vect;
+    vect.push_back(dicomifier::TagAndRange(DCM_SteeringAngle, dicomifier::Range(0,1)));
+    
     auto cs_single = dicomifier::actions::SetElement<EVR_FD>::New();
     cs_single->set_dataset(dataset);
-    cs_single->set_tag(DCM_SteeringAngle);
+    cs_single->set_tags(vect);
     cs_single->set_value(1.23);
     cs_single->run();
     
@@ -226,9 +265,12 @@ BOOST_FIXTURE_TEST_CASE(SetFD01, TestData)
 
 BOOST_FIXTURE_TEST_CASE(SetFD02, TestData)
 {
+    std::vector<dicomifier::TagAndRange> vect;
+    vect.push_back(dicomifier::TagAndRange(DCM_SelectorFDValue, dicomifier::Range(0,2)));
+    
     auto cs_single = dicomifier::actions::SetElement<EVR_FD>::New();
     cs_single->set_dataset(dataset);
-    cs_single->set_tag(DCM_SelectorFDValue);    
+    cs_single->set_tags(vect);
     cs_single->set_value({1.23, -4.56});
     cs_single->run();
     
@@ -244,12 +286,15 @@ BOOST_FIXTURE_TEST_CASE(SetFD02, TestData)
 }
 
 /*************************************** TEST ELEMENT TYPE FL ****************************************/
-/*
+
 BOOST_FIXTURE_TEST_CASE(SetFL01, TestData)
 {
+    std::vector<dicomifier::TagAndRange> vect;
+    vect.push_back(dicomifier::TagAndRange(DCM_StimulusArea, dicomifier::Range(0,1)));
+    
     auto cs_single = dicomifier::actions::SetElement<EVR_FL>::New();
     cs_single->set_dataset(dataset);
-    cs_single->set_tag(DCM_StimulusArea);
+    cs_single->set_tags(vect);
     cs_single->set_value(1.23);
     cs_single->run();
     
@@ -261,9 +306,12 @@ BOOST_FIXTURE_TEST_CASE(SetFL01, TestData)
 
 BOOST_FIXTURE_TEST_CASE(SetFL02, TestData)
 {
+    std::vector<dicomifier::TagAndRange> vect;
+    vect.push_back(dicomifier::TagAndRange(DCM_SelectorFLValue, dicomifier::Range(0,2)));
+    
     auto cs_single = dicomifier::actions::SetElement<EVR_FL>::New();
     cs_single->set_dataset(dataset);
-    cs_single->set_tag(DCM_SelectorFLValue);
+    cs_single->set_tags(vect);
     cs_single->set_value({(Float32)(1.23), (Float32)(-4.56)});
     cs_single->run();
     
@@ -280,12 +328,15 @@ BOOST_FIXTURE_TEST_CASE(SetFL02, TestData)
 }
 
 /*************************************** TEST ELEMENT TYPE IS ****************************************/
-/*
+
 BOOST_FIXTURE_TEST_CASE(SetIS01, TestData)
 {
+    std::vector<dicomifier::TagAndRange> vect;
+    vect.push_back(dicomifier::TagAndRange(DCM_StageNumber, dicomifier::Range(0,1)));
+    
     auto cs_single = dicomifier::actions::SetElement<EVR_IS>::New();
     cs_single->set_dataset(dataset);
-    cs_single->set_tag(DCM_StageNumber);
+    cs_single->set_tags(vect);
     cs_single->set_value(123);
     cs_single->run();
     
@@ -297,9 +348,12 @@ BOOST_FIXTURE_TEST_CASE(SetIS01, TestData)
 
 BOOST_FIXTURE_TEST_CASE(SetIS02, TestData)
 {
+    std::vector<dicomifier::TagAndRange> vect;
+    vect.push_back(dicomifier::TagAndRange(DCM_SelectorISValue, dicomifier::Range(0,2)));
+    
     auto cs_single = dicomifier::actions::SetElement<EVR_IS>::New();
     cs_single->set_dataset(dataset);
-    cs_single->set_tag(DCM_SelectorISValue);
+    cs_single->set_tags(vect);
     cs_single->set_value({123, -456});
     cs_single->run();
     
@@ -310,12 +364,15 @@ BOOST_FIXTURE_TEST_CASE(SetIS02, TestData)
 }
 
 /*************************************** TEST ELEMENT TYPE LO ****************************************/
-/*
+
 BOOST_FIXTURE_TEST_CASE(SetLO01, TestData)
 {
+    std::vector<dicomifier::TagAndRange> vect;
+    vect.push_back(dicomifier::TagAndRange(DCM_Manufacturer, dicomifier::Range(0,1)));
+    
     auto cs_single = dicomifier::actions::SetElement<EVR_LO>::New();
     cs_single->set_dataset(dataset);
-    cs_single->set_tag(DCM_Manufacturer);
+    cs_single->set_tags(vect);
     cs_single->set_value("BRUKER");
     cs_single->run();
     
@@ -327,9 +384,12 @@ BOOST_FIXTURE_TEST_CASE(SetLO01, TestData)
 
 BOOST_FIXTURE_TEST_CASE(SetLO02, TestData)
 {
+    std::vector<dicomifier::TagAndRange> vect;
+    vect.push_back(dicomifier::TagAndRange(DCM_AdmittingDiagnosesDescription, dicomifier::Range(0,2)));
+    
     auto cs_single = dicomifier::actions::SetElement<EVR_LO>::New();
     cs_single->set_dataset(dataset);
-    cs_single->set_tag(DCM_AdmittingDiagnosesDescription);
+    cs_single->set_tags(vect);
     cs_single->set_value({"AB", "CD"});
     cs_single->run();
     
@@ -340,12 +400,15 @@ BOOST_FIXTURE_TEST_CASE(SetLO02, TestData)
 }
 
 /*************************************** TEST ELEMENT TYPE LT ****************************************/
-/*
+
 BOOST_FIXTURE_TEST_CASE(SetLT01, TestData)
 {
+    std::vector<dicomifier::TagAndRange> vect;
+    vect.push_back(dicomifier::TagAndRange(DCM_AdditionalPatientHistory, dicomifier::Range(0,1)));
+    
     auto cs_single = dicomifier::actions::SetElement<EVR_LT>::New();
     cs_single->set_dataset(dataset);
-    cs_single->set_tag(DCM_AdditionalPatientHistory);
+    cs_single->set_tags(vect);
     cs_single->set_value("ABCD");
     cs_single->run();
     
@@ -357,9 +420,12 @@ BOOST_FIXTURE_TEST_CASE(SetLT01, TestData)
 
 BOOST_FIXTURE_TEST_CASE(SetLT02, TestData)
 {
+    std::vector<dicomifier::TagAndRange> vect;
+    vect.push_back(dicomifier::TagAndRange(DCM_AdditionalPatientHistory, dicomifier::Range(0,2)));
+    
     auto cs_single = dicomifier::actions::SetElement<EVR_LT>::New();
     cs_single->set_dataset(dataset);
-    cs_single->set_tag(DCM_AdditionalPatientHistory);
+    cs_single->set_tags(vect);
     cs_single->set_value({"AB", "CD"});
     cs_single->run();
     
@@ -370,12 +436,15 @@ BOOST_FIXTURE_TEST_CASE(SetLT02, TestData)
 }
 
 /*************************************** TEST ELEMENT TYPE PN ****************************************/
-/*
+
 BOOST_FIXTURE_TEST_CASE(SetPN01, TestData)
 {
+    std::vector<dicomifier::TagAndRange> vect;
+    vect.push_back(dicomifier::TagAndRange(DCM_PatientName, dicomifier::Range(0,1)));
+    
     auto cs_single = dicomifier::actions::SetElement<EVR_PN>::New();
     cs_single->set_dataset(dataset);
-    cs_single->set_tag(DCM_PatientName);
+    cs_single->set_tags(vect);
     cs_single->set_value("NAME");
     cs_single->run();
     
@@ -387,9 +456,12 @@ BOOST_FIXTURE_TEST_CASE(SetPN01, TestData)
 
 BOOST_FIXTURE_TEST_CASE(SetPN02, TestData)
 {
+    std::vector<dicomifier::TagAndRange> vect;
+    vect.push_back(dicomifier::TagAndRange(DCM_PhysiciansOfRecord, dicomifier::Range(0,2)));
+    
     auto cs_single = dicomifier::actions::SetElement<EVR_PN>::New();
     cs_single->set_dataset(dataset);
-    cs_single->set_tag(DCM_PhysiciansOfRecord);
+    cs_single->set_tags(vect);
     cs_single->set_value({"AB", "CD"});
     cs_single->run();
     
@@ -400,12 +472,15 @@ BOOST_FIXTURE_TEST_CASE(SetPN02, TestData)
 }
 
 /*************************************** TEST ELEMENT TYPE SH ****************************************/
-/*
+
 BOOST_FIXTURE_TEST_CASE(SetSH01, TestData)
 {
+    std::vector<dicomifier::TagAndRange> vect;
+    vect.push_back(dicomifier::TagAndRange(DCM_AccessionNumber, dicomifier::Range(0,1)));
+    
     auto cs_single = dicomifier::actions::SetElement<EVR_SH>::New();
     cs_single->set_dataset(dataset);
-    cs_single->set_tag(DCM_AccessionNumber);
+    cs_single->set_tags(vect);
     cs_single->set_value("12345");
     cs_single->run();
     
@@ -417,9 +492,12 @@ BOOST_FIXTURE_TEST_CASE(SetSH01, TestData)
 
 BOOST_FIXTURE_TEST_CASE(SetSH02, TestData)
 {
+    std::vector<dicomifier::TagAndRange> vect;
+    vect.push_back(dicomifier::TagAndRange(DCM_ReferringPhysicianTelephoneNumbers, dicomifier::Range(0,2)));
+    
     auto cs_single = dicomifier::actions::SetElement<EVR_SH>::New();
     cs_single->set_dataset(dataset);
-    cs_single->set_tag(DCM_ReferringPhysicianTelephoneNumbers);
+    cs_single->set_tags(vect);
     cs_single->set_value({"1234", "5678"});
     cs_single->run();
     
@@ -430,12 +508,15 @@ BOOST_FIXTURE_TEST_CASE(SetSH02, TestData)
 }
 
 /*************************************** TEST ELEMENT TYPE SL ****************************************/
-/*
+
 BOOST_FIXTURE_TEST_CASE(SetSL01, TestData)
 {
+    std::vector<dicomifier::TagAndRange> vect;
+    vect.push_back(dicomifier::TagAndRange(DCM_ReferencePixelX0, dicomifier::Range(0,1)));
+    
     auto cs_single = dicomifier::actions::SetElement<EVR_SL>::New();
     cs_single->set_dataset(dataset);
-    cs_single->set_tag(DCM_ReferencePixelX0);
+    cs_single->set_tags(vect);
     cs_single->set_value(-123456789);
     cs_single->run();
     
@@ -447,9 +528,12 @@ BOOST_FIXTURE_TEST_CASE(SetSL01, TestData)
 
 BOOST_FIXTURE_TEST_CASE(SetSL02, TestData)
 {
+    std::vector<dicomifier::TagAndRange> vect;
+    vect.push_back(dicomifier::TagAndRange(DCM_SelectorSLValue, dicomifier::Range(0,2)));
+    
     auto cs_single = dicomifier::actions::SetElement<EVR_SL>::New();
     cs_single->set_dataset(dataset);
-    cs_single->set_tag(DCM_SelectorSLValue);
+    cs_single->set_tags(vect);
     cs_single->set_value({-123456789, 12345678});
     cs_single->run();
     
@@ -459,13 +543,20 @@ BOOST_FIXTURE_TEST_CASE(SetSL02, TestData)
     BOOST_CHECK_EQUAL(str, "-123456789\\12345678");
 }
 
+/*************************************** TEST ELEMENT TYPE SQ ****************************************/
+
+// Impossible to create SQ SetElement
+
 /*************************************** TEST ELEMENT TYPE SS ****************************************/
-/*
+
 BOOST_FIXTURE_TEST_CASE(SetSS01, TestData)
 {
+    std::vector<dicomifier::TagAndRange> vect;
+    vect.push_back(dicomifier::TagAndRange(DCM_TagAngleSecondAxis, dicomifier::Range(0,1)));
+    
     auto cs_single = dicomifier::actions::SetElement<EVR_SS>::New();
     cs_single->set_dataset(dataset);
-    cs_single->set_tag(DCM_TagAngleSecondAxis);
+    cs_single->set_tags(vect);
     cs_single->set_value(-123);
     cs_single->run();
     
@@ -477,9 +568,12 @@ BOOST_FIXTURE_TEST_CASE(SetSS01, TestData)
 
 BOOST_FIXTURE_TEST_CASE(SetSS02, TestData)
 {
+    std::vector<dicomifier::TagAndRange> vect;
+    vect.push_back(dicomifier::TagAndRange(DCM_SelectorSSValue, dicomifier::Range(0,2)));
+    
     auto cs_single = dicomifier::actions::SetElement<EVR_SS>::New();
     cs_single->set_dataset(dataset);
-    cs_single->set_tag(DCM_SelectorSSValue);
+    cs_single->set_tags(vect);
     cs_single->set_value({-1, 2, -3});
     cs_single->run();
     
@@ -490,12 +584,15 @@ BOOST_FIXTURE_TEST_CASE(SetSS02, TestData)
 }
 
 /*************************************** TEST ELEMENT TYPE UI ****************************************/
-/*
+
 BOOST_FIXTURE_TEST_CASE(SetUI01, TestData)
 {
+    std::vector<dicomifier::TagAndRange> vect;
+    vect.push_back(dicomifier::TagAndRange(DCM_SOPClassUID, dicomifier::Range(0,1)));
+    
     auto cs_single = dicomifier::actions::SetElement<EVR_UI>::New();
     cs_single->set_dataset(dataset);
-    cs_single->set_tag(DCM_SOPClassUID);
+    cs_single->set_tags(vect);
     cs_single->set_value("12345");
     cs_single->run();
     
@@ -507,9 +604,12 @@ BOOST_FIXTURE_TEST_CASE(SetUI01, TestData)
 
 BOOST_FIXTURE_TEST_CASE(SetUI02, TestData)
 {
+    std::vector<dicomifier::TagAndRange> vect;
+    vect.push_back(dicomifier::TagAndRange(DCM_SOPClassesInStudy, dicomifier::Range(0,2)));
+    
     auto cs_single = dicomifier::actions::SetElement<EVR_UI>::New();
     cs_single->set_dataset(dataset);
-    cs_single->set_tag(DCM_SOPClassesInStudy);
+    cs_single->set_tags(vect);
     cs_single->set_value({"1234", "5678"});
     cs_single->run();
     
@@ -520,12 +620,15 @@ BOOST_FIXTURE_TEST_CASE(SetUI02, TestData)
 }
 
 /*************************************** TEST ELEMENT TYPE TM ****************************************/
-/*
+
 BOOST_FIXTURE_TEST_CASE(SetTM01, TestData)
 {
+    std::vector<dicomifier::TagAndRange> vect;
+    vect.push_back(dicomifier::TagAndRange(DCM_StudyTime, dicomifier::Range(0,1)));
+    
     auto cs_single = dicomifier::actions::SetElement<EVR_TM>::New();
     cs_single->set_dataset(dataset);
-    cs_single->set_tag(DCM_StudyTime);
+    cs_single->set_tags(vect);
     cs_single->set_value("012345");
     cs_single->run();
     
@@ -537,9 +640,12 @@ BOOST_FIXTURE_TEST_CASE(SetTM01, TestData)
 
 BOOST_FIXTURE_TEST_CASE(SetTM02, TestData)
 {
+    std::vector<dicomifier::TagAndRange> vect;
+    vect.push_back(dicomifier::TagAndRange(DCM_TimeOfLastCalibration, dicomifier::Range(0,2)));
+    
     auto cs_single = dicomifier::actions::SetElement<EVR_TM>::New();
     cs_single->set_dataset(dataset);
-    cs_single->set_tag(DCM_TimeOfLastCalibration);
+    cs_single->set_tags(vect);
     cs_single->set_value({"012345", "022345"});
     cs_single->run();
     
@@ -550,12 +656,15 @@ BOOST_FIXTURE_TEST_CASE(SetTM02, TestData)
 }
 
 /*************************************** TEST ELEMENT TYPE ST ****************************************/
-/*
+
 BOOST_FIXTURE_TEST_CASE(SetST01, TestData)
 {
+    std::vector<dicomifier::TagAndRange> vect;
+    vect.push_back(dicomifier::TagAndRange(DCM_InstitutionAddress, dicomifier::Range(0,1)));
+    
     auto cs_single = dicomifier::actions::SetElement<EVR_ST>::New();
     cs_single->set_dataset(dataset);
-    cs_single->set_tag(DCM_InstitutionAddress);
+    cs_single->set_tags(vect);
     cs_single->set_value("abcde");
     cs_single->run();
     
@@ -567,9 +676,12 @@ BOOST_FIXTURE_TEST_CASE(SetST01, TestData)
 
 BOOST_FIXTURE_TEST_CASE(SetST02, TestData)
 {
+    std::vector<dicomifier::TagAndRange> vect;
+    vect.push_back(dicomifier::TagAndRange(DCM_InstitutionAddress, dicomifier::Range(0,2)));
+    
     auto cs_single = dicomifier::actions::SetElement<EVR_ST>::New();
     cs_single->set_dataset(dataset);
-    cs_single->set_tag(DCM_InstitutionAddress);
+    cs_single->set_tags(vect);
     cs_single->set_value({"abcde", "fghij"});
     cs_single->run();
     
@@ -580,12 +692,15 @@ BOOST_FIXTURE_TEST_CASE(SetST02, TestData)
 }
 
 /*************************************** TEST ELEMENT TYPE UL ****************************************/
-/*
+
 BOOST_FIXTURE_TEST_CASE(SetUL01, TestData)
 {
+    std::vector<dicomifier::TagAndRange> vect;
+    vect.push_back(dicomifier::TagAndRange(DCM_RegionFlags, dicomifier::Range(0,1)));
+    
     auto cs_single = dicomifier::actions::SetElement<EVR_UL>::New();
     cs_single->set_dataset(dataset);
-    cs_single->set_tag(DCM_RegionFlags);
+    cs_single->set_tags(vect);
     cs_single->set_value(1234567890);
     cs_single->run();
     
@@ -597,9 +712,12 @@ BOOST_FIXTURE_TEST_CASE(SetUL01, TestData)
 
 BOOST_FIXTURE_TEST_CASE(SetUL02, TestData)
 {
+    std::vector<dicomifier::TagAndRange> vect;
+    vect.push_back(dicomifier::TagAndRange(DCM_SelectorULValue, dicomifier::Range(0,2)));
+    
     auto cs_single = dicomifier::actions::SetElement<EVR_UL>::New();
     cs_single->set_dataset(dataset);
-    cs_single->set_tag(DCM_SelectorULValue);
+    cs_single->set_tags(vect);
     cs_single->set_value({1234567890, 1234567891});
     cs_single->run();
     
@@ -610,12 +728,15 @@ BOOST_FIXTURE_TEST_CASE(SetUL02, TestData)
 }
 
 /*************************************** TEST ELEMENT TYPE US ****************************************/
-/*
+
 BOOST_FIXTURE_TEST_CASE(SetUS01, TestData)
 {
+    std::vector<dicomifier::TagAndRange> vect;
+    vect.push_back(dicomifier::TagAndRange(DCM_FailureReason, dicomifier::Range(0,1)));
+    
     auto cs_single = dicomifier::actions::SetElement<EVR_US>::New();
     cs_single->set_dataset(dataset);
-    cs_single->set_tag(DCM_FailureReason);
+    cs_single->set_tags(vect);
     cs_single->set_value(456);
     cs_single->run();
     
@@ -627,9 +748,12 @@ BOOST_FIXTURE_TEST_CASE(SetUS01, TestData)
 
 BOOST_FIXTURE_TEST_CASE(SetUS02, TestData)
 {
+    std::vector<dicomifier::TagAndRange> vect;
+    vect.push_back(dicomifier::TagAndRange(DCM_SelectorUSValue, dicomifier::Range(0,2)));
+    
     auto cs_single = dicomifier::actions::SetElement<EVR_US>::New();
     cs_single->set_dataset(dataset);
-    cs_single->set_tag(DCM_SelectorUSValue);
+    cs_single->set_tags(vect);
     cs_single->set_value({456, 789});
     cs_single->run();
     
@@ -640,12 +764,15 @@ BOOST_FIXTURE_TEST_CASE(SetUS02, TestData)
 }
     
 /*************************************** TEST ELEMENT TYPE UT ****************************************/
-/*
+
 BOOST_FIXTURE_TEST_CASE(SetUT01, TestData)
 {
+    std::vector<dicomifier::TagAndRange> vect;
+    vect.push_back(dicomifier::TagAndRange(DCM_PixelDataProviderURL, dicomifier::Range(0,1)));
+    
     auto cs_single = dicomifier::actions::SetElement<EVR_UT>::New();
     cs_single->set_dataset(dataset);
-    cs_single->set_tag(DCM_PixelDataProviderURL);
+    cs_single->set_tags(vect);
     cs_single->set_value("abcde");
     cs_single->run();
     
@@ -657,9 +784,12 @@ BOOST_FIXTURE_TEST_CASE(SetUT01, TestData)
 
 BOOST_FIXTURE_TEST_CASE(SetUT02, TestData)
 {
+    std::vector<dicomifier::TagAndRange> vect;
+    vect.push_back(dicomifier::TagAndRange(DCM_PixelDataProviderURL, dicomifier::Range(0,2)));
+    
     auto cs_single = dicomifier::actions::SetElement<EVR_UT>::New();
     cs_single->set_dataset(dataset);
-    cs_single->set_tag(DCM_PixelDataProviderURL);
+    cs_single->set_tags(vect);
     cs_single->set_value({"abcde", "fghij"});
     cs_single->run();
     
@@ -668,4 +798,3 @@ BOOST_FIXTURE_TEST_CASE(SetUT02, TestData)
     BOOST_CHECK_EQUAL(cond.good(), true);
     BOOST_CHECK_EQUAL(str, "abcde\\fghij");
 }
-*/
