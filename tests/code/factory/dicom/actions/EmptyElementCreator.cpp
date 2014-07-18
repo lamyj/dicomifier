@@ -16,12 +16,12 @@
 #include "dicom/actions/EmptyElement.h"
 #include "factory/dicom/actions/EmptyElementCreator.h"
 
-struct TestData
+struct TestDataOK01
 {
     boost::property_tree::ptree ptr;
     std::shared_ptr<dicomifier::factory::CreatorBase::InOutPutType> inputs;
  
-    TestData()
+    TestDataOK01()
     {
         // Create Test file
         DcmDataset* dataset = new DcmDataset();
@@ -38,12 +38,12 @@ struct TestData
         inputs->insert(std::pair<std::string, boost::any>("input", boost::any(dataset)));
     }
  
-    ~TestData()
+    ~TestDataOK01()
     {
     }
 };
 
-BOOST_FIXTURE_TEST_CASE(Creation, TestData)
+BOOST_FIXTURE_TEST_CASE(TEST_OK_01, TestDataOK01)
 {
     auto testempty = dicomifier::factory::EmptyElementCreator::New();
     testempty->set_inputs(inputs);
@@ -59,13 +59,55 @@ BOOST_FIXTURE_TEST_CASE(Creation, TestData)
     }
 }
 
-
-struct TestDataBadTag
+struct TestDataOK02
 {
     boost::property_tree::ptree ptr;
     std::shared_ptr<dicomifier::factory::CreatorBase::InOutPutType> inputs;
  
-    TestDataBadTag()
+    TestDataOK02()
+    {
+        // Create Test file
+        DcmDataset* dataset = new DcmDataset();
+        OFString name("John");
+        dataset->putAndInsertOFStringArray(DCM_PatientName, name, true);
+        
+        // Create XML tree
+        boost::property_tree::ptree emptynode;
+        emptynode.put("<xmlattr>.tag", "0010,1002[0:1].0010,0020[0:2]");
+        emptynode.put("<xmlattr>.dataset", "#input");
+        ptr.add_child("EmptyElement", emptynode);
+        
+        inputs = std::make_shared<dicomifier::factory::CreatorBase::InOutPutType>();
+        inputs->insert(std::pair<std::string, boost::any>("input", boost::any(dataset)));
+    }
+ 
+    ~TestDataOK02()
+    {
+    }
+};
+
+BOOST_FIXTURE_TEST_CASE(TEST_OK_02, TestDataOK02)
+{
+    auto testempty = dicomifier::factory::EmptyElementCreator::New();
+    testempty->set_inputs(inputs);
+    
+    BOOST_FOREACH(boost::property_tree::ptree::value_type &v, ptr)
+    {
+        dicomifier::Object::Pointer object = testempty->Create(v);
+        
+        dicomifier::actions::EmptyElement::Pointer act = 
+                std::dynamic_pointer_cast<dicomifier::actions::EmptyElement>(object);
+        
+        BOOST_CHECK_EQUAL(act != NULL, true);
+    }
+}
+
+struct TestDataKO01
+{
+    boost::property_tree::ptree ptr;
+    std::shared_ptr<dicomifier::factory::CreatorBase::InOutPutType> inputs;
+ 
+    TestDataKO01()
     {
         // Create Test file
         DcmDataset* dataset = new DcmDataset();
@@ -82,12 +124,12 @@ struct TestDataBadTag
         inputs->insert(std::pair<std::string, boost::any>("input", boost::any(dataset)));
     }
  
-    ~TestDataBadTag()
+    ~TestDataKO01()
     {
     }
 };
 
-BOOST_FIXTURE_TEST_CASE(ThrowBadTag, TestDataBadTag)
+BOOST_FIXTURE_TEST_CASE(TEST_KO_01, TestDataKO01)
 {
     auto testempty = dicomifier::factory::EmptyElementCreator::New();
     testempty->set_inputs(inputs);
@@ -98,12 +140,12 @@ BOOST_FIXTURE_TEST_CASE(ThrowBadTag, TestDataBadTag)
     }
 }
 
-struct TestDataBadFile
+struct TestDataKO02
 {
     boost::property_tree::ptree ptr;
     std::shared_ptr<dicomifier::factory::CreatorBase::InOutPutType> inputs;
  
-    TestDataBadFile()
+    TestDataKO02()
     {        
         // Create Test file
         DcmDataset* dataset = new DcmDataset();
@@ -120,12 +162,12 @@ struct TestDataBadFile
         inputs->insert(std::pair<std::string, boost::any>("input", boost::any(dataset)));
     }
  
-    ~TestDataBadFile()
+    ~TestDataKO02()
     {
     }
 };
 
-BOOST_FIXTURE_TEST_CASE(ThrowBadFile, TestDataBadFile)
+BOOST_FIXTURE_TEST_CASE(TEST_KO_02, TestDataKO02)
 {
     auto testempty = dicomifier::factory::EmptyElementCreator::New();
     testempty->set_inputs(inputs);
@@ -136,12 +178,12 @@ BOOST_FIXTURE_TEST_CASE(ThrowBadFile, TestDataBadFile)
     }
 }
 
-struct TestDataError01
+struct TestDataKO03
 {
     boost::property_tree::ptree ptr;
     std::shared_ptr<dicomifier::factory::CreatorBase::InOutPutType> inputs;
  
-    TestDataError01()
+    TestDataKO03()
     {        
         // Create Test file
         DcmDataset* dataset = new DcmDataset();
@@ -158,12 +200,12 @@ struct TestDataError01
         inputs->insert(std::pair<std::string, boost::any>("input", boost::any(dataset)));
     }
  
-    ~TestDataError01()
+    ~TestDataKO03()
     {
     }
 };
 
-BOOST_FIXTURE_TEST_CASE(ThrowError01, TestDataError01)
+BOOST_FIXTURE_TEST_CASE(TEST_KO_03, TestDataKO03)
 {
     auto testempty = dicomifier::factory::EmptyElementCreator::New();
     testempty->set_inputs(inputs);
@@ -174,12 +216,12 @@ BOOST_FIXTURE_TEST_CASE(ThrowError01, TestDataError01)
     }
 }
 
-struct TestDataError02
+struct TestDataKO04
 {
     boost::property_tree::ptree ptr;
     std::shared_ptr<dicomifier::factory::CreatorBase::InOutPutType> inputs;
  
-    TestDataError02()
+    TestDataKO04()
     {        
         // Create Test file
         DcmDataset* dataset = NULL;
@@ -194,12 +236,12 @@ struct TestDataError02
         inputs->insert(std::pair<std::string, boost::any>("input", boost::any(dataset)));
     }
  
-    ~TestDataError02()
+    ~TestDataKO04()
     {
     }
 };
 
-BOOST_FIXTURE_TEST_CASE(ThrowError02, TestDataError02)
+BOOST_FIXTURE_TEST_CASE(TEST_KO_04, TestDataKO04)
 {
     auto testempty = dicomifier::factory::EmptyElementCreator::New();
     testempty->set_inputs(inputs);

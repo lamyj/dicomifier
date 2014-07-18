@@ -80,6 +80,10 @@ void EmptyElement::emptyItem(int indice, DcmItem* dataset) const
             
             dicomifier::vr_dispatch(action, dcmelement->getVR());
         }
+        else if (std::string(ret.text()) == "Tag not found")
+        {
+            dataset->insertEmptyElement(tar._tag);
+        }
     }
     else
     {
