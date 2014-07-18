@@ -12,6 +12,7 @@
 #include <boost/test/unit_test.hpp>
 
 #include "core/conditions/Not.h"
+#include "core/DicomifierException.h"
 #include "core/Object.h"
 #include "factory/core/conditions/NotCreator.h"
 
@@ -47,3 +48,27 @@ BOOST_FIXTURE_TEST_CASE(Creation, TestData)
     }
 }
 
+struct TestDataKO
+{
+    boost::property_tree::ptree ptr;
+ 
+    TestDataKO()
+    {
+        boost::property_tree::ptree truenode;
+        ptr.add_child("Not", truenode);
+    }
+ 
+    ~TestDataKO()
+    {
+    }
+};
+
+BOOST_FIXTURE_TEST_CASE(Error01, TestDataKO)
+{
+    auto testnot = dicomifier::factory::NotCreator::New();
+    
+    BOOST_FOREACH(boost::property_tree::ptree::value_type &v, ptr)
+    {
+        BOOST_REQUIRE_THROW(dicomifier::Object::Pointer object = testnot->Create(v), dicomifier::DicomifierException);
+    }
+}
