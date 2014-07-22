@@ -10,10 +10,16 @@
 
 #include "core/Rule.h"
 #include "core/XmlToRules.h"
+#include "dicom/Dictionaries.h"
 #include "wrapper.h"
 
-void execute(std::string xmlfile) throw (dicomifier::DicomifierException)
+void execute(std::string xmlfile, std::string privatedictionary) throw (dicomifier::DicomifierException)
 {
+    if (privatedictionary != "")
+    {
+        dicomifier::Dictionaries::get_instance().ParsePrivateDictionary(privatedictionary);
+    }
+    
     std::vector<dicomifier::Object::Pointer> rules = 
                     dicomifier::XmlToRules::Convert(xmlfile);
     

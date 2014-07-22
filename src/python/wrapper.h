@@ -10,4 +10,4 @@
 
 #include "core/DicomifierException.h"
 
-void execute(std::string xmlfile) throw (dicomifier::DicomifierException);
+void execute(std::string xmlfile, std::string privatedictionary = "") throw (dicomifier::DicomifierException);
