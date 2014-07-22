@@ -33,9 +33,9 @@ Object::Pointer
 EmptyElementCreator
 ::Create(boost::property_tree::ptree::value_type & value)
 {
-    // Get 'tag' attribut:
-    std::string const second = value.second.get<std::string>("<xmlattr>.tag"); // Warning: throw exception if attribut is missing
-    auto vect = DicomCreatorBase::Parse_Tag(second);
+    // Get 'private' attribut:
+    auto private_ = value.second.get_optional<std::string>("<xmlattr>.private_creator");
+    std::string const privatedict = private_ ? private_.get() : "public";
     
     // get 'dataset' attribut
     std::string filename = value.second.get<std::string>("<xmlattr>.dataset"); // Warning: throw exception if attribut is missing
@@ -54,6 +54,16 @@ EmptyElementCreator
     {
         throw DicomifierException("Unable to load dataset '" + filename + "'.");
     }
+    
+    Uint16 element;
+    if (private_)
+    {
+        element = dicomifier::Dictionaries::get_instance().FindCreatorElementNumber(privatedict, dataset);
+    }
+    
+    // Get 'tag' attribut:
+    std::string const second = value.second.get<std::string>("<xmlattr>.tag"); // Warning: throw exception if attribut is missing
+    auto vect = DicomCreatorBase::Parse_Tag(second, privatedict, element);
     
     return dicomifier::actions::EmptyElement::New(dataset, vect);
 }

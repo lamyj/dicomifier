@@ -34,9 +34,9 @@ Object::Pointer
 SetElementCreator
 ::Create(boost::property_tree::ptree::value_type & value)
 {
-    // get tag
-    std::string const tag = value.second.get<std::string>("<xmlattr>.tag"); // Warning: throw exception if attribut is missing
-    auto vect = DicomCreatorBase::Parse_Tag(tag);
+    // Get 'private' attribut:
+    auto private_ = value.second.get_optional<std::string>("<xmlattr>.private_creator");
+    std::string const privatedict = private_ ? private_.get() : "public";
     
     // get dataset
     std::string filename = value.second.get<std::string>("<xmlattr>.dataset"); // Warning: throw exception if attribut is missing
@@ -53,6 +53,16 @@ SetElementCreator
     DcmDataset* dataset = boost::any_cast<DcmDataset*>(this->_inputs->find(filename)->second);
     if (dataset != NULL)
     {
+        Uint16 element;
+        if (private_)
+        {
+            element = dicomifier::Dictionaries::get_instance().FindCreatorElementNumber(privatedict, dataset);
+        }
+    
+        // get tag
+        std::string const tag = value.second.get<std::string>("<xmlattr>.tag"); // Warning: throw exception if attribut is missing
+        auto vect = DicomCreatorBase::Parse_Tag(tag, privatedict, element);
+        
         // get the VR
         std::string const vrstr = value.second.get<std::string>("<xmlattr>.VR"); // Warning: throw exception if attribut is missing
         DcmVR vr(vrstr.c_str());

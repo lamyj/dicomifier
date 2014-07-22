@@ -11,6 +11,7 @@
 
 #include "core/Rule.h"
 #include "core/XmlToRules.h"
+#include "dicom/Dictionaries.h"
 
 int main(int argc, char *argv[])
 {
@@ -18,6 +19,11 @@ int main(int argc, char *argv[])
     {
         std::cout << "Argument is missing." << std::endl;
         return EXIT_FAILURE;
+    }
+    
+    if (argc > 2)
+    {
+        dicomifier::Dictionaries::get_instance().ParsePrivateDictionary(argv[2]);
     }
     
     std::string const filename = argv[1];

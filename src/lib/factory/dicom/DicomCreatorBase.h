@@ -13,6 +13,7 @@
 #include <boost/algorithm/string/split.hpp>
 #include "boost/regex.hpp"
 
+#include "dicom/Dictionaries.h"
 #include "dicom/TagAndRange.h"
 #include "factory/core/CreatorBase.h"
 
@@ -32,7 +33,9 @@ public:
 protected:
     DicomCreatorBase() {}
     
-    static std::vector<dicomifier::TagAndRange> Parse_Tag(std::string const & tag)
+    static std::vector<dicomifier::TagAndRange> Parse_Tag(std::string const & tag, 
+                                                          std::string const & privatedict = "public", 
+                                                          Uint16 element = 0x0000)
     {
         std::vector<dicomifier::TagAndRange> vect;
         
@@ -77,10 +80,19 @@ protected:
             }
             
             DcmTag dcmtag;
-            OFCondition status = DcmTag::findTagFromName(tagstr.c_str(), dcmtag);
-            if (status.bad())
+            if (tagstr.find(",") != std::string::npos)
             {
-                throw DicomifierException("Unknown tag '" + tagstr + "'.");
+                dcmtag = dicomifier::Dictionaries::get_instance().GetTagFromKey(tagstr, privatedict);
+            }
+            else
+            {
+                dcmtag = dicomifier::Dictionaries::get_instance().GetTagFromName(tagstr, privatedict);
+            }
+            
+            if (privatedict != "public")
+            {
+                Uint16 ele = element * 256 + dcmtag.getElement();
+                dcmtag.setElement(ele);
             }
             
             vect.push_back(dicomifier::TagAndRange(dcmtag, range));
