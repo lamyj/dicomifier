@@ -19,20 +19,23 @@ Exemple :
 Balise SetElement
 ^^^^^^^^^^^^^^^^^
 
-+---------------+---------------+--------------+--------------------------------------------------------------+
-| Attributs     | Usage         | Multiplicité | Description                                                  |
-+===============+===============+==============+==============================================================+
-| dataset       | Obligatoire   |       1      | Contient une référence vers un identifiant unique défini par |
-|               |               |              | une balise :ref:`Input <Balise_Input>`                       |
-+---------------+---------------+--------------+--------------------------------------------------------------+
-| tag           | Obligatoire   |       1      | Tag ou Keyword d'un élément DICOM à modifier                 |
-|               |               |              | Remarque : il peut s'agir d'un tag composé du type           |
-|               |               |              |            Sequence.SubSequence.Keyword                      |
-+---------------+---------------+--------------+--------------------------------------------------------------+
-| value         | Obligatoire   |       1      | Nouvelle Valeur de l'élément                                 |
-+---------------+---------------+--------------+--------------------------------------------------------------+
-| VR            | Obligatoire   |       1      | VR de l'élément à modifier                                   |
-+---------------+---------------+--------------+--------------------------------------------------------------+
++-----------------+---------------+--------------+--------------------------------------------------------------+
+| Attributs       | Usage         | Multiplicité | Description                                                  |
++=================+===============+==============+==============================================================+
+| dataset         | Obligatoire   |       1      | Contient une référence vers un identifiant unique défini par |
+|                 |               |              | une balise :ref:`Input <Balise_Input>`                       |
++-----------------+---------------+--------------+--------------------------------------------------------------+
+| private_creator | Optionnel     |       1      | Nom du dictionnaire privé si le tag correspond à un attribut |
+|                 |               |              | d'un dictionnaire privé                                      |
++-----------------+---------------+--------------+--------------------------------------------------------------+
+| tag             | Obligatoire   |       1      | Tag ou Keyword d'un élément DICOM à modifier                 |
+|                 |               |              | Remarque : il peut s'agir d'un tag composé du type           |
+|                 |               |              |            Sequence.SubSequence.Keyword                      |
++-----------------+---------------+--------------+--------------------------------------------------------------+
+| value           | Obligatoire   |       1      | Nouvelle Valeur de l'élément                                 |
++-----------------+---------------+--------------+--------------------------------------------------------------+
+| VR              | Obligatoire   |       1      | VR de l'élément à modifier                                   |
++-----------------+---------------+--------------+--------------------------------------------------------------+
 
 Exemple :
 
@@ -45,16 +48,19 @@ Exemple :
 Balise DeleteElement
 ^^^^^^^^^^^^^^^^^^^^
 
-+---------------+---------------+--------------+--------------------------------------------------------------+
-| Attributs     | Usage         | Multiplicité | Description                                                  |
-+===============+===============+==============+==============================================================+
-| dataset       | Obligatoire   |       1      | Contient une référence vers un identifiant unique défini par |
-|               |               |              | une balise :ref:`Input <Balise_Input>`                       |
-+---------------+---------------+--------------+--------------------------------------------------------------+
-| tag           | Obligatoire   |       1      | Tag ou Keyword d'un élément DICOM à supprimer                |
-|               |               |              | Remarque : il peut s'agir d'un tag composé du type           |
-|               |               |              |            Sequence.SubSequence.Keyword                      |
-+---------------+---------------+--------------+--------------------------------------------------------------+
++-----------------+---------------+--------------+--------------------------------------------------------------+
+| Attributs       | Usage         | Multiplicité | Description                                                  |
++=================+===============+==============+==============================================================+
+| dataset         | Obligatoire   |       1      | Contient une référence vers un identifiant unique défini par |
+|                 |               |              | une balise :ref:`Input <Balise_Input>`                       |
++-----------------+---------------+--------------+--------------------------------------------------------------+
+| private_creator | Optionnel     |       1      | Nom du dictionnaire privé si le tag correspond à un attribut |
+|                 |               |              | d'un dictionnaire privé                                      |
++-----------------+---------------+--------------+--------------------------------------------------------------+
+| tag             | Obligatoire   |       1      | Tag ou Keyword d'un élément DICOM à supprimer                |
+|                 |               |              | Remarque : il peut s'agir d'un tag composé du type           |
+|                 |               |              |            Sequence.SubSequence.Keyword                      |
++-----------------+---------------+--------------+--------------------------------------------------------------+
 
 Exemple :
 
@@ -67,16 +73,19 @@ Exemple :
 Balise EmptyElement
 ^^^^^^^^^^^^^^^^^^^
 
-+---------------+---------------+--------------+--------------------------------------------------------------+
-| Attributs     | Usage         | Multiplicité | Description                                                  |
-+===============+===============+==============+==============================================================+
-| dataset       | Obligatoire   |       1      | Contient une référence vers un identifiant unique défini par |
-|               |               |              | une balise :ref:`Input <Balise_Input>`                       |
-+---------------+---------------+--------------+--------------------------------------------------------------+
-| tag           | Obligatoire   |       1      | Tag ou Keyword d'un élément DICOM à effacer                  |
-|               |               |              | Remarque : il peut s'agir d'un tag composé du type           |
-|               |               |              |            Sequence.SubSequence.Keyword                      |
-+---------------+---------------+--------------+--------------------------------------------------------------+
++-----------------+---------------+--------------+--------------------------------------------------------------+
+| Attributs       | Usage         | Multiplicité | Description                                                  |
++=================+===============+==============+==============================================================+
+| dataset         | Obligatoire   |       1      | Contient une référence vers un identifiant unique défini par |
+|                 |               |              | une balise :ref:`Input <Balise_Input>`                       |
++-----------------+---------------+--------------+--------------------------------------------------------------+
+| private_creator | Optionnel     |       1      | Nom du dictionnaire privé si le tag correspond à un attribut |
+|                 |               |              | d'un dictionnaire privé                                      |
++-----------------+---------------+--------------+--------------------------------------------------------------+
+| tag             | Obligatoire   |       1      | Tag ou Keyword d'un élément DICOM à effacer                  |
+|                 |               |              | Remarque : il peut s'agir d'un tag composé du type           |
+|                 |               |              |            Sequence.SubSequence.Keyword                      |
++-----------------+---------------+--------------+--------------------------------------------------------------+
 
 Exemple :
 
