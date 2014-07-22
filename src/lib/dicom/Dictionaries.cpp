@@ -130,11 +130,14 @@ DcmTag
 Dictionaries
 ::GetTagFromName(std::string const & name, std::string const & dict)
 {
+    if (this->_dictionaries.find(dict) == this->_dictionaries.end())
+    {
+        throw DicomifierException("Uknown private dictionary : " + dict);
+    }
     Dictionary::Pointer dico = this->_dictionaries[dict];
     
     DcmDictEntry* entry = dico->GetEntryFromName(name);
     
-    //DcmTag tag(entry->getGroup(), entry->getElement(), entry->getVR());
     DcmTag tag(*entry);
     tag.setVR(entry->getVR());
     if (dict != "public") tag.setPrivateCreator(dict.c_str());
@@ -146,6 +149,10 @@ DcmTag
 Dictionaries
 ::GetTagFromKey(std::string const & key, std::string const & dict)
 {
+    if (this->_dictionaries.find(dict) == this->_dictionaries.end())
+    {
+        throw DicomifierException("Uknown private dictionary : " + dict);
+    }
     Dictionary::Pointer dico = this->_dictionaries[dict];
     
     DcmDictEntry* entry = dico->GetEntryFromKey(key);
