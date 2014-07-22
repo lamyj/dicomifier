@@ -10,31 +10,31 @@
 
 namespace dicomifier
 {
-	
+
 namespace actions
 {
-	
+
 SaveDataset::SaveDataset()
 {
-	// Nothing to do
+    // Nothing to do
 }
 
 SaveDataset::SaveDataset(DcmDataset * dataset, std::string filename):
-	_dataset(dataset), _filename(filename)
+    _dataset(dataset), _filename(filename)
 {
-	// Nothing to do
+    // Nothing to do
 }
 
 SaveDataset::~SaveDataset()
 {
-	// Nothing to do
+    // Nothing to do
 }
 
 DcmDataset *
 SaveDataset
 ::get_dataset() const
 {
-	return this->_dataset;
+    return this->_dataset;
 }
 
 void
@@ -62,13 +62,13 @@ void
 SaveDataset
 ::run() const
 {
-	if (this->_dataset != NULL)
+    if (this->_dataset != NULL)
     {
-		this->_dataset->saveFile(this->_filename.c_str(), 
-								 EXS_LittleEndianExplicit);
-	}
+        this->_dataset->saveFile(this->_filename.c_str(), 
+                                 EXS_LittleEndianExplicit);
+    }
 }
 
 } // namespace actions
-	
+
 } // namespace dicomifier
