@@ -6,7 +6,7 @@ Syntaxe
 
 Commande : ::
 
-    dicomifier XmlFile
+    dicomifier RulesFile.xml PrivateDictionary.xml
 
 Format du fichier XML
 ---------------------
