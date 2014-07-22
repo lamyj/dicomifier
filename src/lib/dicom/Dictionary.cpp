@@ -5,8 +5,7 @@
  * http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html
  * for details.
  ************************************************************************/
- 
-#include "core/DicomifierException.h"
+
 #include "Dictionary.h"
  
 namespace dicomifier
@@ -70,6 +69,10 @@ DcmDictEntry*
 Dictionary
 ::GetEntryFromName(std::string const & name)
 {
+    if (this->_mapKeyword.find(name) == this->_mapKeyword.end())
+    {
+        throw DicomifierException("Uknown tag : " + name);
+    }
     return this->_mapKeyword[name];
 }
     
@@ -77,6 +80,10 @@ DcmDictEntry*
 Dictionary
 ::GetEntryFromKey(std::string const & key)
 {
+    if (this->_mapTagKey.find(key) == this->_mapTagKey.end())
+    {
+        throw DicomifierException("Uknown tag : " + key);
+    }
     return this->_mapTagKey[key];
 }
 

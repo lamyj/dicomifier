@@ -15,6 +15,8 @@
 #include <dcmtk/config/osconfig.h>
 #include <dcmtk/dcmdata/dctk.h>
 
+#include "core/DicomifierException.h"
+
 namespace dicomifier
 {
     
