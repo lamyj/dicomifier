@@ -6,7 +6,7 @@
  * for details.
  ************************************************************************/
 
-#define BOOST_TEST_MODULE ModuleBrukerDataset
+#define BOOST_TEST_MODULE ModuleEnhanceBrukerDicomCreator
 #include <boost/foreach.hpp>
 #include <boost/property_tree/ptree.hpp>
 #include <boost/test/unit_test.hpp>
