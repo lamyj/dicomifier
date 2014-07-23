@@ -54,15 +54,14 @@ StoreDatasetCreator
     std::string const address = value.second.get<std::string>("<xmlattr>.address"); // Warning: throw exception if attribut is missing
     
     // get 'port' attribut
-    std::string const port = value.second.get<std::string>("<xmlattr>.port"); // Warning: throw exception if attribut is missing
+    std::string const portstr = value.second.get<std::string>("<xmlattr>.port"); // Warning: throw exception if attribut is missing
+    Uint16 port = std::strtol(portstr.c_str(), NULL, 10);
     
     // get 'aeremote' optionnal attribut
-    auto opt_aeremote = value.second.get_optional<std::string>("<xmlattr>.aeremote");
-    std::string const aeremote = opt_aeremote ? opt_aeremote.get() : "";
+    std::string const aeremote = value.second.get<std::string>("<xmlattr>.aeremote"); // Warning: throw exception if attribut is missing
     
     // get 'aelocal' optionnal attribut
-    auto opt_aelocal = value.second.get_optional<std::string>("<xmlattr>.aelocal");
-    std::string const aelocal = opt_aelocal ? opt_aelocal.get() : "";
+    std::string const aelocal = value.second.get<std::string>("<xmlattr>.aelocal"); // Warning: throw exception if attribut is missing
     
     return dicomifier::actions::StoreDataset::New(dataset, address, port, aeremote, aelocal);
 }

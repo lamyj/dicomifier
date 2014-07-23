@@ -9,8 +9,8 @@
 #ifndef _7cbea3af_b521_4280_ae80_aff1fbcd8fca
 #define _7cbea3af_b521_4280_ae80_aff1fbcd8fca
 
-#include <dcmtk/config/osconfig.h>
-#include <dcmtk/dcmdata/dctk.h>
+#include <dcmtk/config/osconfig.h>  /* make sure OS specific configuration is included first */
+#include <dcmtk/dcmdata/dctk.h>     /* Covers most common dcmdata classes */
 
 #include "core/actions/Action.h"
 
@@ -29,7 +29,7 @@ public:
     
     static Pointer New() { return Pointer(new Self()); }
     static Pointer New(DcmDataset* dataset, std::string const & address,
-                       std::string const & port, std::string const & aeremote,
+                       Uint16 const & port, std::string const & aeremote,
                        std::string const & aelocal) 
         { return Pointer(new Self(dataset, address, port, aeremote, aelocal)); }
     
@@ -41,8 +41,8 @@ public:
     std::string get_address() const { return this->_address; }
     void set_address(std::string const & address) { this->_address = address; }
     
-    std::string get_port() const { return this->_port; }
-    void set_port(std::string const & port) { this->_port = port; }
+    Uint16 get_port() const { return this->_port; }
+    void set_port(Uint16 const & port) { this->_port = port; }
     
     std::string get_AEremote() const { return this->_AEremote; }
     void set_AEremote(std::string const & aeremote) { this->_AEremote = aeremote; }
@@ -57,13 +57,13 @@ public:
 protected:
     StoreDataset();
     StoreDataset(DcmDataset* dataset, std::string const & address,
-                 std::string const & port, std::string const & aeremote,
+                 Uint16 const & port, std::string const & aeremote,
                  std::string const & aelocal);
 
 private:
     DcmDataset* _dataset;
     std::string _address;
-    std::string _port;
+    Uint16 _port;
     std::string _AEremote;
     std::string _AElocal;
 
