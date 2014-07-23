@@ -55,9 +55,9 @@ private:
     Self const & operator=(Self const & other); // Purposely not implemented
 
 };
-	
+
 } // namespace actions
-	
+
 } // namespace dicomifier
 
 #endif // _b2acff4b_4252_4850_9a62_a9ecdc5f9520
