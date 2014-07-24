@@ -51,10 +51,12 @@ void
 DeleteElement
 ::run() const
 {
-    if (this->_dataset != NULL)
+    if (this->_dataset == NULL)
     {
-        this->removeItem(0, this->_dataset);
+        throw DicomifierException("Dataset is NULL");
     }
+    
+    this->removeItem(0, this->_dataset);
 }
 
 void DeleteElement::removeItem(int indice, DcmItem* dataset) const

@@ -6,10 +6,10 @@
  * for details.
  ************************************************************************/
 
+#include <memory>
+
 #define BOOST_TEST_MODULE ModuleDeleteElement
 #include <boost/test/unit_test.hpp>
-
-#include <memory>
 
 #include <dcmtk/config/osconfig.h>
 #include <dcmtk/dcmdata/dctk.h>
@@ -17,11 +17,15 @@
 #include "dicom/actions/DeleteElement.h"
 #include "dicom/ElementTraits.h"
 
-struct TestData
+/*************************** TEST OK 01 *******************************/
+/**
+ * Delete public attribut (not in sequence)
+ */
+struct TestDataOK01
 {
     DcmDataset * dataset;
  
-    TestData()
+    TestDataOK01()
     {
         dataset = new DcmDataset();
         // Insert testing value
@@ -31,13 +35,13 @@ struct TestData
         dataset->insertSequenceItem(DCM_OtherPatientIDsSequence, item);
     }
  
-    ~TestData()
+    ~TestDataOK01()
     {
         delete dataset;
     }
 };
 
-BOOST_FIXTURE_TEST_CASE(DeleteAll, TestData)
+BOOST_FIXTURE_TEST_CASE(TEST_OK_01, TestDataOK01)
 {
     // check DCM_Modality in dataset
     BOOST_CHECK_EQUAL(dataset->tagExists(DCM_Modality), true);
@@ -56,7 +60,11 @@ BOOST_FIXTURE_TEST_CASE(DeleteAll, TestData)
     BOOST_CHECK_EQUAL(dataset->tagExists(DCM_OtherPatientIDsSequence), true);
 }
 
-BOOST_FIXTURE_TEST_CASE(DeleteSpecificValue, TestData)
+/*************************** TEST OK 02 *******************************/
+/**
+ * Delete specific value in public attribut (not in sequence)
+ */
+BOOST_FIXTURE_TEST_CASE(TEST_OK_02, TestDataOK01)
 {
     // check DCM_Modality in dataset
     BOOST_CHECK_EQUAL(dataset->tagExists(DCM_Modality), true);
@@ -83,7 +91,11 @@ BOOST_FIXTURE_TEST_CASE(DeleteSpecificValue, TestData)
     BOOST_CHECK_EQUAL(array[1], OFString("value4"));
 }
 
-BOOST_FIXTURE_TEST_CASE(DeleteAllInSequence, TestData)
+/*************************** TEST OK 03 *******************************/
+/**
+ * Delete public attribut (in sequence)
+ */
+BOOST_FIXTURE_TEST_CASE(TEST_OK_03, TestDataOK01)
 {
     // check DCM_Modality in dataset
     BOOST_CHECK_EQUAL(dataset->tagExists(DCM_PatientID, OFTrue), true);
@@ -103,7 +115,11 @@ BOOST_FIXTURE_TEST_CASE(DeleteAllInSequence, TestData)
     BOOST_CHECK_EQUAL(dataset->tagExists(DCM_OtherPatientIDsSequence), true);
 }
 
-BOOST_FIXTURE_TEST_CASE(DeleteSpeValueInSeq, TestData)
+/*************************** TEST OK 04 *******************************/
+/**
+ * Delete specific value in public attribut (in sequence)
+ */
+BOOST_FIXTURE_TEST_CASE(TEST_OK_04, TestDataOK01)
 {
     // check DCM_Modality in dataset
     BOOST_CHECK_EQUAL(dataset->tagExists(DCM_PatientID, OFTrue), true);
@@ -113,7 +129,8 @@ BOOST_FIXTURE_TEST_CASE(DeleteSpeValueInSeq, TestData)
     BOOST_CHECK_EQUAL(dcmelement->getVM(), 4);
     
     std::vector<dicomifier::TagAndRange> vect;
-    vect.push_back(dicomifier::TagAndRange(DCM_OtherPatientIDsSequence, dicomifier::Range(0,1)));
+    vect.push_back(dicomifier::TagAndRange(DCM_OtherPatientIDsSequence, 
+                                            dicomifier::Range(0,1)));
     vect.push_back(dicomifier::TagAndRange(DCM_PatientID, dicomifier::Range(0,2)));
     
     auto testdelete = dicomifier::actions::DeleteElement::New(dataset, vect);
@@ -130,7 +147,11 @@ BOOST_FIXTURE_TEST_CASE(DeleteSpeValueInSeq, TestData)
     BOOST_CHECK_EQUAL(array[0], OFString("789"));
 }
 
-BOOST_FIXTURE_TEST_CASE(DeleteSequence, TestData)
+/*************************** TEST OK 05 *******************************/
+/**
+ * Delete public attribut (sequence attribut)
+ */
+BOOST_FIXTURE_TEST_CASE(TEST_OK_05, TestDataOK01)
 {
     // check DCM_Modality in dataset
     BOOST_CHECK_EQUAL(dataset->tagExists(DCM_OtherPatientIDsSequence, OFTrue), true);
@@ -140,7 +161,8 @@ BOOST_FIXTURE_TEST_CASE(DeleteSequence, TestData)
     BOOST_CHECK_EQUAL(dcmelement->getVM(), 4);
     
     std::vector<dicomifier::TagAndRange> vect;
-    vect.push_back(dicomifier::TagAndRange(DCM_OtherPatientIDsSequence, dicomifier::Range(0,1)));
+    vect.push_back(dicomifier::TagAndRange(DCM_OtherPatientIDsSequence, 
+                                            dicomifier::Range(0,1)));
     
     auto testdelete = dicomifier::actions::DeleteElement::New(dataset, vect);
     
@@ -150,18 +172,33 @@ BOOST_FIXTURE_TEST_CASE(DeleteSequence, TestData)
     BOOST_CHECK_EQUAL(dataset->tagExists(DCM_OtherPatientIDsSequence, OFTrue), false);
 }
 
-
-BOOST_FIXTURE_TEST_CASE(DeleteNotExisting, TestData)
+/*************************** TEST OK 06 *******************************/
+/**
+ * Delete attribut not present in dataset
+ */
+BOOST_FIXTURE_TEST_CASE(TEST_OK_06, TestDataOK01)
 {
     // check DCM_PatientSex not in dataset
     BOOST_CHECK_EQUAL(dataset->tagExists(DCM_PatientSex), false);
     
     std::vector<dicomifier::TagAndRange> vect;
-    vect.push_back(dicomifier::TagAndRange(DCM_PatientSex, dicomifier::Range(0,std::numeric_limits<int>::max())));
+    vect.push_back(dicomifier::TagAndRange(DCM_PatientSex, 
+                                    dicomifier::Range(0,std::numeric_limits<int>::max())));
     
     auto testdelete = dicomifier::actions::DeleteElement::New(dataset, vect);
     testdelete->run();
         
     // check DCM_PatientSex not in dataset
     BOOST_CHECK_EQUAL(dataset->tagExists(DCM_PatientSex), false);
+}
+
+/*************************** TEST KO 01 *******************************/
+/**
+ * Empty dataset
+ */
+BOOST_AUTO_TEST_CASE(TEST_KO_01)
+{
+    auto testdelete = dicomifier::actions::DeleteElement::New();
+        
+    BOOST_REQUIRE_THROW(testdelete->run(), dicomifier::DicomifierException);
 }
