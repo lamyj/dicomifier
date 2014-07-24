@@ -51,10 +51,12 @@ void
 EmptyElement
 ::run() const
 {
-    if (this->_dataset != NULL)
+    if (this->_dataset == NULL)
     {
-        this->emptyItem(0, this->_dataset);
+        throw DicomifierException("Dataset is NULL");
     }
+    
+    this->emptyItem(0, this->_dataset);
 }
 
 void EmptyElement::emptyItem(int indice, DcmItem* dataset) const

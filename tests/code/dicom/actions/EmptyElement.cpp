@@ -6,15 +6,19 @@
  * for details.
  ************************************************************************/
 
+#include <memory>
+
 #define BOOST_TEST_MODULE ModuleEmptyElement
 #include <boost/test/unit_test.hpp>
-
-#include <memory>
 
 #include <dcmtk/dcmdata/dctk.h>
 
 #include "dicom/actions/EmptyElement.h"
 
+/*************************** TEST OK 01 *******************************/
+/**
+ * Empty public attribut (not in sequence)
+ */
 struct TestDataOK01
 {
     DcmDataset * dataset;
@@ -55,6 +59,10 @@ BOOST_FIXTURE_TEST_CASE(TEST_OK_01, TestDataOK01)
     BOOST_CHECK_EQUAL(str, "");
 }
 
+/*************************** TEST OK 02 *******************************/
+/**
+ * Empty public attribut (in sequence)
+ */
 BOOST_FIXTURE_TEST_CASE(TEST_OK_02, TestDataOK01)
 {
     // check DCM_Modality in dataset
@@ -78,7 +86,10 @@ BOOST_FIXTURE_TEST_CASE(TEST_OK_02, TestDataOK01)
     BOOST_CHECK_EQUAL(str, "");
 }
 
-
+/*************************** TEST OK 03 *******************************/
+/**
+ * Empty public attribut (sequence attribut)
+ */
 BOOST_FIXTURE_TEST_CASE(TEST_OK_03, TestDataOK01)
 {
     std::vector<dicomifier::TagAndRange> vect;
@@ -97,4 +108,15 @@ BOOST_FIXTURE_TEST_CASE(TEST_OK_03, TestDataOK01)
     BOOST_CHECK_EQUAL(cond.good(), true);
     
     BOOST_CHECK_EQUAL(str, "");
+}
+
+/*************************** TEST KO 01 *******************************/
+/**
+ * Empty dataset
+ */
+BOOST_AUTO_TEST_CASE(TEST_KO_01)
+{
+    auto testempty = dicomifier::actions::EmptyElement::New();
+        
+    BOOST_REQUIRE_THROW(testempty->run(), dicomifier::DicomifierException);
 }
