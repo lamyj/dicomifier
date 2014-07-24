@@ -6,6 +6,7 @@
  * for details.
  ************************************************************************/
 
+#include "core/DicomifierException.h"
 #include "SaveDataset.h"
 
 namespace dicomifier
@@ -14,7 +15,8 @@ namespace dicomifier
 namespace actions
 {
 
-SaveDataset::SaveDataset()
+SaveDataset::SaveDataset():
+    _dataset(NULL), _filename("")
 {
     // Nothing to do
 }
@@ -62,10 +64,18 @@ void
 SaveDataset
 ::run() const
 {
-    if (this->_dataset != NULL)
+    if (this->_dataset == NULL)
     {
-        this->_dataset->saveFile(this->_filename.c_str(), 
-                                 EXS_LittleEndianExplicit);
+        throw DicomifierException("Unable to save empty dataset");
+    }
+    
+    OFCondition result = this->_dataset->saveFile(this->_filename.c_str(), 
+                                                  EXS_LittleEndianExplicit);
+                                                 
+    if (result.bad())
+    {
+        throw DicomifierException("Unable to save dataset: " + 
+                                  std::string(result.text()));
     }
 }
 
