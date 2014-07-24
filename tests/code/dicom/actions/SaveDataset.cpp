@@ -11,14 +11,19 @@
 #include <boost/filesystem/path.hpp>
 #include <boost/test/unit_test.hpp>
 
+#include "core/DicomifierException.h"
 #include "dicom/actions/SaveDataset.h"
 
-struct TestData
+/*************************** TEST OK 01 *******************************/
+/**
+ * Save dataset success
+ */
+struct TestDataOK01
 {
     DcmDataset * dataset;
     std::string filename;
  
-    TestData()
+    TestDataOK01()
     {
         dataset = new DcmDataset();
         dataset->putAndInsertOFStringArray(DCM_Modality, "value1");
@@ -27,14 +32,14 @@ struct TestData
         filename = "./test_SaveDataset_tempfile.dcm";
     }
  
-    ~TestData()
+    ~TestDataOK01()
     {
         delete dataset;
         remove(filename.c_str());
     }
 };
 
-BOOST_FIXTURE_TEST_CASE(Save, TestData)
+BOOST_FIXTURE_TEST_CASE(TEST_OK_01, TestDataOK01)
 {
     auto testsave = dicomifier::actions::SaveDataset::New();
     testsave->set_dataset(dataset);
@@ -45,4 +50,44 @@ BOOST_FIXTURE_TEST_CASE(Save, TestData)
     BOOST_CHECK_EQUAL(testsave->get_filename() == filename, true);
         
     BOOST_CHECK_EQUAL(boost::filesystem::exists(filename), true);
+}
+
+/*************************** TEST KO 01 *******************************/
+/**
+ * Empty dataset
+ */
+BOOST_AUTO_TEST_CASE(TEST_KO_01)
+{
+    auto testsave = dicomifier::actions::SaveDataset::New();
+        
+    BOOST_REQUIRE_THROW(testsave->run(), dicomifier::DicomifierException);
+}
+
+/*************************** TEST KO 02 *******************************/
+/**
+ * Bad output file name
+ */
+struct TestDataKO02
+{
+    DcmDataset * dataset;
+ 
+    TestDataKO02()
+    {
+        dataset = new DcmDataset();
+        dataset->putAndInsertOFStringArray(DCM_Modality, "value1");
+    }
+ 
+    ~TestDataKO02()
+    {
+        delete dataset;
+    }
+};
+
+BOOST_FIXTURE_TEST_CASE(TEST_KO_02, TestDataKO02)
+{
+    auto testsave = dicomifier::actions::SaveDataset::New();
+    testsave->set_dataset(dataset);
+    testsave->set_filename("");
+        
+    BOOST_REQUIRE_THROW(testsave->run(), dicomifier::DicomifierException);
 }
