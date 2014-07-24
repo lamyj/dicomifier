@@ -69,7 +69,7 @@ StoreDataset
     myscu.setPeerPort(this->_port);
     myscu.setPeerAETitle(this->_AEremote.c_str());
     
-    // Set transfert syntax
+    // Set transfer syntax
     OFList<OFString> ts;
     ts.push_back(UID_LittleEndianExplicitTransferSyntax);
     ts.push_back(UID_LittleEndianImplicitTransferSyntax);
@@ -102,7 +102,8 @@ StoreDataset
     Uint16 rspstatus;
     DcmDataset* rspcommandset;
     DcmDataset* rspstatusdetail;
-    result = myscu.sendSTORERequest(pcid, "", this->_dataset, rspcommandset, rspstatusdetail, rspstatus);
+    result = myscu.sendSTORERequest(pcid, "", this->_dataset, rspcommandset, 
+                                    rspstatusdetail, rspstatus);
     if (result.bad() || rspstatus != 0)
     {
         throw DicomifierException("Could not process C-Store");

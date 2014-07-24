@@ -136,3 +136,29 @@ Exemple :
 .. code-block:: xml
 
     <EnhanceBrukerDicom dataset="#dataset_identifiant" brukerdir="#bruker_identifiant" />
+
+.. _Balise_StoreDataset:
+
+Balise StoreDataset
+^^^^^^^^^^^^^^^^^^^
+
++---------------+---------------+--------------+--------------------------------------------------------------+
+| Attributs     | Usage         | Multiplicité | Description                                                  |
++===============+===============+==============+==============================================================+
+| dataset       | Obligatoire   |       1      | Contient une référence vers un identifiant unique défini par |
+|               |               |              | une balise :ref:`Input <Balise_Input>`                       |
++---------------+---------------+--------------+--------------------------------------------------------------+
+| address       | Obligatoire   |       1      | Contient l'adresse ip du scp à appeler                       |
++---------------+---------------+--------------+--------------------------------------------------------------+
+| port          | Obligatoire   |       1      | Contient le port de connexion avec le scp                    |
++---------------+---------------+--------------+--------------------------------------------------------------+
+| aelocal       | Obligatoire   |       1      | Contient l'AE title de la machine appelante                  |
++---------------+---------------+--------------+--------------------------------------------------------------+
+| aeremote      | Obligatoire   |       1      | Contient l'AE title de la machine appelée                    |
++---------------+---------------+--------------+--------------------------------------------------------------+
+
+Exemple :
+
+.. code-block:: xml
+
+    <StoreDataset dataset="#identifiant" address="myaddress" port="11112" aelocal="LOCALNAME" aeremote="REMOTENAME" />
