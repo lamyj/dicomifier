@@ -11,6 +11,9 @@
 
 #include <vector>
 
+#include <boost/algorithm/string.hpp>
+#include "boost/regex.hpp"
+
 #include <dcmtk/config/osconfig.h>
 #include <dcmtk/dcmdata/dctk.h>
 
@@ -44,6 +47,7 @@ struct ElementTraits<vr> \
     static OFCondition setter(DcmElement * element, ValueType const value); \
     static OFCondition array_setter(DcmElement * element, ValueType const * value, unsigned int const size); \
     static std::vector<ValueType> array_getter(DcmElement * element); \
+    static bool equal(ValueType const & v1, ValueType const & v2); \
 };
 
 DECLARE_ELEMENT_TRAITS(EVR_AE, OFString, DcmApplicationEntity)
@@ -108,6 +112,31 @@ static void vr_dispatch(Action const & action, DcmEVR evr)
     else if (evr == EVR_UT) action.template run<EVR_UT>();
     
     else throw DicomifierException("Unknown VR");
+}
+
+static boost::regex transform_regex(std::string const & value)
+{
+    std::string regex = value;
+    // Escape "\\" first since we're using it to replace "."
+    boost::replace_all(regex, "\\", "\\\\");
+    // Escape "." second since we're using it to replace "*"
+    boost::replace_all(regex, ".", "\\.");
+    boost::replace_all(regex, "*", ".*");
+    boost::replace_all(regex, "?", ".");
+    // Escape other PCRE metacharacters
+    boost::replace_all(regex, "^", "\\^");
+    boost::replace_all(regex, "$", "\\$");
+    boost::replace_all(regex, "[", "\\[");
+    boost::replace_all(regex, "]", "\\]");
+    boost::replace_all(regex, "(", "\\(");
+    boost::replace_all(regex, ")", "\\)");
+    boost::replace_all(regex, "+", "\\+");
+    boost::replace_all(regex, "{", "\\{");
+    boost::replace_all(regex, "}", "\\}");
+    // Add the start and end anchors
+    regex = "^"+regex+"$";
+    
+    return boost::regex(regex, boost::regex::icase);
 }
 
 } // namespace dicomifier
