@@ -179,8 +179,15 @@ ElementMatch<VR>
                 return false;
             }
             
-            // Compare values    
-            return this->_array == vect;
+            // Compare values
+            for (unsigned int iter = 0; iter < vect.size(); iter++)
+            {
+                if ( ! ElementTraits<VR>::equal(this->_array[iter], vect[iter]))
+                {
+                    return false;
+                }
+            }
+            return true;
         }
     }
     else

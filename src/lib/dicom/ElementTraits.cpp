@@ -63,26 +63,51 @@ ElementTraits<vr> \
     return returnVector; \
 }
 
+#define EQUAL(vr, value_type) \
+bool \
+ElementTraits<vr> \
+::equal(ElementTraits<vr>::ValueType const & v1, ElementTraits<vr>::ValueType const & v2) \
+{ \
+    return v1 == v2; \
+}
+
+#define STRING_EQUAL(vr, value_type) \
+bool \
+ElementTraits<vr> \
+::equal(ElementTraits<vr>::ValueType const & v1, ElementTraits<vr>::ValueType const & v2) \
+{ \
+    return regex_match(v2.c_str(), transform_regex(v1.c_str())); \
+}
+
 #define DEFINE_ELEMENT_TRAITS(vr, value_type) \
 SETTER(vr, value_type) \
 ARRAY_SETTER(vr, value_type) \
-ARRAY_GETTER(vr, value_type)
+ARRAY_GETTER(vr, value_type) \
+EQUAL(vr, value_type)
+
+#define DEFINE_STRING_NUMBER_ELEMENT_TRAITS(vr, value_type) \
+SETTER(vr, value_type) \
+STRING_ARRAY_SETTER(vr, value_type) \
+ARRAY_GETTER(vr, value_type) \
+EQUAL(vr, value_type)
 
 #define DEFINE_STRING_ELEMENT_TRAITS(vr, value_type) \
 SETTER(vr, value_type) \
 STRING_ARRAY_SETTER(vr, value_type) \
-ARRAY_GETTER(vr, value_type)
+ARRAY_GETTER(vr, value_type) \
+STRING_EQUAL(vr, value_type)
+
 
 DEFINE_STRING_ELEMENT_TRAITS(EVR_AE, OFString)
 DEFINE_STRING_ELEMENT_TRAITS(EVR_AS, OFString)
 // TODO: EVR_AT
 DEFINE_STRING_ELEMENT_TRAITS(EVR_CS, OFString)
 DEFINE_STRING_ELEMENT_TRAITS(EVR_DA, OFString)
-DEFINE_STRING_ELEMENT_TRAITS(EVR_DS, Float64)
+DEFINE_STRING_NUMBER_ELEMENT_TRAITS(EVR_DS, Float64)
 DEFINE_STRING_ELEMENT_TRAITS(EVR_DT, OFString)
 DEFINE_ELEMENT_TRAITS(EVR_FD, Float64)
 DEFINE_ELEMENT_TRAITS(EVR_FL, Float32)
-DEFINE_STRING_ELEMENT_TRAITS(EVR_IS, Sint32)
+DEFINE_STRING_NUMBER_ELEMENT_TRAITS(EVR_IS, Sint32)
 DEFINE_STRING_ELEMENT_TRAITS(EVR_LO, OFString)
 DEFINE_STRING_ELEMENT_TRAITS(EVR_LT, OFString)
 // TODO: OB
@@ -103,10 +128,14 @@ DEFINE_STRING_ELEMENT_TRAITS(EVR_UT, OFString)
 
 
 #undef DEFINE_ELEMENT_TRAITS
+#undef DEFINE_STRING_NUMBER_ELEMENT_TRAITS
 #undef DEFINE_STRING_ELEMENT_TRAITS
 
 #undef SETTER
 #undef ARRAY_SETTER
+#undef STRING_ARRAY_SETTER
 #undef ARRAY_GETTER
+#undef EQUAL
+#undef STRING_EQUAL
 
 } // namespace dicomifier
