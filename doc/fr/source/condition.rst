@@ -101,13 +101,19 @@ Balise ElementMatch
 |                 |               |              |            Sequence.SubSequence.Keyword                      |
 +-----------------+---------------+--------------+--------------------------------------------------------------+
 | value           | Obligatoire   |       1      | Valeur de l'élément à comparer                               |
+|                 |               |              | Remarque : il est possible d'utiliser des expressions        |
+|                 |               |              | régulières contenant les caractères suivants '*' et '?'.     |
 +-----------------+---------------+--------------+--------------------------------------------------------------+
 | VR              | Obligatoire   |       1      | VR de l'élément à comparer                                   |
 +-----------------+---------------+--------------+--------------------------------------------------------------+
 
-Exemple :
+Exemples :
 
 .. code-block:: xml
 
     <ElementMatch tag="PatientName" value="John" VR="PN" dataset="#identifiant" />
+    <ElementMatch tag="PatientName" value="Doe^*" VR="PN" dataset="#identifiant" />
+    <ElementMatch tag="PatientName" value="Doe^J?hn" VR="PN" dataset="#identifiant" />
+    <ElementMatch tag="0010,1002[0:3].PatientID[4]" value="123456789" VR="LO" dataset="#identifiant" />
+    <ElementMatch tag="0023,xx02" value="John" VR="PN" dataset="#identifiant" private_creator="MyPrivateDict" />
 
