@@ -187,12 +187,14 @@ Exemple de fichier XML
                 <ElementMatch tag="PatientName" value="Doe^John" VR="PN" dataset="#input_dataset" />
                 <Not>
                     <ElementMatch tag="0010,0020" value="123456789" VR="LO" dataset="#input_dataset" />
+                    <ElementMatch tag="0023,xx02" value="MyValue" VR="CS" dataset="#input_dataset" private_creator="MyPrivateDict" />
                 </Not>
             </All>
         </Condition>
         <Actions>
             <DeleteElement tag="PatientName" dataset="#input_dataset" />
             <SetElement tag="PatientID" value="123456789" VR="LO" dataset="#input_dataset" />
+            <SetElement tag="0010,1002[0:3].PatientID[4]" value="123456789" VR="LO" dataset="#input_dataset" />
             <SaveDataset dataset="#input_dataset" outputfile="#output_dataset" />
         </Actions>
         <Input type="dataset" name="input_dataset" value="/home/dicomfile" />

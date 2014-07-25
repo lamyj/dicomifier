@@ -410,6 +410,30 @@ BOOST_FIXTURE_TEST_CASE(MatchPN01, TestDataPN)
     BOOST_CHECK_EQUAL(testmatch->eval(), true);
 }
 
+BOOST_FIXTURE_TEST_CASE(MatchPN02, TestDataPN)
+{
+    std::vector<dicomifier::TagAndRange> vect;
+    vect.push_back(dicomifier::TagAndRange(DCM_PatientName, dicomifier::Range(0,1)));
+    
+    auto testmatch = 
+        dicomifier::conditions::ElementMatch<EVR_PN>::New(dataset, 
+                                                      vect, 
+                                                      "Doe^*");
+    BOOST_CHECK_EQUAL(testmatch->eval(), true);
+}
+
+BOOST_FIXTURE_TEST_CASE(MatchPN03, TestDataPN)
+{
+    std::vector<dicomifier::TagAndRange> vect;
+    vect.push_back(dicomifier::TagAndRange(DCM_PatientName, dicomifier::Range(0,1)));
+    
+    auto testmatch = 
+        dicomifier::conditions::ElementMatch<EVR_PN>::New(dataset, 
+                                                      vect, 
+                                                      "Doe^Jo?n");
+    BOOST_CHECK_EQUAL(testmatch->eval(), true);
+}
+
 /********************************* TEST ELEMENT TYPE SH *********************************/
 
 struct TestDataSH
