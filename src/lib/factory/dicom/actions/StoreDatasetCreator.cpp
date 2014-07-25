@@ -63,7 +63,13 @@ StoreDatasetCreator
     // get 'aelocal' optionnal attribut
     std::string const aelocal = value.second.get<std::string>("<xmlattr>.aelocal"); // Warning: throw exception if attribut is missing
     
-    return dicomifier::actions::StoreDataset::New(dataset, address, port, aeremote, aelocal);
+    // get 'user' attribut
+    std::string const user = value.second.get<std::string>("<xmlattr>.user"); // Warning: throw exception if attribut is missing
+    
+    // get 'password' attribut
+    std::string const password = value.second.get<std::string>("<xmlattr>.password"); // Warning: throw exception if attribut is missing
+    
+    return dicomifier::actions::StoreDataset::New(dataset, address, port, aeremote, aelocal, user, password);
 }
 
 } // namespace factory

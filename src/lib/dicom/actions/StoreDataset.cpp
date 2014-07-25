@@ -7,6 +7,7 @@
  ************************************************************************/
 
 #include <dcmtk/dcmnet/scu.h>
+#include <dcmtk/dcmtls/tlslayer.h>
 
 #include "core/DicomifierException.h"
 #include "StoreDataset.h"
@@ -22,19 +23,24 @@ StoreDataset::StoreDataset():
     _address(""),
     _port(0),
     _AEremote(""),
-    _AElocal("")
+    _AElocal(""),
+    _user(""),
+    _password("")
 {
     // Nothing to do
 }
 
 StoreDataset::StoreDataset(DcmDataset* dataset, std::string const & address,
                            Uint16 const & port, std::string const & aeremote,
-                           std::string const & aelocal):
+                           std::string const & aelocal, std::string const & user,
+                           std::string const & password):
     _dataset(dataset),
     _address(address),
     _port(port),
     _AEremote(aeremote),
-    _AElocal(aelocal)
+    _AElocal(aelocal),
+    _user(user),
+    _password(password)
 {
     // Nothing to do
 }
