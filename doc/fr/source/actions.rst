@@ -37,11 +37,13 @@ Balise SetElement
 | VR              | Obligatoire   |       1      | VR de l'élément à modifier                                   |
 +-----------------+---------------+--------------+--------------------------------------------------------------+
 
-Exemple :
+Exemples :
 
 .. code-block:: xml
 
     <SetElement tag="PatientName" value="John" VR="PN" dataset="#identifiant" />
+    <SetElement tag="0010,1002.0010,0020" value="123456789" VR="LO" dataset="#identifiant" />
+    <SetElement tag="0023,xx01.0023,xx02" value="123456789" VR="LO" dataset="#identifiant" private_creator="MyPrivateDict" />
 
 .. _Balise_DeleteElement:
 
@@ -62,11 +64,13 @@ Balise DeleteElement
 |                 |               |              |            Sequence.SubSequence.Keyword                      |
 +-----------------+---------------+--------------+--------------------------------------------------------------+
 
-Exemple :
+Exemples :
 
 .. code-block:: xml
 
     <DeleteElement tag="PatientName" dataset="#identifiant" />
+    <DeleteElement tag="0010,1002.0010,0020" dataset="#identifiant" />
+    <DeleteElement tag="0023,xx01.0023,xx02" dataset="#identifiant" private_creator="MyPrivateDict" />
 
 .. _Balise_EmptyElement:
 
@@ -87,11 +91,13 @@ Balise EmptyElement
 |                 |               |              |            Sequence.SubSequence.Keyword                      |
 +-----------------+---------------+--------------+--------------------------------------------------------------+
 
-Exemple :
+Exemples :
 
 .. code-block:: xml
 
     <EmptyElement tag="PatientName" dataset="#identifiant" />
+    <EmptyElement tag="0010,1002[:].0010,0020" dataset="#identifiant" />
+    <EmptyElement tag="0023,xx01.0023,xx02" dataset="#identifiant" private_creator="MyPrivateDict" />
 
 .. _Balise_SaveDataset:
 
