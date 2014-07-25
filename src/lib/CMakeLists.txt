@@ -9,4 +9,4 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}
                     ${Boost_INCLUDE_DIRS})
 add_library(libdicomifier SHARED ${files})
 set_target_properties(libdicomifier PROPERTIES OUTPUT_NAME dicomifier)
-target_link_libraries(libdicomifier dcmdata dcmnet oflog ofstd wrap pthread z ${Boost_LIBRARIES})
+target_link_libraries(libdicomifier dcmtls ssl dcmdata dcmnet oflog ofstd wrap pthread z ${Boost_LIBRARIES})
