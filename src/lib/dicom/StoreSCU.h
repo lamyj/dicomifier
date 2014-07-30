@@ -31,6 +31,9 @@ public:
     /// Destructor.
     virtual ~StoreSCU();
     
+    /// Set the affected SOP class
+    using SCU::set_affected_sop_class;
+    
     /// Set the affected SOP class based on the dataset.
     void set_affected_sop_class(DcmDataset const * dataset);
     
