@@ -57,13 +57,15 @@ public:
         else
         {
             int status = system("echoscu -aec REMOTE -aet LOCAL localhost 11112");
-            while(WEXITSTATUS(status)>0)
+            int count = 0;
+            while(WEXITSTATUS(status)>0 && count < 10)
             {
                 // Wait a bit to make sure the process is running
                 usleep(100000);
                 status = system("echoscu -aec REMOTE -aet LOCAL localhost 11112");
+                ++count;
             }
-            if(WEXITSTATUS(status) == -1)
+            if(WEXITSTATUS(status) == -1 || count >= 10)
             {
                 throw std::runtime_error("Could not wait for dcmqrscp");
             }

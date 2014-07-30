@@ -9,8 +9,8 @@
 #define BOOST_TEST_MODULE SCU
 #include <boost/test/unit_test.hpp>
 
-#include "dicom/SCU.h"
-#include "core/DicomifierException.h"
+#include <dicom/SCU.h>
+#include <core/DicomifierException.h>
 
 #include "DcmQrSCP.h"
 
