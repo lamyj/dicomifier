@@ -10,6 +10,7 @@
 #include <dcmtk/dcmtls/tlslayer.h>
 
 #include "core/DicomifierException.h"
+#include "dicom/SCU.h"
 #include "StoreDataset.h"
 
 namespace dicomifier
@@ -18,29 +19,26 @@ namespace dicomifier
 namespace actions
 {
     
-StoreDataset::StoreDataset():
-    _dataset(NULL),
-    _address(""),
-    _port(0),
-    _AEremote(""),
-    _AElocal(""),
-    _user(""),
-    _password("")
+StoreDataset::StoreDataset()
+: _dataset(NULL), _address(""), _port(0),
+  _AEremote(""), _AElocal(""),
+  _user_identity_type(UserIdentityType::None),
+  _user_identity_primary_field(""), _user_identity_secondary_field("")
 {
     // Nothing to do
 }
 
-StoreDataset::StoreDataset(DcmDataset* dataset, std::string const & address,
-                           Uint16 const & port, std::string const & aeremote,
-                           std::string const & aelocal, std::string const & user,
-                           std::string const & password):
-    _dataset(dataset),
-    _address(address),
-    _port(port),
-    _AEremote(aeremote),
-    _AElocal(aelocal),
-    _user(user),
-    _password(password)
+StoreDataset::StoreDataset(DcmDataset* dataset, 
+    std::string const & address, Uint16 const & port, 
+    std::string const & aeremote, std::string const & aelocal, 
+    UserIdentityType const & user_identity_type,
+    std::string const & user_identity_primary_field,
+    std::string const & user_identity_secondary_field)
+: _dataset(dataset), _address(address), _port(port),
+  _AEremote(aeremote), _AElocal(aelocal),
+  _user_identity_type(user_identity_type),
+  _user_identity_primary_field(user_identity_primary_field), 
+  _user_identity_secondary_field(user_identity_secondary_field)
 {
     // Nothing to do
 }
@@ -48,6 +46,48 @@ StoreDataset::StoreDataset(DcmDataset* dataset, std::string const & address,
 StoreDataset::~StoreDataset()
 {
     // Nothing to do
+}
+
+UserIdentityType
+StoreDataset
+::get_user_identity_type() const
+{
+    return this->_user_identity_type;
+}
+
+void
+StoreDataset
+::set_user_identity_type(UserIdentityType type)
+{
+    this->_user_identity_type = type;
+}
+
+std::string const &
+StoreDataset
+::get_user_identity_primary_field() const
+{
+    return this->_user_identity_primary_field;
+}
+
+void
+StoreDataset
+::set_user_identity_primary_field(std::string const & value)
+{
+    this->_user_identity_primary_field = value;
+}
+
+std::string const &
+StoreDataset
+::get_user_identity_secondary_field() const
+{
+    return this->_user_identity_secondary_field;
+}
+
+void
+StoreDataset
+::set_user_identity_secondary_field(std::string const & value)
+{
+    this->_user_identity_secondary_field = value;
 }
     
 void

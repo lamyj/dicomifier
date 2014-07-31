@@ -8,6 +8,7 @@
 
 #include "core/Factory.h"
 #include "dicom/actions/StoreDataset.h"
+#include "dicom/SCU.h"
 #include "StoreDatasetCreator.h"
 
 namespace dicomifier
@@ -32,8 +33,10 @@ Object::Pointer
 StoreDatasetCreator
 ::Create(boost::property_tree::ptree::value_type & value)
 {
+    boost::property_tree::ptree const & tree = value.second;
+    
     // get 'dataset' attribut
-    std::string filename = value.second.get<std::string>("<xmlattr>.dataset"); // Warning: throw exception if attribut is missing
+    std::string filename = this->_get<std::string>(tree, "<xmlattr>.dataset");
     if (filename[0] != '#')
     {
         throw DicomifierException("Bad value for dataset attribut.");
@@ -51,25 +54,49 @@ StoreDatasetCreator
     }
     
     // get 'address' attribut
-    std::string const address = value.second.get<std::string>("<xmlattr>.address"); // Warning: throw exception if attribut is missing
+    std::string const address = this->_get<std::string>(tree, "<xmlattr>.address");
     
     // get 'port' attribut
-    std::string const portstr = value.second.get<std::string>("<xmlattr>.port"); // Warning: throw exception if attribut is missing
-    Uint16 port = std::strtol(portstr.c_str(), NULL, 10);
+    uint16_t const port = this->_get<uint16_t>(tree, "<xmlattr>.port");
     
     // get 'aeremote' optionnal attribut
-    std::string const aeremote = value.second.get<std::string>("<xmlattr>.aeremote"); // Warning: throw exception if attribut is missing
+    std::string const aeremote = this->_get<std::string>(tree, "<xmlattr>.aeremote");
     
     // get 'aelocal' optionnal attribut
-    std::string const aelocal = value.second.get<std::string>("<xmlattr>.aelocal"); // Warning: throw exception if attribut is missing
+    std::string const aelocal = this->_get<std::string>(tree, "<xmlattr>.aelocal");
     
-    // get 'user' attribut
-    std::string const user = value.second.get<std::string>("<xmlattr>.user"); // Warning: throw exception if attribut is missing
+    // Get credential informations
+    UserIdentityType user_identity_type = UserIdentityType::None;
+    std::string user_identity_primary_field = "";
+    std::string user_identity_secondary_field = "";
     
-    // get 'password' attribut
-    std::string const password = value.second.get<std::string>("<xmlattr>.password"); // Warning: throw exception if attribut is missing
+    try
+    {
+        user_identity_primary_field = this->_get<std::string>(
+            tree, "<xmlattr>.user");
+        user_identity_type = UserIdentityType::Username;
+        
+        try
+        {
+            user_identity_secondary_field = this->_get<std::string>(
+                tree, "<xmlattr>.password");
+            user_identity_type = UserIdentityType::UsernameAndPassword;
+        }
+        catch(DicomifierException)
+        {
+            // No password, do nothing
+        }
+    }
+    catch(DicomifierException)
+    {
+        // No user, do nothing
+    }
     
-    return dicomifier::actions::StoreDataset::New(dataset, address, port, aeremote, aelocal, user, password);
+    return dicomifier::actions::StoreDataset::New(
+        dataset, address, port, 
+        aeremote, aelocal, 
+        user_identity_type, 
+        user_identity_primary_field, user_identity_secondary_field);
 }
 
 } // namespace factory

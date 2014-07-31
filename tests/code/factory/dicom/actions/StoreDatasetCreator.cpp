@@ -15,16 +15,12 @@
 #include "dicom/actions/StoreDataset.h"
 #include "factory/dicom/actions/StoreDatasetCreator.h"
 
-/**************************** TEST OK 01 ******************************/
-/**
- * StoreDataset Creation
- */
-struct TestDataOK01
+struct FixtureBase
 {
     boost::property_tree::ptree ptr;
     std::shared_ptr<dicomifier::factory::CreatorBase::InOutPutType> inputs;
  
-    TestDataOK01()
+    FixtureBase()
     {
         // Create Test file
         DcmDataset* dataset = new DcmDataset();
@@ -43,31 +39,102 @@ struct TestDataOK01
         inputs = std::make_shared<dicomifier::factory::CreatorBase::InOutPutType>();
         inputs->insert(std::pair<std::string, boost::any>("input", boost::any(dataset)));
     }
- 
-    ~TestDataOK01()
+};
+
+/************************** No user identification ****************************/
+
+struct NoUserIdFixture: public FixtureBase
+{
+    NoUserIdFixture()
+    : FixtureBase()
     {
+        // Do not modify user identification
     }
 };
 
-BOOST_FIXTURE_TEST_CASE(TEST_OK_01, TestDataOK01)
+BOOST_FIXTURE_TEST_CASE(NoUserId, NoUserIdFixture)
 {
-    auto teststore = dicomifier::factory::StoreDatasetCreator::New();
-    teststore->set_inputs(inputs);
+    auto creator = dicomifier::factory::StoreDatasetCreator::New();
+    creator->set_inputs(this->inputs);
     
-    BOOST_FOREACH(boost::property_tree::ptree::value_type &v, ptr)
+    auto object = creator->Create(this->ptr.front());
+    auto act = std::dynamic_pointer_cast<dicomifier::actions::StoreDataset>(object);
+    
+    BOOST_CHECK(act != NULL);
+    
+    BOOST_CHECK_EQUAL(act->get_address(), "myaddress");
+    BOOST_CHECK_EQUAL(act->get_port(), 11112);
+    BOOST_CHECK_EQUAL(act->get_AEremote(), "REMOTE");
+    BOOST_CHECK_EQUAL(act->get_AElocal(), "LOCAL");
+    BOOST_CHECK(act->get_user_identity_type() == 
+        dicomifier::UserIdentityType::None);
+    BOOST_CHECK_EQUAL(act->get_user_identity_primary_field(), "");
+    BOOST_CHECK_EQUAL(act->get_user_identity_secondary_field(), "");
+}
+
+/************************** User name only ****************************/
+
+struct UserNameOnlyFixture: public FixtureBase
+{
+    UserNameOnlyFixture()
+    : FixtureBase()
     {
-        dicomifier::Object::Pointer object = teststore->Create(v);
-        
-        dicomifier::actions::StoreDataset::Pointer act = 
-                std::dynamic_pointer_cast<dicomifier::actions::StoreDataset>(object);
-        
-        BOOST_CHECK(act != NULL);
-        
-        BOOST_CHECK_EQUAL(act->get_address(), "myaddress");
-        BOOST_CHECK_EQUAL(act->get_port(), 11112);
-        BOOST_CHECK_EQUAL(act->get_AEremote(), "REMOTE");
-        BOOST_CHECK_EQUAL(act->get_AElocal(), "LOCAL");
+        ptr.put("StoreDataset.<xmlattr>.user", "georges.brouchard");
     }
+};
+
+BOOST_FIXTURE_TEST_CASE(UserNameOnly, UserNameOnlyFixture)
+{
+    auto creator = dicomifier::factory::StoreDatasetCreator::New();
+    creator->set_inputs(this->inputs);
+    
+    auto object = creator->Create(this->ptr.front());
+    auto act = std::dynamic_pointer_cast<dicomifier::actions::StoreDataset>(object);
+    
+    BOOST_CHECK(act != NULL);
+    
+    BOOST_CHECK_EQUAL(act->get_address(), "myaddress");
+    BOOST_CHECK_EQUAL(act->get_port(), 11112);
+    BOOST_CHECK_EQUAL(act->get_AEremote(), "REMOTE");
+    BOOST_CHECK_EQUAL(act->get_AElocal(), "LOCAL");
+    BOOST_CHECK(act->get_user_identity_type() == 
+        dicomifier::UserIdentityType::Username);
+    BOOST_CHECK_EQUAL(act->get_user_identity_primary_field(), 
+        "georges.brouchard");
+    BOOST_CHECK_EQUAL(act->get_user_identity_secondary_field(), "");
+}
+
+/************************** User name and password ****************************/
+
+struct UserNameAndPasswordFixture: public FixtureBase
+{
+    UserNameAndPasswordFixture()
+    : FixtureBase()
+    {
+        ptr.put("StoreDataset.<xmlattr>.user", "georges.brouchard");
+        ptr.put("StoreDataset.<xmlattr>.password", "pAssw0rd!");
+    }
+};
+
+BOOST_FIXTURE_TEST_CASE(UserNameAndPassword, UserNameAndPasswordFixture)
+{
+    auto creator = dicomifier::factory::StoreDatasetCreator::New();
+    creator->set_inputs(this->inputs);
+    
+    auto object = creator->Create(this->ptr.front());
+    auto act = std::dynamic_pointer_cast<dicomifier::actions::StoreDataset>(object);
+    
+    BOOST_CHECK(act != NULL);
+    
+    BOOST_CHECK_EQUAL(act->get_address(), "myaddress");
+    BOOST_CHECK_EQUAL(act->get_port(), 11112);
+    BOOST_CHECK_EQUAL(act->get_AEremote(), "REMOTE");
+    BOOST_CHECK_EQUAL(act->get_AElocal(), "LOCAL");
+    BOOST_CHECK(act->get_user_identity_type() == 
+        dicomifier::UserIdentityType::UsernameAndPassword);
+    BOOST_CHECK_EQUAL(act->get_user_identity_primary_field(), 
+        "georges.brouchard");
+    BOOST_CHECK_EQUAL(act->get_user_identity_secondary_field(), "pAssw0rd!");
 }
 
 /**************************** TEST KO 01 ******************************/
