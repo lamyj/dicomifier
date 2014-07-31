@@ -61,7 +61,12 @@ BOOST_FIXTURE_TEST_CASE(TEST_OK_01, TestDataOK01)
         dicomifier::actions::StoreDataset::Pointer act = 
                 std::dynamic_pointer_cast<dicomifier::actions::StoreDataset>(object);
         
-        BOOST_CHECK_EQUAL(act != NULL, true);
+        BOOST_CHECK(act != NULL);
+        
+        BOOST_CHECK_EQUAL(act->get_address(), "myaddress");
+        BOOST_CHECK_EQUAL(act->get_port(), 11112);
+        BOOST_CHECK_EQUAL(act->get_AEremote(), "REMOTE");
+        BOOST_CHECK_EQUAL(act->get_AElocal(), "LOCAL");
     }
 }
 
@@ -105,7 +110,7 @@ BOOST_FIXTURE_TEST_CASE(TEST_KO_01, TestDataKO01)
     
     BOOST_FOREACH(boost::property_tree::ptree::value_type &v, ptr)
     {        
-        BOOST_REQUIRE_THROW(teststore->Create(v), std::runtime_error);
+        BOOST_REQUIRE_THROW(teststore->Create(v), dicomifier::DicomifierException);
     }
 }
 
@@ -149,7 +154,7 @@ BOOST_FIXTURE_TEST_CASE(TEST_KO_02, TestDataKO02)
     
     BOOST_FOREACH(boost::property_tree::ptree::value_type &v, ptr)
     {        
-        BOOST_REQUIRE_THROW(teststore->Create(v), std::runtime_error);
+        BOOST_REQUIRE_THROW(teststore->Create(v), dicomifier::DicomifierException);
     }
 }
 
@@ -193,7 +198,7 @@ BOOST_FIXTURE_TEST_CASE(TEST_KO_03, TestDataKO03)
     
     BOOST_FOREACH(boost::property_tree::ptree::value_type &v, ptr)
     {        
-        BOOST_REQUIRE_THROW(teststore->Create(v), std::runtime_error);
+        BOOST_REQUIRE_THROW(teststore->Create(v), dicomifier::DicomifierException);
     }
 }
 
@@ -237,7 +242,7 @@ BOOST_FIXTURE_TEST_CASE(TEST_KO_04, TestDataKO04)
     
     BOOST_FOREACH(boost::property_tree::ptree::value_type &v, ptr)
     {        
-        BOOST_REQUIRE_THROW(teststore->Create(v), std::runtime_error);
+        BOOST_REQUIRE_THROW(teststore->Create(v), dicomifier::DicomifierException);
     }
 }
 
