@@ -11,7 +11,9 @@
 
 #include <map>
 #include <memory>
+#include <string>
 
+#include <boost/any.hpp>
 #include <boost/property_tree/ptree.hpp>
 
 #include "core/DicomifierException.h"
@@ -44,6 +46,9 @@ protected:
     
     std::shared_ptr<InOutPutType> _inputs;
     std::shared_ptr<InOutPutType> _outputs;
+    
+    template<typename T>
+    T _get(boost::property_tree::ptree const & tree, std::string const & path) const;
 
 private:
     CreatorBase(Self const & other); // Purposely not implemented
@@ -54,5 +59,7 @@ private:
 } // namespace factory
 
 } // namespace dicomifier
+
+#include "factory/core/CreatorBase.txx"
 
 #endif // _af7ae5f1_969d_404d_be7a_4cfe95455eac
