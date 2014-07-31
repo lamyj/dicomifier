@@ -60,12 +60,6 @@ struct CounterCallback
 
 BOOST_FIXTURE_TEST_CASE(Callback, DcmQrSCP)
 {
-    char* data_directory = getenv("DICOMIFIER_TEST_DATA");
-    if(data_directory == NULL)
-    {
-        BOOST_FAIL("No test data available");
-    }
-    
     std::stringstream filename;
     filename << data_directory << "/" << "image.dcm";
     
@@ -89,11 +83,11 @@ BOOST_FIXTURE_TEST_CASE(Callback, DcmQrSCP)
     
     dicomifier::StoreSCU scu;
     
-    scu.set_own_ae_title("LOCAL");
+    scu.set_own_ae_title(calling_aet);
     
-    scu.set_peer_host_name("localhost");
-    scu.set_peer_port(11112);
-    scu.set_peer_ae_title("REMOTE");
+    scu.set_peer_host_name(peer_host);
+    scu.set_peer_port(peer_port);
+    scu.set_peer_ae_title(peer_aet);
     
     scu.add_presentation_context(sop_class_uid.c_str(),
         { UID_LittleEndianImplicitTransferSyntax });
