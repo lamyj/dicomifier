@@ -12,11 +12,48 @@
 #include "core/DicomifierException.h"
 #include "dicom/actions/StoreDataset.h"
 
+#include "../DcmQrSCP.h"
+
 /*************************** TEST OK 01 *******************************/
 /**
  * Store dataset success
  */
-// TODO
+BOOST_FIXTURE_TEST_CASE(TEST_OK_01, DcmQrSCP)
+{
+    DcmDataset * dataset = NULL;
+    {
+        std::stringstream filename;
+        filename << data_directory << "/" << "image.dcm";
+        
+        DcmFileFormat file;
+        OFCondition const condition = file.loadFile(filename.str().c_str());
+        if(!condition.good())
+        {
+            BOOST_FAIL("Could not read " + filename.str());
+        }
+        dataset = file.getAndRemoveDataset();
+        
+        
+        // generate unique SOP INSTANCE UID
+        char uid_sop_instance[128];
+        dcmGenerateUniqueIdentifier(uid_sop_instance, SITE_INSTANCE_UID_ROOT);
+        
+        dataset->putAndInsertOFStringArray(DCM_SOPInstanceUID, OFString(uid_sop_instance));
+    }
+    
+    auto teststore = dicomifier::actions::StoreDataset::New();
+    teststore->set_dataset(dataset);
+    teststore->set_address(peer_host);
+    teststore->set_port(peer_port);
+    teststore->set_AElocal(calling_aet);
+    teststore->set_AEremote(peer_aet);
+    
+    teststore->set_user_identity_type(dicomifier::UserIdentityType::UsernameAndPassword);
+    teststore->set_user_identity_primary_field("user");
+    teststore->set_user_identity_secondary_field("password");
+    
+    teststore->run();
+}
 
 /*************************** TEST KO 01 *******************************/
 /**
@@ -92,10 +129,80 @@ BOOST_FIXTURE_TEST_CASE(TEST_KO_03, TestDataKO03)
 /**
  * Bad caller AE title
  */
-// TODO
+BOOST_FIXTURE_TEST_CASE(TEST_KO_04, DcmQrSCP)
+{
+    DcmDataset * dataset = NULL;
+    {
+        std::stringstream filename;
+        filename << data_directory << "/" << "image.dcm";
+        
+        DcmFileFormat file;
+        OFCondition const condition = file.loadFile(filename.str().c_str());
+        if(!condition.good())
+        {
+            BOOST_FAIL("Could not read " + filename.str());
+        }
+        dataset = file.getAndRemoveDataset();
+        
+        
+        // generate unique SOP INSTANCE UID
+        char uid_sop_instance[128];
+        dcmGenerateUniqueIdentifier(uid_sop_instance, SITE_INSTANCE_UID_ROOT);
+        
+        dataset->putAndInsertOFStringArray(DCM_SOPInstanceUID, OFString(uid_sop_instance));
+    }
+    
+    auto teststore = dicomifier::actions::StoreDataset::New();
+    teststore->set_dataset(dataset);
+    teststore->set_address(peer_host);
+    teststore->set_port(peer_port);
+    teststore->set_AElocal("BADVALUE");
+    teststore->set_AEremote(peer_aet);
+    
+    teststore->set_user_identity_type(dicomifier::UserIdentityType::UsernameAndPassword);
+    teststore->set_user_identity_primary_field("user");
+    teststore->set_user_identity_secondary_field("password");
+    
+    BOOST_REQUIRE_THROW(teststore->run(), dicomifier::DicomifierException);
+}
 
 /*************************** TEST KO 05 *******************************/
 /**
  * Bad called AE title
  */
-// TODO
+BOOST_FIXTURE_TEST_CASE(TEST_KO_05, DcmQrSCP)
+{
+    DcmDataset * dataset = NULL;
+    {
+        std::stringstream filename;
+        filename << data_directory << "/" << "image.dcm";
+        
+        DcmFileFormat file;
+        OFCondition const condition = file.loadFile(filename.str().c_str());
+        if(!condition.good())
+        {
+            BOOST_FAIL("Could not read " + filename.str());
+        }
+        dataset = file.getAndRemoveDataset();
+        
+        
+        // generate unique SOP INSTANCE UID
+        char uid_sop_instance[128];
+        dcmGenerateUniqueIdentifier(uid_sop_instance, SITE_INSTANCE_UID_ROOT);
+        
+        dataset->putAndInsertOFStringArray(DCM_SOPInstanceUID, OFString(uid_sop_instance));
+    }
+    
+    auto teststore = dicomifier::actions::StoreDataset::New();
+    teststore->set_dataset(dataset);
+    teststore->set_address(peer_host);
+    teststore->set_port(peer_port);
+    teststore->set_AElocal(calling_aet);
+    teststore->set_AEremote("BADVALUE");
+    
+    teststore->set_user_identity_type(dicomifier::UserIdentityType::UsernameAndPassword);
+    teststore->set_user_identity_primary_field("user");
+    teststore->set_user_identity_secondary_field("password");
+    
+    BOOST_REQUIRE_THROW(teststore->run(), dicomifier::DicomifierException);
+}
