@@ -6,11 +6,8 @@
  * for details.
  ************************************************************************/
 
-#include <dcmtk/dcmnet/scu.h>
-#include <dcmtk/dcmtls/tlslayer.h>
-
 #include "core/DicomifierException.h"
-#include "dicom/SCU.h"
+#include "dicom/StoreSCU.h"
 #include "StoreDataset.h"
 
 namespace dicomifier
@@ -100,63 +97,39 @@ StoreDataset
     }
     
     // Get abstract syntax from dataset
-    OFString abstractSyntax;
-    OFCondition result = this->_dataset->findAndGetOFStringArray(DCM_SOPClassUID, abstractSyntax, OFTrue);
-    if (result.bad())
+    std::string sop_class_uid;
     {
-        throw DicomifierException("Unable to retrieve Abstract Syntax");
+        OFString value;
+        this->_dataset->findAndGetOFStringArray(DCM_SOPClassUID, value);
+        sop_class_uid = value.c_str();
     }
     
-    DcmSCU myscu;
+    dicomifier::StoreSCU myscu;
     
     // Set AE title
-    myscu.setAETitle(this->_AElocal.c_str());
-    myscu.setPeerHostName(this->_address.c_str());
-    myscu.setPeerPort(this->_port);
-    myscu.setPeerAETitle(this->_AEremote.c_str());
+    myscu.set_own_ae_title(this->_AElocal.c_str());
+    
+    myscu.set_peer_host_name(this->_address.c_str());
+    myscu.set_peer_port(this->_port);
+    myscu.set_peer_ae_title(this->_AEremote.c_str());
+    
+    // Set identity
+    myscu.set_user_identity_type(this->_user_identity_type);
+    myscu.set_user_identity_primary_field(this->_user_identity_primary_field);
+    myscu.set_user_identity_secondary_field(this->_user_identity_secondary_field);
     
     // Set transfer syntax
-    OFList<OFString> ts;
-    ts.push_back(UID_LittleEndianExplicitTransferSyntax);
-    ts.push_back(UID_LittleEndianImplicitTransferSyntax);
-    ts.push_back(UID_BigEndianExplicitTransferSyntax);
+    myscu.add_presentation_context(sop_class_uid.c_str(),
+        { UID_LittleEndianImplicitTransferSyntax });
+    myscu.set_affected_sop_class(sop_class_uid);
     
-    myscu.addPresentationContext(abstractSyntax, ts);
-    
-    // Initialize Network
-    result = myscu.initNetwork();
-    if (result.bad())
-    {
-        throw DicomifierException("Unable to Initialize network");
-    }
-    
-    // Negotiate association
-    result = myscu.negotiateAssociation();
-    if (result.bad())
-    {
-        throw DicomifierException("Unable to Negotiate association");
-    }
-    
-    // Find presentation contexts
-    T_ASC_PresentationContextID pcid = myscu.findPresentationContextID(abstractSyntax, "");
-    if (pcid == 0)
-    {
-        throw DicomifierException("No adequate Presentation Contexts");
-    }
+    myscu.associate();
     
     // Do Storage
-    Uint16 rspstatus;
-    DcmDataset* rspcommandset;
-    DcmDataset* rspstatusdetail;
-    result = myscu.sendSTORERequest(pcid, "", this->_dataset, rspcommandset, 
-                                    rspstatusdetail, rspstatus);
-    if (result.bad() || rspstatus != 0)
-    {
-        throw DicomifierException("Could not process C-Store");
-    }
+    myscu.store(this->_dataset);
     
     // Release association
-    myscu.closeAssociation(DCMSCU_RELEASE_ASSOCIATION);
+    myscu.release();
 }
 
 } // namespace actions
