@@ -410,7 +410,7 @@ SCU
     }
     else if(this->_user_identity_type == UserIdentityType::UsernameAndPassword)
     {
-        condition = ASC_setIdentRQUserOnly(params, 
+        condition = ASC_setIdentRQUserPassword(params, 
             this->_user_identity_primary_field.c_str(),
             this->_user_identity_secondary_field.c_str());
     }
