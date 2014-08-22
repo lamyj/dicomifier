@@ -11,9 +11,11 @@ Contents:
 .. toctree::
    :maxdepth: 2
 
+   install
    utilisation
    actions
    condition
+   privatedictionary
 
 Indices and tables
 ==================
