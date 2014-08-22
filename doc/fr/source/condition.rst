@@ -98,7 +98,7 @@ Balise ElementMatch
 +-----------------+---------------+--------------+--------------------------------------------------------------+
 | tag             | Obligatoire   |       1      | Tag ou Keyword d'un élément DICOM à comparer                 |
 |                 |               |              | Remarque : il peut s'agir d'un tag composé du type           |
-|                 |               |              |            Sequence.SubSequence.Keyword                      |
+|                 |               |              | Sequence.SubSequence.Keyword                                 |
 +-----------------+---------------+--------------+--------------------------------------------------------------+
 | value           | Obligatoire   |       1      | Valeur de l'élément à comparer                               |
 |                 |               |              | Remarque : il est possible d'utiliser des expressions        |

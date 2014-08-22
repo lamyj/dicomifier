@@ -7,9 +7,12 @@ Syntaxe
 Commande : ::
 
     dicomifier RulesFile.xml PrivateDictionary.xml
+    
+Le contenu du fichier RulesFile est décrit dans les paragraphes suivants.
+Le contenu du fichier PrivateDictionary est décrit dans le chapitre :ref:`Dictionnaire privé <Balise_PrivateDict>`
 
-Format du fichier XML
----------------------
+Format du fichier XML (Rules)
+-----------------------------
 
 Le fichier est composé d'un ensemble de balise :ref:`Rule <Balise_Rule>`.
 

@@ -30,7 +30,7 @@ Balise SetElement
 +-----------------+---------------+--------------+--------------------------------------------------------------+
 | tag             | Obligatoire   |       1      | Tag ou Keyword d'un élément DICOM à modifier                 |
 |                 |               |              | Remarque : il peut s'agir d'un tag composé du type           |
-|                 |               |              |            Sequence.SubSequence.Keyword                      |
+|                 |               |              | Sequence.SubSequence.Keyword                                 |
 +-----------------+---------------+--------------+--------------------------------------------------------------+
 | value           | Obligatoire   |       1      | Nouvelle Valeur de l'élément                                 |
 +-----------------+---------------+--------------+--------------------------------------------------------------+
@@ -61,7 +61,7 @@ Balise DeleteElement
 +-----------------+---------------+--------------+--------------------------------------------------------------+
 | tag             | Obligatoire   |       1      | Tag ou Keyword d'un élément DICOM à supprimer                |
 |                 |               |              | Remarque : il peut s'agir d'un tag composé du type           |
-|                 |               |              |            Sequence.SubSequence.Keyword                      |
+|                 |               |              | Sequence.SubSequence.Keyword                                 |
 +-----------------+---------------+--------------+--------------------------------------------------------------+
 
 Exemples :
@@ -88,7 +88,7 @@ Balise EmptyElement
 +-----------------+---------------+--------------+--------------------------------------------------------------+
 | tag             | Obligatoire   |       1      | Tag ou Keyword d'un élément DICOM à effacer                  |
 |                 |               |              | Remarque : il peut s'agir d'un tag composé du type           |
-|                 |               |              |            Sequence.SubSequence.Keyword                      |
+|                 |               |              | Sequence.SubSequence.Keyword                                 |
 +-----------------+---------------+--------------+--------------------------------------------------------------+
 
 Exemples :
