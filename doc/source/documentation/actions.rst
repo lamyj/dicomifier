@@ -1,14 +1,14 @@
-Liste des actions
-=================
+List of Actions
+===============
 
 .. _Balise_None:
 
-Balise None
-^^^^^^^^^^^
+Tag None
+^^^^^^^^
 
-Utilisée uniquement pour les tests.
+Only used for testing.
 
-Exemple :
+Sample:
 
 .. code-block:: xml
 
@@ -16,28 +16,28 @@ Exemple :
 
 .. _Balise_SetElement:
 
-Balise SetElement
-^^^^^^^^^^^^^^^^^
+Tag SetElement
+^^^^^^^^^^^^^^
 
 +-----------------+---------------+--------------+--------------------------------------------------------------+
-| Attributs       | Usage         | Multiplicité | Description                                                  |
+| Attributs       | Usage         | Multiplicity | Description                                                  |
 +=================+===============+==============+==============================================================+
-| dataset         | Obligatoire   |       1      | Contient une référence vers un identifiant unique défini par |
-|                 |               |              | une balise :ref:`Input <Balise_Input>`                       |
+| dataset         | Mandatory     |       1      | Contains a link to an unique identifier defined by tag       |
+|                 |               |              | :ref:`Input <Balise_Input>`                                  |
 +-----------------+---------------+--------------+--------------------------------------------------------------+
-| private_creator | Optionnel     |       1      | Nom du dictionnaire privé si le tag correspond à un attribut |
-|                 |               |              | d'un dictionnaire privé                                      |
+| private_creator | Optional      |       1      | Name of Private Dictionary if this attribut Group-Element    |
+|                 |               |              | is defined in a Private Dictionary                           |
 +-----------------+---------------+--------------+--------------------------------------------------------------+
-| tag             | Obligatoire   |       1      | Tag ou Keyword d'un élément DICOM à modifier                 |
-|                 |               |              | Remarque : il peut s'agir d'un tag composé du type           |
+| tag             | Mandatory     |       1      | DICOM Tag or keyword of the element to be modified           |
+|                 |               |              | Comment: it could be a composite tag like                    |
 |                 |               |              | Sequence.SubSequence.Keyword                                 |
 +-----------------+---------------+--------------+--------------------------------------------------------------+
-| value           | Obligatoire   |       1      | Nouvelle Valeur de l'élément                                 |
+| value           | Mandatory     |       1      | New value for the given attribut                             |
 +-----------------+---------------+--------------+--------------------------------------------------------------+
-| VR              | Obligatoire   |       1      | VR de l'élément à modifier                                   |
+| VR              | Mandatory     |       1      | Value Representation of given attribut                       |
 +-----------------+---------------+--------------+--------------------------------------------------------------+
 
-Exemples :
+Samples:
 
 .. code-block:: xml
 
@@ -47,24 +47,24 @@ Exemples :
 
 .. _Balise_DeleteElement:
 
-Balise DeleteElement
-^^^^^^^^^^^^^^^^^^^^
+Tag DeleteElement
+^^^^^^^^^^^^^^^^^
 
 +-----------------+---------------+--------------+--------------------------------------------------------------+
-| Attributs       | Usage         | Multiplicité | Description                                                  |
+| Attributs       | Usage         | Multiplicity | Description                                                  |
 +=================+===============+==============+==============================================================+
-| dataset         | Obligatoire   |       1      | Contient une référence vers un identifiant unique défini par |
-|                 |               |              | une balise :ref:`Input <Balise_Input>`                       |
+| dataset         | Mandatory     |       1      | Contains a link to an unique identifier defined by tag       |
+|                 |               |              | :ref:`Input <Balise_Input>`                                  |
 +-----------------+---------------+--------------+--------------------------------------------------------------+
-| private_creator | Optionnel     |       1      | Nom du dictionnaire privé si le tag correspond à un attribut |
-|                 |               |              | d'un dictionnaire privé                                      |
+| private_creator | Optional      |       1      | Name of Private Dictionary if this attribut Group-Element    |
+|                 |               |              | is defined in a Private Dictionary                           |
 +-----------------+---------------+--------------+--------------------------------------------------------------+
-| tag             | Obligatoire   |       1      | Tag ou Keyword d'un élément DICOM à supprimer                |
-|                 |               |              | Remarque : il peut s'agir d'un tag composé du type           |
+| tag             | Mandatory     |       1      | DICOM Tag or keyword of the element to be removed            |
+|                 |               |              | Comment: it could be a composite tag like                    |
 |                 |               |              | Sequence.SubSequence.Keyword                                 |
 +-----------------+---------------+--------------+--------------------------------------------------------------+
 
-Exemples :
+Samples:
 
 .. code-block:: xml
 
@@ -74,24 +74,24 @@ Exemples :
 
 .. _Balise_EmptyElement:
 
-Balise EmptyElement
-^^^^^^^^^^^^^^^^^^^
+Tag EmptyElement
+^^^^^^^^^^^^^^^^
 
 +-----------------+---------------+--------------+--------------------------------------------------------------+
-| Attributs       | Usage         | Multiplicité | Description                                                  |
+| Attributs       | Usage         | Multiplicity | Description                                                  |
 +=================+===============+==============+==============================================================+
-| dataset         | Obligatoire   |       1      | Contient une référence vers un identifiant unique défini par |
-|                 |               |              | une balise :ref:`Input <Balise_Input>`                       |
+| dataset         | Mandatory     |       1      | Contains a link to an unique identifier defined by tag       |
+|                 |               |              | :ref:`Input <Balise_Input>`                                  |
 +-----------------+---------------+--------------+--------------------------------------------------------------+
-| private_creator | Optionnel     |       1      | Nom du dictionnaire privé si le tag correspond à un attribut |
-|                 |               |              | d'un dictionnaire privé                                      |
+| private_creator | Optional      |       1      | Name of Private Dictionary if this attribut Group-Element    |
+|                 |               |              | is defined in a Private Dictionary                           |
 +-----------------+---------------+--------------+--------------------------------------------------------------+
-| tag             | Obligatoire   |       1      | Tag ou Keyword d'un élément DICOM à effacer                  |
-|                 |               |              | Remarque : il peut s'agir d'un tag composé du type           |
+| tag             | Mandatory     |       1      | DICOM Tag or keyword of the element to be cleared            |
+|                 |               |              | Comment: it could be a composite tag like                    |
 |                 |               |              | Sequence.SubSequence.Keyword                                 |
 +-----------------+---------------+--------------+--------------------------------------------------------------+
 
-Exemples :
+Samples:
 
 .. code-block:: xml
 
@@ -101,21 +101,21 @@ Exemples :
 
 .. _Balise_SaveDataset:
 
-Balise SaveDataset
-^^^^^^^^^^^^^^^^^^
+Tag SaveDataset
+^^^^^^^^^^^^^^^
 
 +---------------+---------------+--------------+--------------------------------------------------------------+
-| Attributs     | Usage         | Multiplicité | Description                                                  |
+| Attributs     | Usage         | Multiplicity | Description                                                  |
 +===============+===============+==============+==============================================================+
-| dataset       | Obligatoire   |       1      | Contient une référence vers un identifiant unique défini par |
-|               |               |              | une balise :ref:`Input <Balise_Input>`                       |
+| dataset       | Mandatory     |       1      | Contains a link to an unique identifier defined by tag       |
+|               |               |              | :ref:`Input <Balise_Input>`                                  |
 +---------------+---------------+--------------+--------------------------------------------------------------+
-| outputfile    | Obligatoire   |       1      | Contient le chemin du fichier dans lequel sera écrit le      |
-|               |               |              | dataset, ou une référence vers un identifiant unique défini  |
-|               |               |              | par une balise :ref:`Output <Balise_Output>`                 |
+| outputfile    | Mandatory     |       1      | Contains path to the file in which will be written the       |
+|               |               |              | dataset, or a link to an unique identifier defined by tag    |
+|               |               |              | :ref:`Output <Balise_Output>`                                |
 +---------------+---------------+--------------+--------------------------------------------------------------+
 
-Exemple :
+Sample:
 
 .. code-block:: xml
 
@@ -123,21 +123,21 @@ Exemple :
 
 .. _Balise_EnhanceBrukerDicom:
 
-Balise EnhanceBrukerDicom
-^^^^^^^^^^^^^^^^^^^^^^^^^
+Tag EnhanceBrukerDicom
+^^^^^^^^^^^^^^^^^^^^^^
 
 +---------------+---------------+--------------+---------------------------------------------------------------+
-| Attributs     | Usage         | Multiplicité | Description                                                   |
+| Attributs     | Usage         | Multiplicity | Description                                                   |
 +===============+===============+==============+===============================================================+
-| dataset       | Obligatoire   |       1      | Contient une référence vers un identifiant unique défini par  |
-|               |               |              | une balise :ref:`Input <Balise_Input>`                        |
+| dataset       | Mandatory     |       1      | Contains a link to an unique identifier defined by tag        |
+|               |               |              | :ref:`Input <Balise_Input>`                                   |
 +---------------+---------------+--------------+---------------------------------------------------------------+
-| brukerdir     | Obligatoire   |       1      | Contient le chemin du répertoire dans lequel se trouvent      |
-|               |               |              | tous les fichiers Bruker ou une référence vers un identifiant |
-|               |               |              | unique défini par une balise :ref:`Input <Balise_Input>`      |
+| brukerdir     | Mandatory     |       1      | Contains path to directory in which are the Bruker data files |
+|               |               |              | or a link to an unique identifier defined by tag              |
+|               |               |              | :ref:`Input <Balise_Input>`                                   |
 +---------------+---------------+--------------+---------------------------------------------------------------+
 
-Exemple :
+Sample:
 
 .. code-block:: xml
 
@@ -145,25 +145,25 @@ Exemple :
 
 .. _Balise_StoreDataset:
 
-Balise StoreDataset
-^^^^^^^^^^^^^^^^^^^
+Tag StoreDataset
+^^^^^^^^^^^^^^^^
 
 +---------------+---------------+--------------+--------------------------------------------------------------+
-| Attributs     | Usage         | Multiplicité | Description                                                  |
+| Attributs     | Usage         | Multiplicity | Description                                                  |
 +===============+===============+==============+==============================================================+
-| dataset       | Obligatoire   |       1      | Contient une référence vers un identifiant unique défini par |
-|               |               |              | une balise :ref:`Input <Balise_Input>`                       |
+| dataset       | Mandatory     |       1      | Contains a link to an unique identifier defined by tag       |
+|               |               |              | :ref:`Input <Balise_Input>`                                  |
 +---------------+---------------+--------------+--------------------------------------------------------------+
-| address       | Obligatoire   |       1      | Contient l'adresse ip du scp à appeler                       |
+| address       | Mandatory     |       1      | Contains IP address of the called SCP                        |
 +---------------+---------------+--------------+--------------------------------------------------------------+
-| port          | Obligatoire   |       1      | Contient le port de connexion avec le scp                    |
+| port          | Mandatory     |       1      | Contains port number for connexion with the called SCP       |
 +---------------+---------------+--------------+--------------------------------------------------------------+
-| aelocal       | Obligatoire   |       1      | Contient l'AE title de la machine appelante                  |
+| aelocal       | Mandatory     |       1      | Contains calling AE Title                                    |
 +---------------+---------------+--------------+--------------------------------------------------------------+
-| aeremote      | Obligatoire   |       1      | Contient l'AE title de la machine appelée                    |
+| aeremote      | Mandatory     |       1      | Contains called AE Title                                     |
 +---------------+---------------+--------------+--------------------------------------------------------------+
 
-Exemple :
+Sample:
 
 .. code-block:: xml
 

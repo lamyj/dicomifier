@@ -1,0 +1,46 @@
+# 
+msgid ""
+msgstr ""
+"Project-Id-Version: Dicomifier 1.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2014-08-26 11:34+0200\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: ../../source/contact/index.rst:2
+msgid "Contact us"
+msgstr "Nous contacter"
+
+#: ../../source/contact/index.rst:5
+msgid "Web Site"
+msgstr "Site Internet"
+
+#: ../../source/contact/index.rst:7
+msgid "Laboratoire ICube: http://icube.unistra.fr/"
+msgstr "Laboratoire ICube: http://icube.unistra.fr/"
+
+#: ../../source/contact/index.rst:11
+msgid "Email"
+msgstr "E-mail"
+
+#: ../../source/contact/index.rst:13 ../../source/contact/index.rst:26
+msgid "To be defined"
+msgstr "A définir"
+
+#: ../../source/contact/index.rst:16
+msgid "Postal Address"
+msgstr "Adresse postale"
+
+#: ../../source/contact/index.rst:18
+msgid ""
+"Institut de Physique Biologique Faculté de Médecine 4 rue Kirschleger "
+"F-67085 Strasbourg cedex"
+msgstr ""
+
+#: ../../source/contact/index.rst:24
+msgid "Fax / Phone"
+msgstr "Téléphone / Fax"

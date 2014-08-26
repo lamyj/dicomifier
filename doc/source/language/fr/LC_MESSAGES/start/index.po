@@ -1,0 +1,28 @@
+# 
+msgid ""
+msgstr ""
+"Project-Id-Version: Dicomifier 1.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2014-08-26 11:34+0200\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: ../../source/start/index.rst:2
+msgid "About Dicomifier"
+msgstr "Présentation"
+
+#: ../../source/start/index.rst:4
+msgid "Dicomifier is an Open Source tool, created for the FLI project."
+msgstr "Dicomifier est un outil Open Source, créé dans le cadre du projet FLI."
+
+#: ../../source/start/index.rst:6
+msgid ""
+"Dicomifier creates enhanced DICOM files from another file type, like DICOM "
+"files or Bruker files. It allows to add Private Dictionaries."
+msgstr ""
+"Dicomifier permet de créer des fichiers DICOM améliorés à partir d'autres fichiers DICOM ou encore à partir de fichier Bruker." 
+"Il prend également en compte l'utilisation de dictionnaire privé."

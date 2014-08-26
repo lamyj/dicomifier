@@ -1,0 +1,106 @@
+# 
+msgid ""
+msgstr ""
+"Project-Id-Version: Dicomifier 1.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2014-08-26 11:34+0200\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: ../../source/documentation/installation_guide.rst:2
+msgid "Installation Guide"
+msgstr "Guide d'installation"
+
+#: ../../source/documentation/installation_guide.rst:5
+msgid "Requirements"
+msgstr "Prérequis"
+
+#: ../../source/documentation/installation_guide.rst:8
+msgid "Softwares"
+msgstr "Logiciels"
+
+#: ../../source/documentation/installation_guide.rst:10
+msgid "Following tools are usefull for install Dicomifier from Binary file:"
+msgstr "Les outils suivants sont nécessaire pour installer Dicomifier depuis le fichier binaire :"
+
+#: ../../source/documentation/installation_guide.rst:12
+msgid ""
+"Following tools are usefull for install Dicomifier from Source files: - "
+"Mercurial (distributed revision control tool) - CMake (software for managing"
+" the build process of software) - Ninja (build system)"
+msgstr ""
+"Les outils suivante sont nécessaire pour installer Dicomifier depuis les fichiers sources : "
+"- Mercurial (distributed revision control tool) - CMake (software for managing"
+" the build process of software) - Ninja (build system)"
+
+#: ../../source/documentation/installation_guide.rst:18
+msgid "By Downloading Binary file"
+msgstr "A l'aide le ficher binaire"
+
+#: ../../source/documentation/installation_guide.rst:20
+msgid ""
+"First, you should download a release version from the :ref:`Dowloading Page "
+"<Balise_ReleaseVersion>`."
+msgstr ""
+"Pour commencer, vous devez télécharger une version stable depuis :ref:`la page Téléchargement "
+"<Balise_ReleaseVersion>`."
+
+#: ../../source/documentation/installation_guide.rst:22
+msgid "TODO"
+msgstr ""
+
+#: ../../source/documentation/installation_guide.rst:25
+msgid "By Checking out Source files"
+msgstr "A l'aide du code source"
+
+#: ../../source/documentation/installation_guide.rst:27
+msgid ""
+"Source files can be download at this address: "
+"https://medipy.u-strasbg.fr/scm/hg/fli-iam/dicomifier."
+msgstr ""
+"Les fichiers sources sont disponibles à l'adresse suivante : "
+"https://medipy.u-strasbg.fr/scm/hg/fli-iam/dicomifier."
+
+#: ../../source/documentation/installation_guide.rst:30
+msgid "Compilation (UNIX)"
+msgstr ""
+
+#: ../../source/documentation/installation_guide.rst:32
+msgid "Open a command prompt (ctrl+alt+t)."
+msgstr "Ouvrez une invite de commande (ctrl+alt+t)."
+
+#: ../../source/documentation/installation_guide.rst:34
+msgid "Use Mercurial for getting Source code."
+msgstr "Utilisez Mercurial pour récuperer le code source."
+
+#: ../../source/documentation/installation_guide.rst:40
+msgid "A new directory 'dicomifier/' is available, go inside:"
+msgstr "Un nouveau répertoire 'dicomifier/' a été créé. Allez dans ce répertoire :"
+
+#: ../../source/documentation/installation_guide.rst:46
+msgid "Create new directory 'build':"
+msgstr "Créez un nouveau répertoire 'build' :"
+
+#: ../../source/documentation/installation_guide.rst:52
+msgid "Go to the build directory:"
+msgstr "Allez dans ce nouveau répertoire :"
+
+#: ../../source/documentation/installation_guide.rst:58
+msgid "Generate Makefile:"
+msgstr "Générez le fichier Makefile :"
+
+#: ../../source/documentation/installation_guide.rst:64
+msgid "Compile Dicomifier project:"
+msgstr "Compilez le projet Dicomifier :"
+
+#: ../../source/documentation/installation_guide.rst:70
+msgid ""
+"A binary file 'dicomifier' is now available into the directory "
+"'dicomifier/build/src/appli/'."
+msgstr ""
+"L'exécutable 'dicomifier' est maintenant disponible dans le répertoire "
+"'dicomifier/build/src/appli/'."

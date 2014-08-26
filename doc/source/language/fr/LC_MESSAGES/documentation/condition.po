@@ -1,0 +1,166 @@
+# 
+msgid ""
+msgstr ""
+"Project-Id-Version: Dicomifier 1.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2014-08-26 11:34+0200\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: ../../source/documentation/condition.rst:91
+msgid "Attributs"
+msgstr ""
+
+#: ../../source/documentation/condition.rst:91
+msgid "Usage"
+msgstr ""
+
+#: ../../source/documentation/condition.rst:91
+msgid "Description"
+msgstr ""
+
+#: ../../source/documentation/condition.rst:93
+msgid "dataset"
+msgstr ""
+
+#: ../../source/documentation/condition.rst:93
+#: ../../source/documentation/condition.rst:96
+#: ../../source/documentation/condition.rst:99
+#: ../../source/documentation/condition.rst:103
+#: ../../source/documentation/condition.rst:107
+msgid "1"
+msgstr ""
+
+#: ../../source/documentation/condition.rst:96
+msgid "private_creator"
+msgstr ""
+
+#: ../../source/documentation/condition.rst:99
+msgid "tag"
+msgstr ""
+
+#: ../../source/documentation/condition.rst:103
+msgid "value"
+msgstr ""
+
+#: ../../source/documentation/condition.rst:107
+msgid "VR"
+msgstr ""
+
+#: ../../source/documentation/condition.rst:2
+msgid "List of conditions"
+msgstr "Liste des Conditions"
+
+#: ../../source/documentation/condition.rst:7
+msgid "Tag True"
+msgstr "Balise True"
+
+#: ../../source/documentation/condition.rst:9
+#: ../../source/documentation/condition.rst:22
+msgid "Only used for testing."
+msgstr "Utilisée uniquement pour les tests."
+
+#: ../../source/documentation/condition.rst:11
+#: ../../source/documentation/condition.rst:24
+#: ../../source/documentation/condition.rst:39
+#: ../../source/documentation/condition.rst:56
+#: ../../source/documentation/condition.rst:75
+msgid "Sample:"
+msgstr "Exemple :"
+
+#: ../../source/documentation/condition.rst:20
+msgid "Tag False"
+msgstr "Balise False"
+
+#: ../../source/documentation/condition.rst:33
+msgid "Tag Not"
+msgstr "Balise Not"
+
+#: ../../source/documentation/condition.rst:35
+msgid "Contains only one condition."
+msgstr "Contient une et une seule condition."
+
+#: ../../source/documentation/condition.rst:37
+#: ../../source/documentation/condition.rst:54
+#: ../../source/documentation/condition.rst:73
+msgid ""
+"Available tags are listed in chapter :ref:`Tag Condition "
+"<Balise_Condition>`."
+msgstr ""
+"Les différentes balises possibles sont listées dans le paragraphe "
+":ref:`Balise Condition <Balise_Condition>`."
+
+#: ../../source/documentation/condition.rst:50
+msgid "Tag Any"
+msgstr "Balise Any"
+
+#: ../../source/documentation/condition.rst:52
+#: ../../source/documentation/condition.rst:71
+msgid "Contains a set of Conditions."
+msgstr "Contient un ensemble de Conditions."
+
+#: ../../source/documentation/condition.rst:69
+msgid "Tag All"
+msgstr "Balise All"
+
+#: ../../source/documentation/condition.rst:88
+msgid "Tag ElementMatch"
+msgstr "Balise ElementMatch"
+
+#: ../../source/documentation/condition.rst:91
+msgid "Multiplicity"
+msgstr "Multiplicité"
+
+#: ../../source/documentation/condition.rst:93
+#: ../../source/documentation/condition.rst:99
+#: ../../source/documentation/condition.rst:103
+#: ../../source/documentation/condition.rst:107
+msgid "Mandatory"
+msgstr "Obligatoire"
+
+#: ../../source/documentation/condition.rst:93
+msgid ""
+"Contains a link to an unique identifier defined by tag :ref:`Input "
+"<Balise_Input>`"
+msgstr ""
+"Contient une référence vers un identifiant unique défini par une balise "
+":ref:`Input <Balise_Input>`"
+
+#: ../../source/documentation/condition.rst:96
+msgid "Optional"
+msgstr "Optionnel"
+
+#: ../../source/documentation/condition.rst:96
+msgid ""
+"Name of Private Dictionary if this attribut Group-Element is defined in a "
+"Private Dictionary"
+msgstr ""
+"Nom du dictionnaire privé si le tag correspond à un attribut d'un dictionnaire privé"
+
+#: ../../source/documentation/condition.rst:99
+msgid ""
+"DICOM Tag or keyword of the element to be compared Comment: it could be a "
+"composite tag like Sequence.SubSequence.Keyword"
+msgstr ""
+"Tag ou Keyword d'un élément DICOM à comparer "
+"Remarque : il peut s'agir d'un tag composé du type Sequence.SubSequence.Keyword"
+
+#: ../../source/documentation/condition.rst:103
+msgid ""
+"Value of compared element Comment: it is possible to use regular expressions"
+" with following characters: '*' et '?'."
+msgstr ""
+"Valeur de l'élément à comparer."
+"Remarque: il est possible d'utiliser des expressions régulières contenant les caractères suivants : '*' et '?'."
+
+#: ../../source/documentation/condition.rst:107
+msgid "Value Representation of compared attribut"
+msgstr "VR de l'élément à comparer"
+
+#: ../../source/documentation/condition.rst:110
+msgid "Samples:"
+msgstr "Exemples :"

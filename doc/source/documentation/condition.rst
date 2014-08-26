@@ -1,14 +1,14 @@
-Liste des conditions
-====================
+List of conditions
+==================
 
 .. _Balise_True:
 
-Balise True
-^^^^^^^^^^^
+Tag True
+^^^^^^^^
 
-Utilisée uniquement pour les tests.
+Only used for testing.
 
-Exemple :
+Sample:
 
 .. code-block:: xml
 
@@ -16,12 +16,12 @@ Exemple :
 
 .. _Balise_False:
 
-Balise False
-^^^^^^^^^^^^
+Tag False
+^^^^^^^^^
 
-Utilisée uniquement pour les tests.
+Only used for testing.
 
-Exemple :
+Sample:
 
 .. code-block:: xml
 
@@ -29,14 +29,14 @@ Exemple :
 
 .. _Balise_Not:
 
-Balise Not
-^^^^^^^^^^
+Tag Not
+^^^^^^^
 
-Contient une et une seule condition.
+Contains only one condition.
 
-Les différentes balises possibles sont listées dans le paragraphe :ref:`Balise Condition <Balise_Condition>`.
+Available tags are listed in chapter :ref:`Tag Condition <Balise_Condition>`.
 
-Exemple :
+Sample:
 
 .. code-block:: xml
 
@@ -46,14 +46,14 @@ Exemple :
 
 .. _Balise_Any:
 
-Balise Any
-^^^^^^^^^^
+Tag Any
+^^^^^^^
 
-Contient un ensemble de conditions.
+Contains a set of Conditions.
 
-Les différentes balises possibles sont listées dans le paragraphe :ref:`Balise Condition <Balise_Condition>`.
+Available tags are listed in chapter :ref:`Tag Condition <Balise_Condition>`.
 
-Exemple :
+Sample:
 
 .. code-block:: xml
 
@@ -65,14 +65,14 @@ Exemple :
 
 .. _Balise_All:
 
-Balise All
-^^^^^^^^^^
+Tag All
+^^^^^^^
 
-Contient un ensemble de conditions.
+Contains a set of Conditions.
 
-Les différentes balises possibles sont listées dans le paragraphe :ref:`Balise Condition <Balise_Condition>`.
+Available tags are listed in chapter :ref:`Tag Condition <Balise_Condition>`.
 
-Exemple :
+Sample:
 
 .. code-block:: xml
 
@@ -84,30 +84,30 @@ Exemple :
 
 .. _Balise_ElementMatch:
 
-Balise ElementMatch
-^^^^^^^^^^^^^^^^^^^
+Tag ElementMatch
+^^^^^^^^^^^^^^^^
 
 +-----------------+---------------+--------------+--------------------------------------------------------------+
-| Attributs       | Usage         | Multiplicité | Description                                                  |
+| Attributs       | Usage         | Multiplicity | Description                                                  |
 +=================+===============+==============+==============================================================+
-| dataset         | Obligatoire   |       1      | Contient une référence vers un identifiant unique défini par |
-|                 |               |              | une balise :ref:`Input <Balise_Input>`                       |
+| dataset         | Mandatory     |       1      | Contains a link to an unique identifier defined by tag       |
+|                 |               |              | :ref:`Input <Balise_Input>`                                  |
 +-----------------+---------------+--------------+--------------------------------------------------------------+
-| private_creator | Optionnel     |       1      | Nom du dictionnaire privé si le tag correspond à un attribut |
-|                 |               |              | d'un dictionnaire privé                                      |
+| private_creator | Optional      |       1      | Name of Private Dictionary if this attribut Group-Element    |
+|                 |               |              | is defined in a Private Dictionary                           |
 +-----------------+---------------+--------------+--------------------------------------------------------------+
-| tag             | Obligatoire   |       1      | Tag ou Keyword d'un élément DICOM à comparer                 |
-|                 |               |              | Remarque : il peut s'agir d'un tag composé du type           |
+| tag             | Mandatory     |       1      | DICOM Tag or keyword of the element to be compared           |
+|                 |               |              | Comment: it could be a composite tag like                    |
 |                 |               |              | Sequence.SubSequence.Keyword                                 |
 +-----------------+---------------+--------------+--------------------------------------------------------------+
-| value           | Obligatoire   |       1      | Valeur de l'élément à comparer                               |
-|                 |               |              | Remarque : il est possible d'utiliser des expressions        |
-|                 |               |              | régulières contenant les caractères suivants '*' et '?'.     |
+| value           | Mandatory     |       1      | Value of compared element                                    |
+|                 |               |              | Comment: it is possible to use regular expressions with      |
+|                 |               |              | following characters: '*' et '?'.                            |
 +-----------------+---------------+--------------+--------------------------------------------------------------+
-| VR              | Obligatoire   |       1      | VR de l'élément à comparer                                   |
+| VR              | Mandatory     |       1      | Value Representation of compared attribut                    |
 +-----------------+---------------+--------------+--------------------------------------------------------------+
 
-Exemples :
+Samples:
 
 .. code-block:: xml
 

@@ -1,0 +1,24 @@
+# 
+msgid ""
+msgstr ""
+"Project-Id-Version: Dicomifier 1.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2014-08-26 11:34+0200\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: ../../source/internal_wiki/index.rst:2
+msgid "Internal wiki"
+msgstr "Wiki interne"
+
+#: ../../source/internal_wiki/index.rst:4
+msgid ""
+"You can find the Dicomifier Wiki by following this link: "
+"https://medipy.u-strasbg.fr/redmine/projects/dicomifier/wiki."
+msgstr ""
+"Le Wiki du projet Dicomifier est disponible à l'adresse suivante : "
+"https://medipy.u-strasbg.fr/redmine/projects/dicomifier/wiki."
