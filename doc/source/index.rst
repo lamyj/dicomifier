@@ -11,11 +11,12 @@ Contents:
 .. toctree::
    :maxdepth: 2
 
-   install
-   utilisation
-   actions
-   condition
-   privatedictionary
+   start/index
+   documentation/index
+   downloads/index
+   internal_wiki/index
+   contact/index
+   glossary/index
 
 Indices and tables
 ==================
