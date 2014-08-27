@@ -5,7 +5,7 @@ namespace dicomifier
 {
     
 Rule::Rule():
-    _condition(NULL)
+    Object(), _condition(NULL)
 {
     // Nothing to do
 }

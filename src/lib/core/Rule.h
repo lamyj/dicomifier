@@ -16,6 +16,9 @@
 namespace dicomifier
 {
     
+/**
+ * @brief object Rule
+ */
 class Rule : public Object
 {
 public:
@@ -23,23 +26,45 @@ public:
     typedef std::shared_ptr<Self> Pointer;
     typedef std::shared_ptr<Self const> ConstPointer;
 
+    /// Create pointer to new instance of Rule
     static Pointer New() { return Pointer(new Self()); }
     
+    /// Destroy the instance of Rule
     virtual ~Rule();
     
+    /**
+     * Modify condition for this rule
+     * @param condition: new condition
+     */
     void set_condition(conditions::Condition::ConstPointer condition);
     
+    /**
+     * Register an action
+     * @param action: action to add
+     */
     void add_action(actions::Action::ConstPointer action);
     
+    /**
+     * Run all registered actions
+     * @return true if registered condition is true, false otherwise
+     */
     bool Execute();
     
+    /**
+     * Get this class name
+     * @return this class name
+     */
     static std::string get_class_name() { return "Rule"; }
 
 protected:
+    /// Create an instance of Rule
     Rule();
 
 private:
+    /// Condition
     conditions::Condition::ConstPointer _condition;
+    
+    /// List of Actions
     std::vector<actions::Action::ConstPointer> _actions;
 
     Rule(Self const & other); // Purposely not implemented

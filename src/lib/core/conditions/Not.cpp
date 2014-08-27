@@ -6,7 +6,6 @@
  * for details.
  ************************************************************************/
 
-#include "core/Factory.h"
 #include "Not.h"
 
 namespace dicomifier
@@ -15,22 +14,28 @@ namespace dicomifier
 namespace conditions
 {
     
-Not::Not()
+Not
+::Not()
+    :Condition()
 {
     // Nothing to do
 }
 
-Not::Not(Condition::ConstPointer condition)
+Not
+::Not(Condition::ConstPointer condition)
 {
     this->_condition = condition;
 }
 
-Not::~Not()
+Not
+::~Not()
 {
     // Nothing to do
 }
 
-bool Not::eval() const
+bool 
+Not
+::eval() const
 {
     return ! this->_condition->eval();
 }

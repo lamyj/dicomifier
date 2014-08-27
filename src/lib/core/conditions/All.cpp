@@ -18,11 +18,13 @@ namespace conditions
 {
     
 All::All()
+    :Condition()
 {
     // Nothing to do
 }
 
 All::All(Condition::ConstPointer left, Condition::ConstPointer right)
+    :Condition()
 {
     this->_children.push_back(left);
     this->_children.push_back(right);

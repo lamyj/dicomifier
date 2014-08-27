@@ -16,6 +16,7 @@ namespace conditions
 
 Condition
 ::Condition()
+    :Object()
 {
     // Nothing to do
 }

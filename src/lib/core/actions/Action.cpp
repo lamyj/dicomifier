@@ -16,6 +16,7 @@ namespace actions
 
 Action
 ::Action()
+    :Object()
 {
     // Nothing to do
 }

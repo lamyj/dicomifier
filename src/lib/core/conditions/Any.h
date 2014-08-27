@@ -29,22 +29,50 @@ public:
     typedef std::shared_ptr<Self> Pointer;
     typedef std::shared_ptr<Self const> ConstPointer;
 
+    /// Create pointer to new instance of Any
     static Pointer New() { return Pointer(new Self()); }
+    
+    /**
+     * Create pointer to new instance of Any
+     * @param left: first condition
+     * @param right: second condition
+     */
     static Pointer New(Condition::ConstPointer left, Condition::ConstPointer right) { return Pointer(new Self(left, right)); }
     
+    /// Destroy the instance of Any
     virtual ~Any();
 
+    /**
+     * @brief Evaluate the condition.
+     * @return true if one of children condition is met, false otherwise
+     */
     virtual bool eval() const;
     
+    /**
+     * Add a condition
+     * @param child: new condition
+     */
     void add_child(Condition::ConstPointer child);
     
+    /**
+     * Get this class name
+     * @return this class name
+     */
     static std::string get_class_name() { return "Any"; }
 
 protected:
+    /// Create an instance of Any
     Any();
+    
+    /**
+     * Create an instance of Any
+     * @param left: first condition
+     * @param right: second condition
+     */
     Any(Condition::ConstPointer left, Condition::ConstPointer right);
 
 private:
+    /// List of conditions
     std::vector<Condition::ConstPointer> _children;
 
     Any(Self const & other); // Purposely not implemented

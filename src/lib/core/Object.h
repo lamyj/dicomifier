@@ -15,6 +15,9 @@
 namespace dicomifier
 {
     
+/**
+ * @brief Base class for all dicomifier object
+ */
 class Object
 {
 public:
@@ -22,13 +25,20 @@ public:
     typedef std::shared_ptr<Self> Pointer;
     typedef std::shared_ptr<Self const> ConstPointer;
 
+    /// Create pointer to new instance of Object
     static Pointer New() { return Pointer(new Self()); }
     
+    /// Destroy the instance of Object
     virtual ~Object() {}
     
+    /**
+     * Get this class name
+     * @return this class name
+     */
     static std::string get_class_name() { return "Object"; }
     
 protected:
+    /// Create an instance of Object
     Object() {}
 
 private:
