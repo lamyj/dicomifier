@@ -16,23 +16,33 @@ namespace dicomifier
 {
     
 /**
- * \class BrukerException
+ * \class DicomifierException
  * \brief Generic exception
  */
 class DicomifierException: public std::exception
 {
 public:
+    /**
+     * Create an instance of DicomifierException
+     * @param message: details about this exception
+     */
     DicomifierException(const std::string& message):
         m_message(message) {}
 
+    /// Destroy the exception
     ~DicomifierException() throw() {}
     
+    /**
+     * Return details about this exception
+     * @return Exception details
+     */
     virtual const char* what() const throw() {
         return m_message.c_str();
     }
     
 protected:
-   std::string m_message;
+    /// Exception details
+    std::string m_message;
 
 private:
 

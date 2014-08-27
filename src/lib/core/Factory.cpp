@@ -28,10 +28,12 @@ Factory
 
 Factory::Factory()
 {
+    // Nothing to do
 }
     
 Factory::~Factory()
 {
+    // Nothing to do
 }
 
 bool 

@@ -17,6 +17,11 @@ namespace dicomifier
 namespace actions
 {
     
+/**
+ * @brief Action None
+ * 
+ * Only use for testing
+ */
 class None : public Action
 {
 public:
@@ -24,15 +29,25 @@ public:
     typedef std::shared_ptr<Self> Pointer;
     typedef std::shared_ptr<Self const> ConstPointer;
     
+    /// Create pointer to new instance of None
     static Pointer New() { return Pointer(new Self()); }
     
+    /// Destroy the instance of None
     virtual ~None();
 
+    /**
+     * @brief Run the action.
+     */
     virtual void run() const;
     
+    /**
+     * Get this class name
+     * @return this class name
+     */
     static std::string get_class_name() { return "None"; }
 
 protected:
+    /// Create an instance of None
     None();
 
 private:

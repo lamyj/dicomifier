@@ -15,7 +15,6 @@
 
 #include "core/Object.h"
 
-
 namespace dicomifier
 {
 
@@ -44,6 +43,10 @@ public:
      */
     virtual bool eval() const =0;
     
+    /**
+     * Get this class name
+     * @return this class name
+     */
     static std::string get_class_name() { return "Condition"; }
 
 protected:

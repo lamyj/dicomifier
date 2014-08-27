@@ -27,14 +27,26 @@ public:
     typedef std::shared_ptr<Self> Pointer;
     typedef std::shared_ptr<Self const> ConstPointer;
 
+    /// Create pointer to new instance of True
     static Pointer New() { return Pointer(new Self()); }
+    
+    /// Destroy the instance of True
     virtual ~True();
 
+    /**
+     * @brief Evaluate the condition.
+     * @return True
+     */
     virtual bool eval() const;
     
+    /**
+     * Get this class name
+     * @return this class name
+     */
     static std::string get_class_name() { return "True"; }
 
 protected:
+    /// Create an instance of True
     True();
 
 private:

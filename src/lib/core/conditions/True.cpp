@@ -30,6 +30,7 @@ True
 
 True
 ::True()
+    :Condition()
 {
     // Nothing to do
 }

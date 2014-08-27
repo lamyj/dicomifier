@@ -13,17 +13,22 @@ namespace dicomifier
 namespace actions
 {
     
-None::None()
+None
+::None()
+:Action()
 {
     // Nothing to do
 }
 
-None::~None()
+None
+::~None()
 {
     // Nothing to do
 }
 
-void None::run() const
+void 
+None
+::run() const
 {
     // Nothing to do
 }
