@@ -7,8 +7,8 @@
  ************************************************************************/
 
 #include "core/Factory.h"
-#include "dicom/actions/SaveDataset.h"
-#include "SaveDatasetCreator.h"
+#include "dicom/actions/PrintDataset.h"
+#include "PrintDatasetCreator.h"
 
 namespace dicomifier
 {
@@ -16,22 +16,22 @@ namespace dicomifier
 namespace factory
 {
     
-static unsigned int const registration = Factory::get_instance().register_<SaveDatasetCreator>();
-
-SaveDatasetCreator
-::SaveDatasetCreator()
+static unsigned int const registration = Factory::get_instance().register_<PrintDatasetCreator>();
+    
+PrintDatasetCreator
+::PrintDatasetCreator()
 {
     // Nothing to do
 }
 
-SaveDatasetCreator
-::~SaveDatasetCreator()
+PrintDatasetCreator
+::~PrintDatasetCreator()
 {
     // Nothing to do
 }
-
+    
 Object::Pointer 
-SaveDatasetCreator
+PrintDatasetCreator
 ::Create(boost::property_tree::ptree::value_type & value)
 {
     // get 'dataset' attribut
@@ -55,7 +55,7 @@ SaveDatasetCreator
     // get 'outputfile' attribut
     filename = value.second.get<std::string>("<xmlattr>.outputfile"); // Warning: throw exception if attribut is missing
     
-    if (filename.length() > 0 && filename[0] == '#')
+    if (filename[0] == '#')
     {
         filename = filename.replace(0,1,"");
         
@@ -67,7 +67,7 @@ SaveDatasetCreator
         filename = boost::any_cast<std::string>(this->_outputs->find(filename)->second);
     }
     
-    return dicomifier::actions::SaveDataset::New(dataset, filename);
+    return dicomifier::actions::PrintDataset::New(dataset, filename);
 }
 
 } // namespace factory
