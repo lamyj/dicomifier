@@ -13,6 +13,8 @@ Dicomifier is a binary file. You can use a command prompt to launch him.
 As you can see, Dicomifier takes one mandatory option (Rule file) and one optional (Private dictionary).
 Both correspond to XML files and are described in the next sections.
 
+.. _Balise_RuleFormat:
+
 Format of rule XML files
 ------------------------
 
