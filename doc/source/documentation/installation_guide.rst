@@ -21,6 +21,8 @@ First, you should download a release version from the :ref:`Dowloading Page <Bal
 
 TODO
 
+.. _Balise_Checkout:
+
 By Checking out Source files
 ----------------------------
 
