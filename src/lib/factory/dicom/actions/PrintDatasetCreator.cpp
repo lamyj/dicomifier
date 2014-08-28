@@ -54,7 +54,6 @@ PrintDatasetCreator
     
     // get 'outputfile' attribut
     filename = value.second.get<std::string>("<xmlattr>.outputfile"); // Warning: throw exception if attribut is missing
-    
     if (filename[0] == '#')
     {
         filename = filename.replace(0,1,"");
