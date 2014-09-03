@@ -11,6 +11,8 @@
 #include <dcmtk/config/osconfig.h>
 #include <dcmtk/dcmdata/dctk.h>
 
+#include <boost/lexical_cast.hpp>
+
 namespace dicomifier
 {
 
@@ -79,23 +81,42 @@ ElementTraits<vr> \
     return regex_match(v2.c_str(), transform_regex(v1.c_str())); \
 }
 
+#define FROMSTRING(vr, value_type) \
+ElementTraits<vr>::ValueType \
+ElementTraits<vr> \
+::fromString(std::string const & value) \
+{ \
+    return boost::lexical_cast<ElementTraits<vr>::ValueType>(value.c_str()); \
+}
+
+#define STRING_FROMSTRING(vr, value_type) \
+ElementTraits<vr>::ValueType \
+ElementTraits<vr> \
+::fromString(std::string const & value) \
+{ \
+    return OFString(value.c_str()); \
+}
+
 #define DEFINE_ELEMENT_TRAITS(vr, value_type) \
 SETTER(vr, value_type) \
 ARRAY_SETTER(vr, value_type) \
 ARRAY_GETTER(vr, value_type) \
-EQUAL(vr, value_type)
+EQUAL(vr, value_type) \
+FROMSTRING(vr, value_type)
 
 #define DEFINE_STRING_NUMBER_ELEMENT_TRAITS(vr, value_type) \
 SETTER(vr, value_type) \
 STRING_ARRAY_SETTER(vr, value_type) \
 ARRAY_GETTER(vr, value_type) \
-EQUAL(vr, value_type)
+EQUAL(vr, value_type) \
+FROMSTRING(vr, value_type)
 
 #define DEFINE_STRING_ELEMENT_TRAITS(vr, value_type) \
 SETTER(vr, value_type) \
 STRING_ARRAY_SETTER(vr, value_type) \
 ARRAY_GETTER(vr, value_type) \
-STRING_EQUAL(vr, value_type)
+STRING_EQUAL(vr, value_type) \
+STRING_FROMSTRING(vr, value_type)
 
 
 DEFINE_STRING_ELEMENT_TRAITS(EVR_AE, OFString)
@@ -137,5 +158,7 @@ DEFINE_STRING_ELEMENT_TRAITS(EVR_UT, OFString)
 #undef ARRAY_GETTER
 #undef EQUAL
 #undef STRING_EQUAL
+#undef FROMSTRING
+#undef STRING_FROMSTRING
 
 } // namespace dicomifier

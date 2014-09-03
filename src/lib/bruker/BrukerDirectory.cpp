@@ -31,6 +31,7 @@ BrukerDirectory::BrukerDirectory()
     FilesToRead.push_back("isa");
     FilesToRead.push_back("d3proc");
     FilesToRead.push_back("reco");
+    FilesToRead.push_back("visu_pars");
 }
 
 BrukerDirectory::~BrukerDirectory()
@@ -50,7 +51,7 @@ BrukerDirectory::~BrukerDirectory()
     }
 }
 
-void BrukerDirectory::CreateMap(std::string const & inputDir)
+int BrukerDirectory::CreateMap(std::string const & inputDir)
 {
     BrukerDataset * mainDataset = new BrukerDataset();
     std::vector<std::string> subDirectoryName;
@@ -104,6 +105,8 @@ void BrukerDirectory::CreateMap(std::string const & inputDir)
     {
         this->_BrukerDatasetList[ "main" ] = mainDataset;
     }
+    
+    return this->_BrukerDatasetList.size();
 }
 
 void 
@@ -676,6 +679,26 @@ dicomifier::Rule::Pointer BrukerDirectory::GenerateDICOMRules(DcmDataset * datas
     }
     
     return rule;
+}
+
+BrukerDataset* 
+BrukerDirectory
+::get_brukerDataset(std::string const& seriesnumber)
+{
+    std::string seriesnum(seriesnumber);
+    // check value
+    if (seriesnum.length() == 6)
+    {
+        seriesnum = "0" + seriesnum.substr(2,4);
+    }
+    
+    auto it = _BrukerDatasetList.find(seriesnum);
+    if (it != _BrukerDatasetList.end())
+    {
+        return (*it).second;
+    }
+    
+    return NULL;
 }
 
 } // namespace bruker

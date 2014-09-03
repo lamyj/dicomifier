@@ -6,8 +6,6 @@
  * for details.
  ************************************************************************/
 
-#include <boost/foreach.hpp>
-
 #include "Factory.h"
 
 namespace dicomifier
