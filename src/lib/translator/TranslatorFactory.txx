@@ -6,17 +6,20 @@
  * for details.
  ************************************************************************/
 
-#ifndef _cae2b9c2_c9ae_411e_ae03_5e41d3fa55e4
-#define _cae2b9c2_c9ae_411e_ae03_5e41d3fa55e4
+#ifndef _51716d45_ca4d_4679_b826_2120758c8917
+#define _51716d45_ca4d_4679_b826_2120758c8917
 
-#include "Factory.h"
+#include "TranslatorFactory.h"
 
 namespace dicomifier
 {
     
+namespace translator
+{
+    
 template<typename T>
 unsigned int
-Factory
+TranslatorFactory
 ::register_()
 {
     this->_creators.insert(std::make_pair(
@@ -24,6 +27,8 @@ Factory
     return this->_creators.size();
 }
     
+} // namespace translator
+
 } // namespace dicomifier
 
-#endif // _cae2b9c2_c9ae_411e_ae03_5e41d3fa55e4
+#endif // _51716d45_ca4d_4679_b826_2120758c8917

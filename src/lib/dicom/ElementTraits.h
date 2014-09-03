@@ -48,6 +48,7 @@ struct ElementTraits<vr> \
     static OFCondition array_setter(DcmElement * element, ValueType const * value, unsigned int const size); \
     static std::vector<ValueType> array_getter(DcmElement * element); \
     static bool equal(ValueType const & v1, ValueType const & v2); \
+    static ValueType fromString(std::string const & value); \
 };
 
 DECLARE_ELEMENT_TRAITS(EVR_AE, OFString, DcmApplicationEntity)

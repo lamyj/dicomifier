@@ -31,7 +31,7 @@ public:
      */
     static Factory & get_instance();
     
-    /// Destroy the Network
+    /// Destroy the Factory
     virtual ~Factory();
 
     /// Register creator classes

@@ -53,7 +53,9 @@ public:
      */
     virtual ~BrukerDirectory();
     
-    void CreateMap(std::string const & inputDir);
+    int CreateMap(std::string const & inputDir);
+    
+    BrukerDataset* get_brukerDataset(std::string const& seriesnumber);
     
     /**
      * Read recursivly a given directory and parse Bruker files

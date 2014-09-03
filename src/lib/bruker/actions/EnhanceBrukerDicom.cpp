@@ -6,9 +6,15 @@
  * for details.
  ************************************************************************/
 
+#include <boost/foreach.hpp>
+#include <boost/property_tree/ptree.hpp>
+#include <boost/property_tree/xml_parser.hpp>
+
 #include "bruker/BrukerDirectory.h"
 #include "core/DicomifierException.h"
 #include "EnhanceBrukerDicom.h"
+#include "translator/fields/DicomField.h"
+#include "translator/TranslatorFactory.h"
 
 namespace dicomifier
 {
@@ -74,11 +80,45 @@ EnhanceBrukerDicom
     dicomifier::bruker::BrukerDirectory* brukerdirectory = new dicomifier::bruker::BrukerDirectory();
     
     // Parse input bruker directory
-    brukerdirectory->CreateMap(this->_brukerDir);
+    int result = brukerdirectory->CreateMap(this->_brukerDir);
     
-    dicomifier::Rule::Pointer rules = brukerdirectory->GenerateDICOMRules(this->_dataset);
+    // Search SeriesNumber dicom element
+    OFString str;
+    OFCondition cond = this->_dataset->findAndGetOFStringArray(DCM_SeriesNumber, str);
+    if (cond.bad())
+    {
+        throw dicomifier::DicomifierException("Can't read SeriesNumber attribut, error = " + 
+                                              std::string(cond.text()));
+    }
     
-    rules->Execute();
+    // Search corresponding Bruker Dataset
+    dicomifier::bruker::BrukerDataset* brukerdataset = brukerdirectory->get_brukerDataset(str.c_str());
+    
+    // Load Dictionary
+    boost::property_tree::ptree pt;
+    boost::property_tree::xml_parser::read_xml("/home/lahaxe/test_dictionaire.xml", pt);
+    
+    // Parse and run all dictionary entries
+    BOOST_FOREACH(boost::property_tree::ptree::value_type &v, pt) // Tag Dictionary
+    {
+        BOOST_FOREACH(boost::property_tree::ptree::value_type &dicomfield, 
+                  v.second.equal_range("DicomField"))
+        {
+            auto rule = dicomifier::translator::
+                TranslatorFactory::get_instance().create(dicomfield,
+                                                         this->_dataset,
+                                                         EVR_UN);
+                                                         
+            if (rule != NULL)
+            {
+                rule->run(this->_dataset, brukerdataset);
+            }
+            else
+            {
+                throw DicomifierException("Bad dictionary Bruker to Dicom");
+            }
+        }
+    }
     
     delete brukerdirectory;
 }

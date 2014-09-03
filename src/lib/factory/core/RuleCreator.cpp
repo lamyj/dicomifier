@@ -39,6 +39,9 @@ RuleCreator
 ::Create(boost::property_tree::ptree::value_type & value)
 {
     this->_inputs = std::make_shared<CreatorBase::InOutPutType>();
+    
+    // by default, input is a new Dataset
+    this->_inputs->insert(std::pair<std::string, boost::any>("NEW_DATASET", boost::any(new DcmDataset())));
 
     // Parsing <Input />
     BOOST_FOREACH(boost::property_tree::ptree::value_type &input, 
