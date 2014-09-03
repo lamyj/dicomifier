@@ -23,13 +23,15 @@ namespace actions
 {
     
 EnhanceBrukerDicom::EnhanceBrukerDicom():
-    _dataset(NULL), _brukerDir("")
+    _dataset(NULL), _brukerDir(""), _brukerToDicomDictionary("")
 {
     // Nothing to do
 }
 
-EnhanceBrukerDicom::EnhanceBrukerDicom(DcmDataset * dataset, std::string brukerDir):
-    _dataset(dataset), _brukerDir(brukerDir)
+EnhanceBrukerDicom::EnhanceBrukerDicom(DcmDataset * dataset, std::string brukerDir,
+                                       std::string const & brukerToDicomDictionary):
+    _dataset(dataset), _brukerDir(brukerDir), 
+    _brukerToDicomDictionary(brukerToDicomDictionary)
 {
     // Nothing to do
 }
@@ -96,7 +98,7 @@ EnhanceBrukerDicom
     
     // Load Dictionary
     boost::property_tree::ptree pt;
-    boost::property_tree::xml_parser::read_xml("/home/lahaxe/test_dictionaire.xml", pt);
+    boost::property_tree::xml_parser::read_xml(this->_brukerToDicomDictionary, pt);
     
     // Parse and run all dictionary entries
     BOOST_FOREACH(boost::property_tree::ptree::value_type &v, pt) // Tag Dictionary
