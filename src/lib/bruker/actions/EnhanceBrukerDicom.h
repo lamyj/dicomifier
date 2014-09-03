@@ -28,8 +28,10 @@ public:
     typedef std::shared_ptr<Self const> ConstPointer;
     
     static Pointer New() { return Pointer(new Self()); }
-    static Pointer New(DcmDataset * dataset, std::string brukerDir) 
-                { return Pointer(new Self(dataset, brukerDir)); }
+    static Pointer New(DcmDataset * dataset, std::string brukerDir,
+                       std::string const & brukerToDicomDictionary) 
+                { return Pointer(new Self(dataset, brukerDir, 
+                                          brukerToDicomDictionary)); }
     
     virtual ~EnhanceBrukerDicom();
 
@@ -45,11 +47,13 @@ public:
 
 protected:
     EnhanceBrukerDicom();
-    EnhanceBrukerDicom(DcmDataset * dataset, std::string brukerDir);
+    EnhanceBrukerDicom(DcmDataset * dataset, std::string brukerDir,
+                       std::string const & brukerToDicomDictionary);
 
 private:
     DcmDataset * _dataset;
     std::string _brukerDir;
+    std::string _brukerToDicomDictionary;
     
     EnhanceBrukerDicom(Self const & other); // Purposely not implemented
     Self const & operator=(Self const & other); // Purposely not implemented

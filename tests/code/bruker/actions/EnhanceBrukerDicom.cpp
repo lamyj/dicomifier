@@ -24,6 +24,7 @@ struct TestData
  
     std::string filepath;
     std::string secondfile;
+    std::string thirdfile;
  
     TestData()
     {
@@ -75,6 +76,16 @@ struct TestData
         myfile << "2 2 2\n";
         myfile << "##END=\n";
         myfile.close();
+        
+        thirdfile = "./test_dictionary.xml";
+        
+        myfile.open(thirdfile);
+        myfile << "<Dictionary>\n";
+        myfile << "<DicomField tag=\"0008,0060\" keyword=\"Modality\" vr=\"CS\">\n";
+        myfile << "<ConstantField values=\"MR\" />\n";
+        myfile << "</DicomField>\n";
+        myfile << "</Dictionary>\n";
+        myfile.close();
     }
  
     ~TestData()
@@ -83,6 +94,7 @@ struct TestData
         
         remove(filepath.c_str());
         remove(secondfile.c_str());
+        remove(thirdfile.c_str());
         
         boost::filesystem::remove_all("./1");
     }
@@ -90,7 +102,9 @@ struct TestData
 
 BOOST_FIXTURE_TEST_CASE(TEST_OK_01, TestData)
 {
-    auto testenhance = dicomifier::actions::EnhanceBrukerDicom::New(dataset, ".");
+    auto testenhance = 
+        dicomifier::actions::EnhanceBrukerDicom::New(dataset, ".", 
+                                                     thirdfile);
     
     testenhance->run();
         

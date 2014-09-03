@@ -33,6 +33,8 @@ struct TestData
         boost::property_tree::ptree emptynode;
         emptynode.put("<xmlattr>.brukerdir", "#inputdir");
         emptynode.put("<xmlattr>.dataset", "#input");
+        emptynode.put("<xmlattr>.seriesnumber", "1");
+        emptynode.put("<xmlattr>.studynumber", "1");
         ptr.add_child("EnhanceBrukerDicom", emptynode);
         
         std::string text = "./temp";
@@ -79,6 +81,8 @@ struct TestDataKO01
         boost::property_tree::ptree emptynode;
         emptynode.put("<xmlattr>.brukerdir", "#inputdir");
         emptynode.put("<xmlattr>.dataset", "#badvalue");
+        emptynode.put("<xmlattr>.seriesnumber", "1");
+        emptynode.put("<xmlattr>.studynumber", "1");
         ptr.add_child("EnhanceBrukerDicom", emptynode);
         
         std::string text = "./temp";
@@ -120,6 +124,8 @@ struct TestDataKO02
         boost::property_tree::ptree emptynode;
         emptynode.put("<xmlattr>.brukerdir", "#inputdir");
         emptynode.put("<xmlattr>.dataset", "input");
+        emptynode.put("<xmlattr>.seriesnumber", "1");
+        emptynode.put("<xmlattr>.studynumber", "1");
         ptr.add_child("EnhanceBrukerDicom", emptynode);
         
         std::string text = "./temp";
@@ -156,6 +162,8 @@ struct TestDataKO03
         boost::property_tree::ptree emptynode;
         emptynode.put("<xmlattr>.brukerdir", "#inputdir");
         emptynode.put("<xmlattr>.dataset", "#input");
+        emptynode.put("<xmlattr>.seriesnumber", "1");
+        emptynode.put("<xmlattr>.studynumber", "1");
         ptr.add_child("EnhanceBrukerDicom", emptynode);
         
         std::string text = "./temp";
@@ -198,6 +206,8 @@ struct TestDataKO04
         boost::property_tree::ptree emptynode;
         emptynode.put("<xmlattr>.brukerdir", "#badvalue");
         emptynode.put("<xmlattr>.dataset", "#input");
+        emptynode.put("<xmlattr>.seriesnumber", "1");
+        emptynode.put("<xmlattr>.studynumber", "1");
         ptr.add_child("EnhanceBrukerDicom", emptynode);
         
         std::string text = "./temp";
