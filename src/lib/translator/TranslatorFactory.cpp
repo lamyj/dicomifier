@@ -27,6 +27,17 @@ TranslatorFactory
     return *TranslatorFactory::_instance;
 }
 
+void
+TranslatorFactory
+::delete_instance()
+{
+    if (TranslatorFactory::_instance != NULL)
+    {
+        delete TranslatorFactory::_instance;
+        TranslatorFactory::_instance = NULL;
+    }
+}
+
 TranslatorFactory
 ::TranslatorFactory()
 {

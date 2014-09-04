@@ -78,8 +78,10 @@ EnhanceBrukerDicomCreator
     }
     
     // get 'brukertodicomdictionary' attribut (optional)
-    auto brukertodicomdictionary_ = value.second.get_optional<std::string>("<xmlattr>.brukertodicomdictionary");
-    std::string brukerToDicomDictionary = brukertodicomdictionary_ ? brukertodicomdictionary_.get() : "./BrukerToDicom_Dictionary.xml";
+    auto brukertodicomdictionary_ = 
+        value.second.get_optional<std::string>("<xmlattr>.brukertodicomdictionary");
+    std::string brukerToDicomDictionary = 
+        brukertodicomdictionary_ ? brukertodicomdictionary_.get() : "./BrukerToDicom_Dictionary.xml";
     
     studynum = studynum % 10;       // only 1 byte
     seriesnum = seriesnum % 10000;  // only 4 bytes
@@ -93,7 +95,8 @@ EnhanceBrukerDicomCreator
     // Insert SeriesNumber => use to find Bruker data
     dataset->putAndInsertOFStringArray(DCM_SeriesNumber, OFString(seriesnumber.c_str()));
     
-    return dicomifier::actions::EnhanceBrukerDicom::New(dataset, filename, brukerToDicomDictionary);
+    return dicomifier::actions::EnhanceBrukerDicom::New(dataset, filename, 
+                                                        brukerToDicomDictionary);
 }
     
 } // namespace factory
