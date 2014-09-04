@@ -32,6 +32,8 @@ public:
      */
     static TranslatorFactory & get_instance();
     
+    static void delete_instance();
+    
     /// Destroy the TranslatorFactory
     virtual ~TranslatorFactory();
 

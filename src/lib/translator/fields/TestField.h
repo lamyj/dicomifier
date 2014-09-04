@@ -6,16 +6,10 @@
  * for details.
  ************************************************************************/
 
-#ifndef _e100969d_d08f_4053_9240_9d381b9023b0
-#define _e100969d_d08f_4053_9240_9d381b9023b0
+#ifndef _c7990a8f_023a_4a49_907a_eb36b7e33b4e
+#define _c7990a8f_023a_4a49_907a_eb36b7e33b4e
 
-#include <memory>
-
-#include <dcmtk/config/osconfig.h>
-#include <dcmtk/dcmdata/dctk.h>
-
-#include "bruker/BrukerDataset.h"
-#include "dicom/ElementTraits.h"
+#include "translator/Tag.h"
 
 namespace dicomifier
 {
@@ -23,38 +17,32 @@ namespace dicomifier
 namespace translator
 {
     
-enum ClassType
-{
-    ECT_Unknown,
-    ECT_DicomField,
-    ECT_ConstantField,
-    ECT_BrukerField,
-    ECT_TestField
-};
-    
-class Tag
+class TestField : public Tag
 {
 public:
-    typedef Tag Self;
+    typedef TestField Self;
     typedef std::shared_ptr<Self> Pointer;
     typedef std::shared_ptr<Self const> ConstPointer;
     
-    virtual ~Tag();
+    /// Create pointer to new instance of TestField
+    static Pointer New() { return Pointer(new Self()); }
+    
+    virtual ~TestField();
     
     virtual void run(DcmDataset* dataset,
-                     dicomifier::bruker::BrukerDataset* brukerdataset) = 0;
+                     dicomifier::bruker::BrukerDataset* brukerdataset);
     
-    virtual ClassType get_class_type() const = 0;
-
+    virtual ClassType get_class_type() const { return ECT_TestField; }
+    
 protected:
-    Tag();
 
 private:
-
+    TestField();
+    
 };
     
 } // namespace translator
-    
+
 } // namespace dicomifier
 
-#endif // _e100969d_d08f_4053_9240_9d381b9023b0
+#endif // _c7990a8f_023a_4a49_907a_eb36b7e33b4e
