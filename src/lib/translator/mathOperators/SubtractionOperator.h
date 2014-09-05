@@ -6,8 +6,8 @@
  * for details.
  ************************************************************************/
 
-#ifndef _bd37797a_eb2b_4677_ae44_ef3d4b0380bf
-#define _bd37797a_eb2b_4677_ae44_ef3d4b0380bf
+#ifndef _38f2f367_9431_49ca_8af8_2b7a79e7198d
+#define _38f2f367_9431_49ca_8af8_2b7a79e7198d
 
 #include "translator/SubTag.h"
 
@@ -18,44 +18,39 @@ namespace translator
 {
     
 template<DcmEVR VR>
-class ConstantField : public SubTag<VR>
+class SubtractionOperator : public SubTag<VR>
 {
 public:
-    typedef ConstantField Self;
+    typedef SubtractionOperator Self;
     typedef std::shared_ptr<Self> Pointer;
     typedef std::shared_ptr<Self const> ConstPointer;
     
-    typedef typename ElementTraits<VR>::ValueType ValueType;
-    typedef std::vector<ValueType> ArrayType;
-    
-    /// Create pointer to new instance of DicomField
+    /// Create pointer to new instance of SubtractionOperator
     static Pointer New();
     
-    static Pointer New(ValueType const & value);
-    
-    static Pointer New(ArrayType const & array);
+    static Pointer New(std::vector<Tag::Pointer> tags);
 
-    virtual ~ConstantField();
-    
+    virtual ~SubtractionOperator();
+                     
     virtual void run(DcmDataset* dataset,
                      dicomifier::bruker::BrukerDataset* brukerdataset);
     
-    virtual ClassType get_class_type() const { return ECT_ConstantField; }
+    virtual ClassType get_class_type() const { return ECT_SubtractionOperator; }
     
 protected:
-    ConstantField();
+    SubtractionOperator();
     
-    ConstantField(ValueType const & value);
-    
-    ConstantField(ArrayType const & array);
+    SubtractionOperator(std::vector<Tag::Pointer> tags);
 
 private:
+    std::vector<Tag::Pointer> _tags;
 
 };
+    
 } // namespace translator
     
 } // namespace dicomifier
 
-#include "ConstantField.txx"
+#include "SubtractionOperator.txx"
 
-#endif // _bd37797a_eb2b_4677_ae44_ef3d4b0380bf
+#endif // _38f2f367_9431_49ca_8af8_2b7a79e7198d

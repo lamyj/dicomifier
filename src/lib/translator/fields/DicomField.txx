@@ -8,6 +8,7 @@
 
 #include "core/DicomifierException.h"
 #include "DicomField.h"
+#include "translator/SubTag.h"
 #include "translator/fields/BrukerField.h"
 #include "translator/fields/ConstantField.h"
 
@@ -85,17 +86,11 @@ DicomField<VR>
         
     std::vector<ValueType> values;
     
-    if (this->_tag->get_class_type() == ECT_ConstantField)
+    if (this->_tag->get_class_type() != ECT_TestField)
     {
-        typename ConstantField<VR>::Pointer constantfield = 
-            std::dynamic_pointer_cast<ConstantField<VR>>(this->_tag);
-        values = constantfield->get_array();
-    }
-    else if (this->_tag->get_class_type() == ECT_BrukerField)
-    {
-        typename BrukerField<VR>::Pointer brukerfield = 
-            std::dynamic_pointer_cast<BrukerField<VR>>(this->_tag);
-        values = brukerfield->get_array();
+        typename SubTag<VR>::Pointer subtag = 
+            std::dynamic_pointer_cast<SubTag<VR>>(this->_tag);
+        values = subtag->get_array();
     }
         
     OFCondition const set_ok = ElementTraits<VR>::array_setter(element, 

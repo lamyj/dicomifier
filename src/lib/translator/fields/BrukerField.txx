@@ -36,7 +36,7 @@ BrukerField<VR>
 template<DcmEVR VR>
 BrukerField<VR>
 ::BrukerField()
-    :Tag(), _brukerFieldName("")
+    :SubTag<VR>(), _brukerFieldName("")
 {
     // Nothing to do
 }
@@ -44,7 +44,7 @@ BrukerField<VR>
 template<DcmEVR VR>
 BrukerField<VR>
 ::BrukerField(std::string const & brukerFieldName)
-    :Tag(), _brukerFieldName(brukerFieldName)
+    :SubTag<VR>(), _brukerFieldName(brukerFieldName)
 {
     // Nothing to do
 }
@@ -95,14 +95,6 @@ BrukerField<VR>
             }
         }
     }
-}
-
-template<DcmEVR VR>
-typename BrukerField<VR>::ArrayType 
-BrukerField<VR>
-::get_array() const
-{
-    return this->_array;
 }
 
 } // namespace translator
