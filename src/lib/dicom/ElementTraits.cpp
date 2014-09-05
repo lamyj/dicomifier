@@ -100,6 +100,22 @@ ElementTraits<vr> \
     return OFString(value.c_str()); \
 }
 
+#define TOSTRING(vr, value_type) \
+std::string \
+ElementTraits<vr> \
+::toString(ElementTraits<vr>::ValueType const & value) \
+{ \
+    return ""; \
+}
+
+#define STRING_TOSTRING(vr, value_type) \
+std::string \
+ElementTraits<vr> \
+::toString(ElementTraits<vr>::ValueType const & value) \
+{ \
+    return value.c_str(); \
+}
+
 #define SUBTRACTION(vr, value_type) \
 ElementTraits<vr>::ValueType \
 ElementTraits<vr> \
@@ -156,6 +172,7 @@ ARRAY_SETTER(vr, value_type) \
 ARRAY_GETTER(vr, value_type) \
 EQUAL(vr, value_type) \
 FROMSTRING(vr, value_type) \
+TOSTRING(vr, value_type) \
 SUBTRACTION(vr, value_type) \
 DIVISION(vr, value_type) \
 MULTIPLICATION(vr, value_type)
@@ -166,6 +183,7 @@ STRING_ARRAY_SETTER(vr, value_type) \
 ARRAY_GETTER(vr, value_type) \
 EQUAL(vr, value_type) \
 FROMSTRING(vr, value_type) \
+TOSTRING(vr, value_type) \
 SUBTRACTION(vr, value_type) \
 DIVISION(vr, value_type) \
 MULTIPLICATION(vr, value_type)
@@ -176,6 +194,7 @@ STRING_ARRAY_SETTER(vr, value_type) \
 ARRAY_GETTER(vr, value_type) \
 STRING_EQUAL(vr, value_type) \
 STRING_FROMSTRING(vr, value_type) \
+STRING_TOSTRING(vr, value_type) \
 STRING_SUBTRACTION(vr, value_type) \
 STRING_DIVISION(vr, value_type) \
 STRING_MULTIPLICATION(vr, value_type)
@@ -228,5 +247,7 @@ DEFINE_STRING_ELEMENT_TRAITS(EVR_UT, OFString)
 #undef STRING_DIVISION
 #undef MULTIPLICATION
 #undef STRING_MULTIPLICATION
+#undef TOSTRING
+#undef STRING_TOSTRING
 
 } // namespace dicomifier
