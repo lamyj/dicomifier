@@ -6,16 +6,10 @@
  * for details.
  ************************************************************************/
 
-#ifndef _e100969d_d08f_4053_9240_9d381b9023b0
-#define _e100969d_d08f_4053_9240_9d381b9023b0
+#ifndef _cc65448b_8e38_4ce0_bf60_0cb97f65641a
+#define _cc65448b_8e38_4ce0_bf60_0cb97f65641a
 
-#include <memory>
-
-#include <dcmtk/config/osconfig.h>
-#include <dcmtk/dcmdata/dctk.h>
-
-#include "bruker/BrukerDataset.h"
-#include "dicom/ElementTraits.h"
+#include "Tag.h"
 
 namespace dicomifier
 {
@@ -23,43 +17,39 @@ namespace dicomifier
 namespace translator
 {
     
-enum ClassType
-{
-    ECT_Unknown,
-    ECT_SubTag,
-    ECT_DicomField,
-    ECT_ConstantField,
-    ECT_BrukerField,
-    ECT_TestField,
-    ECT_AdditionOperator,
-    ECT_DivisionOperator,
-    ECT_MultiplicationOperator,
-    ECT_SubtractionOperator
-};
-    
-class Tag
+template<DcmEVR VR>
+class SubTag : public Tag
 {
 public:
-    typedef Tag Self;
+    typedef SubTag Self;
     typedef std::shared_ptr<Self> Pointer;
     typedef std::shared_ptr<Self const> ConstPointer;
     
-    virtual ~Tag();
+    typedef typename ElementTraits<VR>::ValueType ValueType;
+    typedef std::vector<ValueType> ArrayType;
+    
+    virtual ~SubTag();
     
     virtual void run(DcmDataset* dataset,
                      dicomifier::bruker::BrukerDataset* brukerdataset) = 0;
     
-    virtual ClassType get_class_type() const = 0;
+    virtual ClassType get_class_type() const { return ECT_SubTag; }
 
+    ArrayType get_array() const;
+    
 protected:
-    Tag();
+    SubTag();
 
+    ArrayType _array;
+    
 private:
 
 };
     
 } // namespace translator
-    
+
 } // namespace dicomifier
 
-#endif // _e100969d_d08f_4053_9240_9d381b9023b0
+#include "SubTag.txx"
+
+#endif // _cc65448b_8e38_4ce0_bf60_0cb97f65641a

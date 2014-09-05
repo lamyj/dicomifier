@@ -41,7 +41,7 @@ ConstantField<VR>
 template<DcmEVR VR>
 ConstantField<VR>
 ::ConstantField()
-    :Tag()
+    :SubTag<VR>()
 {
     // Nothing to do
 }
@@ -49,7 +49,7 @@ ConstantField<VR>
 template<DcmEVR VR>
 ConstantField<VR>
 ::ConstantField(ValueType const & value)
-    :Tag()
+    :SubTag<VR>()
 {
     this->_array = { value };
 }
@@ -57,9 +57,9 @@ ConstantField<VR>
 template<DcmEVR VR>
 ConstantField<VR>
 ::ConstantField(ArrayType const & value)
-    :Tag(), _array(value)
+    :SubTag<VR>()
 {
-    // Nothing else
+    this->_array = value;
 }
 
 template<DcmEVR VR>
@@ -76,14 +76,6 @@ ConstantField<VR>
       dicomifier::bruker::BrukerDataset* brukerdataset)
 {
     // Nothing to do
-}
-
-template<DcmEVR VR>
-typename ConstantField<VR>::ArrayType 
-ConstantField<VR>
-::get_array() const
-{
-    return this->_array;
 }
 
 } // namespace translator

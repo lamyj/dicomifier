@@ -6,8 +6,8 @@
  * for details.
  ************************************************************************/
 
-#ifndef _bd37797a_eb2b_4677_ae44_ef3d4b0380bf
-#define _bd37797a_eb2b_4677_ae44_ef3d4b0380bf
+#ifndef _a4e24b96_952f_4761_8641_d949e7f74a94
+#define _a4e24b96_952f_4761_8641_d949e7f74a94
 
 #include "translator/SubTag.h"
 
@@ -18,44 +18,39 @@ namespace translator
 {
     
 template<DcmEVR VR>
-class ConstantField : public SubTag<VR>
+class DivisionOperator : public SubTag<VR>
 {
 public:
-    typedef ConstantField Self;
+    typedef DivisionOperator Self;
     typedef std::shared_ptr<Self> Pointer;
     typedef std::shared_ptr<Self const> ConstPointer;
     
-    typedef typename ElementTraits<VR>::ValueType ValueType;
-    typedef std::vector<ValueType> ArrayType;
-    
-    /// Create pointer to new instance of DicomField
+    /// Create pointer to new instance of DivisionOperator
     static Pointer New();
     
-    static Pointer New(ValueType const & value);
-    
-    static Pointer New(ArrayType const & array);
+    static Pointer New(std::vector<Tag::Pointer> tags);
 
-    virtual ~ConstantField();
-    
+    virtual ~DivisionOperator();
+                     
     virtual void run(DcmDataset* dataset,
                      dicomifier::bruker::BrukerDataset* brukerdataset);
     
-    virtual ClassType get_class_type() const { return ECT_ConstantField; }
+    virtual ClassType get_class_type() const { return ECT_DivisionOperator; }
     
 protected:
-    ConstantField();
+    DivisionOperator();
     
-    ConstantField(ValueType const & value);
-    
-    ConstantField(ArrayType const & array);
+    DivisionOperator(std::vector<Tag::Pointer> tags);
 
 private:
+    std::vector<Tag::Pointer> _tags;
 
 };
+    
 } // namespace translator
     
 } // namespace dicomifier
 
-#include "ConstantField.txx"
+#include "DivisionOperator.txx"
 
-#endif // _bd37797a_eb2b_4677_ae44_ef3d4b0380bf
+#endif // _a4e24b96_952f_4761_8641_d949e7f74a94

@@ -9,7 +9,7 @@
 #ifndef _dfbe0188_c0b5_41bb_93c8_92c25fdfc3b2
 #define _dfbe0188_c0b5_41bb_93c8_92c25fdfc3b2
 
-#include "translator/Tag.h"
+#include "translator/SubTag.h"
 
 namespace dicomifier
 {
@@ -18,7 +18,7 @@ namespace translator
 {
     
 template<DcmEVR VR>
-class BrukerField : public Tag
+class BrukerField : public SubTag<VR>
 {
 public:
     typedef BrukerField Self;
@@ -40,8 +40,6 @@ public:
     
     virtual ClassType get_class_type() const { return ECT_BrukerField; }
     
-    ArrayType get_array() const;
-    
 protected:
     BrukerField();
     
@@ -49,8 +47,6 @@ protected:
 
 private:
     std::string _brukerFieldName;
-    
-    ArrayType _array;
     
 };
     
