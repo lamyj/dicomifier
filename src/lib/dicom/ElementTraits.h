@@ -49,6 +49,7 @@ struct ElementTraits<vr> \
     static std::vector<ValueType> array_getter(DcmElement * element); \
     static bool equal(ValueType const & v1, ValueType const & v2); \
     static ValueType fromString(std::string const & value); \
+    static std::string toString(ValueType const & value); \
     static ValueType subtraction(ValueType const & v1, ValueType const & v2); \
     static ValueType division(ValueType const & v1, ValueType const & v2); \
     static ValueType multiplication(ValueType const & v1, ValueType const & v2); \
