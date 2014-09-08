@@ -35,7 +35,8 @@ enum ClassType
     ECT_DivisionOperator,
     ECT_MultiplicationOperator,
     ECT_SubtractionOperator,
-    ECT_RegExFilter
+    ECT_RegExFilter,
+    ECT_ConditionField
 };
     
 class Tag
