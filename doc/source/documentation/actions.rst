@@ -126,22 +126,30 @@ Sample:
 Tag EnhanceBrukerDicom
 ^^^^^^^^^^^^^^^^^^^^^^
 
-+---------------+---------------+--------------+---------------------------------------------------------------+
-| Attributs     | Usage         | Multiplicity | Description                                                   |
-+===============+===============+==============+===============================================================+
-| dataset       | Mandatory     |       1      | Contains a link to an unique identifier defined by tag        |
-|               |               |              | :ref:`Input <Balise_Input>`                                   |
-+---------------+---------------+--------------+---------------------------------------------------------------+
-| brukerdir     | Mandatory     |       1      | Contains path to directory in which are the Bruker data files |
-|               |               |              | or a link to an unique identifier defined by tag              |
-|               |               |              | :ref:`Input <Balise_Input>`                                   |
-+---------------+---------------+--------------+---------------------------------------------------------------+
++-------------------------+---------------+--------------+---------------------------------------------------------------+
+| Attributs               | Usage         | Multiplicity | Description                                                   |
++=========================+===============+==============+===============================================================+
+| dataset                 | Mandatory     |       1      | Contains a link to an unique identifier defined by tag        |
+|                         |               |              | :ref:`Input <Balise_Input>`                                   |
++-------------------------+---------------+--------------+---------------------------------------------------------------+
+| brukerdir               | Mandatory     |       1      | Contains path to directory in which are the Bruker data files |
+|                         |               |              | or a link to an unique identifier defined by tag              |
+|                         |               |              | :ref:`Input <Balise_Input>`                                   |
++-------------------------+---------------+--------------+---------------------------------------------------------------+
+| seriesnumber            | Mandatory     |       1      | Contains number of the series to be process                   |
++-------------------------+---------------+--------------+---------------------------------------------------------------+
+| studynumber             | Optional      |      0-1     | Contains number of the study to be process                    |
++-------------------------+---------------+--------------+---------------------------------------------------------------+
+| brukertodicomdictionary | Optional      |      0-1     | Dictionary to translate Bruker data to DICOM field            |
++-------------------------+---------------+--------------+---------------------------------------------------------------+
+
+See :ref:`Bruker to DICOM Dictionary <Balise_btodDico>` for more information about brukertodicomdictionary field.
 
 Sample:
 
 .. code-block:: xml
 
-    <EnhanceBrukerDicom dataset="#dataset_identifiant" brukerdir="#bruker_identifiant" />
+    <EnhanceBrukerDicom dataset="#dataset_identifiant" brukerdir="#bruker_identifiant" seriesnumber="1" studynumber="1" />
 
 .. _Balise_StoreDataset:
 
@@ -168,3 +176,26 @@ Sample:
 .. code-block:: xml
 
     <StoreDataset dataset="#identifiant" address="myaddress" port="11112" aelocal="LOCALNAME" aeremote="REMOTENAME" />
+
+.. _Balise_PrintDataset:
+
+Tag PrintDataset
+^^^^^^^^^^^^^^^^
+
++---------------+---------------+--------------+--------------------------------------------------------------+
+| Attributs     | Usage         | Multiplicity | Description                                                  |
++===============+===============+==============+==============================================================+
+| dataset       | Mandatory     |       1      | Contains a link to an unique identifier defined by tag       |
+|               |               |              | :ref:`Input <Balise_Input>`                                  |
++---------------+---------------+--------------+--------------------------------------------------------------+
+| outputfile    | Optional      |       1      | Contains path to the file in which will be written the       |
+|               |               |              | dataset, or a link to an unique identifier defined by tag    |
+|               |               |              | :ref:`Output <Balise_Output>`                                |
+|               |               |              | By default: Dataset is printed in the standard output (cout) |
++---------------+---------------+--------------+--------------------------------------------------------------+
+
+Sample:
+
+.. code-block:: xml
+
+    <PrintDataset dataset="#identifiant" outputfile="#output_identifiant" />

@@ -25,7 +25,9 @@ msgstr "Logiciels"
 
 #: ../../source/documentation/installation_guide.rst:10
 msgid "Following tools are usefull for install Dicomifier from Binary file:"
-msgstr "Les outils suivants sont nécessaire pour installer Dicomifier depuis le fichier binaire :"
+msgstr ""
+"Les outils suivants sont nécessaire pour installer Dicomifier depuis le "
+"fichier binaire :"
 
 #: ../../source/documentation/installation_guide.rst:12
 msgid ""
@@ -33,9 +35,9 @@ msgid ""
 "Mercurial (distributed revision control tool) - CMake (software for managing"
 " the build process of software) - Ninja (build system)"
 msgstr ""
-"Les outils suivante sont nécessaire pour installer Dicomifier depuis les fichiers sources : "
-"- Mercurial (distributed revision control tool) - CMake (software for managing"
-" the build process of software) - Ninja (build system)"
+"Les outils suivante sont nécessaire pour installer Dicomifier depuis les "
+"fichiers sources : - Mercurial (distributed revision control tool) - CMake "
+"(software for managing the build process of software) - Ninja (build system)"
 
 #: ../../source/documentation/installation_guide.rst:18
 msgid "By Downloading Binary file"
@@ -46,18 +48,18 @@ msgid ""
 "First, you should download a release version from the :ref:`Dowloading Page "
 "<Balise_ReleaseVersion>`."
 msgstr ""
-"Pour commencer, vous devez télécharger une version stable depuis :ref:`la page Téléchargement "
-"<Balise_ReleaseVersion>`."
+"Pour commencer, vous devez télécharger une version stable depuis :ref:`la "
+"page Téléchargement <Balise_ReleaseVersion>`."
 
 #: ../../source/documentation/installation_guide.rst:22
 msgid "TODO"
 msgstr ""
 
-#: ../../source/documentation/installation_guide.rst:25
+#: ../../source/documentation/installation_guide.rst:27
 msgid "By Checking out Source files"
 msgstr "A l'aide du code source"
 
-#: ../../source/documentation/installation_guide.rst:27
+#: ../../source/documentation/installation_guide.rst:29
 msgid ""
 "Source files can be download at this address: "
 "https://medipy.u-strasbg.fr/scm/hg/fli-iam/dicomifier."
@@ -65,39 +67,40 @@ msgstr ""
 "Les fichiers sources sont disponibles à l'adresse suivante : "
 "https://medipy.u-strasbg.fr/scm/hg/fli-iam/dicomifier."
 
-#: ../../source/documentation/installation_guide.rst:30
+#: ../../source/documentation/installation_guide.rst:32
 msgid "Compilation (UNIX)"
 msgstr ""
 
-#: ../../source/documentation/installation_guide.rst:32
+#: ../../source/documentation/installation_guide.rst:34
 msgid "Open a command prompt (ctrl+alt+t)."
 msgstr "Ouvrez une invite de commande (ctrl+alt+t)."
 
-#: ../../source/documentation/installation_guide.rst:34
+#: ../../source/documentation/installation_guide.rst:36
 msgid "Use Mercurial for getting Source code."
 msgstr "Utilisez Mercurial pour récuperer le code source."
 
-#: ../../source/documentation/installation_guide.rst:40
+#: ../../source/documentation/installation_guide.rst:42
 msgid "A new directory 'dicomifier/' is available, go inside:"
-msgstr "Un nouveau répertoire 'dicomifier/' a été créé. Allez dans ce répertoire :"
+msgstr ""
+"Un nouveau répertoire 'dicomifier/' a été créé. Allez dans ce répertoire :"
 
-#: ../../source/documentation/installation_guide.rst:46
+#: ../../source/documentation/installation_guide.rst:48
 msgid "Create new directory 'build':"
 msgstr "Créez un nouveau répertoire 'build' :"
 
-#: ../../source/documentation/installation_guide.rst:52
+#: ../../source/documentation/installation_guide.rst:54
 msgid "Go to the build directory:"
 msgstr "Allez dans ce nouveau répertoire :"
 
-#: ../../source/documentation/installation_guide.rst:58
+#: ../../source/documentation/installation_guide.rst:60
 msgid "Generate Makefile:"
 msgstr "Générez le fichier Makefile :"
 
-#: ../../source/documentation/installation_guide.rst:64
+#: ../../source/documentation/installation_guide.rst:66
 msgid "Compile Dicomifier project:"
 msgstr "Compilez le projet Dicomifier :"
 
-#: ../../source/documentation/installation_guide.rst:70
+#: ../../source/documentation/installation_guide.rst:72
 msgid ""
 "A binary file 'dicomifier' is now available into the directory "
 "'dicomifier/build/src/appli/'."

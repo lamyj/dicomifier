@@ -9,6 +9,7 @@
 #ifndef _fa5422c1_776b_4c6d_8141_773123559763
 #define _fa5422c1_776b_4c6d_8141_773123559763
 
+#include "dicom/TagAndRange.h"
 #include "translator/TranslationCreatorBase.h"
 
 namespace dicomifier
@@ -47,6 +48,7 @@ private:
     struct TranslatorBrukerFieldCreator
     {
         std::string brukerfieldname;
+        Range range;
         mutable dicomifier::translator::Tag::Pointer brukerField;
         template<DcmEVR VR> void run() const;
     };
