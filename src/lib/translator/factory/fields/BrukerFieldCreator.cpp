@@ -43,8 +43,23 @@ BrukerFieldCreator
     // Warning: throw exception if attribut is missing
     std::string const brukerfieldname = value.second.get<std::string>("<xmlattr>.name");
     
+    // Get 'range' attribut (optional):
+    auto range_ = value.second.get_optional<std::string>("<xmlattr>.range");
+    
+    Range range;
+    if (range_)
+    {
+        std::string rangestr = range_.get();
+        std::string minstr = rangestr.substr(0, rangestr.find(","));
+        std::string maxstr = rangestr.substr(rangestr.find(",") + 1, rangestr.length() - 1);
+        
+        range._min = atoi(minstr.c_str());
+        range._max = atoi(maxstr.c_str());
+    }
+    
     TranslatorBrukerFieldCreator action;
     action.brukerfieldname = brukerfieldname;
+    action.range = range;
     
     dicomifier::vr_dispatch(action, evr);
     
@@ -64,7 +79,7 @@ void
 BrukerFieldCreator::TranslatorBrukerFieldCreator
 ::run() const
 {
-    brukerField = dicomifier::translator::BrukerField<VR>::New(brukerfieldname);
+    brukerField = dicomifier::translator::BrukerField<VR>::New(brukerfieldname, range);
 }
 
 } // namespace factory

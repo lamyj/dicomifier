@@ -322,7 +322,9 @@ void BrukerDirectory::getImhDataType(BrukerFieldData const & bDPT, int & pixelSi
     }
 }
 
-dicomifier::Rule::Pointer BrukerDirectory::GenerateDICOMRules(DcmDataset * dataset)
+dicomifier::Rule::Pointer 
+BrukerDirectory
+::GenerateDICOMRules(DcmDataset * dataset)
 {
     // Search SeriesNumber dicom element
     OFString str;
@@ -666,16 +668,6 @@ dicomifier::Rule::Pointer BrukerDirectory::GenerateDICOMRules(DcmDataset * datas
             
             rule->add_action(action);
         }
-                       
-        // Image Orientation Patient    0x0020,0x0037
-        /*rdoc.AddAction(AT_Set_Element, "Image Orientation (Patient)",
-                       , EVR_DS); 
-        TODO look how to get this information*/
-
-        // Image Position Patient    0x0020,0x0032
-        /*rdoc.AddAction(AT_Set_Element, "Image Position (Patient)",
-                       , EVR_DS); 
-        TODO look how to get this information*/
     }
     
     return rule;

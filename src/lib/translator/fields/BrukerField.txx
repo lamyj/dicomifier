@@ -6,6 +6,8 @@
  * for details.
  ************************************************************************/
 
+#include <sstream>
+
 #include <boost/lexical_cast.hpp>
 
 #include "bruker/BrukerFieldData.h"
@@ -30,7 +32,15 @@ typename BrukerField<VR>::Pointer
 BrukerField<VR>
 ::New(std::string const & brukerFieldName)
 {
-    return Pointer(new Self(brukerFieldName));
+    return Pointer(new Self(brukerFieldName, Range()));
+}
+    
+template<DcmEVR VR>
+typename BrukerField<VR>::Pointer
+BrukerField<VR>
+::New(std::string const & brukerFieldName, Range range)
+{
+    return Pointer(new Self(brukerFieldName, range));
 }
     
 template<DcmEVR VR>
@@ -43,8 +53,8 @@ BrukerField<VR>
     
 template<DcmEVR VR>
 BrukerField<VR>
-::BrukerField(std::string const & brukerFieldName)
-    :SubTag<VR>(), _brukerFieldName(brukerFieldName)
+::BrukerField(std::string const & brukerFieldName, Range range)
+    :SubTag<VR>(), _brukerFieldName(brukerFieldName), _range(range)
 {
     // Nothing to do
 }
@@ -71,27 +81,50 @@ BrukerField<VR>
     {
         dicomifier::bruker::BrukerFieldData fielddata = brukerdataset->GetFieldData(this->_brukerFieldName);
         
+        int count = 0;
+        
         if (fielddata.GetDataType() == "string")
         {
             for (auto value : fielddata.GetStringValue())
             {
-                dicomifier::bruker::BrukerFieldData::CleanString(value);
-                // Warning: cannot lexical_cast String to OFString
-                this->_array.push_back(ElementTraits<VR>::fromString(value));
+                if ((this->_range._max != 0 && count >= this->_range._min && 
+                     count < this->_range._max) || 
+                    (this->_range._max == 0 && this->_range._min == 0))
+                {
+                    dicomifier::bruker::BrukerFieldData::CleanString(value);
+                    // Warning: cannot lexical_cast String to OFString
+                    this->_array.push_back(ElementTraits<VR>::fromString(value));
+                }
+                count++;
             }
         }
         else if (fielddata.GetDataType() == "int")
         {
             for (auto value : fielddata.GetIntValue())
             {
-                this->_array.push_back(boost::lexical_cast<ValueType>(value));
+                if ((this->_range._max != 0 && count >= this->_range._min && 
+                     count < this->_range._max) || 
+                    (this->_range._max == 0 && this->_range._min == 0))
+                {
+                    //this->_array.push_back(boost::lexical_cast<ValueType>(value));
+                    std::stringstream tempstringstream;
+                    tempstringstream << value;
+                    this->_array.push_back(ElementTraits<VR>::fromString(tempstringstream.str()));
+                }
+                count++;
             }
         }
         else if (fielddata.GetDataType() == "float")
         {
             for (auto value : fielddata.GetDoubleValue())
             {
-                this->_array.push_back(boost::lexical_cast<ValueType>(value));
+                if ((this->_range._max != 0 && count >= this->_range._min && 
+                     count < this->_range._max) || 
+                    (this->_range._max == 0 && this->_range._min == 0))
+                {
+                    this->_array.push_back(boost::lexical_cast<ValueType>(value));
+                }
+                count++;
             }
         }
     }

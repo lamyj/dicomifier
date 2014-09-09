@@ -9,6 +9,7 @@
 #ifndef _dfbe0188_c0b5_41bb_93c8_92c25fdfc3b2
 #define _dfbe0188_c0b5_41bb_93c8_92c25fdfc3b2
 
+#include "dicom/TagAndRange.h"
 #include "translator/SubTag.h"
 
 namespace dicomifier
@@ -32,6 +33,8 @@ public:
     static Pointer New();
     
     static Pointer New(std::string const & brukerFieldName);
+    
+    static Pointer New(std::string const & brukerFieldName, Range range);
 
     virtual ~BrukerField();
                      
@@ -43,10 +46,11 @@ public:
 protected:
     BrukerField();
     
-    BrukerField(std::string const & brukerfiledname);
+    BrukerField(std::string const & brukerfiledname, Range range);
 
 private:
     std::string _brukerFieldName;
+    Range _range;
     
 };
     
