@@ -23,8 +23,8 @@ public:
     
     void ParsePrivateDictionary(std::string const & filename);
     
-    DcmTag GetTagFromName(std::string const & name, std::string const & dict = "public");
-    DcmTag GetTagFromKey(std::string const & key, std::string const & dict = "public");
+    DcmTag GetTagFromName(std::string const & name, std::string const & dict, bool & finalypublic);
+    DcmTag GetTagFromKey(std::string const & key, std::string const & dict, bool & finalypublic);
     
     Uint16 FindCreatorElementNumber(std::string const & privatecreator, 
                                     DcmDataset* dataset = NULL);

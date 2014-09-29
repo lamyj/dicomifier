@@ -56,9 +56,10 @@ DicomFieldCreator
     // get tag
     std::string const tag = value.second.get<std::string>("<xmlattr>.tag"); // Warning: throw exception if attribut is missing
     
-    DcmTag dcmtag = dicomifier::Dictionaries::get_instance().GetTagFromKey(tag, privatedict);
+    bool finalypublic = false;
+    DcmTag dcmtag = dicomifier::Dictionaries::get_instance().GetTagFromKey(tag, privatedict, finalypublic);
     
-    if (privatedict != "public")
+    if (privatedict != "public" && !finalypublic)
     {
         Uint16 ele = element * 256 + dcmtag.getElement();
         dcmtag.setElement(ele);

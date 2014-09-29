@@ -80,16 +80,17 @@ protected:
             }
             
             DcmTag dcmtag;
+            bool finalypublic = false;
             if (tagstr.find(",") != std::string::npos)
             {
-                dcmtag = dicomifier::Dictionaries::get_instance().GetTagFromKey(tagstr, privatedict);
+                dcmtag = dicomifier::Dictionaries::get_instance().GetTagFromKey(tagstr, privatedict, finalypublic);
             }
             else
             {
-                dcmtag = dicomifier::Dictionaries::get_instance().GetTagFromName(tagstr, privatedict);
+                dcmtag = dicomifier::Dictionaries::get_instance().GetTagFromName(tagstr, privatedict, finalypublic);
             }
             
-            if (privatedict != "public")
+            if (privatedict != "public" && !finalypublic)
             {
                 Uint16 ele = element * 256 + dcmtag.getElement();
                 dcmtag.setElement(ele);

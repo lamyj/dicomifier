@@ -89,15 +89,14 @@ void EmptyElement::emptyItem(int indice, DcmItem* dataset) const
     }
     else
     {
-        DcmStack dcmstack;
-        OFCondition ret = dataset->findAndGetElements(tar._tag, dcmstack);
+        DcmSequenceOfItems* dcmseqitems = NULL;
+        OFCondition ret = dataset->findAndGetSequence(tar._tag, dcmseqitems);
         
         if (ret.good())
         {
-            for (unsigned long i = tar._range._min; i < std::max(tar._range._max, (int)dcmstack.card()); i++)
+            for (unsigned long i = tar._range._min; i < std::max(tar._range._max, (int)dcmseqitems->card()); i++)
             {
-                DcmObject* obj = dcmstack.elem(i);
-                DcmItem* seq = dynamic_cast<DcmItem*>(obj);
+                DcmItem* seq = dcmseqitems->getItem(i);
                 
                 if (seq != NULL)
                 {
@@ -109,6 +108,14 @@ void EmptyElement::emptyItem(int indice, DcmItem* dataset) const
 }
 
 /****************************** ActionEmptyElement ********************/
+
+template<>
+void 
+EmptyElement::ActionEmptyElement
+::run<EVR_SQ>() const
+{
+    dataset->insertSequenceItem(tagandrange._tag, NULL);
+}
 
 template<DcmEVR VR> 
 void 
