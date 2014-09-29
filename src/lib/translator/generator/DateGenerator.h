@@ -6,8 +6,8 @@
  * for details.
  ************************************************************************/
 
-#ifndef _b2f009c1_3a10_419b_9d30_6b9986e25ac2
-#define _b2f009c1_3a10_419b_9d30_6b9986e25ac2
+#ifndef _f45db991_65f2_4afe_9bf6_fc39dc07035d
+#define _f45db991_65f2_4afe_9bf6_fc39dc07035d
 
 #include "translator/SubTag.h"
 
@@ -18,34 +18,37 @@ namespace translator
 {
     
 template<DcmEVR VR>
-class RegExFilter : public SubTag<VR>
+class DateGenerator : public SubTag<VR>
 {
 public:
-    typedef RegExFilter Self;
+    typedef DateGenerator Self;
     typedef std::shared_ptr<Self> Pointer;
     typedef std::shared_ptr<Self const> ConstPointer;
     
-    /// Create pointer to new instance of RegExFilter
+    /// Create pointer to new instance of DateGenerator
     static Pointer New();
     
-    static Pointer New(Tag::Pointer tag, std::string const & expression);
+    static Pointer New(Tag::Pointer tag, std::string const & inputformat, 
+                       std::string const & outputformat);
 
-    virtual ~RegExFilter();
+    virtual ~DateGenerator();
     
     virtual void run(DcmDataset* dataset,
                      dicomifier::bruker::BrukerDataset* brukerdataset);
     
-    virtual ClassType get_class_type() const { return ECT_RegExFilter; }
+    virtual ClassType get_class_type() const { return ECT_DateGenerator; }
     
 protected:
-    RegExFilter();
+    DateGenerator();
     
-    RegExFilter(Tag::Pointer tag, std::string const & expression);
+    DateGenerator(Tag::Pointer tag, std::string const & inputformat, 
+                  std::string const & outputformat);
 
 private:
     Tag::Pointer _tag;
     
-    std::string _expression;
+    std::string _inputFormat;
+    std::string _outputFormat;
 
 };
 
@@ -53,6 +56,7 @@ private:
     
 } // namespace dicomifier
 
-#include "RegExFilter.txx"
+#include "DateGenerator.txx"
 
-#endif // _b2f009c1_3a10_419b_9d30_6b9986e25ac2
+#endif // _f45db991_65f2_4afe_9bf6_fc39dc07035d
+

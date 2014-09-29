@@ -1,0 +1,339 @@
+<!-- Dictionary For BRUKER <=> DICOM translator -->
+
+<Dictionary>
+
+    <DicomField tag="0008,0008" keyword="ImageType" vr="CS">
+        <ConstantField values="ORIGINAL\PRIMARY\OTHER" />
+    </DicomField>
+    
+    <DicomField tag="0008,0012" keyword="InstanceCreationDate" vr="DA">
+        <DateGenerator />
+    </DicomField>
+    
+    <DicomField tag="0008,0013" keyword="InstanceCreationTime" vr="TM">
+        <TimeGenerator />
+    </DicomField>
+
+    <DicomField tag="0008,0016" keyword="SOPClassUID" vr="UI">
+        <ConstantField values="1.2.840.10008.5.1.4.1.1.4" /> <!-- MRImageStorage UID -->
+    </DicomField>
+
+    <DicomField tag="0008,0018" keyword="SOPInstanceUID" vr="UI">
+        <AdditionOperator>
+            <BrukerField name="VisuUid" />
+            <ConstantField values=".0" />
+        </AdditionOperator>
+    </DicomField>
+    
+    <DicomField tag="0008,0020" keyword="StudyDate" vr="DA">
+        <DateGenerator inputformat="%d %b %Y" outputformat="%Y%m%d">
+            <RegExFilter expression="^.*[[:space:]]{1}([0-9]{2}[[:space:]]{1}[a-zA-Z]{3}[[:space:]]{1}[0-9]{4}).*">
+                <BrukerField name="VisuStudyDate" />
+            </RegExFilter>
+        </DateGenerator>
+    </DicomField>
+
+    <DicomField tag="0008,0021" keyword="SeriesDate" vr="DA" >
+        <DateGenerator inputformat="%d %b %Y" outputformat="%Y%m%d">
+            <RegExFilter expression="^.*[[:space:]]{1}([0-9]{2}[[:space:]]{1}[a-zA-Z]{3}[[:space:]]{1}[0-9]{4}).*">
+                <BrukerField name="VisuSeriesDate" />
+            </RegExFilter>
+        </DateGenerator>
+    </DicomField>
+
+    <DicomField tag="0008,0022" keyword="AcquisitionDate" vr="DA" >
+        <DateGenerator inputformat="%d %b %Y" outputformat="%Y%m%d">
+            <RegExFilter expression="^.*[[:space:]]{1}([0-9]{2}[[:space:]]{1}[a-zA-Z]{3}[[:space:]]{1}[0-9]{4}).*">
+                <BrukerField name="VisuAcqDate" />
+            </RegExFilter>
+        </DateGenerator>
+    </DicomField>
+
+    <DicomField tag="0008,0030" keyword="StudyTime" vr="TM">
+        <RegExFilter expression="^([0-9]{2}):{1}([0-9]{2}):{1}([0-9]{2}).*">
+            <BrukerField name="VisuStudyDate" />
+        </RegExFilter>
+    </DicomField>
+
+    <DicomField tag="0008,0031" keyword="SeriesTime" vr="TM">
+        <RegExFilter expression="^([0-9]{2}):{1}([0-9]{2}):{1}([0-9]{2}).*">
+            <BrukerField name="VisuSeriesDate" />
+        </RegExFilter>
+    </DicomField>
+
+    <DicomField tag="0008,0032" keyword="AcquisitionTime" vr="TM">
+        <RegExFilter expression="^([0-9]{2}):{1}([0-9]{2}):{1}([0-9]{2}).*">
+            <BrukerField name="VisuAcqDate" />
+        </RegExFilter>
+    </DicomField>
+
+    <DicomField tag="0008,0050" keyword="AccessionNumber" vr="SH">
+        <ConstantField values="" />
+    </DicomField>
+
+    <DicomField tag="0008,0060" keyword="Modality" vr="CS">
+        <ConstantField values="MR" />
+    </DicomField>
+
+    <DicomField tag="0008,0070" keyword="Manufacturer" vr="LO">
+        <BrukerField name="ORIGIN" />
+    </DicomField>
+
+    <DicomField tag="0008,0080" keyword="InstitutionName" vr="LO">
+        <BrukerField name="VisuInstitution" />
+    </DicomField>
+
+    <DicomField tag="0008,0090" keyword="PatientName" vr="PN">
+        <BrukerField name="VisuStudyReferringPhysician" />
+    </DicomField>
+
+    <DicomField tag="0008,1010" keyword="StationName" vr="SH">
+        <BrukerField name="VisuStation" />
+    </DicomField>
+
+    <DicomField tag="0008,1030" keyword="StudyDescription" vr="LO">
+        <BrukerField name="VisuStudyDescription" />
+    </DicomField>
+
+    <DicomField tag="0008,1050" keyword="PerformingPhysicianName" vr="PN"><!-- Not in Bruker Doc -->
+        <BrukerField name="OWNER" />
+    </DicomField>
+
+    <DicomField tag="0010,0010" keyword="PatientName" vr="PN">
+        <BrukerField name="VisuSubjectName" />
+    </DicomField>
+
+    <DicomField tag="0010,0020" keyword="PatientID" vr="LO">
+        <BrukerField name="VisuSubjectId" />
+    </DicomField>
+
+    <DicomField tag="0010,0030" keyword="PatientBirthDate" vr="DA">
+        <BrukerField name="VisuSubjectBirthDate" />
+    </DicomField>
+
+    <DicomField tag="0010,0040" keyword="PatientSex" vr="CS">
+        <PatientSexFilter>
+            <BrukerField name="VisuSubjectSex" />
+        </PatientSexFilter>
+    </DicomField>
+
+    <DicomField tag="0010,1030" keyword="PatientWeight" vr="DS">
+        <BrukerField name="VisuSubjectWeight" />
+    </DicomField>
+
+    <DicomField tag="0010,2210" keyword="AnatomicalOrientationType" vr="CS"><!-- Not in Bruker Doc -->
+        <UpperCaseGenerator>
+            <BrukerField name="SUBJECT_type" />
+        </UpperCaseGenerator>
+    </DicomField>
+
+    <DicomField tag="0010,4000" keyword="PatientComments" vr="LT">
+        <BrukerField name="VisuSubjectComment" />
+    </DicomField>
+    
+    <DicomField tag="0018,0020" keyword="ScanningSequence" vr="CS">
+        <ConstantField values="RM\IR" />
+    </DicomField>
+
+    <DicomField tag="0018,0021" keyword="SequenceVariant" vr="CS">
+        <ConstantField values="NONE" />
+    </DicomField>
+
+    <DicomField tag="0018,0022" keyword="ScanOptions" vr="CS">
+        <ConstantField values="" />
+    </DicomField>
+
+    <DicomField tag="0018,0023" keyword="MRAcquisitionType" vr="CS">
+        <AdditionOperator>
+            <BrukerField name="VisuCoreDim" />
+            <ConstantField values="D" />
+        </AdditionOperator>
+    </DicomField>
+
+    <DicomField tag="0018,0024" keyword="SequenceName" vr="SH">
+        <BrukerField name="VisuAcqSequenceName" />
+    </DicomField>
+
+    <DicomField tag="0018,0050" keyword="SliceThickness" vr="DS">
+        <BrukerField name="VisuCoreFrameThickness" />
+    </DicomField>
+
+    <DicomField tag="0018,0080" keyword="RepetitionTime" vr="DS">
+        <BrukerField name="VisuAcqRepetitionTime" />
+    </DicomField>
+
+    <DicomField tag="0018,0081" keyword="EchoTime" vr="DS">
+        <BrukerField name="VisuAcqEchoTime" />
+    </DicomField>
+
+    <DicomField tag="0018,0082" keyword="InversionTime" vr="DS">
+        <BrukerField name="VisuAcqInversionTime" range="0,1" />
+    </DicomField>
+
+    <DicomField tag="0018,0083" keyword="NumberOfAverages" vr="DS">
+        <BrukerField name="VisuAcqNumberOfAverages" />
+    </DicomField>
+
+    <DicomField tag="0018,0084" keyword="ImagingFrequency" vr="DS">
+        <BrukerField name="VisuAcqImagingFrequency" />
+    </DicomField>
+
+    <DicomField tag="0018,0085" keyword="ImagedNucleus" vr="SH">
+        <BrukerField name="VisuAcqImagedNucleus" />
+    </DicomField>
+
+    <DicomField tag="0018,0088" keyword="SpacingBetweenSlices" vr="DS">
+        <ConstantField values="" />                                     <!-- to do: compute -->
+    </DicomField>
+
+    <DicomField tag="0018,0089" keyword="NumberOfPhaseEncodingSteps" vr="IS">
+        <BrukerField name="VisuAcqPhaseEncSteps" />
+    </DicomField>
+
+    <DicomField tag="0018,0091" keyword="EchoTrainLength" vr="IS">
+        <BrukerField name="VisuAcqEchoTrainLength" />
+    </DicomField>
+
+    <DicomField tag="0018,0094" keyword="PercentPhaseFieldOfView" vr="DS">
+        <ConstantField values="" />                                     <!-- to do: compute -->
+    </DicomField>
+
+    <DicomField tag="0018,0095" keyword="PixelBandwith" vr="DS">
+        <BrukerField name="VisuAcqPixelBandwidth" />
+    </DicomField>
+
+    <DicomField tag="0018,1020" keyword="SoftawareVersions" vr="LO">
+        <AdditionOperator>
+            <BrukerField name="VisuCreator" />
+            <BrukerField name="VisuCreatorVersion" />
+        </AdditionOperator>
+    </DicomField>
+
+    <DicomField tag="0018,1030" keyword="ProtocolName" vr="LO">
+        <BrukerField name="VisuAcquisitionProtocol" />
+    </DicomField>
+
+    <DicomField tag="0018,1310" keyword="AcquisitionMatrix" vr="US">
+        <BrukerField name="VisuAcqSize" />
+    </DicomField>
+
+    <DicomField tag="0018,1312" keyword="InPlanePhaseEncodingDirection" vr="CS">
+        <UpperCaseGenerator>
+            <RegExFilter expression="^([a-zA-Z]{3}).{4}[[:space:]]{1}.*">
+                <BrukerField name="VisuAcqImagePhaseEncDir" />
+            </RegExFilter>
+        </UpperCaseGenerator>
+    </DicomField>
+
+    <DicomField tag="0018,1314" keyword="FlipAngle" vr="DS">
+        <BrukerField name="VisuAcqFlipAngle" />
+    </DicomField>
+
+    <DicomField tag="0018,5100" keyword="PatientPosition" vr="CS">
+        <PatientPositionFilter>
+            <BrukerField name="VisuSubjectPosition" />
+        </PatientPositionFilter>
+    </DicomField>
+
+    <DicomField tag="0020,000d" keyword="StudyInstanceUID" vr="UI">
+        <BrukerField name="VisuStudyUid" />
+    </DicomField>
+
+    <DicomField tag="0020,000e" keyword="SeriesInstanceUID" vr="UI" >
+        <BrukerField name="VisuUid" />
+    </DicomField>
+
+    <DicomField tag="0020,0010" keyword="StudyID" vr="SH">
+        <ConditionField>
+            <If>
+                <BrukerFieldExist name="VisuStudyId" />
+            </If>
+            <Then>
+                <BrukerField name="VisuStudyId" />
+            </Then>
+            <Else>
+                <BrukerField name="VisuStudyNumber" />
+            </Else>
+        </ConditionField>
+    </DicomField>
+    
+    <!--DicomField tag="0020,0011" keyword="SeriesNumber" vr="IS" >
+        Extract from Bruker data Path
+    </DicomField-->
+
+    <!--DicomField tag="0020,0012" keyword="AcquisitionNumber" vr="IS" ><!-- Compteur pour chaque image ->
+        <BrukerField name="" />
+    </DicomField>
+
+    <DicomField tag="0020,0013" keyword="InstanceNumber" vr="IS" >
+        <BrukerField name="" />
+    </DicomField-->
+
+    <DicomField tag="0020,0032" keyword="ImagePositionPatient" vr="DS" >
+        <BrukerField name="VisuCorePosition" range="0,3" />
+    </DicomField>
+
+    <DicomField tag="0020,0037" keyword="ImageOrientationPatient" vr="DS" >
+        <BrukerField name="VisuCoreOrientation" range="0,6" />
+    </DicomField>
+
+    <DicomField tag="0020,0052" keyword="FrameOfReferenceUID" vr="UI" >
+        <ConstantField values="" />                                     <!-- to do: verified UID -->
+    </DicomField>
+
+    <DicomField tag="0020,1002" keyword="ImagesInAcquisition" vr="IS" >
+        <BrukerField name="VisuCoreFrameCount" />                       <!-- not sure -->
+    </DicomField>
+
+    <DicomField tag="0020,1040" keyword="PositionReferenceIndicator" vr="LO" >
+        <ConstantField values="" />
+    </DicomField>
+
+    <!--DicomField tag="0020,1041" keyword="SliceLocation" vr="DS" >
+        <ConstantField values="" />                                     <!-- to do: compute ->
+    </DicomField-->
+
+    <DicomField tag="0020,4000" keyword="ImageComments" vr="LT" >
+        <ConstantField values="" />
+    </DicomField>
+
+    <DicomField tag="0028,0002" keyword="SamplesPerPixel" vr="US" >
+        <ConstantField values="1" />
+    </DicomField>
+
+    <DicomField tag="0028,0004" keyword="PhotometricInterpretation" vr="CS" >
+        <ConstantField values="MONOCHROME2" />
+    </DicomField>
+
+    <DicomField tag="0028,0010" keyword="Rows" vr="US" >
+        <BrukerField name="VisuCoreSize" range="0,1" />
+    </DicomField>
+
+    <DicomField tag="0028,0011" keyword="Columns" vr="US" >
+        <BrukerField name="VisuCoreSize" range="1,2" />
+    </DicomField>
+
+    <DicomField tag="0028,0030" keyword="PixelSpacing" vr="DS" >
+        <DivisionOperator>
+            <BrukerField name="VisuCoreExtent" />
+            <BrukerField name="VisuCoreSize" />
+        </DivisionOperator>
+    </DicomField>
+
+    <DicomField tag="0028,0100" keyword="BitsAllocated" vr="US" >
+        <ConstantField values="16" />
+    </DicomField>
+
+    <DicomField tag="0028,0101" keyword="BitsStored" vr="US" >
+        <ConstantField values="16" />
+    </DicomField>
+
+    <DicomField tag="0028,0102" keyword="HighBit" vr="US" >
+        <ConstantField values="15" />
+    </DicomField>
+
+    <DicomField tag="0028,0103" keyword="Pixelrepresentation" vr="US" >
+        <ConstantField values="1" />
+    </DicomField>
+    
+</Dictionary>

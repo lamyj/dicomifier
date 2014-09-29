@@ -36,7 +36,12 @@ enum ClassType
     ECT_MultiplicationOperator,
     ECT_SubtractionOperator,
     ECT_RegExFilter,
-    ECT_ConditionField
+    ECT_ConditionField,
+    ECT_PatientPositionFilter,
+    ECT_PatientSexFilter,
+    ECT_DateGenerator,
+    ECT_TimeGenerator,
+    ECT_UpperCaseGenerator
 };
     
 class Tag
