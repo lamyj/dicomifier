@@ -1,0 +1,78 @@
+#!/bin/bash
+
+export DICOMIFIER_PATH=${PWD}
+
+# Install Python
+dpkg --status python
+if [[ $? == "1" ]]
+then
+    sudo apt-get install python
+fi
+
+# Install Ninja to build project
+dpkg --status ninja-build
+if [[ $? == "1" ]]
+then
+    sudo apt-get install ninja-build
+fi
+
+# Install Dicomifier Dependancies
+sudo apt-get install libboost-all-dev
+sudo apt-get install dcmtk libdcmtk2-dev
+sudo apt-get install swig
+sudo apt-get install libwrap0 libwrap0-dev
+
+# Create Build directory
+if [ ! -d "./build" ]
+then
+    mkdir build
+fi
+
+cd build
+
+export PATH=$PATH:${PWD}/src/appli
+
+# Compile Dicomifier
+cmake -G Ninja -D CMAKE_CXX_FLAGS="-std=c++0x" ../
+if [[ $? == "1" ]]
+then
+    cmake -D CMAKE_CXX_FLAGS="-std=c++0x" ../
+    make
+else
+    ninja
+fi
+
+cd ../../
+
+# Install MAI Dependancies
+export MAI_PATH=${PWD}/MAI
+
+sudo apt-get install python-setuptools
+sudo apt-get install python-flask
+
+# Create Tools directory
+if [ ! -d "./tools" ]
+then
+    mkdir tools
+fi
+
+cd tools
+
+export PYTHONPATH=${PWD}
+
+# Remark:
+#       Easy_install is block by proxy, set the variable http_proxy and https_proxy
+easy_install -d . flask-login
+easy_install -d . flask-openid
+#easy_install -d . flask-mail
+#easy_install -d . sqlalchemy
+#easy_install -d . flask-sqlalchemy
+#easy_install -d . sqlalchemy-migrate
+#easy_install -d . flask-whooshalchemy
+easy_install -d . flask-wtf
+easy_install -d . pytz
+easy_install -d . flask-babel
+easy_install -d . flup
+easy_install -d . wtforms
+
+cd $MAI_PATH

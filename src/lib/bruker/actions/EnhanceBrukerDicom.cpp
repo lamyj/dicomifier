@@ -122,6 +122,21 @@ EnhanceBrukerDicom
         }
     }
     
+    // Adding binary data:
+    int size = brukerdataset->GetFieldData("IM_SIX").GetIntValue()[0];
+    size *= brukerdataset->GetFieldData("IM_SIY").GetIntValue()[0];
+    size *= brukerdataset->GetFieldData("VisuCoreFrameCount").GetIntValue()[0];
+    int pixelSize;
+    brukerdirectory->getImhDataType(brukerdataset->GetFieldData("DATTYPE"), pixelSize);
+    size *= pixelSize;
+    
+    char binarydata[size];
+    memset(&binarydata[0], 0, size);
+    std::ifstream is (brukerdataset->GetFieldData("PIXELDATA").GetStringValue()[0], std::ifstream::binary);
+    is.read (&binarydata[0], size);
+    
+    //this->_dataset->putAndInsertUint8Array(DCM_PixelData, (Uint8*)&binarydata[0], size);
+    
     delete brukerdirectory;
 }
     

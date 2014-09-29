@@ -6,8 +6,8 @@
  * for details.
  ************************************************************************/
 
-#ifndef _b2f009c1_3a10_419b_9d30_6b9986e25ac2
-#define _b2f009c1_3a10_419b_9d30_6b9986e25ac2
+#ifndef _0a335666_dcb5_4ac1_baf7_a04c8f15d504
+#define _0a335666_dcb5_4ac1_baf7_a04c8f15d504
 
 #include "translator/SubTag.h"
 
@@ -18,34 +18,32 @@ namespace translator
 {
     
 template<DcmEVR VR>
-class RegExFilter : public SubTag<VR>
+class PatientSexFilter : public SubTag<VR>
 {
 public:
-    typedef RegExFilter Self;
+    typedef PatientSexFilter Self;
     typedef std::shared_ptr<Self> Pointer;
     typedef std::shared_ptr<Self const> ConstPointer;
     
-    /// Create pointer to new instance of RegExFilter
+    /// Create pointer to new instance of PatientSexFilter
     static Pointer New();
     
-    static Pointer New(Tag::Pointer tag, std::string const & expression);
+    static Pointer New(Tag::Pointer tag);
 
-    virtual ~RegExFilter();
+    virtual ~PatientSexFilter();
     
     virtual void run(DcmDataset* dataset,
                      dicomifier::bruker::BrukerDataset* brukerdataset);
     
-    virtual ClassType get_class_type() const { return ECT_RegExFilter; }
+    virtual ClassType get_class_type() const { return ECT_PatientSexFilter; }
     
 protected:
-    RegExFilter();
+    PatientSexFilter();
     
-    RegExFilter(Tag::Pointer tag, std::string const & expression);
+    PatientSexFilter(Tag::Pointer tag);
 
 private:
     Tag::Pointer _tag;
-    
-    std::string _expression;
 
 };
 
@@ -53,6 +51,6 @@ private:
     
 } // namespace dicomifier
 
-#include "RegExFilter.txx"
+#include "PatientSexFilter.txx"
 
-#endif // _b2f009c1_3a10_419b_9d30_6b9986e25ac2
+#endif // _0a335666_dcb5_4ac1_baf7_a04c8f15d504

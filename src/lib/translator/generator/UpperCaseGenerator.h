@@ -6,8 +6,8 @@
  * for details.
  ************************************************************************/
 
-#ifndef _b2f009c1_3a10_419b_9d30_6b9986e25ac2
-#define _b2f009c1_3a10_419b_9d30_6b9986e25ac2
+#ifndef _c2d2da5f_7ee0_4ada_85dd_ca5f807cc7f9
+#define _c2d2da5f_7ee0_4ada_85dd_ca5f807cc7f9
 
 #include "translator/SubTag.h"
 
@@ -18,34 +18,32 @@ namespace translator
 {
     
 template<DcmEVR VR>
-class RegExFilter : public SubTag<VR>
+class UpperCaseGenerator : public SubTag<VR>
 {
 public:
-    typedef RegExFilter Self;
+    typedef UpperCaseGenerator Self;
     typedef std::shared_ptr<Self> Pointer;
     typedef std::shared_ptr<Self const> ConstPointer;
     
-    /// Create pointer to new instance of RegExFilter
+    /// Create pointer to new instance of UpperCaseGenerator
     static Pointer New();
     
-    static Pointer New(Tag::Pointer tag, std::string const & expression);
+    static Pointer New(Tag::Pointer tag);
 
-    virtual ~RegExFilter();
+    virtual ~UpperCaseGenerator();
     
     virtual void run(DcmDataset* dataset,
                      dicomifier::bruker::BrukerDataset* brukerdataset);
     
-    virtual ClassType get_class_type() const { return ECT_RegExFilter; }
+    virtual ClassType get_class_type() const { return ECT_UpperCaseGenerator; }
     
 protected:
-    RegExFilter();
+    UpperCaseGenerator();
     
-    RegExFilter(Tag::Pointer tag, std::string const & expression);
+    UpperCaseGenerator(Tag::Pointer tag);
 
 private:
     Tag::Pointer _tag;
-    
-    std::string _expression;
 
 };
 
@@ -53,6 +51,9 @@ private:
     
 } // namespace dicomifier
 
-#include "RegExFilter.txx"
+#include "UpperCaseGenerator.txx"
 
-#endif // _b2f009c1_3a10_419b_9d30_6b9986e25ac2
+#endif // _c2d2da5f_7ee0_4ada_85dd_ca5f807cc7f9
+
+
+

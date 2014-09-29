@@ -243,6 +243,17 @@ void BrukerDirectory::ParseDirectory(BrukerDataset * bdataset,
                 // Parse file
                 bdataset->LoadFile(file);
             }
+            else if (std::string((*iter).path().filename().c_str()) == 
+                     std::string("2dseq")) // binary file
+            {
+                std::string file = inputDir + 
+                                   VALID_FILE_SEPARATOR + 
+                                   std::string((*iter).path().filename().c_str());
+                
+                std::string data = "##PIXELDATA=" + file + "\n##END=\n";
+                
+                bdataset->Parse(data);
+            }
         }
         // Else element is a directory
         else
@@ -344,7 +355,7 @@ BrukerDirectory
     
     auto rule = dicomifier::Rule::New();
     
-    int count = 0;
+    /*int count = 0;
     auto it = _BrukerDatasetList.find(seriesnumber);
     if (it != _BrukerDatasetList.end())
     {
@@ -668,7 +679,7 @@ BrukerDirectory
             
             rule->add_action(action);
         }
-    }
+    }*/
     
     return rule;
 }
