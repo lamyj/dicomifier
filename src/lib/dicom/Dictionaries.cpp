@@ -128,36 +128,65 @@ Dictionaries
 
 DcmTag 
 Dictionaries
-::GetTagFromName(std::string const & name, std::string const & dict)
+::GetTagFromName(std::string const & name, std::string const & dict, bool & finalypublic)
 {
     if (this->_dictionaries.find(dict) == this->_dictionaries.end())
     {
-        throw DicomifierException("Uknown private dictionary : " + dict);
+        throw DicomifierException("Unknown private dictionary : " + dict);
     }
     Dictionary::Pointer dico = this->_dictionaries[dict];
     
-    DcmDictEntry* entry = dico->GetEntryFromName(name);
+    finalypublic = false;
+    DcmDictEntry* entry = NULL;
+    try
+    {
+        // Look in the given dictionary
+        entry = dico->GetEntryFromName(name);
+    }
+    catch (DicomifierException exc)
+    {
+        // not find, try in the public dictionary
+        dico = this->_dictionaries["public"];
+        entry = dico->GetEntryFromName(name);
+        
+        finalypublic = true;
+    }
     
     DcmTag tag(*entry);
     tag.setVR(entry->getVR());
-    if (dict != "public") tag.setPrivateCreator(dict.c_str());
+    if (dict != "public" && !finalypublic) tag.setPrivateCreator(dict.c_str());
     
     return tag;
 }
 
 DcmTag 
 Dictionaries
-::GetTagFromKey(std::string const & key, std::string const & dict)
+::GetTagFromKey(std::string const & key, std::string const & dict, bool & finalypublic)
 {
     if (this->_dictionaries.find(dict) == this->_dictionaries.end())
     {
-        throw DicomifierException("Uknown private dictionary : " + dict);
+        throw DicomifierException("Unknown private dictionary : " + dict);
     }
     Dictionary::Pointer dico = this->_dictionaries[dict];
     
-    DcmDictEntry* entry = dico->GetEntryFromKey(key);
+    finalypublic = false;
+    DcmDictEntry* entry = NULL;
+    try
+    {
+        // Look in the given dictionary
+        entry = dico->GetEntryFromKey(key);
+    }
+    catch (DicomifierException exc)
+    {
+        // not find, try in the public dictionary
+        dico = this->_dictionaries["public"];
+        entry = dico->GetEntryFromKey(key);
+        
+        finalypublic = true;
+    }
+    
     DcmTag tag(*entry, entry->getVR());
-    if (dict != "public") tag.setPrivateCreator(dict.c_str());
+    if (dict != "public" && !finalypublic) tag.setPrivateCreator(dict.c_str());
     
     return tag;
 }

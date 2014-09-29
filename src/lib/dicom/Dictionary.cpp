@@ -71,7 +71,7 @@ Dictionary
 {
     if (this->_mapKeyword.find(name) == this->_mapKeyword.end())
     {
-        throw DicomifierException("Uknown tag : " + name);
+        throw DicomifierException("Unknown tag : " + name);
     }
     return this->_mapKeyword[name];
 }
@@ -82,7 +82,7 @@ Dictionary
 {
     if (this->_mapTagKey.find(key) == this->_mapTagKey.end())
     {
-        throw DicomifierException("Uknown tag : " + key);
+        throw DicomifierException("Unknown tag : " + key);
     }
     return this->_mapTagKey[key];
 }
