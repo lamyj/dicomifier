@@ -16,13 +16,17 @@ namespace actions
 {
 
 SaveDataset::SaveDataset():
-    _dataset(NULL), _filename("")
+    _dataset(NULL), _filename(""), _includeMetaInfoHeader(false)
 {
     // Nothing to do
 }
 
-SaveDataset::SaveDataset(DcmDataset * dataset, std::string filename):
-    _dataset(dataset), _filename(filename)
+SaveDataset
+::SaveDataset(DcmDataset * dataset, 
+              std::string filename,
+              bool includeMetaInfoHeader):
+    _dataset(dataset), _filename(filename), 
+    _includeMetaInfoHeader(includeMetaInfoHeader)
 {
     // Nothing to do
 }
@@ -60,6 +64,20 @@ SaveDataset
     this->_filename = filename;
 }
 
+bool
+SaveDataset
+::get_includeMetaInfoHeader() const
+{
+    return this->_includeMetaInfoHeader;
+}
+
+void
+SaveDataset
+::set_includeMetaInfoHeader(bool const & includeMetaInfoHeader)
+{
+    this->_includeMetaInfoHeader = includeMetaInfoHeader;
+}
+
 void
 SaveDataset
 ::run() const
@@ -69,8 +87,18 @@ SaveDataset
         throw DicomifierException("Unable to save empty dataset");
     }
     
-    OFCondition result = this->_dataset->saveFile(this->_filename.c_str(), 
-                                                  EXS_LittleEndianExplicit);
+    OFCondition result = EC_Normal;
+    if (this->_includeMetaInfoHeader)
+    {
+        DcmFileFormat fileformat(this->_dataset);
+        result = fileformat.saveFile(this->_filename.c_str(), 
+                                     EXS_LittleEndianExplicit);
+    }
+    else
+    {
+        result = this->_dataset->saveFile(this->_filename.c_str(), 
+                                          EXS_LittleEndianExplicit);
+    }
                                                  
     if (result.bad())
     {

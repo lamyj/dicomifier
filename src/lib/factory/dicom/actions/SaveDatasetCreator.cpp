@@ -67,7 +67,10 @@ SaveDatasetCreator
         filename = boost::any_cast<std::string>(this->_outputs->find(filename)->second);
     }
     
-    return dicomifier::actions::SaveDataset::New(dataset, filename);
+    auto private_ = value.second.get_optional<bool>("<xmlattr>.includeheader");
+    bool includeMetaInfoHeader = private_ ? private_.get() : false;
+    
+    return dicomifier::actions::SaveDataset::New(dataset, filename, includeMetaInfoHeader);
 }
 
 } // namespace factory
