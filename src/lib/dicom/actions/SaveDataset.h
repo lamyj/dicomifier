@@ -28,8 +28,9 @@ public:
     typedef std::shared_ptr<Self const> ConstPointer;
     
     static Pointer New() { return Pointer(new Self()); }
-    static Pointer New(DcmDataset * dataset, std::string filename) 
-            { return Pointer(new Self(dataset, filename)); }
+    static Pointer New(DcmDataset * dataset, std::string filename,
+                       bool includeMetaInfoHeader = false) 
+            { return Pointer(new Self(dataset, filename, includeMetaInfoHeader)); }
 
     virtual ~SaveDataset();
 
@@ -38,6 +39,9 @@ public:
     
     std::string const & get_filename() const;
     void set_filename(std::string const & filename);
+    
+    bool get_includeMetaInfoHeader() const;
+    void set_includeMetaInfoHeader(bool const & includeMetaInfoHeader);
 
     virtual void run() const;
     
@@ -45,11 +49,13 @@ public:
 
 protected:
     SaveDataset();
-    SaveDataset(DcmDataset * dataset, std::string filename);
+    SaveDataset(DcmDataset * dataset, std::string filename, 
+                bool includeMetaInfoHeader = false);
 
 private:
     DcmDataset * _dataset;
     std::string _filename;
+    bool _includeMetaInfoHeader;
 
     SaveDataset(Self const & other); // Purposely not implemented
     Self const & operator=(Self const & other); // Purposely not implemented

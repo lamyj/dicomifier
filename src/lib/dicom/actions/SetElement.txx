@@ -159,11 +159,9 @@ SetElement<VR>
                 }
                 else
                 {
-                    DcmItem* item = NULL;//new DcmItem();
-                    dataset->findOrCreateSequenceItem(tar._tag, item);
+                    DcmItem* item = NULL;
+                    dataset->findOrCreateSequenceItem(tar._tag, item, i);
                     this->setItem(indice+1, item);
-                    
-                    //dataset->insertSequenceItem(tar._tag, item);
                 }
             }
         }
