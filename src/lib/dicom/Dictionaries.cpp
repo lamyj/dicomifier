@@ -41,6 +41,17 @@ Dictionaries
     return *Dictionaries::_instance;
 }
 
+void
+Dictionaries
+::delete_instance()
+{
+    if (Dictionaries::_instance != NULL)
+    {
+        delete Dictionaries::_instance;
+        Dictionaries::_instance = NULL;
+    }
+}
+
 void 
 Dictionaries
 ::ParsePrivateDictionary(std::string const & filename)

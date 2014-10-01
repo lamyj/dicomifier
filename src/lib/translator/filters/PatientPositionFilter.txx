@@ -59,6 +59,11 @@ PatientPositionFilter<VR>
 ::run(DcmDataset* dataset,
       dicomifier::bruker::BrukerDataset* brukerdataset)
 {
+    if (VR != EVR_CS)
+    {
+        throw DicomifierException("PatientPositionFilter only available for CS");
+    }
+    
     typename SubTag<VR>::Pointer subtag = 
         std::dynamic_pointer_cast<SubTag<VR>>(this->_tag);
 

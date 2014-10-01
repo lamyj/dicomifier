@@ -16,14 +16,53 @@
 
 /*************************** TEST OK 01 *******************************/
 /**
- * Save dataset success
+ * Nominal test case: Constructor
  */
-struct TestDataOK01
+BOOST_AUTO_TEST_CASE(TEST_OK_01)
+{
+    auto saveds = dicomifier::actions::SaveDataset::New();
+    BOOST_CHECK_EQUAL(saveds != NULL, true);
+    
+    saveds = dicomifier::actions::SaveDataset::New(NULL, "");
+    BOOST_CHECK_EQUAL(saveds != NULL, true);
+}
+
+/*************************** TEST OK 02 *******************************/
+/**
+ * Nominal test case: Get/Set
+ */
+BOOST_AUTO_TEST_CASE(TEST_OK_02)
+{
+    auto saveds = dicomifier::actions::SaveDataset::New();
+    
+    saveds->set_includeMetaInfoHeader(true);
+    BOOST_CHECK_EQUAL(saveds->get_includeMetaInfoHeader(), true);
+    
+    DcmDataset * dataset = new DcmDataset();
+    saveds->set_dataset(dataset);
+    BOOST_CHECK_EQUAL(saveds->get_dataset() != NULL, true);
+    
+    saveds->set_filename("test");
+    BOOST_CHECK_EQUAL(saveds->get_filename(), "test");
+    
+    saveds = dicomifier::actions::SaveDataset::New(dataset, "test", true);
+    BOOST_CHECK_EQUAL(saveds->get_dataset() != NULL, true);
+    BOOST_CHECK_EQUAL(saveds->get_filename(), "test");
+    BOOST_CHECK_EQUAL(saveds->get_includeMetaInfoHeader(), true);
+    
+    delete dataset;
+}
+
+/*************************** TEST OK 03 *******************************/
+/**
+ * Nominal test case: Save dataset without Meta information
+ */
+struct TestDataOK03
 {
     DcmDataset * dataset;
     std::string filename;
  
-    TestDataOK01()
+    TestDataOK03()
     {
         dataset = new DcmDataset();
         dataset->putAndInsertOFStringArray(DCM_Modality, "value1");
@@ -32,29 +71,45 @@ struct TestDataOK01
         filename = "./test_SaveDataset_tempfile.dcm";
     }
  
-    ~TestDataOK01()
+    ~TestDataOK03()
     {
         delete dataset;
         remove(filename.c_str());
     }
 };
 
-BOOST_FIXTURE_TEST_CASE(TEST_OK_01, TestDataOK01)
+BOOST_FIXTURE_TEST_CASE(TEST_OK_03, TestDataOK03)
 {
+    BOOST_CHECK_EQUAL(boost::filesystem::exists(filename), false);
+    
     auto testsave = dicomifier::actions::SaveDataset::New();
     testsave->set_dataset(dataset);
     testsave->set_filename(filename);
     testsave->run();
+        
+    BOOST_CHECK_EQUAL(boost::filesystem::exists(filename), true);
+}
+
+/*************************** TEST OK 04 *******************************/
+/**
+ * Nominal test case: Save dataset with Meta information
+ */
+BOOST_FIXTURE_TEST_CASE(TEST_OK_04, TestDataOK03)
+{
+    BOOST_CHECK_EQUAL(boost::filesystem::exists(filename), false);
     
-    BOOST_CHECK_EQUAL(testsave->get_dataset() != NULL, true);
-    BOOST_CHECK_EQUAL(testsave->get_filename() == filename, true);
+    auto testsave = dicomifier::actions::SaveDataset::New();
+    testsave->set_dataset(dataset);
+    testsave->set_filename(filename);
+    testsave->set_includeMetaInfoHeader(true);
+    testsave->run();
         
     BOOST_CHECK_EQUAL(boost::filesystem::exists(filename), true);
 }
 
 /*************************** TEST KO 01 *******************************/
 /**
- * Empty dataset
+ * Error test case: Empty dataset
  */
 BOOST_AUTO_TEST_CASE(TEST_KO_01)
 {
@@ -65,7 +120,7 @@ BOOST_AUTO_TEST_CASE(TEST_KO_01)
 
 /*************************** TEST KO 02 *******************************/
 /**
- * Bad output file name
+ * Error test case: Bad output file name
  */
 struct TestDataKO02
 {

@@ -24,6 +24,17 @@ Factory
     return *Factory::_instance;
 }
 
+void
+Factory
+::delete_instance()
+{
+    if (Factory::_instance != NULL)
+    {
+        delete Factory::_instance;
+        Factory::_instance = NULL;
+    }
+}
+
 Factory::Factory()
 {
     // Nothing to do

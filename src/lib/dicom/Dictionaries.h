@@ -19,6 +19,8 @@ class Dictionaries
 public:
     static Dictionaries & get_instance();
     
+    static void delete_instance();
+    
     virtual ~Dictionaries();
     
     void ParsePrivateDictionary(std::string const & filename);

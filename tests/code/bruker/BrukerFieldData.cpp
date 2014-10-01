@@ -11,24 +11,32 @@
 
 #include "bruker/BrukerFieldData.h"
 
-BOOST_AUTO_TEST_CASE(Create)
+/*************************** TEST OK 01 *******************************/
+/**
+ * Nominal test case: Constructor
+ */
+BOOST_AUTO_TEST_CASE(TEST_OK_01)
 {
-    dicomifier::bruker::BrukerFieldData* field = new dicomifier::bruker::BrukerFieldData("value");
-    
+    // String
+    dicomifier::bruker::BrukerFieldData* field = 
+        new dicomifier::bruker::BrukerFieldData("value");
     BOOST_CHECK_EQUAL(field->GetValueToString(), "value");
-    
     delete field;
     
+    // Int
     field = new dicomifier::bruker::BrukerFieldData(12);
-    
     BOOST_CHECK_EQUAL(field->GetValueToString(), "12");
-    
     delete field;
 }
 
-BOOST_AUTO_TEST_CASE(ParseString)
+/*************************** TEST OK 02 *******************************/
+/**
+ * Nominal test case: Parse String value
+ */
+BOOST_AUTO_TEST_CASE(TEST_OK_02)
 {
-    dicomifier::bruker::BrukerFieldData* field = new dicomifier::bruker::BrukerFieldData();
+    dicomifier::bruker::BrukerFieldData* field = 
+            new dicomifier::bruker::BrukerFieldData();
     
     field->Parse("##$SUBJECT_id=( 60 )\n<Rat>");
     
@@ -40,9 +48,14 @@ BOOST_AUTO_TEST_CASE(ParseString)
     delete field;
 }
 
-BOOST_AUTO_TEST_CASE(ParseInt)
+/*************************** TEST OK 03 *******************************/
+/**
+ * Nominal test case: Parse Int value
+ */
+BOOST_AUTO_TEST_CASE(TEST_OK_03)
 {
-    dicomifier::bruker::BrukerFieldData* field = new dicomifier::bruker::BrukerFieldData();
+    dicomifier::bruker::BrukerFieldData* field = 
+            new dicomifier::bruker::BrukerFieldData();
     
     field->Parse("##$AdjStudyStateExpno=( 6 )\n1 1 1 3 3 3");
     
@@ -54,9 +67,14 @@ BOOST_AUTO_TEST_CASE(ParseInt)
     delete field;
 }
 
-BOOST_AUTO_TEST_CASE(ParseDouble)
+/*************************** TEST OK 04 *******************************/
+/**
+ * Nominal test case: Parse Double value
+ */
+BOOST_AUTO_TEST_CASE(TEST_OK_04)
 {
-    dicomifier::bruker::BrukerFieldData* field = new dicomifier::bruker::BrukerFieldData();
+    dicomifier::bruker::BrukerFieldData* field = 
+            new dicomifier::bruker::BrukerFieldData();
     
     field->Parse("##$NomDuTag=( 1 )\n26.5");
     
@@ -65,5 +83,34 @@ BOOST_AUTO_TEST_CASE(ParseDouble)
     std::vector<double> vect = { 26.5 };
     BOOST_CHECK_EQUAL(field->GetDoubleValue() == vect, true);
     
+    delete field;
+}
+
+/*************************** TEST OK 05 *******************************/
+/**
+ * Nominal test case: toString function
+ */
+BOOST_AUTO_TEST_CASE(TEST_OK_05)
+{
+    // Print String
+    dicomifier::bruker::BrukerFieldData* field = 
+            new dicomifier::bruker::BrukerFieldData();
+    field->Parse("##$SUBJECT_id=( 60 )\n<Rat>");
+    BOOST_CHECK_EQUAL(field->toString(), 
+        "(DimensionNumber=0,DataType=string,NumberOfElements=1,DimensionNumberValue=[0,],StringValue=[<Rat>,])");
+    delete field;
+    
+    // Print Int
+    field = new dicomifier::bruker::BrukerFieldData();
+    field->Parse("##$AdjStudyStateExpno=( 6 )\n1 1 1 3 3 3");
+    BOOST_CHECK_EQUAL(field->toString(), 
+        "(DimensionNumber=1,DataType=int,NumberOfElements=6,DimensionNumberValue=[0,6,],IntValue=[1,1,1,3,3,3,])");
+    delete field;
+    
+    // Print Double
+    field = new dicomifier::bruker::BrukerFieldData();
+    field->Parse("##$NomDuTag=( 1 )\n26.5");
+    BOOST_CHECK_EQUAL(field->toString(), 
+        "(DimensionNumber=1,DataType=float,NumberOfElements=1,DimensionNumberValue=[0,1,],DoubleValue=[26.5,])");
     delete field;
 }

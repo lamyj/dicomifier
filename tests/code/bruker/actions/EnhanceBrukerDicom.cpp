@@ -18,23 +18,55 @@
 #include "bruker/actions/EnhanceBrukerDicom.h"
 #include "core/DicomifierException.h"
 
-struct TestData
+/*************************** TEST OK 01 *******************************/
+/**
+ * Nominal test case: Constructor
+ */
+BOOST_AUTO_TEST_CASE(TEST_OK_01)
+{
+    auto enhanceb2d = dicomifier::actions::EnhanceBrukerDicom::New();
+    BOOST_CHECK_EQUAL(enhanceb2d != NULL, true);
+    
+    enhanceb2d = dicomifier::actions::EnhanceBrukerDicom::New(NULL, "", "");
+    BOOST_CHECK_EQUAL(enhanceb2d != NULL, true);
+}
+
+/*************************** TEST OK 02 *******************************/
+/**
+ * Nominal test case: Get/Set
+ */
+BOOST_AUTO_TEST_CASE(TEST_OK_02)
+{
+    auto testenhance = dicomifier::actions::EnhanceBrukerDicom::New();
+    
+    testenhance->set_dataset(new DcmDataset());
+    testenhance->set_brukerDir("path");
+        
+    BOOST_CHECK_EQUAL(testenhance->get_dataset() != NULL, true);
+    BOOST_CHECK_EQUAL(testenhance->get_brukerDir() != "", true);
+}
+
+/*************************** TEST OK 03 *******************************/
+/**
+ * Nominal test case: Run
+ */
+struct TestDataOK03
 {
     DcmDataset * dataset;
  
-    std::string filepath;
-    std::string secondfile;
-    std::string thirdfile;
+    std::string subjectfilepath;
+    std::string visuparsfile;
+    std::string dictionaryfile;
+    std::string binaryfile;
  
-    TestData()
+    TestDataOK03()
     {
         dataset = new DcmDataset();
-        dataset->putAndInsertOFStringArray(DCM_SeriesNumber, "10001");
         
-        filepath = "./subject";
+        subjectfilepath = "./subject";
         
         std::ofstream myfile;
-        myfile.open(filepath);
+        myfile.open(subjectfilepath);
         myfile << "Writing this to a file.\n";
         myfile << "##TITLE=Parameter List, ParaVision 6.0\n";
         myfile << "##JCAMPDX=4.24\n";
@@ -46,9 +78,9 @@ struct TestData
         myfile << "##$SUBJECT_name_string=( 64 )\n";
         myfile << "<Gustave>\n";
         myfile << "##$DATTYPE=ip_int\n";
-        myfile << "##$IM_SIX=96\n";
-        myfile << "##$IM_SIY=96\n";
-        myfile << "##$IM_SIZ=198\n";
+        myfile << "##$IM_SIX=8\n";
+        myfile << "##$IM_SIY=8\n";
+        myfile << "##$IM_SIZ=1\n";
         myfile << "##END=\n";
         myfile.close();
         
@@ -56,9 +88,9 @@ struct TestData
         boost::filesystem::create_directory("./1/pdata");
         boost::filesystem::create_directory("./1/pdata/1");
         
-        secondfile = "./1/pdata/1/acqp";
+        visuparsfile = "./1/pdata/1/visu_pars";
         
-        myfile.open(secondfile);
+        myfile.open(visuparsfile);
         myfile << "Writing this to a file.\n";
         myfile << "##TITLE=Parameter List, ParaVision 6.0\n";
         myfile << "##JCAMPDX=4.24\n";
@@ -74,37 +106,49 @@ struct TestData
         myfile << "<rat 3>\n";
         myfile << "##$PVM_SPackArrSliceDistance=( 3 )\n";
         myfile << "2 2 2\n";
+        myfile << "##$VisuCoreFrameCount=1\n";
         myfile << "##END=\n";
         myfile.close();
         
-        thirdfile = "./test_dictionary.xml";
+        dictionaryfile = "./test_dictionary.xml";
         
-        myfile.open(thirdfile);
+        myfile.open(dictionaryfile);
         myfile << "<Dictionary>\n";
         myfile << "<DicomField tag=\"0008,0060\" keyword=\"Modality\" vr=\"CS\">\n";
         myfile << "<ConstantField values=\"MR\" />\n";
         myfile << "</DicomField>\n";
         myfile << "</Dictionary>\n";
         myfile.close();
+        
+        // Write 2dseq file
+        char* buffer = new char[64];
+        binaryfile = "./1/pdata/1/2dseq";
+        std::ofstream outfile(binaryfile, std::ofstream::binary);
+        outfile.write(buffer, 64);
+        outfile.close();
+        delete[] buffer;
     }
  
-    ~TestData()
+    ~TestDataOK03()
     {
         delete dataset;
         
-        remove(filepath.c_str());
-        remove(secondfile.c_str());
-        remove(thirdfile.c_str());
+        remove(visuparsfile.c_str());
+        remove(subjectfilepath.c_str());
+        remove(dictionaryfile.c_str());
+        remove(binaryfile.c_str());
         
         boost::filesystem::remove_all("./1");
     }
 };
 
-BOOST_FIXTURE_TEST_CASE(TEST_OK_01, TestData)
+BOOST_FIXTURE_TEST_CASE(TEST_OK_03, TestDataOK03)
 {
+    dataset->putAndInsertOFStringArray(DCM_SeriesNumber, OFString("10001"));
+        
     auto testenhance = 
         dicomifier::actions::EnhanceBrukerDicom::New(dataset, ".", 
-                                                     thirdfile);
+                                                     dictionaryfile);
     
     testenhance->run();
         
@@ -112,25 +156,29 @@ BOOST_FIXTURE_TEST_CASE(TEST_OK_01, TestData)
     BOOST_CHECK_EQUAL(dataset->tagExists(DCM_Modality), true);
 }
 
-
-BOOST_AUTO_TEST_CASE(TEST_OK_02)
-{
-    auto testenhance = dicomifier::actions::EnhanceBrukerDicom::New();
-    
-    testenhance->set_dataset(new DcmDataset());
-    testenhance->set_brukerDir("path");
-        
-    // check DCM_Modality create
-    BOOST_CHECK_EQUAL(testenhance->get_dataset() != NULL, true);
-    BOOST_CHECK_EQUAL(testenhance->get_brukerDir() != "", true);
-}
-
+/*************************** TEST KO 01 *******************************/
+/**
+ * Error test case: Unknown bruker Directory
+ */
 BOOST_AUTO_TEST_CASE(TEST_KO_01)
 {
     auto testenhance = dicomifier::actions::EnhanceBrukerDicom::New();
     
     testenhance->set_brukerDir("unknown path");
         
-    // check DCM_Modality create
     BOOST_REQUIRE_THROW(testenhance->run(), dicomifier::DicomifierException);
 }
+
+/*************************** TEST KO 02 *******************************/
+/**
+ * Error test case: No Series number
+ */
+BOOST_FIXTURE_TEST_CASE(TEST_KO_02, TestDataOK03)
+{
+    auto testenhance = 
+        dicomifier::actions::EnhanceBrukerDicom::New(dataset, ".", 
+                                                     dictionaryfile);
+        
+    BOOST_REQUIRE_THROW(testenhance->run(), dicomifier::DicomifierException);
+}
+

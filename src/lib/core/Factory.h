@@ -31,6 +31,8 @@ public:
      */
     static Factory & get_instance();
     
+    static void delete_instance();
+    
     /// Destroy the Factory
     virtual ~Factory();
 

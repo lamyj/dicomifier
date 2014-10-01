@@ -65,6 +65,20 @@ Dictionary
     }
 }
 
+bool 
+Dictionary
+::IsDictEntryFromName(std::string const & name) const
+{
+    return this->_mapKeyword.find(name) != this->_mapKeyword.end();
+}
+
+bool 
+Dictionary
+::IsDictEntryFromKey(std::string const & key) const
+{
+    return this->_mapTagKey.find(key) != this->_mapTagKey.end();
+}
+
 DcmDictEntry* 
 Dictionary
 ::GetEntryFromName(std::string const & name)
