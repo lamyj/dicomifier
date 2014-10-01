@@ -30,7 +30,7 @@ public:
         m_message(message) {}
 
     /// Destroy the exception
-    ~DicomifierException() throw() {}
+    virtual ~DicomifierException() throw() {}
     
     /**
      * Return details about this exception

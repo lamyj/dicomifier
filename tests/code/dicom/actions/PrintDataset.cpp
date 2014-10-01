@@ -20,8 +20,7 @@
  */
 BOOST_AUTO_TEST_CASE(TEST_OK_01)
 {
-    dicomifier::actions::PrintDataset::Pointer printds = 
-        dicomifier::actions::PrintDataset::New();
+    auto printds = dicomifier::actions::PrintDataset::New();
     BOOST_CHECK_EQUAL(printds != NULL, true);
     
     printds = dicomifier::actions::PrintDataset::New(NULL, "");
@@ -34,16 +33,20 @@ BOOST_AUTO_TEST_CASE(TEST_OK_01)
  */
 BOOST_AUTO_TEST_CASE(TEST_OK_02)
 {
-    dicomifier::actions::PrintDataset::Pointer printds = 
-        dicomifier::actions::PrintDataset::New();
+    auto printds = dicomifier::actions::PrintDataset::New();
     
     DcmDataset * dataset = new DcmDataset();
     printds->set_dataset(dataset);
     BOOST_CHECK_EQUAL(printds->get_dataset() != NULL, true);
-    delete dataset;
     
     printds->set_outputfile("test");
     BOOST_CHECK_EQUAL(printds->get_outputfile(), "test");
+    
+    printds = dicomifier::actions::PrintDataset::New(dataset, "test");
+    BOOST_CHECK_EQUAL(printds->get_dataset() != NULL, true);
+    BOOST_CHECK_EQUAL(printds->get_outputfile(), "test");
+    
+    delete dataset;
 }
 
 /*************************** TEST OK 03 *******************************/
@@ -73,6 +76,8 @@ struct TestDataOK03
 
 BOOST_FIXTURE_TEST_CASE(TEST_OK_03, TestDataOK03)
 {
+    BOOST_CHECK_EQUAL(boost::filesystem::exists(filename), false);
+    
     auto testprint = dicomifier::actions::PrintDataset::New();
     testprint->set_dataset(dataset);
     testprint->set_outputfile(filename);
@@ -83,7 +88,7 @@ BOOST_FIXTURE_TEST_CASE(TEST_OK_03, TestDataOK03)
 
 /*************************** TEST KO 01 *******************************/
 /**
- * Nominal test case: Empty dataset
+ * Error test case: Empty dataset
  */
 BOOST_AUTO_TEST_CASE(TEST_KO_01)
 {

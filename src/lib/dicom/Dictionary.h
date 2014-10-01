@@ -35,6 +35,9 @@ public:
     void AddDictEntry(DcmDictEntry* entry, std::string const & keyword, 
                       std::string const & tagkey);
                       
+    bool IsDictEntryFromName(std::string const & name) const;
+    bool IsDictEntryFromKey(std::string const & key) const;
+                      
     DcmDictEntry* GetEntryFromName(std::string const & name);
     DcmDictEntry* GetEntryFromKey(std::string const & key);
     

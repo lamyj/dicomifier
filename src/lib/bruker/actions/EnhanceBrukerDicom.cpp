@@ -132,8 +132,9 @@ EnhanceBrukerDicom
     
     char binarydata[size];
     memset(&binarydata[0], 0, size);
-    std::ifstream is (brukerdataset->GetFieldData("PIXELDATA").GetStringValue()[0], std::ifstream::binary);
-    is.read (&binarydata[0], size);
+    std::ifstream is(brukerdataset->GetFieldData("PIXELDATA").GetStringValue()[0], 
+                     std::ifstream::binary);
+    is.read(&binarydata[0], size);
     
     this->_dataset->putAndInsertUint8Array(DCM_PixelData, (Uint8*)&binarydata[0], size);
     

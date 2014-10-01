@@ -16,9 +16,69 @@
 
 /*************************** TEST OK 01 *******************************/
 /**
- * Store dataset success
+ * Nominal test case: Constructor
  */
-BOOST_FIXTURE_TEST_CASE(TEST_OK_01, DcmQrSCP)
+BOOST_AUTO_TEST_CASE(TEST_OK_01)
+{
+    auto storeds = dicomifier::actions::StoreDataset::New();
+    BOOST_CHECK_EQUAL(storeds != NULL, true);
+    
+    storeds = dicomifier::actions::StoreDataset::New(NULL, "", 0, "", "");
+    BOOST_CHECK_EQUAL(storeds != NULL, true);
+}
+
+/*************************** TEST OK 02 *******************************/
+/**
+ * Nominal test case: Get/Set
+ */
+BOOST_AUTO_TEST_CASE(TEST_OK_02)
+{
+    DcmDataset * dataset = new DcmDataset();
+    auto storeds = dicomifier::actions::StoreDataset::New();
+    
+    storeds->set_dataset(dataset);
+    BOOST_CHECK_EQUAL(storeds->get_dataset() != NULL, true);
+    
+    storeds->set_address("MyAdress");
+    BOOST_CHECK_EQUAL(storeds->get_address(), "MyAdress");
+    
+    storeds->set_port(11112);
+    BOOST_CHECK_EQUAL(storeds->get_port(), 11112);
+    
+    storeds->set_AEremote("REMOTE");
+    BOOST_CHECK_EQUAL(storeds->get_AEremote(), "REMOTE");
+    
+    storeds->set_AElocal("LOCAL");
+    BOOST_CHECK_EQUAL(storeds->get_AElocal(), "LOCAL");
+    
+    storeds->set_user_identity_type(dicomifier::UserIdentityType::UsernameAndPassword);
+    BOOST_CHECK_EQUAL(storeds->get_user_identity_type() == dicomifier::UserIdentityType::UsernameAndPassword, true);
+    
+    storeds->set_user_identity_primary_field("user");
+    BOOST_CHECK_EQUAL(storeds->get_user_identity_primary_field(), "user");
+    
+    storeds->set_user_identity_secondary_field("password");
+    BOOST_CHECK_EQUAL(storeds->get_user_identity_secondary_field(), "password");
+    
+    storeds = dicomifier::actions::StoreDataset::New(dataset, 
+                                                     "MyAdress",
+                                                     11112,
+                                                     "REMOTE",
+                                                     "LOCAL");
+    BOOST_CHECK_EQUAL(storeds->get_dataset() != NULL, true);
+    BOOST_CHECK_EQUAL(storeds->get_address(), "MyAdress");
+    BOOST_CHECK_EQUAL(storeds->get_port(), 11112);
+    BOOST_CHECK_EQUAL(storeds->get_AEremote(), "REMOTE");
+    BOOST_CHECK_EQUAL(storeds->get_AElocal(), "LOCAL");
+    
+    delete dataset;
+}
+
+/*************************** TEST OK 03 *******************************/
+/**
+ * Nominal test case: Store dataset success
+ */
+BOOST_FIXTURE_TEST_CASE(TEST_OK_03, DcmQrSCP)
 {
     DcmDataset * dataset = NULL;
     {
@@ -57,7 +117,7 @@ BOOST_FIXTURE_TEST_CASE(TEST_OK_01, DcmQrSCP)
 
 /*************************** TEST KO 01 *******************************/
 /**
- * Empty dataset
+ * Error test case: Empty dataset
  */
 BOOST_AUTO_TEST_CASE(TEST_KO_01)
 {
@@ -68,7 +128,7 @@ BOOST_AUTO_TEST_CASE(TEST_KO_01)
 
 /*************************** TEST KO 02 *******************************/
 /**
- * Missing SOPClassUID attribut
+ * Error test case: Missing SOPClassUID attribut
  */
 struct TestDataKO02
 {
@@ -96,7 +156,7 @@ BOOST_FIXTURE_TEST_CASE(TEST_KO_02, TestDataKO02)
 
 /*************************** TEST KO 03 *******************************/
 /**
- * Bad Network address or port
+ * Error test case: Bad Network address or port
  */
 struct TestDataKO03
 {
@@ -127,7 +187,7 @@ BOOST_FIXTURE_TEST_CASE(TEST_KO_03, TestDataKO03)
 
 /*************************** TEST KO 04 *******************************/
 /**
- * Bad caller AE title
+ * Error test case: Bad caller AE title
  */
 BOOST_FIXTURE_TEST_CASE(TEST_KO_04, DcmQrSCP)
 {
@@ -168,7 +228,7 @@ BOOST_FIXTURE_TEST_CASE(TEST_KO_04, DcmQrSCP)
 
 /*************************** TEST KO 05 *******************************/
 /**
- * Bad called AE title
+ * Error test case: Bad called AE title
  */
 BOOST_FIXTURE_TEST_CASE(TEST_KO_05, DcmQrSCP)
 {
