@@ -20,7 +20,7 @@ struct Range
     int _min;
     int _max;
     
-    Range(): _min(0), _max(0) {}
+    Range(): _min(0), _max(1) {}
     Range(int min, int max): _min(min), _max(max) {}
 };
 

@@ -16,11 +16,14 @@ namespace dicomifier
 namespace bruker
 {
     
-BrukerDataset::BrukerDataset()
+BrukerDataset
+::BrukerDataset()
 {
+    // Nothing to do
 }
 
-BrukerDataset::BrukerDataset(BrukerDataset const & dataset)
+BrukerDataset
+::BrukerDataset(BrukerDataset const & dataset)
 {
     BrukerMapType::const_iterator iter = dataset.BrukerHeaderMap.begin();
     for (; iter != dataset.BrukerHeaderMap.end(); ++iter)
@@ -29,11 +32,15 @@ BrukerDataset::BrukerDataset(BrukerDataset const & dataset)
     }
 }
 
-BrukerDataset::~BrukerDataset()
+BrukerDataset
+::~BrukerDataset()
 {
+    // Nothing to do
 }
 
-bool BrukerDataset::LoadFile(std::string fileToRead)
+bool 
+BrukerDataset
+::LoadFile(std::string fileToRead)
 {
     std::ifstream FID;
     
@@ -52,7 +59,9 @@ bool BrukerDataset::LoadFile(std::string fileToRead)
     return true;
 }
 
-void BrukerDataset::Parse(std::string const & data)
+void 
+BrukerDataset
+::Parse(std::string const & data)
 {
     // Get first data position
     int PositionDebut = data.find("##");
@@ -63,11 +72,13 @@ void BrukerDataset::Parse(std::string const & data)
     std::string Substring, currentKey;
     int PosRel = 0;
     
-    BrukerFieldData currentData;
+    BrukerFieldData::Pointer currentData;
     
     // While all buffer not read
     while (PositionDebut != std::string::npos)
     {
+        currentData = BrukerFieldData::New(); 
+        
         // Get next data position
         PositionFin = data.find("##",PositionDebut+2);
         
@@ -87,10 +98,8 @@ void BrukerDataset::Parse(std::string const & data)
         // Move position for next loop
         PositionDebut = PositionFin;
         
-        // Get data key
-        currentKey = BrukerFieldData::MatchBufferForText(Substring, RegEx_KeyWord);
-        // Get key data
-        currentData.Parse(Substring);
+        // Parsing
+        currentKey = currentData->Parse(Substring);
             
         // Protection against duplication key
         if ( ! this->HasFieldData(currentKey))
@@ -101,21 +110,23 @@ void BrukerDataset::Parse(std::string const & data)
         {
 #if DEBUG
             // duplicate key with different value
-            if (BrukerHeaderMap[ currentKey ].toString() != currentData.toString())
+            /* TODO: redefined operator == and operator << 
+            if (BrukerHeaderMap[ currentKey ] != currentData)
             {
                 // error
                 std::cout << "Key '" << currentKey << "' already exist." << std::endl;
-                std::cout << "\tvalue1 = " << BrukerHeaderMap[ currentKey ].toString() << std::endl;
-                std::cout << "\tvalue2 = " << currentData.toString() << std::endl;
+                std::cout << "\tvalue1 = " << BrukerHeaderMap[ currentKey ] << std::endl;
+                std::cout << "\tvalue2 = " << currentData << std::endl;
             }
+            */
 #endif
         }
-        
-        currentData.Reset();
     }
 }
 
-void BrukerDataset::Parse(std::istream & streamdata)
+void 
+BrukerDataset
+::Parse(std::istream & streamdata)
 {
     // File length
     streamdata.seekg (0, std::ios::end);
@@ -136,22 +147,9 @@ void BrukerDataset::Parse(std::istream & streamdata)
     this->Parse(loadedfile);
 }
 
-std::string BrukerDataset::toString() const
-{
-    std::ostringstream oss (std::ostringstream::out);
-    
-    BrukerMapType::const_iterator it = BrukerHeaderMap.begin();
-    for (; it != BrukerHeaderMap.end(); ++it )
-    {
-        oss << (*it).first << "=";
-        oss << (*it).second.toString() << "\n";
-    } 
-    
-    return oss.str();
-}
-
-void BrukerDataset::SetFieldData(std::string const & key, 
-                                 BrukerFieldData const & value)
+void 
+BrukerDataset
+::SetFieldData(std::string const & key, BrukerFieldData::Pointer const value)
 {
     // Do not add non-existing key
     if (this->HasFieldData(key))
@@ -161,7 +159,9 @@ void BrukerDataset::SetFieldData(std::string const & key,
     }
 }
 
-BrukerFieldData BrukerDataset::GetFieldData(std::string key) const
+BrukerFieldData::Pointer
+BrukerDataset
+::GetFieldData(std::string key) const
 {
     // Search key
     BrukerMapType::const_iterator element;
@@ -175,10 +175,12 @@ BrukerFieldData BrukerDataset::GetFieldData(std::string key) const
     
     // Key not find => return default data field
     // throw an error ?
-    return BrukerFieldData();
+    return BrukerFieldData::New();
 }
 
-bool BrukerDataset::HasFieldData(std::string key) const
+bool 
+BrukerDataset
+::HasFieldData(std::string key) const
 {
     // Search key
     BrukerMapType::const_iterator element;

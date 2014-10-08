@@ -96,6 +96,58 @@ EnhanceBrukerDicom
     // Search corresponding Bruker Dataset
     dicomifier::bruker::BrukerDataset* brukerdataset = brukerdirectory->get_brukerDataset(str.c_str());
     
+    // TODO: read VisuFGOrderDescDim (int), VisuFGOrderDesc (string) and VisuGroupDepVals (string)
+    // First look the VisuFGOrderDescDim attribut (Number of frame groups)
+    /*if (!brukerdataset->HasFieldData("VisuFGOrderDescDim"))
+    {
+        throw dicomifier::DicomifierException("Corrupted Bruker Data");
+    }
+    int frameGroupDim = brukerdataset->GetFieldData("VisuFGOrderDescDim")->get_int(0);
+    
+    std::vector<VISU_FRAMEGROUP_TYPE> frameGroupLists;
+    if (frameGroupDim > 0)
+    {
+        // VisuFGOrderDesc should exist (Frame group description)
+        if (!brukerdataset->HasFieldData("VisuFGOrderDesc"))
+        {
+            throw dicomifier::DicomifierException("Corrupted Bruker Data");
+        }
+        
+        // Parse VisuFGOrderDesc values
+        for (std::string currentvalue : brukerdataset->GetFieldData("VisuFGOrderDesc").GetStringValue())
+        {
+            // search ')'
+            int pos = 0;
+            while (pos < currentvalue.length()-1)
+            {
+                int findpos = currentvalue.find(')', pos);
+                if (findpos == std::string::npos)
+                {
+                    pos = currentvalue.length();
+                }
+                else
+                {
+                    std::string findGroup = currentvalue.substr(pos, findpos+1-pos);
+                    
+                    boost::replace_all(findGroup, "(", "");
+                    boost::replace_all(findGroup, ")", "");
+                    boost::replace_all(findGroup, "<", "");
+                    boost::replace_all(findGroup, ">", "");
+                    
+                    std::vector<std::string> splitvalues;
+                    boost::split(splitvalues, findGroup, boost::is_any_of(","));
+                    
+                    VISU_FRAMEGROUP_TYPE frameGroup;
+                    
+                    pos = findpos+1;
+                }
+            }
+        }
+    }
+    std::cout << brukerdataset->GetFieldData("VisuFGOrderDesc").GetStringValue()[0] << std::endl;
+    std::cout << brukerdataset->GetFieldData("VisuGroupDepVals").GetStringValue()[0] << std::endl;
+    std::cout << brukerdataset->GetFieldData("VisuGroupDepVals").GetStringValue().size() << std::endl;*/
+    
     // Load Dictionary
     boost::property_tree::ptree pt;
     boost::property_tree::xml_parser::read_xml(this->_brukerToDicomDictionary, pt);
@@ -123,20 +175,22 @@ EnhanceBrukerDicom
     }
     
     // Adding binary data:
-    int size = brukerdataset->GetFieldData("IM_SIX").GetIntValue()[0];
-    size *= brukerdataset->GetFieldData("IM_SIY").GetIntValue()[0];
-    size *= brukerdataset->GetFieldData("VisuCoreFrameCount").GetIntValue()[0];
+    int size = brukerdataset->GetFieldData("IM_SIX")->get_int(0);
+    size *= brukerdataset->GetFieldData("IM_SIY")->get_int(0);
+    size *= brukerdataset->GetFieldData("VisuCoreFrameCount")->get_int(0);
     int pixelSize;
     brukerdirectory->getImhDataType(brukerdataset->GetFieldData("DATTYPE"), pixelSize);
     size *= pixelSize;
     
-    char binarydata[size];
-    memset(&binarydata[0], 0, size);
-    std::ifstream is(brukerdataset->GetFieldData("PIXELDATA").GetStringValue()[0], 
+    std::ifstream is(brukerdataset->GetFieldData("PIXELDATA")->get_string(0), 
                      std::ifstream::binary);
-    is.read(&binarydata[0], size);
+    char * binarydata = new char[size];
+    memset(binarydata, 0, size);
+    is.read(binarydata, size);
     
-    this->_dataset->putAndInsertUint8Array(DCM_PixelData, (Uint8*)&binarydata[0], size);
+    // TODO: who managers the buffer ?
+    this->_dataset->putAndInsertUint8Array(DCM_PixelData, (Uint8*)binarydata, size);
+    // TODO (maybe) delete[] binarydata;
     
     delete brukerdirectory;
 }

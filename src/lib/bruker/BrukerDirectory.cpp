@@ -295,11 +295,12 @@ bool BrukerDirectory::isDirToParse(std::string const & dir)
     return false;
 }
 
-void BrukerDirectory::getImhDataType(BrukerFieldData const & bDPT, int & pixelSize)
+void BrukerDirectory::getImhDataType(BrukerFieldData::Pointer const bDPT, int & pixelSize)
 {
-    if(bDPT.GetDataType() == "string")
+    std::string datatype = bDPT->get_data_type();
+    if(datatype == "String")
     {         
-        std::string brukerDataPixelType = bDPT.GetStringValue()[0];
+        std::string brukerDataPixelType = bDPT->get_string(0);
 
         if (brukerDataPixelType ==  "ip_short") 
         {
@@ -314,9 +315,9 @@ void BrukerDirectory::getImhDataType(BrukerFieldData const & bDPT, int & pixelSi
             pixelSize = 1;
         }
     }
-    else
+    else if (datatype == "Int")
     {
-        int brukerDataPixelType = bDPT.GetIntValue()[0];
+        int brukerDataPixelType = bDPT->get_int(0);
 
         if (brukerDataPixelType ==  2) 
         {

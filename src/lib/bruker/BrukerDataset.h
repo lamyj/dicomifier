@@ -27,7 +27,7 @@ namespace bruker
 */
 class BrukerDataset
 {
-    typedef std::map<std::string, BrukerFieldData> BrukerMapType;
+    typedef std::map<std::string, BrukerFieldData::Pointer> BrukerMapType;
     
 public:
     /**
@@ -65,25 +65,19 @@ public:
     void Parse(std::istream & streamdata);
     
     /**
-     * Return this as string. (Only used to debug)
-     * @return this as string
-     */
-    std::string toString() const;
-    
-    /**
      * Modify values for a given key
      * @param key : search key
      * @param value : new value
      */
     void SetFieldData(std::string const & key, 
-                      BrukerFieldData const & value);
+                      BrukerFieldData::Pointer const value);
     
     /**
      * Return values for a given key
      * @param key : search key
      * @return values
      */
-    BrukerFieldData GetFieldData(std::string key) const;
+    BrukerFieldData::Pointer GetFieldData(std::string key) const;
     
     /**
      * @return : true if dataset contains key, false otherwise

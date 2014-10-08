@@ -65,7 +65,7 @@ public:
     
     dicomifier::Rule::Pointer GenerateDICOMRules(DcmDataset * dataset);
     
-    void getImhDataType(BrukerFieldData const & bDPT, int & pixelSize);
+    void getImhDataType(BrukerFieldData::Pointer const bDPT, int & pixelSize);
 
 protected:
     /**
