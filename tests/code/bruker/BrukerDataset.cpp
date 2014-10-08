@@ -57,7 +57,7 @@ BOOST_FIXTURE_TEST_CASE(TEST_OK_01, TestDataOK01)
 
 /*************************** TEST OK 02 *******************************/
 /**
- * Nominal test case: Add field
+ * Nominal test case: Set field
  */
 struct TestDataOK02
 {
@@ -89,12 +89,9 @@ BOOST_FIXTURE_TEST_CASE(TEST_OK_02, TestDataOK02)
     dataset->LoadFile(filepath);
             
     dataset->SetFieldData("SUBJECT_id", 
-                          dicomifier::bruker::BrukerFieldData("Mouse"));
+                          dicomifier::bruker::BrukerFieldData::New("Mouse"));
             
     BOOST_CHECK_EQUAL(dataset->HasFieldData("SUBJECT_id"), true);
-    
-    BOOST_CHECK_EQUAL(dataset->toString(), 
-                      "SUBJECT_id=(DimensionNumber=0,DataType=string,NumberOfElements=0,DimensionNumberValue=[],StringValue=[Mouse,])\n");
     
     delete dataset;
 }

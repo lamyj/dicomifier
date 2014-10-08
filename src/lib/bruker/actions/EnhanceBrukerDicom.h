@@ -59,6 +59,15 @@ private:
     Self const & operator=(Self const & other); // Purposely not implemented
     
 };
+
+struct VISU_FRAMEGROUP_TYPE
+{
+    int length;                 // Number of frame group elements
+    std::string groupId;        // Frame group unique identifier
+    std::string groupComment;   // Frame group description
+    int valsStart;              // First dependant parameters for this frame group
+    int valsCnt;                // Number of dependant parameters for this frame group
+} ;
     
 } // namespace actions
     

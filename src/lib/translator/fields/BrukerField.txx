@@ -79,52 +79,17 @@ BrukerField<VR>
     
     if (brukerdataset->HasFieldData(this->_brukerFieldName))
     {
-        dicomifier::bruker::BrukerFieldData fielddata = brukerdataset->GetFieldData(this->_brukerFieldName);
+        dicomifier::bruker::BrukerFieldData::Pointer fielddata = 
+            brukerdataset->GetFieldData(this->_brukerFieldName);
         
-        int count = 0;
-        
-        if (fielddata.GetDataType() == "string")
+        if (fielddata->get_data_type() != "BrukerFieldData")
         {
-            for (auto value : fielddata.GetStringValue())
+            for (auto count = this->_range._min; 
+                 count < std::min(fielddata->get_values_number(), this->_range._max); 
+                 count++)
             {
-                if ((this->_range._max != 0 && count >= this->_range._min && 
-                     count < this->_range._max) || 
-                    (this->_range._max == 0 && this->_range._min == 0))
-                {
-                    dicomifier::bruker::BrukerFieldData::CleanString(value);
-                    // Warning: cannot lexical_cast String to OFString
-                    this->_array.push_back(ElementTraits<VR>::fromString(value));
-                }
-                count++;
-            }
-        }
-        else if (fielddata.GetDataType() == "int")
-        {
-            for (auto value : fielddata.GetIntValue())
-            {
-                if ((this->_range._max != 0 && count >= this->_range._min && 
-                     count < this->_range._max) || 
-                    (this->_range._max == 0 && this->_range._min == 0))
-                {
-                    //this->_array.push_back(boost::lexical_cast<ValueType>(value));
-                    std::stringstream tempstringstream;
-                    tempstringstream << value;
-                    this->_array.push_back(ElementTraits<VR>::fromString(tempstringstream.str()));
-                }
-                count++;
-            }
-        }
-        else if (fielddata.GetDataType() == "float")
-        {
-            for (auto value : fielddata.GetDoubleValue())
-            {
-                if ((this->_range._max != 0 && count >= this->_range._min && 
-                     count < this->_range._max) || 
-                    (this->_range._max == 0 && this->_range._min == 0))
-                {
-                    this->_array.push_back(boost::lexical_cast<ValueType>(value));
-                }
-                count++;
+                // Warning: cannot lexical_cast String to OFString
+                this->_array.push_back(ElementTraits<VR>::fromString(fielddata->get_string(count)));
             }
         }
     }
