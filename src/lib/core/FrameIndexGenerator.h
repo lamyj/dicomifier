@@ -6,36 +6,34 @@
  * for details.
  ************************************************************************/
 
-#include "ConditionBase.h"
+#ifndef _b4478a62_9c5d_49b4_b029_441076bcda6c
+#define _b4478a62_9c5d_49b4_b029_441076bcda6c
+
+#include <vector>
 
 namespace dicomifier
 {
     
-namespace translator
+class FrameIndexGenerator
 {
+public:
+    FrameIndexGenerator(std::vector<int> indexmax);
     
-ConditionBase
-::ConditionBase()
-    :Tag()
-{
-    // Nothing to do
-}
-
-ConditionBase
-::~ConditionBase()
-{
-    // Nothing to do
-}
-
-void
-ConditionBase
-::run(dicomifier::bruker::BrukerDataset* brukerdataset,
-      std::vector<int> const & indexes,
-      DcmDataset* dataset)
-{
-    // Nothing to do
-}
+    virtual ~FrameIndexGenerator();
     
-} // namespace translator
+    bool done() const;
+    
+    std::vector<int> next();
+
+protected:
+
+private:
+    std::vector<int> _indexMax;
+    // Be carefull: Index is from 0 to N-1
+    std::vector<int> _currentIndex;
+    
+};
     
 } // namespace dicomifier
+
+#endif // _b4478a62_9c5d_49b4_b029_441076bcda6c

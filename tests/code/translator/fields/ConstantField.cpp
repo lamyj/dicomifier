@@ -142,59 +142,59 @@ BOOST_AUTO_TEST_CASE(TEST_OK_02)
 {
     // Test VR = AE
     auto testfieldae = dicomifier::translator::ConstantField<EVR_AE>::New("AB");
-    testfieldae->run(NULL, NULL);
+    testfieldae->run(NULL, {}, NULL);
     BOOST_CHECK_EQUAL(testfieldae->get_array().size(), 1);
     
     // Test VR = AS
     auto testfieldas = dicomifier::translator::ConstantField<EVR_AS>::New("42Y");
-    testfieldas->run(NULL, NULL);
+    testfieldas->run(NULL, {}, NULL);
     BOOST_CHECK_EQUAL(testfieldas->get_array().size(), 1);
     
     // Test VR = AT => Not implemented
     
     // Test VR = CS
     auto testfieldcs = dicomifier::translator::ConstantField<EVR_CS>::New("MR");
-    testfieldcs->run(NULL, NULL);
+    testfieldcs->run(NULL, {}, NULL);
     BOOST_CHECK_EQUAL(testfieldcs->get_array().size(), 1);
     
     // Test VR = DA
     auto testfieldda = dicomifier::translator::ConstantField<EVR_DA>::New("12122012");
-    testfieldda->run(NULL, NULL);
+    testfieldda->run(NULL, {}, NULL);
     BOOST_CHECK_EQUAL(testfieldda->get_array().size(), 1);
     
     // Test VR = DS
     auto testfieldds = dicomifier::translator::ConstantField<EVR_DS>::New(75.57);
-    testfieldds->run(NULL, NULL);
+    testfieldds->run(NULL, {}, NULL);
     BOOST_CHECK_EQUAL(testfieldds->get_array().size(), 1);
     
     // Test VR = DT
     auto testfielddt = dicomifier::translator::ConstantField<EVR_DT>::New("01234501122012");
-    testfielddt->run(NULL, NULL);
+    testfielddt->run(NULL, {}, NULL);
     BOOST_CHECK_EQUAL(testfielddt->get_array().size(), 1);
     
     // Test VR = FL
     auto testfieldfl = dicomifier::translator::ConstantField<EVR_FL>::New(1.23);
-    testfieldfl->run(NULL, NULL);
+    testfieldfl->run(NULL, {}, NULL);
     BOOST_CHECK_EQUAL(testfieldfl->get_array().size(), 1);
     
     // Test VR = FD
     auto testfieldfd = dicomifier::translator::ConstantField<EVR_FD>::New(1.23);
-    testfieldfd->run(NULL, NULL);
+    testfieldfd->run(NULL, {}, NULL);
     BOOST_CHECK_EQUAL(testfieldfd->get_array().size(), 1);
     
     // Test VR = IS
     auto testfieldis = dicomifier::translator::ConstantField<EVR_IS>::New(123);
-    testfieldis->run(NULL, NULL);
+    testfieldis->run(NULL, {}, NULL);
     BOOST_CHECK_EQUAL(testfieldis->get_array().size(), 1);
     
     // Test VR = LO
     auto testfieldlo = dicomifier::translator::ConstantField<EVR_LO>::New("BRUKER");
-    testfieldlo->run(NULL, NULL);
+    testfieldlo->run(NULL, {}, NULL);
     BOOST_CHECK_EQUAL(testfieldlo->get_array().size(), 1);
     
     // Test VR = LT
     auto testfieldlt = dicomifier::translator::ConstantField<EVR_LT>::New("ABCD");
-    testfieldlt->run(NULL, NULL);
+    testfieldlt->run(NULL, {}, NULL);
     BOOST_CHECK_EQUAL(testfieldlt->get_array().size(), 1);
     
     // Test VR = OB => Not implemented
@@ -204,56 +204,56 @@ BOOST_AUTO_TEST_CASE(TEST_OK_02)
     
     // Test VR = PN
     auto testfieldpn = dicomifier::translator::ConstantField<EVR_PN>::New("NAME");
-    testfieldpn->run(NULL, NULL);
+    testfieldpn->run(NULL, {}, NULL);
     BOOST_CHECK_EQUAL(testfieldpn->get_array().size(), 1);
     
     // Test VR = SH
     auto testfieldsh = dicomifier::translator::ConstantField<EVR_SH>::New("12345");
-    testfieldsh->run(NULL, NULL);
+    testfieldsh->run(NULL, {}, NULL);
     BOOST_CHECK_EQUAL(testfieldsh->get_array().size(), 1);
     
     // Test VR = SL
     auto testfieldsl = dicomifier::translator::ConstantField<EVR_SL>::New(-123456789);
-    testfieldsl->run(NULL, NULL);
+    testfieldsl->run(NULL, {}, NULL);
     BOOST_CHECK_EQUAL(testfieldsl->get_array().size(), 1);
     
     // Test VR = SQ => Not implemented
     
     // Test VR = SS
     auto testfieldss = dicomifier::translator::ConstantField<EVR_SS>::New(-123);
-    testfieldss->run(NULL, NULL);
+    testfieldss->run(NULL, {}, NULL);
     BOOST_CHECK_EQUAL(testfieldss->get_array().size(), 1);
     
     // Test VR = ST
     auto testfieldst = dicomifier::translator::ConstantField<EVR_ST>::New("abcde");
-    testfieldst->run(NULL, NULL);
+    testfieldst->run(NULL, {}, NULL);
     BOOST_CHECK_EQUAL(testfieldst->get_array().size(), 1);
     
     // Test VR = TM
     auto testfieldtm = dicomifier::translator::ConstantField<EVR_TM>::New("012345");
-    testfieldtm->run(NULL, NULL);
+    testfieldtm->run(NULL, {}, NULL);
     BOOST_CHECK_EQUAL(testfieldtm->get_array().size(), 1);
     
     // Test VR = UI
     auto testfieldui = dicomifier::translator::ConstantField<EVR_UI>::New("12345");
-    testfieldui->run(NULL, NULL);
+    testfieldui->run(NULL, {}, NULL);
     BOOST_CHECK_EQUAL(testfieldui->get_array().size(), 1);
     
     // Test VR = UL
     auto testfieldul = dicomifier::translator::ConstantField<EVR_UL>::New(1234567890);
-    testfieldul->run(NULL, NULL);
+    testfieldul->run(NULL, {}, NULL);
     BOOST_CHECK_EQUAL(testfieldul->get_array().size(), 1);
     
     // Test VR = UN => Not implemented
     
     // Test VR = US
     auto testfieldus = dicomifier::translator::ConstantField<EVR_US>::New(456);
-    testfieldus->run(NULL, NULL);
+    testfieldus->run(NULL, {}, NULL);
     BOOST_CHECK_EQUAL(testfieldus->get_array().size(), 1);
     
     // Test VR = UT
     auto testfieldut = dicomifier::translator::ConstantField<EVR_UT>::New("abcde");
-    testfieldut->run(NULL, NULL);
+    testfieldut->run(NULL, {}, NULL);
     BOOST_CHECK_EQUAL(testfieldut->get_array().size(), 1);
 }
 
@@ -265,59 +265,59 @@ BOOST_AUTO_TEST_CASE(TEST_OK_03)
 {
     // Test VR = AE
     auto testfieldae = dicomifier::translator::ConstantField<EVR_AE>::New({"AB", "CD"});
-    testfieldae->run(NULL, NULL);
+    testfieldae->run(NULL, {}, NULL);
     BOOST_CHECK_EQUAL(testfieldae->get_array().size(), 2);
     
     // Test VR = AS
     auto testfieldas = dicomifier::translator::ConstantField<EVR_AS>::New({"AB", "CD"});
-    testfieldas->run(NULL, NULL);
+    testfieldas->run(NULL, {}, NULL);
     BOOST_CHECK_EQUAL(testfieldas->get_array().size(), 2);
     
     // Test VR = AT => Not implemented
     
     // Test VR = CS
     auto testfieldcs = dicomifier::translator::ConstantField<EVR_CS>::New({"AB", "CD"});
-    testfieldcs->run(NULL, NULL);
+    testfieldcs->run(NULL, {}, NULL);
     BOOST_CHECK_EQUAL(testfieldcs->get_array().size(), 2);
     
     // Test VR = DA
     auto testfieldda = dicomifier::translator::ConstantField<EVR_DA>::New({"12122012", "12122013"});
-    testfieldda->run(NULL, NULL);
+    testfieldda->run(NULL, {}, NULL);
     BOOST_CHECK_EQUAL(testfieldda->get_array().size(), 2);
     
     // Test VR = DS
     auto testfieldds = dicomifier::translator::ConstantField<EVR_DS>::New({1.23, -4.56});
-    testfieldds->run(NULL, NULL);
+    testfieldds->run(NULL, {}, NULL);
     BOOST_CHECK_EQUAL(testfieldds->get_array().size(), 2);
     
     // Test VR = DT
     auto testfielddt = dicomifier::translator::ConstantField<EVR_DT>::New({"01234501122012", "01234501122013"});
-    testfielddt->run(NULL, NULL);
+    testfielddt->run(NULL, {}, NULL);
     BOOST_CHECK_EQUAL(testfielddt->get_array().size(), 2);
     
     // Test VR = FL
     auto testfieldfl = dicomifier::translator::ConstantField<EVR_FL>::New({(Float32)(1.23), (Float32)(-4.56)});
-    testfieldfl->run(NULL, NULL);
+    testfieldfl->run(NULL, {}, NULL);
     BOOST_CHECK_EQUAL(testfieldfl->get_array().size(), 2);
     
     // Test VR = FD
     auto testfieldfd = dicomifier::translator::ConstantField<EVR_FD>::New({1.23, -4.56});
-    testfieldfd->run(NULL, NULL);
+    testfieldfd->run(NULL, {}, NULL);
     BOOST_CHECK_EQUAL(testfieldfd->get_array().size(), 2);
     
     // Test VR = IS
     auto testfieldis = dicomifier::translator::ConstantField<EVR_IS>::New({123, -456});
-    testfieldis->run(NULL, NULL);
+    testfieldis->run(NULL, {}, NULL);
     BOOST_CHECK_EQUAL(testfieldis->get_array().size(), 2);
     
     // Test VR = LO
     auto testfieldlo = dicomifier::translator::ConstantField<EVR_LO>::New({"AB", "CD"});
-    testfieldlo->run(NULL, NULL);
+    testfieldlo->run(NULL, {}, NULL);
     BOOST_CHECK_EQUAL(testfieldlo->get_array().size(), 2);
     
     // Test VR = LT
     auto testfieldlt = dicomifier::translator::ConstantField<EVR_LT>::New({"AB", "CD"});
-    testfieldlt->run(NULL, NULL);
+    testfieldlt->run(NULL, {}, NULL);
     BOOST_CHECK_EQUAL(testfieldlt->get_array().size(), 2);
     
     // Test VR = OB => Not implemented
@@ -327,55 +327,55 @@ BOOST_AUTO_TEST_CASE(TEST_OK_03)
     
     // Test VR = PN
     auto testfieldpn = dicomifier::translator::ConstantField<EVR_PN>::New({"AB", "CD"});
-    testfieldpn->run(NULL, NULL);
+    testfieldpn->run(NULL, {}, NULL);
     BOOST_CHECK_EQUAL(testfieldpn->get_array().size(), 2);
     
     // Test VR = SH
     auto testfieldsh = dicomifier::translator::ConstantField<EVR_SH>::New({"1234", "5678"});
-    testfieldsh->run(NULL, NULL);
+    testfieldsh->run(NULL, {}, NULL);
     BOOST_CHECK_EQUAL(testfieldsh->get_array().size(), 2);
     
     // Test VR = SL
     auto testfieldsl = dicomifier::translator::ConstantField<EVR_SL>::New({-123456789, 12345678});
-    testfieldsl->run(NULL, NULL);
+    testfieldsl->run(NULL, {}, NULL);
     BOOST_CHECK_EQUAL(testfieldsl->get_array().size(), 2);
     
     // Test VR = SQ => Not implemented
     
     // Test VR = SS
     auto testfieldss = dicomifier::translator::ConstantField<EVR_SS>::New({-1, 2, -3});
-    testfieldss->run(NULL, NULL);
+    testfieldss->run(NULL, {}, NULL);
     BOOST_CHECK_EQUAL(testfieldss->get_array().size(), 3);
     
     // Test VR = ST
     auto testfieldst = dicomifier::translator::ConstantField<EVR_ST>::New({"abcde", "fghij"});
-    testfieldst->run(NULL, NULL);
+    testfieldst->run(NULL, {}, NULL);
     BOOST_CHECK_EQUAL(testfieldst->get_array().size(), 2);
     
     // Test VR = TM
     auto testfieldtm = dicomifier::translator::ConstantField<EVR_TM>::New({"012345", "022345"});
-    testfieldtm->run(NULL, NULL);
+    testfieldtm->run(NULL, {}, NULL);
     BOOST_CHECK_EQUAL(testfieldtm->get_array().size(), 2);
     
     // Test VR = UI
     auto testfieldui = dicomifier::translator::ConstantField<EVR_UI>::New({"1234", "5678"});
-    testfieldui->run(NULL, NULL);
+    testfieldui->run(NULL, {}, NULL);
     BOOST_CHECK_EQUAL(testfieldui->get_array().size(), 2);
     
     // Test VR = UL
     auto testfieldul = dicomifier::translator::ConstantField<EVR_UL>::New({1234567890, 1234567891});
-    testfieldul->run(NULL, NULL);
+    testfieldul->run(NULL, {}, NULL);
     BOOST_CHECK_EQUAL(testfieldul->get_array().size(), 2);
     
     // Test VR = UN => Not implemented
     
     // Test VR = US
     auto testfieldus = dicomifier::translator::ConstantField<EVR_US>::New({456, 789});
-    testfieldus->run(NULL, NULL);
+    testfieldus->run(NULL, {}, NULL);
     BOOST_CHECK_EQUAL(testfieldus->get_array().size(), 2);
     
     // Test VR = UT
     auto testfieldut = dicomifier::translator::ConstantField<EVR_UT>::New({"abcde", "fghij"});
-    testfieldut->run(NULL, NULL);
+    testfieldut->run(NULL, {}, NULL);
     BOOST_CHECK_EQUAL(testfieldut->get_array().size(), 2);
 }

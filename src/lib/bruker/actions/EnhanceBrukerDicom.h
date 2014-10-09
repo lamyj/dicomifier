@@ -12,13 +12,25 @@
 #include <dcmtk/config/osconfig.h>
 #include <dcmtk/dcmdata/dctk.h>
 
+#include "bruker/BrukerDirectory.h"
 #include "core/actions/Action.h"
+#include "dicom/SOPClass.h"
 
 namespace dicomifier
 {
     
 namespace actions
 {
+
+struct VISU_FRAMEGROUP_TYPE
+{
+    int length;                 // Number of frame group elements
+    //std::string groupId;        // Frame group unique identifier (Not used)
+    //std::string groupComment;   // Frame group description (Not used)
+    //int valsStart;              // First dependant parameters for this frame group
+    //int valsCnt;                // Number of dependant parameters for this frame group
+    std::vector<std::string> groupDepVals;
+} ;
     
 class EnhanceBrukerDicom : public Action
 {
@@ -28,10 +40,11 @@ public:
     typedef std::shared_ptr<Self const> ConstPointer;
     
     static Pointer New() { return Pointer(new Self()); }
-    static Pointer New(DcmDataset * dataset, std::string brukerDir,
-                       std::string const & brukerToDicomDictionary) 
+    static Pointer New(DcmDataset * dataset, 
+                       std::string const & brukerDir,
+                       std::string const & sopclassuid) 
                 { return Pointer(new Self(dataset, brukerDir, 
-                                          brukerToDicomDictionary)); }
+                                          sopclassuid)); }
     
     virtual ~EnhanceBrukerDicom();
 
@@ -40,6 +53,9 @@ public:
     
     std::string const & get_brukerDir() const;
     void set_brukerDir(std::string const & brukerDir);
+    
+    std::string const & get_SOPClassUID() const;
+    void set_SOPClassUID(std::string const & sopclassuid);
 
     virtual void run() const;
     
@@ -47,27 +63,24 @@ public:
 
 protected:
     EnhanceBrukerDicom();
-    EnhanceBrukerDicom(DcmDataset * dataset, std::string brukerDir,
-                       std::string const & brukerToDicomDictionary);
+    EnhanceBrukerDicom(DcmDataset * dataset, 
+                       std::string const & brukerDir,
+                       std::string const & sopclassuid);
 
 private:
+    void create_MRImageStorage(dicomifier::bruker::BrukerDataset* brukerdataset,
+                               std::vector<int> indexlists,
+                               std::string const & seriesnumber,
+                               int framesNumber) const;
+
     DcmDataset * _dataset;
     std::string _brukerDir;
-    std::string _brukerToDicomDictionary;
+    std::string _SOPClassUID;
     
-    EnhanceBrukerDicom(Self const & other); // Purposely not implemented
+    EnhanceBrukerDicom(Self const & other);     // Purposely not implemented
     Self const & operator=(Self const & other); // Purposely not implemented
     
 };
-
-struct VISU_FRAMEGROUP_TYPE
-{
-    int length;                 // Number of frame group elements
-    std::string groupId;        // Frame group unique identifier
-    std::string groupComment;   // Frame group description
-    int valsStart;              // First dependant parameters for this frame group
-    int valsCnt;                // Number of dependant parameters for this frame group
-} ;
     
 } // namespace actions
     

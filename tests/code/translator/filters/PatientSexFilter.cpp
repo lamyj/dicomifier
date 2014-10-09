@@ -143,25 +143,25 @@ BOOST_AUTO_TEST_CASE(TEST_OK_02)
 {
     auto patientsexfilterCS = dicomifier::translator::PatientSexFilter<EVR_CS>::
         New(dicomifier::translator::ConstantField<EVR_CS>::New("MALE"));
-    patientsexfilterCS->run(NULL, NULL);
+    patientsexfilterCS->run(NULL, {}, NULL);
     auto results = patientsexfilterCS->get_array();
     BOOST_CHECK_EQUAL(results[0], "M");
     
     patientsexfilterCS = dicomifier::translator::PatientSexFilter<EVR_CS>::
         New(dicomifier::translator::ConstantField<EVR_CS>::New("FEMALE"));
-    patientsexfilterCS->run(NULL, NULL);
+    patientsexfilterCS->run(NULL, {}, NULL);
     results = patientsexfilterCS->get_array();
     BOOST_CHECK_EQUAL(results[0], "F");
     
     patientsexfilterCS = dicomifier::translator::PatientSexFilter<EVR_CS>::
         New(dicomifier::translator::ConstantField<EVR_CS>::New("UNDEFINED"));
-    patientsexfilterCS->run(NULL, NULL);
+    patientsexfilterCS->run(NULL, {}, NULL);
     results = patientsexfilterCS->get_array();
     BOOST_CHECK_EQUAL(results[0], "O");
     
     patientsexfilterCS = dicomifier::translator::PatientSexFilter<EVR_CS>::
         New(dicomifier::translator::ConstantField<EVR_CS>::New("UNKNOWN"));
-    patientsexfilterCS->run(NULL, NULL);
+    patientsexfilterCS->run(NULL, {}, NULL);
     results = patientsexfilterCS->get_array();
     BOOST_CHECK_EQUAL(results[0], "O");
 }
@@ -176,14 +176,14 @@ BOOST_AUTO_TEST_CASE(TEST_KO_01)
     auto patientsexfilterAE = dicomifier::translator::
         PatientSexFilter<EVR_AE>::
             New(dicomifier::translator::ConstantField<EVR_AE>::New("MALE"));
-    BOOST_REQUIRE_THROW(patientsexfilterAE->run(NULL, NULL), 
+    BOOST_REQUIRE_THROW(patientsexfilterAE->run(NULL, {}, NULL), 
                         dicomifier::DicomifierException);
                         
     // Test VR = AS
     auto patientsexfilterAS = dicomifier::translator::
         PatientSexFilter<EVR_AS>::
             New(dicomifier::translator::ConstantField<EVR_AS>::New("MALE"));
-    BOOST_REQUIRE_THROW(patientsexfilterAS->run(NULL, NULL), 
+    BOOST_REQUIRE_THROW(patientsexfilterAS->run(NULL, {}, NULL), 
                         dicomifier::DicomifierException);
                         
     // Test VR = AT => Not implemented
@@ -192,56 +192,56 @@ BOOST_AUTO_TEST_CASE(TEST_KO_01)
     auto patientsexfilterDA = dicomifier::translator::
         PatientSexFilter<EVR_DA>::
             New(dicomifier::translator::ConstantField<EVR_DA>::New("MALE"));
-    BOOST_REQUIRE_THROW(patientsexfilterDA->run(NULL, NULL), 
+    BOOST_REQUIRE_THROW(patientsexfilterDA->run(NULL, {}, NULL), 
                         dicomifier::DicomifierException);
                         
     // Test VR = DS
     auto patientsexfilterDS = dicomifier::translator::
         PatientSexFilter<EVR_DS>::
             New(dicomifier::translator::ConstantField<EVR_DS>::New(1));
-    BOOST_REQUIRE_THROW(patientsexfilterDS->run(NULL, NULL), 
+    BOOST_REQUIRE_THROW(patientsexfilterDS->run(NULL, {}, NULL), 
                         dicomifier::DicomifierException);
                         
     // Test VR = DT
     auto patientsexfilterDT = dicomifier::translator::
         PatientSexFilter<EVR_DT>::
             New(dicomifier::translator::ConstantField<EVR_DT>::New("MALE"));
-    BOOST_REQUIRE_THROW(patientsexfilterDT->run(NULL, NULL), 
+    BOOST_REQUIRE_THROW(patientsexfilterDT->run(NULL, {}, NULL), 
                         dicomifier::DicomifierException);
                         
     // Test VR = FL
     auto patientsexfilterFL = dicomifier::translator::
         PatientSexFilter<EVR_FL>::
             New(dicomifier::translator::ConstantField<EVR_FL>::New(1));
-    BOOST_REQUIRE_THROW(patientsexfilterFL->run(NULL, NULL), 
+    BOOST_REQUIRE_THROW(patientsexfilterFL->run(NULL, {}, NULL), 
                         dicomifier::DicomifierException);
                         
     // Test VR = FD
     auto patientsexfilterFD = dicomifier::translator::
         PatientSexFilter<EVR_FD>::
             New(dicomifier::translator::ConstantField<EVR_FD>::New(1));
-    BOOST_REQUIRE_THROW(patientsexfilterFD->run(NULL, NULL), 
+    BOOST_REQUIRE_THROW(patientsexfilterFD->run(NULL, {}, NULL), 
                         dicomifier::DicomifierException);
                         
     // Test VR = IS
     auto patientsexfilterIS = dicomifier::translator::
         PatientSexFilter<EVR_IS>::
             New(dicomifier::translator::ConstantField<EVR_IS>::New(1));
-    BOOST_REQUIRE_THROW(patientsexfilterIS->run(NULL, NULL), 
+    BOOST_REQUIRE_THROW(patientsexfilterIS->run(NULL, {}, NULL), 
                         dicomifier::DicomifierException);
                         
     // Test VR = LO
     auto patientsexfilterLO = dicomifier::translator::
         PatientSexFilter<EVR_LO>::
             New(dicomifier::translator::ConstantField<EVR_LO>::New("MALE"));
-    BOOST_REQUIRE_THROW(patientsexfilterLO->run(NULL, NULL), 
+    BOOST_REQUIRE_THROW(patientsexfilterLO->run(NULL, {}, NULL), 
                         dicomifier::DicomifierException);
                         
     // Test VR = LT
     auto patientsexfilterLT = dicomifier::translator::
         PatientSexFilter<EVR_LT>::
             New(dicomifier::translator::ConstantField<EVR_LT>::New("MALE"));
-    BOOST_REQUIRE_THROW(patientsexfilterLT->run(NULL, NULL), 
+    BOOST_REQUIRE_THROW(patientsexfilterLT->run(NULL, {}, NULL), 
                         dicomifier::DicomifierException);
                         
     // Test VR = OB => Not implemented
@@ -253,21 +253,21 @@ BOOST_AUTO_TEST_CASE(TEST_KO_01)
     auto patientsexfilterPN = dicomifier::translator::
         PatientSexFilter<EVR_PN>::
             New(dicomifier::translator::ConstantField<EVR_PN>::New("MALE"));
-    BOOST_REQUIRE_THROW(patientsexfilterPN->run(NULL, NULL), 
+    BOOST_REQUIRE_THROW(patientsexfilterPN->run(NULL, {}, NULL), 
                         dicomifier::DicomifierException);
                         
     // Test VR = SH
     auto patientsexfilterSH = dicomifier::translator::
         PatientSexFilter<EVR_SH>::
             New(dicomifier::translator::ConstantField<EVR_SH>::New("MALE"));
-    BOOST_REQUIRE_THROW(patientsexfilterSH->run(NULL, NULL), 
+    BOOST_REQUIRE_THROW(patientsexfilterSH->run(NULL, {}, NULL), 
                         dicomifier::DicomifierException);
                         
     // Test VR = SL
     auto patientsexfilterSL = dicomifier::translator::
         PatientSexFilter<EVR_SL>::
             New(dicomifier::translator::ConstantField<EVR_SL>::New(1));
-    BOOST_REQUIRE_THROW(patientsexfilterSL->run(NULL, NULL), 
+    BOOST_REQUIRE_THROW(patientsexfilterSL->run(NULL, {}, NULL), 
                         dicomifier::DicomifierException);
                         
     // Test VR = SQ => Not implemented
@@ -276,49 +276,49 @@ BOOST_AUTO_TEST_CASE(TEST_KO_01)
     auto patientsexfilterSS = dicomifier::translator::
         PatientSexFilter<EVR_SS>::
             New(dicomifier::translator::ConstantField<EVR_SS>::New(1));
-    BOOST_REQUIRE_THROW(patientsexfilterSS->run(NULL, NULL), 
+    BOOST_REQUIRE_THROW(patientsexfilterSS->run(NULL, {}, NULL), 
                         dicomifier::DicomifierException);
                         
     // Test VR = ST
     auto patientsexfilterST = dicomifier::translator::
         PatientSexFilter<EVR_ST>::
             New(dicomifier::translator::ConstantField<EVR_ST>::New("MALE"));
-    BOOST_REQUIRE_THROW(patientsexfilterST->run(NULL, NULL), 
+    BOOST_REQUIRE_THROW(patientsexfilterST->run(NULL, {}, NULL), 
                         dicomifier::DicomifierException);
                         
     // Test VR = TM
     auto patientsexfilterTM = dicomifier::translator::
         PatientSexFilter<EVR_TM>::
             New(dicomifier::translator::ConstantField<EVR_TM>::New("MALE"));
-    BOOST_REQUIRE_THROW(patientsexfilterTM->run(NULL, NULL), 
+    BOOST_REQUIRE_THROW(patientsexfilterTM->run(NULL, {}, NULL), 
                         dicomifier::DicomifierException);
                         
     // Test VR = UI
     auto patientsexfilterUI = dicomifier::translator::
         PatientSexFilter<EVR_UI>::
             New(dicomifier::translator::ConstantField<EVR_UI>::New("MALE"));
-    BOOST_REQUIRE_THROW(patientsexfilterUI->run(NULL, NULL), 
+    BOOST_REQUIRE_THROW(patientsexfilterUI->run(NULL, {}, NULL), 
                         dicomifier::DicomifierException);
                         
     // Test VR = UL
     auto patientsexfilterUL = dicomifier::translator::
         PatientSexFilter<EVR_UL>::
             New(dicomifier::translator::ConstantField<EVR_UL>::New(1));
-    BOOST_REQUIRE_THROW(patientsexfilterUL->run(NULL, NULL), 
+    BOOST_REQUIRE_THROW(patientsexfilterUL->run(NULL, {}, NULL), 
                         dicomifier::DicomifierException);
                         
     // Test VR = US
     auto patientsexfilterUS = dicomifier::translator::
         PatientSexFilter<EVR_US>::
             New(dicomifier::translator::ConstantField<EVR_US>::New(1));
-    BOOST_REQUIRE_THROW(patientsexfilterUS->run(NULL, NULL), 
+    BOOST_REQUIRE_THROW(patientsexfilterUS->run(NULL, {}, NULL), 
                         dicomifier::DicomifierException);
                         
     // Test VR = UT
     auto patientsexfilterUT = dicomifier::translator::
         PatientSexFilter<EVR_UT>::
             New(dicomifier::translator::ConstantField<EVR_UT>::New("MALE"));
-    BOOST_REQUIRE_THROW(patientsexfilterUT->run(NULL, NULL), 
+    BOOST_REQUIRE_THROW(patientsexfilterUT->run(NULL, {}, NULL), 
                         dicomifier::DicomifierException);
 }
 

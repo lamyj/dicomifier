@@ -195,7 +195,7 @@
     </DicomField>
 
     <DicomField tag="0018,0094" keyword="PercentPhaseFieldOfView" vr="DS">
-        <ConstantField values="" />                                     <!-- to do: compute -->
+        <ConstantField values="0" />                                    <!-- to do: compute -->
     </DicomField>
 
     <DicomField tag="0018,0095" keyword="PixelBandwith" vr="DS">
@@ -219,7 +219,7 @@
 
     <DicomField tag="0018,1312" keyword="InPlanePhaseEncodingDirection" vr="CS">
         <UpperCaseGenerator>
-            <RegExFilter expression="^([a-zA-Z]{3}).{4}[[:space:]]{1}.*">
+            <RegExFilter expression="^([a-zA-Z]{3}).{4}">
                 <BrukerField name="VisuAcqImagePhaseEncDir" />
             </RegExFilter>
         </UpperCaseGenerator>
@@ -261,21 +261,21 @@
         Extract from Bruker data Path
     </DicomField-->
 
-    <!--DicomField tag="0020,0012" keyword="AcquisitionNumber" vr="IS" ><!-- Compteur pour chaque image ->
-        <BrukerField name="" />
-    </DicomField>
-
-    <DicomField tag="0020,0013" keyword="InstanceNumber" vr="IS" >
-        <BrukerField name="" />
+    <!--DicomField tag="0020,0012" keyword="AcquisitionNumber" vr="IS" >
+        Auto Generate
     </DicomField-->
 
-    <DicomField tag="0020,0032" keyword="ImagePositionPatient" vr="DS" >
+    <!--DicomField tag="0020,0013" keyword="InstanceNumber" vr="IS" >
+        Auto Generate
+    </DicomField-->
+
+    <!--DicomField tag="0020,0032" keyword="ImagePositionPatient" vr="DS" >
         <BrukerField name="VisuCorePosition" range="0,3" />
     </DicomField>
 
     <DicomField tag="0020,0037" keyword="ImageOrientationPatient" vr="DS" >
         <BrukerField name="VisuCoreOrientation" range="0,6" />
-    </DicomField>
+    </DicomField-->
 
     <DicomField tag="0020,0052" keyword="FrameOfReferenceUID" vr="UI" >
         <ConstantField values="" />                                     <!-- to do: verified UID -->
@@ -289,9 +289,9 @@
         <ConstantField values="" />
     </DicomField>
 
-    <!--DicomField tag="0020,1041" keyword="SliceLocation" vr="DS" >
-        <ConstantField values="" />                                     <!-- to do: compute ->
-    </DicomField-->
+    <DicomField tag="0020,1041" keyword="SliceLocation" vr="DS" >
+        <ConstantField values="" />                                     <!-- to do: compute -->
+    </DicomField>
 
     <DicomField tag="0020,4000" keyword="ImageComments" vr="LT" >
         <ConstantField values="" />
@@ -336,4 +336,7 @@
         <ConstantField values="1" />
     </DicomField>
     
+    <!--DicomField tag="7fe0,0010" keyword="PixelData" vr="OB" >
+        Auto generate
+    </DicomField-->
 </Dictionary>

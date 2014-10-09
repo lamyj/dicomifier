@@ -69,8 +69,9 @@ BrukerField<VR>
 template<DcmEVR VR>
 void
 BrukerField<VR>
-::run(DcmDataset* dataset,
-      dicomifier::bruker::BrukerDataset* brukerdataset)
+::run(dicomifier::bruker::BrukerDataset* brukerdataset,
+      std::vector<int> const & indexes,
+      DcmDataset* dataset)
 {
     if (brukerdataset == NULL)
     {

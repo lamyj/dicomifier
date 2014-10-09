@@ -60,8 +60,9 @@ DicomField<VR>
 template<DcmEVR VR>
 void
 DicomField<VR>
-::run(DcmDataset* dataset,
-      dicomifier::bruker::BrukerDataset* brukerdataset)
+::run(dicomifier::bruker::BrukerDataset* brukerdataset,
+      std::vector<int> const & indexes,
+      DcmDataset* dataset)
 {    
     if (this->_tag == NULL)
     {
@@ -82,7 +83,7 @@ DicomField<VR>
     OFCondition const element_ok =
         dataset->findAndGetElement(this->_dicomtags._tag, element);
         
-    this->_tag->run(dataset, brukerdataset);
+    this->_tag->run(brukerdataset, indexes, dataset);
         
     std::vector<ValueType> values;
     

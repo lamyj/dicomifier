@@ -42,8 +42,9 @@ TimeGenerator<VR>
 template<DcmEVR VR>
 void
 TimeGenerator<VR>
-::run(DcmDataset* dataset,
-      dicomifier::bruker::BrukerDataset* brukerdataset)
+::run(dicomifier::bruker::BrukerDataset* brukerdataset,
+      std::vector<int> const & indexes,
+      DcmDataset* dataset)
 {
     time_t _time;
     struct tm* timeInfo;

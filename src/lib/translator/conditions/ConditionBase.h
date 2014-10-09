@@ -26,8 +26,9 @@ public:
     
     virtual ~ConditionBase();
     
-    virtual void run(DcmDataset* dataset,
-                     dicomifier::bruker::BrukerDataset* brukerdataset);
+    virtual void run(dicomifier::bruker::BrukerDataset* brukerdataset,
+                     std::vector<int> const & indexes,
+                     DcmDataset* dataset);
                      
     virtual bool eval(DcmDataset* dataset,
                       dicomifier::bruker::BrukerDataset* brukerdataset) = 0;

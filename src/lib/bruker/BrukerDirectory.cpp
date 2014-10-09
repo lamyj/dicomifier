@@ -356,6 +356,7 @@ BrukerDirectory
     
     auto rule = dicomifier::Rule::New();
     
+    // TODO: remove
     /*int count = 0;
     auto it = _BrukerDatasetList.find(seriesnumber);
     if (it != _BrukerDatasetList.end())

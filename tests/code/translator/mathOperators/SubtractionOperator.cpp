@@ -146,7 +146,7 @@ BOOST_AUTO_TEST_CASE(TEST_OK_02)
     vect.push_back(dicomifier::translator::ConstantField<EVR_AE>::New("World"));
     
     auto subtractionoperatorae = dicomifier::translator::SubtractionOperator<EVR_AE>::New(vect);
-    subtractionoperatorae->run(NULL, NULL);
+    subtractionoperatorae->run(NULL, {}, NULL);
     auto results = subtractionoperatorae->get_array();
     BOOST_CHECK_EQUAL(results[0], "Hello");
 }
@@ -162,7 +162,7 @@ BOOST_AUTO_TEST_CASE(TEST_OK_03)
     vect.push_back(dicomifier::translator::ConstantField<EVR_AS>::New("World"));
     
     auto subtractionoperatoras = dicomifier::translator::SubtractionOperator<EVR_AS>::New(vect);
-    subtractionoperatoras->run(NULL, NULL);
+    subtractionoperatoras->run(NULL, {}, NULL);
     auto results = subtractionoperatoras->get_array();
     BOOST_CHECK_EQUAL(results[0], "Hello");
 }
@@ -178,7 +178,7 @@ BOOST_AUTO_TEST_CASE(TEST_OK_04)
     vect.push_back(dicomifier::translator::ConstantField<EVR_CS>::New("World"));
     
     auto subtractionoperatorcs = dicomifier::translator::SubtractionOperator<EVR_CS>::New(vect);
-    subtractionoperatorcs->run(NULL, NULL);
+    subtractionoperatorcs->run(NULL, {}, NULL);
     auto results = subtractionoperatorcs->get_array();
     BOOST_CHECK_EQUAL(results[0], "Hello");
 }
@@ -194,7 +194,7 @@ BOOST_AUTO_TEST_CASE(TEST_OK_05)
     vect.push_back(dicomifier::translator::ConstantField<EVR_DA>::New("01232014"));
     
     auto subtractionoperatorda = dicomifier::translator::SubtractionOperator<EVR_DA>::New(vect);
-    subtractionoperatorda->run(NULL, NULL);
+    subtractionoperatorda->run(NULL, {}, NULL);
     auto results = subtractionoperatorda->get_array();
     BOOST_CHECK_EQUAL(results[0], "");
 }
@@ -210,7 +210,7 @@ BOOST_AUTO_TEST_CASE(TEST_OK_06)
     vect.push_back(dicomifier::translator::ConstantField<EVR_DS>::New(22.22));
     
     auto subtractionoperatords = dicomifier::translator::SubtractionOperator<EVR_DS>::New(vect);
-    subtractionoperatords->run(NULL, NULL);
+    subtractionoperatords->run(NULL, {}, NULL);
     auto results = subtractionoperatords->get_array();
     BOOST_CHECK_EQUAL(results[0], (Float64)(11.11));
 }
@@ -226,7 +226,7 @@ BOOST_AUTO_TEST_CASE(TEST_OK_07)
     vect.push_back(dicomifier::translator::ConstantField<EVR_DT>::New("World"));
     
     auto subtractionoperatorcs = dicomifier::translator::SubtractionOperator<EVR_DT>::New(vect);
-    subtractionoperatorcs->run(NULL, NULL);
+    subtractionoperatorcs->run(NULL, {}, NULL);
     auto results = subtractionoperatorcs->get_array();
     BOOST_CHECK_EQUAL(results[0], "Hello");
 }
@@ -242,7 +242,7 @@ BOOST_AUTO_TEST_CASE(TEST_OK_08)
     vect.push_back(dicomifier::translator::ConstantField<EVR_FL>::New((Float32)22));
     
     auto subtractionoperatorcs = dicomifier::translator::SubtractionOperator<EVR_FL>::New(vect);
-    subtractionoperatorcs->run(NULL, NULL);
+    subtractionoperatorcs->run(NULL, {}, NULL);
     auto results = subtractionoperatorcs->get_array();
     BOOST_CHECK_EQUAL(results[0], (Float32)(11));
 }
@@ -258,7 +258,7 @@ BOOST_AUTO_TEST_CASE(TEST_OK_09)
     vect.push_back(dicomifier::translator::ConstantField<EVR_FD>::New(22.22));
     
     auto subtractionoperatorcs = dicomifier::translator::SubtractionOperator<EVR_FD>::New(vect);
-    subtractionoperatorcs->run(NULL, NULL);
+    subtractionoperatorcs->run(NULL, {}, NULL);
     auto results = subtractionoperatorcs->get_array();
     BOOST_CHECK_EQUAL(results[0], (Float64)11.11);
 }
@@ -274,7 +274,7 @@ BOOST_AUTO_TEST_CASE(TEST_OK_10)
     vect.push_back(dicomifier::translator::ConstantField<EVR_IS>::New(22));
     
     auto subtractionoperatorcs = dicomifier::translator::SubtractionOperator<EVR_IS>::New(vect);
-    subtractionoperatorcs->run(NULL, NULL);
+    subtractionoperatorcs->run(NULL, {}, NULL);
     auto results = subtractionoperatorcs->get_array();
     BOOST_CHECK_EQUAL(results[0], (Sint32)11);
 }
@@ -290,7 +290,7 @@ BOOST_AUTO_TEST_CASE(TEST_OK_11)
     vect.push_back(dicomifier::translator::ConstantField<EVR_LO>::New("World"));
     
     auto subtractionoperatorcs = dicomifier::translator::SubtractionOperator<EVR_LO>::New(vect);
-    subtractionoperatorcs->run(NULL, NULL);
+    subtractionoperatorcs->run(NULL, {}, NULL);
     auto results = subtractionoperatorcs->get_array();
     BOOST_CHECK_EQUAL(results[0], "Hello");
 }
@@ -306,7 +306,7 @@ BOOST_AUTO_TEST_CASE(TEST_OK_12)
     vect.push_back(dicomifier::translator::ConstantField<EVR_LT>::New("World"));
     
     auto subtractionoperatorcs = dicomifier::translator::SubtractionOperator<EVR_LT>::New(vect);
-    subtractionoperatorcs->run(NULL, NULL);
+    subtractionoperatorcs->run(NULL, {}, NULL);
     auto results = subtractionoperatorcs->get_array();
     BOOST_CHECK_EQUAL(results[0], "Hello");
 }
@@ -322,7 +322,7 @@ BOOST_AUTO_TEST_CASE(TEST_OK_13)
     vect.push_back(dicomifier::translator::ConstantField<EVR_PN>::New("World"));
     
     auto subtractionoperatorcs = dicomifier::translator::SubtractionOperator<EVR_PN>::New(vect);
-    subtractionoperatorcs->run(NULL, NULL);
+    subtractionoperatorcs->run(NULL, {}, NULL);
     auto results = subtractionoperatorcs->get_array();
     BOOST_CHECK_EQUAL(results[0], "Hello");
 }
@@ -338,7 +338,7 @@ BOOST_AUTO_TEST_CASE(TEST_OK_14)
     vect.push_back(dicomifier::translator::ConstantField<EVR_SH>::New("World"));
     
     auto subtractionoperatorcs = dicomifier::translator::SubtractionOperator<EVR_SH>::New(vect);
-    subtractionoperatorcs->run(NULL, NULL);
+    subtractionoperatorcs->run(NULL, {}, NULL);
     auto results = subtractionoperatorcs->get_array();
     BOOST_CHECK_EQUAL(results[0], "Hello");
 }
@@ -354,7 +354,7 @@ BOOST_AUTO_TEST_CASE(TEST_OK_15)
     vect.push_back(dicomifier::translator::ConstantField<EVR_SL>::New(22));
     
     auto subtractionoperatorcs = dicomifier::translator::SubtractionOperator<EVR_SL>::New(vect);
-    subtractionoperatorcs->run(NULL, NULL);
+    subtractionoperatorcs->run(NULL, {}, NULL);
     auto results = subtractionoperatorcs->get_array();
     BOOST_CHECK_EQUAL(results[0], (Sint32)11);
 }
@@ -370,7 +370,7 @@ BOOST_AUTO_TEST_CASE(TEST_OK_16)
     vect.push_back(dicomifier::translator::ConstantField<EVR_SS>::New(22));
     
     auto subtractionoperatorcs = dicomifier::translator::SubtractionOperator<EVR_SS>::New(vect);
-    subtractionoperatorcs->run(NULL, NULL);
+    subtractionoperatorcs->run(NULL, {}, NULL);
     auto results = subtractionoperatorcs->get_array();
     BOOST_CHECK_EQUAL(results[0], (Sint16)11);
 }
@@ -386,7 +386,7 @@ BOOST_AUTO_TEST_CASE(TEST_OK_17)
     vect.push_back(dicomifier::translator::ConstantField<EVR_ST>::New("World"));
     
     auto subtractionoperatorcs = dicomifier::translator::SubtractionOperator<EVR_ST>::New(vect);
-    subtractionoperatorcs->run(NULL, NULL);
+    subtractionoperatorcs->run(NULL, {}, NULL);
     auto results = subtractionoperatorcs->get_array();
     BOOST_CHECK_EQUAL(results[0], "Hello");
 }
@@ -402,7 +402,7 @@ BOOST_AUTO_TEST_CASE(TEST_OK_18)
     vect.push_back(dicomifier::translator::ConstantField<EVR_TM>::New("World"));
     
     auto subtractionoperatorcs = dicomifier::translator::SubtractionOperator<EVR_TM>::New(vect);
-    subtractionoperatorcs->run(NULL, NULL);
+    subtractionoperatorcs->run(NULL, {}, NULL);
     auto results = subtractionoperatorcs->get_array();
     BOOST_CHECK_EQUAL(results[0], "Hello");
 }
@@ -418,7 +418,7 @@ BOOST_AUTO_TEST_CASE(TEST_OK_19)
     vect.push_back(dicomifier::translator::ConstantField<EVR_UI>::New("World"));
     
     auto subtractionoperatorcs = dicomifier::translator::SubtractionOperator<EVR_UI>::New(vect);
-    subtractionoperatorcs->run(NULL, NULL);
+    subtractionoperatorcs->run(NULL, {}, NULL);
     auto results = subtractionoperatorcs->get_array();
     BOOST_CHECK_EQUAL(results[0], "Hello");
 }
@@ -434,7 +434,7 @@ BOOST_AUTO_TEST_CASE(TEST_OK_20)
     vect.push_back(dicomifier::translator::ConstantField<EVR_UL>::New(22));
     
     auto subtractionoperatorcs = dicomifier::translator::SubtractionOperator<EVR_UL>::New(vect);
-    subtractionoperatorcs->run(NULL, NULL);
+    subtractionoperatorcs->run(NULL, {}, NULL);
     auto results = subtractionoperatorcs->get_array();
     BOOST_CHECK_EQUAL(results[0], (Uint32)11);
 }
@@ -450,7 +450,7 @@ BOOST_AUTO_TEST_CASE(TEST_OK_21)
     vect.push_back(dicomifier::translator::ConstantField<EVR_US>::New(22));
     
     auto subtractionoperatorcs = dicomifier::translator::SubtractionOperator<EVR_US>::New(vect);
-    subtractionoperatorcs->run(NULL, NULL);
+    subtractionoperatorcs->run(NULL, {}, NULL);
     auto results = subtractionoperatorcs->get_array();
     BOOST_CHECK_EQUAL(results[0], (Uint16)11);
 }
@@ -466,7 +466,7 @@ BOOST_AUTO_TEST_CASE(TEST_OK_22)
     vect.push_back(dicomifier::translator::ConstantField<EVR_UT>::New("World"));
     
     auto subtractionoperatorcs = dicomifier::translator::SubtractionOperator<EVR_UT>::New(vect);
-    subtractionoperatorcs->run(NULL, NULL);
+    subtractionoperatorcs->run(NULL, {}, NULL);
     auto results = subtractionoperatorcs->get_array();
     BOOST_CHECK_EQUAL(results[0], "Hello");
 }
@@ -483,5 +483,5 @@ BOOST_AUTO_TEST_CASE(TEST_KO_01)
     
     auto subtractionoperatords = dicomifier::translator::SubtractionOperator<EVR_DS>::New(vect);
     
-    BOOST_REQUIRE_THROW(subtractionoperatords->run(NULL, NULL), dicomifier::DicomifierException);
+    BOOST_REQUIRE_THROW(subtractionoperatords->run(NULL, {}, NULL), dicomifier::DicomifierException);
 }

@@ -143,13 +143,13 @@ BOOST_AUTO_TEST_CASE(TEST_OK_02)
 {
     // Test VR = AE
     auto timegeneratorAE = dicomifier::translator::TimeGenerator<EVR_AE>::New();
-    timegeneratorAE->run(NULL, NULL);
+    timegeneratorAE->run(NULL, {}, NULL);
     auto resultsAE = timegeneratorAE->get_array();
     BOOST_CHECK_EQUAL(resultsAE[0] != "", true);
                         
     // Test VR = AS
     auto timegeneratorAS = dicomifier::translator::TimeGenerator<EVR_AS>::New();
-    timegeneratorAS->run(NULL, NULL);
+    timegeneratorAS->run(NULL, {}, NULL);
     auto resultsAS = timegeneratorAS->get_array();
     BOOST_CHECK_EQUAL(resultsAS[0] != "", true);
                         
@@ -157,13 +157,13 @@ BOOST_AUTO_TEST_CASE(TEST_OK_02)
     
     // Test VR = CS
     auto timegeneratorCS = dicomifier::translator::TimeGenerator<EVR_CS>::New();
-    timegeneratorCS->run(NULL, NULL);
+    timegeneratorCS->run(NULL, {}, NULL);
     auto resultsCS = timegeneratorCS->get_array();
     BOOST_CHECK_EQUAL(resultsCS[0] != "", true);
     
     // Test VR = DA
     auto timegeneratorDA = dicomifier::translator::TimeGenerator<EVR_DA>::New();
-    timegeneratorDA->run(NULL, NULL);
+    timegeneratorDA->run(NULL, {}, NULL);
     auto resultsDA = timegeneratorDA->get_array();
     BOOST_CHECK_EQUAL(resultsDA[0] != "", true);
                         
@@ -171,7 +171,7 @@ BOOST_AUTO_TEST_CASE(TEST_OK_02)
                         
     // Test VR = DT
     auto timegeneratorDT = dicomifier::translator::TimeGenerator<EVR_DT>::New();
-    timegeneratorDT->run(NULL, NULL);
+    timegeneratorDT->run(NULL, {}, NULL);
     auto resultsDT = timegeneratorDT->get_array();
     BOOST_CHECK_EQUAL(resultsDT[0] != "", true);
                         
@@ -183,13 +183,13 @@ BOOST_AUTO_TEST_CASE(TEST_OK_02)
                         
     // Test VR = LO
     auto timegeneratorLO = dicomifier::translator::TimeGenerator<EVR_LO>::New();
-    timegeneratorLO->run(NULL, NULL);
+    timegeneratorLO->run(NULL, {}, NULL);
     auto resultsLO = timegeneratorLO->get_array();
     BOOST_CHECK_EQUAL(resultsLO[0] != "", true);
                         
     // Test VR = LT
     auto timegeneratorLT = dicomifier::translator::TimeGenerator<EVR_LT>::New();
-    timegeneratorLT->run(NULL, NULL);
+    timegeneratorLT->run(NULL, {}, NULL);
     auto resultsLT = timegeneratorLT->get_array();
     BOOST_CHECK_EQUAL(resultsLT[0] != "", true);
                         
@@ -200,13 +200,13 @@ BOOST_AUTO_TEST_CASE(TEST_OK_02)
     
     // Test VR = PN
     auto timegeneratorPN = dicomifier::translator::TimeGenerator<EVR_PN>::New();
-    timegeneratorPN->run(NULL, NULL);
+    timegeneratorPN->run(NULL, {}, NULL);
     auto resultsPN = timegeneratorPN->get_array();
     BOOST_CHECK_EQUAL(resultsPN[0] != "", true);
                         
     // Test VR = SH
     auto timegeneratorSH = dicomifier::translator::TimeGenerator<EVR_SH>::New();
-    timegeneratorSH->run(NULL, NULL);
+    timegeneratorSH->run(NULL, {}, NULL);
     auto resultsSH = timegeneratorSH->get_array();
     BOOST_CHECK_EQUAL(resultsSH[0] != "", true);
                         
@@ -218,19 +218,19 @@ BOOST_AUTO_TEST_CASE(TEST_OK_02)
                         
     // Test VR = ST
     auto timegeneratorST = dicomifier::translator::TimeGenerator<EVR_ST>::New();
-    timegeneratorST->run(NULL, NULL);
+    timegeneratorST->run(NULL, {}, NULL);
     auto resultsST = timegeneratorST->get_array();
     BOOST_CHECK_EQUAL(resultsST[0] != "", true);
                         
     // Test VR = TM
     auto timegeneratorTM = dicomifier::translator::TimeGenerator<EVR_TM>::New();
-    timegeneratorTM->run(NULL, NULL);
+    timegeneratorTM->run(NULL, {}, NULL);
     auto resultsTM = timegeneratorTM->get_array();
     BOOST_CHECK_EQUAL(resultsTM[0] != "", true);
                         
     // Test VR = UI
     auto timegeneratorUI = dicomifier::translator::TimeGenerator<EVR_UI>::New();
-    timegeneratorUI->run(NULL, NULL);
+    timegeneratorUI->run(NULL, {}, NULL);
     auto resultsUI = timegeneratorUI->get_array();
     BOOST_CHECK_EQUAL(resultsUI[0] != "", true);
                         
@@ -240,7 +240,7 @@ BOOST_AUTO_TEST_CASE(TEST_OK_02)
                         
     // Test VR = UT
     auto timegeneratorUT = dicomifier::translator::TimeGenerator<EVR_UT>::New();
-    timegeneratorUT->run(NULL, NULL);
+    timegeneratorUT->run(NULL, {}, NULL);
     auto resultsUT = timegeneratorUT->get_array();
     BOOST_CHECK_EQUAL(resultsUT[0] != "", true);
 }

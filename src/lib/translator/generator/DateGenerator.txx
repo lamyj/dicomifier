@@ -61,15 +61,16 @@ DateGenerator<VR>
 template<DcmEVR VR>
 void
 DateGenerator<VR>
-::run(DcmDataset* dataset,
-      dicomifier::bruker::BrukerDataset* brukerdataset)
+::run(dicomifier::bruker::BrukerDataset* brukerdataset,
+      std::vector<int> const & indexes,
+      DcmDataset* dataset)
 {
     if (this->_tag != NULL && this->_inputFormat != "")
     {
         typename SubTag<VR>::Pointer subtag = 
             std::dynamic_pointer_cast<SubTag<VR>>(this->_tag);
 
-        subtag->run(dataset, brukerdataset);
+        subtag->run(brukerdataset, indexes, dataset);
         
         auto array = subtag->get_array();
         

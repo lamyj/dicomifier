@@ -144,14 +144,14 @@ BOOST_AUTO_TEST_CASE(TEST_OK_02)
     // Test VR = AE
     auto dategeneratorAE = dicomifier::translator::DateGenerator<EVR_AE>::
         New(dicomifier::translator::ConstantField<EVR_AE>::New("01/02/2014"), "%d/%m/%Y", "%Y%m%d");
-    dategeneratorAE->run(NULL, NULL);
+    dategeneratorAE->run(NULL, {}, NULL);
     auto resultsAE = dategeneratorAE->get_array();
     BOOST_CHECK_EQUAL(resultsAE[0], "20140201");
                         
     // Test VR = AS
     auto dategeneratorAS = dicomifier::translator::DateGenerator<EVR_AS>::
         New(dicomifier::translator::ConstantField<EVR_AS>::New("01/02/2014"), "%d/%m/%Y", "%Y%m%d");
-    dategeneratorAS->run(NULL, NULL);
+    dategeneratorAS->run(NULL, {}, NULL);
     auto resultsAS = dategeneratorAS->get_array();
     BOOST_CHECK_EQUAL(resultsAS[0], "20140201");
                         
@@ -160,63 +160,63 @@ BOOST_AUTO_TEST_CASE(TEST_OK_02)
     // Test VR = CS
     auto dategeneratorCS = dicomifier::translator::DateGenerator<EVR_CS>::
         New(dicomifier::translator::ConstantField<EVR_CS>::New("01/02/2014"), "%d/%m/%Y", "%Y%m%d");
-    dategeneratorCS->run(NULL, NULL);
+    dategeneratorCS->run(NULL, {}, NULL);
     auto resultsCS = dategeneratorCS->get_array();
     BOOST_CHECK_EQUAL(resultsCS[0], "20140201");
     
     // Test VR = DA
     auto dategeneratorDA = dicomifier::translator::DateGenerator<EVR_DA>::
         New(dicomifier::translator::ConstantField<EVR_DA>::New("01/02/2014"), "%d/%m/%Y", "%Y%m%d");
-    dategeneratorDA->run(NULL, NULL);
+    dategeneratorDA->run(NULL, {}, NULL);
     auto resultsDA = dategeneratorDA->get_array();
     BOOST_CHECK_EQUAL(resultsDA[0], "20140201");
                         
     // Test VR = DS
     /*auto dategeneratorDS = dicomifier::translator::DateGenerator<EVR_DS>::
         New(dicomifier::translator::ConstantField<EVR_DS>::New(123));
-    dategeneratorDS->run(NULL, NULL);
+    dategeneratorDS->run(NULL, {}, NULL);
     auto resultsDS = dategeneratorDS->get_array();
     BOOST_CHECK_EQUAL(resultsDS[0], 123);*/
                         
     // Test VR = DT
     auto dategeneratorDT = dicomifier::translator::DateGenerator<EVR_DT>::
         New(dicomifier::translator::ConstantField<EVR_DT>::New("01/02/2014"), "%d/%m/%Y", "%Y%m%d");
-    dategeneratorDT->run(NULL, NULL);
+    dategeneratorDT->run(NULL, {}, NULL);
     auto resultsDT = dategeneratorDT->get_array();
     BOOST_CHECK_EQUAL(resultsDT[0], "20140201");
                         
     // Test VR = FL
     /*auto dategeneratorFL = dicomifier::translator::DateGenerator<EVR_FL>::
         New(dicomifier::translator::ConstantField<EVR_FL>::New(123));
-    dategeneratorFL->run(NULL, NULL);
+    dategeneratorFL->run(NULL, {}, NULL);
     auto resultsFL = dategeneratorFL->get_array();
     BOOST_CHECK_EQUAL(resultsFL[0], 123);*/
                         
     // Test VR = FD
     /*auto dategeneratorFD = dicomifier::translator::DateGenerator<EVR_FD>::
         New(dicomifier::translator::ConstantField<EVR_FD>::New(123));
-    dategeneratorFD->run(NULL, NULL);
+    dategeneratorFD->run(NULL, {}, NULL);
     auto resultsFD = dategeneratorFD->get_array();
     BOOST_CHECK_EQUAL(resultsFD[0], 123);*/
                         
     // Test VR = IS
     /*auto dategeneratorIS = dicomifier::translator::DateGenerator<EVR_IS>::
         New(dicomifier::translator::ConstantField<EVR_IS>::New(123));
-    dategeneratorIS->run(NULL, NULL);
+    dategeneratorIS->run(NULL, {}, NULL);
     auto resultsIS = dategeneratorIS->get_array();
     BOOST_CHECK_EQUAL(resultsIS[0], 123);*/
                         
     // Test VR = LO
     auto dategeneratorLO = dicomifier::translator::DateGenerator<EVR_LO>::
         New(dicomifier::translator::ConstantField<EVR_LO>::New("01/02/2014"), "%d/%m/%Y", "%Y%m%d");
-    dategeneratorLO->run(NULL, NULL);
+    dategeneratorLO->run(NULL, {}, NULL);
     auto resultsLO = dategeneratorLO->get_array();
     BOOST_CHECK_EQUAL(resultsLO[0], "20140201");
                         
     // Test VR = LT
     auto dategeneratorLT = dicomifier::translator::DateGenerator<EVR_LT>::
         New(dicomifier::translator::ConstantField<EVR_LT>::New("01/02/2014"), "%d/%m/%Y", "%Y%m%d");
-    dategeneratorLT->run(NULL, NULL);
+    dategeneratorLT->run(NULL, {}, NULL);
     auto resultsLT = dategeneratorLT->get_array();
     BOOST_CHECK_EQUAL(resultsLT[0], "20140201");
                         
@@ -228,21 +228,21 @@ BOOST_AUTO_TEST_CASE(TEST_OK_02)
     // Test VR = PN
     auto dategeneratorPN = dicomifier::translator::DateGenerator<EVR_PN>::
         New(dicomifier::translator::ConstantField<EVR_PN>::New("01/02/2014"), "%d/%m/%Y", "%Y%m%d");
-    dategeneratorPN->run(NULL, NULL);
+    dategeneratorPN->run(NULL, {}, NULL);
     auto resultsPN = dategeneratorPN->get_array();
     BOOST_CHECK_EQUAL(resultsPN[0], "20140201");
                         
     // Test VR = SH
     auto dategeneratorSH = dicomifier::translator::DateGenerator<EVR_SH>::
         New(dicomifier::translator::ConstantField<EVR_SH>::New("01/02/2014"), "%d/%m/%Y", "%Y%m%d");
-    dategeneratorSH->run(NULL, NULL);
+    dategeneratorSH->run(NULL, {}, NULL);
     auto resultsSH = dategeneratorSH->get_array();
     BOOST_CHECK_EQUAL(resultsSH[0], "20140201");
                         
     // Test VR = SL
     /*auto dategeneratorSL = dicomifier::translator::DateGenerator<EVR_SL>::
         New(dicomifier::translator::ConstantField<EVR_SL>::New(123));
-    dategeneratorSL->run(NULL, NULL);
+    dategeneratorSL->run(NULL, {}, NULL);
     auto resultsSL = dategeneratorSL->get_array();
     BOOST_CHECK_EQUAL(resultsSL[0], 123);*/
                         
@@ -251,49 +251,49 @@ BOOST_AUTO_TEST_CASE(TEST_OK_02)
     // Test VR = SS
     /*auto dategeneratorSS = dicomifier::translator::DateGenerator<EVR_SS>::
         New(dicomifier::translator::ConstantField<EVR_SS>::New(123));
-    dategeneratorSS->run(NULL, NULL);
+    dategeneratorSS->run(NULL, {}, NULL);
     auto resultsSS = dategeneratorSS->get_array();
     BOOST_CHECK_EQUAL(resultsSS[0], 123);*/
                         
     // Test VR = ST
     auto dategeneratorST = dicomifier::translator::DateGenerator<EVR_ST>::
         New(dicomifier::translator::ConstantField<EVR_ST>::New("01/02/2014"), "%d/%m/%Y", "%Y%m%d");
-    dategeneratorST->run(NULL, NULL);
+    dategeneratorST->run(NULL, {}, NULL);
     auto resultsST = dategeneratorST->get_array();
     BOOST_CHECK_EQUAL(resultsST[0], "20140201");
                         
     // Test VR = TM
     auto dategeneratorTM = dicomifier::translator::DateGenerator<EVR_TM>::
         New(dicomifier::translator::ConstantField<EVR_TM>::New("01/02/2014"), "%d/%m/%Y", "%Y%m%d");
-    dategeneratorTM->run(NULL, NULL);
+    dategeneratorTM->run(NULL, {}, NULL);
     auto resultsTM = dategeneratorTM->get_array();
     BOOST_CHECK_EQUAL(resultsTM[0], "20140201");
                         
     // Test VR = UI
     auto dategeneratorUI = dicomifier::translator::DateGenerator<EVR_UI>::
         New(dicomifier::translator::ConstantField<EVR_UI>::New("01/02/2014"), "%d/%m/%Y", "%Y%m%d");
-    dategeneratorUI->run(NULL, NULL);
+    dategeneratorUI->run(NULL, {}, NULL);
     auto resultsUI = dategeneratorUI->get_array();
     BOOST_CHECK_EQUAL(resultsUI[0], "20140201");
                         
     // Test VR = UL
     /*auto dategeneratorUL = dicomifier::translator::DateGenerator<EVR_UL>::
         New(dicomifier::translator::ConstantField<EVR_UL>::New(123));
-    dategeneratorUL->run(NULL, NULL);
+    dategeneratorUL->run(NULL, {}, NULL);
     auto resultsUL = dategeneratorUL->get_array();
     BOOST_CHECK_EQUAL(resultsUL[0], 123);*/
                         
     // Test VR = US
     /*auto dategeneratorUS = dicomifier::translator::DateGenerator<EVR_US>::
         New(dicomifier::translator::ConstantField<EVR_US>::New(123));
-    dategeneratorUS->run(NULL, NULL);
+    dategeneratorUS->run(NULL, {}, NULL);
     auto resultsUS = dategeneratorUS->get_array();
     BOOST_CHECK_EQUAL(resultsUS[0], 123);*/
                         
     // Test VR = UT
     auto dategeneratorUT = dicomifier::translator::DateGenerator<EVR_UT>::
         New(dicomifier::translator::ConstantField<EVR_UT>::New("01/02/2014"), "%d/%m/%Y", "%Y%m%d");
-    dategeneratorUT->run(NULL, NULL);
+    dategeneratorUT->run(NULL, {}, NULL);
     auto resultsUT = dategeneratorUT->get_array();
     BOOST_CHECK_EQUAL(resultsUT[0], "20140201");
 }
@@ -306,7 +306,7 @@ BOOST_AUTO_TEST_CASE(TEST_OK_03)
 {
     // Test VR = DA
     auto dategeneratorDA = dicomifier::translator::DateGenerator<EVR_DA>::New();
-    dategeneratorDA->run(NULL, NULL);
+    dategeneratorDA->run(NULL, {}, NULL);
     auto resultsDA = dategeneratorDA->get_array();
     BOOST_CHECK_EQUAL(resultsDA[0] != "", true);
 }

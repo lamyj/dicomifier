@@ -10,8 +10,8 @@
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/xml_parser.hpp>
 
-#include "bruker/BrukerDirectory.h"
 #include "core/DicomifierException.h"
+#include "core/FrameIndexGenerator.h"
 #include "EnhanceBrukerDicom.h"
 #include "translator/fields/DicomField.h"
 #include "translator/TranslatorFactory.h"
@@ -23,15 +23,15 @@ namespace actions
 {
     
 EnhanceBrukerDicom::EnhanceBrukerDicom():
-    _dataset(NULL), _brukerDir(""), _brukerToDicomDictionary("")
+    _dataset(NULL), _brukerDir(""), _SOPClassUID("")
 {
     // Nothing to do
 }
 
-EnhanceBrukerDicom::EnhanceBrukerDicom(DcmDataset * dataset, std::string brukerDir,
-                                       std::string const & brukerToDicomDictionary):
-    _dataset(dataset), _brukerDir(brukerDir), 
-    _brukerToDicomDictionary(brukerToDicomDictionary)
+EnhanceBrukerDicom::EnhanceBrukerDicom(DcmDataset * dataset, 
+                                       std::string const & brukerDir,
+                                       std::string const & sopclassuid):
+    _dataset(dataset), _brukerDir(brukerDir), _SOPClassUID(sopclassuid)
 {
     // Nothing to do
 }
@@ -69,6 +69,20 @@ EnhanceBrukerDicom
     this->_brukerDir = brukerDir;
 }
 
+std::string const & 
+EnhanceBrukerDicom
+::get_SOPClassUID() const
+{
+    return this->_SOPClassUID;
+}
+
+void 
+EnhanceBrukerDicom
+::set_SOPClassUID(std::string const & sopclassuid)
+{
+    this->_SOPClassUID = sopclassuid;
+}
+
 void 
 EnhanceBrukerDicom
 ::run() const
@@ -96,103 +110,166 @@ EnhanceBrukerDicom
     // Search corresponding Bruker Dataset
     dicomifier::bruker::BrukerDataset* brukerdataset = brukerdirectory->get_brukerDataset(str.c_str());
     
-    // TODO: read VisuFGOrderDescDim (int), VisuFGOrderDesc (string) and VisuGroupDepVals (string)
-    // First look the VisuFGOrderDescDim attribut (Number of frame groups)
-    /*if (!brukerdataset->HasFieldData("VisuFGOrderDescDim"))
+    // read VisuFGOrderDescDim (int), VisuFGOrderDesc (string) and VisuGroupDepVals (string)
+    if (!brukerdataset->HasFieldData("VisuFGOrderDescDim")  ||
+        !brukerdataset->HasFieldData("VisuFGOrderDesc")     ||
+        !brukerdataset->HasFieldData("VisuGroupDepVals"))
     {
         throw dicomifier::DicomifierException("Corrupted Bruker Data");
     }
+    // First: look the VisuFGOrderDescDim attribut (Number of frame groups)
     int frameGroupDim = brukerdataset->GetFieldData("VisuFGOrderDescDim")->get_int(0);
+
+    int coreFrameCount = 1;
     
     std::vector<VISU_FRAMEGROUP_TYPE> frameGroupLists;
-    if (frameGroupDim > 0)
+    std::vector<int> indexlists;
+    // Second: look the VisuFGOrderDesc to compute frame count
+    for (auto count = 0; count < frameGroupDim; count++)
     {
-        // VisuFGOrderDesc should exist (Frame group description)
-        if (!brukerdataset->HasFieldData("VisuFGOrderDesc"))
-        {
-            throw dicomifier::DicomifierException("Corrupted Bruker Data");
-        }
+        VISU_FRAMEGROUP_TYPE currentGroup;
         
-        // Parse VisuFGOrderDesc values
-        for (std::string currentvalue : brukerdataset->GetFieldData("VisuFGOrderDesc").GetStringValue())
+        dicomifier::bruker::BrukerFieldData::Pointer fielddata = 
+            brukerdataset->GetFieldData("VisuFGOrderDesc")->get_struct(count);
+            
+        currentGroup.length = fielddata->get_int(0);
+        int start   = fielddata->get_int(3);
+        int number  = fielddata->get_int(4);
+        
+        for (auto gdvcount = start; gdvcount < start+number; gdvcount++)
         {
-            // search ')'
-            int pos = 0;
-            while (pos < currentvalue.length()-1)
-            {
-                int findpos = currentvalue.find(')', pos);
-                if (findpos == std::string::npos)
-                {
-                    pos = currentvalue.length();
-                }
-                else
-                {
-                    std::string findGroup = currentvalue.substr(pos, findpos+1-pos);
-                    
-                    boost::replace_all(findGroup, "(", "");
-                    boost::replace_all(findGroup, ")", "");
-                    boost::replace_all(findGroup, "<", "");
-                    boost::replace_all(findGroup, ">", "");
-                    
-                    std::vector<std::string> splitvalues;
-                    boost::split(splitvalues, findGroup, boost::is_any_of(","));
-                    
-                    VISU_FRAMEGROUP_TYPE frameGroup;
-                    
-                    pos = findpos+1;
-                }
-            }
+            currentGroup.groupDepVals.push_back
+            (
+                brukerdataset->GetFieldData("VisuGroupDepVals")->get_struct(gdvcount)->get_string(0)
+            );
+        }
+        indexlists.push_back(currentGroup.length);
+        coreFrameCount *= currentGroup.length;
+        
+        frameGroupLists.push_back(currentGroup);
+    }
+    
+    // Check frame count
+    if (brukerdataset->HasFieldData("VisuCoreFrameCount"))
+    {
+        if (coreFrameCount != brukerdataset->GetFieldData("VisuCoreFrameCount")->get_int(0))
+        {
+            throw DicomifierException("Corrupted Bruker Data");
         }
     }
-    std::cout << brukerdataset->GetFieldData("VisuFGOrderDesc").GetStringValue()[0] << std::endl;
-    std::cout << brukerdataset->GetFieldData("VisuGroupDepVals").GetStringValue()[0] << std::endl;
-    std::cout << brukerdataset->GetFieldData("VisuGroupDepVals").GetStringValue().size() << std::endl;*/
     
+    indexlists.push_back(coreFrameCount);
+    
+    // Create DICOM
+    std::string sopclassuid = dicomifier::get_SOPClassUID_from_name(this->_SOPClassUID);
+    if (sopclassuid == dicomifier::MRImageStorage)
+    {
+        this->create_MRImageStorage(brukerdataset, indexlists, 
+                                    str.c_str(), coreFrameCount);
+    }
+    else
+    {
+        throw DicomifierException("Unkown SOP Class UID '" + this->_SOPClassUID + "'");
+    }
+    
+    delete brukerdirectory;
+}
+    
+void 
+EnhanceBrukerDicom
+::create_MRImageStorage(dicomifier::bruker::BrukerDataset* brukerdataset,
+                        std::vector<int> indexlists,
+                        std::string const & seriesnumber,
+                        int framesNumber) const
+{
     // Load Dictionary
     boost::property_tree::ptree pt;
-    boost::property_tree::xml_parser::read_xml(this->_brukerToDicomDictionary, pt);
+    boost::property_tree::xml_parser::read_xml("/home/lahaxe/dicomifier/BrukerToDicom_Dictionary.xml", pt); // TODO: mettre en conf le chemin
     
-    // Parse and run all dictionary entries
-    BOOST_FOREACH(boost::property_tree::ptree::value_type &v, pt) // Tag Dictionary
-    {
-        BOOST_FOREACH(boost::property_tree::ptree::value_type &dicomfield, 
-                  v.second.equal_range("DicomField"))
-        {
-            auto rule = dicomifier::translator::
-                TranslatorFactory::get_instance().create(dicomfield,
-                                                         this->_dataset,
-                                                         EVR_UN);
-                                                         
-            if (rule != NULL)
-            {
-                rule->run(this->_dataset, brukerdataset);
-            }
-            else
-            {
-                throw DicomifierException("Bad dictionary Bruker to Dicom");
-            }
-        }
-    }
-    
-    // Adding binary data:
+    // Read binary data
     int size = brukerdataset->GetFieldData("IM_SIX")->get_int(0);
     size *= brukerdataset->GetFieldData("IM_SIY")->get_int(0);
-    size *= brukerdataset->GetFieldData("VisuCoreFrameCount")->get_int(0);
     int pixelSize;
-    brukerdirectory->getImhDataType(brukerdataset->GetFieldData("DATTYPE"), pixelSize);
+    dicomifier::bruker::BrukerDirectory::
+        getImhDataType(brukerdataset->GetFieldData("DATTYPE"), pixelSize);
     size *= pixelSize;
     
     std::ifstream is(brukerdataset->GetFieldData("PIXELDATA")->get_string(0), 
                      std::ifstream::binary);
-    char * binarydata = new char[size];
-    memset(binarydata, 0, size);
-    is.read(binarydata, size);
+    char * binarydata = new char[size*framesNumber];
+    memset(binarydata, 0, size*framesNumber);
+    is.read(binarydata, size*framesNumber);
     
-    // TODO: who managers the buffer ?
-    this->_dataset->putAndInsertUint8Array(DCM_PixelData, (Uint8*)binarydata, size);
-    // TODO (maybe) delete[] binarydata;
+    dicomifier::FrameIndexGenerator generator(indexlists);
     
-    delete brukerdirectory;
+    // Process
+    while (!generator.done())
+    //for (auto count = 0; count < framesNumber; count++)
+    {
+        std::vector<int> indexes = generator.next();
+        int count = 0;
+        // Create a new Dataset
+        DcmDataset* dataset = new DcmDataset();
+        
+        std::stringstream stream;
+        stream << count;
+        
+        // Set Frame information
+        // Insert SeriesNumber => use to find Bruker data
+        dataset->putAndInsertOFStringArray(DCM_SeriesNumber, 
+                                           OFString(seriesnumber.c_str()));
+        // Set Instance Number
+        dataset->putAndInsertOFStringArray(DCM_InstanceNumber, 
+                                           OFString(stream.str().c_str()));
+        // Set Acquisition Number
+        dataset->putAndInsertOFStringArray(DCM_AcquisitionNumber, 
+                                           OFString(stream.str().c_str()));
+        
+        // Parse and run all dictionary entries
+        BOOST_FOREACH(boost::property_tree::ptree::value_type &v, pt) // Tag Dictionary
+        {
+            BOOST_FOREACH(boost::property_tree::ptree::value_type &dicomfield, 
+                      v.second.equal_range("DicomField"))
+            {
+                auto rule = dicomifier::translator::
+                    TranslatorFactory::get_instance().create(dicomfield,
+                                                             dataset,
+                                                             EVR_UN);
+                
+                if (rule != NULL)
+                {
+                    rule->run(brukerdataset, indexes, dataset);
+                }
+                else
+                {
+                    throw DicomifierException("Bad dictionary Bruker to Dicom");
+                }
+            }
+        }
+        
+        // Add binary Data
+        // TODO: who managers the buffer ?
+        dataset->putAndInsertUint8Array(DCM_PixelData, 
+                                        (Uint8*)(binarydata+count*size), 
+                                        size);
+        // TODO (maybe) delete[] binarydata;
+        
+        // Write DICOM Dataset
+        // Create path:
+        char temp[256];
+        memset(&temp[0], 0, 256);
+        snprintf(&temp[0], 256, "%s%04d", 
+                 "/home/lahaxe/resultDICOM/dicom_", count); // TODO: changer le chemin et le nom du fichier
+        // write file
+        DcmFileFormat fileformat(dataset);
+        OFCondition result = fileformat.saveFile(&temp[0], 
+                                                 EXS_LittleEndianExplicit);
+        if (result.bad())
+        {
+            throw DicomifierException("Unable to save dataset: " + 
+                                      std::string(result.text()));
+        }
+    }
 }
     
 } // namespace actions

@@ -53,8 +53,9 @@ public:
     
     virtual ~Tag();
     
-    virtual void run(DcmDataset* dataset,
-                     dicomifier::bruker::BrukerDataset* brukerdataset) = 0;
+    virtual void run(dicomifier::bruker::BrukerDataset* brukerdataset,
+                     std::vector<int> const & indexes,
+                     DcmDataset* dataset) = 0;
     
     virtual ClassType get_class_type() const = 0;
 

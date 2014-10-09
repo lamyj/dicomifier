@@ -56,8 +56,9 @@ PatientPositionFilter<VR>
 template<DcmEVR VR>
 void
 PatientPositionFilter<VR>
-::run(DcmDataset* dataset,
-      dicomifier::bruker::BrukerDataset* brukerdataset)
+::run(dicomifier::bruker::BrukerDataset* brukerdataset,
+      std::vector<int> const & indexes,
+      DcmDataset* dataset)
 {
     if (VR != EVR_CS)
     {
@@ -67,7 +68,7 @@ PatientPositionFilter<VR>
     typename SubTag<VR>::Pointer subtag = 
         std::dynamic_pointer_cast<SubTag<VR>>(this->_tag);
 
-    subtag->run(dataset, brukerdataset);
+    subtag->run(brukerdataset, indexes, dataset);
     
     auto array = subtag->get_array();
     
