@@ -77,11 +77,8 @@ EnhanceBrukerDicomCreator
         filename = boost::any_cast<std::string>(this->_inputs->find(filename)->second);
     }
     
-    // get 'brukertodicomdictionary' attribut (optional)
-    auto brukertodicomdictionary_ = 
-        value.second.get_optional<std::string>("<xmlattr>.brukertodicomdictionary");
-    std::string brukerToDicomDictionary = 
-        brukertodicomdictionary_ ? brukertodicomdictionary_.get() : "./BrukerToDicom_Dictionary.xml";
+    // get 'sopclassuid' attribut (mandatory)
+    std::string sopclassuid = value.second.get<std::string>("<xmlattr>.sopclassuid"); // Warning: throw exception if attribut is missing
     
     studynum = studynum % 10;       // only 1 byte
     seriesnum = seriesnum % 10000;  // only 4 bytes
@@ -96,7 +93,7 @@ EnhanceBrukerDicomCreator
     dataset->putAndInsertOFStringArray(DCM_SeriesNumber, OFString(seriesnumber.c_str()));
     
     return dicomifier::actions::EnhanceBrukerDicom::New(dataset, filename, 
-                                                        brukerToDicomDictionary);
+                                                        sopclassuid);
 }
     
 } // namespace factory

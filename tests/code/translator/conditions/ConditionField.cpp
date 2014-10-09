@@ -151,7 +151,7 @@ BOOST_AUTO_TEST_CASE(TEST_OK_02)
             dicomifier::translator::ConstantField<EVR_AE>::New("Hello"),
             dicomifier::translator::ConstantField<EVR_AE>::New("World"));
             
-    conditionfieldae->run(NULL, NULL);
+    conditionfieldae->run(NULL, {}, NULL);
     auto results = conditionfieldae->get_array();
     BOOST_CHECK_EQUAL(results[0], "Hello");
     
@@ -162,7 +162,7 @@ BOOST_AUTO_TEST_CASE(TEST_OK_02)
             dicomifier::translator::ConstantField<EVR_AE>::New("Hello"),
             dicomifier::translator::ConstantField<EVR_AE>::New("World"));
             
-    conditionfieldae->run(NULL, NULL);
+    conditionfieldae->run(NULL, {}, NULL);
     results = conditionfieldae->get_array();
     BOOST_CHECK_EQUAL(results[0], "World");
 }
@@ -181,7 +181,7 @@ BOOST_AUTO_TEST_CASE(TEST_OK_03)
             dicomifier::translator::ConstantField<EVR_AS>::New("Hello"),
             dicomifier::translator::ConstantField<EVR_AS>::New("World"));
             
-    conditionfieldae->run(NULL, NULL);
+    conditionfieldae->run(NULL, {}, NULL);
     auto results = conditionfieldae->get_array();
     BOOST_CHECK_EQUAL(results[0], "Hello");
     
@@ -192,7 +192,7 @@ BOOST_AUTO_TEST_CASE(TEST_OK_03)
             dicomifier::translator::ConstantField<EVR_AS>::New("Hello"),
             dicomifier::translator::ConstantField<EVR_AS>::New("World"));
             
-    conditionfieldae->run(NULL, NULL);
+    conditionfieldae->run(NULL, {}, NULL);
     results = conditionfieldae->get_array();
     BOOST_CHECK_EQUAL(results[0], "World");
 }
@@ -211,7 +211,7 @@ BOOST_AUTO_TEST_CASE(TEST_OK_04)
             dicomifier::translator::ConstantField<EVR_CS>::New("Hello"),
             dicomifier::translator::ConstantField<EVR_CS>::New("World"));
             
-    conditionfieldae->run(NULL, NULL);
+    conditionfieldae->run(NULL, {}, NULL);
     auto results = conditionfieldae->get_array();
     BOOST_CHECK_EQUAL(results[0], "Hello");
     
@@ -222,7 +222,7 @@ BOOST_AUTO_TEST_CASE(TEST_OK_04)
             dicomifier::translator::ConstantField<EVR_CS>::New("Hello"),
             dicomifier::translator::ConstantField<EVR_CS>::New("World"));
             
-    conditionfieldae->run(NULL, NULL);
+    conditionfieldae->run(NULL, {}, NULL);
     results = conditionfieldae->get_array();
     BOOST_CHECK_EQUAL(results[0], "World");
 }
@@ -241,7 +241,7 @@ BOOST_AUTO_TEST_CASE(TEST_OK_05)
             dicomifier::translator::ConstantField<EVR_DA>::New("Hello"),
             dicomifier::translator::ConstantField<EVR_DA>::New("World"));
             
-    conditionfieldae->run(NULL, NULL);
+    conditionfieldae->run(NULL, {}, NULL);
     auto results = conditionfieldae->get_array();
     BOOST_CHECK_EQUAL(results[0], "Hello");
     
@@ -252,7 +252,7 @@ BOOST_AUTO_TEST_CASE(TEST_OK_05)
             dicomifier::translator::ConstantField<EVR_DA>::New("Hello"),
             dicomifier::translator::ConstantField<EVR_DA>::New("World"));
             
-    conditionfieldae->run(NULL, NULL);
+    conditionfieldae->run(NULL, {}, NULL);
     results = conditionfieldae->get_array();
     BOOST_CHECK_EQUAL(results[0], "World");
 }
@@ -271,7 +271,7 @@ BOOST_AUTO_TEST_CASE(TEST_OK_06)
             dicomifier::translator::ConstantField<EVR_DS>::New(11.11),
             dicomifier::translator::ConstantField<EVR_DS>::New(22.22));
             
-    conditionfieldae->run(NULL, NULL);
+    conditionfieldae->run(NULL, {}, NULL);
     auto results = conditionfieldae->get_array();
     BOOST_CHECK_EQUAL(results[0], (Float64)11.11);
     
@@ -282,7 +282,7 @@ BOOST_AUTO_TEST_CASE(TEST_OK_06)
             dicomifier::translator::ConstantField<EVR_DS>::New(11.11),
             dicomifier::translator::ConstantField<EVR_DS>::New(22.22));
             
-    conditionfieldae->run(NULL, NULL);
+    conditionfieldae->run(NULL, {}, NULL);
     results = conditionfieldae->get_array();
     BOOST_CHECK_EQUAL(results[0], (Float64)22.22);
 }
@@ -301,7 +301,7 @@ BOOST_AUTO_TEST_CASE(TEST_OK_07)
             dicomifier::translator::ConstantField<EVR_DT>::New("Hello"),
             dicomifier::translator::ConstantField<EVR_DT>::New("World"));
             
-    conditionfieldae->run(NULL, NULL);
+    conditionfieldae->run(NULL, {}, NULL);
     auto results = conditionfieldae->get_array();
     BOOST_CHECK_EQUAL(results[0], "Hello");
     
@@ -312,7 +312,7 @@ BOOST_AUTO_TEST_CASE(TEST_OK_07)
             dicomifier::translator::ConstantField<EVR_DT>::New("Hello"),
             dicomifier::translator::ConstantField<EVR_DT>::New("World"));
             
-    conditionfieldae->run(NULL, NULL);
+    conditionfieldae->run(NULL, {}, NULL);
     results = conditionfieldae->get_array();
     BOOST_CHECK_EQUAL(results[0], "World");
 }
@@ -331,7 +331,7 @@ BOOST_AUTO_TEST_CASE(TEST_OK_08)
             dicomifier::translator::ConstantField<EVR_FL>::New((Float32)11),
             dicomifier::translator::ConstantField<EVR_FL>::New((Float32)22));
             
-    conditionfieldae->run(NULL, NULL);
+    conditionfieldae->run(NULL, {}, NULL);
     auto results = conditionfieldae->get_array();
     BOOST_CHECK_EQUAL(results[0], (Float32)11);
     
@@ -342,7 +342,7 @@ BOOST_AUTO_TEST_CASE(TEST_OK_08)
             dicomifier::translator::ConstantField<EVR_FL>::New((Float32)11),
             dicomifier::translator::ConstantField<EVR_FL>::New((Float32)22));
             
-    conditionfieldae->run(NULL, NULL);
+    conditionfieldae->run(NULL, {}, NULL);
     results = conditionfieldae->get_array();
     BOOST_CHECK_EQUAL(results[0], (Float32)22);
 }
@@ -361,7 +361,7 @@ BOOST_AUTO_TEST_CASE(TEST_OK_09)
             dicomifier::translator::ConstantField<EVR_FD>::New(11.11),
             dicomifier::translator::ConstantField<EVR_FD>::New(22.22));
             
-    conditionfieldae->run(NULL, NULL);
+    conditionfieldae->run(NULL, {}, NULL);
     auto results = conditionfieldae->get_array();
     BOOST_CHECK_EQUAL(results[0], (Float64)11.11);
     
@@ -372,7 +372,7 @@ BOOST_AUTO_TEST_CASE(TEST_OK_09)
             dicomifier::translator::ConstantField<EVR_FD>::New(11.11),
             dicomifier::translator::ConstantField<EVR_FD>::New(22.22));
             
-    conditionfieldae->run(NULL, NULL);
+    conditionfieldae->run(NULL, {}, NULL);
     results = conditionfieldae->get_array();
     BOOST_CHECK_EQUAL(results[0], (Float64)22.22);
 }
@@ -391,7 +391,7 @@ BOOST_AUTO_TEST_CASE(TEST_OK_10)
             dicomifier::translator::ConstantField<EVR_IS>::New(11),
             dicomifier::translator::ConstantField<EVR_IS>::New(22));
             
-    conditionfieldae->run(NULL, NULL);
+    conditionfieldae->run(NULL, {}, NULL);
     auto results = conditionfieldae->get_array();
     BOOST_CHECK_EQUAL(results[0], (Sint32)11);
     
@@ -402,7 +402,7 @@ BOOST_AUTO_TEST_CASE(TEST_OK_10)
             dicomifier::translator::ConstantField<EVR_IS>::New(11),
             dicomifier::translator::ConstantField<EVR_IS>::New(22));
             
-    conditionfieldae->run(NULL, NULL);
+    conditionfieldae->run(NULL, {}, NULL);
     results = conditionfieldae->get_array();
     BOOST_CHECK_EQUAL(results[0], (Sint32)22);
 }
@@ -421,7 +421,7 @@ BOOST_AUTO_TEST_CASE(TEST_OK_11)
             dicomifier::translator::ConstantField<EVR_LO>::New("Hello"),
             dicomifier::translator::ConstantField<EVR_LO>::New("World"));
             
-    conditionfieldae->run(NULL, NULL);
+    conditionfieldae->run(NULL, {}, NULL);
     auto results = conditionfieldae->get_array();
     BOOST_CHECK_EQUAL(results[0], "Hello");
     
@@ -432,7 +432,7 @@ BOOST_AUTO_TEST_CASE(TEST_OK_11)
             dicomifier::translator::ConstantField<EVR_LO>::New("Hello"),
             dicomifier::translator::ConstantField<EVR_LO>::New("World"));
             
-    conditionfieldae->run(NULL, NULL);
+    conditionfieldae->run(NULL, {}, NULL);
     results = conditionfieldae->get_array();
     BOOST_CHECK_EQUAL(results[0], "World");
 }
@@ -451,7 +451,7 @@ BOOST_AUTO_TEST_CASE(TEST_OK_12)
             dicomifier::translator::ConstantField<EVR_LT>::New("Hello"),
             dicomifier::translator::ConstantField<EVR_LT>::New("World"));
             
-    conditionfieldae->run(NULL, NULL);
+    conditionfieldae->run(NULL, {}, NULL);
     auto results = conditionfieldae->get_array();
     BOOST_CHECK_EQUAL(results[0], "Hello");
     
@@ -462,7 +462,7 @@ BOOST_AUTO_TEST_CASE(TEST_OK_12)
             dicomifier::translator::ConstantField<EVR_LT>::New("Hello"),
             dicomifier::translator::ConstantField<EVR_LT>::New("World"));
             
-    conditionfieldae->run(NULL, NULL);
+    conditionfieldae->run(NULL, {}, NULL);
     results = conditionfieldae->get_array();
     BOOST_CHECK_EQUAL(results[0], "World");
 }
@@ -481,7 +481,7 @@ BOOST_AUTO_TEST_CASE(TEST_OK_13)
             dicomifier::translator::ConstantField<EVR_PN>::New("Hello"),
             dicomifier::translator::ConstantField<EVR_PN>::New("World"));
             
-    conditionfieldae->run(NULL, NULL);
+    conditionfieldae->run(NULL, {}, NULL);
     auto results = conditionfieldae->get_array();
     BOOST_CHECK_EQUAL(results[0], "Hello");
     
@@ -492,7 +492,7 @@ BOOST_AUTO_TEST_CASE(TEST_OK_13)
             dicomifier::translator::ConstantField<EVR_PN>::New("Hello"),
             dicomifier::translator::ConstantField<EVR_PN>::New("World"));
             
-    conditionfieldae->run(NULL, NULL);
+    conditionfieldae->run(NULL, {}, NULL);
     results = conditionfieldae->get_array();
     BOOST_CHECK_EQUAL(results[0], "World");
 }
@@ -511,7 +511,7 @@ BOOST_AUTO_TEST_CASE(TEST_OK_14)
             dicomifier::translator::ConstantField<EVR_SH>::New("Hello"),
             dicomifier::translator::ConstantField<EVR_SH>::New("World"));
             
-    conditionfieldae->run(NULL, NULL);
+    conditionfieldae->run(NULL, {}, NULL);
     auto results = conditionfieldae->get_array();
     BOOST_CHECK_EQUAL(results[0], "Hello");
     
@@ -522,7 +522,7 @@ BOOST_AUTO_TEST_CASE(TEST_OK_14)
             dicomifier::translator::ConstantField<EVR_SH>::New("Hello"),
             dicomifier::translator::ConstantField<EVR_SH>::New("World"));
             
-    conditionfieldae->run(NULL, NULL);
+    conditionfieldae->run(NULL, {}, NULL);
     results = conditionfieldae->get_array();
     BOOST_CHECK_EQUAL(results[0], "World");
 }
@@ -541,7 +541,7 @@ BOOST_AUTO_TEST_CASE(TEST_OK_15)
             dicomifier::translator::ConstantField<EVR_SL>::New(11),
             dicomifier::translator::ConstantField<EVR_SL>::New(22));
             
-    conditionfieldae->run(NULL, NULL);
+    conditionfieldae->run(NULL, {}, NULL);
     auto results = conditionfieldae->get_array();
     BOOST_CHECK_EQUAL(results[0], (Sint32)11);
     
@@ -552,7 +552,7 @@ BOOST_AUTO_TEST_CASE(TEST_OK_15)
             dicomifier::translator::ConstantField<EVR_SL>::New(11),
             dicomifier::translator::ConstantField<EVR_SL>::New(22));
             
-    conditionfieldae->run(NULL, NULL);
+    conditionfieldae->run(NULL, {}, NULL);
     results = conditionfieldae->get_array();
     BOOST_CHECK_EQUAL(results[0], (Sint32)22);
 }
@@ -571,7 +571,7 @@ BOOST_AUTO_TEST_CASE(TEST_OK_16)
             dicomifier::translator::ConstantField<EVR_SS>::New(11),
             dicomifier::translator::ConstantField<EVR_SS>::New(22));
             
-    conditionfieldae->run(NULL, NULL);
+    conditionfieldae->run(NULL, {}, NULL);
     auto results = conditionfieldae->get_array();
     BOOST_CHECK_EQUAL(results[0], (Sint16)11);
     
@@ -582,7 +582,7 @@ BOOST_AUTO_TEST_CASE(TEST_OK_16)
             dicomifier::translator::ConstantField<EVR_SS>::New(11),
             dicomifier::translator::ConstantField<EVR_SS>::New(22));
             
-    conditionfieldae->run(NULL, NULL);
+    conditionfieldae->run(NULL, {}, NULL);
     results = conditionfieldae->get_array();
     BOOST_CHECK_EQUAL(results[0], (Sint16)22);
 }
@@ -601,7 +601,7 @@ BOOST_AUTO_TEST_CASE(TEST_OK_17)
             dicomifier::translator::ConstantField<EVR_ST>::New("Hello"),
             dicomifier::translator::ConstantField<EVR_ST>::New("World"));
             
-    conditionfieldae->run(NULL, NULL);
+    conditionfieldae->run(NULL, {}, NULL);
     auto results = conditionfieldae->get_array();
     BOOST_CHECK_EQUAL(results[0], "Hello");
     
@@ -612,7 +612,7 @@ BOOST_AUTO_TEST_CASE(TEST_OK_17)
             dicomifier::translator::ConstantField<EVR_ST>::New("Hello"),
             dicomifier::translator::ConstantField<EVR_ST>::New("World"));
             
-    conditionfieldae->run(NULL, NULL);
+    conditionfieldae->run(NULL, {}, NULL);
     results = conditionfieldae->get_array();
     BOOST_CHECK_EQUAL(results[0], "World");
 }
@@ -631,7 +631,7 @@ BOOST_AUTO_TEST_CASE(TEST_OK_18)
             dicomifier::translator::ConstantField<EVR_TM>::New("Hello"),
             dicomifier::translator::ConstantField<EVR_TM>::New("World"));
             
-    conditionfieldae->run(NULL, NULL);
+    conditionfieldae->run(NULL, {}, NULL);
     auto results = conditionfieldae->get_array();
     BOOST_CHECK_EQUAL(results[0], "Hello");
     
@@ -642,7 +642,7 @@ BOOST_AUTO_TEST_CASE(TEST_OK_18)
             dicomifier::translator::ConstantField<EVR_TM>::New("Hello"),
             dicomifier::translator::ConstantField<EVR_TM>::New("World"));
             
-    conditionfieldae->run(NULL, NULL);
+    conditionfieldae->run(NULL, {}, NULL);
     results = conditionfieldae->get_array();
     BOOST_CHECK_EQUAL(results[0], "World");
 }
@@ -661,7 +661,7 @@ BOOST_AUTO_TEST_CASE(TEST_OK_19)
             dicomifier::translator::ConstantField<EVR_UI>::New("Hello"),
             dicomifier::translator::ConstantField<EVR_UI>::New("World"));
             
-    conditionfieldae->run(NULL, NULL);
+    conditionfieldae->run(NULL, {}, NULL);
     auto results = conditionfieldae->get_array();
     BOOST_CHECK_EQUAL(results[0], "Hello");
     
@@ -672,7 +672,7 @@ BOOST_AUTO_TEST_CASE(TEST_OK_19)
             dicomifier::translator::ConstantField<EVR_UI>::New("Hello"),
             dicomifier::translator::ConstantField<EVR_UI>::New("World"));
             
-    conditionfieldae->run(NULL, NULL);
+    conditionfieldae->run(NULL, {}, NULL);
     results = conditionfieldae->get_array();
     BOOST_CHECK_EQUAL(results[0], "World");
 }
@@ -691,7 +691,7 @@ BOOST_AUTO_TEST_CASE(TEST_OK_20)
             dicomifier::translator::ConstantField<EVR_UL>::New(11),
             dicomifier::translator::ConstantField<EVR_UL>::New(22));
             
-    conditionfieldae->run(NULL, NULL);
+    conditionfieldae->run(NULL, {}, NULL);
     auto results = conditionfieldae->get_array();
     BOOST_CHECK_EQUAL(results[0], (Uint32)11);
     
@@ -702,7 +702,7 @@ BOOST_AUTO_TEST_CASE(TEST_OK_20)
             dicomifier::translator::ConstantField<EVR_UL>::New(11),
             dicomifier::translator::ConstantField<EVR_UL>::New(22));
             
-    conditionfieldae->run(NULL, NULL);
+    conditionfieldae->run(NULL, {}, NULL);
     results = conditionfieldae->get_array();
     BOOST_CHECK_EQUAL(results[0], (Uint32)22);
 }
@@ -721,7 +721,7 @@ BOOST_AUTO_TEST_CASE(TEST_OK_21)
             dicomifier::translator::ConstantField<EVR_US>::New(11),
             dicomifier::translator::ConstantField<EVR_US>::New(22));
             
-    conditionfieldae->run(NULL, NULL);
+    conditionfieldae->run(NULL, {}, NULL);
     auto results = conditionfieldae->get_array();
     BOOST_CHECK_EQUAL(results[0], (Uint16)11);
     
@@ -732,7 +732,7 @@ BOOST_AUTO_TEST_CASE(TEST_OK_21)
             dicomifier::translator::ConstantField<EVR_US>::New(11),
             dicomifier::translator::ConstantField<EVR_US>::New(22));
             
-    conditionfieldae->run(NULL, NULL);
+    conditionfieldae->run(NULL, {}, NULL);
     results = conditionfieldae->get_array();
     BOOST_CHECK_EQUAL(results[0], (Uint16)22);
 }
@@ -751,7 +751,7 @@ BOOST_AUTO_TEST_CASE(TEST_OK_22)
             dicomifier::translator::ConstantField<EVR_UT>::New("Hello"),
             dicomifier::translator::ConstantField<EVR_UT>::New("World"));
             
-    conditionfieldae->run(NULL, NULL);
+    conditionfieldae->run(NULL, {}, NULL);
     auto results = conditionfieldae->get_array();
     BOOST_CHECK_EQUAL(results[0], "Hello");
     
@@ -762,7 +762,7 @@ BOOST_AUTO_TEST_CASE(TEST_OK_22)
             dicomifier::translator::ConstantField<EVR_UT>::New("Hello"),
             dicomifier::translator::ConstantField<EVR_UT>::New("World"));
             
-    conditionfieldae->run(NULL, NULL);
+    conditionfieldae->run(NULL, {}, NULL);
     results = conditionfieldae->get_array();
     BOOST_CHECK_EQUAL(results[0], "World");
 }

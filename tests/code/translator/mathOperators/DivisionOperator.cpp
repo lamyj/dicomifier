@@ -146,7 +146,7 @@ BOOST_AUTO_TEST_CASE(TEST_OK_02)
     vect.push_back(dicomifier::translator::ConstantField<EVR_AE>::New("World"));
     
     auto divisionoperatorae = dicomifier::translator::DivisionOperator<EVR_AE>::New(vect);
-    BOOST_REQUIRE_THROW(divisionoperatorae->run(NULL, NULL), dicomifier::DicomifierException);
+    BOOST_REQUIRE_THROW(divisionoperatorae->run(NULL, {}, NULL), dicomifier::DicomifierException);
 }
 
 /*************************** TEST OK 03 *******************************/
@@ -160,7 +160,7 @@ BOOST_AUTO_TEST_CASE(TEST_OK_03)
     vect.push_back(dicomifier::translator::ConstantField<EVR_AS>::New("World"));
     
     auto divisionoperatoras = dicomifier::translator::DivisionOperator<EVR_AS>::New(vect);
-    BOOST_REQUIRE_THROW(divisionoperatoras->run(NULL, NULL), dicomifier::DicomifierException);
+    BOOST_REQUIRE_THROW(divisionoperatoras->run(NULL, {}, NULL), dicomifier::DicomifierException);
 }
 
 /*************************** TEST OK 04 *******************************/
@@ -174,7 +174,7 @@ BOOST_AUTO_TEST_CASE(TEST_OK_04)
     vect.push_back(dicomifier::translator::ConstantField<EVR_CS>::New("World"));
     
     auto divisionoperatorcs = dicomifier::translator::DivisionOperator<EVR_CS>::New(vect);
-    BOOST_REQUIRE_THROW(divisionoperatorcs->run(NULL, NULL), dicomifier::DicomifierException);
+    BOOST_REQUIRE_THROW(divisionoperatorcs->run(NULL, {}, NULL), dicomifier::DicomifierException);
 }
 
 /*************************** TEST OK 05 *******************************/
@@ -188,7 +188,7 @@ BOOST_AUTO_TEST_CASE(TEST_OK_05)
     vect.push_back(dicomifier::translator::ConstantField<EVR_DA>::New("01232014"));
     
     auto divisionoperatorda = dicomifier::translator::DivisionOperator<EVR_DA>::New(vect);
-    BOOST_REQUIRE_THROW(divisionoperatorda->run(NULL, NULL), dicomifier::DicomifierException);
+    BOOST_REQUIRE_THROW(divisionoperatorda->run(NULL, {}, NULL), dicomifier::DicomifierException);
 }
 
 /*************************** TEST OK 06 *******************************/
@@ -202,7 +202,7 @@ BOOST_AUTO_TEST_CASE(TEST_OK_06)
     vect.push_back(dicomifier::translator::ConstantField<EVR_DS>::New(2));
     
     auto divisionoperatords = dicomifier::translator::DivisionOperator<EVR_DS>::New(vect);
-    divisionoperatords->run(NULL, NULL);
+    divisionoperatords->run(NULL, {}, NULL);
     auto results = divisionoperatords->get_array();
     BOOST_CHECK_EQUAL(results[0], (Float64)(1.25));
 }
@@ -218,7 +218,7 @@ BOOST_AUTO_TEST_CASE(TEST_OK_07)
     vect.push_back(dicomifier::translator::ConstantField<EVR_DT>::New("World"));
     
     auto divisionoperatorcs = dicomifier::translator::DivisionOperator<EVR_DT>::New(vect);
-    BOOST_REQUIRE_THROW(divisionoperatorcs->run(NULL, NULL), dicomifier::DicomifierException);
+    BOOST_REQUIRE_THROW(divisionoperatorcs->run(NULL, {}, NULL), dicomifier::DicomifierException);
 }
 
 /*************************** TEST OK 08 *******************************/
@@ -232,7 +232,7 @@ BOOST_AUTO_TEST_CASE(TEST_OK_08)
     vect.push_back(dicomifier::translator::ConstantField<EVR_FL>::New((Float32)11));
     
     auto divisionoperatorcs = dicomifier::translator::DivisionOperator<EVR_FL>::New(vect);
-    divisionoperatorcs->run(NULL, NULL);
+    divisionoperatorcs->run(NULL, {}, NULL);
     auto results = divisionoperatorcs->get_array();
     BOOST_CHECK_EQUAL(results[0], (Float32)(3));
 }
@@ -248,7 +248,7 @@ BOOST_AUTO_TEST_CASE(TEST_OK_09)
     vect.push_back(dicomifier::translator::ConstantField<EVR_FD>::New(2));
     
     auto divisionoperatorcs = dicomifier::translator::DivisionOperator<EVR_FD>::New(vect);
-    divisionoperatorcs->run(NULL, NULL);
+    divisionoperatorcs->run(NULL, {}, NULL);
     auto results = divisionoperatorcs->get_array();
     BOOST_CHECK_EQUAL(results[0], (Float64)1.25);
 }
@@ -264,7 +264,7 @@ BOOST_AUTO_TEST_CASE(TEST_OK_10)
     vect.push_back(dicomifier::translator::ConstantField<EVR_IS>::New(11));
     
     auto divisionoperatorcs = dicomifier::translator::DivisionOperator<EVR_IS>::New(vect);
-    divisionoperatorcs->run(NULL, NULL);
+    divisionoperatorcs->run(NULL, {}, NULL);
     auto results = divisionoperatorcs->get_array();
     BOOST_CHECK_EQUAL(results[0], (Sint32)3);
 }
@@ -280,7 +280,7 @@ BOOST_AUTO_TEST_CASE(TEST_OK_11)
     vect.push_back(dicomifier::translator::ConstantField<EVR_LO>::New("World"));
     
     auto divisionoperatorcs = dicomifier::translator::DivisionOperator<EVR_LO>::New(vect);
-    BOOST_REQUIRE_THROW(divisionoperatorcs->run(NULL, NULL), dicomifier::DicomifierException);
+    BOOST_REQUIRE_THROW(divisionoperatorcs->run(NULL, {}, NULL), dicomifier::DicomifierException);
 }
 
 /*************************** TEST OK 12 *******************************/
@@ -294,7 +294,7 @@ BOOST_AUTO_TEST_CASE(TEST_OK_12)
     vect.push_back(dicomifier::translator::ConstantField<EVR_LT>::New("World"));
     
     auto divisionoperatorcs = dicomifier::translator::DivisionOperator<EVR_LT>::New(vect);
-    BOOST_REQUIRE_THROW(divisionoperatorcs->run(NULL, NULL), dicomifier::DicomifierException);
+    BOOST_REQUIRE_THROW(divisionoperatorcs->run(NULL, {}, NULL), dicomifier::DicomifierException);
 }
 
 /*************************** TEST OK 13 *******************************/
@@ -308,7 +308,7 @@ BOOST_AUTO_TEST_CASE(TEST_OK_13)
     vect.push_back(dicomifier::translator::ConstantField<EVR_PN>::New("World"));
     
     auto divisionoperatorpn = dicomifier::translator::DivisionOperator<EVR_PN>::New(vect);
-    BOOST_REQUIRE_THROW(divisionoperatorpn->run(NULL, NULL), dicomifier::DicomifierException);
+    BOOST_REQUIRE_THROW(divisionoperatorpn->run(NULL, {}, NULL), dicomifier::DicomifierException);
 }
 
 /*************************** TEST OK 14 *******************************/
@@ -322,7 +322,7 @@ BOOST_AUTO_TEST_CASE(TEST_OK_14)
     vect.push_back(dicomifier::translator::ConstantField<EVR_SH>::New("World"));
     
     auto divisionoperatorcs = dicomifier::translator::DivisionOperator<EVR_SH>::New(vect);
-    BOOST_REQUIRE_THROW(divisionoperatorcs->run(NULL, NULL), dicomifier::DicomifierException);
+    BOOST_REQUIRE_THROW(divisionoperatorcs->run(NULL, {}, NULL), dicomifier::DicomifierException);
 }
 
 /*************************** TEST OK 15 *******************************/
@@ -336,7 +336,7 @@ BOOST_AUTO_TEST_CASE(TEST_OK_15)
     vect.push_back(dicomifier::translator::ConstantField<EVR_SL>::New(11));
     
     auto divisionoperatorcs = dicomifier::translator::DivisionOperator<EVR_SL>::New(vect);
-    divisionoperatorcs->run(NULL, NULL);
+    divisionoperatorcs->run(NULL, {}, NULL);
     auto results = divisionoperatorcs->get_array();
     BOOST_CHECK_EQUAL(results[0], (Sint32)3);
 }
@@ -352,7 +352,7 @@ BOOST_AUTO_TEST_CASE(TEST_OK_16)
     vect.push_back(dicomifier::translator::ConstantField<EVR_SS>::New(11));
     
     auto divisionoperatorcs = dicomifier::translator::DivisionOperator<EVR_SS>::New(vect);
-    divisionoperatorcs->run(NULL, NULL);
+    divisionoperatorcs->run(NULL, {}, NULL);
     auto results = divisionoperatorcs->get_array();
     BOOST_CHECK_EQUAL(results[0], (Sint16)3);
 }
@@ -368,7 +368,7 @@ BOOST_AUTO_TEST_CASE(TEST_OK_17)
     vect.push_back(dicomifier::translator::ConstantField<EVR_ST>::New("World"));
     
     auto divisionoperatorcs = dicomifier::translator::DivisionOperator<EVR_ST>::New(vect);
-    BOOST_REQUIRE_THROW(divisionoperatorcs->run(NULL, NULL), dicomifier::DicomifierException);
+    BOOST_REQUIRE_THROW(divisionoperatorcs->run(NULL, {}, NULL), dicomifier::DicomifierException);
 }
 
 /*************************** TEST OK 18 *******************************/
@@ -382,7 +382,7 @@ BOOST_AUTO_TEST_CASE(TEST_OK_18)
     vect.push_back(dicomifier::translator::ConstantField<EVR_TM>::New("World"));
     
     auto divisionoperatorcs = dicomifier::translator::DivisionOperator<EVR_TM>::New(vect);
-    BOOST_REQUIRE_THROW(divisionoperatorcs->run(NULL, NULL), dicomifier::DicomifierException);
+    BOOST_REQUIRE_THROW(divisionoperatorcs->run(NULL, {}, NULL), dicomifier::DicomifierException);
 }
 
 /*************************** TEST OK 19 *******************************/
@@ -396,7 +396,7 @@ BOOST_AUTO_TEST_CASE(TEST_OK_19)
     vect.push_back(dicomifier::translator::ConstantField<EVR_UI>::New("World"));
     
     auto divisionoperatorcs = dicomifier::translator::DivisionOperator<EVR_UI>::New(vect);
-    BOOST_REQUIRE_THROW(divisionoperatorcs->run(NULL, NULL), dicomifier::DicomifierException);
+    BOOST_REQUIRE_THROW(divisionoperatorcs->run(NULL, {}, NULL), dicomifier::DicomifierException);
 }
 
 /*************************** TEST OK 20 *******************************/
@@ -410,7 +410,7 @@ BOOST_AUTO_TEST_CASE(TEST_OK_20)
     vect.push_back(dicomifier::translator::ConstantField<EVR_UL>::New(11));
     
     auto divisionoperatorcs = dicomifier::translator::DivisionOperator<EVR_UL>::New(vect);
-    divisionoperatorcs->run(NULL, NULL);
+    divisionoperatorcs->run(NULL, {}, NULL);
     auto results = divisionoperatorcs->get_array();
     BOOST_CHECK_EQUAL(results[0], (Uint32)3);
 }
@@ -426,7 +426,7 @@ BOOST_AUTO_TEST_CASE(TEST_OK_21)
     vect.push_back(dicomifier::translator::ConstantField<EVR_US>::New(11));
     
     auto divisionoperatorcs = dicomifier::translator::DivisionOperator<EVR_US>::New(vect);
-    divisionoperatorcs->run(NULL, NULL);
+    divisionoperatorcs->run(NULL, {}, NULL);
     auto results = divisionoperatorcs->get_array();
     BOOST_CHECK_EQUAL(results[0], (Uint16)3);
 }
@@ -442,7 +442,7 @@ BOOST_AUTO_TEST_CASE(TEST_OK_22)
     vect.push_back(dicomifier::translator::ConstantField<EVR_UT>::New("World"));
     
     auto divisionoperatorcs = dicomifier::translator::DivisionOperator<EVR_UT>::New(vect);
-    BOOST_REQUIRE_THROW(divisionoperatorcs->run(NULL, NULL), dicomifier::DicomifierException);
+    BOOST_REQUIRE_THROW(divisionoperatorcs->run(NULL, {}, NULL), dicomifier::DicomifierException);
 }
 
 /*************************** TEST KO 01 *******************************/
@@ -457,5 +457,5 @@ BOOST_AUTO_TEST_CASE(TEST_KO_01)
     
     auto divisionoperatords = dicomifier::translator::DivisionOperator<EVR_DS>::New(vect);
     
-    BOOST_REQUIRE_THROW(divisionoperatords->run(NULL, NULL), dicomifier::DicomifierException);
+    BOOST_REQUIRE_THROW(divisionoperatords->run(NULL, {}, NULL), dicomifier::DicomifierException);
 }

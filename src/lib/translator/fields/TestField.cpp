@@ -29,8 +29,9 @@ TestField
 
 void
 TestField
-::run(DcmDataset* dataset,
-      dicomifier::bruker::BrukerDataset* brukerdataset)
+::run(dicomifier::bruker::BrukerDataset* brukerdataset,
+      std::vector<int> const & indexes,
+      DcmDataset* dataset)
 {
     // Nothing to do
 }

@@ -37,8 +37,9 @@ public:
 
     virtual ~ConstantField();
     
-    virtual void run(DcmDataset* dataset,
-                     dicomifier::bruker::BrukerDataset* brukerdataset);
+    virtual void run(dicomifier::bruker::BrukerDataset* brukerdataset,
+                     std::vector<int> const & indexes,
+                     DcmDataset* dataset);
     
     virtual ClassType get_class_type() const { return ECT_ConstantField; }
     

@@ -146,7 +146,7 @@ BOOST_AUTO_TEST_CASE(TEST_OK_02)
     vect.push_back(dicomifier::translator::ConstantField<EVR_AE>::New("World"));
     
     auto multiplicationoperatorae = dicomifier::translator::MultiplicationOperator<EVR_AE>::New(vect);
-    BOOST_REQUIRE_THROW(multiplicationoperatorae->run(NULL, NULL), dicomifier::DicomifierException);
+    BOOST_REQUIRE_THROW(multiplicationoperatorae->run(NULL, {}, NULL), dicomifier::DicomifierException);
 }
 
 /*************************** TEST OK 03 *******************************/
@@ -160,7 +160,7 @@ BOOST_AUTO_TEST_CASE(TEST_OK_03)
     vect.push_back(dicomifier::translator::ConstantField<EVR_AS>::New("World"));
     
     auto multiplicationoperatoras = dicomifier::translator::MultiplicationOperator<EVR_AS>::New(vect);
-    BOOST_REQUIRE_THROW(multiplicationoperatoras->run(NULL, NULL), dicomifier::DicomifierException);
+    BOOST_REQUIRE_THROW(multiplicationoperatoras->run(NULL, {}, NULL), dicomifier::DicomifierException);
 }
 
 /*************************** TEST OK 04 *******************************/
@@ -174,7 +174,7 @@ BOOST_AUTO_TEST_CASE(TEST_OK_04)
     vect.push_back(dicomifier::translator::ConstantField<EVR_CS>::New("World"));
     
     auto multiplicationoperatorcs = dicomifier::translator::MultiplicationOperator<EVR_CS>::New(vect);
-    BOOST_REQUIRE_THROW(multiplicationoperatorcs->run(NULL, NULL), dicomifier::DicomifierException);
+    BOOST_REQUIRE_THROW(multiplicationoperatorcs->run(NULL, {}, NULL), dicomifier::DicomifierException);
 }
 
 /*************************** TEST OK 05 *******************************/
@@ -188,7 +188,7 @@ BOOST_AUTO_TEST_CASE(TEST_OK_05)
     vect.push_back(dicomifier::translator::ConstantField<EVR_DA>::New("01232014"));
     
     auto multiplicationoperatorda = dicomifier::translator::MultiplicationOperator<EVR_DA>::New(vect);
-    BOOST_REQUIRE_THROW(multiplicationoperatorda->run(NULL, NULL), dicomifier::DicomifierException);
+    BOOST_REQUIRE_THROW(multiplicationoperatorda->run(NULL, {}, NULL), dicomifier::DicomifierException);
 }
 
 /*************************** TEST OK 06 *******************************/
@@ -202,7 +202,7 @@ BOOST_AUTO_TEST_CASE(TEST_OK_06)
     vect.push_back(dicomifier::translator::ConstantField<EVR_DS>::New(2.5));
     
     auto multiplicationoperatords = dicomifier::translator::MultiplicationOperator<EVR_DS>::New(vect);
-    multiplicationoperatords->run(NULL, NULL);
+    multiplicationoperatords->run(NULL, {}, NULL);
     auto results = multiplicationoperatords->get_array();
     BOOST_CHECK_EQUAL(results[0], (Float64)(6.25));
 }
@@ -218,7 +218,7 @@ BOOST_AUTO_TEST_CASE(TEST_OK_07)
     vect.push_back(dicomifier::translator::ConstantField<EVR_DT>::New("World"));
     
     auto multiplicationoperatorcs = dicomifier::translator::MultiplicationOperator<EVR_DT>::New(vect);
-    BOOST_REQUIRE_THROW(multiplicationoperatorcs->run(NULL, NULL), dicomifier::DicomifierException);
+    BOOST_REQUIRE_THROW(multiplicationoperatorcs->run(NULL, {}, NULL), dicomifier::DicomifierException);
 }
 
 /*************************** TEST OK 08 *******************************/
@@ -232,7 +232,7 @@ BOOST_AUTO_TEST_CASE(TEST_OK_08)
     vect.push_back(dicomifier::translator::ConstantField<EVR_FL>::New((Float32)4));
     
     auto multiplicationoperatorcs = dicomifier::translator::MultiplicationOperator<EVR_FL>::New(vect);
-    multiplicationoperatorcs->run(NULL, NULL);
+    multiplicationoperatorcs->run(NULL, {}, NULL);
     auto results = multiplicationoperatorcs->get_array();
     BOOST_CHECK_EQUAL(results[0], (Float32)(12));
 }
@@ -248,7 +248,7 @@ BOOST_AUTO_TEST_CASE(TEST_OK_09)
     vect.push_back(dicomifier::translator::ConstantField<EVR_FD>::New(2.5));
     
     auto multiplicationoperatorcs = dicomifier::translator::MultiplicationOperator<EVR_FD>::New(vect);
-    multiplicationoperatorcs->run(NULL, NULL);
+    multiplicationoperatorcs->run(NULL, {}, NULL);
     auto results = multiplicationoperatorcs->get_array();
     BOOST_CHECK_EQUAL(results[0], (Float64)6.25);
 }
@@ -264,7 +264,7 @@ BOOST_AUTO_TEST_CASE(TEST_OK_10)
     vect.push_back(dicomifier::translator::ConstantField<EVR_IS>::New(4));
     
     auto multiplicationoperatorcs = dicomifier::translator::MultiplicationOperator<EVR_IS>::New(vect);
-    multiplicationoperatorcs->run(NULL, NULL);
+    multiplicationoperatorcs->run(NULL, {}, NULL);
     auto results = multiplicationoperatorcs->get_array();
     BOOST_CHECK_EQUAL(results[0], (Sint32)12);
 }
@@ -280,7 +280,7 @@ BOOST_AUTO_TEST_CASE(TEST_OK_11)
     vect.push_back(dicomifier::translator::ConstantField<EVR_LO>::New("World"));
     
     auto multiplicationoperatorcs = dicomifier::translator::MultiplicationOperator<EVR_LO>::New(vect);
-    BOOST_REQUIRE_THROW(multiplicationoperatorcs->run(NULL, NULL), dicomifier::DicomifierException);
+    BOOST_REQUIRE_THROW(multiplicationoperatorcs->run(NULL, {}, NULL), dicomifier::DicomifierException);
 }
 
 /*************************** TEST OK 12 *******************************/
@@ -294,7 +294,7 @@ BOOST_AUTO_TEST_CASE(TEST_OK_12)
     vect.push_back(dicomifier::translator::ConstantField<EVR_LT>::New("World"));
     
     auto multiplicationoperatorcs = dicomifier::translator::MultiplicationOperator<EVR_LT>::New(vect);
-    BOOST_REQUIRE_THROW(multiplicationoperatorcs->run(NULL, NULL), dicomifier::DicomifierException);
+    BOOST_REQUIRE_THROW(multiplicationoperatorcs->run(NULL, {}, NULL), dicomifier::DicomifierException);
 }
 
 /*************************** TEST OK 13 *******************************/
@@ -308,7 +308,7 @@ BOOST_AUTO_TEST_CASE(TEST_OK_13)
     vect.push_back(dicomifier::translator::ConstantField<EVR_PN>::New("World"));
     
     auto multiplicationoperatorpn = dicomifier::translator::MultiplicationOperator<EVR_PN>::New(vect);
-    BOOST_REQUIRE_THROW(multiplicationoperatorpn->run(NULL, NULL), dicomifier::DicomifierException);
+    BOOST_REQUIRE_THROW(multiplicationoperatorpn->run(NULL, {}, NULL), dicomifier::DicomifierException);
 }
 
 /*************************** TEST OK 14 *******************************/
@@ -322,7 +322,7 @@ BOOST_AUTO_TEST_CASE(TEST_OK_14)
     vect.push_back(dicomifier::translator::ConstantField<EVR_SH>::New("World"));
     
     auto multiplicationoperatorcs = dicomifier::translator::MultiplicationOperator<EVR_SH>::New(vect);
-    BOOST_REQUIRE_THROW(multiplicationoperatorcs->run(NULL, NULL), dicomifier::DicomifierException);
+    BOOST_REQUIRE_THROW(multiplicationoperatorcs->run(NULL, {}, NULL), dicomifier::DicomifierException);
 }
 
 /*************************** TEST OK 15 *******************************/
@@ -336,7 +336,7 @@ BOOST_AUTO_TEST_CASE(TEST_OK_15)
     vect.push_back(dicomifier::translator::ConstantField<EVR_SL>::New(4));
     
     auto multiplicationoperatorcs = dicomifier::translator::MultiplicationOperator<EVR_SL>::New(vect);
-    multiplicationoperatorcs->run(NULL, NULL);
+    multiplicationoperatorcs->run(NULL, {}, NULL);
     auto results = multiplicationoperatorcs->get_array();
     BOOST_CHECK_EQUAL(results[0], (Sint32)12);
 }
@@ -352,7 +352,7 @@ BOOST_AUTO_TEST_CASE(TEST_OK_16)
     vect.push_back(dicomifier::translator::ConstantField<EVR_SS>::New(4));
     
     auto multiplicationoperatorcs = dicomifier::translator::MultiplicationOperator<EVR_SS>::New(vect);
-    multiplicationoperatorcs->run(NULL, NULL);
+    multiplicationoperatorcs->run(NULL, {}, NULL);
     auto results = multiplicationoperatorcs->get_array();
     BOOST_CHECK_EQUAL(results[0], (Sint16)12);
 }
@@ -368,7 +368,7 @@ BOOST_AUTO_TEST_CASE(TEST_OK_17)
     vect.push_back(dicomifier::translator::ConstantField<EVR_ST>::New("World"));
     
     auto multiplicationoperatorcs = dicomifier::translator::MultiplicationOperator<EVR_ST>::New(vect);
-    BOOST_REQUIRE_THROW(multiplicationoperatorcs->run(NULL, NULL), dicomifier::DicomifierException);
+    BOOST_REQUIRE_THROW(multiplicationoperatorcs->run(NULL, {}, NULL), dicomifier::DicomifierException);
 }
 
 /*************************** TEST OK 18 *******************************/
@@ -382,7 +382,7 @@ BOOST_AUTO_TEST_CASE(TEST_OK_18)
     vect.push_back(dicomifier::translator::ConstantField<EVR_TM>::New("World"));
     
     auto multiplicationoperatorcs = dicomifier::translator::MultiplicationOperator<EVR_TM>::New(vect);
-    BOOST_REQUIRE_THROW(multiplicationoperatorcs->run(NULL, NULL), dicomifier::DicomifierException);
+    BOOST_REQUIRE_THROW(multiplicationoperatorcs->run(NULL, {}, NULL), dicomifier::DicomifierException);
 }
 
 /*************************** TEST OK 19 *******************************/
@@ -396,7 +396,7 @@ BOOST_AUTO_TEST_CASE(TEST_OK_19)
     vect.push_back(dicomifier::translator::ConstantField<EVR_UI>::New("World"));
     
     auto multiplicationoperatorcs = dicomifier::translator::MultiplicationOperator<EVR_UI>::New(vect);
-    BOOST_REQUIRE_THROW(multiplicationoperatorcs->run(NULL, NULL), dicomifier::DicomifierException);
+    BOOST_REQUIRE_THROW(multiplicationoperatorcs->run(NULL, {}, NULL), dicomifier::DicomifierException);
 }
 
 /*************************** TEST OK 20 *******************************/
@@ -410,7 +410,7 @@ BOOST_AUTO_TEST_CASE(TEST_OK_20)
     vect.push_back(dicomifier::translator::ConstantField<EVR_UL>::New(4));
     
     auto multiplicationoperatorcs = dicomifier::translator::MultiplicationOperator<EVR_UL>::New(vect);
-    multiplicationoperatorcs->run(NULL, NULL);
+    multiplicationoperatorcs->run(NULL, {}, NULL);
     auto results = multiplicationoperatorcs->get_array();
     BOOST_CHECK_EQUAL(results[0], (Uint32)12);
 }
@@ -426,7 +426,7 @@ BOOST_AUTO_TEST_CASE(TEST_OK_21)
     vect.push_back(dicomifier::translator::ConstantField<EVR_US>::New(4));
     
     auto multiplicationoperatorcs = dicomifier::translator::MultiplicationOperator<EVR_US>::New(vect);
-    multiplicationoperatorcs->run(NULL, NULL);
+    multiplicationoperatorcs->run(NULL, {}, NULL);
     auto results = multiplicationoperatorcs->get_array();
     BOOST_CHECK_EQUAL(results[0], (Uint16)12);
 }
@@ -442,7 +442,7 @@ BOOST_AUTO_TEST_CASE(TEST_OK_22)
     vect.push_back(dicomifier::translator::ConstantField<EVR_UT>::New("World"));
     
     auto multiplicationoperatorcs = dicomifier::translator::MultiplicationOperator<EVR_UT>::New(vect);
-    BOOST_REQUIRE_THROW(multiplicationoperatorcs->run(NULL, NULL), dicomifier::DicomifierException);
+    BOOST_REQUIRE_THROW(multiplicationoperatorcs->run(NULL, {}, NULL), dicomifier::DicomifierException);
 }
 
 /*************************** TEST KO 01 *******************************/
@@ -457,5 +457,5 @@ BOOST_AUTO_TEST_CASE(TEST_KO_01)
     
     auto multiplicationoperatords = dicomifier::translator::MultiplicationOperator<EVR_DS>::New(vect);
     
-    BOOST_REQUIRE_THROW(multiplicationoperatords->run(NULL, NULL), dicomifier::DicomifierException);
+    BOOST_REQUIRE_THROW(multiplicationoperatords->run(NULL, {}, NULL), dicomifier::DicomifierException);
 }

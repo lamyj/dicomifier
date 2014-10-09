@@ -162,13 +162,13 @@ BOOST_FIXTURE_TEST_CASE(TEST_OK_02, TestDataOK02)
     // Test VR = AE
     tagandrange._tag = DCM_PerformedStationAETitle;
     auto testfieldae = dicomifier::translator::DicomField<EVR_AE>::New(tagandrange, testfield);
-    testfieldae->run(dataset, NULL);
+    testfieldae->run(NULL, {}, dataset);
     BOOST_CHECK_EQUAL(dataset->tagExists(tagandrange._tag), true);
     
     // Test VR = AS
     tagandrange._tag = DCM_PatientAge;
     auto testfieldas = dicomifier::translator::DicomField<EVR_AS>::New(tagandrange, testfield);
-    testfieldas->run(dataset, NULL);
+    testfieldas->run(NULL, {}, dataset);
     BOOST_CHECK_EQUAL(dataset->tagExists(tagandrange._tag), true);
     
     // Test VR = AT => Not implemented
@@ -176,55 +176,55 @@ BOOST_FIXTURE_TEST_CASE(TEST_OK_02, TestDataOK02)
     // Test VR = CS
     tagandrange._tag = DCM_Modality;
     auto testfieldcs = dicomifier::translator::DicomField<EVR_CS>::New(tagandrange, testfield);
-    testfieldcs->run(dataset, NULL);
+    testfieldcs->run(NULL, {}, dataset);
     BOOST_CHECK_EQUAL(dataset->tagExists(tagandrange._tag), true);
     
     // Test VR = DA
     tagandrange._tag = DCM_StudyDate;
     auto testfieldda = dicomifier::translator::DicomField<EVR_DA>::New(tagandrange, testfield);
-    testfieldda->run(dataset, NULL);
+    testfieldda->run(NULL, {}, dataset);
     BOOST_CHECK_EQUAL(dataset->tagExists(tagandrange._tag), true);
     
     // Test VR = DS
     tagandrange._tag = DCM_PatientWeight;
     auto testfieldds = dicomifier::translator::DicomField<EVR_DS>::New(tagandrange, testfield);
-    testfieldds->run(dataset, NULL);
+    testfieldds->run(NULL, {}, dataset);
     BOOST_CHECK_EQUAL(dataset->tagExists(tagandrange._tag), true);
     
     // Test VR = DT
     tagandrange._tag = DCM_AcquisitionDateTime;
     auto testfielddt = dicomifier::translator::DicomField<EVR_DT>::New(tagandrange, testfield);
-    testfielddt->run(dataset, NULL);
+    testfielddt->run(NULL, {}, dataset);
     BOOST_CHECK_EQUAL(dataset->tagExists(tagandrange._tag), true);
     
     // Test VR = FL
     tagandrange._tag = DCM_StimulusArea;
     auto testfieldfl = dicomifier::translator::DicomField<EVR_FL>::New(tagandrange, testfield);
-    testfieldfl->run(dataset, NULL);
+    testfieldfl->run(NULL, {}, dataset);
     BOOST_CHECK_EQUAL(dataset->tagExists(tagandrange._tag), true);
     
     // Test VR = FD
     tagandrange._tag = DCM_SteeringAngle;
     auto testfieldfd = dicomifier::translator::DicomField<EVR_FD>::New(tagandrange, testfield);
-    testfieldfd->run(dataset, NULL);
+    testfieldfd->run(NULL, {}, dataset);
     BOOST_CHECK_EQUAL(dataset->tagExists(tagandrange._tag), true);
     
     // Test VR = IS
     tagandrange._tag = DCM_StageNumber;
     auto testfieldis = dicomifier::translator::DicomField<EVR_IS>::New(tagandrange, testfield);
-    testfieldis->run(dataset, NULL);
+    testfieldis->run(NULL, {}, dataset);
     BOOST_CHECK_EQUAL(dataset->tagExists(tagandrange._tag), true);
     
     // Test VR = LO
     tagandrange._tag = DCM_Manufacturer;
     auto testfieldlo = dicomifier::translator::DicomField<EVR_LO>::New(tagandrange, testfield);
-    testfieldlo->run(dataset, NULL);
+    testfieldlo->run(NULL, {}, dataset);
     BOOST_CHECK_EQUAL(dataset->tagExists(tagandrange._tag), true);
     
     // Test VR = LT
     tagandrange._tag = DCM_AdditionalPatientHistory;
     auto testfieldlt = dicomifier::translator::DicomField<EVR_LT>::New(tagandrange, testfield);
-    testfieldlt->run(dataset, NULL);
+    testfieldlt->run(NULL, {}, dataset);
     BOOST_CHECK_EQUAL(dataset->tagExists(tagandrange._tag), true);
     
     // Test VR = OB => Not implemented
@@ -235,19 +235,19 @@ BOOST_FIXTURE_TEST_CASE(TEST_OK_02, TestDataOK02)
     // Test VR = PN
     tagandrange._tag = DCM_PatientName;
     auto testfieldpn = dicomifier::translator::DicomField<EVR_PN>::New(tagandrange, testfield);
-    testfieldpn->run(dataset, NULL);
+    testfieldpn->run(NULL, {}, dataset);
     BOOST_CHECK_EQUAL(dataset->tagExists(tagandrange._tag), true);
     
     // Test VR = SH
     tagandrange._tag = DCM_AccessionNumber;
     auto testfieldsh = dicomifier::translator::DicomField<EVR_SH>::New(tagandrange, testfield);
-    testfieldsh->run(dataset, NULL);
+    testfieldsh->run(NULL, {}, dataset);
     BOOST_CHECK_EQUAL(dataset->tagExists(tagandrange._tag), true);
     
     // Test VR = SL
     tagandrange._tag = DCM_ReferencePixelX0;
     auto testfieldsl = dicomifier::translator::DicomField<EVR_SL>::New(tagandrange, testfield);
-    testfieldsl->run(dataset, NULL);
+    testfieldsl->run(NULL, {}, dataset);
     BOOST_CHECK_EQUAL(dataset->tagExists(tagandrange._tag), true);
     
     // Test VR = SQ => Not implemented
@@ -255,31 +255,31 @@ BOOST_FIXTURE_TEST_CASE(TEST_OK_02, TestDataOK02)
     // Test VR = SS
     tagandrange._tag = DCM_TagAngleSecondAxis;
     auto testfieldss = dicomifier::translator::DicomField<EVR_SS>::New(tagandrange, testfield);
-    testfieldss->run(dataset, NULL);
+    testfieldss->run(NULL, {}, dataset);
     BOOST_CHECK_EQUAL(dataset->tagExists(tagandrange._tag), true);
     
     // Test VR = ST
     tagandrange._tag = DCM_InstitutionAddress;
     auto testfieldst = dicomifier::translator::DicomField<EVR_ST>::New(tagandrange, testfield);
-    testfieldst->run(dataset, NULL);
+    testfieldst->run(NULL, {}, dataset);
     BOOST_CHECK_EQUAL(dataset->tagExists(tagandrange._tag), true);
     
     // Test VR = TM
     tagandrange._tag = DCM_StudyTime;
     auto testfieldtm = dicomifier::translator::DicomField<EVR_TM>::New(tagandrange, testfield);
-    testfieldtm->run(dataset, NULL);
+    testfieldtm->run(NULL, {}, dataset);
     BOOST_CHECK_EQUAL(dataset->tagExists(tagandrange._tag), true);
     
     // Test VR = UI
     tagandrange._tag = DCM_SOPClassUID;
     auto testfieldui = dicomifier::translator::DicomField<EVR_UI>::New(tagandrange, testfield);
-    testfieldui->run(dataset, NULL);
+    testfieldui->run(NULL, {}, dataset);
     BOOST_CHECK_EQUAL(dataset->tagExists(tagandrange._tag), true);
     
     // Test VR = UL
     tagandrange._tag = DCM_RegionFlags;
     auto testfieldul = dicomifier::translator::DicomField<EVR_UL>::New(tagandrange, testfield);
-    testfieldul->run(dataset, NULL);
+    testfieldul->run(NULL, {}, dataset);
     BOOST_CHECK_EQUAL(dataset->tagExists(tagandrange._tag), true);
     
     // Test VR = UN => Not implemented
@@ -287,13 +287,13 @@ BOOST_FIXTURE_TEST_CASE(TEST_OK_02, TestDataOK02)
     // Test VR = US
     tagandrange._tag = DCM_FailureReason;
     auto testfieldus = dicomifier::translator::DicomField<EVR_US>::New(tagandrange, testfield);
-    testfieldus->run(dataset, NULL);
+    testfieldus->run(NULL, {}, dataset);
     BOOST_CHECK_EQUAL(dataset->tagExists(tagandrange._tag), true);
     
     // Test VR = UT
     tagandrange._tag = DCM_PixelDataProviderURL;
     auto testfieldut = dicomifier::translator::DicomField<EVR_UT>::New(tagandrange, testfield);
-    testfieldut->run(dataset, NULL);
+    testfieldut->run(NULL, {}, dataset);
     BOOST_CHECK_EQUAL(dataset->tagExists(tagandrange._tag), true);
 }
 
@@ -307,7 +307,7 @@ BOOST_AUTO_TEST_CASE(TEST_KO_01)
     tagandrange._tag = DCM_Modality;
     DcmDataset* dataset = new DcmDataset();
     auto testfieldcs = dicomifier::translator::DicomField<EVR_CS>::New(tagandrange, NULL);
-    BOOST_REQUIRE_THROW(testfieldcs->run(dataset, NULL), dicomifier::DicomifierException);
+    BOOST_REQUIRE_THROW(testfieldcs->run(NULL, {}, dataset), dicomifier::DicomifierException);
     
     delete dataset;
 }
@@ -322,5 +322,5 @@ BOOST_AUTO_TEST_CASE(TEST_KO_02)
     tagandrange._tag = DCM_Modality;
     auto testfield = dicomifier::translator::TestField::New();
     auto testfieldcs = dicomifier::translator::DicomField<EVR_CS>::New(tagandrange, testfield);
-    BOOST_REQUIRE_THROW(testfieldcs->run(NULL, NULL), dicomifier::DicomifierException);
+    BOOST_REQUIRE_THROW(testfieldcs->run(NULL, {}, NULL), dicomifier::DicomifierException);
 }

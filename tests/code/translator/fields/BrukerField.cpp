@@ -190,59 +190,59 @@ BOOST_FIXTURE_TEST_CASE(TEST_OK_02, TestDataOK02)
 {
     // Test VR = AE
     auto testfieldae = dicomifier::translator::BrukerField<EVR_AE>::New("fieldAE");
-    testfieldae->run(NULL, brukerdataset);
+    testfieldae->run(brukerdataset, {}, NULL);
     BOOST_CHECK_EQUAL(testfieldae->get_array().size(), 1);
     
     // Test VR = AS
     auto testfieldas = dicomifier::translator::BrukerField<EVR_AS>::New("fieldAS");
-    testfieldas->run(NULL, brukerdataset);
+    testfieldas->run(brukerdataset, {}, NULL);
     BOOST_CHECK_EQUAL(testfieldas->get_array().size(), 1);
     
     // Test VR = AT => Not implemented
     
     // Test VR = CS
     auto testfieldcs = dicomifier::translator::BrukerField<EVR_CS>::New("fieldCS");
-    testfieldcs->run(NULL, brukerdataset);
+    testfieldcs->run(brukerdataset, {}, NULL);
     BOOST_CHECK_EQUAL(testfieldcs->get_array().size(), 1);
     
     // Test VR = DA
     auto testfieldda = dicomifier::translator::BrukerField<EVR_DA>::New("fieldDA");
-    testfieldda->run(NULL, brukerdataset);
+    testfieldda->run(brukerdataset, {}, NULL);
     BOOST_CHECK_EQUAL(testfieldda->get_array().size(), 1);
     
     // Test VR = DS
     auto testfieldds = dicomifier::translator::BrukerField<EVR_DS>::New("fieldDS");
-    testfieldds->run(NULL, brukerdataset);
+    testfieldds->run(brukerdataset, {}, NULL);
     BOOST_CHECK_EQUAL(testfieldds->get_array().size(), 1);
     
     // Test VR = DT
     auto testfielddt = dicomifier::translator::BrukerField<EVR_DT>::New("fieldDT");
-    testfielddt->run(NULL, brukerdataset);
+    testfielddt->run(brukerdataset, {}, NULL);
     BOOST_CHECK_EQUAL(testfielddt->get_array().size(), 1);
     
     // Test VR = FL
     auto testfieldfl = dicomifier::translator::BrukerField<EVR_FL>::New("fieldFL");
-    testfieldfl->run(NULL, brukerdataset);
+    testfieldfl->run(brukerdataset, {}, NULL);
     BOOST_CHECK_EQUAL(testfieldfl->get_array().size(), 1);
     
     // Test VR = FD
     auto testfieldfd = dicomifier::translator::BrukerField<EVR_FD>::New("fieldFD");
-    testfieldfd->run(NULL, brukerdataset);
+    testfieldfd->run(brukerdataset, {}, NULL);
     BOOST_CHECK_EQUAL(testfieldfd->get_array().size(), 1);
     
     // Test VR = IS
     auto testfieldis = dicomifier::translator::BrukerField<EVR_IS>::New("fieldIS");
-    testfieldis->run(NULL, brukerdataset);
+    testfieldis->run(brukerdataset, {}, NULL);
     BOOST_CHECK_EQUAL(testfieldis->get_array().size(), 1);
     
     // Test VR = LO
     auto testfieldlo = dicomifier::translator::BrukerField<EVR_LO>::New("fieldLO");
-    testfieldlo->run(NULL, brukerdataset);
+    testfieldlo->run(brukerdataset, {}, NULL);
     BOOST_CHECK_EQUAL(testfieldlo->get_array().size(), 1);
     
     // Test VR = LT
     auto testfieldlt = dicomifier::translator::BrukerField<EVR_LT>::New("fieldLT");
-    testfieldlt->run(NULL, brukerdataset);
+    testfieldlt->run(brukerdataset, {}, NULL);
     BOOST_CHECK_EQUAL(testfieldlt->get_array().size(), 1);
     
     // Test VR = OB => Not implemented
@@ -252,56 +252,56 @@ BOOST_FIXTURE_TEST_CASE(TEST_OK_02, TestDataOK02)
     
     // Test VR = PN
     auto testfieldpn = dicomifier::translator::BrukerField<EVR_PN>::New("fieldPN");
-    testfieldpn->run(NULL, brukerdataset);
+    testfieldpn->run(brukerdataset, {}, NULL);
     BOOST_CHECK_EQUAL(testfieldpn->get_array().size(), 1);
     
     // Test VR = SH
     auto testfieldsh = dicomifier::translator::BrukerField<EVR_SH>::New("fieldSH");
-    testfieldsh->run(NULL, brukerdataset);
+    testfieldsh->run(brukerdataset, {}, NULL);
     BOOST_CHECK_EQUAL(testfieldsh->get_array().size(), 1);
     
     // Test VR = SL
     auto testfieldsl = dicomifier::translator::BrukerField<EVR_SL>::New("fieldSL");
-    testfieldsl->run(NULL, brukerdataset);
+    testfieldsl->run(brukerdataset, {}, NULL);
     BOOST_CHECK_EQUAL(testfieldsl->get_array().size(), 1);
     
     // Test VR = SQ => Not implemented
     
     // Test VR = SS
     auto testfieldss = dicomifier::translator::BrukerField<EVR_SS>::New("fieldSS");
-    testfieldss->run(NULL, brukerdataset);
+    testfieldss->run(brukerdataset, {}, NULL);
     BOOST_CHECK_EQUAL(testfieldss->get_array().size(), 1);
     
     // Test VR = ST
     auto testfieldst = dicomifier::translator::BrukerField<EVR_ST>::New("fieldST");
-    testfieldst->run(NULL, brukerdataset);
+    testfieldst->run(brukerdataset, {}, NULL);
     BOOST_CHECK_EQUAL(testfieldst->get_array().size(), 1);
     
     // Test VR = TM
     auto testfieldtm = dicomifier::translator::BrukerField<EVR_TM>::New("fieldTM");
-    testfieldtm->run(NULL, brukerdataset);
+    testfieldtm->run(brukerdataset, {}, NULL);
     BOOST_CHECK_EQUAL(testfieldtm->get_array().size(), 1);
     
     // Test VR = UI
     auto testfieldui = dicomifier::translator::BrukerField<EVR_UI>::New("fieldUI");
-    testfieldui->run(NULL, brukerdataset);
+    testfieldui->run(brukerdataset, {}, NULL);
     BOOST_CHECK_EQUAL(testfieldui->get_array().size(), 1);
     
     // Test VR = UL
     auto testfieldul = dicomifier::translator::BrukerField<EVR_UL>::New("fieldUL");
-    testfieldul->run(NULL, brukerdataset);
+    testfieldul->run(brukerdataset, {}, NULL);
     BOOST_CHECK_EQUAL(testfieldul->get_array().size(), 1);
     
     // Test VR = UN => Not implemented
     
     // Test VR = US
     auto testfieldus = dicomifier::translator::BrukerField<EVR_US>::New("fieldUS");
-    testfieldus->run(NULL, brukerdataset);
+    testfieldus->run(brukerdataset, {}, NULL);
     BOOST_CHECK_EQUAL(testfieldus->get_array().size(), 1);
     
     // Test VR = UT
     auto testfieldut = dicomifier::translator::BrukerField<EVR_UT>::New("fieldUT");
-    testfieldut->run(NULL, brukerdataset);
+    testfieldut->run(brukerdataset, {}, NULL);
     BOOST_CHECK_EQUAL(testfieldut->get_array().size(), 1);
 }
 
@@ -312,5 +312,5 @@ BOOST_FIXTURE_TEST_CASE(TEST_OK_02, TestDataOK02)
 BOOST_AUTO_TEST_CASE(TEST_KO_01)
 {
     auto testfieldcs = dicomifier::translator::BrukerField<EVR_CS>::New();
-    BOOST_REQUIRE_THROW(testfieldcs->run(NULL, NULL), dicomifier::DicomifierException);
+    BOOST_REQUIRE_THROW(testfieldcs->run(NULL, {}, NULL), dicomifier::DicomifierException);
 }

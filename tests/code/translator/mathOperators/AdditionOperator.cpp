@@ -146,7 +146,7 @@ BOOST_AUTO_TEST_CASE(TEST_OK_02)
     vect.push_back(dicomifier::translator::ConstantField<EVR_AE>::New("World"));
     
     auto additionoperatorae = dicomifier::translator::AdditionOperator<EVR_AE>::New(vect);
-    additionoperatorae->run(NULL, NULL);
+    additionoperatorae->run(NULL, {}, NULL);
     auto results = additionoperatorae->get_array();
     BOOST_CHECK_EQUAL(results[0], "HelloWorld");
 }
@@ -162,7 +162,7 @@ BOOST_AUTO_TEST_CASE(TEST_OK_03)
     vect.push_back(dicomifier::translator::ConstantField<EVR_AS>::New("World"));
     
     auto additionoperatoras = dicomifier::translator::AdditionOperator<EVR_AS>::New(vect);
-    additionoperatoras->run(NULL, NULL);
+    additionoperatoras->run(NULL, {}, NULL);
     auto results = additionoperatoras->get_array();
     BOOST_CHECK_EQUAL(results[0], "HelloWorld");
 }
@@ -178,7 +178,7 @@ BOOST_AUTO_TEST_CASE(TEST_OK_04)
     vect.push_back(dicomifier::translator::ConstantField<EVR_CS>::New("World"));
     
     auto additionoperatorcs = dicomifier::translator::AdditionOperator<EVR_CS>::New(vect);
-    additionoperatorcs->run(NULL, NULL);
+    additionoperatorcs->run(NULL, {}, NULL);
     auto results = additionoperatorcs->get_array();
     BOOST_CHECK_EQUAL(results[0], "HelloWorld");
 }
@@ -194,7 +194,7 @@ BOOST_AUTO_TEST_CASE(TEST_OK_05)
     vect.push_back(dicomifier::translator::ConstantField<EVR_DA>::New("01232014"));
     
     auto additionoperatorda = dicomifier::translator::AdditionOperator<EVR_DA>::New(vect);
-    additionoperatorda->run(NULL, NULL);
+    additionoperatorda->run(NULL, {}, NULL);
     auto results = additionoperatorda->get_array();
     BOOST_CHECK_EQUAL(results[0], "0123201401232014");
 }
@@ -210,7 +210,7 @@ BOOST_AUTO_TEST_CASE(TEST_OK_06)
     vect.push_back(dicomifier::translator::ConstantField<EVR_DS>::New(22.22));
     
     auto additionoperatords = dicomifier::translator::AdditionOperator<EVR_DS>::New(vect);
-    additionoperatords->run(NULL, NULL);
+    additionoperatords->run(NULL, {}, NULL);
     auto results = additionoperatords->get_array();
     BOOST_CHECK_EQUAL(results[0], (Float64)(33.33));
 }
@@ -226,7 +226,7 @@ BOOST_AUTO_TEST_CASE(TEST_OK_07)
     vect.push_back(dicomifier::translator::ConstantField<EVR_DT>::New("World"));
     
     auto additionoperatorcs = dicomifier::translator::AdditionOperator<EVR_DT>::New(vect);
-    additionoperatorcs->run(NULL, NULL);
+    additionoperatorcs->run(NULL, {}, NULL);
     auto results = additionoperatorcs->get_array();
     BOOST_CHECK_EQUAL(results[0], "HelloWorld");
 }
@@ -242,7 +242,7 @@ BOOST_AUTO_TEST_CASE(TEST_OK_08)
     vect.push_back(dicomifier::translator::ConstantField<EVR_FL>::New((Float32)22));
     
     auto additionoperatorcs = dicomifier::translator::AdditionOperator<EVR_FL>::New(vect);
-    additionoperatorcs->run(NULL, NULL);
+    additionoperatorcs->run(NULL, {}, NULL);
     auto results = additionoperatorcs->get_array();
     BOOST_CHECK_EQUAL(results[0], (Float32)(33));
 }
@@ -258,7 +258,7 @@ BOOST_AUTO_TEST_CASE(TEST_OK_09)
     vect.push_back(dicomifier::translator::ConstantField<EVR_FD>::New(22.22));
     
     auto additionoperatorcs = dicomifier::translator::AdditionOperator<EVR_FD>::New(vect);
-    additionoperatorcs->run(NULL, NULL);
+    additionoperatorcs->run(NULL, {}, NULL);
     auto results = additionoperatorcs->get_array();
     BOOST_CHECK_EQUAL(results[0], (Float64)33.33);
 }
@@ -274,7 +274,7 @@ BOOST_AUTO_TEST_CASE(TEST_OK_10)
     vect.push_back(dicomifier::translator::ConstantField<EVR_IS>::New(22));
     
     auto additionoperatorcs = dicomifier::translator::AdditionOperator<EVR_IS>::New(vect);
-    additionoperatorcs->run(NULL, NULL);
+    additionoperatorcs->run(NULL, {}, NULL);
     auto results = additionoperatorcs->get_array();
     BOOST_CHECK_EQUAL(results[0], (Sint32)33);
 }
@@ -290,7 +290,7 @@ BOOST_AUTO_TEST_CASE(TEST_OK_11)
     vect.push_back(dicomifier::translator::ConstantField<EVR_LO>::New("World"));
     
     auto additionoperatorcs = dicomifier::translator::AdditionOperator<EVR_LO>::New(vect);
-    additionoperatorcs->run(NULL, NULL);
+    additionoperatorcs->run(NULL, {}, NULL);
     auto results = additionoperatorcs->get_array();
     BOOST_CHECK_EQUAL(results[0], "HelloWorld");
 }
@@ -306,7 +306,7 @@ BOOST_AUTO_TEST_CASE(TEST_OK_12)
     vect.push_back(dicomifier::translator::ConstantField<EVR_LT>::New("World"));
     
     auto additionoperatorcs = dicomifier::translator::AdditionOperator<EVR_LT>::New(vect);
-    additionoperatorcs->run(NULL, NULL);
+    additionoperatorcs->run(NULL, {}, NULL);
     auto results = additionoperatorcs->get_array();
     BOOST_CHECK_EQUAL(results[0], "HelloWorld");
 }
@@ -322,7 +322,7 @@ BOOST_AUTO_TEST_CASE(TEST_OK_13)
     vect.push_back(dicomifier::translator::ConstantField<EVR_PN>::New("World"));
     
     auto additionoperatorcs = dicomifier::translator::AdditionOperator<EVR_PN>::New(vect);
-    additionoperatorcs->run(NULL, NULL);
+    additionoperatorcs->run(NULL, {}, NULL);
     auto results = additionoperatorcs->get_array();
     BOOST_CHECK_EQUAL(results[0], "HelloWorld");
 }
@@ -338,7 +338,7 @@ BOOST_AUTO_TEST_CASE(TEST_OK_14)
     vect.push_back(dicomifier::translator::ConstantField<EVR_SH>::New("World"));
     
     auto additionoperatorcs = dicomifier::translator::AdditionOperator<EVR_SH>::New(vect);
-    additionoperatorcs->run(NULL, NULL);
+    additionoperatorcs->run(NULL, {}, NULL);
     auto results = additionoperatorcs->get_array();
     BOOST_CHECK_EQUAL(results[0], "HelloWorld");
 }
@@ -354,7 +354,7 @@ BOOST_AUTO_TEST_CASE(TEST_OK_15)
     vect.push_back(dicomifier::translator::ConstantField<EVR_SL>::New(22));
     
     auto additionoperatorcs = dicomifier::translator::AdditionOperator<EVR_SL>::New(vect);
-    additionoperatorcs->run(NULL, NULL);
+    additionoperatorcs->run(NULL, {}, NULL);
     auto results = additionoperatorcs->get_array();
     BOOST_CHECK_EQUAL(results[0], (Sint32)33);
 }
@@ -370,7 +370,7 @@ BOOST_AUTO_TEST_CASE(TEST_OK_16)
     vect.push_back(dicomifier::translator::ConstantField<EVR_SS>::New(22));
     
     auto additionoperatorcs = dicomifier::translator::AdditionOperator<EVR_SS>::New(vect);
-    additionoperatorcs->run(NULL, NULL);
+    additionoperatorcs->run(NULL, {}, NULL);
     auto results = additionoperatorcs->get_array();
     BOOST_CHECK_EQUAL(results[0], (Sint16)33);
 }
@@ -386,7 +386,7 @@ BOOST_AUTO_TEST_CASE(TEST_OK_17)
     vect.push_back(dicomifier::translator::ConstantField<EVR_ST>::New("World"));
     
     auto additionoperatorcs = dicomifier::translator::AdditionOperator<EVR_ST>::New(vect);
-    additionoperatorcs->run(NULL, NULL);
+    additionoperatorcs->run(NULL, {}, NULL);
     auto results = additionoperatorcs->get_array();
     BOOST_CHECK_EQUAL(results[0], "HelloWorld");
 }
@@ -402,7 +402,7 @@ BOOST_AUTO_TEST_CASE(TEST_OK_18)
     vect.push_back(dicomifier::translator::ConstantField<EVR_TM>::New("World"));
     
     auto additionoperatorcs = dicomifier::translator::AdditionOperator<EVR_TM>::New(vect);
-    additionoperatorcs->run(NULL, NULL);
+    additionoperatorcs->run(NULL, {}, NULL);
     auto results = additionoperatorcs->get_array();
     BOOST_CHECK_EQUAL(results[0], "HelloWorld");
 }
@@ -418,7 +418,7 @@ BOOST_AUTO_TEST_CASE(TEST_OK_19)
     vect.push_back(dicomifier::translator::ConstantField<EVR_UI>::New("World"));
     
     auto additionoperatorcs = dicomifier::translator::AdditionOperator<EVR_UI>::New(vect);
-    additionoperatorcs->run(NULL, NULL);
+    additionoperatorcs->run(NULL, {}, NULL);
     auto results = additionoperatorcs->get_array();
     BOOST_CHECK_EQUAL(results[0], "HelloWorld");
 }
@@ -434,7 +434,7 @@ BOOST_AUTO_TEST_CASE(TEST_OK_20)
     vect.push_back(dicomifier::translator::ConstantField<EVR_UL>::New(22));
     
     auto additionoperatorcs = dicomifier::translator::AdditionOperator<EVR_UL>::New(vect);
-    additionoperatorcs->run(NULL, NULL);
+    additionoperatorcs->run(NULL, {}, NULL);
     auto results = additionoperatorcs->get_array();
     BOOST_CHECK_EQUAL(results[0], (Uint32)33);
 }
@@ -450,7 +450,7 @@ BOOST_AUTO_TEST_CASE(TEST_OK_21)
     vect.push_back(dicomifier::translator::ConstantField<EVR_US>::New(22));
     
     auto additionoperatorcs = dicomifier::translator::AdditionOperator<EVR_US>::New(vect);
-    additionoperatorcs->run(NULL, NULL);
+    additionoperatorcs->run(NULL, {}, NULL);
     auto results = additionoperatorcs->get_array();
     BOOST_CHECK_EQUAL(results[0], (Uint16)33);
 }
@@ -466,7 +466,7 @@ BOOST_AUTO_TEST_CASE(TEST_OK_22)
     vect.push_back(dicomifier::translator::ConstantField<EVR_UT>::New("World"));
     
     auto additionoperatorcs = dicomifier::translator::AdditionOperator<EVR_UT>::New(vect);
-    additionoperatorcs->run(NULL, NULL);
+    additionoperatorcs->run(NULL, {}, NULL);
     auto results = additionoperatorcs->get_array();
     BOOST_CHECK_EQUAL(results[0], "HelloWorld");
 }
@@ -483,5 +483,5 @@ BOOST_AUTO_TEST_CASE(TEST_KO_01)
     
     auto additionoperatords = dicomifier::translator::AdditionOperator<EVR_DS>::New(vect);
     
-    BOOST_REQUIRE_THROW(additionoperatords->run(NULL, NULL), dicomifier::DicomifierException);
+    BOOST_REQUIRE_THROW(additionoperatords->run(NULL, {}, NULL), dicomifier::DicomifierException);
 }
