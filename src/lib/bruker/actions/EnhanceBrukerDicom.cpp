@@ -122,31 +122,15 @@ EnhanceBrukerDicom
 
     int coreFrameCount = 1;
     
-    std::vector<VISU_FRAMEGROUP_TYPE> frameGroupLists;
     std::vector<int> indexlists;
     // Second: look the VisuFGOrderDesc to compute frame count
     for (auto count = 0; count < frameGroupDim; count++)
-    {
-        VISU_FRAMEGROUP_TYPE currentGroup;
-        
+    {        
         dicomifier::bruker::BrukerFieldData::Pointer fielddata = 
             brukerdataset->GetFieldData("VisuFGOrderDesc")->get_struct(count);
             
-        currentGroup.length = fielddata->get_int(0);
-        int start   = fielddata->get_int(3);
-        int number  = fielddata->get_int(4);
-        
-        for (auto gdvcount = start; gdvcount < start+number; gdvcount++)
-        {
-            currentGroup.groupDepVals.push_back
-            (
-                brukerdataset->GetFieldData("VisuGroupDepVals")->get_struct(gdvcount)->get_string(0)
-            );
-        }
-        indexlists.push_back(currentGroup.length);
-        coreFrameCount *= currentGroup.length;
-        
-        frameGroupLists.push_back(currentGroup);
+        indexlists.push_back(fielddata->get_int(0));
+        coreFrameCount *= fielddata->get_int(0);
     }
     
     // Check frame count
@@ -158,14 +142,12 @@ EnhanceBrukerDicom
         }
     }
     
-    indexlists.push_back(coreFrameCount);
-    
     // Create DICOM
     std::string sopclassuid = dicomifier::get_SOPClassUID_from_name(this->_SOPClassUID);
     if (sopclassuid == dicomifier::MRImageStorage)
     {
         this->create_MRImageStorage(brukerdataset, indexlists, 
-                                    str.c_str(), coreFrameCount);
+                                    str.c_str());
     }
     else
     {
@@ -179,12 +161,13 @@ void
 EnhanceBrukerDicom
 ::create_MRImageStorage(dicomifier::bruker::BrukerDataset* brukerdataset,
                         std::vector<int> indexlists,
-                        std::string const & seriesnumber,
-                        int framesNumber) const
+                        std::string const & seriesnumber) const
 {
     // Load Dictionary
     boost::property_tree::ptree pt;
     boost::property_tree::xml_parser::read_xml("/home/lahaxe/dicomifier/BrukerToDicom_Dictionary.xml", pt); // TODO: mettre en conf le chemin
+    
+    dicomifier::FrameIndexGenerator generator(indexlists);
     
     // Read binary data
     int size = brukerdataset->GetFieldData("IM_SIX")->get_int(0);
@@ -196,33 +179,20 @@ EnhanceBrukerDicom
     
     std::ifstream is(brukerdataset->GetFieldData("PIXELDATA")->get_string(0), 
                      std::ifstream::binary);
-    char * binarydata = new char[size*framesNumber];
-    memset(binarydata, 0, size*framesNumber);
-    is.read(binarydata, size*framesNumber);
-    
-    dicomifier::FrameIndexGenerator generator(indexlists);
+    char * binarydata = new char[size*generator.get_countMax()];
+    memset(binarydata, 0, size*generator.get_countMax());
+    is.read(binarydata, size*generator.get_countMax());
     
     // Process
     while (!generator.done())
-    //for (auto count = 0; count < framesNumber; count++)
     {
-        int count = 0;
         // Create a new Dataset
         DcmDataset* dataset = new DcmDataset();
-        
-        std::stringstream stream;
-        stream << count;
         
         // Set Frame information
         // Insert SeriesNumber => use to find Bruker data
         dataset->putAndInsertOFStringArray(DCM_SeriesNumber, 
                                            OFString(seriesnumber.c_str()));
-        // Set Instance Number
-        dataset->putAndInsertOFStringArray(DCM_InstanceNumber, 
-                                           OFString(stream.str().c_str()));
-        // Set Acquisition Number
-        dataset->putAndInsertOFStringArray(DCM_AcquisitionNumber, 
-                                           OFString(stream.str().c_str()));
         
         // Parse and run all dictionary entries
         BOOST_FOREACH(boost::property_tree::ptree::value_type &v, pt) // Tag Dictionary
@@ -249,7 +219,7 @@ EnhanceBrukerDicom
         // Add binary Data
         // TODO: who managers the buffer ?
         dataset->putAndInsertUint8Array(DCM_PixelData, 
-                                        (Uint8*)(binarydata+count*size), 
+                                        (Uint8*)(binarydata+generator.get_step()*size), 
                                         size);
         // TODO (maybe) delete[] binarydata;
         
@@ -258,7 +228,7 @@ EnhanceBrukerDicom
         char temp[256];
         memset(&temp[0], 0, 256);
         snprintf(&temp[0], 256, "%s%04d", 
-                 "/home/lahaxe/resultDICOM/dicom_", count); // TODO: changer le chemin et le nom du fichier
+                 "/home/lahaxe/resultDICOM/dicom_", (generator.get_step() + 1)); // TODO: changer le chemin et le nom du fichier
         // write file
         DcmFileFormat fileformat(dataset);
         OFCondition result = fileformat.saveFile(&temp[0], 
