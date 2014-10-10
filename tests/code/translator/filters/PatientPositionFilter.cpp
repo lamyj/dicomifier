@@ -143,49 +143,49 @@ BOOST_AUTO_TEST_CASE(TEST_OK_02)
 {
     auto patientpositionfilterCS = dicomifier::translator::PatientPositionFilter<EVR_CS>::
         New(dicomifier::translator::ConstantField<EVR_CS>::New("Head_Supine"));
-    patientpositionfilterCS->run(NULL, {}, NULL);
+    patientpositionfilterCS->run(NULL, dicomifier::FrameIndexGenerator({}), NULL);
     auto results = patientpositionfilterCS->get_array();
     BOOST_CHECK_EQUAL(results[0], "HFS");
     
     patientpositionfilterCS = dicomifier::translator::PatientPositionFilter<EVR_CS>::
         New(dicomifier::translator::ConstantField<EVR_CS>::New("Head_Prone"));
-    patientpositionfilterCS->run(NULL, {}, NULL);
+    patientpositionfilterCS->run(NULL, dicomifier::FrameIndexGenerator({}), NULL);
     results = patientpositionfilterCS->get_array();
     BOOST_CHECK_EQUAL(results[0], "HFP");
     
     patientpositionfilterCS = dicomifier::translator::PatientPositionFilter<EVR_CS>::
         New(dicomifier::translator::ConstantField<EVR_CS>::New("Head_Left"));
-    patientpositionfilterCS->run(NULL, {}, NULL);
+    patientpositionfilterCS->run(NULL, dicomifier::FrameIndexGenerator({}), NULL);
     results = patientpositionfilterCS->get_array();
     BOOST_CHECK_EQUAL(results[0], "HFDL");
     
     patientpositionfilterCS = dicomifier::translator::PatientPositionFilter<EVR_CS>::
         New(dicomifier::translator::ConstantField<EVR_CS>::New("Head_Right"));
-    patientpositionfilterCS->run(NULL, {}, NULL);
+    patientpositionfilterCS->run(NULL, dicomifier::FrameIndexGenerator({}), NULL);
     results = patientpositionfilterCS->get_array();
     BOOST_CHECK_EQUAL(results[0], "HFDR");
     
     patientpositionfilterCS = dicomifier::translator::PatientPositionFilter<EVR_CS>::
         New(dicomifier::translator::ConstantField<EVR_CS>::New("Foot_Supine"));
-    patientpositionfilterCS->run(NULL, {}, NULL);
+    patientpositionfilterCS->run(NULL, dicomifier::FrameIndexGenerator({}), NULL);
     results = patientpositionfilterCS->get_array();
     BOOST_CHECK_EQUAL(results[0], "FFS");
     
     patientpositionfilterCS = dicomifier::translator::PatientPositionFilter<EVR_CS>::
         New(dicomifier::translator::ConstantField<EVR_CS>::New("Foot_Prone"));
-    patientpositionfilterCS->run(NULL, {}, NULL);
+    patientpositionfilterCS->run(NULL, dicomifier::FrameIndexGenerator({}), NULL);
     results = patientpositionfilterCS->get_array();
     BOOST_CHECK_EQUAL(results[0], "FFP");
     
     patientpositionfilterCS = dicomifier::translator::PatientPositionFilter<EVR_CS>::
         New(dicomifier::translator::ConstantField<EVR_CS>::New("Foot_Left"));
-    patientpositionfilterCS->run(NULL, {}, NULL);
+    patientpositionfilterCS->run(NULL, dicomifier::FrameIndexGenerator({}), NULL);
     results = patientpositionfilterCS->get_array();
     BOOST_CHECK_EQUAL(results[0], "FFDL");
     
     patientpositionfilterCS = dicomifier::translator::PatientPositionFilter<EVR_CS>::
         New(dicomifier::translator::ConstantField<EVR_CS>::New("Foot_Right"));
-    patientpositionfilterCS->run(NULL, {}, NULL);
+    patientpositionfilterCS->run(NULL, dicomifier::FrameIndexGenerator({}), NULL);
     results = patientpositionfilterCS->get_array();
     BOOST_CHECK_EQUAL(results[0], "FFDR");
 }
@@ -200,14 +200,14 @@ BOOST_AUTO_TEST_CASE(TEST_KO_01)
     auto patientpositionfilterAE = dicomifier::translator::
         PatientPositionFilter<EVR_AE>::
             New(dicomifier::translator::ConstantField<EVR_AE>::New("Head_Supine"));
-    BOOST_REQUIRE_THROW(patientpositionfilterAE->run(NULL, {}, NULL), 
+    BOOST_REQUIRE_THROW(patientpositionfilterAE->run(NULL, dicomifier::FrameIndexGenerator({}), NULL), 
                         dicomifier::DicomifierException);
                         
     // Test VR = AS
     auto patientpositionfilterAS = dicomifier::translator::
         PatientPositionFilter<EVR_AS>::
             New(dicomifier::translator::ConstantField<EVR_AS>::New("Head_Supine"));
-    BOOST_REQUIRE_THROW(patientpositionfilterAS->run(NULL, {}, NULL), 
+    BOOST_REQUIRE_THROW(patientpositionfilterAS->run(NULL, dicomifier::FrameIndexGenerator({}), NULL), 
                         dicomifier::DicomifierException);
                         
     // Test VR = AT => Not implemented
@@ -216,56 +216,56 @@ BOOST_AUTO_TEST_CASE(TEST_KO_01)
     auto patientpositionfilterDA = dicomifier::translator::
         PatientPositionFilter<EVR_DA>::
             New(dicomifier::translator::ConstantField<EVR_DA>::New("Head_Supine"));
-    BOOST_REQUIRE_THROW(patientpositionfilterDA->run(NULL, {}, NULL), 
+    BOOST_REQUIRE_THROW(patientpositionfilterDA->run(NULL, dicomifier::FrameIndexGenerator({}), NULL), 
                         dicomifier::DicomifierException);
                         
     // Test VR = DS
     auto patientpositionfilterDS = dicomifier::translator::
         PatientPositionFilter<EVR_DS>::
             New(dicomifier::translator::ConstantField<EVR_DS>::New(1));
-    BOOST_REQUIRE_THROW(patientpositionfilterDS->run(NULL, {}, NULL), 
+    BOOST_REQUIRE_THROW(patientpositionfilterDS->run(NULL, dicomifier::FrameIndexGenerator({}), NULL), 
                         dicomifier::DicomifierException);
                         
     // Test VR = DT
     auto patientpositionfilterDT = dicomifier::translator::
         PatientPositionFilter<EVR_DT>::
             New(dicomifier::translator::ConstantField<EVR_DT>::New("Head_Supine"));
-    BOOST_REQUIRE_THROW(patientpositionfilterDT->run(NULL, {}, NULL), 
+    BOOST_REQUIRE_THROW(patientpositionfilterDT->run(NULL, dicomifier::FrameIndexGenerator({}), NULL), 
                         dicomifier::DicomifierException);
                         
     // Test VR = FL
     auto patientpositionfilterFL = dicomifier::translator::
         PatientPositionFilter<EVR_FL>::
             New(dicomifier::translator::ConstantField<EVR_FL>::New(1));
-    BOOST_REQUIRE_THROW(patientpositionfilterFL->run(NULL, {}, NULL), 
+    BOOST_REQUIRE_THROW(patientpositionfilterFL->run(NULL, dicomifier::FrameIndexGenerator({}), NULL), 
                         dicomifier::DicomifierException);
                         
     // Test VR = FD
     auto patientpositionfilterFD = dicomifier::translator::
         PatientPositionFilter<EVR_FD>::
             New(dicomifier::translator::ConstantField<EVR_FD>::New(1));
-    BOOST_REQUIRE_THROW(patientpositionfilterFD->run(NULL, {}, NULL), 
+    BOOST_REQUIRE_THROW(patientpositionfilterFD->run(NULL, dicomifier::FrameIndexGenerator({}), NULL), 
                         dicomifier::DicomifierException);
                         
     // Test VR = IS
     auto patientpositionfilterIS = dicomifier::translator::
         PatientPositionFilter<EVR_IS>::
             New(dicomifier::translator::ConstantField<EVR_IS>::New(1));
-    BOOST_REQUIRE_THROW(patientpositionfilterIS->run(NULL, {}, NULL), 
+    BOOST_REQUIRE_THROW(patientpositionfilterIS->run(NULL, dicomifier::FrameIndexGenerator({}), NULL), 
                         dicomifier::DicomifierException);
                         
     // Test VR = LO
     auto patientpositionfilterLO = dicomifier::translator::
         PatientPositionFilter<EVR_LO>::
             New(dicomifier::translator::ConstantField<EVR_LO>::New("Head_Supine"));
-    BOOST_REQUIRE_THROW(patientpositionfilterLO->run(NULL, {}, NULL), 
+    BOOST_REQUIRE_THROW(patientpositionfilterLO->run(NULL, dicomifier::FrameIndexGenerator({}), NULL), 
                         dicomifier::DicomifierException);
                         
     // Test VR = LT
     auto patientpositionfilterLT = dicomifier::translator::
         PatientPositionFilter<EVR_LT>::
             New(dicomifier::translator::ConstantField<EVR_LT>::New("Head_Supine"));
-    BOOST_REQUIRE_THROW(patientpositionfilterLT->run(NULL, {}, NULL), 
+    BOOST_REQUIRE_THROW(patientpositionfilterLT->run(NULL, dicomifier::FrameIndexGenerator({}), NULL), 
                         dicomifier::DicomifierException);
                         
     // Test VR = OB => Not implemented
@@ -277,21 +277,21 @@ BOOST_AUTO_TEST_CASE(TEST_KO_01)
     auto patientpositionfilterPN = dicomifier::translator::
         PatientPositionFilter<EVR_PN>::
             New(dicomifier::translator::ConstantField<EVR_PN>::New("Head_Supine"));
-    BOOST_REQUIRE_THROW(patientpositionfilterPN->run(NULL, {}, NULL), 
+    BOOST_REQUIRE_THROW(patientpositionfilterPN->run(NULL, dicomifier::FrameIndexGenerator({}), NULL), 
                         dicomifier::DicomifierException);
                         
     // Test VR = SH
     auto patientpositionfilterSH = dicomifier::translator::
         PatientPositionFilter<EVR_SH>::
             New(dicomifier::translator::ConstantField<EVR_SH>::New("Head_Supine"));
-    BOOST_REQUIRE_THROW(patientpositionfilterSH->run(NULL, {}, NULL), 
+    BOOST_REQUIRE_THROW(patientpositionfilterSH->run(NULL, dicomifier::FrameIndexGenerator({}), NULL), 
                         dicomifier::DicomifierException);
                         
     // Test VR = SL
     auto patientpositionfilterSL = dicomifier::translator::
         PatientPositionFilter<EVR_SL>::
             New(dicomifier::translator::ConstantField<EVR_SL>::New(1));
-    BOOST_REQUIRE_THROW(patientpositionfilterSL->run(NULL, {}, NULL), 
+    BOOST_REQUIRE_THROW(patientpositionfilterSL->run(NULL, dicomifier::FrameIndexGenerator({}), NULL), 
                         dicomifier::DicomifierException);
                         
     // Test VR = SQ => Not implemented
@@ -300,48 +300,48 @@ BOOST_AUTO_TEST_CASE(TEST_KO_01)
     auto patientpositionfilterSS = dicomifier::translator::
         PatientPositionFilter<EVR_SS>::
             New(dicomifier::translator::ConstantField<EVR_SS>::New(1));
-    BOOST_REQUIRE_THROW(patientpositionfilterSS->run(NULL, {}, NULL), 
+    BOOST_REQUIRE_THROW(patientpositionfilterSS->run(NULL, dicomifier::FrameIndexGenerator({}), NULL), 
                         dicomifier::DicomifierException);
                         
     // Test VR = ST
     auto patientpositionfilterST = dicomifier::translator::
         PatientPositionFilter<EVR_ST>::
             New(dicomifier::translator::ConstantField<EVR_ST>::New("Head_Supine"));
-    BOOST_REQUIRE_THROW(patientpositionfilterST->run(NULL, {}, NULL), 
+    BOOST_REQUIRE_THROW(patientpositionfilterST->run(NULL, dicomifier::FrameIndexGenerator({}), NULL), 
                         dicomifier::DicomifierException);
                         
     // Test VR = TM
     auto patientpositionfilterTM = dicomifier::translator::
         PatientPositionFilter<EVR_TM>::
             New(dicomifier::translator::ConstantField<EVR_TM>::New("Head_Supine"));
-    BOOST_REQUIRE_THROW(patientpositionfilterTM->run(NULL, {}, NULL), 
+    BOOST_REQUIRE_THROW(patientpositionfilterTM->run(NULL, dicomifier::FrameIndexGenerator({}), NULL), 
                         dicomifier::DicomifierException);
                         
     // Test VR = UI
     auto patientpositionfilterUI = dicomifier::translator::
         PatientPositionFilter<EVR_UI>::
             New(dicomifier::translator::ConstantField<EVR_UI>::New("Head_Supine"));
-    BOOST_REQUIRE_THROW(patientpositionfilterUI->run(NULL, {}, NULL), 
+    BOOST_REQUIRE_THROW(patientpositionfilterUI->run(NULL, dicomifier::FrameIndexGenerator({}), NULL), 
                         dicomifier::DicomifierException);
                         
     // Test VR = UL
     auto patientpositionfilterUL = dicomifier::translator::
         PatientPositionFilter<EVR_UL>::
             New(dicomifier::translator::ConstantField<EVR_UL>::New(1));
-    BOOST_REQUIRE_THROW(patientpositionfilterUL->run(NULL, {}, NULL), 
+    BOOST_REQUIRE_THROW(patientpositionfilterUL->run(NULL, dicomifier::FrameIndexGenerator({}), NULL), 
                         dicomifier::DicomifierException);
                         
     // Test VR = US
     auto patientpositionfilterUS = dicomifier::translator::
         PatientPositionFilter<EVR_US>::
             New(dicomifier::translator::ConstantField<EVR_US>::New(1));
-    BOOST_REQUIRE_THROW(patientpositionfilterUS->run(NULL, {}, NULL), 
+    BOOST_REQUIRE_THROW(patientpositionfilterUS->run(NULL, dicomifier::FrameIndexGenerator({}), NULL), 
                         dicomifier::DicomifierException);
                         
     // Test VR = UT
     auto patientpositionfilterUT = dicomifier::translator::
         PatientPositionFilter<EVR_UT>::
             New(dicomifier::translator::ConstantField<EVR_UT>::New("Head_Supine"));
-    BOOST_REQUIRE_THROW(patientpositionfilterUT->run(NULL, {}, NULL), 
+    BOOST_REQUIRE_THROW(patientpositionfilterUT->run(NULL, dicomifier::FrameIndexGenerator({}), NULL), 
                         dicomifier::DicomifierException);
 }

@@ -30,7 +30,7 @@ TestField
 void
 TestField
 ::run(dicomifier::bruker::BrukerDataset* brukerdataset,
-      std::vector<int> const & indexes,
+      dicomifier::FrameIndexGenerator const & generator,
       DcmDataset* dataset)
 {
     // Nothing to do

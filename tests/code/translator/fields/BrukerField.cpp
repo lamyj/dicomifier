@@ -190,59 +190,59 @@ BOOST_FIXTURE_TEST_CASE(TEST_OK_02, TestDataOK02)
 {
     // Test VR = AE
     auto testfieldae = dicomifier::translator::BrukerField<EVR_AE>::New("fieldAE");
-    testfieldae->run(brukerdataset, {}, NULL);
+    testfieldae->run(brukerdataset, dicomifier::FrameIndexGenerator({}), NULL);
     BOOST_CHECK_EQUAL(testfieldae->get_array().size(), 1);
     
     // Test VR = AS
     auto testfieldas = dicomifier::translator::BrukerField<EVR_AS>::New("fieldAS");
-    testfieldas->run(brukerdataset, {}, NULL);
+    testfieldas->run(brukerdataset, dicomifier::FrameIndexGenerator({}), NULL);
     BOOST_CHECK_EQUAL(testfieldas->get_array().size(), 1);
     
     // Test VR = AT => Not implemented
     
     // Test VR = CS
     auto testfieldcs = dicomifier::translator::BrukerField<EVR_CS>::New("fieldCS");
-    testfieldcs->run(brukerdataset, {}, NULL);
+    testfieldcs->run(brukerdataset, dicomifier::FrameIndexGenerator({}), NULL);
     BOOST_CHECK_EQUAL(testfieldcs->get_array().size(), 1);
     
     // Test VR = DA
     auto testfieldda = dicomifier::translator::BrukerField<EVR_DA>::New("fieldDA");
-    testfieldda->run(brukerdataset, {}, NULL);
+    testfieldda->run(brukerdataset, dicomifier::FrameIndexGenerator({}), NULL);
     BOOST_CHECK_EQUAL(testfieldda->get_array().size(), 1);
     
     // Test VR = DS
     auto testfieldds = dicomifier::translator::BrukerField<EVR_DS>::New("fieldDS");
-    testfieldds->run(brukerdataset, {}, NULL);
+    testfieldds->run(brukerdataset, dicomifier::FrameIndexGenerator({}), NULL);
     BOOST_CHECK_EQUAL(testfieldds->get_array().size(), 1);
     
     // Test VR = DT
     auto testfielddt = dicomifier::translator::BrukerField<EVR_DT>::New("fieldDT");
-    testfielddt->run(brukerdataset, {}, NULL);
+    testfielddt->run(brukerdataset, dicomifier::FrameIndexGenerator({}), NULL);
     BOOST_CHECK_EQUAL(testfielddt->get_array().size(), 1);
     
     // Test VR = FL
     auto testfieldfl = dicomifier::translator::BrukerField<EVR_FL>::New("fieldFL");
-    testfieldfl->run(brukerdataset, {}, NULL);
+    testfieldfl->run(brukerdataset, dicomifier::FrameIndexGenerator({}), NULL);
     BOOST_CHECK_EQUAL(testfieldfl->get_array().size(), 1);
     
     // Test VR = FD
     auto testfieldfd = dicomifier::translator::BrukerField<EVR_FD>::New("fieldFD");
-    testfieldfd->run(brukerdataset, {}, NULL);
+    testfieldfd->run(brukerdataset, dicomifier::FrameIndexGenerator({}), NULL);
     BOOST_CHECK_EQUAL(testfieldfd->get_array().size(), 1);
     
     // Test VR = IS
     auto testfieldis = dicomifier::translator::BrukerField<EVR_IS>::New("fieldIS");
-    testfieldis->run(brukerdataset, {}, NULL);
+    testfieldis->run(brukerdataset, dicomifier::FrameIndexGenerator({}), NULL);
     BOOST_CHECK_EQUAL(testfieldis->get_array().size(), 1);
     
     // Test VR = LO
     auto testfieldlo = dicomifier::translator::BrukerField<EVR_LO>::New("fieldLO");
-    testfieldlo->run(brukerdataset, {}, NULL);
+    testfieldlo->run(brukerdataset, dicomifier::FrameIndexGenerator({}), NULL);
     BOOST_CHECK_EQUAL(testfieldlo->get_array().size(), 1);
     
     // Test VR = LT
     auto testfieldlt = dicomifier::translator::BrukerField<EVR_LT>::New("fieldLT");
-    testfieldlt->run(brukerdataset, {}, NULL);
+    testfieldlt->run(brukerdataset, dicomifier::FrameIndexGenerator({}), NULL);
     BOOST_CHECK_EQUAL(testfieldlt->get_array().size(), 1);
     
     // Test VR = OB => Not implemented
@@ -252,56 +252,56 @@ BOOST_FIXTURE_TEST_CASE(TEST_OK_02, TestDataOK02)
     
     // Test VR = PN
     auto testfieldpn = dicomifier::translator::BrukerField<EVR_PN>::New("fieldPN");
-    testfieldpn->run(brukerdataset, {}, NULL);
+    testfieldpn->run(brukerdataset, dicomifier::FrameIndexGenerator({}), NULL);
     BOOST_CHECK_EQUAL(testfieldpn->get_array().size(), 1);
     
     // Test VR = SH
     auto testfieldsh = dicomifier::translator::BrukerField<EVR_SH>::New("fieldSH");
-    testfieldsh->run(brukerdataset, {}, NULL);
+    testfieldsh->run(brukerdataset, dicomifier::FrameIndexGenerator({}), NULL);
     BOOST_CHECK_EQUAL(testfieldsh->get_array().size(), 1);
     
     // Test VR = SL
     auto testfieldsl = dicomifier::translator::BrukerField<EVR_SL>::New("fieldSL");
-    testfieldsl->run(brukerdataset, {}, NULL);
+    testfieldsl->run(brukerdataset, dicomifier::FrameIndexGenerator({}), NULL);
     BOOST_CHECK_EQUAL(testfieldsl->get_array().size(), 1);
     
     // Test VR = SQ => Not implemented
     
     // Test VR = SS
     auto testfieldss = dicomifier::translator::BrukerField<EVR_SS>::New("fieldSS");
-    testfieldss->run(brukerdataset, {}, NULL);
+    testfieldss->run(brukerdataset, dicomifier::FrameIndexGenerator({}), NULL);
     BOOST_CHECK_EQUAL(testfieldss->get_array().size(), 1);
     
     // Test VR = ST
     auto testfieldst = dicomifier::translator::BrukerField<EVR_ST>::New("fieldST");
-    testfieldst->run(brukerdataset, {}, NULL);
+    testfieldst->run(brukerdataset, dicomifier::FrameIndexGenerator({}), NULL);
     BOOST_CHECK_EQUAL(testfieldst->get_array().size(), 1);
     
     // Test VR = TM
     auto testfieldtm = dicomifier::translator::BrukerField<EVR_TM>::New("fieldTM");
-    testfieldtm->run(brukerdataset, {}, NULL);
+    testfieldtm->run(brukerdataset, dicomifier::FrameIndexGenerator({}), NULL);
     BOOST_CHECK_EQUAL(testfieldtm->get_array().size(), 1);
     
     // Test VR = UI
     auto testfieldui = dicomifier::translator::BrukerField<EVR_UI>::New("fieldUI");
-    testfieldui->run(brukerdataset, {}, NULL);
+    testfieldui->run(brukerdataset, dicomifier::FrameIndexGenerator({}), NULL);
     BOOST_CHECK_EQUAL(testfieldui->get_array().size(), 1);
     
     // Test VR = UL
     auto testfieldul = dicomifier::translator::BrukerField<EVR_UL>::New("fieldUL");
-    testfieldul->run(brukerdataset, {}, NULL);
+    testfieldul->run(brukerdataset, dicomifier::FrameIndexGenerator({}), NULL);
     BOOST_CHECK_EQUAL(testfieldul->get_array().size(), 1);
     
     // Test VR = UN => Not implemented
     
     // Test VR = US
     auto testfieldus = dicomifier::translator::BrukerField<EVR_US>::New("fieldUS");
-    testfieldus->run(brukerdataset, {}, NULL);
+    testfieldus->run(brukerdataset, dicomifier::FrameIndexGenerator({}), NULL);
     BOOST_CHECK_EQUAL(testfieldus->get_array().size(), 1);
     
     // Test VR = UT
     auto testfieldut = dicomifier::translator::BrukerField<EVR_UT>::New("fieldUT");
-    testfieldut->run(brukerdataset, {}, NULL);
+    testfieldut->run(brukerdataset, dicomifier::FrameIndexGenerator({}), NULL);
     BOOST_CHECK_EQUAL(testfieldut->get_array().size(), 1);
 }
 
@@ -312,5 +312,5 @@ BOOST_FIXTURE_TEST_CASE(TEST_OK_02, TestDataOK02)
 BOOST_AUTO_TEST_CASE(TEST_KO_01)
 {
     auto testfieldcs = dicomifier::translator::BrukerField<EVR_CS>::New();
-    BOOST_REQUIRE_THROW(testfieldcs->run(NULL, {}, NULL), dicomifier::DicomifierException);
+    BOOST_REQUIRE_THROW(testfieldcs->run(NULL, dicomifier::FrameIndexGenerator({}), NULL), dicomifier::DicomifierException);
 }

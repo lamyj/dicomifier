@@ -70,7 +70,7 @@ template<DcmEVR VR>
 void
 BrukerField<VR>
 ::run(dicomifier::bruker::BrukerDataset* brukerdataset,
-      std::vector<int> const & indexes,
+      dicomifier::FrameIndexGenerator const & generator,
       DcmDataset* dataset)
 {
     if (brukerdataset == NULL)

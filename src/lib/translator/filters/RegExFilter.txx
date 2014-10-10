@@ -59,13 +59,13 @@ template<DcmEVR VR>
 void
 RegExFilter<VR>
 ::run(dicomifier::bruker::BrukerDataset* brukerdataset,
-      std::vector<int> const & indexes,
+      dicomifier::FrameIndexGenerator const & generator,
       DcmDataset* dataset)
 {
     typename SubTag<VR>::Pointer subtag = 
         std::dynamic_pointer_cast<SubTag<VR>>(this->_tag);
 
-    subtag->run(brukerdataset, indexes, dataset);
+    subtag->run(brukerdataset, generator, dataset);
     
     auto array = subtag->get_array();
     

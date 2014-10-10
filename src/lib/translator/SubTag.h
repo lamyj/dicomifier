@@ -31,7 +31,7 @@ public:
     virtual ~SubTag();
     
     virtual void run(dicomifier::bruker::BrukerDataset* brukerdataset,
-                     std::vector<int> const & indexes,
+                     dicomifier::FrameIndexGenerator const & generator,
                      DcmDataset* dataset) = 0;
     
     virtual ClassType get_class_type() const { return ECT_SubTag; }

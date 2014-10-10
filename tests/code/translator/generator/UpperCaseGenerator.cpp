@@ -144,14 +144,14 @@ BOOST_AUTO_TEST_CASE(TEST_OK_02)
     // Test VR = AE
     auto uppercasegeneratorAE = dicomifier::translator::UpperCaseGenerator<EVR_AE>::
         New(dicomifier::translator::ConstantField<EVR_AE>::New("AbCd123"));
-    uppercasegeneratorAE->run(NULL, {}, NULL);
+    uppercasegeneratorAE->run(NULL, dicomifier::FrameIndexGenerator({}), NULL);
     auto resultsAE = uppercasegeneratorAE->get_array();
     BOOST_CHECK_EQUAL(resultsAE[0], "ABCD123");
                         
     // Test VR = AS
     auto uppercasegeneratorAS = dicomifier::translator::UpperCaseGenerator<EVR_AS>::
         New(dicomifier::translator::ConstantField<EVR_AS>::New("AbCd123"));
-    uppercasegeneratorAS->run(NULL, {}, NULL);
+    uppercasegeneratorAS->run(NULL, dicomifier::FrameIndexGenerator({}), NULL);
     auto resultsAS = uppercasegeneratorAS->get_array();
     BOOST_CHECK_EQUAL(resultsAS[0], "ABCD123");
                         
@@ -160,63 +160,63 @@ BOOST_AUTO_TEST_CASE(TEST_OK_02)
     // Test VR = CS
     auto uppercasegeneratorCS = dicomifier::translator::UpperCaseGenerator<EVR_CS>::
         New(dicomifier::translator::ConstantField<EVR_CS>::New("AbCd123"));
-    uppercasegeneratorCS->run(NULL, {}, NULL);
+    uppercasegeneratorCS->run(NULL, dicomifier::FrameIndexGenerator({}), NULL);
     auto resultsCS = uppercasegeneratorCS->get_array();
     BOOST_CHECK_EQUAL(resultsCS[0], "ABCD123");
     
     // Test VR = DA
     auto uppercasegeneratorDA = dicomifier::translator::UpperCaseGenerator<EVR_DA>::
         New(dicomifier::translator::ConstantField<EVR_DA>::New("AbCd123"));
-    uppercasegeneratorDA->run(NULL, {}, NULL);
+    uppercasegeneratorDA->run(NULL, dicomifier::FrameIndexGenerator({}), NULL);
     auto resultsDA = uppercasegeneratorDA->get_array();
     BOOST_CHECK_EQUAL(resultsDA[0], "ABCD123");
                         
     // Test VR = DS
     /*auto uppercasegeneratorDS = dicomifier::translator::UpperCaseGenerator<EVR_DS>::
         New(dicomifier::translator::ConstantField<EVR_DS>::New(123));
-    uppercasegeneratorDS->run(NULL, {}, NULL);
+    uppercasegeneratorDS->run(NULL, dicomifier::FrameIndexGenerator({}), NULL);
     auto resultsDS = uppercasegeneratorDS->get_array();
     BOOST_CHECK_EQUAL(resultsDS[0], 123);*/
                         
     // Test VR = DT
     auto uppercasegeneratorDT = dicomifier::translator::UpperCaseGenerator<EVR_DT>::
         New(dicomifier::translator::ConstantField<EVR_DT>::New("AbCd123"));
-    uppercasegeneratorDT->run(NULL, {}, NULL);
+    uppercasegeneratorDT->run(NULL, dicomifier::FrameIndexGenerator({}), NULL);
     auto resultsDT = uppercasegeneratorDT->get_array();
     BOOST_CHECK_EQUAL(resultsDT[0], "ABCD123");
                         
     // Test VR = FL
     /*auto uppercasegeneratorFL = dicomifier::translator::UpperCaseGenerator<EVR_FL>::
         New(dicomifier::translator::ConstantField<EVR_FL>::New(123));
-    uppercasegeneratorFL->run(NULL, {}, NULL);
+    uppercasegeneratorFL->run(NULL, dicomifier::FrameIndexGenerator({}), NULL);
     auto resultsFL = uppercasegeneratorFL->get_array();
     BOOST_CHECK_EQUAL(resultsFL[0], 123);*/
                         
     // Test VR = FD
     /*auto uppercasegeneratorFD = dicomifier::translator::UpperCaseGenerator<EVR_FD>::
         New(dicomifier::translator::ConstantField<EVR_FD>::New(123));
-    uppercasegeneratorFD->run(NULL, {}, NULL);
+    uppercasegeneratorFD->run(NULL, dicomifier::FrameIndexGenerator({}), NULL);
     auto resultsFD = uppercasegeneratorFD->get_array();
     BOOST_CHECK_EQUAL(resultsFD[0], 123);*/
                         
     // Test VR = IS
     /*auto uppercasegeneratorIS = dicomifier::translator::UpperCaseGenerator<EVR_IS>::
         New(dicomifier::translator::ConstantField<EVR_IS>::New(123));
-    uppercasegeneratorIS->run(NULL, {}, NULL);
+    uppercasegeneratorIS->run(NULL, dicomifier::FrameIndexGenerator({}), NULL);
     auto resultsIS = uppercasegeneratorIS->get_array();
     BOOST_CHECK_EQUAL(resultsIS[0], 123);*/
                         
     // Test VR = LO
     auto uppercasegeneratorLO = dicomifier::translator::UpperCaseGenerator<EVR_LO>::
         New(dicomifier::translator::ConstantField<EVR_LO>::New("AbCd123"));
-    uppercasegeneratorLO->run(NULL, {}, NULL);
+    uppercasegeneratorLO->run(NULL, dicomifier::FrameIndexGenerator({}), NULL);
     auto resultsLO = uppercasegeneratorLO->get_array();
     BOOST_CHECK_EQUAL(resultsLO[0], "ABCD123");
                         
     // Test VR = LT
     auto uppercasegeneratorLT = dicomifier::translator::UpperCaseGenerator<EVR_LT>::
         New(dicomifier::translator::ConstantField<EVR_LT>::New("AbCd123"));
-    uppercasegeneratorLT->run(NULL, {}, NULL);
+    uppercasegeneratorLT->run(NULL, dicomifier::FrameIndexGenerator({}), NULL);
     auto resultsLT = uppercasegeneratorLT->get_array();
     BOOST_CHECK_EQUAL(resultsLT[0], "ABCD123");
                         
@@ -228,21 +228,21 @@ BOOST_AUTO_TEST_CASE(TEST_OK_02)
     // Test VR = PN
     auto uppercasegeneratorPN = dicomifier::translator::UpperCaseGenerator<EVR_PN>::
         New(dicomifier::translator::ConstantField<EVR_PN>::New("AbCd123"));
-    uppercasegeneratorPN->run(NULL, {}, NULL);
+    uppercasegeneratorPN->run(NULL, dicomifier::FrameIndexGenerator({}), NULL);
     auto resultsPN = uppercasegeneratorPN->get_array();
     BOOST_CHECK_EQUAL(resultsPN[0], "ABCD123");
                         
     // Test VR = SH
     auto uppercasegeneratorSH = dicomifier::translator::UpperCaseGenerator<EVR_SH>::
         New(dicomifier::translator::ConstantField<EVR_SH>::New("AbCd123"));
-    uppercasegeneratorSH->run(NULL, {}, NULL);
+    uppercasegeneratorSH->run(NULL, dicomifier::FrameIndexGenerator({}), NULL);
     auto resultsSH = uppercasegeneratorSH->get_array();
     BOOST_CHECK_EQUAL(resultsSH[0], "ABCD123");
                         
     // Test VR = SL
     /*auto uppercasegeneratorSL = dicomifier::translator::UpperCaseGenerator<EVR_SL>::
         New(dicomifier::translator::ConstantField<EVR_SL>::New(123));
-    uppercasegeneratorSL->run(NULL, {}, NULL);
+    uppercasegeneratorSL->run(NULL, dicomifier::FrameIndexGenerator({}), NULL);
     auto resultsSL = uppercasegeneratorSL->get_array();
     BOOST_CHECK_EQUAL(resultsSL[0], 123);*/
                         
@@ -251,49 +251,49 @@ BOOST_AUTO_TEST_CASE(TEST_OK_02)
     // Test VR = SS
     /*auto uppercasegeneratorSS = dicomifier::translator::UpperCaseGenerator<EVR_SS>::
         New(dicomifier::translator::ConstantField<EVR_SS>::New(123));
-    uppercasegeneratorSS->run(NULL, {}, NULL);
+    uppercasegeneratorSS->run(NULL, dicomifier::FrameIndexGenerator({}), NULL);
     auto resultsSS = uppercasegeneratorSS->get_array();
     BOOST_CHECK_EQUAL(resultsSS[0], 123);*/
                         
     // Test VR = ST
     auto uppercasegeneratorST = dicomifier::translator::UpperCaseGenerator<EVR_ST>::
         New(dicomifier::translator::ConstantField<EVR_ST>::New("AbCd123"));
-    uppercasegeneratorST->run(NULL, {}, NULL);
+    uppercasegeneratorST->run(NULL, dicomifier::FrameIndexGenerator({}), NULL);
     auto resultsST = uppercasegeneratorST->get_array();
     BOOST_CHECK_EQUAL(resultsST[0], "ABCD123");
                         
     // Test VR = TM
     auto uppercasegeneratorTM = dicomifier::translator::UpperCaseGenerator<EVR_TM>::
         New(dicomifier::translator::ConstantField<EVR_TM>::New("AbCd123"));
-    uppercasegeneratorTM->run(NULL, {}, NULL);
+    uppercasegeneratorTM->run(NULL, dicomifier::FrameIndexGenerator({}), NULL);
     auto resultsTM = uppercasegeneratorTM->get_array();
     BOOST_CHECK_EQUAL(resultsTM[0], "ABCD123");
                         
     // Test VR = UI
     auto uppercasegeneratorUI = dicomifier::translator::UpperCaseGenerator<EVR_UI>::
         New(dicomifier::translator::ConstantField<EVR_UI>::New("AbCd123"));
-    uppercasegeneratorUI->run(NULL, {}, NULL);
+    uppercasegeneratorUI->run(NULL, dicomifier::FrameIndexGenerator({}), NULL);
     auto resultsUI = uppercasegeneratorUI->get_array();
     BOOST_CHECK_EQUAL(resultsUI[0], "ABCD123");
                         
     // Test VR = UL
     /*auto uppercasegeneratorUL = dicomifier::translator::UpperCaseGenerator<EVR_UL>::
         New(dicomifier::translator::ConstantField<EVR_UL>::New(123));
-    uppercasegeneratorUL->run(NULL, {}, NULL);
+    uppercasegeneratorUL->run(NULL, dicomifier::FrameIndexGenerator({}), NULL);
     auto resultsUL = uppercasegeneratorUL->get_array();
     BOOST_CHECK_EQUAL(resultsUL[0], 123);*/
                         
     // Test VR = US
     /*auto uppercasegeneratorUS = dicomifier::translator::UpperCaseGenerator<EVR_US>::
         New(dicomifier::translator::ConstantField<EVR_US>::New(123));
-    uppercasegeneratorUS->run(NULL, {}, NULL);
+    uppercasegeneratorUS->run(NULL, dicomifier::FrameIndexGenerator({}), NULL);
     auto resultsUS = uppercasegeneratorUS->get_array();
     BOOST_CHECK_EQUAL(resultsUS[0], 123);*/
                         
     // Test VR = UT
     auto uppercasegeneratorUT = dicomifier::translator::UpperCaseGenerator<EVR_UT>::
         New(dicomifier::translator::ConstantField<EVR_UT>::New("AbCd123"));
-    uppercasegeneratorUT->run(NULL, {}, NULL);
+    uppercasegeneratorUT->run(NULL, dicomifier::FrameIndexGenerator({}), NULL);
     auto resultsUT = uppercasegeneratorUT->get_array();
     BOOST_CHECK_EQUAL(resultsUT[0], "ABCD123");
 }
