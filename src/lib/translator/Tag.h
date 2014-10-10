@@ -15,6 +15,7 @@
 #include <dcmtk/dcmdata/dctk.h>
 
 #include "bruker/BrukerDataset.h"
+#include "core/FrameIndexGenerator.h"
 #include "dicom/ElementTraits.h"
 
 namespace dicomifier
@@ -41,7 +42,8 @@ enum ClassType
     ECT_PatientSexFilter,
     ECT_DateGenerator,
     ECT_TimeGenerator,
-    ECT_UpperCaseGenerator
+    ECT_UpperCaseGenerator,
+    ECT_InstanceNumberDcmField
 };
     
 class Tag
@@ -54,7 +56,7 @@ public:
     virtual ~Tag();
     
     virtual void run(dicomifier::bruker::BrukerDataset* brukerdataset,
-                     std::vector<int> const & indexes,
+                     dicomifier::FrameIndexGenerator const & generator,
                      DcmDataset* dataset) = 0;
     
     virtual ClassType get_class_type() const = 0;

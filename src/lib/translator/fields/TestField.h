@@ -30,7 +30,7 @@ public:
     virtual ~TestField();
     
     virtual void run(dicomifier::bruker::BrukerDataset* brukerdataset,
-                     std::vector<int> const & indexes,
+                     dicomifier::FrameIndexGenerator const & generator,
                      DcmDataset* dataset);
     
     virtual ClassType get_class_type() const { return ECT_TestField; }

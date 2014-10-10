@@ -5,7 +5,7 @@
  * http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html
  * for details.
  ************************************************************************/
-#include <iostream>
+
 #include "FrameIndexGenerator.h"
 
 namespace dicomifier

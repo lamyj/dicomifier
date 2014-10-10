@@ -145,7 +145,7 @@ BOOST_AUTO_TEST_CASE(TEST_OK_02)
         RegExFilter<EVR_AE>::New(dicomifier::translator::
                                  ConstantField<EVR_AE>::New("MY_AETITLE_TEST"), 
                                                             "^.*_{1}(.*)_{1}.*");
-    regexfilterAE->run(NULL, {}, NULL);
+    regexfilterAE->run(NULL, dicomifier::FrameIndexGenerator({}), NULL);
     auto results = regexfilterAE->get_array();
     BOOST_CHECK_EQUAL(results[0], "AETITLE");
 }
@@ -160,7 +160,7 @@ BOOST_AUTO_TEST_CASE(TEST_OK_03)
         RegExFilter<EVR_AS>::New(dicomifier::translator::
                                  ConstantField<EVR_AS>::New("42Y"), 
                                                             "^([0-9]+).*");
-    regexfilterAS->run(NULL, {}, NULL);
+    regexfilterAS->run(NULL, dicomifier::FrameIndexGenerator({}), NULL);
     auto results = regexfilterAS->get_array();
     BOOST_CHECK_EQUAL(results[0], "42");
 }
@@ -175,7 +175,7 @@ BOOST_AUTO_TEST_CASE(TEST_OK_04)
         RegExFilter<EVR_CS>::New(dicomifier::translator::
                                  ConstantField<EVR_CS>::New("10:11:12 21062014"), 
                                                             "^([0-9]{2}):{1}([0-9]{2}):{1}([0-9]{2}).*");
-    regexfilterCS->run(NULL, {}, NULL);
+    regexfilterCS->run(NULL, dicomifier::FrameIndexGenerator({}), NULL);
     auto results = regexfilterCS->get_array();
     BOOST_CHECK_EQUAL(results[0], "101112");
 }
@@ -190,7 +190,7 @@ BOOST_AUTO_TEST_CASE(TEST_OK_05)
         RegExFilter<EVR_DA>::New(dicomifier::translator::
                                  ConstantField<EVR_DA>::New("10:11:12 21/06/2014"), 
                                                             "^.*([0-9]{2})/{1}([0-9]{2})/{1}([0-9]{4}).*");
-    regexfilterDA->run(NULL, {}, NULL);
+    regexfilterDA->run(NULL, dicomifier::FrameIndexGenerator({}), NULL);
     auto results = regexfilterDA->get_array();
     BOOST_CHECK_EQUAL(results[0], "21062014");
 }
@@ -205,7 +205,7 @@ BOOST_AUTO_TEST_CASE(TEST_OK_06)
         RegExFilter<EVR_DS>::New(dicomifier::translator::
                                  ConstantField<EVR_DS>::New(25), 
                                                             "^.*_{1}(.*)_{1}.*");
-    regexfilterDS->run(NULL, {}, NULL);
+    regexfilterDS->run(NULL, dicomifier::FrameIndexGenerator({}), NULL);
     auto results = regexfilterDS->get_array();
     BOOST_CHECK_EQUAL(results[0], 25);
 }
@@ -220,7 +220,7 @@ BOOST_AUTO_TEST_CASE(TEST_OK_07)
         RegExFilter<EVR_DT>::New(dicomifier::translator::
                                  ConstantField<EVR_DT>::New("10:11:12 21062014"), 
                                                             "^([0-9]{2}):{1}([0-9]{2}):{1}([0-9]{2}).*");
-    regexfilterDT->run(NULL, {}, NULL);
+    regexfilterDT->run(NULL, dicomifier::FrameIndexGenerator({}), NULL);
     auto results = regexfilterDT->get_array();
     BOOST_CHECK_EQUAL(results[0], "101112");
 }
@@ -235,7 +235,7 @@ BOOST_AUTO_TEST_CASE(TEST_OK_08)
         RegExFilter<EVR_FL>::New(dicomifier::translator::
                                  ConstantField<EVR_FL>::New(25), 
                                                             "^.*_{1}(.*)_{1}.*");
-    regexfilterFL->run(NULL, {}, NULL);
+    regexfilterFL->run(NULL, dicomifier::FrameIndexGenerator({}), NULL);
     auto results = regexfilterFL->get_array();
     BOOST_CHECK_EQUAL(results[0], 25);
 }
@@ -250,7 +250,7 @@ BOOST_AUTO_TEST_CASE(TEST_OK_09)
         RegExFilter<EVR_FD>::New(dicomifier::translator::
                                  ConstantField<EVR_FD>::New(25), 
                                                             "^.*_{1}(.*)_{1}.*");
-    regexfilterFD->run(NULL, {}, NULL);
+    regexfilterFD->run(NULL, dicomifier::FrameIndexGenerator({}), NULL);
     auto results = regexfilterFD->get_array();
     BOOST_CHECK_EQUAL(results[0], 25);
 }
@@ -265,7 +265,7 @@ BOOST_AUTO_TEST_CASE(TEST_OK_10)
         RegExFilter<EVR_IS>::New(dicomifier::translator::
                                  ConstantField<EVR_IS>::New(25), 
                                                             "^.*_{1}(.*)_{1}.*");
-    regexfilterIS->run(NULL, {}, NULL);
+    regexfilterIS->run(NULL, dicomifier::FrameIndexGenerator({}), NULL);
     auto results = regexfilterIS->get_array();
     BOOST_CHECK_EQUAL(results[0], 25);
 }
@@ -280,7 +280,7 @@ BOOST_AUTO_TEST_CASE(TEST_OK_11)
         RegExFilter<EVR_LO>::New(dicomifier::translator::
                                  ConstantField<EVR_LO>::New("MY_LOTITLE_TEST"), 
                                                             "^.*_{1}(.*)_{1}.*");
-    regexfilterLO->run(NULL, {}, NULL);
+    regexfilterLO->run(NULL, dicomifier::FrameIndexGenerator({}), NULL);
     auto results = regexfilterLO->get_array();
     BOOST_CHECK_EQUAL(results[0], "LOTITLE");
 }
@@ -295,7 +295,7 @@ BOOST_AUTO_TEST_CASE(TEST_OK_12)
         RegExFilter<EVR_LT>::New(dicomifier::translator::
                                  ConstantField<EVR_LT>::New("MY_LTTITLE_TEST"), 
                                                             "^.*_{1}(.*)_{1}.*");
-    regexfilterLT->run(NULL, {}, NULL);
+    regexfilterLT->run(NULL, dicomifier::FrameIndexGenerator({}), NULL);
     auto results = regexfilterLT->get_array();
     BOOST_CHECK_EQUAL(results[0], "LTTITLE");
 }
@@ -310,7 +310,7 @@ BOOST_AUTO_TEST_CASE(TEST_OK_13)
         RegExFilter<EVR_PN>::New(dicomifier::translator::
                                  ConstantField<EVR_PN>::New("MY_PNTITLE_TEST"), 
                                                             "^.*_{1}(.*)_{1}.*");
-    regexfilterPN->run(NULL, {}, NULL);
+    regexfilterPN->run(NULL, dicomifier::FrameIndexGenerator({}), NULL);
     auto results = regexfilterPN->get_array();
     BOOST_CHECK_EQUAL(results[0], "PNTITLE");
 }
@@ -325,7 +325,7 @@ BOOST_AUTO_TEST_CASE(TEST_OK_14)
         RegExFilter<EVR_SH>::New(dicomifier::translator::
                                  ConstantField<EVR_SH>::New("MY_SHTITLE_TEST"), 
                                                             "^.*_{1}(.*)_{1}.*");
-    regexfilterSH->run(NULL, {}, NULL);
+    regexfilterSH->run(NULL, dicomifier::FrameIndexGenerator({}), NULL);
     auto results = regexfilterSH->get_array();
     BOOST_CHECK_EQUAL(results[0], "SHTITLE");
 }
@@ -340,7 +340,7 @@ BOOST_AUTO_TEST_CASE(TEST_OK_15)
         RegExFilter<EVR_SL>::New(dicomifier::translator::
                                  ConstantField<EVR_SL>::New(25), 
                                                             "^.*_{1}(.*)_{1}.*");
-    regexfilterSL->run(NULL, {}, NULL);
+    regexfilterSL->run(NULL, dicomifier::FrameIndexGenerator({}), NULL);
     auto results = regexfilterSL->get_array();
     BOOST_CHECK_EQUAL(results[0], 25);
 }
@@ -355,7 +355,7 @@ BOOST_AUTO_TEST_CASE(TEST_OK_16)
         RegExFilter<EVR_SS>::New(dicomifier::translator::
                                  ConstantField<EVR_SS>::New(25), 
                                                             "^.*_{1}(.*)_{1}.*");
-    regexfilterSS->run(NULL, {}, NULL);
+    regexfilterSS->run(NULL, dicomifier::FrameIndexGenerator({}), NULL);
     auto results = regexfilterSS->get_array();
     BOOST_CHECK_EQUAL(results[0], 25);
 }
@@ -370,7 +370,7 @@ BOOST_AUTO_TEST_CASE(TEST_OK_17)
         RegExFilter<EVR_ST>::New(dicomifier::translator::
                                  ConstantField<EVR_ST>::New("MY_STTITLE_TEST"), 
                                                             "^.*_{1}(.*)_{1}.*");
-    regexfilterST->run(NULL, {}, NULL);
+    regexfilterST->run(NULL, dicomifier::FrameIndexGenerator({}), NULL);
     auto results = regexfilterST->get_array();
     BOOST_CHECK_EQUAL(results[0], "STTITLE");
 }
@@ -385,7 +385,7 @@ BOOST_AUTO_TEST_CASE(TEST_OK_18)
         RegExFilter<EVR_TM>::New(dicomifier::translator::
                                  ConstantField<EVR_TM>::New("MY_TMTITLE_TEST"), 
                                                             "^.*_{1}(.*)_{1}.*");
-    regexfilterTM->run(NULL, {}, NULL);
+    regexfilterTM->run(NULL, dicomifier::FrameIndexGenerator({}), NULL);
     auto results = regexfilterTM->get_array();
     BOOST_CHECK_EQUAL(results[0], "TMTITLE");
 }
@@ -400,7 +400,7 @@ BOOST_AUTO_TEST_CASE(TEST_OK_19)
         RegExFilter<EVR_UI>::New(dicomifier::translator::
                                  ConstantField<EVR_UI>::New("MY_UITITLE_TEST"), 
                                                             "^.*_{1}(.*)_{1}.*");
-    regexfilterUI->run(NULL, {}, NULL);
+    regexfilterUI->run(NULL, dicomifier::FrameIndexGenerator({}), NULL);
     auto results = regexfilterUI->get_array();
     BOOST_CHECK_EQUAL(results[0], "UITITLE");
 }
@@ -415,7 +415,7 @@ BOOST_AUTO_TEST_CASE(TEST_OK_20)
         RegExFilter<EVR_UL>::New(dicomifier::translator::
                                  ConstantField<EVR_UL>::New(25), 
                                                             "^.*_{1}(.*)_{1}.*");
-    regexfilterUL->run(NULL, {}, NULL);
+    regexfilterUL->run(NULL, dicomifier::FrameIndexGenerator({}), NULL);
     auto results = regexfilterUL->get_array();
     BOOST_CHECK_EQUAL(results[0], 25);
 }
@@ -430,7 +430,7 @@ BOOST_AUTO_TEST_CASE(TEST_OK_21)
         RegExFilter<EVR_US>::New(dicomifier::translator::
                                  ConstantField<EVR_US>::New(25), 
                                                             "^.*_{1}(.*)_{1}.*");
-    regexfilterUS->run(NULL, {}, NULL);
+    regexfilterUS->run(NULL, dicomifier::FrameIndexGenerator({}), NULL);
     auto results = regexfilterUS->get_array();
     BOOST_CHECK_EQUAL(results[0], 25);
 }
@@ -445,7 +445,7 @@ BOOST_AUTO_TEST_CASE(TEST_OK_22)
         RegExFilter<EVR_UT>::New(dicomifier::translator::
                                  ConstantField<EVR_UT>::New("MY_UTTITLE_TEST"), 
                                                             "^.*_{1}(.*)_{1}.*");
-    regexfilterUT->run(NULL, {}, NULL);
+    regexfilterUT->run(NULL, dicomifier::FrameIndexGenerator({}), NULL);
     auto results = regexfilterUT->get_array();
     BOOST_CHECK_EQUAL(results[0], "UTTITLE");
 }

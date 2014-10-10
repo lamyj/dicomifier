@@ -57,7 +57,7 @@ template<DcmEVR VR>
 void
 MultiplicationOperator<VR>
 ::run(dicomifier::bruker::BrukerDataset* brukerdataset,
-      std::vector<int> const & indexes,
+      dicomifier::FrameIndexGenerator const & generator,
       DcmDataset* dataset)
 {
     for (auto currentTag : this->_tags)
@@ -65,7 +65,7 @@ MultiplicationOperator<VR>
         typename SubTag<VR>::Pointer subtag = 
             std::dynamic_pointer_cast<SubTag<VR>>(currentTag);
         
-        subtag->run(brukerdataset, indexes, dataset);
+        subtag->run(brukerdataset, generator, dataset);
         
         auto array = subtag->get_array();
         

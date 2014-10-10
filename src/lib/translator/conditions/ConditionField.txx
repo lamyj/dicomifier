@@ -62,7 +62,7 @@ template<DcmEVR VR>
 void
 ConditionField<VR>
 ::run(dicomifier::bruker::BrukerDataset* brukerdataset,
-      std::vector<int> const & indexes,
+      dicomifier::FrameIndexGenerator const & generator,
       DcmDataset* dataset)
 {
     bool result = true;
@@ -79,7 +79,7 @@ ConditionField<VR>
     
     if (result)
     { // process ThenActions
-        this->_thenActions->run(brukerdataset, indexes, dataset);
+        this->_thenActions->run(brukerdataset, generator, dataset);
         
         typename SubTag<VR>::Pointer subtag = 
             std::dynamic_pointer_cast<SubTag<VR>>(this->_thenActions);
@@ -87,7 +87,7 @@ ConditionField<VR>
     }
     else
     { // process ElseActions
-        this->_elseActions->run(brukerdataset, indexes, dataset);
+        this->_elseActions->run(brukerdataset, generator, dataset);
         
         typename SubTag<VR>::Pointer subtag = 
             std::dynamic_pointer_cast<SubTag<VR>>(this->_elseActions);

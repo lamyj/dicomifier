@@ -237,7 +237,7 @@ EnhanceBrukerDicom
                 
                 if (rule != NULL)
                 {
-                    rule->run(brukerdataset, {}, dataset);
+                    rule->run(brukerdataset, generator, dataset);
                 }
                 else
                 {
