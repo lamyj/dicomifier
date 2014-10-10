@@ -5,21 +5,25 @@
  * http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html
  * for details.
  ************************************************************************/
-
+#include <iostream>
 #include "FrameIndexGenerator.h"
 
 namespace dicomifier
 {
     
 FrameIndexGenerator
-::FrameIndexGenerator(std::vector<int> indexmax)
-    :_indexMax(indexmax), _currentIndex(indexmax)
+::FrameIndexGenerator(std::vector<int> indexmax, int countmax)
+    :_indexMax(indexmax), _currentIndex({}), 
+     _countMax(countmax), _currentStep(0)
 {
-    if (this->_currentIndex.size() > 1)
+    if (indexmax.size() > 0)
     {
-        // Be carefull: _currentIndex should be different from _indexMax
-        //              for the first call of done()
-        this->_currentIndex[0]++;
+        this->_currentIndex = std::vector<int>(indexmax.size(), 0);
+    }
+    
+    if (this->_countMax == -1)
+    {
+        this->computeCountMax();
     }
 }
 
@@ -33,43 +37,62 @@ bool
 FrameIndexGenerator
 ::done() const
 {
-    for (auto index = 0; index < this->_currentIndex.size() - 1; index++)
-    {
-        if (this->_currentIndex[index] != this->_indexMax[index]-1)
-        {
-            return false;
-        }
-    }
-    return true;
+    return (this->_currentStep >= this->_countMax);
 }
 
-std::vector<int>
+void
 FrameIndexGenerator
 ::next()
 {
-    if (this->_currentIndex.size() > 1)
+    _currentStep++;
+    
+    for (auto index = this->_currentIndex.size()-1; index != -1; index--)
     {
-        for (auto index = this->_currentIndex.size()-2; index != -1; index--)
+        // Increase current index
+        this->_currentIndex[index]++;
+        
+        // If index reaches the max
+        if (this->_currentIndex[index] >= this->_indexMax[index])
         {
-            // Increase current index
-            this->_currentIndex[index]++;
-            
-            // If index reaches the max
-            if (this->_currentIndex[index] >= this->_indexMax[index])
-            {
-                // Restart to 0
-                this->_currentIndex[index] = 0;
-                // continue, go to the next index
-            }
-            else
-            {
-                // increase done => stop
-                break;
-            }
+            // Restart to 0
+            this->_currentIndex[index] = 0;
+            // continue, go to the next index
+        }
+        else
+        {
+            // increase done => stop
+            break;
         }
     }
-    
+}
+
+std::vector<int> 
+FrameIndexGenerator
+::get_index() const
+{
     return this->_currentIndex;
+}
+
+int 
+FrameIndexGenerator
+::get_step() const
+{
+    return this->_currentStep;
+}
+
+void 
+FrameIndexGenerator
+::computeCountMax()
+{
+    int max = 1;
+    for (auto value : this->_indexMax)
+    {
+        if (value != 0)
+        {
+            max *= value;
+        }
+    }
+    this->_countMax = max;
 }
     
 } // namespace dicomifier

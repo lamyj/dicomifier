@@ -17,20 +17,28 @@ namespace dicomifier
 class FrameIndexGenerator
 {
 public:
-    FrameIndexGenerator(std::vector<int> indexmax);
+    FrameIndexGenerator(std::vector<int> indexmax, int countmax = -1);
     
     virtual ~FrameIndexGenerator();
     
     bool done() const;
     
-    std::vector<int> next();
+    void next();
+     
+    std::vector<int> get_index() const;
+    
+    int get_step() const;
 
 protected:
+    void computeCountMax();
 
 private:
     std::vector<int> _indexMax;
     // Be carefull: Index is from 0 to N-1
     std::vector<int> _currentIndex;
+    
+    int _countMax;
+    int _currentStep;
     
 };
     

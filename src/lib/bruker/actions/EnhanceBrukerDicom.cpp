@@ -206,7 +206,6 @@ EnhanceBrukerDicom
     while (!generator.done())
     //for (auto count = 0; count < framesNumber; count++)
     {
-        std::vector<int> indexes = generator.next();
         int count = 0;
         // Create a new Dataset
         DcmDataset* dataset = new DcmDataset();
@@ -238,7 +237,7 @@ EnhanceBrukerDicom
                 
                 if (rule != NULL)
                 {
-                    rule->run(brukerdataset, indexes, dataset);
+                    rule->run(brukerdataset, {}, dataset);
                 }
                 else
                 {
@@ -269,6 +268,8 @@ EnhanceBrukerDicom
             throw DicomifierException("Unable to save dataset: " + 
                                       std::string(result.text()));
         }
+        
+        generator.next();
     }
 }
     
