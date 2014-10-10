@@ -28,6 +28,8 @@ public:
     std::vector<int> get_index() const;
     
     int get_step() const;
+    
+    int get_countMax() const;
 
 protected:
     void computeCountMax();

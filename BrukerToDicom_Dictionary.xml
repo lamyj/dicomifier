@@ -265,9 +265,9 @@
         Auto Generate
     </DicomField-->
 
-    <!--DicomField tag="0020,0013" keyword="InstanceNumber" vr="IS" >
-        Auto Generate
-    </DicomField-->
+    <DicomField tag="0020,0013" keyword="InstanceNumber" vr="IS" >
+        <InstanceNumberDcmField />
+    </DicomField>
 
     <!--DicomField tag="0020,0032" keyword="ImagePositionPatient" vr="DS" >
         <BrukerField name="VisuCorePosition" range="0,3" />

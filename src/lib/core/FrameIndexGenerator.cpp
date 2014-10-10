@@ -80,6 +80,13 @@ FrameIndexGenerator
     return this->_currentStep;
 }
 
+int 
+FrameIndexGenerator
+::get_countMax() const
+{
+    return this->_countMax;
+}
+
 void 
 FrameIndexGenerator
 ::computeCountMax()

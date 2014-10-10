@@ -21,16 +21,6 @@ namespace dicomifier
     
 namespace actions
 {
-
-struct VISU_FRAMEGROUP_TYPE
-{
-    int length;                 // Number of frame group elements
-    //std::string groupId;        // Frame group unique identifier (Not used)
-    //std::string groupComment;   // Frame group description (Not used)
-    //int valsStart;              // First dependant parameters for this frame group
-    //int valsCnt;                // Number of dependant parameters for this frame group
-    std::vector<std::string> groupDepVals;
-} ;
     
 class EnhanceBrukerDicom : public Action
 {
@@ -70,8 +60,7 @@ protected:
 private:
     void create_MRImageStorage(dicomifier::bruker::BrukerDataset* brukerdataset,
                                std::vector<int> indexlists,
-                               std::string const & seriesnumber,
-                               int framesNumber) const;
+                               std::string const & seriesnumber) const;
 
     DcmDataset * _dataset;
     std::string _brukerDir;
