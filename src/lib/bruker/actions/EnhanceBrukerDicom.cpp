@@ -125,7 +125,7 @@ EnhanceBrukerDicom
     
     // Create DICOM
     std::string sopclassuid = dicomifier::get_SOPClassUID_from_name(this->_SOPClassUID);
-    if (sopclassuid == dicomifier::MRImageStorage)
+    if (sopclassuid == UID_MRImageStorage)
     {
         this->create_MRImageStorage(brukerdataset, indexlists, 
                                     str.c_str());

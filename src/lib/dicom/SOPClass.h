@@ -14,20 +14,15 @@
 namespace dicomifier
 {
     
-const std::string VerificationSOPClass          = "1.2.840.10008.1.1";
-const std::string MRImageStorage                = "1.2.840.10008.5.1.4.1.1.4";
-const std::string EnhancedMRImageStorage        = "1.2.840.10008.5.1.4.1.1.4.1";
-const std::string MRSpectroscopyStorage         = "1.2.840.10008.5.1.4.1.1.4.2";
-    
 static std::string get_SOPClassUID_from_name(std::string const & name)
 {
     std::string name_no_blank = name;
     boost::replace_all(name_no_blank, " ", "");
     
-    if      (name_no_blank == "VerificationSOPClass")    return VerificationSOPClass;
-    else if (name_no_blank == "MRImageStorage")          return MRImageStorage;
-    else if (name_no_blank == "EnhancedMRImageStorage")  return EnhancedMRImageStorage;
-    else if (name_no_blank == "MRSpectroscopyStorage")   return MRSpectroscopyStorage;
+    if      (name_no_blank == "VerificationSOPClass")    return UID_VerificationSOPClass;
+    else if (name_no_blank == "MRImageStorage")          return UID_MRImageStorage;
+    else if (name_no_blank == "EnhancedMRImageStorage")  return UID_EnhancedMRImageStorage;
+    else if (name_no_blank == "MRSpectroscopyStorage")   return UID_MRSpectroscopyStorage;
     
     else return name_no_blank;
 }
