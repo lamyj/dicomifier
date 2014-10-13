@@ -326,4 +326,3 @@ BOOST_AUTO_TEST_CASE(TEST_KO_02)
                                          NULL), 
                         dicomifier::DicomifierException);
 }
-

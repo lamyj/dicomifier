@@ -46,7 +46,8 @@ enum ClassType
     ECT_UpperCaseGenerator,
     ECT_InstanceNumberDcmField,
     ECT_ImagePositionPatientDcmField,
-    ECT_ImageOrientationPatientDcmField
+    ECT_ImageOrientationPatientDcmField,
+    ECT_InPlanePhaseEncodingDirectionDcmField
 };
     
 class Tag

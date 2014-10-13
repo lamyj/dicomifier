@@ -60,9 +60,11 @@ ImageOrientationPatientDcmField<EVR_DS>
         throw DicomifierException("Missing VisuCoreOrientation field");
     }
     
-    startposition = generator.get_index()[indexposition] + startposition;
-    
     auto brukerfield = brukerdataset->GetFieldData("VisuCoreOrientation");
+    
+    startposition = generator.get_index()[indexposition] *
+                    brukerfield->get_dimensionNumbers()[1] + 
+                    startposition;
     
     // DICOM PS3.6 2013: 0020,0037 VM = 6
     for (auto i = 0; i < 6; i++)

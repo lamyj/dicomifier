@@ -56,6 +56,10 @@ BrukerFieldCreator
         range._min = atoi(minstr.c_str());
         range._max = atoi(maxstr.c_str());
     }
+    else
+    {
+        range._max = std::numeric_limits<int>::max();
+    }
     
     TranslatorBrukerFieldCreator action;
     action.brukerfieldname = brukerfieldname;
