@@ -42,6 +42,7 @@ enum ClassType
     ECT_PatientSexFilter,
     ECT_DateGenerator,
     ECT_TimeGenerator,
+    ECT_UIDGenerator,
     ECT_UpperCaseGenerator,
     ECT_InstanceNumberDcmField,
     ECT_ImagePositionPatientDcmField,
