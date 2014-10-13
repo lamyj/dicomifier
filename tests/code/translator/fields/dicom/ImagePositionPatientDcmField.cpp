@@ -12,7 +12,6 @@
 #include "translator/fields/dicom/ImagePositionPatientDcmField.h"
 #include "core/FrameIndexGenerator.h"
 
-
 /*************************** TEST OK 01 *******************************/
 /**
  * Nominal test case: Constructor
