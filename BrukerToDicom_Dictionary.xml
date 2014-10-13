@@ -19,10 +19,7 @@
     </DicomField>
 
     <DicomField tag="0008,0018" keyword="SOPInstanceUID" vr="UI">
-        <AdditionOperator>
-            <BrukerField name="VisuUid" />
-            <ConstantField values=".0" />
-        </AdditionOperator>
+        <UIDGenerator uidtype="SOPInstanceUID" />
     </DicomField>
     
     <DicomField tag="0008,0020" keyword="StudyDate" vr="DA">

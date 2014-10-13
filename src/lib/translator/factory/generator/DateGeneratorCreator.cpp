@@ -108,4 +108,3 @@ DateGeneratorCreator::TranslatorDateGeneratorCreator
     
 } // namespace dicomifier
     
-
