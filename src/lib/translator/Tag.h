@@ -43,7 +43,8 @@ enum ClassType
     ECT_DateGenerator,
     ECT_TimeGenerator,
     ECT_UpperCaseGenerator,
-    ECT_InstanceNumberDcmField
+    ECT_InstanceNumberDcmField,
+    ECT_ImagePositionPatientDcmField
 };
     
 class Tag

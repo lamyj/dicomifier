@@ -13,7 +13,6 @@
 #include "translator/factory/fields/dicom/InstanceNumberDcmFieldCreator.h"
 #include "translator/fields/dicom/InstanceNumberDcmField.h"
 
-
 /*************************** TEST OK 01 *******************************/
 /**
  * Nominal test case: Constructor

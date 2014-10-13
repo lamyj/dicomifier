@@ -6,10 +6,10 @@
  * for details.
  ************************************************************************/
 
-#ifndef _cc65448b_8e38_4ce0_bf60_0cb97f65641a
-#define _cc65448b_8e38_4ce0_bf60_0cb97f65641a
+#ifndef _dd00a025_9feb_4e1d_822d_9a07c849e345
+#define _dd00a025_9feb_4e1d_822d_9a07c849e345
 
-#include "Tag.h"
+#include "translator/SubTag.h"
 
 namespace dicomifier
 {
@@ -18,39 +18,36 @@ namespace translator
 {
     
 template<DcmEVR VR>
-class SubTag : public Tag
+class ImagePositionPatientDcmField : public SubTag<VR>
 {
 public:
-    typedef SubTag Self;
+    typedef ImagePositionPatientDcmField Self;
     typedef std::shared_ptr<Self> Pointer;
     typedef std::shared_ptr<Self const> ConstPointer;
     
-    typedef typename ElementTraits<VR>::ValueType ValueType;
-    typedef std::vector<ValueType> ArrayType;
+    /// Create pointer to new instance of ImagePositionPatientDcmField
+    static Pointer New();
     
-    virtual ~SubTag();
-    
+    virtual ~ImagePositionPatientDcmField();
+                     
     virtual void run(dicomifier::bruker::BrukerDataset* brukerdataset,
                      dicomifier::FrameIndexGenerator const & generator,
-                     DcmDataset* dataset) = 0;
+                     DcmDataset* dataset);
     
-    virtual ClassType get_class_type() const = 0;
-
-    ArrayType get_array() const;
+    virtual ClassType get_class_type() const 
+            { return ECT_ImagePositionPatientDcmField; }
     
 protected:
-    SubTag();
+    ImagePositionPatientDcmField();
 
-    ArrayType _array;
-    
 private:
 
 };
     
-} // namespace translator
-
 } // namespace dicomifier
 
-#include "SubTag.txx"
+} // namespace translator
 
-#endif // _cc65448b_8e38_4ce0_bf60_0cb97f65641a
+#include "ImagePositionPatientDcmField.txx"
+
+#endif // _dd00a025_9feb_4e1d_822d_9a07c849e345

@@ -34,13 +34,13 @@ public:
                      dicomifier::FrameIndexGenerator const & generator,
                      DcmDataset* dataset);
     
-    virtual ClassType get_class_type() const { return ECT_InstanceNumberDcmField; }
+    virtual ClassType get_class_type() const 
+            { return ECT_InstanceNumberDcmField; }
     
 protected:
     InstanceNumberDcmField();
 
 private:
-
 
 };
     
