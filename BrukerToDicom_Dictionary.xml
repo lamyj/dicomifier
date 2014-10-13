@@ -188,7 +188,7 @@
     </DicomField>
 
     <DicomField tag="0018,0082" keyword="InversionTime" vr="DS">
-        <BrukerField name="VisuAcqInversionTime" range="0,1" />
+        <InversionTimeDcmField />
     </DicomField>
 
     <DicomField tag="0018,0083" keyword="NumberOfAverages" vr="DS">
