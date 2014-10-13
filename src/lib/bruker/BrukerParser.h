@@ -59,7 +59,7 @@ struct BrukerValue_grammar : boost::spirit::qi::grammar<Iterator, BrukerValue(),
     {
         number_string = boost::spirit::no_skip[
                 boost::spirit::ascii::char_("-+0-9")        [boost::spirit::qi::_val += boost::spirit::qi::_1]
-            >>  *(boost::spirit::ascii::char_("0-9."))      [boost::spirit::qi::_val += boost::spirit::qi::_1]
+            >>  *(boost::spirit::ascii::char_("-0-9.e"))    [boost::spirit::qi::_val += boost::spirit::qi::_1]
             ];
             
         quoted_string = boost::spirit::no_skip[

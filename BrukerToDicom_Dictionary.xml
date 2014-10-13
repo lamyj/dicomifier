@@ -273,9 +273,9 @@
         <ImagePositionPatientDcmField />
     </DicomField>
 
-    <!--DicomField tag="0020,0037" keyword="ImageOrientationPatient" vr="DS" >
-        <BrukerField name="VisuCoreOrientation" range="0,6" />
-    </DicomField-->
+    <DicomField tag="0020,0037" keyword="ImageOrientationPatient" vr="DS" >
+        <ImageOrientationPatientDcmField />
+    </DicomField>
 
     <DicomField tag="0020,0052" keyword="FrameOfReferenceUID" vr="UI" >
         <ConstantField values="" />                                     <!-- to do: verified UID -->

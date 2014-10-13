@@ -6,40 +6,40 @@
  * for details.
  ************************************************************************/
 
-#include "ImagePositionPatientDcmField.h"
+#include "ImageOrientationPatientDcmField.h"
 
 namespace dicomifier
 {
     
 namespace translator
-{
+{ 
     
 template<DcmEVR VR>
-typename ImagePositionPatientDcmField<VR>::Pointer
-ImagePositionPatientDcmField<VR>
+typename ImageOrientationPatientDcmField<VR>::Pointer
+ImageOrientationPatientDcmField<VR>
 ::New()
 {
     return Pointer(new Self());
 }
 
 template<DcmEVR VR>
-ImagePositionPatientDcmField<VR>
-::ImagePositionPatientDcmField()
+ImageOrientationPatientDcmField<VR>
+::ImageOrientationPatientDcmField()
     :SubTag<VR>()
 {
     // Nothing to do
 }
 
 template<DcmEVR VR>
-ImagePositionPatientDcmField<VR>
-::~ImagePositionPatientDcmField()
+ImageOrientationPatientDcmField<VR>
+::~ImageOrientationPatientDcmField()
 {
     // Nothing to do
 }
 
 template<>
 void
-ImagePositionPatientDcmField<EVR_DS>
+ImageOrientationPatientDcmField<EVR_DS>
 ::run(dicomifier::bruker::BrukerDataset* brukerdataset,
       dicomifier::FrameIndexGenerator const & generator,
       DcmDataset* dataset)
@@ -51,21 +51,21 @@ ImagePositionPatientDcmField<EVR_DS>
     
     int startposition = 0;
     int indexposition = 0;
-    brukerdataset->get_indexForValue("VisuCorePosition", 
+    brukerdataset->get_indexForValue("VisuCoreOrientation", 
                                      indexposition, 
                                      startposition);
     
     if (indexposition == -1)
     {
-        throw DicomifierException("Missing VisuCorePosition field");
+        throw DicomifierException("Missing VisuCoreOrientation field");
     }
     
     startposition = generator.get_index()[indexposition] + startposition;
     
-    auto brukerfield = brukerdataset->GetFieldData("VisuCorePosition");
+    auto brukerfield = brukerdataset->GetFieldData("VisuCoreOrientation");
     
-    // we assume that dimensionNumbers contains 2 elements
-    for (auto i = 0; i < brukerfield->get_dimensionNumbers()[1]; i++)
+    // DICOM PS3.6 2013: 0020,0037 VM = 6
+    for (auto i = 0; i < 6; i++)
     {
         this->_array.push_back
         (
@@ -76,14 +76,14 @@ ImagePositionPatientDcmField<EVR_DS>
 
 template<DcmEVR VR>
 void
-ImagePositionPatientDcmField<VR>
+ImageOrientationPatientDcmField<VR>
 ::run(dicomifier::bruker::BrukerDataset* brukerdataset,
       dicomifier::FrameIndexGenerator const & generator,
       DcmDataset* dataset)
 {
-    throw DicomifierException("VR should be DS for Tag 0020,0032.");
+    throw DicomifierException("VR should be DS for Tag 0020,0037.");
 }
-    
-} // namespace dicomifier
 
 } // namespace translator
+    
+} // namespace dicomifier
