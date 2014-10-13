@@ -118,11 +118,35 @@
         <BrukerField name="VisuSubjectWeight" />
     </DicomField>
 
+    <!--DicomField tag="0010,2201" keyword="PatientSpeciesDescription" vr="LO">
+        Not in Bruker data
+    </DicomField-->
+
     <DicomField tag="0010,2210" keyword="AnatomicalOrientationType" vr="CS"><!-- Not in Bruker Doc -->
         <UpperCaseGenerator>
             <BrukerField name="SUBJECT_type" />
         </UpperCaseGenerator>
     </DicomField>
+
+    <!--DicomField tag="0010,2292" keyword="PatientBreedDescription" vr="LO">
+        Not in Bruker data
+    </DicomField-->
+
+    <!--DicomField tag="0010,2294" keyword="BreedRegistrationSequence" vr="SQ">
+        Not in Bruker data
+    </DicomField-->
+
+    <!--DicomField tag="0010,2297" keyword="ResponsiblePerson" vr="PN">
+        Not in Bruker data
+    </DicomField-->
+
+    <!--DicomField tag="0010,2298" keyword="ResponsiblePersonRole" vr="CS">
+        Not in Bruker data
+    </DicomField-->
+
+    <!--DicomField tag="0010,2299" keyword="ResponsibleOrganization" vr="LO">
+        Not in Bruker data
+    </DicomField-->
 
     <DicomField tag="0010,4000" keyword="PatientComments" vr="LT">
         <BrukerField name="VisuSubjectComment" />
@@ -215,11 +239,13 @@
     </DicomField>
 
     <DicomField tag="0018,1312" keyword="InPlanePhaseEncodingDirection" vr="CS">
-        <UpperCaseGenerator>
-            <RegExFilter expression="^([a-zA-Z]{3}).{4}">
-                <BrukerField name="VisuAcqImagePhaseEncDir" />
-            </RegExFilter>
-        </UpperCaseGenerator>
+        <InPlanePhaseEncodingDirectionDcmField>
+            <UpperCaseGenerator>
+                <RegExFilter expression="^([a-zA-Z]{3}).{4}">
+                    <BrukerField name="VisuAcqImagePhaseEncDir" />
+                </RegExFilter>
+            </UpperCaseGenerator>
+        </InPlanePhaseEncodingDirectionDcmField>
     </DicomField>
 
     <DicomField tag="0018,1314" keyword="FlipAngle" vr="DS">
@@ -286,9 +312,9 @@
         <ConstantField values="" />
     </DicomField>
 
-    <DicomField tag="0020,1041" keyword="SliceLocation" vr="DS" >
-        <ConstantField values="" />                                     <!-- to do: compute -->
-    </DicomField>
+    <!--DicomField tag="0020,1041" keyword="SliceLocation" vr="DS" >
+        <ConstantField values="" />                                     <!-- to do: compute ->
+    </DicomField-->
 
     <DicomField tag="0020,4000" keyword="ImageComments" vr="LT" >
         <ConstantField values="" />
