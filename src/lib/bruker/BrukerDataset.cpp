@@ -189,6 +189,81 @@ BrukerDataset
     return element != BrukerHeaderMap.end();
 }
 
+std::vector<int> 
+BrukerDataset
+::create_frameGroupLists(int & coreframecount)
+{
+    // read VisuFGOrderDescDim (int), VisuFGOrderDesc (string) and VisuGroupDepVals (string)
+    if (!this->HasFieldData("VisuFGOrderDescDim")  ||
+        !this->HasFieldData("VisuFGOrderDesc")     ||
+        !this->HasFieldData("VisuGroupDepVals"))
+    {
+        throw dicomifier::DicomifierException("Corrupted Bruker Data");
+    }
+    // First: look the VisuFGOrderDescDim attribut (Number of frame groups)
+    int frameGroupDim = this->GetFieldData("VisuFGOrderDescDim")->get_int(0);
+
+    coreframecount = 1;
+    
+    std::vector<int> indexlists;
+    // Second: look the VisuFGOrderDesc to compute frame count
+    for (auto count = 0; count < frameGroupDim; count++)
+    {
+        VISU_FRAMEGROUP_TYPE currentGroup;
+        
+        dicomifier::bruker::BrukerFieldData::Pointer fielddata = 
+            this->GetFieldData("VisuFGOrderDesc")->get_struct(count);
+            
+        currentGroup.length = fielddata->get_int(0);
+        int start   = fielddata->get_int(3);
+        int number  = fielddata->get_int(4);
+        
+        for (auto gdvcount = start; gdvcount < start+number; gdvcount++)
+        {
+            dicomifier::bruker::BrukerFieldData::Pointer fielddatadepvals = 
+                this->GetFieldData("VisuGroupDepVals")->get_struct(gdvcount);
+            currentGroup.groupDepVals.push_back
+            (
+                std::make_pair<std::string, int>(
+                    fielddatadepvals->get_string(0),
+                    fielddatadepvals->get_int(1)
+                    )
+            );
+        }
+        
+        indexlists.push_back(currentGroup.length);
+        coreframecount *= currentGroup.length;
+         
+        this->_frameGroupLists.push_back(currentGroup);
+    }
+    
+    return indexlists;
+}
+
+void 
+BrukerDataset
+::get_indexForValue(std::string const & valuename,
+                    int & indexposition,
+                    int & startposition) const
+{
+    indexposition = -1;
+    startposition = 0;
+    int count = -1;
+    for (auto currentGroup : this->_frameGroupLists)
+    {
+        count++;
+        for (auto currentDepVals : currentGroup.groupDepVals)
+        {
+            if (currentDepVals.first == valuename)
+            {
+                startposition = currentDepVals.second;
+                indexposition = count;
+                return;
+            }
+        }
+    }
+}
+
 } // namespace bruker
 
 } // namespace dicomifier

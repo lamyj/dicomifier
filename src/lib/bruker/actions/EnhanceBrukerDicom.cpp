@@ -110,28 +110,9 @@ EnhanceBrukerDicom
     // Search corresponding Bruker Dataset
     dicomifier::bruker::BrukerDataset* brukerdataset = brukerdirectory->get_brukerDataset(str.c_str());
     
-    // read VisuFGOrderDescDim (int), VisuFGOrderDesc (string) and VisuGroupDepVals (string)
-    if (!brukerdataset->HasFieldData("VisuFGOrderDescDim")  ||
-        !brukerdataset->HasFieldData("VisuFGOrderDesc")     ||
-        !brukerdataset->HasFieldData("VisuGroupDepVals"))
-    {
-        throw dicomifier::DicomifierException("Corrupted Bruker Data");
-    }
-    // First: look the VisuFGOrderDescDim attribut (Number of frame groups)
-    int frameGroupDim = brukerdataset->GetFieldData("VisuFGOrderDescDim")->get_int(0);
-
-    int coreFrameCount = 1;
+    int coreFrameCount = 0;
     
-    std::vector<int> indexlists;
-    // Second: look the VisuFGOrderDesc to compute frame count
-    for (auto count = 0; count < frameGroupDim; count++)
-    {        
-        dicomifier::bruker::BrukerFieldData::Pointer fielddata = 
-            brukerdataset->GetFieldData("VisuFGOrderDesc")->get_struct(count);
-            
-        indexlists.push_back(fielddata->get_int(0));
-        coreFrameCount *= fielddata->get_int(0);
-    }
+    std::vector<int> indexlists = brukerdataset->create_frameGroupLists(coreFrameCount);
     
     // Check frame count
     if (brukerdataset->HasFieldData("VisuCoreFrameCount"))

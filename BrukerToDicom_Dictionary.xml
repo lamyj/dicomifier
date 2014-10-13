@@ -262,18 +262,18 @@
     </DicomField-->
 
     <!--DicomField tag="0020,0012" keyword="AcquisitionNumber" vr="IS" >
-        Auto Generate
+        Not Mandatory
     </DicomField-->
 
     <DicomField tag="0020,0013" keyword="InstanceNumber" vr="IS" >
         <InstanceNumberDcmField />
     </DicomField>
 
-    <!--DicomField tag="0020,0032" keyword="ImagePositionPatient" vr="DS" >
-        <BrukerField name="VisuCorePosition" range="0,3" />
+    <DicomField tag="0020,0032" keyword="ImagePositionPatient" vr="DS" >
+        <ImagePositionPatientDcmField />
     </DicomField>
 
-    <DicomField tag="0020,0037" keyword="ImageOrientationPatient" vr="DS" >
+    <!--DicomField tag="0020,0037" keyword="ImageOrientationPatient" vr="DS" >
         <BrukerField name="VisuCoreOrientation" range="0,6" />
     </DicomField-->
 

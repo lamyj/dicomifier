@@ -29,6 +29,7 @@ BOOST_AUTO_TEST_CASE(TEST_OK_01)
 BOOST_AUTO_TEST_CASE(TEST_OK_02)
 {
     auto generator = new dicomifier::FrameIndexGenerator({}, 2);
+    BOOST_CHECK_EQUAL(generator->get_countMax(), 2);
     
     BOOST_CHECK_EQUAL(generator->done(), false);
     BOOST_CHECK_EQUAL(generator->get_step(), 0);
@@ -51,6 +52,7 @@ BOOST_AUTO_TEST_CASE(TEST_OK_02)
 BOOST_AUTO_TEST_CASE(TEST_OK_03)
 {
     auto generator = new dicomifier::FrameIndexGenerator({2});
+    BOOST_CHECK_EQUAL(generator->get_countMax(), 2);
 
     BOOST_CHECK_EQUAL(generator->done(), false);
     BOOST_CHECK_EQUAL(generator->get_step(), 0);
@@ -82,6 +84,7 @@ BOOST_AUTO_TEST_CASE(TEST_OK_03)
 BOOST_AUTO_TEST_CASE(TEST_OK_04)
 {
     auto generator = new dicomifier::FrameIndexGenerator({159}, 2);
+    BOOST_CHECK_EQUAL(generator->get_countMax(), 2);
     
     BOOST_CHECK_EQUAL(generator->done(), false);
     BOOST_CHECK_EQUAL(generator->get_step(), 0);
@@ -113,6 +116,7 @@ BOOST_AUTO_TEST_CASE(TEST_OK_04)
 BOOST_AUTO_TEST_CASE(TEST_OK_05)
 {
     auto generator = new dicomifier::FrameIndexGenerator({2,2,2});
+    BOOST_CHECK_EQUAL(generator->get_countMax(), 8);
     
     BOOST_CHECK_EQUAL(generator->done(), false);
     BOOST_CHECK_EQUAL(generator->get_step(), 0);

@@ -15,12 +15,19 @@
 #include <fstream>
 
 #include "BrukerFieldData.h"
+#include "core/DicomifierException.h"
     
 namespace dicomifier
 {
     
 namespace bruker
 {
+    
+struct VISU_FRAMEGROUP_TYPE
+{
+    int length; // Number of frame group elements
+    std::vector<std::pair<std::string, int>> groupDepVals;
+} ;
     
 /*! \class  BrukerDataset
     \brief This class purpose is to extract information from a bruker experiment and setup the extracted information for an easy use
@@ -83,6 +90,12 @@ public:
      * @return : true if dataset contains key, false otherwise
      */
     bool HasFieldData(std::string key) const;
+    
+    std::vector<int> create_frameGroupLists(int & coreframecount);
+    
+    void get_indexForValue(std::string const & valuename,
+                           int & indexposition,
+                           int & startposition) const;
 
 protected:
 
@@ -91,6 +104,8 @@ private:
      * Contains all BrukerDataset elements
      */
     BrukerMapType BrukerHeaderMap;
+    
+    std::vector<VISU_FRAMEGROUP_TYPE> _frameGroupLists;
 };
 
 } // namespace bruker
