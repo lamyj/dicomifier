@@ -168,3 +168,34 @@ BOOST_FIXTURE_TEST_CASE(TEST_OK_01, TestDataOK01)
         BOOST_CHECK_EQUAL(additionoperatorUT != NULL, true);
     }
 }
+ 
+/*************************** TEST KO 01 *******************************/
+/**
+ * Error test case: Create with VR = SQ
+ */
+struct TestDataKO01
+{
+    boost::property_tree::ptree ptr;
+ 
+    TestDataKO01()
+    {
+        boost::property_tree::ptree emptynode;
+        ptr.add_child("AdditionOperator", emptynode);
+    }
+ 
+    ~TestDataKO01()
+    {
+    }
+};
+
+BOOST_FIXTURE_TEST_CASE(TEST_KO_01, TestDataKO01)
+{
+    auto additionoperatorcreator = dicomifier::translator::
+        factory::AdditionOperatorCreator::New();
+    
+    BOOST_FOREACH(boost::property_tree::ptree::value_type &v, ptr)
+    {
+        BOOST_REQUIRE_THROW(additionoperatorcreator->Create(v, NULL, EVR_SQ), 
+                            dicomifier::DicomifierException);
+    }
+}

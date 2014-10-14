@@ -201,3 +201,35 @@ BOOST_FIXTURE_TEST_CASE(TEST_KO_01, TestDataKO01)
                             std::runtime_error);
     }
 }
+ 
+/*************************** TEST KO 02 *******************************/
+/**
+ * Error test case: Create with VR = SQ
+ */
+struct TestDataKO02
+{
+    boost::property_tree::ptree ptr;
+ 
+    TestDataKO02()
+    {
+        boost::property_tree::ptree regexfilternode;
+        regexfilternode.put("<xmlattr>.expression", "^.*");
+        ptr.add_child("RegExFilter", regexfilternode);
+    }
+ 
+    ~TestDataKO02()
+    {
+    }
+};
+
+BOOST_FIXTURE_TEST_CASE(TEST_KO_02, TestDataKO02)
+{
+    auto regexfiltercreator = dicomifier::translator::
+        factory::RegExFilterCreator::New();
+    
+    BOOST_FOREACH(boost::property_tree::ptree::value_type &v, ptr)
+    {
+        BOOST_REQUIRE_THROW(regexfiltercreator->Create(v, NULL, EVR_SQ), 
+                            dicomifier::DicomifierException);
+    }
+}

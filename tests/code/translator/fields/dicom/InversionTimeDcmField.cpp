@@ -309,3 +309,17 @@ BOOST_FIXTURE_TEST_CASE(TEST_KO_01, TestDataOK02)
     BOOST_REQUIRE_THROW(testfieldut->run(brukerdataset, *generator, NULL),
                         dicomifier::DicomifierException);
 }
+ 
+/*************************** TEST KO 02 *******************************/
+/**
+ * Error test case: Empty Bruker Dataset
+ */
+BOOST_AUTO_TEST_CASE(TEST_KO_02)
+{
+    // Test VR = DS
+    auto testfieldds = dicomifier::translator::InversionTimeDcmField<EVR_DS>::New();
+    BOOST_REQUIRE_THROW(testfieldds->run(NULL, 
+                                         dicomifier::FrameIndexGenerator({2}), 
+                                         NULL), 
+                        dicomifier::DicomifierException);
+}

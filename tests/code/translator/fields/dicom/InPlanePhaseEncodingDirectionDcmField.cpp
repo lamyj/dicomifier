@@ -309,3 +309,16 @@ BOOST_FIXTURE_TEST_CASE(TEST_KO_01, TestDataOK02)
     BOOST_REQUIRE_THROW(testfieldut->run(brukerdataset, *generator, NULL),
                         dicomifier::DicomifierException);
 }
+ 
+/*************************** TEST KO 02 *******************************/
+/**
+ * Error test case: Missing Sub Tag
+ */
+BOOST_FIXTURE_TEST_CASE(TEST_KO_02, TestDataOK02)
+{
+    // Test VR = CS
+    auto testfieldcs = dicomifier::translator::
+        InPlanePhaseEncodingDirectionDcmField<EVR_CS>::New();
+    BOOST_REQUIRE_THROW(testfieldcs->run(brukerdataset, *generator, NULL), 
+                        dicomifier::DicomifierException);
+}

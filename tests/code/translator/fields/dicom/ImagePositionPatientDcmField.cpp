@@ -322,3 +322,59 @@ BOOST_AUTO_TEST_CASE(TEST_KO_02)
                                          NULL), 
                         dicomifier::DicomifierException);
 }
+ 
+/*************************** TEST KO 03 *******************************/
+/**
+ * Error test case: Missing VisuCorePosition in VisuGroupDepVals
+ */
+struct TestDataKO03
+{
+    std::string filename;
+    dicomifier::bruker::BrukerDataset* brukerdataset;
+    
+    dicomifier::FrameIndexGenerator* generator;
+ 
+    TestDataKO03()
+    {
+        brukerdataset = new dicomifier::bruker::BrukerDataset();
+        
+        filename = "./tmp_test_ModuleImagePositionPatientDcmField";
+        
+        std::ofstream myfile;
+        myfile.open(filename);
+        myfile << "##TITLE=tmp_test_brukerfieldmodule\n";
+        myfile << "##$VisuCorePosition=( 5, 3 )\n";
+        myfile << "-15 -15 -1.6 -15 -15 -0.8 -15 -15 0 -15 -15 0.8 -15 -15 1.6\n";
+        myfile << "##$VisuFGOrderDescDim=2\n";
+        myfile << "##$VisuFGOrderDesc=( 2 )\n";
+        myfile << "(5, <FG_SLICE>, <>, 0, 1) (15, <FG_MOVIE>, <Selective Inversion>, 1, 1)\n";
+        myfile << "##$VisuGroupDepVals=( 2 )\n";
+        myfile << "(<VisuCoreOrientation>, 0) (<VisuAcqInversionTime>, 0)\n";
+        myfile << "##$VisuCoreFrameCount=75\n";
+        myfile << "##END=\n";
+        myfile.close();
+        
+        brukerdataset->LoadFile(filename);
+        
+        int coreFrameCount = 0;
+        std::vector<int> indexlists = brukerdataset->create_frameGroupLists(coreFrameCount);
+        
+        generator = new dicomifier::FrameIndexGenerator(indexlists);
+    }
+ 
+    ~TestDataKO03()
+    {
+        remove(filename.c_str());
+        delete brukerdataset;
+        delete generator;
+    }
+};
+
+BOOST_FIXTURE_TEST_CASE(TEST_KO_03, TestDataKO03)
+{
+    // Test VR = DS
+    auto testfieldds = dicomifier::translator::ImagePositionPatientDcmField<EVR_DS>::New();
+    BOOST_REQUIRE_THROW(testfieldds->run(brukerdataset, *generator, NULL), 
+                        dicomifier::DicomifierException);
+}
+
