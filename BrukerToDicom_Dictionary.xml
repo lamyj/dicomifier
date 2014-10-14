@@ -204,7 +204,7 @@
     </DicomField>
 
     <DicomField tag="0018,0088" keyword="SpacingBetweenSlices" vr="DS">
-        <ConstantField values="" />                                     <!-- to do: compute -->
+        <SpacingBetweenSlicesDcmField />
     </DicomField>
 
     <DicomField tag="0018,0089" keyword="NumberOfPhaseEncodingSteps" vr="IS">
@@ -215,15 +215,15 @@
         <BrukerField name="VisuAcqEchoTrainLength" />
     </DicomField>
 
-    <DicomField tag="0018,0094" keyword="PercentPhaseFieldOfView" vr="DS">
-        <ConstantField values="0" />                                    <!-- to do: compute -->
-    </DicomField>
+    <!--DicomField tag="0018,0094" keyword="PercentPhaseFieldOfView" vr="DS">
+        Not Mandatory
+    </DicomField-->
 
     <DicomField tag="0018,0095" keyword="PixelBandwith" vr="DS">
         <BrukerField name="VisuAcqPixelBandwidth" />
     </DicomField>
 
-    <DicomField tag="0018,1020" keyword="SoftawareVersions" vr="LO">
+    <DicomField tag="0018,1020" keyword="SoftwareVersions" vr="LO">
         <AdditionOperator>
             <BrukerField name="VisuCreator" />
             <BrukerField name="VisuCreatorVersion" />
@@ -235,7 +235,9 @@
     </DicomField>
 
     <DicomField tag="0018,1310" keyword="AcquisitionMatrix" vr="US">
-        <BrukerField name="VisuAcqSize" />
+        <AcquisitionMatrixDcmField>
+            <BrukerField name="VisuAcqSize" />
+        </AcquisitionMatrixDcmField>
     </DicomField>
 
     <DicomField tag="0018,1312" keyword="InPlanePhaseEncodingDirection" vr="CS">

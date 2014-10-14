@@ -6,7 +6,7 @@
  * for details.
  ************************************************************************/
 
-#include "InPlanePhaseEncodingDirectionDcmField.h"
+#include "AcquisitionMatrixDcmField.h"
 
 namespace dicomifier
 {
@@ -15,78 +15,98 @@ namespace translator
 {
     
 template<DcmEVR VR>
-typename InPlanePhaseEncodingDirectionDcmField<VR>::Pointer
-InPlanePhaseEncodingDirectionDcmField<VR>
+typename AcquisitionMatrixDcmField<VR>::Pointer
+AcquisitionMatrixDcmField<VR>
 ::New()
 {
     return Pointer(new Self());
 }
-
+    
 template<DcmEVR VR>
-typename InPlanePhaseEncodingDirectionDcmField<VR>::Pointer
-InPlanePhaseEncodingDirectionDcmField<VR>
+typename AcquisitionMatrixDcmField<VR>::Pointer
+AcquisitionMatrixDcmField<VR>
 ::New(Tag::Pointer tag)
 {
     return Pointer(new Self(tag));
 }
 
 template<DcmEVR VR>
-InPlanePhaseEncodingDirectionDcmField<VR>
-::InPlanePhaseEncodingDirectionDcmField()
+AcquisitionMatrixDcmField<VR>
+::AcquisitionMatrixDcmField()
     :SubTag<VR>(), _tag(NULL)
 {
     // Nothing to do
 }
 
 template<DcmEVR VR>
-InPlanePhaseEncodingDirectionDcmField<VR>
-::InPlanePhaseEncodingDirectionDcmField(Tag::Pointer tag)
+AcquisitionMatrixDcmField<VR>
+::AcquisitionMatrixDcmField(Tag::Pointer tag)
     :SubTag<VR>(), _tag(tag)
 {
     // Nothing to do
 }
 
 template<DcmEVR VR>
-InPlanePhaseEncodingDirectionDcmField<VR>
-::~InPlanePhaseEncodingDirectionDcmField()
+AcquisitionMatrixDcmField<VR>
+::~AcquisitionMatrixDcmField()
 {
     // Nothing to do
 }
 
 template<>
 void
-InPlanePhaseEncodingDirectionDcmField<EVR_CS>
+AcquisitionMatrixDcmField<EVR_US>
 ::run(dicomifier::bruker::BrukerDataset* brukerdataset,
       dicomifier::FrameIndexGenerator const & generator,
       DcmDataset* dataset)
 {
+    if (brukerdataset == NULL)
+    {
+        throw DicomifierException("Bruker Dataset is NULL");
+    }
+    
     if (this->_tag == NULL)
     {
         throw DicomifierException("Missing node");
     }
     
-    typename SubTag<EVR_CS>::Pointer subtag = 
-        std::dynamic_pointer_cast<SubTag<EVR_CS>>(this->_tag);
+    std::string const brukerfield = 
+        brukerdataset->GetFieldData("VisuAcqImagePhaseEncDir")->
+            get_string(generator.get_step());
+    
+    typename SubTag<EVR_US>::Pointer subtag = 
+        std::dynamic_pointer_cast<SubTag<EVR_US>>(this->_tag);
 
     subtag->run(brukerdataset, generator, dataset);
     
     auto array = subtag->get_array();
     
-    int step = generator.get_step();
-    
-    this->_array.push_back(array[step]);
+    if (brukerfield == "col_dir")
+    {
+        this->_array.push_back(array[0]);
+        this->_array.push_back(0);
+        this->_array.push_back(0);
+        this->_array.push_back(array[1]);
+    }
+    else //if (brukerfield == "row_dir")
+    {
+        this->_array.push_back(0);
+        this->_array.push_back(array[0]);
+        this->_array.push_back(array[1]);
+        this->_array.push_back(0);
+    }
 }
 
 template<DcmEVR VR>
 void
-InPlanePhaseEncodingDirectionDcmField<VR>
+AcquisitionMatrixDcmField<VR>
 ::run(dicomifier::bruker::BrukerDataset* brukerdataset,
       dicomifier::FrameIndexGenerator const & generator,
       DcmDataset* dataset)
 {
-    throw DicomifierException("VR should be CS for Tag 0018,1312.");
+    throw DicomifierException("VR should be US for Tag 0018,1310.");
 }
-    
-} // namespace dicomifier
-
+   
 } // namespace translator
+
+} // namespace dicomifier
