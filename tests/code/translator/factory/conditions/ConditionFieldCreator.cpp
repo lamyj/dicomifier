@@ -458,7 +458,31 @@ BOOST_FIXTURE_TEST_CASE(TEST_KO_06, TestDataKO06)
 /**
  * Error test case: Create with VR = SQ
  */
-BOOST_FIXTURE_TEST_CASE(TEST_KO_07, TestDataOK01)
+struct TestDataKO07
+{
+    boost::property_tree::ptree ptr;
+ 
+    TestDataKO07()
+    {
+        boost::property_tree::ptree conditionfieldnode;
+        boost::property_tree::ptree ifnode;
+        boost::property_tree::ptree thennode;
+        boost::property_tree::ptree elsenode;
+        boost::property_tree::ptree emptynode;
+        emptynode.put("<xmlattr>.name", "MyBrukerField");
+        ifnode.add_child("BrukerFieldExist", emptynode);
+        conditionfieldnode.add_child("If", ifnode);
+        conditionfieldnode.add_child("Then", thennode);
+        conditionfieldnode.add_child("Else", elsenode);
+        ptr.add_child("ConditionField", conditionfieldnode);
+    }
+ 
+    ~TestDataKO07()
+    {
+    }
+};
+
+BOOST_FIXTURE_TEST_CASE(TEST_KO_07, TestDataKO07)
 {
     auto conditionfieldcreator = dicomifier::translator::factory::ConditionFieldCreator::New();
     

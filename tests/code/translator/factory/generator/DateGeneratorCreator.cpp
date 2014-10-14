@@ -201,3 +201,34 @@ BOOST_FIXTURE_TEST_CASE(TEST_OK_02, TestDataOK02)
         BOOST_CHECK_EQUAL(dategeneratorDA != NULL, true);
     }
 }
+ 
+/*************************** TEST KO 01 *******************************/
+/**
+ * Error test case: Create with VR = SQ
+ */
+struct TestDataKO01
+{
+    boost::property_tree::ptree ptr;
+ 
+    TestDataKO01()
+    {
+        boost::property_tree::ptree emptynode;
+        ptr.add_child("DateGenerator", emptynode);
+    }
+ 
+    ~TestDataKO01()
+    {
+    }
+};
+
+BOOST_FIXTURE_TEST_CASE(TEST_KO_01, TestDataKO01)
+{
+    auto dategeneratorcreator = dicomifier::translator::
+        factory::DateGeneratorCreator::New();
+    
+    BOOST_FOREACH(boost::property_tree::ptree::value_type &v, ptr)
+    {
+        BOOST_REQUIRE_THROW(dategeneratorcreator->Create(v, NULL, EVR_SQ), 
+                            dicomifier::DicomifierException);
+    }
+}

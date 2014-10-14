@@ -167,6 +167,41 @@ BOOST_FIXTURE_TEST_CASE(TEST_OK_01, TestDataOK01)
     }
 }
  
+/*************************** TEST OK 02 *******************************/
+/**
+ * Nominal test case: Constructor with Specific Range
+ */
+struct TestDataOK02
+{
+    boost::property_tree::ptree ptr;
+ 
+    TestDataOK02()
+    {
+        boost::property_tree::ptree emptynode;
+        emptynode.put("<xmlattr>.name", "BrukerDataName");
+        emptynode.put("<xmlattr>.range", "0,1");
+        ptr.add_child("BrukerField", emptynode);
+    }
+ 
+    ~TestDataOK02()
+    {
+    }
+};
+
+BOOST_FIXTURE_TEST_CASE(TEST_OK_02, TestDataOK02)
+{
+    auto brukerfieldcreator = dicomifier::translator::factory::BrukerFieldCreator::New();
+    
+    BOOST_FOREACH(boost::property_tree::ptree::value_type &v, ptr)
+    {
+        // Test VR = CS
+        dicomifier::translator::Tag::Pointer objectCS = brukerfieldcreator->Create(v, NULL, EVR_CS);
+        dicomifier::translator::BrukerField<EVR_CS>::Pointer brukerfieldCS = 
+                std::dynamic_pointer_cast<dicomifier::translator::BrukerField<EVR_CS>>(objectCS);
+        BOOST_CHECK_EQUAL(brukerfieldCS != NULL, true);
+    }
+}
+
 /*************************** TEST KO 01 *******************************/
 /**
  * Error test case: Missing mandatory attribut 'name'

@@ -172,7 +172,22 @@ BOOST_FIXTURE_TEST_CASE(TEST_OK_01, TestDataOK01)
 /**
  * Error test case: Create SQ element
  */
-BOOST_FIXTURE_TEST_CASE(TEST_KO_01, TestDataOK01)
+struct TestDataKO01
+{
+    boost::property_tree::ptree ptr;
+ 
+    TestDataKO01()
+    {
+        boost::property_tree::ptree emptynode;
+        ptr.add_child("PatientSexFilter", emptynode);
+    }
+ 
+    ~TestDataKO01()
+    {
+    }
+};
+
+BOOST_FIXTURE_TEST_CASE(TEST_KO_01, TestDataKO01)
 {
     auto patientsexfiltercreator = 
         dicomifier::translator::factory::PatientSexFilterCreator::New();

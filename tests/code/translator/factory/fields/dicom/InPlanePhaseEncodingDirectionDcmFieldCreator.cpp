@@ -173,9 +173,25 @@ BOOST_FIXTURE_TEST_CASE(TEST_OK_01, TestDataOK01)
 /**
  * Error test case: Create with VR = SQ
  */
-BOOST_FIXTURE_TEST_CASE(TEST_KO_01, TestDataOK01)
+struct TestDataKO01
 {
-    auto inplanephaseencodingdircreator = dicomifier::translator::factory::InPlanePhaseEncodingDirectionDcmFieldCreator::New();
+    boost::property_tree::ptree ptr;
+ 
+    TestDataKO01()
+    {
+        boost::property_tree::ptree emptynode;
+        ptr.add_child("InPlanePhaseEncodingDirectionDcmField", emptynode);
+    }
+ 
+    ~TestDataKO01()
+    {
+    }
+};
+
+BOOST_FIXTURE_TEST_CASE(TEST_KO_01, TestDataKO01)
+{
+    auto inplanephaseencodingdircreator = dicomifier::translator::
+        factory::InPlanePhaseEncodingDirectionDcmFieldCreator::New();
     
     BOOST_FOREACH(boost::property_tree::ptree::value_type &v, ptr)
     {
