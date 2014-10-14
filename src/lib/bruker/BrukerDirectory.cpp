@@ -295,42 +295,49 @@ bool BrukerDirectory::isDirToParse(std::string const & dir)
     return false;
 }
 
-void BrukerDirectory::getImhDataType(BrukerFieldData::Pointer const bDPT, int & pixelSize)
+void BrukerDirectory::getImhDataType(std::string const & wordtype,
+                                     std::string const & byteorder,
+                                     int & pixelSize,
+                                     int & bitsallocated,
+                                     int & bitsstored,
+                                     int & highbit,
+                                     int & pixelrepresentation)
 {
-    std::string datatype = bDPT->get_data_type();
-    if(datatype == "String")
-    {         
-        std::string brukerDataPixelType = bDPT->get_string(0);
-
-        if (brukerDataPixelType ==  "ip_short") 
-        {
-            pixelSize = 2;
-        }
-        if (brukerDataPixelType ==  "ip_int") 
-        {
-            pixelSize = 4;
-        }
-        if (brukerDataPixelType ==  "ip_char") 
-        {
-            pixelSize = 1;
-        }
-    }
-    else if (datatype == "Int")
+    pixelrepresentation = 1;
+    if (wordtype == "_32BIT_SGN_INT")
     {
-        int brukerDataPixelType = bDPT->get_int(0);
-
-        if (brukerDataPixelType ==  2) 
-        {
-            pixelSize = 2;
-        }
-        if (brukerDataPixelType ==  3) 
-        {
-            pixelSize = 2;
-        }    
-        if (brukerDataPixelType ==  1) 
-        {
-            pixelSize = 1;
-        }     
+        bitsallocated = 32;
+        bitsstored = 32;
+        pixelSize = 4;
+    }
+    else if (wordtype == "_16BIT_SGN_INT")
+    {
+        bitsallocated = 16;
+        bitsstored = 16;
+        pixelSize = 2;
+    }
+    else if (wordtype == "_8BIT_UNSGN_INT")
+    {
+        pixelrepresentation = 0;
+        bitsallocated = 8;
+        bitsstored = 8;
+        pixelSize = 1;
+    }
+    else if (wordtype == "_32BIT_FLOAT")
+    {
+    }
+    else
+    {
+        throw DicomifierException("Unknown VisuCoreWordType");
+    }
+    
+    if (byteorder == "bigEndian")
+    {
+        highbit = 0;
+    }
+    else // if (byteorder == "littleEndian")
+    {
+        highbit = bitsallocated - 1;
     }
 }
 
