@@ -48,7 +48,9 @@ enum ClassType
     ECT_ImagePositionPatientDcmField,
     ECT_ImageOrientationPatientDcmField,
     ECT_InPlanePhaseEncodingDirectionDcmField,
-    ECT_InversionTimeDcmField
+    ECT_InversionTimeDcmField,
+    ECT_AcquisitionMatrixDcmField,
+    ECT_SpacingBetweenSlicesDcmField
 };
     
 class Tag
