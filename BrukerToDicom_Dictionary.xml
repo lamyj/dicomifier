@@ -1,4 +1,5 @@
-<!-- Dictionary For BRUKER <=> DICOM translator -->
+<!-- Dictionary For BRUKER <=> DICOM translator 
+     Only available for MR Image IOD            -->
 
 <Dictionary>
 
@@ -92,7 +93,7 @@
         <BrukerField name="VisuStudyDescription" />
     </DicomField>
 
-    <DicomField tag="0008,1050" keyword="PerformingPhysicianName" vr="PN"><!-- Not in Bruker Doc -->
+    <DicomField tag="0008,1050" keyword="PerformingPhysicianName" vr="PN">
         <BrukerField name="OWNER" />
     </DicomField>
 
@@ -122,7 +123,11 @@
         Not in Bruker data
     </DicomField-->
 
-    <DicomField tag="0010,2210" keyword="AnatomicalOrientationType" vr="CS"><!-- Not in Bruker Doc -->
+    <DicomField tag="0010,2203" keyword="PatientSexNeutered" vr="CS">
+        <ConstantField values="UNKNOWN" />
+    </DicomField>
+
+    <DicomField tag="0010,2210" keyword="AnatomicalOrientationType" vr="CS">
         <UpperCaseGenerator>
             <BrukerField name="SUBJECT_type" />
         </UpperCaseGenerator>
@@ -303,11 +308,11 @@
     </DicomField>
 
     <DicomField tag="0020,0052" keyword="FrameOfReferenceUID" vr="UI" >
-        <ConstantField values="" />                                     <!-- to do: verified UID -->
+        <BrukerField name="VisuUid" />
     </DicomField>
 
     <DicomField tag="0020,1002" keyword="ImagesInAcquisition" vr="IS" >
-        <BrukerField name="VisuCoreFrameCount" />                       <!-- not sure -->
+        <BrukerField name="VisuCoreFrameCount" />
     </DicomField>
 
     <DicomField tag="0020,1040" keyword="PositionReferenceIndicator" vr="LO" >
@@ -315,7 +320,7 @@
     </DicomField>
 
     <!--DicomField tag="0020,1041" keyword="SliceLocation" vr="DS" >
-        <ConstantField values="" />                                     <!-- to do: compute ->
+        Not Mandatory
     </DicomField-->
 
     <DicomField tag="0020,4000" keyword="ImageComments" vr="LT" >
@@ -345,21 +350,21 @@
         </DivisionOperator>
     </DicomField>
 
-    <DicomField tag="0028,0100" keyword="BitsAllocated" vr="US" >
-        <ConstantField values="16" />
-    </DicomField>
+    <!--DicomField tag="0028,0100" keyword="BitsAllocated" vr="US" >
+        Auto generate
+    </DicomField-->
 
-    <DicomField tag="0028,0101" keyword="BitsStored" vr="US" >
-        <ConstantField values="16" />
-    </DicomField>
+    <!--DicomField tag="0028,0101" keyword="BitsStored" vr="US" >
+        Auto generate
+    </DicomField-->
 
-    <DicomField tag="0028,0102" keyword="HighBit" vr="US" >
-        <ConstantField values="15" />
-    </DicomField>
+    <!--DicomField tag="0028,0102" keyword="HighBit" vr="US" >
+        Auto generate
+    </DicomField-->
 
-    <DicomField tag="0028,0103" keyword="Pixelrepresentation" vr="US" >
-        <ConstantField values="1" />
-    </DicomField>
+    <!--DicomField tag="0028,0103" keyword="Pixelrepresentation" vr="US" >
+        Auto generate
+    </DicomField-->
     
     <!--DicomField tag="7fe0,0010" keyword="PixelData" vr="OB" >
         Auto generate

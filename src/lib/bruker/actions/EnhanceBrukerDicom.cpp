@@ -150,14 +150,20 @@ EnhanceBrukerDicom
     
     dicomifier::FrameIndexGenerator generator(indexlists);
     
-    // Read binary data
-    int size = brukerdataset->GetFieldData("IM_SIX")->get_int(0);
-    size *= brukerdataset->GetFieldData("IM_SIY")->get_int(0);
-    int pixelSize;
+    // Get binary data information
+    int pixelSize, bitsallocated, bitsstored, highbit, pixelrepresentation;
     dicomifier::bruker::BrukerDirectory::
-        getImhDataType(brukerdataset->GetFieldData("DATTYPE"), pixelSize);
+        getImhDataType(brukerdataset->GetFieldData("VisuCoreWordType")->get_string(0), 
+                       brukerdataset->GetFieldData("VisuCoreByteOrder")->get_string(0),
+                       pixelSize, bitsallocated, bitsstored, highbit,
+                       pixelrepresentation);
+                       
+    // Compute buffer size
+    int size = brukerdataset->GetFieldData("VisuCoreSize")->get_int(0);
+    size    *= brukerdataset->GetFieldData("VisuCoreSize")->get_int(1);
     size *= pixelSize;
     
+    // Read binary data
     std::ifstream is(brukerdataset->GetFieldData("PIXELDATA")->get_string(0), 
                      std::ifstream::binary);
     char * binarydata = new char[size*generator.get_countMax()];
@@ -174,6 +180,12 @@ EnhanceBrukerDicom
         // Insert SeriesNumber => use to find Bruker data
         dataset->putAndInsertOFStringArray(DCM_SeriesNumber, 
                                            OFString(seriesnumber.c_str()));
+                                           
+        // Set binary data information
+        dataset->putAndInsertUint16(DCM_BitsAllocated, bitsallocated);
+        dataset->putAndInsertUint16(DCM_BitsStored, bitsstored);
+        dataset->putAndInsertUint16(DCM_HighBit, highbit);
+        dataset->putAndInsertUint16(DCM_PixelRepresentation, pixelrepresentation);
         
         // Parse and run all dictionary entries
         BOOST_FOREACH(boost::property_tree::ptree::value_type &v, pt) // Tag Dictionary
