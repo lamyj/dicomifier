@@ -137,6 +137,41 @@ EnhanceBrukerDicom
     
     delete brukerdirectory;
 }
+
+void 
+EnhanceBrukerDicom
+::convert_32to16bits(char* inputbuffer, int inputbuffersize,
+                     char* outputbuffer,
+                     double & rescaleintercept, double & rescaleslope) const
+{
+    // Find min and max
+    Sint32 min = (Sint32)(exp2(32.)-1);
+    Sint32 max = (Sint32)(-exp2(32.));
+    for (auto i = 0; i < inputbuffersize; i += sizeof(Sint32))
+    {
+        Sint32* value = (Sint32*)(inputbuffer+i);
+        if (*value > max)
+        {
+            max = *value;
+        }
+        if (*value < min)
+        {
+            min = *value;
+        }
+    }
+    
+    rescaleintercept = (double)min;
+    rescaleslope = (max-min) / exp2(16.0);
+    
+    for (auto i = 0; i < inputbuffersize; i += sizeof(Sint32))
+    {
+        Sint32* value = (Sint32*)(inputbuffer+i);
+        
+        Sint16 dicomvalue = (*value - min) * exp2(16.0) / (max - min) - exp2(15);
+        
+        memcpy(outputbuffer+i/2, (char*)(&dicomvalue), sizeof(Sint16));
+    }
+}
     
 void 
 EnhanceBrukerDicom
@@ -161,7 +196,7 @@ EnhanceBrukerDicom
     // Compute buffer size
     int size = brukerdataset->GetFieldData("VisuCoreSize")->get_int(0);
     size    *= brukerdataset->GetFieldData("VisuCoreSize")->get_int(1);
-    size *= pixelSize;
+    size    *= pixelSize;
     
     // Read binary data
     std::ifstream is(brukerdataset->GetFieldData("PIXELDATA")->get_string(0), 
@@ -169,6 +204,30 @@ EnhanceBrukerDicom
     char * binarydata = new char[size*generator.get_countMax()];
     memset(binarydata, 0, size*generator.get_countMax());
     is.read(binarydata, size*generator.get_countMax());
+    
+    double rescaleintercept, rescaleslope;
+    if (bitsstored == 32)
+    {
+        // Create new buffer 16bits
+        char * outputbuffer = new char[size*generator.get_countMax()/2];
+    
+        this->convert_32to16bits(binarydata, size*generator.get_countMax(), 
+                                 outputbuffer, rescaleintercept, rescaleslope);
+        
+        // size / 2
+        size /= 2;
+        bitsstored /= 2;
+        bitsallocated /= 2;
+        if (highbit != 0)
+        {
+            highbit = (highbit + 1) / 2 - 1;
+        }
+        
+        // Delete buffer 32bits
+        delete [] binarydata;
+        // Replace by buffer 16bits
+        binarydata = outputbuffer;
+    }
     
     // Process
     while (!generator.done())
