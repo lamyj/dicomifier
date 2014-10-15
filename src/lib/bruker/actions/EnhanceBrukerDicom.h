@@ -61,6 +61,11 @@ private:
     void create_MRImageStorage(dicomifier::bruker::BrukerDataset* brukerdataset,
                                std::vector<int> indexlists,
                                std::string const & seriesnumber) const;
+                               
+    void convert_32to16bits(char* inputbuffer, int inputbuffersize,
+                            char* outputbuffer,
+                            double & rescaleintercept,
+                            double & rescaleslope) const;
 
     DcmDataset * _dataset;
     std::string _brukerDir;
