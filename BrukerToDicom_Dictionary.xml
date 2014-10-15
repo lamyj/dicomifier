@@ -93,6 +93,10 @@
         <BrukerField name="VisuStudyDescription" />
     </DicomField>
 
+    <DicomField tag="0008,103e" keyword="SeriesDescription" vr="LO">
+        <BrukerField name="VisuAcquisitionProtocol" />
+    </DicomField>
+
     <DicomField tag="0008,1050" keyword="PerformingPhysicianName" vr="PN">
         <BrukerField name="OWNER" />
     </DicomField>
