@@ -144,7 +144,7 @@ EnhanceBrukerDicom
                      char* outputbuffer,
                      double & rescaleintercept, double & rescaleslope) const
 {
-    // Find min and max
+    // search min and max
     Sint32 min = (Sint32)(exp2(32.)-1);
     Sint32 max = (Sint32)(-exp2(32.));
     for (auto i = 0; i < inputbuffersize; i += sizeof(Sint32))
@@ -160,9 +160,11 @@ EnhanceBrukerDicom
         }
     }
     
+    // Compute DICOM element 0028,1052 and 0028,1053
     rescaleintercept = (double)min;
     rescaleslope = (max-min) / exp2(16.0);
     
+    // Convert data
     for (auto i = 0; i < inputbuffersize; i += sizeof(Sint32))
     {
         Sint32* value = (Sint32*)(inputbuffer+i);
@@ -205,6 +207,7 @@ EnhanceBrukerDicom
     memset(binarydata, 0, size*generator.get_countMax());
     is.read(binarydata, size*generator.get_countMax());
     
+    bool addtransformationsequence = false;
     double rescaleintercept, rescaleslope;
     if (bitsstored == 32)
     {
@@ -227,6 +230,8 @@ EnhanceBrukerDicom
         delete [] binarydata;
         // Replace by buffer 16bits
         binarydata = outputbuffer;
+        
+        addtransformationsequence = true;
     }
     
     // Process
@@ -245,6 +250,26 @@ EnhanceBrukerDicom
         dataset->putAndInsertUint16(DCM_BitsStored, bitsstored);
         dataset->putAndInsertUint16(DCM_HighBit, highbit);
         dataset->putAndInsertUint16(DCM_PixelRepresentation, pixelrepresentation);
+        
+        // Add Pixel Value Transformation Sequence
+        if (addtransformationsequence)
+        {
+            DcmItem* item = NULL;
+            dataset->findOrCreateSequenceItem(DCM_PixelValueTransformationSequence, 
+                                              item, 0);
+            
+            std::stringstream stream;
+            stream << rescaleintercept;
+            item->putAndInsertOFStringArray(DCM_RescaleIntercept, 
+                                            OFString(stream.str().c_str()));
+            
+            std::stringstream stream2;
+            stream2 << rescaleslope;
+            item->putAndInsertOFStringArray(DCM_RescaleSlope, 
+                                            OFString(stream2.str().c_str()));
+            
+            item->putAndInsertOFStringArray(DCM_RescaleType, OFString("US"));
+        }
         
         // Parse and run all dictionary entries
         BOOST_FOREACH(boost::property_tree::ptree::value_type &v, pt) // Tag Dictionary
