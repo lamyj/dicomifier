@@ -42,7 +42,7 @@ void
 InstanceNumberDcmField<VR>
 ::run(dicomifier::bruker::BrukerDataset* brukerdataset,
       dicomifier::FrameIndexGenerator const & generator,
-      DcmDataset* dataset)
+      DcmItem* dataset)
 {
     std::stringstream stream;
     stream << (generator.get_step() + 1);

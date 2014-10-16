@@ -62,7 +62,7 @@ void
 DicomField<VR>
 ::run(dicomifier::bruker::BrukerDataset* brukerdataset,
       dicomifier::FrameIndexGenerator const & generator,
-      DcmDataset* dataset)
+      DcmItem* dataset)
 {    
     if (this->_tag == NULL)
     {

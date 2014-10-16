@@ -29,7 +29,7 @@ public:
     
     virtual ~AlwaysFalse() {}
     
-    virtual bool eval(DcmDataset* dataset,
+    virtual bool eval(DcmItem* dataset,
                       dicomifier::bruker::BrukerDataset* brukerdataset) 
         { return false; }
 

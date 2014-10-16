@@ -31,7 +31,7 @@ void
 ConditionBase
 ::run(dicomifier::bruker::BrukerDataset* brukerdataset,
       dicomifier::FrameIndexGenerator const & generator,
-      DcmDataset* dataset)
+      DcmItem* dataset)
 {
     // Nothing to do
 }

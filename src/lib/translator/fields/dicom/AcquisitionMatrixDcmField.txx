@@ -58,7 +58,7 @@ void
 AcquisitionMatrixDcmField<EVR_US>
 ::run(dicomifier::bruker::BrukerDataset* brukerdataset,
       dicomifier::FrameIndexGenerator const & generator,
-      DcmDataset* dataset)
+      DcmItem* dataset)
 {
     if (brukerdataset == NULL)
     {
@@ -102,7 +102,7 @@ void
 AcquisitionMatrixDcmField<VR>
 ::run(dicomifier::bruker::BrukerDataset* brukerdataset,
       dicomifier::FrameIndexGenerator const & generator,
-      DcmDataset* dataset)
+      DcmItem* dataset)
 {
     throw DicomifierException("VR should be US for Tag 0018,1310.");
 }

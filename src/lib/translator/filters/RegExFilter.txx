@@ -60,7 +60,7 @@ void
 RegExFilter<VR>
 ::run(dicomifier::bruker::BrukerDataset* brukerdataset,
       dicomifier::FrameIndexGenerator const & generator,
-      DcmDataset* dataset)
+      DcmItem* dataset)
 {
     typename SubTag<VR>::Pointer subtag = 
         std::dynamic_pointer_cast<SubTag<VR>>(this->_tag);

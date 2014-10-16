@@ -79,9 +79,29 @@ DicomFieldCreator
     }
             
     dicomifier::Range range;
+    // Get 'range' attribut (optional):
+    auto range_ = value.second.get_optional<std::string>("<xmlattr>.range");
+    if (range_)
+    {
+        std::string rangestr = range_.get();
+        std::string minstr = rangestr.substr(0, rangestr.find(","));
+        std::string maxstr = rangestr.substr(rangestr.find(",") + 1, rangestr.length() - 1);
+        
+        range._min = atoi(minstr.c_str());
+        range._max = atoi(maxstr.c_str());
+    }
+    
+    auto perframe_ = value.second.get_optional<bool>("<xmlattr>.perframe");
+    bool perframe = false;
+    if (perframe_)
+    {
+        perframe = perframe_.get();
+    }
+    
     TranslatorDicomFieldCreator action;
     action.tagrange = dicomifier::TagAndRange(dcmtag, range);
     action.pttag = pttag;
+    action.perframe = perframe;
     
     dicomifier::vr_dispatch(action, dcmtag.getEVR());
     
@@ -93,7 +113,8 @@ void
 DicomFieldCreator::TranslatorDicomFieldCreator
 ::run<EVR_SQ>() const
 {
-    throw DicomifierException("Impossible to Create SQ Element");
+    dicomfield = dicomifier::translator::
+        DicomSequenceField::New(tagrange, pttag, perframe);
 }
 
 template<DcmEVR VR> 
@@ -101,7 +122,8 @@ void
 DicomFieldCreator::TranslatorDicomFieldCreator
 ::run() const
 {
-    dicomfield = dicomifier::translator::DicomField<VR>::New(tagrange, pttag[0]);
+    dicomfield = dicomifier::translator::
+        DicomField<VR>::New(tagrange, pttag[0]);
 }
     
 } // namespace factory

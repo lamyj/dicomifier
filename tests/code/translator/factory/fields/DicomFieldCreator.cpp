@@ -882,6 +882,116 @@ BOOST_FIXTURE_TEST_CASE(TEST_OK_22, TestDataOK22)
     }
 }
  
+/*************************** TEST OK 23 *******************************/
+/**
+ * Error test case: Create with VR = SQ
+ */
+struct TestDataOK23
+{
+    boost::property_tree::ptree ptr;
+ 
+    TestDataOK23()
+    {
+        boost::property_tree::ptree dicomfieldnode;
+        boost::property_tree::ptree testfieldnode;
+        dicomfieldnode.put("<xmlattr>.tag", "0010,1002");
+        dicomfieldnode.put("<xmlattr>.private_creator", "public");
+        ptr.add_child("DicomField", dicomfieldnode);
+    }
+ 
+    ~TestDataOK23()
+    {
+    }
+};
+
+BOOST_FIXTURE_TEST_CASE(TEST_OK_23, TestDataOK23)
+{
+    auto dicomfieldcreator = dicomifier::translator::factory::DicomFieldCreator::New();
+    
+    BOOST_FOREACH(boost::property_tree::ptree::value_type &v, ptr)
+    {
+        // Test VR = SQ
+        dicomifier::translator::Tag::Pointer objectSQ = dicomfieldcreator->Create(v, NULL, EVR_SQ);
+        dicomifier::translator::DicomSequenceField::Pointer dicomfieldSQ = 
+                std::dynamic_pointer_cast<dicomifier::translator::DicomSequenceField>(objectSQ);
+        BOOST_CHECK_EQUAL(dicomfieldSQ != NULL, true);
+    }
+}
+ 
+/*************************** TEST OK 24 *******************************/
+/**
+ * Error test case: Create with VR = SQ with range
+ */
+struct TestDataOK24
+{
+    boost::property_tree::ptree ptr;
+ 
+    TestDataOK24()
+    {
+        boost::property_tree::ptree dicomfieldnode;
+        boost::property_tree::ptree testfieldnode;
+        dicomfieldnode.put("<xmlattr>.tag", "0010,1002");
+        dicomfieldnode.put("<xmlattr>.private_creator", "public");
+        dicomfieldnode.put("<xmlattr>.range", "0,2");
+        ptr.add_child("DicomField", dicomfieldnode);
+    }
+ 
+    ~TestDataOK24()
+    {
+    }
+};
+
+BOOST_FIXTURE_TEST_CASE(TEST_OK_24, TestDataOK24)
+{
+    auto dicomfieldcreator = dicomifier::translator::factory::DicomFieldCreator::New();
+    
+    BOOST_FOREACH(boost::property_tree::ptree::value_type &v, ptr)
+    {
+        // Test VR = SQ
+        dicomifier::translator::Tag::Pointer objectSQ = dicomfieldcreator->Create(v, NULL, EVR_SQ);
+        dicomifier::translator::DicomSequenceField::Pointer dicomfieldSQ = 
+                std::dynamic_pointer_cast<dicomifier::translator::DicomSequenceField>(objectSQ);
+        BOOST_CHECK_EQUAL(dicomfieldSQ != NULL, true);
+    }
+}
+ 
+/*************************** TEST OK 25 *******************************/
+/**
+ * Error test case: Create with VR = SQ with perFrame
+ */
+struct TestDataOK25
+{
+    boost::property_tree::ptree ptr;
+ 
+    TestDataOK25()
+    {
+        boost::property_tree::ptree dicomfieldnode;
+        boost::property_tree::ptree testfieldnode;
+        dicomfieldnode.put("<xmlattr>.tag", "0010,1002");
+        dicomfieldnode.put("<xmlattr>.private_creator", "public");
+        dicomfieldnode.put("<xmlattr>.perframe", "true");
+        ptr.add_child("DicomField", dicomfieldnode);
+    }
+ 
+    ~TestDataOK25()
+    {
+    }
+};
+
+BOOST_FIXTURE_TEST_CASE(TEST_OK_25, TestDataOK25)
+{
+    auto dicomfieldcreator = dicomifier::translator::factory::DicomFieldCreator::New();
+    
+    BOOST_FOREACH(boost::property_tree::ptree::value_type &v, ptr)
+    {
+        // Test VR = SQ
+        dicomifier::translator::Tag::Pointer objectSQ = dicomfieldcreator->Create(v, NULL, EVR_SQ);
+        dicomifier::translator::DicomSequenceField::Pointer dicomfieldSQ = 
+                std::dynamic_pointer_cast<dicomifier::translator::DicomSequenceField>(objectSQ);
+        BOOST_CHECK_EQUAL(dicomfieldSQ != NULL, true);
+    }
+}
+ 
 /*************************** TEST KO 01 *******************************/
 /**
  * Error test case: Missing mandatory attribut 'tag'
@@ -912,39 +1022,5 @@ BOOST_FIXTURE_TEST_CASE(TEST_KO_01, TestDataKO01)
     {
         BOOST_REQUIRE_THROW(dicomfieldcreator->Create(v, NULL, EVR_AE), 
                             std::runtime_error);
-    }
-}
- 
-/*************************** TEST KO 02 *******************************/
-/**
- * Error test case: Create with VR = SQ
- */
-struct TestDataKO02
-{
-    boost::property_tree::ptree ptr;
- 
-    TestDataKO02()
-    {
-        boost::property_tree::ptree dicomfieldnode;
-        boost::property_tree::ptree testfieldnode;
-        dicomfieldnode.put("<xmlattr>.tag", "0010,1002");
-        dicomfieldnode.put("<xmlattr>.private_creator", "public");
-        dicomfieldnode.add_child("TestField", testfieldnode);
-        ptr.add_child("DicomField", dicomfieldnode);
-    }
- 
-    ~TestDataKO02()
-    {
-    }
-};
-
-BOOST_FIXTURE_TEST_CASE(TEST_KO_02, TestDataKO02)
-{
-    auto dicomfieldcreator = dicomifier::translator::factory::DicomFieldCreator::New();
-    
-    BOOST_FOREACH(boost::property_tree::ptree::value_type &v, ptr)
-    {
-        BOOST_REQUIRE_THROW(dicomfieldcreator->Create(v, NULL, EVR_SQ), 
-                            dicomifier::DicomifierException);
     }
 }

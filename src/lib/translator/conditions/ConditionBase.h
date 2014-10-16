@@ -28,9 +28,9 @@ public:
     
     virtual void run(dicomifier::bruker::BrukerDataset* brukerdataset,
                      dicomifier::FrameIndexGenerator const & generator,
-                     DcmDataset* dataset);
+                     DcmItem* dataset);
                      
-    virtual bool eval(DcmDataset* dataset,
+    virtual bool eval(DcmItem* dataset,
                       dicomifier::bruker::BrukerDataset* brukerdataset) = 0;
     
     virtual ClassType get_class_type() const { return ECT_Unknown; }

@@ -40,7 +40,7 @@ public:
                      
     virtual void run(dicomifier::bruker::BrukerDataset* brukerdataset,
                      dicomifier::FrameIndexGenerator const & generator,
-                     DcmDataset* dataset);
+                     DcmItem* dataset);
     
     virtual ClassType get_class_type() const { return ECT_BrukerField; }
     

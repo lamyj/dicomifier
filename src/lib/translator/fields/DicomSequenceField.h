@@ -6,8 +6,8 @@
  * for details.
  ************************************************************************/
 
-#ifndef _42438b70_01c5_4513_b92d_1ea64bd22ef2
-#define _42438b70_01c5_4513_b92d_1ea64bd22ef2
+#ifndef _f758afe0_0cc2_4bb0_a657_c06982b2f5f1
+#define _f758afe0_0cc2_4bb0_a657_c06982b2f5f1
 
 #include "dicom/TagAndRange.h"
 #include "translator/Tag.h"
@@ -18,46 +18,47 @@ namespace dicomifier
 namespace translator
 {
     
-template<DcmEVR VR>
-class DicomField : public Tag
+class DicomSequenceField : public Tag
 {
 public:
-    typedef DicomField Self;
+    typedef DicomSequenceField Self;
     typedef std::shared_ptr<Self> Pointer;
     typedef std::shared_ptr<Self const> ConstPointer;
     
-    typedef typename ElementTraits<VR>::ValueType ValueType;
-    
-    /// Create pointer to new instance of DicomField
-    static Pointer New();
+    /// Create pointer to new instance of DicomSequenceField
+    static Pointer New() { return Pointer(new Self()); }
     
     static Pointer New(dicomifier::TagAndRange const & tagrange, 
-                       Tag::Pointer tag);
+                       std::vector<Tag::Pointer> tags,
+                       bool perframe)
+        { return Pointer(new Self(tagrange, tags, perframe)); }
     
-    virtual ~DicomField();
+    virtual ~DicomSequenceField();
     
     virtual void run(dicomifier::bruker::BrukerDataset* brukerdataset,
                      dicomifier::FrameIndexGenerator const & generator,
                      DcmItem* dataset);
     
-    virtual ClassType get_class_type() const { return ECT_DicomField; }
+    virtual ClassType get_class_type() const { return ECT_DicomSequenceField; }
     
 protected:
+    DicomSequenceField();
 
+    DicomSequenceField(dicomifier::TagAndRange const & tagrange, 
+                       std::vector<Tag::Pointer> tags,
+                       bool perframe);
+    
 private:
-    DicomField();
-    DicomField(dicomifier::TagAndRange const & tagrange, Tag::Pointer tag);
+    std::vector<Tag::Pointer> _tags;
     
     TagAndRange _dicomtags;
     
-    Tag::Pointer _tag;
-    
+    bool _perFrame;
+
 };
     
 } // namespace translator
     
 } // namespace dicomifier
 
-#include "DicomField.txx"
-
-#endif // _42438b70_01c5_4513_b92d_1ea64bd22ef2
+#endif // _f758afe0_0cc2_4bb0_a657_c06982b2f5f1
