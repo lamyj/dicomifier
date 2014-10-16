@@ -10,6 +10,7 @@
 #define _1fc05880_7487_48d3_b15f_8609973a7de1
 
 #include "translator/fields/DicomField.h"
+#include "translator/fields/DicomSequenceField.h"
 #include "translator/TranslationCreatorBase.h"
 
 namespace dicomifier
@@ -49,6 +50,7 @@ private:
     {
         dicomifier::TagAndRange tagrange;
         std::vector<dicomifier::translator::Tag::Pointer> pttag;
+        bool perframe;
         mutable dicomifier::translator::Tag::Pointer dicomfield;
         template<DcmEVR VR> void run() const;
     };

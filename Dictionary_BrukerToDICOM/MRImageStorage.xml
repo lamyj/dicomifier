@@ -81,7 +81,7 @@
         <BrukerField name="VisuInstitution" />
     </DicomField>
 
-    <DicomField tag="0008,0090" keyword="PatientName" vr="PN">
+    <DicomField tag="0008,0090" keyword="ReferringPhysicianName" vr="PN">
         <BrukerField name="VisuStudyReferringPhysician" />
     </DicomField>
 

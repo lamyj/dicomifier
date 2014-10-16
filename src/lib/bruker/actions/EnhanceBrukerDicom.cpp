@@ -11,7 +11,6 @@
 #include <boost/property_tree/xml_parser.hpp>
 
 #include "core/DicomifierException.h"
-#include "core/FrameIndexGenerator.h"
 #include "EnhanceBrukerDicom.h"
 #include "translator/fields/DicomField.h"
 #include "translator/TranslatorFactory.h"
@@ -93,14 +92,16 @@ EnhanceBrukerDicom
         throw DicomifierException("Input not a Directory: " + this->_brukerDir);
     }
     
-    dicomifier::bruker::BrukerDirectory* brukerdirectory = new dicomifier::bruker::BrukerDirectory();
+    dicomifier::bruker::BrukerDirectory* brukerdirectory = 
+            new dicomifier::bruker::BrukerDirectory();
     
     // Parse input bruker directory
     int result = brukerdirectory->CreateMap(this->_brukerDir);
     
     // Search SeriesNumber dicom element
     OFString str;
-    OFCondition cond = this->_dataset->findAndGetOFStringArray(DCM_SeriesNumber, str);
+    OFCondition cond = this->_dataset->findAndGetOFStringArray(DCM_SeriesNumber, 
+                                                               str);
     if (cond.bad())
     {
         throw dicomifier::DicomifierException("Can't read SeriesNumber attribut, error = " + 
@@ -108,7 +109,8 @@ EnhanceBrukerDicom
     }
     
     // Search corresponding Bruker Dataset
-    dicomifier::bruker::BrukerDataset* brukerdataset = brukerdirectory->get_brukerDataset(str.c_str());
+    dicomifier::bruker::BrukerDataset* brukerdataset = 
+            brukerdirectory->get_brukerDataset(str.c_str());
     
     int coreFrameCount = 0;
     
@@ -130,12 +132,76 @@ EnhanceBrukerDicom
         this->create_MRImageStorage(brukerdataset, indexlists, 
                                     str.c_str());
     }
+    else if (sopclassuid == UID_EnhancedMRImageStorage)
+    {
+        this->create_EnhancedMRImageStorage(brukerdataset, indexlists, 
+                                            str.c_str());
+    }
     else
     {
         throw DicomifierException("Unkown SOP Class UID '" + this->_SOPClassUID + "'");
     }
     
     delete brukerdirectory;
+}
+
+void 
+EnhanceBrukerDicom
+::get_binary_data_information(dicomifier::bruker::BrukerDataset* brukerdataset,
+                              dicomifier::FrameIndexGenerator const & generator,
+                              char* outputbuffer, int & size,
+                              int & bitsallocated, int & bitsstored,
+                              int & highbit, int & pixelrepresentation,
+                              bool & addtransformationsequence,
+                              double & rescaleintercept, double & rescaleslope) const
+{
+    // Get binary data information
+    int pixelSize;
+    dicomifier::bruker::BrukerDirectory::
+        getImhDataType(brukerdataset->GetFieldData("VisuCoreWordType")->get_string(0), 
+                       brukerdataset->GetFieldData("VisuCoreByteOrder")->get_string(0),
+                       pixelSize, bitsallocated, bitsstored, highbit,
+                       pixelrepresentation);
+                       
+    // Compute buffer size
+    size  = brukerdataset->GetFieldData("VisuCoreSize")->get_int(0);
+    size *= brukerdataset->GetFieldData("VisuCoreSize")->get_int(1);
+    size *= pixelSize;
+    
+    // Read binary data
+    std::ifstream is(brukerdataset->GetFieldData("PIXELDATA")->get_string(0), 
+                     std::ifstream::binary);
+
+    outputbuffer = new char[size*generator.get_countMax()];
+    memset(outputbuffer, 0, size*generator.get_countMax());
+    is.read(outputbuffer, size*generator.get_countMax());
+    
+    addtransformationsequence = false;
+    rescaleintercept, rescaleslope;
+    if (bitsstored == 32)
+    {
+        // Create new buffer 16bits
+        char * buffer = new char[size*generator.get_countMax()/2];
+    
+        this->convert_32to16bits(outputbuffer, size*generator.get_countMax(), 
+                                 buffer, rescaleintercept, rescaleslope);
+        
+        // size / 2
+        size /= 2;
+        bitsstored /= 2;
+        bitsallocated /= 2;
+        if (highbit != 0)
+        {
+            highbit = (highbit + 1) / 2 - 1;
+        }
+        
+        // Delete buffer 32bits
+        delete [] outputbuffer;
+        // Replace by buffer 16bits
+        outputbuffer = buffer;
+        
+        addtransformationsequence = true;
+    }
 }
 
 void 
@@ -183,56 +249,22 @@ EnhanceBrukerDicom
 {
     // Load Dictionary
     boost::property_tree::ptree pt;
-    boost::property_tree::xml_parser::read_xml("/home/lahaxe/dicomifier/BrukerToDicom_Dictionary.xml", pt); // TODO: mettre en conf le chemin
+    boost::property_tree::xml_parser::read_xml
+        ("/home/lahaxe/dicomifier/Dictionary_BrukerToDICOM/MRImageStorage.xml", pt); // TODO: mettre en conf le chemin
     
     dicomifier::FrameIndexGenerator generator(indexlists);
     
     // Get binary data information
-    int pixelSize, bitsallocated, bitsstored, highbit, pixelrepresentation;
-    dicomifier::bruker::BrukerDirectory::
-        getImhDataType(brukerdataset->GetFieldData("VisuCoreWordType")->get_string(0), 
-                       brukerdataset->GetFieldData("VisuCoreByteOrder")->get_string(0),
-                       pixelSize, bitsallocated, bitsstored, highbit,
-                       pixelrepresentation);
-                       
-    // Compute buffer size
-    int size = brukerdataset->GetFieldData("VisuCoreSize")->get_int(0);
-    size    *= brukerdataset->GetFieldData("VisuCoreSize")->get_int(1);
-    size    *= pixelSize;
-    
-    // Read binary data
-    std::ifstream is(brukerdataset->GetFieldData("PIXELDATA")->get_string(0), 
-                     std::ifstream::binary);
-    char * binarydata = new char[size*generator.get_countMax()];
-    memset(binarydata, 0, size*generator.get_countMax());
-    is.read(binarydata, size*generator.get_countMax());
-    
+    int size, bitsallocated, bitsstored, highbit, pixelrepresentation;
     bool addtransformationsequence = false;
     double rescaleintercept, rescaleslope;
-    if (bitsstored == 32)
-    {
-        // Create new buffer 16bits
-        char * outputbuffer = new char[size*generator.get_countMax()/2];
-    
-        this->convert_32to16bits(binarydata, size*generator.get_countMax(), 
-                                 outputbuffer, rescaleintercept, rescaleslope);
-        
-        // size / 2
-        size /= 2;
-        bitsstored /= 2;
-        bitsallocated /= 2;
-        if (highbit != 0)
-        {
-            highbit = (highbit + 1) / 2 - 1;
-        }
-        
-        // Delete buffer 32bits
-        delete [] binarydata;
-        // Replace by buffer 16bits
-        binarydata = outputbuffer;
-        
-        addtransformationsequence = true;
-    }
+    char * binarydata;
+    this->get_binary_data_information(brukerdataset, generator,
+                                      binarydata, size,
+                                      bitsallocated, bitsstored, highbit, 
+                                      pixelrepresentation,
+                                      addtransformationsequence,
+                                      rescaleintercept, rescaleslope);
     
     // Process
     while (!generator.done())
@@ -255,20 +287,20 @@ EnhanceBrukerDicom
         if (addtransformationsequence)
         {
             DcmItem* item = NULL;
-            dataset->findOrCreateSequenceItem(DCM_PixelValueTransformationSequence, 
-                                              item, 0);
+            //dataset->findOrCreateSequenceItem(DCM_PixelValueTransformationSequence, 
+            //                                  item, 0);
             
             std::stringstream stream;
             stream << rescaleintercept;
-            item->putAndInsertOFStringArray(DCM_RescaleIntercept, 
+            dataset->putAndInsertOFStringArray(DCM_RescaleIntercept, 
                                             OFString(stream.str().c_str()));
             
             std::stringstream stream2;
             stream2 << rescaleslope;
-            item->putAndInsertOFStringArray(DCM_RescaleSlope, 
+            dataset->putAndInsertOFStringArray(DCM_RescaleSlope, 
                                             OFString(stream2.str().c_str()));
             
-            item->putAndInsertOFStringArray(DCM_RescaleType, OFString("US"));
+            dataset->putAndInsertOFStringArray(DCM_RescaleType, OFString("US"));
         }
         
         // Parse and run all dictionary entries
@@ -317,6 +349,89 @@ EnhanceBrukerDicom
         }
         
         generator.next();
+    }
+}
+
+void 
+EnhanceBrukerDicom
+::create_EnhancedMRImageStorage(dicomifier::bruker::BrukerDataset* brukerdataset,
+                                std::vector<int> indexlists,
+                                std::string const & seriesnumber) const
+{
+    // Load Dictionary
+    boost::property_tree::ptree pt;
+    boost::property_tree::xml_parser::read_xml
+        ("/home/lahaxe/dicomifier/Dictionary_BrukerToDICOM/EnhancedMRImageStorage.xml", pt); // TODO: mettre en conf le chemin
+    
+    dicomifier::FrameIndexGenerator generator(indexlists);
+    
+    // Get binary data information
+    int size, bitsallocated, bitsstored, highbit, pixelrepresentation;
+    bool addtransformationsequence = false;
+    double rescaleintercept, rescaleslope;
+    char * binarydata;
+    this->get_binary_data_information(brukerdataset, generator,
+                                      binarydata, size,
+                                      bitsallocated, bitsstored, highbit, 
+                                      pixelrepresentation,
+                                      addtransformationsequence,
+                                      rescaleintercept, rescaleslope);
+                                      
+    // Create a new Dataset
+    DcmDataset* dataset = new DcmDataset();
+    
+    // Set Frame information
+    // Insert SeriesNumber => use to find Bruker data
+    dataset->putAndInsertOFStringArray(DCM_SeriesNumber, 
+                                       OFString(seriesnumber.c_str()));
+        
+    // Set binary data information
+    dataset->putAndInsertUint16(DCM_BitsAllocated, bitsallocated);
+    dataset->putAndInsertUint16(DCM_BitsStored, bitsstored);
+    dataset->putAndInsertUint16(DCM_HighBit, highbit);
+    dataset->putAndInsertUint16(DCM_PixelRepresentation, pixelrepresentation);
+        
+    // Parse and run all dictionary entries
+    BOOST_FOREACH(boost::property_tree::ptree::value_type &v, pt) // Tag Dictionary
+    {
+        BOOST_FOREACH(boost::property_tree::ptree::value_type &dicomfield, 
+                  v.second.equal_range("DicomField"))
+        {
+            auto rule = dicomifier::translator::
+                TranslatorFactory::get_instance().create(dicomfield,
+                                                         dataset,
+                                                         EVR_UN);
+            
+            if (rule != NULL)
+            {
+                rule->run(brukerdataset, generator, dataset);
+            }
+            else
+            {
+                throw DicomifierException("Bad dictionary Bruker to Dicom");
+            }
+        }
+    }
+                                       
+    // Process
+    // TODO
+    
+        
+    // Add binary Data
+    // TODO: who managers the buffer ?
+    dataset->putAndInsertUint8Array(DCM_PixelData, 
+                                    (Uint8*)(binarydata), 
+                                    size*generator.get_countMax());
+    // TODO (maybe) delete[] binarydata;
+        
+    // Write DICOM Dataset
+    DcmFileFormat fileformat(dataset);
+    OFCondition result = fileformat.saveFile("/home/lahaxe/resultDICOM/EnhancedDicom_01", 
+                                             EXS_LittleEndianExplicit);
+    if (result.bad())
+    {
+        throw DicomifierException("Unable to save dataset: " + 
+                                  std::string(result.text()));
     }
 }
     

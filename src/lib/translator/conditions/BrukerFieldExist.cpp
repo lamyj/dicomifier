@@ -36,7 +36,7 @@ BrukerFieldExist
 
 bool
 BrukerFieldExist
-::eval(DcmDataset* dataset, dicomifier::bruker::BrukerDataset* brukerdataset)
+::eval(DcmItem* dataset, dicomifier::bruker::BrukerDataset* brukerdataset)
 {
     if (brukerdataset == NULL)
     {

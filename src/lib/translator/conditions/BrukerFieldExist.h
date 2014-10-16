@@ -32,7 +32,7 @@ public:
     
     virtual ~BrukerFieldExist();
     
-    virtual bool eval(DcmDataset* dataset,
+    virtual bool eval(DcmItem* dataset,
                       dicomifier::bruker::BrukerDataset* brukerdataset);
 
 protected:

@@ -58,7 +58,7 @@ void
 InPlanePhaseEncodingDirectionDcmField<EVR_CS>
 ::run(dicomifier::bruker::BrukerDataset* brukerdataset,
       dicomifier::FrameIndexGenerator const & generator,
-      DcmDataset* dataset)
+      DcmItem* dataset)
 {
     if (this->_tag == NULL)
     {
@@ -82,7 +82,7 @@ void
 InPlanePhaseEncodingDirectionDcmField<VR>
 ::run(dicomifier::bruker::BrukerDataset* brukerdataset,
       dicomifier::FrameIndexGenerator const & generator,
-      DcmDataset* dataset)
+      DcmItem* dataset)
 {
     throw DicomifierException("VR should be CS for Tag 0018,1312.");
 }

@@ -14,6 +14,7 @@
 
 #include "bruker/BrukerDirectory.h"
 #include "core/actions/Action.h"
+#include "core/FrameIndexGenerator.h"
 #include "dicom/SOPClass.h"
 
 namespace dicomifier
@@ -58,15 +59,30 @@ protected:
                        std::string const & sopclassuid);
 
 private:
-    void create_MRImageStorage(dicomifier::bruker::BrukerDataset* brukerdataset,
-                               std::vector<int> indexlists,
-                               std::string const & seriesnumber) const;
+    void get_binary_data_information
+        (
+                dicomifier::bruker::BrukerDataset* brukerdataset,
+                dicomifier::FrameIndexGenerator const & generator,
+                char* outputbuffer, int & size,
+                int & bitsallocated, int & bitsstored,
+                int & highbit, int & pixelrepresentation,
+                bool & addtransformationsequence,
+                double & rescaleintercept, double & rescaleslope
+        ) const;
                                
     void convert_32to16bits(char* inputbuffer, int inputbuffersize,
                             char* outputbuffer,
                             double & rescaleintercept,
                             double & rescaleslope) const;
-
+                            
+    void create_MRImageStorage(dicomifier::bruker::BrukerDataset* brukerdataset,
+                               std::vector<int> indexlists,
+                               std::string const & seriesnumber) const;
+                               
+    void create_EnhancedMRImageStorage(dicomifier::bruker::BrukerDataset* brukerdataset,
+                                       std::vector<int> indexlists,
+                                       std::string const & seriesnumber) const;
+    
     DcmDataset * _dataset;
     std::string _brukerDir;
     std::string _SOPClassUID;

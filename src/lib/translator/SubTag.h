@@ -32,7 +32,7 @@ public:
     
     virtual void run(dicomifier::bruker::BrukerDataset* brukerdataset,
                      dicomifier::FrameIndexGenerator const & generator,
-                     DcmDataset* dataset) = 0;
+                     DcmItem* dataset) = 0;
     
     virtual ClassType get_class_type() const = 0;
 

@@ -42,7 +42,7 @@ void
 InversionTimeDcmField<EVR_DS>
 ::run(dicomifier::bruker::BrukerDataset* brukerdataset,
       dicomifier::FrameIndexGenerator const & generator,
-      DcmDataset* dataset)
+      DcmItem* dataset)
 {
     if (brukerdataset == NULL)
     {
@@ -76,7 +76,7 @@ void
 InversionTimeDcmField<VR>
 ::run(dicomifier::bruker::BrukerDataset* brukerdataset,
       dicomifier::FrameIndexGenerator const & generator,
-      DcmDataset* dataset)
+      DcmItem* dataset)
 {
     throw DicomifierException("VR should be DS for Tag 0018,0082.");
 }

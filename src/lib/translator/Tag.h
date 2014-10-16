@@ -29,6 +29,7 @@ enum ClassType
     ECT_Unknown,
     ECT_SubTag,
     ECT_DicomField,
+    ECT_DicomSequenceField,
     ECT_ConstantField,
     ECT_BrukerField,
     ECT_TestField,
@@ -64,7 +65,7 @@ public:
     
     virtual void run(dicomifier::bruker::BrukerDataset* brukerdataset,
                      dicomifier::FrameIndexGenerator const & generator,
-                     DcmDataset* dataset) = 0;
+                     DcmItem* dataset) = 0;
     
     virtual ClassType get_class_type() const = 0;
 
