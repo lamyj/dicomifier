@@ -55,6 +55,9 @@ InversionTimeDcmField<EVR_DS>
                                      indexposition, 
                                      startposition);
     
+    // Clean residual values
+    this->_array.clear();
+    
     if (indexposition == -1)
     {
         return; // no value

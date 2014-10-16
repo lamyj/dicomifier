@@ -70,6 +70,9 @@ AcquisitionMatrixDcmField<EVR_US>
         throw DicomifierException("Missing node");
     }
     
+    // Clean residual values
+    this->_array.clear();
+    
     std::string const brukerfield = 
         brukerdataset->GetFieldData("VisuAcqImagePhaseEncDir")->
             get_string(generator.get_step());

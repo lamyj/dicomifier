@@ -246,9 +246,71 @@
     </DicomField-->
 
     <DicomField tag="5200,9229" keyword="SharedFunctionalGroupsSequence" vr="SQ" >
+        
+        <DicomField tag="0028,9110" keyword="PixelMeasuresSequence" vr="SQ" >
+            <DicomField tag="0028,0030" keyword="PixelSpacing" vr="DS" >
+                <DivisionOperator>
+                    <BrukerField name="VisuCoreExtent" />
+                    <BrukerField name="VisuCoreSize" />
+                </DivisionOperator>
+            </DicomField>
+            
+            <DicomField tag="0018,0050" keyword="SliceThickness" vr="DS">
+                <BrukerField name="VisuCoreFrameThickness" />
+            </DicomField>
+        </DicomField>
+        
+        <!--DicomField tag="0020,9145" keyword="PixelValueTransformationSequence" vr="SQ" >
+            Auto generate
+        </DicomField-->
+        
     </DicomField>
     
     <DicomField tag="5200,9230" keyword="PerFrameFunctionalGroupsSequence" vr="SQ" perframe="true" >
+        
+        <DicomField tag="0018,9112" keyword="MRTimingAndRelatedParametersSequence" vr="SQ" >
+            <DicomField tag="0018,0080" keyword="RepetitionTime" vr="DS">
+                <BrukerField name="VisuAcqRepetitionTime" />
+            </DicomField>
+            
+            <DicomField tag="0018,0091" keyword="EchoTrainLength" vr="IS">
+                <BrukerField name="VisuAcqEchoTrainLength" />
+            </DicomField>
+            
+            <DicomField tag="0018,1314" keyword="FlipAngle" vr="DS">
+                <BrukerField name="VisuAcqFlipAngle" />
+            </DicomField>
+            
+            <!--DicomField tag="0018,9240" keyword="RFEchoTrainLength" vr="US">
+                TODO
+            </DicomField>
+            
+            <DicomField tag="0018,9241" keyword="GradientEchoTrainLength" vr="US">
+                TODO
+            </DicomField-->
+        </DicomField>
+        
+        <DicomField tag="0018,9114" keyword="MREchoSequence" vr="SQ" >
+            <!--DicomField tag="0018,9082" keyword="EffectiveEchoTime" vr="FD">
+                TODO
+            </DicomField-->
+        </DicomField>
+            
+        <DicomField tag="0020,9111" keyword="PixelMeasuresSequence" vr="SQ" >
+        </DicomField>
+        
+        <DicomField tag="0020,9113" keyword="PlanePositionSequence" vr="SQ" >
+            <DicomField tag="0020,0032" keyword="ImagePositionPatient" vr="DS" >
+                <ImagePositionPatientDcmField />
+            </DicomField>
+        </DicomField>
+        
+        <DicomField tag="0020,9116" keyword="PlaneOrientationSequence" vr="SQ" >
+            <DicomField tag="0020,0037" keyword="ImageOrientationPatient" vr="DS" >
+                <ImageOrientationPatientDcmField />
+            </DicomField>
+        </DicomField>
+        
     </DicomField>
     
     <!--DicomField tag="7fe0,0010" keyword="PixelData" vr="OB" >

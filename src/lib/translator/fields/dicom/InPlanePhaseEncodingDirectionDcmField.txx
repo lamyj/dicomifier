@@ -65,6 +65,9 @@ InPlanePhaseEncodingDirectionDcmField<EVR_CS>
         throw DicomifierException("Missing node");
     }
     
+    // Clean residual values
+    this->_array.clear();
+    
     typename SubTag<EVR_CS>::Pointer subtag = 
         std::dynamic_pointer_cast<SubTag<EVR_CS>>(this->_tag);
 

@@ -414,7 +414,28 @@ EnhanceBrukerDicom
     }
                                        
     // Process
-    // TODO
+    DcmItem* seq = NULL;
+    dataset->findOrCreateSequenceItem(DCM_SharedFunctionalGroupsSequence, 
+                                      seq, 0);
+                                      
+                                      
+    // Begin Insert Pixel Value Transformation Sequence
+    DcmItem* item = NULL;
+    seq->findOrCreateSequenceItem(DCM_PixelValueTransformationSequence, 
+                                  item, -2);
+    
+    std::stringstream stream;
+    stream << rescaleintercept;
+    item->putAndInsertOFStringArray(DCM_RescaleIntercept, 
+                                    OFString(stream.str().c_str()));
+    
+    std::stringstream stream2;
+    stream2 << rescaleslope;
+    item->putAndInsertOFStringArray(DCM_RescaleSlope, 
+                                    OFString(stream2.str().c_str()));
+    
+    item->putAndInsertOFStringArray(DCM_RescaleType, OFString("US"));
+    // end Insert Pixel Value Transformation Sequence
     
         
     // Add binary Data

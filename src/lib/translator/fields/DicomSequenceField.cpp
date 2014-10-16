@@ -49,20 +49,33 @@ DicomSequenceField
     
     if (this->_perFrame)
     {
-        this->_dicomtags._range._max = 0;
-        this->_dicomtags._range._max = generator.get_countMax();
-    }
-    
-    for (auto i = this->_dicomtags._range._min; 
-         i < this->_dicomtags._range._max; 
-         i++)
-    {
-        DcmItem* item = NULL;
-        dataset->findOrCreateSequenceItem(this->_dicomtags._tag, item, i);
-        
-        for (auto currentTag : this->_tags)
+        dicomifier::FrameIndexGenerator generatorlocal(generator.get_indexMax());
+        while (!generatorlocal.done())
         {
-            currentTag->run(brukerdataset, generator, item);
+            DcmItem* item = NULL;
+            dataset->findOrCreateSequenceItem(this->_dicomtags._tag, item, -2); // -2 = create new
+            
+            for (auto currentTag : this->_tags)
+            {
+                currentTag->run(brukerdataset, generatorlocal, item);
+            }
+            
+            generatorlocal.next();
+        }
+    }
+    else
+    {
+        for (auto i = this->_dicomtags._range._min; 
+             i < this->_dicomtags._range._max; 
+             i++)
+        {
+            DcmItem* item = NULL;
+            dataset->findOrCreateSequenceItem(this->_dicomtags._tag, item, i);
+            
+            for (auto currentTag : this->_tags)
+            {
+                currentTag->run(brukerdataset, generator, item);
+            }
         }
     }
 }

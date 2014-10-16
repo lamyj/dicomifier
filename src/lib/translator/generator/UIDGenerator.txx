@@ -62,6 +62,9 @@ UIDGenerator<VR>
       dicomifier::FrameIndexGenerator const & generator,
       DcmItem* dataset)
 {
+    // Clean residual values
+    this->_array.clear();
+    
     if (this->_uid_type == "SOPInstanceUID")
     {
         char uidinstance[128];

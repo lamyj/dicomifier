@@ -78,6 +78,9 @@ BrukerField<VR>
         throw DicomifierException("Empty Bruker Dataset");
     }
     
+    // Clean residual values
+    this->_array.clear();
+    
     if (brukerdataset->HasFieldData(this->_brukerFieldName))
     {
         dicomifier::bruker::BrukerFieldData::Pointer fielddata = 

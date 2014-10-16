@@ -58,6 +58,9 @@ TimeGenerator<VR>
     
     std::string value(&format[0]);
     
+    // Clean residual values
+    this->_array.clear();
+    
     this->_array.push_back(ElementTraits<VR>::fromString(value));
 }
 

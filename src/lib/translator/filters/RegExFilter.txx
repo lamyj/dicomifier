@@ -62,6 +62,9 @@ RegExFilter<VR>
       dicomifier::FrameIndexGenerator const & generator,
       DcmItem* dataset)
 {
+    // Clean residual values
+    this->_array.clear();
+    
     typename SubTag<VR>::Pointer subtag = 
         std::dynamic_pointer_cast<SubTag<VR>>(this->_tag);
 
