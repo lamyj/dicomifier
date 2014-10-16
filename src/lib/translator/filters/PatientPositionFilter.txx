@@ -53,20 +53,18 @@ PatientPositionFilter<VR>
     // Nothing to do
 }
 
-template<DcmEVR VR>
+template<>
 void
-PatientPositionFilter<VR>
+PatientPositionFilter<EVR_CS>
 ::run(dicomifier::bruker::BrukerDataset* brukerdataset,
       dicomifier::FrameIndexGenerator const & generator,
       DcmItem* dataset)
 {
-    if (VR != EVR_CS)
-    {
-        throw DicomifierException("PatientPositionFilter only available for CS");
-    }
+    // Clean residual values
+    this->_array.clear();
     
-    typename SubTag<VR>::Pointer subtag = 
-        std::dynamic_pointer_cast<SubTag<VR>>(this->_tag);
+    typename SubTag<EVR_CS>::Pointer subtag = 
+        std::dynamic_pointer_cast<SubTag<EVR_CS>>(this->_tag);
 
     subtag->run(brukerdataset, generator, dataset);
     
@@ -74,7 +72,7 @@ PatientPositionFilter<VR>
     
     for (int i = 0; i < array.size(); i++)
     {
-        std::string temp = ElementTraits<VR>::toString(array[i]);
+        std::string temp = ElementTraits<EVR_CS>::toString(array[i]);
         
         std::string result = "";
         
@@ -82,37 +80,47 @@ PatientPositionFilter<VR>
         // See DICOM PS3.3 2013: C.7.3.1.1.2
         if (temp == "Head_Supine")
         {
-            this->_array.push_back(ElementTraits<VR>::fromString("HFS"));
+            this->_array.push_back(OFString("HFS"));
         }
         else if (temp == "Head_Prone")
         {
-            this->_array.push_back(ElementTraits<VR>::fromString("HFP"));
+            this->_array.push_back(OFString("HFP"));
         }
         else if (temp == "Head_Left")
         {
-            this->_array.push_back(ElementTraits<VR>::fromString("HFDL"));
+            this->_array.push_back(OFString("HFDL"));
         }
         else if (temp == "Head_Right")
         {
-            this->_array.push_back(ElementTraits<VR>::fromString("HFDR"));
+            this->_array.push_back(OFString("HFDR"));
         }
         else if (temp == "Foot_Supine")
         {
-            this->_array.push_back(ElementTraits<VR>::fromString("FFS"));
+            this->_array.push_back(OFString("FFS"));
         }
         else if (temp == "Foot_Prone")
         {
-            this->_array.push_back(ElementTraits<VR>::fromString("FFP"));
+            this->_array.push_back(OFString("FFP"));
         }
         else if (temp == "Foot_Left")
         {
-            this->_array.push_back(ElementTraits<VR>::fromString("FFDL"));
+            this->_array.push_back(OFString("FFDL"));
         }
         else if (temp == "Foot_Right")
         {
-            this->_array.push_back(ElementTraits<VR>::fromString("FFDR"));
+            this->_array.push_back(OFString("FFDR"));
         }
     }
+}
+
+template<DcmEVR VR>
+void
+PatientPositionFilter<VR>
+::run(dicomifier::bruker::BrukerDataset* brukerdataset,
+      dicomifier::FrameIndexGenerator const & generator,
+      DcmItem* dataset)
+{
+    throw DicomifierException("PatientPositionFilter only available for CS");
 }
 
 } // namespace translator

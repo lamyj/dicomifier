@@ -27,6 +27,8 @@ public:
      
     std::vector<int> get_index() const;
     
+    std::vector<int> get_indexMax() const;
+    
     int get_step() const;
     
     int get_countMax() const;

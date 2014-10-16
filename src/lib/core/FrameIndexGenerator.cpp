@@ -73,6 +73,13 @@ FrameIndexGenerator
     return this->_currentIndex;
 }
 
+std::vector<int> 
+FrameIndexGenerator
+::get_indexMax() const
+{
+    return this->_indexMax;
+}
+
 int 
 FrameIndexGenerator
 ::get_step() const

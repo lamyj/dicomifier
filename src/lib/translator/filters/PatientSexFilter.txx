@@ -53,20 +53,18 @@ PatientSexFilter<VR>
     // Nothing to do
 }
 
-template<DcmEVR VR>
+template<>
 void
-PatientSexFilter<VR>
+PatientSexFilter<EVR_CS>
 ::run(dicomifier::bruker::BrukerDataset* brukerdataset,
       dicomifier::FrameIndexGenerator const & generator,
       DcmItem* dataset)
 {
-    if (VR != EVR_CS)
-    {
-        throw DicomifierException("PatientSexFilter only available for CS");
-    }
+    // Clean residual values
+    this->_array.clear();
     
-    typename SubTag<VR>::Pointer subtag = 
-        std::dynamic_pointer_cast<SubTag<VR>>(this->_tag);
+    typename SubTag<EVR_CS>::Pointer subtag = 
+        std::dynamic_pointer_cast<SubTag<EVR_CS>>(this->_tag);
 
     subtag->run(brukerdataset, generator, dataset);
     
@@ -74,7 +72,7 @@ PatientSexFilter<VR>
     
     for (int i = 0; i < array.size(); i++)
     {
-        std::string temp = ElementTraits<VR>::toString(array[i]);
+        std::string temp = ElementTraits<EVR_CS>::toString(array[i]);
         
         std::string result = "";
         
@@ -82,17 +80,27 @@ PatientSexFilter<VR>
         // See DICOM PS3.3 2013: table C.7-1
         if (temp == "MALE")
         {
-            this->_array.push_back(ElementTraits<VR>::fromString("M"));
+            this->_array.push_back(OFString("M"));
         }
         else if (temp == "FEMALE")
         {
-            this->_array.push_back(ElementTraits<VR>::fromString("F"));
+            this->_array.push_back(OFString("F"));
         }
         else // if (temp == "UNDEFINED" || temp == "UNKNOWN")
         {
-            this->_array.push_back(ElementTraits<VR>::fromString("O"));
+            this->_array.push_back(OFString("O"));
         }
     }
+}
+
+template<DcmEVR VR>
+void
+PatientSexFilter<VR>
+::run(dicomifier::bruker::BrukerDataset* brukerdataset,
+      dicomifier::FrameIndexGenerator const & generator,
+      DcmItem* dataset)
+{
+    throw DicomifierException("PatientSexFilter only available for CS");
 }
 
 } // namespace translator

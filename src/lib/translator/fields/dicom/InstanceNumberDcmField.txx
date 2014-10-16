@@ -44,6 +44,9 @@ InstanceNumberDcmField<VR>
       dicomifier::FrameIndexGenerator const & generator,
       DcmItem* dataset)
 {
+    // Clean residual values
+    this->_array.clear();
+    
     std::stringstream stream;
     stream << (generator.get_step() + 1);
     this->_array.push_back(ElementTraits<VR>::fromString(stream.str()));

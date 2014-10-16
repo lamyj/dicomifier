@@ -51,6 +51,9 @@ SpacingBetweenSlicesDcmField<EVR_DS>
     
     auto brukerfield = brukerdataset->GetFieldData("VisuCorePosition");
     
+    // Clean residual values
+    this->_array.clear();
+    
     // we should have at least 2 points
     if (brukerfield->get_dimensionNumbers()[0] > 1)
     {

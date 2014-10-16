@@ -60,6 +60,9 @@ ImagePositionPatientDcmField<EVR_DS>
         throw DicomifierException("Missing VisuCorePosition field");
     }
     
+    // Clean residual values
+    this->_array.clear();
+    
     auto brukerfield = brukerdataset->GetFieldData("VisuCorePosition");
     
     startposition = generator.get_index()[indexposition] * 

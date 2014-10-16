@@ -65,6 +65,9 @@ DateGenerator<VR>
       dicomifier::FrameIndexGenerator const & generator,
       DcmItem* dataset)
 {
+    // Clean residual values
+    this->_array.clear();
+    
     if (this->_tag != NULL && this->_inputFormat != "")
     {
         typename SubTag<VR>::Pointer subtag = 
