@@ -85,21 +85,42 @@ DicomField<VR>
         
     this->_tag->run(brukerdataset, generator, dataset);
         
-    std::vector<ValueType> values;
-    
-    if (this->_tag->get_class_type() != ECT_TestField)
+    if (VR != EVR_AT)
     {
-        typename SubTag<VR>::Pointer subtag = 
-            std::dynamic_pointer_cast<SubTag<VR>>(this->_tag);
-        values = subtag->get_array();
-    }
+        std::vector<ValueType> values;
         
-    OFCondition const set_ok = ElementTraits<VR>::array_setter(element, 
-                                                               &values[0], 
-                                                               values.size());
-    if(set_ok.bad())
+        if (this->_tag->get_class_type() != ECT_TestField)
+        {
+            typename SubTag<VR>::Pointer subtag = 
+                std::dynamic_pointer_cast<SubTag<VR>>(this->_tag);
+            values = subtag->get_array();
+        }
+    
+        OFCondition const set_ok = ElementTraits<VR>::array_setter(element, 
+                                                                   &values[0], 
+                                                                   values.size());
+        if(set_ok.bad())
+        {
+            throw DicomifierException("DicomField::run(): Could not set array");
+        }
+    }
+    else // VR == AT
     {
-        throw DicomifierException("DicomField::run(): Could not set array");
+        std::vector<Uint16> values;
+        
+        if (this->_tag->get_class_type() != ECT_TestField)
+        {
+            typename SubTag<EVR_AT>::Pointer subtag = 
+                std::dynamic_pointer_cast<SubTag<EVR_AT>>(this->_tag);
+            values = subtag->get_array();
+        }
+        
+        OFCondition const set_ok = element->putUint16Array(&values[0], values.size()/2);
+        
+        if(set_ok.bad())
+        {
+            throw DicomifierException("DicomField::run(): Could not set array");
+        }
     }
 }
     

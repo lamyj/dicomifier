@@ -201,6 +201,48 @@
     <DicomField tag="0020,4000" keyword="ImageComments" vr="LT" >
         <ConstantField values="" />
     </DicomField>
+    
+    <DicomField tag="0020,9221" keyword="DimensionOrganizationSequence" vr="SQ" >
+    
+        <DicomField tag="0020,9164" keyword="DimensionOrganizationUID" vr="UI" >
+            <BrukerField name="VisuUid" />
+        </DicomField>
+    
+    </DicomField>
+    
+    <!-- Sequence 0020,9222 with 2 items -->
+    <DicomField tag="0020,9222" keyword="DimensionIndexSequence" vr="SQ" range="0,1" >
+    
+        <DicomField tag="0020,9164" keyword="DimensionOrganizationUID" vr="UI" >
+            <BrukerField name="VisuUid" />
+        </DicomField>
+    
+        <DicomField tag="0020,9165" keyword="DimensionIndexPointer" vr="AT" >
+            <ConstantField values="0020,9056" />
+        </DicomField>
+    
+        <DicomField tag="0020,9167" keyword="FunctionalGroupPointer" vr="AT" >
+            <ConstantField values="0020,9111" />
+        </DicomField>
+    
+    </DicomField>
+    
+    <DicomField tag="0020,9222" keyword="DimensionIndexSequence" vr="SQ" range="1,2" >
+    
+        <DicomField tag="0020,9164" keyword="DimensionOrganizationUID" vr="UI" >
+            <BrukerField name="VisuUid" />
+        </DicomField>
+    
+        <DicomField tag="0020,9165" keyword="DimensionIndexPointer" vr="AT" >
+            <ConstantField values="0020,9057" />
+        </DicomField>
+    
+        <DicomField tag="0020,9167" keyword="FunctionalGroupPointer" vr="AT" >
+            <ConstantField values="0020,9111" />
+        </DicomField>
+        
+    </DicomField>
+    <!-- end of sequence 0020,9222 -->
 
     <DicomField tag="0028,0002" keyword="SamplesPerPixel" vr="US" >
         <ConstantField values="1" />
@@ -296,7 +338,32 @@
             </DicomField-->
         </DicomField>
             
-        <DicomField tag="0020,9111" keyword="PixelMeasuresSequence" vr="SQ" >
+        <DicomField tag="0020,9111" keyword="FrameContentSequence" vr="SQ" >
+            
+            <!--DicomField tag="0018,9074" keyword="FrameAcquisitionDateTime" vr="DT" >
+                TODO
+            </DicomField>
+            
+            <DicomField tag="0018,9151" keyword="FrameReferenceDateTime" vr="DT" >
+                TODO
+            </DicomField>
+            
+            <DicomField tag="0018,9220" keyword="FrameAcquisitionDuration" vr="FD" >
+                TODO
+            </DicomField-->
+            
+            <DicomField tag="0020,9056" keyword="StackID" vr="SH" >
+                <StackIDDcmField />
+            </DicomField>
+            
+            <DicomField tag="0020,9057" keyword="InStackPositionNumber" vr="UL" >
+                <InStackPositionNumberDcmField />
+            </DicomField>
+            
+            <DicomField tag="0020,9157" keyword="DimensionIndexValues" vr="UL" >
+                <DimensionIndexValuesDcmField />
+            </DicomField>
+            
         </DicomField>
         
         <DicomField tag="0020,9113" keyword="PlanePositionSequence" vr="SQ" >

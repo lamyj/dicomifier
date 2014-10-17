@@ -62,6 +62,27 @@ ConstantFieldCreator::TranslatorConstantFieldCreator
     throw DicomifierException("Impossible to Set SQ Element");
 }
 
+template<>
+void
+ConstantFieldCreator::TranslatorConstantFieldCreator
+::run<EVR_AT>() const
+{
+    // parse values
+    std::vector<std::string> splitvalues;
+    boost::split(splitvalues, value, boost::is_any_of("\\,"));
+    
+    // Convert string to 'ValueType'
+    typename dicomifier::translator::ConstantField<EVR_AT>::ArrayType values;
+    for (auto it = splitvalues.begin(); it != splitvalues.end(); ++it)
+    {
+        std::stringstream stream(*it);
+        typename dicomifier::translator::ConstantField<EVR_AT>::ValueType item;
+        stream >> std::hex >> item;
+        values.push_back(item);
+    }
+    constantField = dicomifier::translator::ConstantField<EVR_AT>::New(values);
+}
+
 template<DcmEVR VR> 
 void 
 ConstantFieldCreator::TranslatorConstantFieldCreator
