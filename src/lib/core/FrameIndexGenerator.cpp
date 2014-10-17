@@ -5,7 +5,7 @@
  * http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html
  * for details.
  ************************************************************************/
-
+#include <algorithm>
 #include "FrameIndexGenerator.h"
 
 namespace dicomifier
@@ -107,6 +107,32 @@ FrameIndexGenerator
         }
     }
     this->_countMax = max;
+}
+
+int 
+FrameIndexGenerator
+::compute_index(std::vector<int> withoutindex) const
+{
+    std::vector<int> vect;
+    for (auto i = 0; i < this->_currentIndex.size(); i++)
+    {
+        if (std::find(withoutindex.begin(), 
+                      withoutindex.end(), i) == withoutindex.end())
+        {
+            for (auto j = 0; j < vect.size(); j++)
+            {
+                vect[j] = vect[j] * this->_indexMax[i];
+            }
+            vect.push_back(this->_currentIndex[i]);
+        }
+    }
+    
+    int ret = 0;
+    for (auto value : vect)
+    {
+        ret += value;
+    }
+    return ret;
 }
     
 } // namespace dicomifier

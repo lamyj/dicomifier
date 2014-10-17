@@ -51,7 +51,10 @@ enum ClassType
     ECT_InPlanePhaseEncodingDirectionDcmField,
     ECT_InversionTimeDcmField,
     ECT_AcquisitionMatrixDcmField,
-    ECT_SpacingBetweenSlicesDcmField
+    ECT_SpacingBetweenSlicesDcmField,
+    ECT_StackIDDcmField,
+    ECT_InStackPositionNumberDcmField,
+    ECT_DimensionIndexValuesDcmField
 };
     
 class Tag

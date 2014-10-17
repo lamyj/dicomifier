@@ -57,7 +57,10 @@ struct ElementTraits<vr> \
 
 DECLARE_ELEMENT_TRAITS(EVR_AE, OFString, DcmApplicationEntity)
 DECLARE_ELEMENT_TRAITS(EVR_AS, OFString, DcmAgeString)
+
 // TODO: EVR_AT
+DECLARE_ELEMENT_TRAITS(EVR_AT, Uint16, DcmAttributeTag)
+
 DECLARE_ELEMENT_TRAITS(EVR_CS, OFString, DcmCodeString)
 DECLARE_ELEMENT_TRAITS(EVR_DA, OFString, DcmDate)
 DECLARE_ELEMENT_TRAITS(EVR_DS, Float64, DcmDecimalString)
@@ -90,7 +93,10 @@ static void vr_dispatch(Action const & action, DcmEVR evr)
 {
     if      (evr == EVR_AE) action.template run<EVR_AE>();
     else if (evr == EVR_AS) action.template run<EVR_AS>();
+    
     // TODO: EVR_AT
+    else if (evr == EVR_AT) action.template run<EVR_AT>();
+    
     else if (evr == EVR_CS) action.template run<EVR_CS>();
     else if (evr == EVR_DA) action.template run<EVR_DA>();
     else if (evr == EVR_DS) action.template run<EVR_DS>();

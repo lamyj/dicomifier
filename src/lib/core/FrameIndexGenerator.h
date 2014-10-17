@@ -32,6 +32,8 @@ public:
     int get_step() const;
     
     int get_countMax() const;
+    
+    int compute_index(std::vector<int> withoutindex) const;
 
 protected:
     void computeCountMax();
