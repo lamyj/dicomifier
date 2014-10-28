@@ -1,0 +1,315 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainFrame</class>
+ <widget class="QMainWindow" name="MainFrame">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>1024</width>
+    <height>768</height>
+   </rect>
+  </property>
+  <property name="minimumSize">
+   <size>
+    <width>1024</width>
+    <height>768</height>
+   </size>
+  </property>
+  <property name="contextMenuPolicy">
+   <enum>Qt::NoContextMenu</enum>
+  </property>
+  <property name="windowTitle">
+   <string>Form</string>
+  </property>
+  <property name="styleSheet">
+   <string notr="true">QWidget 
+{
+	background-color: #FFFFFF;
+	border: 1px solid black;
+}
+</string>
+  </property>
+  <widget class="QWidget" name="centralWidget">
+   <widget class="QWidget" name="titleBackground" native="true">
+    <property name="geometry">
+     <rect>
+      <x>0</x>
+      <y>34</y>
+      <width>1024</width>
+      <height>60</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">#titleBackground
+{
+	background-color: #2299FF;
+	border-top: none;
+	border-bottom: none;
+}
+
+QLabel
+{
+	background: transparent;
+	border: none;
+	font-size: 22px;
+}</string>
+    </property>
+    <widget class="QLabel" name="label">
+     <property name="geometry">
+      <rect>
+       <x>0</x>
+       <y>0</y>
+       <width>1030</width>
+       <height>60</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Welcome to Dicomifier Interface</string>
+     </property>
+     <property name="scaledContents">
+      <bool>true</bool>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignCenter</set>
+     </property>
+    </widget>
+   </widget>
+   <widget class="QWidget" name="systemBand" native="true">
+    <property name="geometry">
+     <rect>
+      <x>0</x>
+      <y>0</y>
+      <width>1024</width>
+      <height>34</height>
+     </rect>
+    </property>
+    <property name="minimumSize">
+     <size>
+      <width>1024</width>
+      <height>34</height>
+     </size>
+    </property>
+    <property name="maximumSize">
+     <size>
+      <width>16777215</width>
+      <height>34</height>
+     </size>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">QWidget 
+{
+	background-color: #666666;
+	border-bottom: none;
+}
+
+QPushButton
+{
+	border: 1px solid white;
+	margin: 1px 5px;
+	border-radius: 16px;
+}</string>
+    </property>
+    <widget class="QPushButton" name="quitButton">
+     <property name="geometry">
+      <rect>
+       <x>978</x>
+       <y>0</y>
+       <width>42</width>
+       <height>34</height>
+      </rect>
+     </property>
+     <property name="minimumSize">
+      <size>
+       <width>42</width>
+       <height>34</height>
+      </size>
+     </property>
+     <property name="maximumSize">
+      <size>
+       <width>42</width>
+       <height>34</height>
+      </size>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">QPushButton
+{
+	background-image: url(:/images/quit);
+}</string>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="homeButton">
+     <property name="geometry">
+      <rect>
+       <x>0</x>
+       <y>0</y>
+       <width>42</width>
+       <height>34</height>
+      </rect>
+     </property>
+     <property name="minimumSize">
+      <size>
+       <width>42</width>
+       <height>34</height>
+      </size>
+     </property>
+     <property name="maximumSize">
+      <size>
+       <width>42</width>
+       <height>34</height>
+      </size>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">QPushButton
+{
+	background-image: url(:/images/home);
+}</string>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
+   </widget>
+   <widget class="QWidget" name="stepBand" native="true">
+    <property name="geometry">
+     <rect>
+      <x>0</x>
+      <y>680</y>
+      <width>1024</width>
+      <height>88</height>
+     </rect>
+    </property>
+    <property name="minimumSize">
+     <size>
+      <width>1024</width>
+      <height>88</height>
+     </size>
+    </property>
+    <property name="maximumSize">
+     <size>
+      <width>16777215</width>
+      <height>88</height>
+     </size>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">QWidget 
+{
+	border-top: none;
+	font-weight: bold;
+}
+
+QPushButton
+{
+	background-color: #2266FF;
+	border: 1px solid grey;
+	border-radius: 10px;
+	margin: 20px;
+	font-size: 20px;
+}
+
+QPushButton:pressed
+{
+	background-color: #22BBFF;
+}
+
+QPushButton[enabled=&quot;false&quot;]
+{
+	background-color: #BBBBBB;
+	border: 1px solid grey;
+	border-radius: 10px;
+	margin: 20px;
+	font-size: 20px;
+	color: #888888;
+}
+
+QLabel
+{
+	background: transparent;
+	border: none;
+	font-size: 14px;
+}</string>
+    </property>
+    <widget class="QPushButton" name="previousButton">
+     <property name="geometry">
+      <rect>
+       <x>0</x>
+       <y>0</y>
+       <width>200</width>
+       <height>88</height>
+      </rect>
+     </property>
+     <property name="minimumSize">
+      <size>
+       <width>200</width>
+       <height>88</height>
+      </size>
+     </property>
+     <property name="maximumSize">
+      <size>
+       <width>16777215</width>
+       <height>88</height>
+      </size>
+     </property>
+     <property name="text">
+      <string>Previous</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="nextButton">
+     <property name="enabled">
+      <bool>true</bool>
+     </property>
+     <property name="geometry">
+      <rect>
+       <x>824</x>
+       <y>0</y>
+       <width>200</width>
+       <height>88</height>
+      </rect>
+     </property>
+     <property name="minimumSize">
+      <size>
+       <width>200</width>
+       <height>88</height>
+      </size>
+     </property>
+     <property name="maximumSize">
+      <size>
+       <width>16777215</width>
+       <height>88</height>
+      </size>
+     </property>
+     <property name="text">
+      <string>Next</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="stepNumberLabel">
+     <property name="geometry">
+      <rect>
+       <x>0</x>
+       <y>0</y>
+       <width>1024</width>
+       <height>88</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Step 1 / 5</string>
+     </property>
+     <property name="scaledContents">
+      <bool>true</bool>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignCenter</set>
+     </property>
+    </widget>
+    <zorder>stepNumberLabel</zorder>
+    <zorder>previousButton</zorder>
+    <zorder>nextButton</zorder>
+   </widget>
+  </widget>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
