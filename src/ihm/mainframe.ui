@@ -20,182 +20,49 @@
    <enum>Qt::NoContextMenu</enum>
   </property>
   <property name="windowTitle">
-   <string>Form</string>
+   <string>Dicomifier Interface</string>
   </property>
   <property name="styleSheet">
    <string notr="true">QWidget 
 {
-	background-color: #FFFFFF;
+	background-color: #F4F4F4;
 	border: 1px solid black;
 }
 </string>
   </property>
   <widget class="QWidget" name="centralWidget">
-   <widget class="QWidget" name="titleBackground" native="true">
-    <property name="geometry">
-     <rect>
-      <x>0</x>
-      <y>34</y>
-      <width>1024</width>
-      <height>60</height>
-     </rect>
+   <layout class="QGridLayout" name="gridLayout_2" rowstretch="0,0,0">
+    <property name="leftMargin">
+     <number>0</number>
     </property>
-    <property name="styleSheet">
-     <string notr="true">#titleBackground
-{
-	background-color: #2299FF;
-	border-top: none;
-	border-bottom: none;
-}
-
-QLabel
-{
-	background: transparent;
-	border: none;
-	font-size: 22px;
-}</string>
+    <property name="topMargin">
+     <number>0</number>
     </property>
-    <widget class="QLabel" name="label">
-     <property name="geometry">
-      <rect>
-       <x>0</x>
-       <y>0</y>
-       <width>1030</width>
-       <height>60</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>Welcome to Dicomifier Interface</string>
-     </property>
-     <property name="scaledContents">
-      <bool>true</bool>
-     </property>
-     <property name="alignment">
-      <set>Qt::AlignCenter</set>
-     </property>
-    </widget>
-   </widget>
-   <widget class="QWidget" name="systemBand" native="true">
-    <property name="geometry">
-     <rect>
-      <x>0</x>
-      <y>0</y>
-      <width>1024</width>
-      <height>34</height>
-     </rect>
+    <property name="rightMargin">
+     <number>0</number>
     </property>
-    <property name="minimumSize">
-     <size>
-      <width>1024</width>
-      <height>34</height>
-     </size>
+    <property name="bottomMargin">
+     <number>0</number>
     </property>
-    <property name="maximumSize">
-     <size>
-      <width>16777215</width>
-      <height>34</height>
-     </size>
+    <property name="spacing">
+     <number>0</number>
     </property>
-    <property name="styleSheet">
-     <string notr="true">QWidget 
-{
-	background-color: #666666;
-	border-bottom: none;
-}
-
-QPushButton
-{
-	border: 1px solid white;
-	margin: 1px 5px;
-	border-radius: 16px;
-}</string>
-    </property>
-    <widget class="QPushButton" name="quitButton">
-     <property name="geometry">
-      <rect>
-       <x>978</x>
-       <y>0</y>
-       <width>42</width>
-       <height>34</height>
-      </rect>
-     </property>
-     <property name="minimumSize">
-      <size>
-       <width>42</width>
-       <height>34</height>
-      </size>
-     </property>
-     <property name="maximumSize">
-      <size>
-       <width>42</width>
-       <height>34</height>
-      </size>
-     </property>
-     <property name="styleSheet">
-      <string notr="true">QPushButton
-{
-	background-image: url(:/images/quit);
-}</string>
-     </property>
-     <property name="text">
-      <string/>
-     </property>
-    </widget>
-    <widget class="QPushButton" name="homeButton">
-     <property name="geometry">
-      <rect>
-       <x>0</x>
-       <y>0</y>
-       <width>42</width>
-       <height>34</height>
-      </rect>
-     </property>
-     <property name="minimumSize">
-      <size>
-       <width>42</width>
-       <height>34</height>
-      </size>
-     </property>
-     <property name="maximumSize">
-      <size>
-       <width>42</width>
-       <height>34</height>
-      </size>
-     </property>
-     <property name="styleSheet">
-      <string notr="true">QPushButton
-{
-	background-image: url(:/images/home);
-}</string>
-     </property>
-     <property name="text">
-      <string/>
-     </property>
-    </widget>
-   </widget>
-   <widget class="QWidget" name="stepBand" native="true">
-    <property name="geometry">
-     <rect>
-      <x>0</x>
-      <y>680</y>
-      <width>1024</width>
-      <height>88</height>
-     </rect>
-    </property>
-    <property name="minimumSize">
-     <size>
-      <width>1024</width>
-      <height>88</height>
-     </size>
-    </property>
-    <property name="maximumSize">
-     <size>
-      <width>16777215</width>
-      <height>88</height>
-     </size>
-    </property>
-    <property name="styleSheet">
-     <string notr="true">QWidget 
+    <item row="2" column="0" alignment="Qt::AlignBottom">
+     <widget class="QWidget" name="stepBand" native="true">
+      <property name="minimumSize">
+       <size>
+        <width>1024</width>
+        <height>88</height>
+       </size>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>16777215</width>
+        <height>88</height>
+       </size>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">QWidget 
 {
 	border-top: none;
 	font-weight: bold;
@@ -231,85 +98,227 @@ QLabel
 	border: none;
 	font-size: 14px;
 }</string>
-    </property>
-    <widget class="QPushButton" name="previousButton">
-     <property name="geometry">
-      <rect>
-       <x>0</x>
-       <y>0</y>
-       <width>200</width>
-       <height>88</height>
-      </rect>
-     </property>
-     <property name="minimumSize">
-      <size>
-       <width>200</width>
-       <height>88</height>
-      </size>
-     </property>
-     <property name="maximumSize">
-      <size>
-       <width>16777215</width>
-       <height>88</height>
-      </size>
-     </property>
-     <property name="text">
-      <string>Previous</string>
-     </property>
-    </widget>
-    <widget class="QPushButton" name="nextButton">
-     <property name="enabled">
-      <bool>true</bool>
-     </property>
-     <property name="geometry">
-      <rect>
-       <x>824</x>
-       <y>0</y>
-       <width>200</width>
-       <height>88</height>
-      </rect>
-     </property>
-     <property name="minimumSize">
-      <size>
-       <width>200</width>
-       <height>88</height>
-      </size>
-     </property>
-     <property name="maximumSize">
-      <size>
-       <width>16777215</width>
-       <height>88</height>
-      </size>
-     </property>
-     <property name="text">
-      <string>Next</string>
-     </property>
-    </widget>
-    <widget class="QLabel" name="stepNumberLabel">
-     <property name="geometry">
-      <rect>
-       <x>0</x>
-       <y>0</y>
-       <width>1024</width>
-       <height>88</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>Step 1 / 5</string>
-     </property>
-     <property name="scaledContents">
-      <bool>true</bool>
-     </property>
-     <property name="alignment">
-      <set>Qt::AlignCenter</set>
-     </property>
-    </widget>
-    <zorder>stepNumberLabel</zorder>
-    <zorder>previousButton</zorder>
-    <zorder>nextButton</zorder>
-   </widget>
+      </property>
+      <layout class="QGridLayout" name="gridLayout_3" rowstretch="0,0" rowminimumheight="0,0">
+       <property name="leftMargin">
+        <number>0</number>
+       </property>
+       <property name="topMargin">
+        <number>0</number>
+       </property>
+       <property name="rightMargin">
+        <number>0</number>
+       </property>
+       <property name="bottomMargin">
+        <number>0</number>
+       </property>
+       <property name="spacing">
+        <number>0</number>
+       </property>
+       <item row="1" column="2">
+        <widget class="QLabel" name="stepNumberLabel">
+         <property name="text">
+          <string>Step 1 / 5</string>
+         </property>
+         <property name="scaledContents">
+          <bool>true</bool>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignCenter</set>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="4">
+        <widget class="QPushButton" name="nextButton">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>200</width>
+           <height>88</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>200</width>
+           <height>88</height>
+          </size>
+         </property>
+         <property name="text">
+          <string>Next</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="0">
+        <widget class="QPushButton" name="previousButton">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>200</width>
+           <height>88</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>200</width>
+           <height>88</height>
+          </size>
+         </property>
+         <property name="text">
+          <string>Previous</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="1">
+        <spacer name="horizontalSpacer">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>40</width>
+           <height>20</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item row="1" column="3">
+        <spacer name="horizontalSpacer_2">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>40</width>
+           <height>20</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+      </layout>
+     </widget>
+    </item>
+    <item row="0" column="0">
+     <widget class="QWidget" name="systemBand" native="true">
+      <property name="minimumSize">
+       <size>
+        <width>1024</width>
+        <height>34</height>
+       </size>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>16777215</width>
+        <height>72</height>
+       </size>
+      </property>
+      <property name="sizeIncrement">
+       <size>
+        <width>0</width>
+        <height>0</height>
+       </size>
+      </property>
+      <property name="autoFillBackground">
+       <bool>false</bool>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">QWidget 
+{
+	background-color: #666666;
+	border-bottom: none;
+}
+
+QPushButton
+{
+	border: 1px solid white;
+	margin: 1px 5px;
+	border-radius: 16px;
+}</string>
+      </property>
+      <layout class="QGridLayout" name="gridLayout">
+       <property name="sizeConstraint">
+        <enum>QLayout::SetNoConstraint</enum>
+       </property>
+       <property name="leftMargin">
+        <number>0</number>
+       </property>
+       <property name="topMargin">
+        <number>0</number>
+       </property>
+       <property name="rightMargin">
+        <number>0</number>
+       </property>
+       <property name="bottomMargin">
+        <number>0</number>
+       </property>
+       <property name="spacing">
+        <number>0</number>
+       </property>
+       <item row="0" column="0">
+        <widget class="QPushButton" name="homeButton">
+         <property name="minimumSize">
+          <size>
+           <width>42</width>
+           <height>34</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>42</width>
+           <height>34</height>
+          </size>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">QPushButton
+{
+	background-image: url(:/images/home) repeat-no;
+}</string>
+         </property>
+         <property name="text">
+          <string/>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="1">
+        <spacer name="horizontalSpacer_3">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>40</width>
+           <height>20</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+      </layout>
+     </widget>
+    </item>
+    <item row="1" column="0" alignment="Qt::AlignHCenter|Qt::AlignVCenter">
+     <widget class="SubjectsFrame" name="subjectsWidget" native="true">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+     </widget>
+    </item>
+   </layout>
   </widget>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>SubjectsFrame</class>
+   <extends>QWidget</extends>
+   <header location="global">SubjectsFrame.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>
