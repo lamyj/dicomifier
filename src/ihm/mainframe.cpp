@@ -10,10 +10,17 @@ MainFrame::MainFrame(QWidget *parent) :
 {
     ui->setupUi(this);
 
-    /*QGridLayout m_MainLayout;
-    m_MainLayout.setMargin(0);  // No space between window's element and the border
-    m_MainLayout.setSpacing(0); // No space between window's element
-    setLayout(&m_MainLayout);*/
+    this->ui->actionQuit->setShortcuts(QKeySequence::Quit);
+    this->ui->actionQuit->setStatusTip(tr("Close the application"));
+    connect(this->ui->actionQuit, SIGNAL(triggered()), this, SLOT(close()));
+
+    this->ui->actionNew->setShortcuts(QKeySequence::New);
+    this->ui->actionNew->setStatusTip(tr("New process"));
+    //connect(this->ui->actionNew, SIGNAL(triggered()), this, SLOT()); TODO
+
+    this->ui->actionPreferences->setShortcuts(QKeySequence::Preferences);
+    this->ui->actionPreferences->setStatusTip(tr("Modify Dicomifier Preferences"));
+    //connect(this->ui->actionPreferences, SIGNAL(triggered()), this, SLOT()); TODO
 }
 
 MainFrame::~MainFrame()
