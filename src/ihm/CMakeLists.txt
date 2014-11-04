@@ -10,6 +10,7 @@ file(GLOB_RECURSE files_FORMS "*.ui")
 file(GLOB_RECURSE files_RESOURCES "*.qrc")
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}
+                    ${CMAKE_CURRENT_SOURCE_DIR}/../lib
                     ${Boost_INCLUDE_DIRS}
                     ${QT_INCLUDES}
                     ${CMAKE_CURRENT_BINARY_DIR})
@@ -22,8 +23,8 @@ add_library(libdicomifierihm SHARED ${files}
                                     ${files_HEADERS_MOC}
                                     ${files_FORMS_HEADERS}
                                     ${files_RESOURCES_RCC})
-set_target_properties(libdicomifierihm PROPERTIES OUTPUT_NAME dicomifier)
+set_target_properties(libdicomifierihm PROPERTIES OUTPUT_NAME dicomifierihm)
 
-target_link_libraries(libdicomifierihm oflog ofstd wrap pthread z
+target_link_libraries(libdicomifierihm libdicomifier oflog ofstd wrap pthread z
                                        ${QT_LIBRARIES}
                                        ${Boost_LIBRARIES})

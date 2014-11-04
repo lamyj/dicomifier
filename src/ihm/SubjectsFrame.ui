@@ -61,11 +61,18 @@ QTreeView
 
 QLineEdit
 {
-	margin-left: 5px;
-	margin-bottom: 25px;
+	margin: 0px 5px;
 	background-color: white;
 	border-radius: 8px;
 	border: 1px solid #2299FF;
+}
+
+QLineEdit#dataDirectory
+{
+	margin-left: 5px;
+	margin-right: 0px;
+	margin-bottom: 25px;
+	margin-top: 0px;
 }
 
 QRadioButton
@@ -92,33 +99,71 @@ QRadioButton
    <property name="spacing">
     <number>0</number>
    </property>
-   <item row="5" column="0" colspan="5">
-    <widget class="QTreeView" name="treeView">
-     <property name="minimumSize">
-      <size>
-       <width>0</width>
-       <height>0</height>
-      </size>
+   <item row="0" column="0" colspan="2" alignment="Qt::AlignTop">
+    <widget class="QLabel" name="label">
+     <property name="text">
+      <string>Data Directory:</string>
+     </property>
+     <property name="scaledContents">
+      <bool>true</bool>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
      </property>
     </widget>
    </item>
-   <item row="2" column="3">
-    <spacer name="horizontalSpacer_2">
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
-     </property>
-     <property name="sizeHint" stdset="0">
+   <item row="0" column="4" rowspan="2" alignment="Qt::AlignBottom">
+    <widget class="QPushButton" name="browserButton">
+     <property name="minimumSize">
       <size>
-       <width>40</width>
-       <height>20</height>
+       <width>200</width>
+       <height>88</height>
       </size>
      </property>
-    </spacer>
+     <property name="maximumSize">
+      <size>
+       <width>200</width>
+       <height>16777215</height>
+      </size>
+     </property>
+     <property name="text">
+      <string>Browse</string>
+     </property>
+    </widget>
    </item>
    <item row="2" column="0">
     <widget class="QLabel" name="label_2">
      <property name="text">
       <string>Sorted by:</string>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="1">
+    <widget class="QRadioButton" name="radioButton">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="text">
+      <string>Subjects</string>
+     </property>
+     <property name="checked">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="2">
+    <widget class="QRadioButton" name="radioButton_2">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="text">
+      <string>Studies</string>
      </property>
     </widget>
    </item>
@@ -144,157 +189,104 @@ QRadioButton
      </property>
     </widget>
    </item>
-   <item row="0" column="4" rowspan="2" alignment="Qt::AlignBottom">
-    <widget class="QPushButton" name="browserButton">
+   <item row="2" column="3">
+    <spacer name="horizontalSpacer_2">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>40</width>
+       <height>20</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+   <item row="4" column="0" colspan="5">
+    <widget class="QWidget" name="widget" native="true">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">QTreeView {
+     show-decoration-selected: 1;
+ }
+
+ QTreeView::item {
+     border-top-color: transparent;
+     border-bottom-color: transparent;
+ }
+
+ QTreeView::item:hover {
+     background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #e7effd, stop: 1 #cbdaf1);
+     border: 1px solid #bfcde4;
+ }
+
+ QTreeView::item:selected {
+     border: 1px solid #567dbc;
+ }
+
+ QTreeView::item:selected:active{
+     background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #6ea1f1, stop: 1 #567dbc);
+ }
+
+ QTreeView::item:selected:!active {
+     background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #6b9be8, stop: 1 #577fbf);
+ }
+
+QWidget #widget
+{
+	border: none;
+	margin: 0px 2px;
+}
+
+QHeaderView::section {
+    background: transparent;
+    color: #777777;
+    padding-left: 4px;
+}
+
+QHeaderView
+{
+	border-bottom: 1px solid #2299FF;
+}</string>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="0">
+    <widget class="QLabel" name="label_3">
+     <property name="text">
+      <string>Filters:</string>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="1" colspan="3">
+    <widget class="QLineEdit" name="lineEdit">
+     <property name="minimumSize">
+      <size>
+       <width>0</width>
+       <height>35</height>
+      </size>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="4">
+    <widget class="QLineEdit" name="lineEdit_2">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
      <property name="minimumSize">
       <size>
        <width>200</width>
-       <height>88</height>
+       <height>35</height>
       </size>
      </property>
-     <property name="maximumSize">
-      <size>
-       <width>200</width>
-       <height>16777215</height>
-      </size>
-     </property>
-     <property name="text">
-      <string>Browse</string>
-     </property>
-    </widget>
-   </item>
-   <item row="2" column="1">
-    <widget class="QRadioButton" name="radioButton">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
-     <property name="text">
-      <string>Subjects</string>
-     </property>
-     <property name="checked">
-      <bool>true</bool>
-     </property>
-    </widget>
-   </item>
-   <item row="0" column="0" colspan="2" alignment="Qt::AlignTop">
-    <widget class="QLabel" name="label">
-     <property name="text">
-      <string>Data Directory:</string>
-     </property>
-     <property name="scaledContents">
-      <bool>true</bool>
-     </property>
-     <property name="alignment">
-      <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
-     </property>
-    </widget>
-   </item>
-   <item row="2" column="2">
-    <widget class="QRadioButton" name="radioButton_2">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
-     <property name="text">
-      <string>Studies</string>
-     </property>
-    </widget>
-   </item>
-   <item row="3" column="0" colspan="5">
-    <widget class="QTreeWidget" name="subjectsTree">
-     <column>
-      <property name="text">
-       <string>Name</string>
-      </property>
-     </column>
-     <column>
-      <property name="text">
-       <string>Date</string>
-      </property>
-     </column>
-     <column>
-      <property name="text">
-       <string>Select</string>
-      </property>
-     </column>
-     <item>
-      <property name="text">
-       <string>New Item</string>
-      </property>
-      <property name="text">
-       <string>gerg</string>
-      </property>
-      <property name="text">
-       <string>rthtr</string>
-      </property>
-      <item>
-       <property name="text">
-        <string>New Subitem</string>
-       </property>
-       <property name="text">
-        <string>jty</string>
-       </property>
-       <property name="text">
-        <string>tyjt</string>
-       </property>
-      </item>
-      <item>
-       <property name="text">
-        <string>New Subitem</string>
-       </property>
-      </item>
-      <item>
-       <property name="text">
-        <string>New Subitem</string>
-       </property>
-      </item>
-     </item>
-     <item>
-      <property name="text">
-       <string>New Item</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>New Item</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>New Item</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>New Item</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>New Item</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>New Item</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>New Item</string>
-      </property>
-      <property name="text">
-       <string>trtyuy</string>
-      </property>
-      <property name="text">
-       <string>tytr</string>
-      </property>
-     </item>
     </widget>
    </item>
   </layout>
