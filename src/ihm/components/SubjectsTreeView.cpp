@@ -1,7 +1,21 @@
+/*************************************************************************
+ * Dicomifier - Copyright (C) Universite de Strasbourg
+ * Distributed under the terms of the CeCILL-B license, as published by
+ * the CEA-CNRS-INRIA. Refer to the LICENSE file or to
+ * http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html
+ * for details.
+ ************************************************************************/
+
+#include <QHeaderView>
+
 #include "SubjectsTreeModel.h"
 #include "SubjectsTreeView.h"
 
-#include <QHeaderView>
+namespace dicomifier
+{
+
+namespace ihm
+{
 
 SubjectsTreeView
 ::SubjectsTreeView(QWidget *parent) :
@@ -26,8 +40,10 @@ SubjectsTreeView
     }
     this->setModel(model);
 
-    disconnect(this, SIGNAL(clicked(QModelIndex)), this, SLOT(ontreeviewclick(QModelIndex)));
-    connect(this, SIGNAL(clicked(QModelIndex)), this, SLOT(ontreeviewclick(QModelIndex)));
+    disconnect(this, SIGNAL(clicked(QModelIndex)),
+               this, SLOT(ontreeviewclick(QModelIndex)));
+    connect(this, SIGNAL(clicked(QModelIndex)),
+            this, SLOT(ontreeviewclick(QModelIndex)));
 
     this->header()->setStretchLastSection(false);
     this->header()->setResizeMode(1, QHeaderView::Fixed);
@@ -44,7 +60,8 @@ SubjectsTreeView
 {
     if (index.column() == 0)
     {
-        SubjectsTreeItem *item = static_cast<SubjectsTreeItem*>(index.internalPointer());
+        SubjectsTreeItem *item =
+                static_cast<SubjectsTreeItem*>(index.internalPointer());
 
         item->update_checkState();
 
@@ -70,7 +87,9 @@ SubjectsTreeView
     this->update(index);
 }
 
-std::map<std::string, std::vector<SubjectsTreeItemData> > SubjectsTreeView::sortedSubjects() const
+std::map<std::string, std::vector<SubjectsTreeItemData> >
+SubjectsTreeView
+::sortedSubjects() const
 {
     std::map<std::string, std::vector<SubjectsTreeItemData> > returnmap;
 
@@ -86,3 +105,7 @@ std::map<std::string, std::vector<SubjectsTreeItemData> > SubjectsTreeView::sort
 
     return returnmap;
 }
+
+} // namespace ihm
+
+} // namespace dicomifier

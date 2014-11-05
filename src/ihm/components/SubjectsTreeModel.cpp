@@ -1,6 +1,20 @@
+/*************************************************************************
+ * Dicomifier - Copyright (C) Universite de Strasbourg
+ * Distributed under the terms of the CeCILL-B license, as published by
+ * the CEA-CNRS-INRIA. Refer to the LICENSE file or to
+ * http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html
+ * for details.
+ ************************************************************************/
+
 #include <QtGui>
 
 #include "SubjectsTreeModel.h"
+
+namespace dicomifier
+{
+
+namespace ihm
+{
 
 SubjectsTreeModel
 ::SubjectsTreeModel(const QString &data, QObject *parent) :
@@ -27,12 +41,14 @@ SubjectsTreeModel
 {
     this->_datalist = dataList;
 
-    for (auto iter = this->_datalist.begin(); iter != this->_datalist.end(); iter++)
+    for (auto iter = this->_datalist.begin();
+         iter != this->_datalist.end();
+         iter++)
     {
         QList<QVariant> columnData;
         columnData << "";
         columnData << QString(iter->first.c_str());
-        columnData << "00/00/0000 00:00:00";
+        columnData << "";
         SubjectsTreeItem * item = new SubjectsTreeItem(columnData, this->_rootItem);
 
         for (auto iterdata : iter->second)
@@ -69,13 +85,6 @@ SubjectsTreeModel
         }
         break;
     }
-    /*case Qt::BackgroundRole:
-    {
-        if (index.row() % 2 == 0)
-            return QColor(64,128,255,64);
-        else
-            return QColor(64,128,255,128);
-    }*/
     case Qt::DisplayRole:
     {
         return item->data(index.column());
@@ -158,7 +167,8 @@ SubjectsTreeModel
         return QModelIndex();
     }
 
-    SubjectsTreeItem * childItem = static_cast<SubjectsTreeItem*>(index.internalPointer());
+    SubjectsTreeItem * childItem =
+            static_cast<SubjectsTreeItem*>(index.internalPointer());
     SubjectsTreeItem * parentItem = childItem->parent();
 
     if (parentItem == this->_rootItem)
@@ -202,3 +212,7 @@ SubjectsTreeModel
 
     return this->_rootItem->columnCount();
 }
+
+} // namespace ihm
+
+} // namespace dicomifier

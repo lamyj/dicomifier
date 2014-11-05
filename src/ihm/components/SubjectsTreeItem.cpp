@@ -1,7 +1,22 @@
+/*************************************************************************
+ * Dicomifier - Copyright (C) Universite de Strasbourg
+ * Distributed under the terms of the CeCILL-B license, as published by
+ * the CEA-CNRS-INRIA. Refer to the LICENSE file or to
+ * http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html
+ * for details.
+ ************************************************************************/
+
 #include "SubjectsTreeItem.h"
 
+namespace dicomifier
+{
+
+namespace ihm
+{
+
 SubjectsTreeItem
-::SubjectsTreeItem(const QList<QVariant> &data, SubjectsTreeItem *parent)
+::SubjectsTreeItem(const QList<QVariant> &data,
+                   SubjectsTreeItem *parent)
 {
     this->_parentItem = parent;
     this->_itemData = data;
@@ -134,7 +149,9 @@ SubjectsTreeItem
     }
 }
 
-void SubjectsTreeItem::update_from_child(Qt::CheckState childstate)
+void
+SubjectsTreeItem
+::update_from_child(Qt::CheckState childstate)
 {
     bool oneselected = false;
     bool oneunselected = false;
@@ -174,3 +191,7 @@ SubjectsTreeItem
 {
     this->_checkState = parentState;
 }
+
+} // namespace ihm
+
+} // namespace dicomifier
