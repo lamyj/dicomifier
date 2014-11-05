@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>SubjectsFrame</class>
- <widget class="QWidget" name="SubjectsFrame">
+ <class>dicomifier::ihm::SubjectsFrame</class>
+ <widget class="QWidget" name="dicomifier::ihm::SubjectsFrame">
   <property name="geometry">
    <rect>
     <x>0</x>

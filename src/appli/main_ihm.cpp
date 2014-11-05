@@ -14,7 +14,7 @@ int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
 
-    MainFrame frame;
+    dicomifier::ihm::MainFrame frame;
 
     frame.Initialize();
 

@@ -1,30 +1,41 @@
-#include "SubjectsFrame.h"
-#include "ui_SubjectsFrame.h"
+/*************************************************************************
+ * Dicomifier - Copyright (C) Universite de Strasbourg
+ * Distributed under the terms of the CeCILL-B license, as published by
+ * the CEA-CNRS-INRIA. Refer to the LICENSE file or to
+ * http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html
+ * for details.
+ ************************************************************************/
 
 #include <QFileDialog>
-#include <QGridLayout>
-#include <QTreeView>
 
 #include <boost/algorithm/string.hpp>
 #include <boost/filesystem.hpp>
 
 #include "bruker/BrukerDirectory.h"
+#include "SubjectsFrame.h"
+#include "ui_SubjectsFrame.h"
+
+namespace dicomifier
+{
+
+namespace ihm
+{
 
 SubjectsFrame
 ::SubjectsFrame(QWidget *parent) :
     QWidget(parent),
-    ui(new Ui::SubjectsFrame), _treeView(NULL)
+    _ui(new Ui::SubjectsFrame), _treeView(NULL)
 {
-    ui->setupUi(this);
+    this->_ui->setupUi(this);
 
-    this->_treeView = new SubjectsTreeView(this->ui->widget);
+    this->_treeView = new SubjectsTreeView(this->_ui->widget);
     this->_treeView->Initialize({});
 }
 
 SubjectsFrame
 ::~SubjectsFrame()
 {
-    delete ui;
+    delete this->_ui;
 }
 
 void
@@ -43,12 +54,12 @@ SubjectsFrame
     // Look for Directory
     dialog.setFileMode(QFileDialog::Directory);
     dialog.setOption(QFileDialog::ShowDirsOnly);
-    dialog.setDirectory(this->ui->dataDirectory->text());
+    dialog.setDirectory(this->_ui->dataDirectory->text());
 
     if (dialog.exec())
     {
         QString directory = dialog.selectedFiles()[0];
-        this->ui->dataDirectory->setText(directory);
+        this->_ui->dataDirectory->setText(directory);
 
         this->on_dataDirectory_editingFinished();
     }
@@ -60,7 +71,7 @@ SubjectsFrame
 {
     if (this->_treeView != NULL)
     {
-        this->_treeView->resize(this->ui->widget->size());
+        this->_treeView->resize(this->_ui->widget->size());
     }
 }
 
@@ -68,10 +79,14 @@ void
 SubjectsFrame
 ::on_dataDirectory_editingFinished()
 {
-    std::string const directory = this->ui->dataDirectory->text().toUtf8().constData();
+    std::string const directory =
+            this->_ui->dataDirectory->text().toUtf8().constData();
 
     if (directory == "")
+    {
+        this->_treeView->Initialize({});
         return;
+    }
 
     std::vector<SubjectsTreeItemData> subjectsAndStudiesList;
 
@@ -87,7 +102,8 @@ SubjectsFrame
                                VALID_FILE_SEPARATOR +
                                "subject";
 
-            dicomifier::bruker::BrukerDataset * dataset = new dicomifier::bruker::BrukerDataset();
+            dicomifier::bruker::BrukerDataset * dataset =
+                    new dicomifier::bruker::BrukerDataset();
 
             dataset->LoadFile(file);
 
@@ -100,3 +116,7 @@ SubjectsFrame
 
     this->_treeView->Initialize(subjectsAndStudiesList);
 }
+
+} // namespace ihm
+
+} // namespace dicomifier

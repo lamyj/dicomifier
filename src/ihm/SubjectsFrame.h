@@ -1,11 +1,26 @@
-#ifndef SUBJECTSFRAME_H
-#define SUBJECTSFRAME_H
+/*************************************************************************
+ * Dicomifier - Copyright (C) Universite de Strasbourg
+ * Distributed under the terms of the CeCILL-B license, as published by
+ * the CEA-CNRS-INRIA. Refer to the LICENSE file or to
+ * http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html
+ * for details.
+ ************************************************************************/
+
+#ifndef _35bea9c0_ca9a_4108_a701_3e11eee03779
+#define _35bea9c0_ca9a_4108_a701_3e11eee03779
 
 #include <QWidget>
 
 #include <components/SubjectsTreeView.h>
 
-namespace Ui {
+namespace dicomifier
+{
+
+namespace ihm
+{
+
+namespace Ui
+{
 class SubjectsFrame;
 }
 
@@ -28,10 +43,14 @@ protected:
     void paintEvent(QPaintEvent *event);
 
 private:
-    Ui::SubjectsFrame *ui;
+    Ui::SubjectsFrame * _ui;
 
     SubjectsTreeView * _treeView;
 
 };
 
-#endif // SUBJECTSFRAME_H
+} // namespace ihm
+
+} // namespace dicomifier
+
+#endif // _35bea9c0_ca9a_4108_a701_3e11eee03779
