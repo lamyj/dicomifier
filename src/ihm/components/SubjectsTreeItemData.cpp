@@ -15,10 +15,18 @@ namespace ihm
 {
 
 SubjectsTreeItemData
-::SubjectsTreeItemData(dicomifier::bruker::BrukerDataset *brukerDataset)
+::SubjectsTreeItemData(dicomifier::bruker::BrukerDataset *brukerDataset,
+                       std::string const & directory):
+    _name(""), _study(""), _date(""), _directory(directory)
 {
-    this->_name = brukerDataset->GetFieldData("SUBJECT_name_string")->get_string(0);
-    this->_study = brukerDataset->GetFieldData("SUBJECT_study_name")->get_string(0);
+    if (brukerDataset->HasFieldData("SUBJECT_name_string"))
+    {
+        this->_name = brukerDataset->GetFieldData("SUBJECT_name_string")->get_string(0);
+    }
+    if (brukerDataset->HasFieldData("SUBJECT_study_name"))
+    {
+        this->_study = brukerDataset->GetFieldData("SUBJECT_study_name")->get_string(0);
+    }
     this->_date = ""; // TODO
 }
 

@@ -8,7 +8,6 @@
 
 #include <QHeaderView>
 
-#include "SubjectsTreeModel.h"
 #include "SubjectsTreeView.h"
 
 namespace dicomifier
@@ -19,7 +18,7 @@ namespace ihm
 
 SubjectsTreeView
 ::SubjectsTreeView(QWidget *parent) :
-    QTreeView(parent)
+    QTreeView(parent), _dataList({}), _displaySubject(true)
 {
     this->setAlternatingRowColors(true);
     this->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
@@ -27,12 +26,12 @@ SubjectsTreeView
 
 void
 SubjectsTreeView
-::Initialize(std::vector<SubjectsTreeItemData> const & dataList)
+::Initialize(const std::vector<SubjectsTreeItemData::Pointer> &dataList)
 {
     this->_dataList = dataList;
 
-    SubjectsTreeModel * model = new SubjectsTreeModel("");
-    model->Initialize(this->sortedSubjects());
+    SubjectsTreeModel * model = new SubjectsTreeModel();
+    model->Initialize(this->sortedSubjects(), this->_displaySubject);
 
     if (this->model() != NULL)
     {
@@ -52,6 +51,25 @@ SubjectsTreeView
 
     this->header()->resizeSection(0, 80);
     this->header()->resizeSection(2, 200);
+}
+
+void
+SubjectsTreeView
+::set_displaySubject(bool displaysubject)
+{
+    this->_displaySubject = displaysubject;
+    this->Initialize(this->_dataList);
+}
+
+bool SubjectsTreeView::is_item_selected()
+{
+    if (this->model() == NULL)
+    {
+        return false;
+    }
+
+    SubjectsTreeModel* model = dynamic_cast<SubjectsTreeModel*>(this->model());
+    return model->is_item_selected();
 }
 
 void
@@ -85,22 +103,26 @@ SubjectsTreeView
         }
     }
     this->update(index);
+
+    emit itemsSelectionChanged();
 }
 
-std::map<std::string, std::vector<SubjectsTreeItemData> >
+std::map<std::string, std::vector<SubjectsTreeItemData::Pointer> >
 SubjectsTreeView
 ::sortedSubjects() const
 {
-    std::map<std::string, std::vector<SubjectsTreeItemData> > returnmap;
+    std::map<std::string, std::vector<SubjectsTreeItemData::Pointer> > returnmap;
 
     for (auto couple : this->_dataList)
     {
-        if (returnmap.find(couple.get_name()) == returnmap.end())
+        std::string name = this->_displaySubject ? couple->get_name() :
+                                                   couple->get_study();
+        if (returnmap.find(name) == returnmap.end())
         {// create new entry
-            returnmap[couple.get_name()] = {};
+            returnmap[name] = {};
         }
 
-        returnmap[couple.get_name()].push_back(couple);
+        returnmap[name].push_back(couple);
     }
 
     return returnmap;

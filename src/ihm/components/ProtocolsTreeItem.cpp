@@ -6,7 +6,7 @@
  * for details.
  ************************************************************************/
 
-#include "SubjectsTreeItem.h"
+#include "ProtocolsTreeItem.h"
 
 namespace dicomifier
 {
@@ -14,91 +14,88 @@ namespace dicomifier
 namespace ihm
 {
 
-SubjectsTreeItem
-::SubjectsTreeItem(const QList<QVariant> &data,
-                   SubjectsTreeItem *parent)
+ProtocolsTreeItem
+::ProtocolsTreeItem(const QList<QVariant> &data,
+                    ProtocolsTreeItem *parent)
 {
-    this->_parentItem = parent;
-    this->_itemData = data;
-    this->_checkState = Qt::Unchecked;
+
 }
 
-SubjectsTreeItem
-::~SubjectsTreeItem()
+ProtocolsTreeItem::~ProtocolsTreeItem()
 {
-    qDeleteAll(this->_childItems);
+
 }
 
 void
-SubjectsTreeItem
-::appendChild(SubjectsTreeItem *child)
+ProtocolsTreeItem
+::appendChild(ProtocolsTreeItem *child)
 {
     this->_childItems.append(child);
 }
 
-SubjectsTreeItem *
-SubjectsTreeItem
+ProtocolsTreeItem *
+ProtocolsTreeItem
 ::child(int row)
 {
     return this->_childItems.value(row);
 }
 
 int
-SubjectsTreeItem
+ProtocolsTreeItem
 ::childCount() const
 {
     return this->_childItems.count();
 }
 
 int
-SubjectsTreeItem
+ProtocolsTreeItem
 ::columnCount() const
 {
     return this->_itemData.count();
 }
 
 QVariant
-SubjectsTreeItem
+ProtocolsTreeItem
 ::data(int column) const
 {
     return this->_itemData.value(column);
 }
 
 int
-SubjectsTreeItem
+ProtocolsTreeItem
 ::row() const
 {
     if (this->_parentItem != NULL)
     {
-        return this->_parentItem->_childItems.indexOf(const_cast<SubjectsTreeItem*>(this));
+        return this->_parentItem->_childItems.indexOf(const_cast<ProtocolsTreeItem*>(this));
     }
 
     return 0;
 }
 
-SubjectsTreeItem *
-SubjectsTreeItem
+ProtocolsTreeItem *
+ProtocolsTreeItem
 ::parent()
 {
     return this->_parentItem;
 }
 
 Qt::CheckState
-SubjectsTreeItem
+ProtocolsTreeItem
 ::get_checkState() const
 {
     return this->_checkState;
 }
 
 void
-SubjectsTreeItem
+ProtocolsTreeItem
 ::set_checkState(Qt::CheckState value)
 {
     this->_checkState = value;
 }
 
 void
-SubjectsTreeItem
+ProtocolsTreeItem
 ::update_checkState()
 {
     switch (this->_checkState)
@@ -150,7 +147,7 @@ SubjectsTreeItem
 }
 
 void
-SubjectsTreeItem
+ProtocolsTreeItem
 ::update_from_child(Qt::CheckState childstate)
 {
     bool oneselected = false;
@@ -186,24 +183,10 @@ SubjectsTreeItem
 }
 
 void
-SubjectsTreeItem
+ProtocolsTreeItem
 ::update_from_parent(Qt::CheckState parentState)
 {
     this->_checkState = parentState;
-}
-
-void
-SubjectsTreeItem
-::set_data(SubjectsTreeItemData::Pointer data)
-{
-    this->_data = data;
-}
-
-SubjectsTreeItemData::Pointer
-SubjectsTreeItem
-::get_data() const
-{
-    return this->_data;
 }
 
 } // namespace ihm
