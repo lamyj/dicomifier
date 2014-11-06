@@ -17,7 +17,7 @@ namespace ihm
 {
 
 SubjectsTreeModel
-::SubjectsTreeModel(const QString &data, QObject *parent) :
+::SubjectsTreeModel(QObject *parent) :
     QAbstractItemModel(parent)
 {
     QList<QVariant> rootData;
@@ -37,7 +37,9 @@ SubjectsTreeModel
 
 void
 SubjectsTreeModel
-::Initialize(std::map<std::string, std::vector<SubjectsTreeItemData> > dataList)
+::Initialize(std::map<std::string,
+             std::vector<SubjectsTreeItemData::Pointer> > dataList,
+             bool displaySubject)
 {
     this->_datalist = dataList;
 
@@ -55,8 +57,9 @@ SubjectsTreeModel
         {
             QList<QVariant> data;
             data << "";
-            data << QString(iterdata.get_study().c_str());
-            data << QString(iterdata.get_date().c_str());
+            data << QString(displaySubject ? iterdata->get_study().c_str() :
+                                             iterdata->get_name().c_str());
+            data << QString(iterdata->get_date().c_str());
             item->appendChild(new SubjectsTreeItem(data, item));
         }
 
@@ -211,6 +214,54 @@ SubjectsTreeModel
     }
 
     return this->_rootItem->columnCount();
+}
+
+bool
+SubjectsTreeModel
+::is_item_selected()
+{
+    for (int i = 0; i < this->_rootItem->childCount(); i++)
+    {
+        auto child = this->_rootItem->child(i);
+        if (child->get_checkState() != Qt::Unchecked)
+        {
+            return true;
+        }
+
+        for (int j = 0; j < child->childCount(); j++)
+        {
+            if (child->child(j)->get_checkState() != Qt::Unchecked)
+            {
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
+std::vector<SubjectsTreeItemData::Pointer>
+SubjectsTreeModel
+::get_item_selected() const
+{
+    std::vector<SubjectsTreeItemData::Pointer>  returnvect;
+    for (int i = 0; i < this->_rootItem->childCount(); i++)
+    {
+        auto child = this->_rootItem->child(i);
+        if (child->get_checkState() == Qt::Unchecked)
+        {// no child selected
+            continue;
+        }
+
+        for (int j = 0; j < child->childCount(); j++)
+        {
+            if (child->child(j)->get_checkState() != Qt::Unchecked)
+            {// child selected
+                returnvect.push_back(child->child(j)->get_data());
+            }
+        }
+    }
+
+    return returnvect;
 }
 
 } // namespace ihm

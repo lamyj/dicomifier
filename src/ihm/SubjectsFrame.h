@@ -9,9 +9,8 @@
 #ifndef _35bea9c0_ca9a_4108_a701_3e11eee03779
 #define _35bea9c0_ca9a_4108_a701_3e11eee03779
 
-#include <QWidget>
-
-#include <components/SubjectsTreeView.h>
+#include "BaseFrame.h"
+#include "components/SubjectsTreeView.h"
 
 namespace dicomifier
 {
@@ -24,23 +23,39 @@ namespace Ui
 class SubjectsFrame;
 }
 
-class SubjectsFrame : public QWidget
+class SubjectsFrame : public BaseFrame
 {
     Q_OBJECT
 
 public:
     explicit SubjectsFrame(QWidget *parent = 0);
-    ~SubjectsFrame();
+    virtual ~SubjectsFrame();
 
-private slots:
-    void on_dataDirectory_textChanged(const QString &arg1);
+    virtual void Initialize();
 
+    virtual void Reset();
+
+    std::vector<SubjectsTreeItemData::Pointer> get_selectedData() const;
+
+    std::string get_mainDirectory() const;
+
+public slots:
     void on_browserButton_clicked();
 
     void on_dataDirectory_editingFinished();
 
+    void on_radioButton_toggled(bool checked);
+
+    void ontreeViewclicked();
+
 protected:
+    virtual void modify_nextButton_enabled();
+
+    virtual void modify_previousButton_enabled();
+
     void paintEvent(QPaintEvent *event);
+
+    void set_list_enabled(bool enabled);
 
 private:
     Ui::SubjectsFrame * _ui;

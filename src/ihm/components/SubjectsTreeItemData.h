@@ -22,17 +22,33 @@ namespace ihm
 class SubjectsTreeItemData
 {
 public:
-    SubjectsTreeItemData(dicomifier::bruker::BrukerDataset * brukerDataset);
-    ~SubjectsTreeItemData();
+    typedef SubjectsTreeItemData Self;
+    typedef std::shared_ptr<Self> Pointer;
+    typedef std::shared_ptr<Self const> ConstPointer;
+
+    /// Create pointer to new instance of SubjectsTreeItemData
+    static Pointer New(dicomifier::bruker::BrukerDataset * brukerDataset,
+                       std::string const & directory)
+            { return Pointer(new Self(brukerDataset, directory)); }
+
+    virtual ~SubjectsTreeItemData();
 
     std::string get_name() const;
     std::string get_study() const;
     std::string get_date() const;
 
+protected:
+    SubjectsTreeItemData(dicomifier::bruker::BrukerDataset * brukerDataset,
+                         std::string const & directory);
+
 private:
     std::string _name;
     std::string _study;
     std::string _date;
+    std::string _directory;
+
+    SubjectsTreeItemData(Self const & other); // Purposely not implemented
+    Self const & operator=(Self const & other); // Purposely not implemented
 
 };
 

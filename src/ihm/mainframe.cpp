@@ -6,8 +6,9 @@
  * for details.
  ************************************************************************/
 
-#include "SubjectsFrame.h"
 #include "mainframe.h"
+#include "ProtocolsFrame.h"
+#include "SubjectsFrame.h"
 #include "ui_mainframe.h"
 
 #include <QGridLayout>
@@ -20,7 +21,10 @@ namespace ihm
 
 MainFrame::MainFrame(QWidget *parent) :
     QMainWindow(parent),
-    _ui(new Ui::MainFrame)
+    _ui(new Ui::MainFrame),
+    _subjectsframe(NULL),
+    _protocolsframe(NULL),
+    _currentStep(EDS_CountMax)
 {
     this->_ui->setupUi(this);
 
@@ -30,11 +34,27 @@ MainFrame::MainFrame(QWidget *parent) :
 
     this->_ui->actionNew->setShortcuts(QKeySequence::New);
     this->_ui->actionNew->setStatusTip(tr("New process"));
-    //connect(this->_ui->actionNew, SIGNAL(triggered()), this, SLOT()); TODO
+    connect(this->_ui->actionNew, SIGNAL(triggered()), this, SLOT(reset()));
 
     this->_ui->actionPreferences->setShortcuts(QKeySequence::Preferences);
     this->_ui->actionPreferences->setStatusTip(tr("Modify Dicomifier Preferences"));
     //connect(this->_ui->actionPreferences, SIGNAL(triggered()), this, SLOT()); TODO
+
+    // Create first Widget (Subect Selection)
+    this->_subjectsframe = new SubjectsFrame(this->_ui->stepWidget);
+    this->_ui->stepWidget->layout()->addWidget(this->_subjectsframe);
+    connect(this->_subjectsframe, SIGNAL(update_nextButton(bool)),
+            this, SLOT(setEnabled_nextButton(bool)));
+    connect(this->_subjectsframe, SIGNAL(update_previousButton(bool)),
+            this, SLOT(setEnabled_previousButton(bool)));
+
+    // Create second Widget (Protocols Selection)
+    this->_protocolsframe = new ProtocolsFrame(this->_ui->stepWidget);
+    this->_ui->stepWidget->layout()->addWidget(this->_protocolsframe);
+    connect(this->_protocolsframe, SIGNAL(update_nextButton(bool)),
+            this, SLOT(setEnabled_nextButton(bool)));
+    connect(this->_protocolsframe, SIGNAL(update_previousButton(bool)),
+            this, SLOT(setEnabled_previousButton(bool)));
 }
 
 MainFrame::~MainFrame()
@@ -45,7 +65,111 @@ MainFrame::~MainFrame()
 void MainFrame::Initialize()
 {
     // Window Position and Size
-    this->setGeometry(0, 0, 1024, 768);
+    this->setGeometry(0, 0, 1040, 768);
+
+    this->ChangeStep(false);
+
+}
+
+void MainFrame::ShowHide()
+{
+    if (this->_currentStep == EDS_SelectSubject)
+    {
+        this->_subjectsframe->Initialize();
+    }
+    else
+    {
+        this->_subjectsframe->hide();
+    }
+
+    if (this->_currentStep == EDS_SelectProtocols)
+    {
+        this->_protocolsframe->Initialize();
+    }
+    else
+    {
+        this->_protocolsframe->hide();
+    }
+
+    if (this->_currentStep == EDS_Generation)
+    {// TODO
+    }
+    else
+    {// TODO
+    }
+}
+
+void MainFrame::ChangeStep(bool nextstep)
+{
+    switch (this->_currentStep)
+    {
+    case EDS_SelectSubject:
+    {
+        this->_currentStep = nextstep ? EDS_SelectProtocols : EDS_SelectSubject;
+        break;
+    }
+    case EDS_SelectProtocols:
+    {
+        this->_currentStep = nextstep ? EDS_Generation : EDS_SelectSubject;
+        break;
+    }
+    case EDS_Generation:
+    {
+        this->_currentStep = nextstep ? EDS_Generation : EDS_SelectProtocols;
+        break;
+    }
+    case EDS_CountMax:
+    default:
+    {
+        this->_currentStep = EDS_SelectProtocols; // TODO EDS_SelectSubject;
+        break;
+    }
+    }
+
+    this->ShowHide();
+}
+
+void
+MainFrame
+::setEnabled_previousButton(bool enabled)
+{
+    this->_ui->previousButton->setEnabled(enabled);
+}
+
+void
+MainFrame
+::setEnabled_nextButton(bool enabled)
+{
+    this->_ui->nextButton->setEnabled(enabled);
+}
+
+void
+MainFrame
+::on_nextButton_clicked()
+{
+    this->ChangeStep(true);
+}
+
+void
+MainFrame
+::on_previousButton_clicked()
+{
+    this->ChangeStep(false);
+}
+
+
+void
+MainFrame
+::reset()
+{
+    // reset data
+    this->_subjectsframe->Reset();
+    this->_protocolsframe->Reset();
+    // TODO
+
+    // Initialize window
+    this->_currentStep = EDS_CountMax;
+    this->ChangeStep(false);
 }
 
 } // namespace ihm

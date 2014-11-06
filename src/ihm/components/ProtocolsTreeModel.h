@@ -6,12 +6,12 @@
  * for details.
  ************************************************************************/
 
-#ifndef _d21314ea_9172_4139_a4f1_54cc7b9c29dd
-#define _d21314ea_9172_4139_a4f1_54cc7b9c29dd
+#ifndef _49042f7b_a8e8_4ead_bd6b_a042b95be327
+#define _49042f7b_a8e8_4ead_bd6b_a042b95be327
 
 #include <QAbstractItemModel>
 
-#include "SubjectsTreeItem.h"
+#include "ProtocolsTreeItem.h"
 
 namespace dicomifier
 {
@@ -19,17 +19,13 @@ namespace dicomifier
 namespace ihm
 {
 
-class SubjectsTreeModel : public QAbstractItemModel
+class ProtocolsTreeModel : public QAbstractItemModel
 {
     Q_OBJECT
 
 public:
-    SubjectsTreeModel(QObject * parent = 0);
-    virtual ~SubjectsTreeModel();
-
-    void Initialize(std::map<std::string,
-                    std::vector<SubjectsTreeItemData::Pointer>> dataList,
-                    bool displaySubject);
+    ProtocolsTreeModel(QObject * parent = 0);
+    virtual ~ProtocolsTreeModel();
 
     QVariant data(const QModelIndex & index, int role) const;
     Qt::ItemFlags flags(const QModelIndex & index) const;
@@ -41,13 +37,8 @@ public:
     int rowCount(const QModelIndex & parent = QModelIndex()) const;
     int columnCount(const QModelIndex & parent = QModelIndex()) const;
 
-    bool is_item_selected();
-    std::vector<SubjectsTreeItemData::Pointer> get_item_selected() const;
-
 private:
-    SubjectsTreeItem * _rootItem;
-
-    std::map<std::string, std::vector<SubjectsTreeItemData::Pointer> > _datalist;
+    ProtocolsTreeItem * _rootItem;
 
 };
 
@@ -55,4 +46,4 @@ private:
 
 } // namespace dicomifier
 
-#endif // _d21314ea_9172_4139_a4f1_54cc7b9c29dd
+#endif // _49042f7b_a8e8_4ead_bd6b_a042b95be327

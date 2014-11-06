@@ -12,6 +12,7 @@
 #include <QTreeView>
 
 #include "SubjectsTreeItemData.h"
+#include "SubjectsTreeModel.h"
 
 namespace dicomifier
 {
@@ -26,17 +27,24 @@ class SubjectsTreeView : public QTreeView
 public:
     explicit SubjectsTreeView(QWidget *parent = 0);
 
-    void Initialize(std::vector<SubjectsTreeItemData> const & dataList);
+    void Initialize(std::vector<SubjectsTreeItemData::Pointer> const & dataList);
+
+    void set_displaySubject(bool displaysubject);
+
+    bool is_item_selected();
 
 signals:
+    void itemsSelectionChanged();
 
 private slots:
     void ontreeviewclick(const QModelIndex &index);
 
 private :
-    std::vector<SubjectsTreeItemData> _dataList;
+    std::vector<SubjectsTreeItemData::Pointer> _dataList;
 
-    std::map<std::string, std::vector<SubjectsTreeItemData>> sortedSubjects() const;
+    bool _displaySubject;
+
+    std::map<std::string, std::vector<SubjectsTreeItemData::Pointer>> sortedSubjects() const;
 
 };
 

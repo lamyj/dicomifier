@@ -6,13 +6,11 @@
  * for details.
  ************************************************************************/
 
-#ifndef _272e7b4f_d47c_4264_b306_4bd6c6ad6fed
-#define _272e7b4f_d47c_4264_b306_4bd6c6ad6fed
+#ifndef _6508331c_6267_4762_aa49_e308a53094a0
+#define _6508331c_6267_4762_aa49_e308a53094a0
 
 #include <QList>
 #include <QVariant>
-
-#include "SubjectsTreeItemData.h"
 
 namespace dicomifier
 {
@@ -20,21 +18,21 @@ namespace dicomifier
 namespace ihm
 {
 
-class SubjectsTreeItem
+class ProtocolsTreeItem
 {
 public:
-    SubjectsTreeItem(const QList<QVariant> & data,
-                     SubjectsTreeItem * parent = 0);
-    virtual ~SubjectsTreeItem();
+    ProtocolsTreeItem(const QList<QVariant> & data,
+                     ProtocolsTreeItem * parent = 0);
+    virtual ~ProtocolsTreeItem();
 
-    void appendChild(SubjectsTreeItem * child);
+    void appendChild(ProtocolsTreeItem * child);
 
-    SubjectsTreeItem * child(int row);
+    ProtocolsTreeItem * child(int row);
     int childCount() const;
     int columnCount() const;
     QVariant data(int column) const;
     int row() const;
-    SubjectsTreeItem * parent();
+    ProtocolsTreeItem * parent();
 
     Qt::CheckState get_checkState() const;
     void set_checkState(Qt::CheckState value);
@@ -43,16 +41,11 @@ public:
     void update_from_child(Qt::CheckState childstate);
     void update_from_parent(Qt::CheckState parentState);
 
-    void set_data(SubjectsTreeItemData::Pointer data);
-    SubjectsTreeItemData::Pointer get_data() const;
-
 private:
-    QList<SubjectsTreeItem*> _childItems;
+    QList<ProtocolsTreeItem*> _childItems;
     QList<QVariant> _itemData;
-    SubjectsTreeItem * _parentItem;
+    ProtocolsTreeItem * _parentItem;
     Qt::CheckState _checkState;
-
-    SubjectsTreeItemData::Pointer _data;
 
 };
 
@@ -60,4 +53,4 @@ private:
 
 } // namespace dicomifier
 
-#endif // _272e7b4f_d47c_4264_b306_4bd6c6ad6fed
+#endif // _6508331c_6267_4762_aa49_e308a53094a0

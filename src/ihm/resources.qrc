@@ -1,6 +1,5 @@
 <RCC>
     <qresource prefix="/images">
         <file alias="quit">images/quit.svg</file>
-        <file alias="home">images/home.svg</file>
     </qresource>
 </RCC>
