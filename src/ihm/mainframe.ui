@@ -292,6 +292,9 @@ QLabel
        <string notr="true">QTreeView 
 {
     show-decoration-selected: 1;
+    margin: 5px;
+    border-radius: 10px;
+    border: 1px solid #2299FF;
 }
 
 QTreeView::item 
@@ -336,7 +339,16 @@ QHeaderView::section {
 QHeaderView
 {
     border-bottom: 1px solid #2299FF;
-}</string>
+}
+
+QLabel
+{
+    background: transparent;
+    border: none;
+    font-size: 18px;
+    margin: 10px 5px;
+}
+</string>
       </property>
       <layout class="QVBoxLayout" name="verticalLayout"/>
      </widget>

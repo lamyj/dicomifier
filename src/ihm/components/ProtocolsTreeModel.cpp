@@ -20,15 +20,49 @@ ProtocolsTreeModel
 {
     QList<QVariant> rootData;
     rootData << "Select" << "Name" << "Date";
-    this->_rootItem = new ProtocolsTreeItem(rootData);
+    this->_rootItem = new TreeItem();
+    this->_rootItem->set_data(rootData);
 }
 
-ProtocolsTreeModel::~ProtocolsTreeModel()
+ProtocolsTreeModel
+::~ProtocolsTreeModel()
 {
     if (this->_rootItem != NULL)
     {
         delete this->_rootItem;
         this->_rootItem = NULL;
+    }
+}
+
+void
+ProtocolsTreeModel
+::Initialize(std::map<std::string, std::vector<TreeItem *> > dataList)
+{
+    this->_datalist = dataList;
+
+    for (auto iter = this->_datalist.begin();
+         iter != this->_datalist.end();
+         iter++)
+    {
+        QList<QVariant> columnData;
+        columnData << "";
+        columnData << QString(iter->first.c_str());
+        columnData << "";
+        TreeItem * item = new TreeItem(this->_rootItem);
+        item->set_data(columnData);
+
+        for (auto iterdata : iter->second)
+        {
+            QList<QVariant> data;
+            data << "";
+            data << QString(iterdata->get_reconstruction().c_str());
+            data << QString(iterdata->get_date().c_str());
+            iterdata->set_data(data);
+            iterdata->set_parent(item);
+            item->appendChild(iterdata);
+        }
+
+        this->_rootItem->appendChild(item);
     }
 }
 
@@ -39,7 +73,7 @@ QVariant ProtocolsTreeModel::data(const QModelIndex &index, int role) const
         return QVariant();
     }
 
-    ProtocolsTreeItem *item = static_cast<ProtocolsTreeItem*>(index.internalPointer());
+    TreeItem *item = static_cast<TreeItem*>(index.internalPointer());
 
     switch (role)
     {
@@ -98,7 +132,7 @@ QModelIndex ProtocolsTreeModel::index(int row, int column, const QModelIndex &pa
         return QModelIndex();
     }
 
-    ProtocolsTreeItem * parentItem;
+    TreeItem * parentItem;
 
     if (!parent.isValid())
     {
@@ -106,10 +140,10 @@ QModelIndex ProtocolsTreeModel::index(int row, int column, const QModelIndex &pa
     }
     else
     {
-        parentItem = static_cast<ProtocolsTreeItem*>(parent.internalPointer());
+        parentItem = static_cast<TreeItem*>(parent.internalPointer());
     }
 
-    ProtocolsTreeItem *childItem = parentItem->child(row);
+    TreeItem *childItem = parentItem->child(row);
     if (childItem)
     {
         return this->createIndex(row, column, childItem);
@@ -125,9 +159,9 @@ QModelIndex ProtocolsTreeModel::parent(const QModelIndex &index) const
         return QModelIndex();
     }
 
-    ProtocolsTreeItem * childItem =
-            static_cast<ProtocolsTreeItem*>(index.internalPointer());
-    ProtocolsTreeItem * parentItem = childItem->parent();
+    TreeItem * childItem =
+            static_cast<TreeItem*>(index.internalPointer());
+    TreeItem * parentItem = childItem->parent();
 
     if (parentItem == this->_rootItem)
     {
@@ -144,14 +178,14 @@ int ProtocolsTreeModel::rowCount(const QModelIndex &parent) const
         return 0;
     }
 
-    ProtocolsTreeItem *parentItem;
+    TreeItem *parentItem;
     if (!parent.isValid())
     {
         parentItem = this->_rootItem;
     }
     else
     {
-        parentItem = static_cast<ProtocolsTreeItem*>(parent.internalPointer());
+        parentItem = static_cast<TreeItem*>(parent.internalPointer());
     }
 
     return parentItem->childCount();
@@ -161,7 +195,7 @@ int ProtocolsTreeModel::columnCount(const QModelIndex &parent) const
 {
     if (parent.isValid())
     {
-        return static_cast<ProtocolsTreeItem*>(parent.internalPointer())->columnCount();
+        return static_cast<TreeItem*>(parent.internalPointer())->columnCount();
     }
 
     return this->_rootItem->columnCount();

@@ -11,7 +11,7 @@
 
 #include <QAbstractItemModel>
 
-#include "SubjectsTreeItem.h"
+#include "TreeItem.h"
 
 namespace dicomifier
 {
@@ -28,7 +28,7 @@ public:
     virtual ~SubjectsTreeModel();
 
     void Initialize(std::map<std::string,
-                    std::vector<SubjectsTreeItemData::Pointer>> dataList,
+                    std::vector<TreeItem*>> dataList,
                     bool displaySubject);
 
     QVariant data(const QModelIndex & index, int role) const;
@@ -42,12 +42,12 @@ public:
     int columnCount(const QModelIndex & parent = QModelIndex()) const;
 
     bool is_item_selected();
-    std::vector<SubjectsTreeItemData::Pointer> get_item_selected() const;
+    std::vector<TreeItem*> get_item_selected() const;
 
 private:
-    SubjectsTreeItem * _rootItem;
+    TreeItem * _rootItem;
 
-    std::map<std::string, std::vector<SubjectsTreeItemData::Pointer> > _datalist;
+    std::map<std::string, std::vector<TreeItem*> > _datalist;
 
 };
 

@@ -11,7 +11,7 @@
 
 #include <QAbstractItemModel>
 
-#include "ProtocolsTreeItem.h"
+#include "TreeItem.h"
 
 namespace dicomifier
 {
@@ -27,6 +27,9 @@ public:
     ProtocolsTreeModel(QObject * parent = 0);
     virtual ~ProtocolsTreeModel();
 
+    void Initialize(std::map<std::string,
+                    std::vector<TreeItem*>> dataList);
+
     QVariant data(const QModelIndex & index, int role) const;
     Qt::ItemFlags flags(const QModelIndex & index) const;
     QVariant headerData(int section, Qt::Orientation orientation,
@@ -38,7 +41,9 @@ public:
     int columnCount(const QModelIndex & parent = QModelIndex()) const;
 
 private:
-    ProtocolsTreeItem * _rootItem;
+    TreeItem * _rootItem;
+
+    std::map<std::string, std::vector<TreeItem*> > _datalist;
 
 };
 

@@ -22,7 +22,8 @@ SubjectsTreeModel
 {
     QList<QVariant> rootData;
     rootData << "Select" << "Name" << "Date";
-    this->_rootItem = new SubjectsTreeItem(rootData);
+    this->_rootItem = new TreeItem();
+    this->_rootItem->set_data(rootData);
 }
 
 SubjectsTreeModel
@@ -37,8 +38,7 @@ SubjectsTreeModel
 
 void
 SubjectsTreeModel
-::Initialize(std::map<std::string,
-             std::vector<SubjectsTreeItemData::Pointer> > dataList,
+::Initialize(std::map<std::string, std::vector<TreeItem *> > dataList,
              bool displaySubject)
 {
     this->_datalist = dataList;
@@ -51,7 +51,8 @@ SubjectsTreeModel
         columnData << "";
         columnData << QString(iter->first.c_str());
         columnData << "";
-        SubjectsTreeItem * item = new SubjectsTreeItem(columnData, this->_rootItem);
+        TreeItem * item = new TreeItem(this->_rootItem);
+        item->set_data(columnData);
 
         for (auto iterdata : iter->second)
         {
@@ -60,7 +61,10 @@ SubjectsTreeModel
             data << QString(displaySubject ? iterdata->get_study().c_str() :
                                              iterdata->get_name().c_str());
             data << QString(iterdata->get_date().c_str());
-            item->appendChild(new SubjectsTreeItem(data, item));
+
+            iterdata->set_data(data);
+            iterdata->set_parent(item);
+            item->appendChild(iterdata);
         }
 
         this->_rootItem->appendChild(item);
@@ -76,7 +80,7 @@ SubjectsTreeModel
         return QVariant();
     }
 
-    SubjectsTreeItem *item = static_cast<SubjectsTreeItem*>(index.internalPointer());
+    TreeItem *item = static_cast<TreeItem*>(index.internalPointer());
 
     switch (role)
     {
@@ -141,7 +145,7 @@ SubjectsTreeModel
         return QModelIndex();
     }
 
-    SubjectsTreeItem * parentItem;
+    TreeItem * parentItem;
 
     if (!parent.isValid())
     {
@@ -149,10 +153,10 @@ SubjectsTreeModel
     }
     else
     {
-        parentItem = static_cast<SubjectsTreeItem*>(parent.internalPointer());
+        parentItem = static_cast<TreeItem*>(parent.internalPointer());
     }
 
-    SubjectsTreeItem *childItem = parentItem->child(row);
+    TreeItem *childItem = parentItem->child(row);
     if (childItem)
     {
         return this->createIndex(row, column, childItem);
@@ -170,9 +174,9 @@ SubjectsTreeModel
         return QModelIndex();
     }
 
-    SubjectsTreeItem * childItem =
-            static_cast<SubjectsTreeItem*>(index.internalPointer());
-    SubjectsTreeItem * parentItem = childItem->parent();
+    TreeItem * childItem =
+            static_cast<TreeItem*>(index.internalPointer());
+    TreeItem * parentItem = childItem->parent();
 
     if (parentItem == this->_rootItem)
     {
@@ -191,14 +195,14 @@ SubjectsTreeModel
         return 0;
     }
 
-    SubjectsTreeItem *parentItem;
+    TreeItem *parentItem;
     if (!parent.isValid())
     {
         parentItem = this->_rootItem;
     }
     else
     {
-        parentItem = static_cast<SubjectsTreeItem*>(parent.internalPointer());
+        parentItem = static_cast<TreeItem*>(parent.internalPointer());
     }
 
     return parentItem->childCount();
@@ -210,7 +214,7 @@ SubjectsTreeModel
 {
     if (parent.isValid())
     {
-        return static_cast<SubjectsTreeItem*>(parent.internalPointer())->columnCount();
+        return static_cast<TreeItem*>(parent.internalPointer())->columnCount();
     }
 
     return this->_rootItem->columnCount();
@@ -239,11 +243,9 @@ SubjectsTreeModel
     return false;
 }
 
-std::vector<SubjectsTreeItemData::Pointer>
-SubjectsTreeModel
-::get_item_selected() const
+std::vector<TreeItem *> SubjectsTreeModel::get_item_selected() const
 {
-    std::vector<SubjectsTreeItemData::Pointer>  returnvect;
+    std::vector<TreeItem*>  returnvect;
     for (int i = 0; i < this->_rootItem->childCount(); i++)
     {
         auto child = this->_rootItem->child(i);
@@ -256,7 +258,7 @@ SubjectsTreeModel
         {
             if (child->child(j)->get_checkState() != Qt::Unchecked)
             {// child selected
-                returnvect.push_back(child->child(j)->get_data());
+                returnvect.push_back(child->child(j));
             }
         }
     }

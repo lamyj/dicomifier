@@ -60,11 +60,11 @@ SubjectsFrame
     this->on_dataDirectory_editingFinished();
 }
 
-std::vector<SubjectsTreeItemData::Pointer>
+std::vector<TreeItem*>
 SubjectsFrame
 ::get_selectedData() const
 {
-    std::vector<SubjectsTreeItemData::Pointer> returnvect;
+    std::vector<TreeItem*> returnvect;
     SubjectsTreeModel* model =
             dynamic_cast<SubjectsTreeModel*>(this->_treeView->model());
 
@@ -143,7 +143,7 @@ SubjectsFrame
     }
     this->set_list_enabled(true);
 
-    std::vector<SubjectsTreeItemData::Pointer> subjectsAndStudiesList;
+    std::vector<TreeItem*> subjectsAndStudiesList;
 
     boost::filesystem::directory_iterator it(directory), it_end;
     for(; it != it_end; ++it)
@@ -168,7 +168,11 @@ SubjectsFrame
 
             dataset->LoadFile(file);
 
-            subjectsAndStudiesList.push_back(SubjectsTreeItemData::New(dataset, dir));
+            TreeItem* treeitem = new TreeItem();
+            treeitem->set_directory(dir);
+            treeitem->fill_data(dataset);
+
+            subjectsAndStudiesList.push_back(treeitem);
 
             delete dataset;
         }

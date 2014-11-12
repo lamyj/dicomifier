@@ -9,7 +9,8 @@
 #ifndef _c43441d0_8c1c_40ce_a337_a72d5c01a34d
 #define _c43441d0_8c1c_40ce_a337_a72d5c01a34d
 
-#include <QTreeView>
+#include "ProtocolsTreeModel.h"
+#include "TreeView.h"
 
 namespace dicomifier
 {
@@ -17,17 +18,17 @@ namespace dicomifier
 namespace ihm
 {
 
-class ProtocolsTreeView : public QTreeView
+class ProtocolsTreeView : public TreeView
 {
     Q_OBJECT
 
 public:
     explicit ProtocolsTreeView(QWidget *parent = 0);
 
-    void Initialize();
+    virtual void Initialize(std::vector<TreeItem*> const & dataList);
 
-private slots:
-    void ontreeviewclick(const QModelIndex &index);
+private:
+    virtual std::map<std::string, std::vector<TreeItem*>> sortedItems() const;
 
 };
 

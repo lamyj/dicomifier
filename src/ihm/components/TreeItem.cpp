@@ -6,7 +6,7 @@
  * for details.
  ************************************************************************/
 
-#include "ProtocolsTreeItem.h"
+#include "TreeItem.h"
 
 namespace dicomifier
 {
@@ -14,88 +14,104 @@ namespace dicomifier
 namespace ihm
 {
 
-ProtocolsTreeItem
-::ProtocolsTreeItem(const QList<QVariant> &data,
-                    ProtocolsTreeItem *parent)
+TreeItem
+::TreeItem(TreeItem *parent, TreeItem * copy):
+    _parentItem(parent), _checkState(Qt::Unchecked),
+    _name(""), _study(""), _series(""), _reconstruction(""),
+    _date(""), _directory(""), _seriesDirectory(""), _recoDirectory("")
 {
-
+    if (copy != NULL)
+    {
+        this->_name            = copy->get_name();
+        this->_study           = copy->get_study();
+        this->_series          = copy->get_series();
+        this->_reconstruction  = copy->get_reconstruction();
+        this->_date            = copy->get_date();
+        this->_directory       = copy->get_directory();
+        this->_seriesDirectory = copy->get_seriesDirectory();
+        this->_recoDirectory   = copy->get_recoDirectory();
+    }
 }
 
-ProtocolsTreeItem::~ProtocolsTreeItem()
+TreeItem
+::~TreeItem()
 {
-
+    qDeleteAll(this->_childItems);
 }
 
 void
-ProtocolsTreeItem
-::appendChild(ProtocolsTreeItem *child)
+TreeItem
+::appendChild(TreeItem *child)
 {
-    this->_childItems.append(child);
+    if (child != NULL)
+    {
+        this->_childItems.append(child);
+    }
 }
 
-ProtocolsTreeItem *
-ProtocolsTreeItem
+TreeItem *
+TreeItem
 ::child(int row)
 {
     return this->_childItems.value(row);
 }
 
 int
-ProtocolsTreeItem
+TreeItem
 ::childCount() const
 {
     return this->_childItems.count();
 }
 
 int
-ProtocolsTreeItem
+TreeItem
 ::columnCount() const
 {
     return this->_itemData.count();
 }
 
 QVariant
-ProtocolsTreeItem
+TreeItem
 ::data(int column) const
 {
     return this->_itemData.value(column);
 }
 
 int
-ProtocolsTreeItem
+TreeItem
 ::row() const
 {
     if (this->_parentItem != NULL)
     {
-        return this->_parentItem->_childItems.indexOf(const_cast<ProtocolsTreeItem*>(this));
+        return this->_parentItem->_childItems.indexOf(const_cast<TreeItem*>(this));
     }
 
     return 0;
 }
 
-ProtocolsTreeItem *
-ProtocolsTreeItem
+TreeItem *
+TreeItem
 ::parent()
 {
     return this->_parentItem;
 }
 
 Qt::CheckState
-ProtocolsTreeItem
+TreeItem
 ::get_checkState() const
 {
     return this->_checkState;
 }
 
 void
-ProtocolsTreeItem
+TreeItem
 ::set_checkState(Qt::CheckState value)
 {
     this->_checkState = value;
 }
 
 void
-ProtocolsTreeItem
+TreeItem
 ::update_checkState()
 {
     switch (this->_checkState)
@@ -147,7 +163,7 @@ ProtocolsTreeItem
 }
 
 void
-ProtocolsTreeItem
+TreeItem
 ::update_from_child(Qt::CheckState childstate)
 {
     bool oneselected = false;
@@ -183,10 +199,37 @@ ProtocolsTreeItem
 }
 
 void
-ProtocolsTreeItem
+TreeItem
 ::update_from_parent(Qt::CheckState parentState)
 {
     this->_checkState = parentState;
+}
+
+void
+TreeItem
+::fill_data(bruker::BrukerDataset * const brukerdataset)
+{
+    if (brukerdataset->HasFieldData("SUBJECT_name_string"))
+    {
+        this->_name = brukerdataset->GetFieldData("SUBJECT_name_string")->get_string(0);
+    }
+
+    if (brukerdataset->HasFieldData("SUBJECT_study_name"))
+    {
+        this->_study = brukerdataset->GetFieldData("SUBJECT_study_name")->get_string(0);
+    }
+
+    this->_date = ""; // TODO
+
+    if (brukerdataset->HasFieldData("Method"))
+    {
+        this->_series = brukerdataset->GetFieldData("Method")->get_string(0);
+    }
+
+    if (brukerdataset->HasFieldData("RECO_mode"))
+    {
+        this->_reconstruction = brukerdataset->GetFieldData("RECO_mode")->get_string(0);
+    }
 }
 
 } // namespace ihm

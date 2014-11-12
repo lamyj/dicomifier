@@ -6,8 +6,6 @@
  * for details.
  ************************************************************************/
 
-#include <QHeaderView>
-
 #include "SubjectsTreeView.h"
 
 namespace dicomifier
@@ -18,34 +16,32 @@ namespace ihm
 
 SubjectsTreeView
 ::SubjectsTreeView(QWidget *parent) :
-    QTreeView(parent), _dataList({}), _displaySubject(true)
+    TreeView(parent), _displaySubject(true)
 {
-    this->setAlternatingRowColors(true);
-    this->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+    // Nothing to do
 }
 
 void
 SubjectsTreeView
-::Initialize(const std::vector<SubjectsTreeItemData::Pointer> &dataList)
+::Initialize(const std::vector<TreeItem *> &dataList)
 {
     this->_dataList = dataList;
-
-    SubjectsTreeModel * model = new SubjectsTreeModel();
-    model->Initialize(this->sortedSubjects(), this->_displaySubject);
 
     if (this->model() != NULL)
     {
         delete this->model();
     }
+    SubjectsTreeModel * model = new SubjectsTreeModel();
+    model->Initialize(this->sortedItems(), this->_displaySubject);
     this->setModel(model);
 
     disconnect(this, SIGNAL(clicked(QModelIndex)),
-               this, SLOT(ontreeviewclick(QModelIndex)));
+               this, SLOT(OnTreeViewClicked(QModelIndex)));
     connect(this, SIGNAL(clicked(QModelIndex)),
-            this, SLOT(ontreeviewclick(QModelIndex)));
+            this, SLOT(OnTreeViewClicked(QModelIndex)));
 
     this->header()->setStretchLastSection(false);
-    this->header()->setResizeMode(1, QHeaderView::Fixed);
+    this->header()->setResizeMode(0, QHeaderView::Fixed);
     this->header()->setResizeMode(1, QHeaderView::Stretch);
     this->header()->setResizeMode(2, QHeaderView::Fixed);
 
@@ -61,7 +57,9 @@ SubjectsTreeView
     this->Initialize(this->_dataList);
 }
 
-bool SubjectsTreeView::is_item_selected()
+bool
+SubjectsTreeView
+::is_item_selected()
 {
     if (this->model() == NULL)
     {
@@ -72,46 +70,11 @@ bool SubjectsTreeView::is_item_selected()
     return model->is_item_selected();
 }
 
-void
+std::map<std::string, std::vector<TreeItem *> >
 SubjectsTreeView
-::ontreeviewclick(QModelIndex const & index)
+::sortedItems() const
 {
-    if (index.column() == 0)
-    {
-        SubjectsTreeItem *item =
-                static_cast<SubjectsTreeItem*>(index.internalPointer());
-
-        item->update_checkState();
-
-        this->update(index.parent());
-
-        bool continue_ = true;
-        int count = 0;
-        while (continue_)
-        {
-            QModelIndex childindex = index.child(count, index.column());
-
-            if (childindex.isValid())
-            {
-                this->update(childindex);
-            }
-            else
-            {
-                continue_ = false;
-            }
-            count++;
-        }
-    }
-    this->update(index);
-
-    emit itemsSelectionChanged();
-}
-
-std::map<std::string, std::vector<SubjectsTreeItemData::Pointer> >
-SubjectsTreeView
-::sortedSubjects() const
-{
-    std::map<std::string, std::vector<SubjectsTreeItemData::Pointer> > returnmap;
+    std::map<std::string, std::vector<TreeItem*> > returnmap;
 
     for (auto couple : this->_dataList)
     {

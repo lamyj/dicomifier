@@ -23,6 +23,7 @@ public:
     virtual ~ProtocolsFrame();
 
     virtual void Initialize();
+    void Initialize(std::vector<TreeItem*> subjectslist);
 
     virtual void Reset();
 

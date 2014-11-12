@@ -9,12 +9,10 @@
 #ifndef _b6541ba8_6b89_4c08_95f1_69a3f8235a28
 #define _b6541ba8_6b89_4c08_95f1_69a3f8235a28
 
-#include "ProtocolsFrame.h"
-#include "SubjectsFrame.h"
-
 #include <QMainWindow>
 
-#include <components/SubjectsTreeItemData.h>
+#include "ProtocolsFrame.h"
+#include "SubjectsFrame.h"
 
 namespace dicomifier
 {
