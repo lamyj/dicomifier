@@ -6,7 +6,6 @@
  * for details.
  ************************************************************************/
 
-#include "ProtocolsTreeModel.h"
 #include "ProtocolsTreeView.h"
 
 namespace dicomifier
@@ -17,31 +16,57 @@ namespace ihm
 
 ProtocolsTreeView
 ::ProtocolsTreeView(QWidget *parent):
-    QTreeView(parent)
+    TreeView(parent)
 {
-    this->setAlternatingRowColors(true);
-    this->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+    // Nothing to do
 }
 
-void ProtocolsTreeView::Initialize()
+void
+ProtocolsTreeView
+::Initialize(std::vector<TreeItem *> const & dataList)
 {
-    ProtocolsTreeModel * model = new ProtocolsTreeModel();
+    this->_dataList = dataList;
 
     if (this->model() != NULL)
     {
         delete this->model();
     }
+    ProtocolsTreeModel * model = new ProtocolsTreeModel();
+    model->Initialize(this->sortedItems());
     this->setModel(model);
 
     disconnect(this, SIGNAL(clicked(QModelIndex)),
-               this, SLOT(ontreeviewclick(QModelIndex)));
+               this, SLOT(OnTreeViewClicked(QModelIndex)));
     connect(this, SIGNAL(clicked(QModelIndex)),
-            this, SLOT(ontreeviewclick(QModelIndex)));
+            this, SLOT(OnTreeViewClicked(QModelIndex)));
+
+    this->header()->setStretchLastSection(false);
+    this->header()->setResizeMode(0, QHeaderView::Fixed);
+    this->header()->setResizeMode(1, QHeaderView::Stretch);
+    this->header()->setResizeMode(2, QHeaderView::Fixed);
+
+    this->header()->resizeSection(0, 80);
+    this->header()->resizeSection(2, 200);
 }
 
-void ProtocolsTreeView::ontreeviewclick(const QModelIndex &index)
+std::map<std::string, std::vector<TreeItem *> >
+ProtocolsTreeView
+::sortedItems() const
 {
+    std::map<std::string, std::vector<TreeItem*> > returnmap;
 
+    for (auto couple : this->_dataList)
+    {
+        std::string name = couple->get_series();
+        if (returnmap.find(name) == returnmap.end())
+        {// create new entry
+            returnmap[name] = {};
+        }
+
+        returnmap[name].push_back(couple);
+    }
+
+    return returnmap;
 }
 
 } // namespace ihm

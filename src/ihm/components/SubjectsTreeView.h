@@ -9,10 +9,8 @@
 #ifndef _094b008d_a5d4_4d54_ba6d_9109a3e5f611
 #define _094b008d_a5d4_4d54_ba6d_9109a3e5f611
 
-#include <QTreeView>
-
-#include "SubjectsTreeItemData.h"
 #include "SubjectsTreeModel.h"
+#include "TreeView.h"
 
 namespace dicomifier
 {
@@ -20,31 +18,23 @@ namespace dicomifier
 namespace ihm
 {
 
-class SubjectsTreeView : public QTreeView
+class SubjectsTreeView : public TreeView
 {
     Q_OBJECT
 
 public:
     explicit SubjectsTreeView(QWidget *parent = 0);
 
-    void Initialize(std::vector<SubjectsTreeItemData::Pointer> const & dataList);
+    virtual void Initialize(std::vector<TreeItem*> const & dataList);
 
     void set_displaySubject(bool displaysubject);
 
     bool is_item_selected();
 
-signals:
-    void itemsSelectionChanged();
-
-private slots:
-    void ontreeviewclick(const QModelIndex &index);
-
 private :
-    std::vector<SubjectsTreeItemData::Pointer> _dataList;
-
     bool _displaySubject;
 
-    std::map<std::string, std::vector<SubjectsTreeItemData::Pointer>> sortedSubjects() const;
+    virtual std::map<std::string, std::vector<TreeItem*>> sortedItems() const;
 
 };
 

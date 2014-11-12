@@ -35,7 +35,7 @@ public:
 
     virtual void Reset();
 
-    std::vector<SubjectsTreeItemData::Pointer> get_selectedData() const;
+    std::vector<TreeItem*> get_selectedData() const;
 
     std::string get_mainDirectory() const;
 

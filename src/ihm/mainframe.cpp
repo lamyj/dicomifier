@@ -84,7 +84,7 @@ void MainFrame::ShowHide()
 
     if (this->_currentStep == EDS_SelectProtocols)
     {
-        this->_protocolsframe->Initialize();
+        this->_protocolsframe->Initialize(this->_subjectsframe->get_selectedData());
     }
     else
     {
@@ -121,7 +121,7 @@ void MainFrame::ChangeStep(bool nextstep)
     case EDS_CountMax:
     default:
     {
-        this->_currentStep = EDS_SelectProtocols; // TODO EDS_SelectSubject;
+        this->_currentStep = EDS_SelectSubject; // TODO EDS_SelectSubject;
         break;
     }
     }
@@ -147,6 +147,7 @@ void
 MainFrame
 ::on_nextButton_clicked()
 {
+    this->setEnabled_nextButton(false);
     this->ChangeStep(true);
 }
 

@@ -20,22 +20,7 @@
    <string>Form</string>
   </property>
   <property name="styleSheet">
-   <string notr="true">QLabel
-{
-    background: transparent;
-    border: none;
-    font-size: 18px;
-    margin: 10px 5px;
-}
-
-QTreeView
-{
-    margin: 5px;
-    border-radius: 10px;
-    border: 1px solid #2299FF;
-}
-
-QLineEdit
+   <string notr="true">QLineEdit
 {
     margin: 0px 5px;
     background-color: white;

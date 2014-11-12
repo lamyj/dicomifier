@@ -52,6 +52,9 @@
        <verstretch>0</verstretch>
       </sizepolicy>
      </property>
+     <property name="styleSheet">
+      <string notr="true"/>
+     </property>
      <property name="text">
       <string>Select Protocols to process:</string>
      </property>
@@ -66,10 +69,7 @@
       </sizepolicy>
      </property>
      <property name="styleSheet">
-      <string notr="true">#QWidget
-{
-background-color: red;
-}</string>
+      <string notr="true"/>
      </property>
     </widget>
    </item>
