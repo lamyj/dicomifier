@@ -31,8 +31,6 @@ public:
     explicit SubjectsFrame(QWidget *parent = 0);
     virtual ~SubjectsFrame();
 
-    virtual void Initialize();
-
     virtual void Reset();
 
     std::vector<TreeItem*> get_selectedData() const;

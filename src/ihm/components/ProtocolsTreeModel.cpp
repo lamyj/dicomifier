@@ -16,22 +16,11 @@ namespace ihm
 
 ProtocolsTreeModel
 ::ProtocolsTreeModel(QObject *parent) :
-    QAbstractItemModel(parent)
+    TreeModel(parent)
 {
     QList<QVariant> rootData;
     rootData << "Select" << "Name" << "Date";
-    this->_rootItem = new TreeItem();
     this->_rootItem->set_data(rootData);
-}
-
-ProtocolsTreeModel
-::~ProtocolsTreeModel()
-{
-    if (this->_rootItem != NULL)
-    {
-        delete this->_rootItem;
-        this->_rootItem = NULL;
-    }
 }
 
 void
@@ -64,141 +53,6 @@ ProtocolsTreeModel
 
         this->_rootItem->appendChild(item);
     }
-}
-
-QVariant ProtocolsTreeModel::data(const QModelIndex &index, int role) const
-{
-    if (!index.isValid())
-    {
-        return QVariant();
-    }
-
-    TreeItem *item = static_cast<TreeItem*>(index.internalPointer());
-
-    switch (role)
-    {
-    case Qt::CheckStateRole:
-    {
-        if (index.column() == 0)
-        {
-            return static_cast< int >(item->get_checkState());
-        }
-        break;
-    }
-    case Qt::DisplayRole:
-    {
-        return item->data(index.column());
-    }
-    default:
-        break;
-    }
-
-    return QVariant();
-}
-
-Qt::ItemFlags ProtocolsTreeModel::flags(const QModelIndex &index) const
-{
-    if (!index.isValid())
-    {
-        return 0;
-    }
-
-    // Items are selectable
-    Qt::ItemFlags flags = Qt::ItemIsEnabled | Qt::ItemIsSelectable;
-
-    // First column is a CheckBox
-    if ( index.column() == 0 )
-    {
-        flags |= Qt::ItemIsUserCheckable;
-    }
-
-    return flags;
-}
-
-QVariant ProtocolsTreeModel::headerData(int section, Qt::Orientation orientation, int role) const
-{
-    if (orientation == Qt::Horizontal && role == Qt::DisplayRole)
-    {
-        return this->_rootItem->data(section);
-    }
-
-    return QVariant();
-}
-
-QModelIndex ProtocolsTreeModel::index(int row, int column, const QModelIndex &parent) const
-{
-    if (!this->hasIndex(row, column, parent))
-    {
-        return QModelIndex();
-    }
-
-    TreeItem * parentItem;
-
-    if (!parent.isValid())
-    {
-        parentItem = this->_rootItem;
-    }
-    else
-    {
-        parentItem = static_cast<TreeItem*>(parent.internalPointer());
-    }
-
-    TreeItem *childItem = parentItem->child(row);
-    if (childItem)
-    {
-        return this->createIndex(row, column, childItem);
-    }
-
-    return QModelIndex();
-}
-
-QModelIndex ProtocolsTreeModel::parent(const QModelIndex &index) const
-{
-    if (!index.isValid())
-    {
-        return QModelIndex();
-    }
-
-    TreeItem * childItem =
-            static_cast<TreeItem*>(index.internalPointer());
-    TreeItem * parentItem = childItem->parent();
-
-    if (parentItem == this->_rootItem)
-    {
-        return QModelIndex();
-    }
-
-    return this->createIndex(parentItem->row(), 0, parentItem);
-}
-
-int ProtocolsTreeModel::rowCount(const QModelIndex &parent) const
-{
-    if (parent.column() > 0)
-    {
-        return 0;
-    }
-
-    TreeItem *parentItem;
-    if (!parent.isValid())
-    {
-        parentItem = this->_rootItem;
-    }
-    else
-    {
-        parentItem = static_cast<TreeItem*>(parent.internalPointer());
-    }
-
-    return parentItem->childCount();
-}
-
-int ProtocolsTreeModel::columnCount(const QModelIndex &parent) const
-{
-    if (parent.isValid())
-    {
-        return static_cast<TreeItem*>(parent.internalPointer())->columnCount();
-    }
-
-    return this->_rootItem->columnCount();
 }
 
 } // namespace ihm

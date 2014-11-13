@@ -25,7 +25,7 @@ public:
 
     virtual ~BaseFrame();
 
-    virtual void Initialize() = 0;
+    void Initialize();
 
     virtual void Reset() = 0;
 

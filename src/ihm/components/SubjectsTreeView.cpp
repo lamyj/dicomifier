@@ -31,8 +31,9 @@ SubjectsTreeView
     {
         delete this->model();
     }
-    SubjectsTreeModel * model = new SubjectsTreeModel();
-    model->Initialize(this->sortedItems(), this->_displaySubject);
+
+    SubjectsTreeModel * model = new SubjectsTreeModel(this->_displaySubject);
+    model->Initialize(this->sortedItems());
     this->setModel(model);
 
     disconnect(this, SIGNAL(clicked(QModelIndex)),
@@ -85,7 +86,8 @@ SubjectsTreeView
             returnmap[name] = {};
         }
 
-        returnmap[name].push_back(couple);
+        TreeItem* item = new TreeItem(NULL, couple);
+        returnmap[name].push_back(item);
     }
 
     return returnmap;

@@ -27,6 +27,16 @@ BaseFrame
     // Nothing to do
 }
 
+void
+BaseFrame
+::Initialize()
+{
+    this->modify_previousButton_enabled();
+    this->modify_nextButton_enabled();
+
+    this->show();
+}
+
 } // namespace ihm
 
 } // namespace dicomifier

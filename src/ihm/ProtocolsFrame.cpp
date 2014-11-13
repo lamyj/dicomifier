@@ -1,3 +1,10 @@
+/*************************************************************************
+ * Dicomifier - Copyright (C) Universite de Strasbourg
+ * Distributed under the terms of the CeCILL-B license, as published by
+ * the CEA-CNRS-INRIA. Refer to the LICENSE file or to
+ * http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html
+ * for details.
+ ************************************************************************/
 
 #include <boost/algorithm/string.hpp>
 #include <boost/filesystem.hpp>
@@ -21,6 +28,9 @@ ProtocolsFrame
 
     this->_treeView = new ProtocolsTreeView(this->_ui->widget);
     this->_treeView->Initialize({});
+
+    connect(this->_treeView, SIGNAL(itemsSelectionChanged()),
+            this, SLOT(ontreeViewclicked()));
 }
 
 ProtocolsFrame
@@ -31,17 +41,7 @@ ProtocolsFrame
 
 void
 ProtocolsFrame
-::Initialize()
-{
-    this->modify_previousButton_enabled();
-    this->modify_nextButton_enabled();
-
-    this->show();
-}
-
-void
-ProtocolsFrame
-::Initialize(std::vector<TreeItem *> subjectslist)
+::InitializeWithData(std::vector<TreeItem *> subjectslist)
 {
     std::vector<TreeItem*> itemslist;
 
@@ -121,10 +121,18 @@ ProtocolsFrame
 
 void
 ProtocolsFrame
+::ontreeViewclicked()
+{
+    this->modify_nextButton_enabled();
+}
+
+void
+ProtocolsFrame
 ::modify_nextButton_enabled()
 {
-    // TODO
-    emit this->update_nextButton(false);
+    bool enabled = this->_treeView->is_item_selected();
+
+    emit this->update_nextButton(enabled);
 }
 
 void

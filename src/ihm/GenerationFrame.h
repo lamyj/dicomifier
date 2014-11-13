@@ -6,10 +6,10 @@
  * for details.
  ************************************************************************/
 
-#ifndef _49042f7b_a8e8_4ead_bd6b_a042b95be327
-#define _49042f7b_a8e8_4ead_bd6b_a042b95be327
+#ifndef _c893b98a_2a9d_41b4_bcf7_02699144b4d9
+#define _c893b98a_2a9d_41b4_bcf7_02699144b4d9
 
-#include "TreeModel.h"
+#include "BaseFrame.h"
 
 namespace dicomifier
 {
@@ -17,24 +17,31 @@ namespace dicomifier
 namespace ihm
 {
 
-class ProtocolsTreeModel : public TreeModel
+namespace Ui {
+class GenerationFrame;
+}
+
+class GenerationFrame : public BaseFrame
 {
     Q_OBJECT
 
 public:
-    ProtocolsTreeModel(QObject * parent = 0);
+    explicit GenerationFrame(QWidget *parent = 0);
+    virtual ~GenerationFrame();
 
-    virtual void Initialize(std::map<std::string,
-                            std::vector<TreeItem*>> dataList);
+    virtual void Reset();
 
 protected:
+    virtual void modify_nextButton_enabled();
+
+    virtual void modify_previousButton_enabled();
 
 private:
-
+    Ui::GenerationFrame * _ui;
 };
 
 } // namespace ihm
 
 } // namespace dicomifier
 
-#endif // _49042f7b_a8e8_4ead_bd6b_a042b95be327
+#endif // _c893b98a_2a9d_41b4_bcf7_02699144b4d9

@@ -44,16 +44,6 @@ SubjectsFrame
 
 void
 SubjectsFrame
-::Initialize()
-{
-    this->modify_previousButton_enabled();
-    this->modify_nextButton_enabled();
-
-    this->show();
-}
-
-void
-SubjectsFrame
 ::Reset()
 {
     this->_ui->dataDirectory->setText(QString(""));
