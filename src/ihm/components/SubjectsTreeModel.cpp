@@ -6,8 +6,6 @@
  * for details.
  ************************************************************************/
 
-#include <QtGui>
-
 #include "SubjectsTreeModel.h"
 
 namespace dicomifier
@@ -17,29 +15,18 @@ namespace ihm
 {
 
 SubjectsTreeModel
-::SubjectsTreeModel(QObject *parent) :
-    QAbstractItemModel(parent)
+::SubjectsTreeModel(bool displaySubject, QObject *parent) :
+    TreeModel(parent), _displaySubject(displaySubject)
 {
     QList<QVariant> rootData;
     rootData << "Select" << "Name" << "Date";
-    this->_rootItem = new TreeItem();
     this->_rootItem->set_data(rootData);
 }
 
-SubjectsTreeModel
-::~SubjectsTreeModel()
-{
-    if (this->_rootItem != NULL)
-    {
-        delete this->_rootItem;
-        this->_rootItem = NULL;
-    }
-}
 
 void
 SubjectsTreeModel
-::Initialize(std::map<std::string, std::vector<TreeItem *> > dataList,
-             bool displaySubject)
+::Initialize(std::map<std::string, std::vector<TreeItem *> > dataList)
 {
     this->_datalist = dataList;
 
@@ -58,8 +45,8 @@ SubjectsTreeModel
         {
             QList<QVariant> data;
             data << "";
-            data << QString(displaySubject ? iterdata->get_study().c_str() :
-                                             iterdata->get_name().c_str());
+            data << QString(this->_displaySubject ? iterdata->get_study().c_str() :
+                                                    iterdata->get_name().c_str());
             data << QString(iterdata->get_date().c_str());
 
             iterdata->set_data(data);
@@ -69,178 +56,6 @@ SubjectsTreeModel
 
         this->_rootItem->appendChild(item);
     }
-}
-
-QVariant
-SubjectsTreeModel
-::data(const QModelIndex &index, int role) const
-{
-    if (!index.isValid())
-    {
-        return QVariant();
-    }
-
-    TreeItem *item = static_cast<TreeItem*>(index.internalPointer());
-
-    switch (role)
-    {
-    case Qt::CheckStateRole:
-    {
-        if (index.column() == 0)
-        {
-            return static_cast< int >(item->get_checkState());
-        }
-        break;
-    }
-    case Qt::DisplayRole:
-    {
-        return item->data(index.column());
-    }
-    default:
-        break;
-    }
-
-    return QVariant();
-}
-
-Qt::ItemFlags
-SubjectsTreeModel
-::flags(const QModelIndex &index) const
-{
-    if (!index.isValid())
-    {
-        return 0;
-    }
-
-    // Items are selectable
-    Qt::ItemFlags flags = Qt::ItemIsEnabled | Qt::ItemIsSelectable;
-
-    // First column is a CheckBox
-    if ( index.column() == 0 )
-    {
-        flags |= Qt::ItemIsUserCheckable;
-    }
-
-    return flags;
-}
-
-QVariant
-SubjectsTreeModel
-::headerData(int section, Qt::Orientation orientation, int role) const
-{
-    if (orientation == Qt::Horizontal && role == Qt::DisplayRole)
-    {
-        return this->_rootItem->data(section);
-    }
-
-    return QVariant();
-}
-
-QModelIndex
-SubjectsTreeModel
-::index(int row, int column, const QModelIndex &parent) const
-{
-    if (!this->hasIndex(row, column, parent))
-    {
-        return QModelIndex();
-    }
-
-    TreeItem * parentItem;
-
-    if (!parent.isValid())
-    {
-        parentItem = this->_rootItem;
-    }
-    else
-    {
-        parentItem = static_cast<TreeItem*>(parent.internalPointer());
-    }
-
-    TreeItem *childItem = parentItem->child(row);
-    if (childItem)
-    {
-        return this->createIndex(row, column, childItem);
-    }
-
-    return QModelIndex();
-}
-
-QModelIndex
-SubjectsTreeModel
-::parent(const QModelIndex &index) const
-{
-    if (!index.isValid())
-    {
-        return QModelIndex();
-    }
-
-    TreeItem * childItem =
-            static_cast<TreeItem*>(index.internalPointer());
-    TreeItem * parentItem = childItem->parent();
-
-    if (parentItem == this->_rootItem)
-    {
-        return QModelIndex();
-    }
-
-    return this->createIndex(parentItem->row(), 0, parentItem);
-}
-
-int
-SubjectsTreeModel
-::rowCount(const QModelIndex &parent) const
-{
-    if (parent.column() > 0)
-    {
-        return 0;
-    }
-
-    TreeItem *parentItem;
-    if (!parent.isValid())
-    {
-        parentItem = this->_rootItem;
-    }
-    else
-    {
-        parentItem = static_cast<TreeItem*>(parent.internalPointer());
-    }
-
-    return parentItem->childCount();
-}
-
-int
-SubjectsTreeModel
-::columnCount(const QModelIndex &parent) const
-{
-    if (parent.isValid())
-    {
-        return static_cast<TreeItem*>(parent.internalPointer())->columnCount();
-    }
-
-    return this->_rootItem->columnCount();
-}
-
-bool
-SubjectsTreeModel
-::is_item_selected()
-{
-    for (int i = 0; i < this->_rootItem->childCount(); i++)
-    {
-        auto child = this->_rootItem->child(i);
-        if (child->get_checkState() != Qt::Unchecked)
-        {
-            return true;
-        }
-
-        for (int j = 0; j < child->childCount(); j++)
-        {
-            if (child->child(j)->get_checkState() != Qt::Unchecked)
-            {
-                return true;
-            }
-        }
-    }
-    return false;
 }
 
 std::vector<TreeItem *> SubjectsTreeModel::get_item_selected() const
@@ -264,6 +79,13 @@ std::vector<TreeItem *> SubjectsTreeModel::get_item_selected() const
     }
 
     return returnvect;
+}
+
+void
+SubjectsTreeModel
+::set_displaySubject(bool displaySubject)
+{
+    this->_displaySubject = displaySubject;
 }
 
 } // namespace ihm

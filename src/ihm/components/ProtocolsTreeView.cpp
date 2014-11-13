@@ -49,6 +49,19 @@ ProtocolsTreeView
     this->header()->resizeSection(2, 200);
 }
 
+bool
+ProtocolsTreeView
+::is_item_selected()
+{
+    if (this->model() == NULL)
+    {
+        return false;
+    }
+
+    ProtocolsTreeModel* model = dynamic_cast<ProtocolsTreeModel*>(this->model());
+    return model->is_item_selected();
+}
+
 std::map<std::string, std::vector<TreeItem *> >
 ProtocolsTreeView
 ::sortedItems() const

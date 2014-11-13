@@ -29,7 +29,7 @@ public:
 
     void set_displaySubject(bool displaysubject);
 
-    bool is_item_selected();
+    virtual bool is_item_selected();
 
 private :
     bool _displaySubject;

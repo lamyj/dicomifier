@@ -30,6 +30,8 @@ public:
 
     virtual void Initialize(std::vector<TreeItem*> const & dataList) = 0;
 
+    virtual bool is_item_selected() = 0;
+
 signals:
     void itemsSelectionChanged();
 

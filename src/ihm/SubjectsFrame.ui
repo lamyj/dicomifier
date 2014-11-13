@@ -20,29 +20,14 @@
    <string>Form</string>
   </property>
   <property name="styleSheet">
-   <string notr="true">QLineEdit
-{
-    margin: 0px 5px;
-    background-color: white;
-    border-radius: 8px;
-    border: 1px solid #2299FF;
-}
-
-QLineEdit#dataDirectory
+   <string notr="true">QLineEdit#dataDirectory
 {
     margin-left: 5px;
     margin-right: 0px;
     margin-bottom: 25px;
     margin-top: 0px;
 }
-
-QRadioButton
-{
-    margin: 5px 15px;
-    font-size: 16px;
-    background: transparent;
-    border: none;
-}</string>
+</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
    <property name="leftMargin">

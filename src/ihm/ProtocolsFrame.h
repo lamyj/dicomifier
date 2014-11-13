@@ -1,5 +1,13 @@
-#ifndef PROTOCOLSFRAME_H
-#define PROTOCOLSFRAME_H
+/*************************************************************************
+ * Dicomifier - Copyright (C) Universite de Strasbourg
+ * Distributed under the terms of the CeCILL-B license, as published by
+ * the CEA-CNRS-INRIA. Refer to the LICENSE file or to
+ * http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html
+ * for details.
+ ************************************************************************/
+
+#ifndef _d701c893_f5eb_43a4_bf29_271618b5489e
+#define _d701c893_f5eb_43a4_bf29_271618b5489e
 
 #include "BaseFrame.h"
 #include "components/ProtocolsTreeView.h"
@@ -22,10 +30,12 @@ public:
     explicit ProtocolsFrame(QWidget *parent = 0);
     virtual ~ProtocolsFrame();
 
-    virtual void Initialize();
-    void Initialize(std::vector<TreeItem*> subjectslist);
+    void InitializeWithData(std::vector<TreeItem*> subjectslist);
 
     virtual void Reset();
+
+public slots:
+    void ontreeViewclicked();
 
 protected:
     virtual void modify_nextButton_enabled();
@@ -45,4 +55,4 @@ private:
 
 } // namespace dicomifier
 
-#endif // PROTOCOLSFRAME_H
+#endif // _d701c893_f5eb_43a4_bf29_271618b5489e

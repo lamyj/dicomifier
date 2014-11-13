@@ -19,11 +19,13 @@ namespace dicomifier
 namespace ihm
 {
 
-MainFrame::MainFrame(QWidget *parent) :
+MainFrame
+::MainFrame(QWidget *parent) :
     QMainWindow(parent),
     _ui(new Ui::MainFrame),
     _subjectsframe(NULL),
     _protocolsframe(NULL),
+    _generationframe(NULL),
     _currentStep(EDS_CountMax)
 {
     this->_ui->setupUi(this);
@@ -55,23 +57,35 @@ MainFrame::MainFrame(QWidget *parent) :
             this, SLOT(setEnabled_nextButton(bool)));
     connect(this->_protocolsframe, SIGNAL(update_previousButton(bool)),
             this, SLOT(setEnabled_previousButton(bool)));
+
+    // Create third Widget (Generation Parameters)
+    this->_generationframe = new GenerationFrame(this->_ui->stepWidget);
+    this->_ui->stepWidget->layout()->addWidget(this->_generationframe);
+    connect(this->_generationframe, SIGNAL(update_nextButton(bool)),
+            this, SLOT(setEnabled_nextButton(bool)));
+    connect(this->_generationframe, SIGNAL(update_previousButton(bool)),
+            this, SLOT(setEnabled_previousButton(bool)));
 }
 
-MainFrame::~MainFrame()
+MainFrame
+::~MainFrame()
 {
     delete this->_ui;
 }
 
-void MainFrame::Initialize()
+void
+MainFrame
+::Initialize()
 {
     // Window Position and Size
     this->setGeometry(0, 0, 1040, 768);
 
     this->ChangeStep(false);
-
 }
 
-void MainFrame::ShowHide()
+void
+MainFrame
+::ShowHide(bool nextstep)
 {
     if (this->_currentStep == EDS_SelectSubject)
     {
@@ -84,7 +98,14 @@ void MainFrame::ShowHide()
 
     if (this->_currentStep == EDS_SelectProtocols)
     {
-        this->_protocolsframe->Initialize(this->_subjectsframe->get_selectedData());
+        if (nextstep)
+        {
+            this->_protocolsframe->InitializeWithData(this->_subjectsframe->get_selectedData());
+        }
+        else
+        {
+            this->_protocolsframe->Initialize();
+        }
     }
     else
     {
@@ -92,14 +113,18 @@ void MainFrame::ShowHide()
     }
 
     if (this->_currentStep == EDS_Generation)
-    {// TODO
+    {
+        this->_generationframe->Initialize();
     }
     else
-    {// TODO
+    {
+        this->_generationframe->hide();
     }
 }
 
-void MainFrame::ChangeStep(bool nextstep)
+void
+MainFrame
+::ChangeStep(bool nextstep)
 {
     switch (this->_currentStep)
     {
@@ -121,12 +146,16 @@ void MainFrame::ChangeStep(bool nextstep)
     case EDS_CountMax:
     default:
     {
-        this->_currentStep = EDS_SelectSubject; // TODO EDS_SelectSubject;
+        this->_currentStep = EDS_SelectSubject;
         break;
     }
     }
 
-    this->ShowHide();
+    this->ShowHide(nextstep);
+
+    std::stringstream stream;
+    stream << (this->_currentStep + 1) << " / " << EDS_CountMax;
+    this->_ui->stepNumberLabel->setText(QString(stream.str().c_str()));
 }
 
 void
@@ -166,7 +195,7 @@ MainFrame
     // reset data
     this->_subjectsframe->Reset();
     this->_protocolsframe->Reset();
-    // TODO
+    this->_generationframe->Reset();
 
     // Initialize window
     this->_currentStep = EDS_CountMax;

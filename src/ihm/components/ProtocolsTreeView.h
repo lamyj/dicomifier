@@ -27,6 +27,8 @@ public:
 
     virtual void Initialize(std::vector<TreeItem*> const & dataList);
 
+    virtual bool is_item_selected();
+
 private:
     virtual std::map<std::string, std::vector<TreeItem*>> sortedItems() const;
 

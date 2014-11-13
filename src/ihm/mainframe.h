@@ -11,6 +11,7 @@
 
 #include <QMainWindow>
 
+#include "GenerationFrame.h"
 #include "ProtocolsFrame.h"
 #include "SubjectsFrame.h"
 
@@ -46,7 +47,7 @@ public:
 protected:
     void InitializeStep(DicomifierStep step);
 
-    void ShowHide();
+    void ShowHide(bool nextstep);
 
     void ChangeStep(bool nextstep);
 
@@ -67,6 +68,8 @@ private:
     SubjectsFrame * _subjectsframe;
 
     ProtocolsFrame * _protocolsframe;
+
+    GenerationFrame * _generationframe;
 
     DicomifierStep _currentStep;
 
