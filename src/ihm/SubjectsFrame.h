@@ -55,6 +55,9 @@ protected:
 
     void set_list_enabled(bool enabled);
 
+private slots:
+    void on_checkBox_clicked();
+
 private:
     Ui::SubjectsFrame * _ui;
 

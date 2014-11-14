@@ -6,6 +6,7 @@
  * for details.
  ************************************************************************/
 
+#include "TreeModel.h"
 #include "TreeView.h"
 
 namespace dicomifier
@@ -26,6 +27,30 @@ TreeView
 ::~TreeView()
 {
     // Nothing to do
+}
+
+Qt::CheckState
+TreeView
+::compute_selection()
+{
+    if (this->model() != NULL)
+    {
+        TreeModel* model = dynamic_cast<TreeModel*>(this->model());
+        return model->compute_selection();
+    }
+    return Qt::Unchecked;
+}
+
+void
+TreeView
+::setCheckState_all(Qt::CheckState state)
+{
+    if (this->model() != NULL)
+    {
+        TreeModel* model = dynamic_cast<TreeModel*>(this->model());
+        model->setCheckState_all(state);
+        this->update();
+    }
 }
 
 void

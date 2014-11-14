@@ -25,6 +25,14 @@
   <property name="windowTitle">
    <string>Form</string>
   </property>
+  <property name="styleSheet">
+   <string notr="true">QCheckBox 
+{
+	margin-top: 5px;
+	margin-left: 5px;
+}
+</string>
+  </property>
   <layout class="QGridLayout" name="gridLayout">
    <property name="leftMargin">
     <number>0</number>
@@ -119,7 +127,6 @@ QWidget#widget_4
           </spacer>
          </item>
         </layout>
-        <zorder>widget</zorder>
         <zorder>radioButton</zorder>
         <zorder>radioButton_2</zorder>
         <zorder>verticalSpacer</zorder>

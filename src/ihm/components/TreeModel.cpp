@@ -54,6 +54,54 @@ TreeModel
     return false;
 }
 
+Qt::CheckState TreeModel::compute_selection()
+{
+    bool oneselected = false;
+    bool oneunselected = false;
+    for (int i = 0; i < this->_rootItem->childCount(); i++)
+    {
+        auto child = this->_rootItem->child(i);
+        if (child->get_checkState() == Qt::PartiallyChecked)
+        {
+            return Qt::PartiallyChecked;
+        }
+        else if (child->get_checkState() == Qt::Checked)
+        {
+            oneselected = true;
+        }
+        else
+        {
+            oneunselected = true;
+        }
+    }
+
+    if (oneselected && oneunselected)
+    {
+        return Qt::PartiallyChecked;
+    }
+    else if (oneselected)
+    {
+        return Qt::Checked;
+    }
+    return Qt::Unchecked;
+}
+
+void
+TreeModel
+::setCheckState_all(Qt::CheckState state)
+{
+    for (int i = 0; i < this->_rootItem->childCount(); i++)
+    {
+        auto child = this->_rootItem->child(i);
+        child->set_checkState(state);
+
+        for (int j = 0; j < child->childCount(); j++)
+        {
+            child->child(j)->set_checkState(state);
+        }
+    }
+}
+
 QVariant
 TreeModel
 ::data(const QModelIndex &index, int role) const

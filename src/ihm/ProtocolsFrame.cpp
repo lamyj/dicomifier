@@ -123,6 +123,7 @@ void
 ProtocolsFrame
 ::ontreeViewclicked()
 {
+    this->_ui->checkBox->setCheckState(this->_treeView->compute_selection());
     this->modify_nextButton_enabled();
 }
 
@@ -130,8 +131,7 @@ void
 ProtocolsFrame
 ::modify_nextButton_enabled()
 {
-    bool enabled = this->_treeView->is_item_selected();
-
+    bool enabled = (this->_ui->checkBox->checkState() != Qt::Unchecked);
     emit this->update_nextButton(enabled);
 }
 
@@ -151,6 +151,18 @@ void ProtocolsFrame::paintEvent(QPaintEvent *event)
     }
 
     QWidget::paintEvent(event);
+}
+
+void
+ProtocolsFrame
+::on_checkBox_clicked()
+{
+    if (this->_ui->checkBox->checkState() == Qt::PartiallyChecked)
+    {
+        this->_ui->checkBox->setCheckState(Qt::Checked);
+    }
+    this->_treeView->setCheckState_all(this->_ui->checkBox->checkState());
+    this->modify_nextButton_enabled();
 }
 
 } // namespace ihm
