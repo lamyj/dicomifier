@@ -34,6 +34,8 @@ SubjectsFrame
     connect(this->_treeView, SIGNAL(itemsSelectionChanged()),
             this, SLOT(ontreeViewclicked()));
 
+    this->set_list_enabled(false);
+
 }
 
 SubjectsFrame

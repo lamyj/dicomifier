@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" version="1.0" width="32" height="32" id="checkbox">
+<g>
+    <rect width="30" height="30" x="1" y="1" rx="8" ry="8" stroke-width="2"
+          stroke="#1155AA" fill="#FAFAFA" id="box"/>
+    <polygon fill="#1155AA" stroke="#000000"
+             points="26,13 19,13 19,6 13,6 13,13 6,13 6,19 13,19 13,26 
+                     19,26 19,19 26,19    "/>
+</g>
+</svg>
