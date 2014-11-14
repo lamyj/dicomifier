@@ -36,6 +36,11 @@ SubjectsFrame
 
     this->set_list_enabled(false);
 
+    this->_ui->dateEdit->setDisplayFormat(QString("dd/MM/yyyy"));
+    this->_ui->dateEdit_2->setDisplayFormat(QString("dd/MM/yyyy"));
+
+    this->_ui->dateEdit->setDate(QDate::currentDate());
+    this->_ui->dateEdit_2->setDate(QDate::currentDate());
 }
 
 SubjectsFrame
@@ -112,10 +117,14 @@ SubjectsFrame
     this->_ui->radioButton->setEnabled(enabled);
     this->_ui->radioButton_2->setEnabled(enabled);
     this->_ui->lineEdit->setEnabled(enabled);
-    this->_ui->lineEdit_2->setEnabled(enabled);
+    this->_ui->dateEdit->setEnabled(enabled);
+    this->_ui->dateEdit_2->setEnabled(enabled);
     this->_ui->label_2->setEnabled(enabled);
     this->_ui->label_3->setEnabled(enabled);
+    this->_ui->label_4->setEnabled(enabled);
+    this->_ui->label_5->setEnabled(enabled);
     this->_treeView->setEnabled(enabled);
+    this->_ui->checkBox->setEnabled(enabled);
 
     this->modify_nextButton_enabled();
 }
@@ -185,6 +194,7 @@ void
 SubjectsFrame
 ::ontreeViewclicked()
 {
+    this->_ui->checkBox->setCheckState(this->_treeView->compute_selection());
     this->modify_nextButton_enabled();
 }
 
@@ -199,7 +209,7 @@ SubjectsFrame
     bool enabled = directory != "" &&
                    boost::filesystem::exists(boost::filesystem::path(directory));
 
-    enabled &= this->_treeView->is_item_selected();
+    enabled &= (this->_ui->checkBox->checkState() != Qt::Unchecked);
 
     emit this->update_nextButton(enabled);
 }
@@ -210,6 +220,18 @@ SubjectsFrame
 {
     // Nothing to do: always false
     emit this->update_previousButton(false);
+}
+
+void
+SubjectsFrame
+::on_checkBox_clicked()
+{
+    if (this->_ui->checkBox->checkState() == Qt::PartiallyChecked)
+    {
+        this->_ui->checkBox->setCheckState(Qt::Checked);
+    }
+    this->_treeView->setCheckState_all(this->_ui->checkBox->checkState());
+    this->modify_nextButton_enabled();
 }
 
 } // namespace ihm

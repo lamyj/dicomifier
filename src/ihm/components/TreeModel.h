@@ -33,6 +33,10 @@ public:
 
     bool is_item_selected();
 
+    Qt::CheckState compute_selection();
+
+    void setCheckState_all(Qt::CheckState state);
+
     QVariant data(const QModelIndex & index, int role) const;
     Qt::ItemFlags flags(const QModelIndex & index) const;
     QVariant headerData(int section, Qt::Orientation orientation,

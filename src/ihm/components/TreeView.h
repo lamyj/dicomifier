@@ -32,6 +32,10 @@ public:
 
     virtual bool is_item_selected() = 0;
 
+    Qt::CheckState compute_selection();
+
+    void setCheckState_all(Qt::CheckState state);
+
 signals:
     void itemsSelectionChanged();
 

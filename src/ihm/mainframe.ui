@@ -319,19 +319,25 @@ QTreeView::item:hover
      border: 1px solid #567dbc;
  }
 
- QTreeView::item:selected:active{
+QTreeView::item:selected:active{
      background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #6ea1f1, stop: 1 #567dbc);
- }
+}
 
- QTreeView::item:selected:!active {
+QTreeView::item:selected:!active {
      background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #6b9be8, stop: 1 #577fbf);
- }
+}
+
+QTreeView::indicator 
+{
+	width: 32px;
+	height: 32px;
+}
 
  QTreeView::indicator:unchecked {
      image: url(:/images/checkbox_unchecked);
  }
 
- QTreeView::indicator:unchecked_disabled {
+ QTreeView::indicator:unchecked:disabled {
      image: url(:/images/checkbox_unchecked_off);
  }
  
@@ -406,6 +412,7 @@ QHeaderView::section
 
 QHeaderView
 {
+    background: transparent;
     border-bottom: 1px solid #2299FF;
 }
 
@@ -440,19 +447,19 @@ QCheckBox
 {
     font-size: 18px;
     spacing: 10px;
- }
+}
  
  QCheckBox::indicator 
 {
-	width: 20px;
-	height: 20px;
- }
+	width: 32px;
+	height: 32px;
+}
 
 QCheckBox::indicator:unchecked {
      image: url(:/images/checkbox_unchecked);
  }
 
- QCheckBox::indicator:unchecked_disabled {
+ QCheckBox::indicator:unchecked:disabled {
      image: url(:/images/checkbox_unchecked_off);
  }
  
