@@ -31,10 +31,16 @@ public:
 
     virtual bool is_item_selected();
 
+    void filter_name(const QString & filter);
+
 private :
     bool _displaySubject;
 
+    std::string _expression;
+
     virtual std::map<std::string, std::vector<TreeItem*>> sortedItems() const;
+
+    boost::regex transform_regex() const;
 
 };
 

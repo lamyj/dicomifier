@@ -58,7 +58,9 @@ SubjectsTreeModel
     }
 }
 
-std::vector<TreeItem *> SubjectsTreeModel::get_item_selected() const
+std::vector<TreeItem *>
+SubjectsTreeModel
+::get_item_selected() const
 {
     std::vector<TreeItem*>  returnvect;
     for (int i = 0; i < this->_rootItem->childCount(); i++)

@@ -58,6 +58,8 @@ protected:
 private slots:
     void on_checkBox_clicked();
 
+    void on_lineEdit_textEdited(const QString &arg1);
+
 private:
     Ui::SubjectsFrame * _ui;
 
