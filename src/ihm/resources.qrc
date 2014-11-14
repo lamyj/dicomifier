@@ -1,5 +1,16 @@
 <RCC>
     <qresource prefix="/images">
-        <file alias="quit">images/quit.svg</file>
+        <file alias="checkbox_unchecked">images/checkbox_unchecked.svg</file>
+        <file alias="checkbox_checked">images/checkbox_checked.svg</file>
+        <file alias="checkbox_partial">images/checkbox_partially_checked.svg</file>
+        <file alias="radiobutton_unchecked">images/radiobutton_unchecked.svg</file>
+        <file alias="radiobutton_checked">images/radiobutton_checked.svg</file>
+        <file alias="radiobutton_checked_off">images/radiobutton_checked_disabled.svg</file>
+        <file alias="radiobutton_unchecked_off">images/radiobutton_unchecked_disabled.svg</file>
+        <file alias="checkbox_checked_off">images/checkbox_checked_disabled.svg</file>
+        <file alias="checkbox_partial_off">images/checkbox_partially_checked_disabled.svg</file>
+        <file alias="checkbox_unchecked_off">images/checkbox_unchecked_disabled.svg</file>
+        <file alias="treeview_closed">images/treeview_closed.svg</file>
+        <file alias="treeview_open">images/treeview_open.svg</file>
     </qresource>
 </RCC>

@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" version="1.0" width="32" height="32" id="radiobutton">
+<g>
+    <circle r="15" cx="16" cy="16" stroke-width="2"
+          stroke="#2299FF" fill="#FAFAFA" id="box"/>
+</g>
+</svg>

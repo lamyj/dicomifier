@@ -79,6 +79,10 @@ TreeModel
     {
         return item->data(index.column());
     }
+    case Qt::SizeHintRole:
+    {
+        return QSize(100,40);
+    }
     default:
         break;
     }
