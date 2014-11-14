@@ -6,6 +6,9 @@
  * for details.
  ************************************************************************/
 
+#include <boost/algorithm/string.hpp>
+#include "boost/regex.hpp"
+
 #include "SubjectsTreeView.h"
 
 namespace dicomifier
@@ -16,7 +19,7 @@ namespace ihm
 
 SubjectsTreeView
 ::SubjectsTreeView(QWidget *parent) :
-    TreeView(parent), _displaySubject(true)
+    TreeView(parent), _displaySubject(true), _expression("*")
 {
     // Nothing to do
 }
@@ -71,6 +74,19 @@ SubjectsTreeView
     return model->is_item_selected();
 }
 
+void
+SubjectsTreeView
+::filter_name(const QString &filter)
+{
+    this->_expression = filter.toStdString();
+    if (filter.size() == 0)
+    {
+        this->_expression = "*";
+    }
+
+    this->Initialize(this->_dataList);
+}
+
 std::map<std::string, std::vector<TreeItem *> >
 SubjectsTreeView
 ::sortedItems() const
@@ -81,16 +97,48 @@ SubjectsTreeView
     {
         std::string name = this->_displaySubject ? couple->get_name() :
                                                    couple->get_study();
-        if (returnmap.find(name) == returnmap.end())
-        {// create new entry
-            returnmap[name] = {};
-        }
 
-        TreeItem* item = new TreeItem(NULL, couple);
-        returnmap[name].push_back(item);
+        boost::cmatch what;
+        if (regex_search(name.c_str(), what, this->transform_regex()))
+        {
+            if (returnmap.find(name) == returnmap.end())
+            {// create new entry
+                returnmap[name] = {};
+            }
+
+            TreeItem* item = new TreeItem(NULL, couple);
+            returnmap[name].push_back(item);
+        }
     }
 
     return returnmap;
+}
+
+boost::regex
+SubjectsTreeView
+::transform_regex() const
+{
+    std::string regex = this->_expression;
+    // Escape "\\" first since we're using it to replace "."
+    boost::replace_all(regex, "\\", "\\\\");
+    // Escape "." second since we're using it to replace "*"
+    boost::replace_all(regex, ".", "\\.");
+    boost::replace_all(regex, "*", ".*");
+    boost::replace_all(regex, "?", ".");
+    // Escape other PCRE metacharacters
+    boost::replace_all(regex, "^", "\\^");
+    boost::replace_all(regex, "$", "\\$");
+    boost::replace_all(regex, "[", "\\[");
+    boost::replace_all(regex, "]", "\\]");
+    boost::replace_all(regex, "(", "\\(");
+    boost::replace_all(regex, ")", "\\)");
+    boost::replace_all(regex, "+", "\\+");
+    boost::replace_all(regex, "{", "\\{");
+    boost::replace_all(regex, "}", "\\}");
+    // Add the start and end anchors
+    regex = "^" + regex;
+
+    return boost::regex(regex, boost::regex::icase);
 }
 
 } // namespace ihm

@@ -234,6 +234,13 @@ SubjectsFrame
     this->modify_nextButton_enabled();
 }
 
+void
+SubjectsFrame
+::on_lineEdit_textEdited(const QString &arg1)
+{
+    this->_treeView->filter_name(arg1);
+}
+
 } // namespace ihm
 
 } // namespace dicomifier
