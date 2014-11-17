@@ -18,7 +18,8 @@ TreeItem
 ::TreeItem(TreeItem *parent, TreeItem * copy):
     _parentItem(parent), _checkState(Qt::Unchecked),
     _name(""), _study(""), _series(""), _reconstruction(""),
-    _date(""), _directory(""), _seriesDirectory(""), _recoDirectory("")
+    _date(""), _directory(""), _seriesDirectory(""), _recoDirectory(""),
+    _qdate(QDate::currentDate())
 {
     if (copy != NULL)
     {
@@ -30,6 +31,7 @@ TreeItem
         this->_directory       = copy->get_directory();
         this->_seriesDirectory = copy->get_seriesDirectory();
         this->_recoDirectory   = copy->get_recoDirectory();
+        this->_qdate           = copy->get_qdate();
     }
 }
 
@@ -219,7 +221,21 @@ TreeItem
         this->_study = brukerdataset->GetFieldData("SUBJECT_study_name")->get_string(0);
     }
 
-    this->_date = ""; // TODO
+    if (brukerdataset->HasFieldData("SUBJECT_abs_date"))
+    {
+        double datestr = brukerdataset->GetFieldData("SUBJECT_abs_date")->get_double(0);
+        std::time_t now = datestr;
+        tm *ltm = localtime(&now);
+
+        char format[64];
+        memset(&format[0], 0, 64);
+        strftime(format, 64, "%d / %m / %Y", ltm);
+
+        this->_date = std::string(&format[0]);
+        this->_qdate = QDate(ltm->tm_year + 1900, ltm->tm_mon + 1, ltm->tm_mday);
+
+        emit this->SendDate(datestr);
+    }
 
     if (brukerdataset->HasFieldData("Method"))
     {

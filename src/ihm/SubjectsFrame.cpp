@@ -24,7 +24,7 @@ namespace ihm
 SubjectsFrame
 ::SubjectsFrame(QWidget *parent) :
     BaseFrame(parent),
-    _ui(new Ui::SubjectsFrame), _treeView(NULL)
+    _ui(new Ui::SubjectsFrame), _treeView(NULL), _datemin(QDate::currentDate())
 {
     this->_ui->setupUi(this);
 
@@ -39,7 +39,7 @@ SubjectsFrame
     this->_ui->dateEdit->setDisplayFormat(QString("dd/MM/yyyy"));
     this->_ui->dateEdit_2->setDisplayFormat(QString("dd/MM/yyyy"));
 
-    this->_ui->dateEdit->setDate(QDate::currentDate());
+    this->_ui->dateEdit->setDate(this->_datemin);
     this->_ui->dateEdit_2->setDate(QDate::currentDate());
 }
 
@@ -133,6 +133,8 @@ void
 SubjectsFrame
 ::on_dataDirectory_editingFinished()
 {
+    this->_datemin = QDate::currentDate();
+
     std::string const directory =
             this->_ui->dataDirectory->text().toUtf8().constData();
 
@@ -170,8 +172,10 @@ SubjectsFrame
             dataset->LoadFile(file);
 
             TreeItem* treeitem = new TreeItem();
+            connect(treeitem, SIGNAL(SendDate(double)), this, SLOT(ReceivedDate(double)));
             treeitem->set_directory(dir);
             treeitem->fill_data(dataset);
+            disconnect(treeitem, SIGNAL(SendDate(double)), this, SLOT(ReceivedDate(double)));
 
             subjectsAndStudiesList.push_back(treeitem);
 
@@ -179,6 +183,8 @@ SubjectsFrame
         }
         // else ignore files
     }
+    this->_ui->dateEdit->setDate(this->_datemin);
+    this->_treeView->filter_date(this->_datemin, QDate::currentDate(), false);
 
     this->_treeView->Initialize(subjectsAndStudiesList);
 }
@@ -239,6 +245,34 @@ SubjectsFrame
 ::on_lineEdit_textEdited(const QString &arg1)
 {
     this->_treeView->filter_name(arg1);
+}
+
+void
+SubjectsFrame
+::on_dateEdit_dateChanged(const QDate &date)
+{
+    this->_treeView->filter_date(date, this->_ui->dateEdit_2->date());
+}
+
+void
+SubjectsFrame
+::on_dateEdit_2_dateChanged(const QDate &date)
+{
+    this->_treeView->filter_date(this->_datemin, date);
+}
+
+void
+SubjectsFrame
+::ReceivedDate(double date)
+{
+    std::time_t now = date;
+    tm *ltm = localtime(&now);
+    QDate datetemp(ltm->tm_year + 1900, ltm->tm_mon + 1, ltm->tm_mday);
+
+    if (this->_datemin > datetemp)
+    {
+        this->_datemin = datetemp;
+    }
 }
 
 } // namespace ihm

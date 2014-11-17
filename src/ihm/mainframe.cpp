@@ -141,6 +141,11 @@ MainFrame
     case EDS_Generation:
     {
         this->_currentStep = nextstep ? EDS_Generation : EDS_SelectProtocols;
+
+        if (nextstep)
+        {
+            // TODO emit Run
+        }
         break;
     }
     case EDS_CountMax:
@@ -156,6 +161,9 @@ MainFrame
     std::stringstream stream;
     stream << (this->_currentStep + 1) << " / " << EDS_CountMax;
     this->_ui->stepNumberLabel->setText(QString(stream.str().c_str()));
+
+    this->_ui->nextButton->setText(this->_currentStep + 1 == EDS_CountMax ? QString("Run") :
+                                                                            QString("Next"));
 }
 
 void
