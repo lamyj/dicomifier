@@ -41,12 +41,26 @@ SubjectsFrame
 
     this->_ui->dateFilterBegin->setDate(this->_datemin);
     this->_ui->dateFilterEnd->setDate(QDate::currentDate());
+
+    QSettings settings;
+    this->_ui->dataDirectory->setText(settings.value(QString("Input/directory"), QString("")).toString());
 }
 
 SubjectsFrame
 ::~SubjectsFrame()
 {
     delete this->_ui;
+}
+
+void
+SubjectsFrame
+::Initialize()
+{
+    if (this->_ui->dataDirectory->text() != "")
+    {
+        on_dataDirectory_editingFinished();
+    }
+    BaseFrame::Initialize();
 }
 
 void

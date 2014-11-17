@@ -26,7 +26,9 @@ MainFrame
     _subjectsframe(NULL),
     _protocolsframe(NULL),
     _generationframe(NULL),
-    _currentStep(EDS_CountMax)
+    _preferencesframe(NULL),
+    _currentStep(EDS_CountMax),
+    _previousStep(EDS_CountMax)
 {
     this->_ui->setupUi(this);
 
@@ -40,7 +42,7 @@ MainFrame
 
     this->_ui->actionPreferences->setShortcuts(QKeySequence::Preferences);
     this->_ui->actionPreferences->setStatusTip(tr("Modify Dicomifier Preferences"));
-    //connect(this->_ui->actionPreferences, SIGNAL(triggered()), this, SLOT()); TODO
+    connect(this->_ui->actionPreferences, SIGNAL(triggered()), this, SLOT(OpenPreferences()));
 
     // Create first Widget (Subect Selection)
     this->_subjectsframe = new SubjectsFrame(this->_ui->stepWidget);
@@ -64,6 +66,14 @@ MainFrame
     connect(this->_generationframe, SIGNAL(update_nextButton(bool)),
             this, SLOT(setEnabled_nextButton(bool)));
     connect(this->_generationframe, SIGNAL(update_previousButton(bool)),
+            this, SLOT(setEnabled_previousButton(bool)));
+
+    // Create Preferences Frame
+    this->_preferencesframe = new PreferencesFrame(this->_ui->stepWidget);
+    this->_ui->stepWidget->layout()->addWidget(this->_preferencesframe);
+    connect(this->_preferencesframe, SIGNAL(update_nextButton(bool)),
+            this, SLOT(setEnabled_nextButton(bool)));
+    connect(this->_preferencesframe, SIGNAL(update_previousButton(bool)),
             this, SLOT(setEnabled_previousButton(bool)));
 }
 
@@ -120,6 +130,15 @@ MainFrame
     {
         this->_generationframe->hide();
     }
+
+    if (this->_currentStep == EDS_Preferences)
+    {
+        this->_preferencesframe->Initialize();
+    }
+    else
+    {
+        this->_preferencesframe->hide();
+    }
 }
 
 void
@@ -146,6 +165,19 @@ MainFrame
         {
             // TODO emit Run
         }
+        break;
+    }
+    case EDS_Preferences:
+    {
+        this->_currentStep = this->_previousStep;
+        this->_ui->stepNumberLabel->show();
+        this->_ui->nextButton->setText(QString("Next"));
+        this->_ui->previousButton->setText(QString("Previous"));
+        if (nextstep)
+        {
+            this->_preferencesframe->SavePreferences();
+        }
+        nextstep = false;
         break;
     }
     case EDS_CountMax:
@@ -195,6 +227,19 @@ MainFrame
     this->ChangeStep(false);
 }
 
+void
+MainFrame
+::OpenPreferences()
+{
+    this->_previousStep = this->_currentStep;
+    this->_currentStep = EDS_Preferences;
+    this->_ui->stepNumberLabel->hide();
+
+    this->_ui->nextButton->setText(QString("Validate"));
+    this->_ui->previousButton->setText(QString("Cancel"));
+
+    this->ShowHide(false);
+}
 
 void
 MainFrame

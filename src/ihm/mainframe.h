@@ -12,6 +12,7 @@
 #include <QMainWindow>
 
 #include "GenerationFrame.h"
+#include "PreferencesFrame.h"
 #include "ProtocolsFrame.h"
 #include "SubjectsFrame.h"
 
@@ -31,7 +32,9 @@ enum DicomifierStep
     EDS_SelectSubject = 0,
     EDS_SelectProtocols,
     EDS_Generation,
-    EDS_CountMax
+    EDS_CountMax,
+
+    EDS_Preferences
 };
 
 class MainFrame : public QMainWindow
@@ -62,6 +65,8 @@ private slots:
 
     void on_previousButton_clicked();
 
+    void OpenPreferences();
+
 private:
     Ui::MainFrame * _ui;
 
@@ -71,7 +76,11 @@ private:
 
     GenerationFrame * _generationframe;
 
+    PreferencesFrame * _preferencesframe;
+
     DicomifierStep _currentStep;
+
+    DicomifierStep _previousStep;
 
 };
 

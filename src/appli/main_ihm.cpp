@@ -14,6 +14,9 @@ int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
 
+    QCoreApplication::setOrganizationName("Dicomifier");
+    QCoreApplication::setApplicationName("dicomifier");
+
     dicomifier::ihm::MainFrame frame;
 
     frame.Initialize();
