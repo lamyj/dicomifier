@@ -37,13 +37,13 @@ protected:
     virtual void modify_previousButton_enabled();
 
 private slots:
-    void on_checkBox_clicked();
+    void on_saveCheckBox_clicked();
 
-    void on_pushButton_clicked();
+    void on_outputDirBrowseButton_clicked();
 
-    void on_lineEdit_editingFinished();
+    void on_outputDirectory_editingFinished();
 
-    void on_lineEdit_textEdited(const QString &arg1);
+    void on_outputDirectory_textEdited(const QString &arg1);
 
 private:
     Ui::GenerationFrame * _ui;

@@ -97,7 +97,7 @@ QWidget#widget_4
        <widget class="QWidget" name="widget_2" native="true">
         <layout class="QGridLayout" name="gridLayout_4">
          <item row="0" column="0">
-          <widget class="QRadioButton" name="radioButton">
+          <widget class="QRadioButton" name="formatMRIMultiple">
            <property name="text">
             <string>MRI Multiple Files</string>
            </property>
@@ -107,7 +107,7 @@ QWidget#widget_4
           </widget>
          </item>
          <item row="0" column="1">
-          <widget class="QRadioButton" name="radioButton_2">
+          <widget class="QRadioButton" name="formatMRISingle">
            <property name="text">
             <string>MRI Single File</string>
            </property>
@@ -127,8 +127,8 @@ QWidget#widget_4
           </spacer>
          </item>
         </layout>
-        <zorder>radioButton</zorder>
-        <zorder>radioButton_2</zorder>
+        <zorder>formatMRIMultiple</zorder>
+        <zorder>formatMRISingle</zorder>
         <zorder>verticalSpacer</zorder>
        </widget>
       </item>
@@ -136,14 +136,14 @@ QWidget#widget_4
        <widget class="QWidget" name="widget_3" native="true">
         <layout class="QVBoxLayout" name="verticalLayout">
          <item>
-          <widget class="QCheckBox" name="checkBox_2">
+          <widget class="QCheckBox" name="DicomdirCheckBox">
            <property name="text">
             <string>Create DICOMDIR</string>
            </property>
           </widget>
          </item>
          <item>
-          <widget class="QCheckBox" name="checkBox_3">
+          <widget class="QCheckBox" name="ZIPCheckBox">
            <property name="text">
             <string>Create ZIP Archive</string>
            </property>
@@ -169,14 +169,14 @@ QWidget#widget_4
        <widget class="QWidget" name="widget_4" native="true">
         <layout class="QGridLayout" name="gridLayout_3">
          <item row="1" column="0">
-          <widget class="QLabel" name="label_2">
+          <widget class="QLabel" name="outputDirectoryTitle">
            <property name="text">
             <string>Output Directory: </string>
            </property>
           </widget>
          </item>
          <item row="1" column="2">
-          <widget class="QPushButton" name="pushButton">
+          <widget class="QPushButton" name="outputDirBrowseButton">
            <property name="minimumSize">
             <size>
              <width>200</width>
@@ -195,7 +195,7 @@ QWidget#widget_4
           </widget>
          </item>
          <item row="1" column="1">
-          <widget class="QLineEdit" name="lineEdit">
+          <widget class="QLineEdit" name="outputDirectory">
            <property name="minimumSize">
             <size>
              <width>0</width>
@@ -218,7 +218,7 @@ QWidget#widget_4
           </spacer>
          </item>
          <item row="0" column="0">
-          <widget class="QCheckBox" name="checkBox">
+          <widget class="QCheckBox" name="saveCheckBox">
            <property name="text">
             <string>Save</string>
            </property>
@@ -234,7 +234,7 @@ QWidget#widget_4
     </widget>
    </item>
    <item row="0" column="0" alignment="Qt::AlignTop">
-    <widget class="QLabel" name="label">
+    <widget class="QLabel" name="formatTitle">
      <property name="sizePolicy">
       <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
        <horstretch>0</horstretch>

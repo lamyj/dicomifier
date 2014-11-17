@@ -36,11 +36,11 @@ SubjectsFrame
 
     this->set_list_enabled(false);
 
-    this->_ui->dateEdit->setDisplayFormat(QString("dd/MM/yyyy"));
-    this->_ui->dateEdit_2->setDisplayFormat(QString("dd/MM/yyyy"));
+    this->_ui->dateFilterBegin->setDisplayFormat(QString("dd/MM/yyyy"));
+    this->_ui->dateFilterEnd->setDisplayFormat(QString("dd/MM/yyyy"));
 
-    this->_ui->dateEdit->setDate(this->_datemin);
-    this->_ui->dateEdit_2->setDate(QDate::currentDate());
+    this->_ui->dateFilterBegin->setDate(this->_datemin);
+    this->_ui->dateFilterEnd->setDate(QDate::currentDate());
 }
 
 SubjectsFrame
@@ -114,17 +114,17 @@ void
 SubjectsFrame
 ::set_list_enabled(bool enabled)
 {
-    this->_ui->radioButton->setEnabled(enabled);
-    this->_ui->radioButton_2->setEnabled(enabled);
-    this->_ui->lineEdit->setEnabled(enabled);
-    this->_ui->dateEdit->setEnabled(enabled);
-    this->_ui->dateEdit_2->setEnabled(enabled);
-    this->_ui->label_2->setEnabled(enabled);
-    this->_ui->label_3->setEnabled(enabled);
-    this->_ui->label_4->setEnabled(enabled);
-    this->_ui->label_5->setEnabled(enabled);
+    this->_ui->sortedBySubjects->setEnabled(enabled);
+    this->_ui->sortedByStudies->setEnabled(enabled);
+    this->_ui->filtersName->setEnabled(enabled);
+    this->_ui->dateFilterBegin->setEnabled(enabled);
+    this->_ui->dateFilterEnd->setEnabled(enabled);
+    this->_ui->sortedTitle->setEnabled(enabled);
+    this->_ui->filtersTitle->setEnabled(enabled);
+    this->_ui->fromDateTitle->setEnabled(enabled);
+    this->_ui->toDateTitle->setEnabled(enabled);
     this->_treeView->setEnabled(enabled);
-    this->_ui->checkBox->setEnabled(enabled);
+    this->_ui->selectAllCheckBox->setEnabled(enabled);
 
     this->modify_nextButton_enabled();
 }
@@ -183,7 +183,7 @@ SubjectsFrame
         }
         // else ignore files
     }
-    this->_ui->dateEdit->setDate(this->_datemin);
+    this->_ui->dateFilterBegin->setDate(this->_datemin);
     this->_treeView->filter_date(this->_datemin, QDate::currentDate(), false);
 
     this->_treeView->Initialize(subjectsAndStudiesList);
@@ -191,7 +191,7 @@ SubjectsFrame
 
 void
 SubjectsFrame
-::on_radioButton_toggled(bool checked)
+::on_sortedBySubjects_toggled(bool checked)
 {
     this->_treeView->set_displaySubject(checked);
 }
@@ -200,7 +200,7 @@ void
 SubjectsFrame
 ::ontreeViewclicked()
 {
-    this->_ui->checkBox->setCheckState(this->_treeView->compute_selection());
+    this->_ui->selectAllCheckBox->setCheckState(this->_treeView->compute_selection());
     this->modify_nextButton_enabled();
 }
 
@@ -215,7 +215,7 @@ SubjectsFrame
     bool enabled = directory != "" &&
                    boost::filesystem::exists(boost::filesystem::path(directory));
 
-    enabled &= (this->_ui->checkBox->checkState() != Qt::Unchecked);
+    enabled &= (this->_ui->selectAllCheckBox->checkState() != Qt::Unchecked);
 
     emit this->update_nextButton(enabled);
 }
@@ -230,33 +230,33 @@ SubjectsFrame
 
 void
 SubjectsFrame
-::on_checkBox_clicked()
+::on_selectAllCheckBox_clicked()
 {
-    if (this->_ui->checkBox->checkState() == Qt::PartiallyChecked)
+    if (this->_ui->selectAllCheckBox->checkState() == Qt::PartiallyChecked)
     {
-        this->_ui->checkBox->setCheckState(Qt::Checked);
+        this->_ui->selectAllCheckBox->setCheckState(Qt::Checked);
     }
-    this->_treeView->setCheckState_all(this->_ui->checkBox->checkState());
+    this->_treeView->setCheckState_all(this->_ui->selectAllCheckBox->checkState());
     this->modify_nextButton_enabled();
 }
 
 void
 SubjectsFrame
-::on_lineEdit_textEdited(const QString &arg1)
+::on_filtersName_textEdited(const QString &arg1)
 {
     this->_treeView->filter_name(arg1);
 }
 
 void
 SubjectsFrame
-::on_dateEdit_dateChanged(const QDate &date)
+::on_dateFilterBegin_dateChanged(const QDate &date)
 {
-    this->_treeView->filter_date(date, this->_ui->dateEdit_2->date());
+    this->_treeView->filter_date(date, this->_ui->dateFilterEnd->date());
 }
 
 void
 SubjectsFrame
-::on_dateEdit_2_dateChanged(const QDate &date)
+::on_dateFilterEnd_dateChanged(const QDate &date)
 {
     this->_treeView->filter_date(this->_datemin, date);
 }

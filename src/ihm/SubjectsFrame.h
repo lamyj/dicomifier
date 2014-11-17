@@ -42,7 +42,7 @@ public slots:
 
     void on_dataDirectory_editingFinished();
 
-    void on_radioButton_toggled(bool checked);
+    void on_sortedBySubjects_toggled(bool checked);
 
     void ontreeViewclicked();
 
@@ -56,15 +56,15 @@ protected:
     void set_list_enabled(bool enabled);
 
 private slots:
-    void on_checkBox_clicked();
+    void on_selectAllCheckBox_clicked();
 
-    void on_lineEdit_textEdited(const QString &arg1);
+    void on_filtersName_textEdited(const QString &arg1);
 
     void ReceivedDate(double date);
 
-    void on_dateEdit_dateChanged(const QDate &date);
+    void on_dateFilterBegin_dateChanged(const QDate &date);
 
-    void on_dateEdit_2_dateChanged(const QDate &date);
+    void on_dateFilterEnd_dateChanged(const QDate &date);
 
 private:
     Ui::SubjectsFrame * _ui;

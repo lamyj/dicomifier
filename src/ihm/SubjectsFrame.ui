@@ -46,7 +46,7 @@
     <number>0</number>
    </property>
    <item row="3" column="5">
-    <widget class="QDateEdit" name="dateEdit">
+    <widget class="QDateEdit" name="dateFilterBegin">
      <property name="calendarPopup">
       <bool>true</bool>
      </property>
@@ -92,7 +92,7 @@
     </widget>
    </item>
    <item row="3" column="2">
-    <widget class="QRadioButton" name="radioButton_2">
+    <widget class="QRadioButton" name="sortedByStudies">
      <property name="sizePolicy">
       <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
        <horstretch>0</horstretch>
@@ -105,7 +105,7 @@
     </widget>
    </item>
    <item row="0" column="0" colspan="2" alignment="Qt::AlignTop">
-    <widget class="QLabel" name="label">
+    <widget class="QLabel" name="dataDirectoryTitle">
      <property name="text">
       <string>Data Directory:</string>
      </property>
@@ -118,21 +118,21 @@
     </widget>
    </item>
    <item row="3" column="4">
-    <widget class="QLabel" name="label_4">
+    <widget class="QLabel" name="fromDateTitle">
      <property name="text">
       <string>From:</string>
      </property>
     </widget>
    </item>
    <item row="4" column="0">
-    <widget class="QLabel" name="label_3">
+    <widget class="QLabel" name="filtersTitle">
      <property name="text">
       <string>Filters:</string>
      </property>
     </widget>
    </item>
    <item row="4" column="1" colspan="3">
-    <widget class="QLineEdit" name="lineEdit">
+    <widget class="QLineEdit" name="filtersName">
      <property name="minimumSize">
       <size>
        <width>0</width>
@@ -145,14 +145,14 @@
     </widget>
    </item>
    <item row="3" column="0">
-    <widget class="QLabel" name="label_2">
+    <widget class="QLabel" name="sortedTitle">
      <property name="text">
       <string>Sorted by:</string>
      </property>
     </widget>
    </item>
    <item row="4" column="5">
-    <widget class="QDateEdit" name="dateEdit_2">
+    <widget class="QDateEdit" name="dateFilterEnd">
      <property name="calendarPopup">
       <bool>true</bool>
      </property>
@@ -201,7 +201,7 @@
     </widget>
    </item>
    <item row="3" column="1">
-    <widget class="QRadioButton" name="radioButton">
+    <widget class="QRadioButton" name="sortedBySubjects">
      <property name="sizePolicy">
       <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
        <horstretch>0</horstretch>
@@ -217,14 +217,14 @@
     </widget>
    </item>
    <item row="4" column="4">
-    <widget class="QLabel" name="label_5">
+    <widget class="QLabel" name="toDateTitle">
      <property name="text">
       <string>To:</string>
      </property>
     </widget>
    </item>
    <item row="6" column="0" colspan="3">
-    <widget class="QCheckBox" name="checkBox">
+    <widget class="QCheckBox" name="selectAllCheckBox">
      <property name="styleSheet">
       <string notr="true">QCheckBox 
 {

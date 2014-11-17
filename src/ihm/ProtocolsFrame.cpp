@@ -123,7 +123,7 @@ void
 ProtocolsFrame
 ::ontreeViewclicked()
 {
-    this->_ui->checkBox->setCheckState(this->_treeView->compute_selection());
+    this->_ui->selectAllCheckBox->setCheckState(this->_treeView->compute_selection());
     this->modify_nextButton_enabled();
 }
 
@@ -131,7 +131,7 @@ void
 ProtocolsFrame
 ::modify_nextButton_enabled()
 {
-    bool enabled = (this->_ui->checkBox->checkState() != Qt::Unchecked);
+    bool enabled = (this->_ui->selectAllCheckBox->checkState() != Qt::Unchecked);
     emit this->update_nextButton(enabled);
 }
 
@@ -155,13 +155,13 @@ void ProtocolsFrame::paintEvent(QPaintEvent *event)
 
 void
 ProtocolsFrame
-::on_checkBox_clicked()
+::on_selectAllCheckBox_clicked()
 {
-    if (this->_ui->checkBox->checkState() == Qt::PartiallyChecked)
+    if (this->_ui->selectAllCheckBox->checkState() == Qt::PartiallyChecked)
     {
-        this->_ui->checkBox->setCheckState(Qt::Checked);
+        this->_ui->selectAllCheckBox->setCheckState(Qt::Checked);
     }
-    this->_treeView->setCheckState_all(this->_ui->checkBox->checkState());
+    this->_treeView->setCheckState_all(this->_ui->selectAllCheckBox->checkState());
     this->modify_nextButton_enabled();
 }
 
