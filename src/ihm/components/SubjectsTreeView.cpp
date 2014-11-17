@@ -19,7 +19,8 @@ namespace ihm
 
 SubjectsTreeView
 ::SubjectsTreeView(QWidget *parent) :
-    TreeView(parent), _displaySubject(true), _expression("*")
+    TreeView(parent), _displaySubject(true), _expression("*"),
+    _begin(QDate::currentDate()), _end(QDate::currentDate())
 {
     // Nothing to do
 }
@@ -87,6 +88,19 @@ SubjectsTreeView
     this->Initialize(this->_dataList);
 }
 
+void
+SubjectsTreeView
+::filter_date(const QDate &begin, const QDate &end, bool refresh)
+{
+    this->_begin = begin;
+    this->_end = end;
+
+    if (refresh)
+    {
+        this->Initialize(this->_dataList);
+    }
+}
+
 std::map<std::string, std::vector<TreeItem *> >
 SubjectsTreeView
 ::sortedItems() const
@@ -101,13 +115,16 @@ SubjectsTreeView
         boost::cmatch what;
         if (regex_search(name.c_str(), what, this->transform_regex()))
         {
-            if (returnmap.find(name) == returnmap.end())
-            {// create new entry
-                returnmap[name] = {};
-            }
+            if (couple->get_qdate() >= this->_begin && couple->get_qdate() <= this->_end)
+            {
+                if (returnmap.find(name) == returnmap.end())
+                {// create new entry
+                    returnmap[name] = {};
+                }
 
-            TreeItem* item = new TreeItem(NULL, couple);
-            returnmap[name].push_back(item);
+                TreeItem* item = new TreeItem(NULL, couple);
+                returnmap[name].push_back(item);
+            }
         }
     }
 

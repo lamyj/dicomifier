@@ -9,6 +9,7 @@
 #ifndef _19bfa5bd_cd2d_4141_ae2a_237444f2589b
 #define _19bfa5bd_cd2d_4141_ae2a_237444f2589b
 
+#include <QDate>
 #include <QList>
 #include <QVariant>
 
@@ -20,8 +21,10 @@ namespace dicomifier
 namespace ihm
 {
 
-class TreeItem
+class TreeItem : public QObject
 {
+    Q_OBJECT
+
 public:
     TreeItem(TreeItem * parent = 0, TreeItem * copy = NULL);
     virtual ~TreeItem();
@@ -50,6 +53,7 @@ public:
     std::string get_directory() const { return this->_directory; }
     std::string get_seriesDirectory() const { return this->_seriesDirectory; }
     std::string get_recoDirectory() const { return this->_recoDirectory; }
+    QDate get_qdate() const { return this->_qdate; }
 
     void set_data(const QList<QVariant> & data) { this->_itemData = data; }
     void set_parent(TreeItem* parent) { this->_parentItem = parent; }
@@ -61,6 +65,9 @@ public:
             { this->_recoDirectory = recoDirectory; }
 
     void fill_data(dicomifier::bruker::BrukerDataset* const brukerdataset);
+
+signals:
+    void SendDate(double date);
 
 private:
     QList<TreeItem*> _childItems;
@@ -76,6 +83,7 @@ private:
     std::string _directory;
     std::string _seriesDirectory;
     std::string _recoDirectory;
+    QDate _qdate;
 
 };
 

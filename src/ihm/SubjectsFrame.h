@@ -60,10 +60,18 @@ private slots:
 
     void on_lineEdit_textEdited(const QString &arg1);
 
+    void ReceivedDate(double date);
+
+    void on_dateEdit_dateChanged(const QDate &date);
+
+    void on_dateEdit_2_dateChanged(const QDate &date);
+
 private:
     Ui::SubjectsFrame * _ui;
 
     SubjectsTreeView * _treeView;
+
+    QDate _datemin;
 
 };
 
