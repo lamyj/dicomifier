@@ -7,6 +7,7 @@
  ************************************************************************/
 
 #include <QFileDialog>
+#include <QSettings>
 
 #include <boost/algorithm/string.hpp>
 #include <boost/filesystem.hpp>
@@ -26,6 +27,19 @@ GenerationFrame
     _ui(new Ui::GenerationFrame)
 {
     this->_ui->setupUi(this);
+
+    QSettings settings;
+    this->_ui->outputDirectory->setText(settings.value(QString("Output/directory"), QString("")).toString());
+
+    int selectitem = settings.value(QString("Output/dicomformat"), QString("")).toInt();
+    if (selectitem == 0)
+    {
+        this->_ui->formatMRIMultiple->setChecked(true);
+    }
+    else if (selectitem == 1)
+    {
+        this->_ui->formatMRISingle->setChecked(true);
+    }
 }
 
 GenerationFrame

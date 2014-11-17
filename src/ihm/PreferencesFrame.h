@@ -6,10 +6,10 @@
  * for details.
  ************************************************************************/
 
-#ifndef _331c28b0_9e09_4517_9709_4714eac0fae8
-#define _331c28b0_9e09_4517_9709_4714eac0fae8
+#ifndef _e3c36f6b_ae80_47c0_9a2f_226e659fd6d8
+#define _e3c36f6b_ae80_47c0_9a2f_226e659fd6d8
 
-#include <QWidget>
+#include "BaseFrame.h"
 
 namespace dicomifier
 {
@@ -17,32 +17,35 @@ namespace dicomifier
 namespace ihm
 {
 
-class BaseFrame : public QWidget
+namespace Ui {
+class PreferencesFrame;
+}
+
+class PreferencesFrame : public BaseFrame
 {
     Q_OBJECT
-public:
-    explicit BaseFrame(QWidget *parent = 0);
 
-    virtual ~BaseFrame();
+public:
+    explicit PreferencesFrame(QWidget *parent = 0);
+    virtual ~PreferencesFrame();
 
     virtual void Initialize();
 
-    virtual void Reset() = 0;
+    virtual void Reset();
+
+    void SavePreferences();
 
 protected:
-    virtual void modify_nextButton_enabled() = 0;
+    virtual void modify_nextButton_enabled();
 
-    virtual void modify_previousButton_enabled() = 0;
+    virtual void modify_previousButton_enabled();
 
-signals:
-    void update_nextButton(bool enabled);
-
-    void update_previousButton(bool enabled);
-
+private:
+    Ui::PreferencesFrame * _ui;
 };
 
 } // namespace ihm
 
 } // namespace dicomifier
 
-#endif // _331c28b0_9e09_4517_9709_4714eac0fae8
+#endif // _e3c36f6b_ae80_47c0_9a2f_226e659fd6d8
