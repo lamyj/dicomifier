@@ -45,7 +45,7 @@ protected:
     void paintEvent(QPaintEvent *event);
 
 private slots:
-    void on_checkBox_clicked();
+    void on_selectAllCheckBox_clicked();
 
 private:
     Ui::ProtocolsFrame * _ui;

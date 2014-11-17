@@ -48,10 +48,10 @@ GenerationFrame
     // "Next button" is "Run Button" for this Frame
 
     std::string const directory =
-            this->_ui->lineEdit->text().toUtf8().constData();
+            this->_ui->outputDirectory->text().toUtf8().constData();
 
     // Directory is filled and available
-    bool enabled = this->_ui->checkBox->checkState() == Qt::Checked &&
+    bool enabled = this->_ui->saveCheckBox->checkState() == Qt::Checked &&
                    directory != "" &&
                    boost::filesystem::exists(boost::filesystem::path(directory));
 
@@ -68,41 +68,41 @@ GenerationFrame
 
 void
 GenerationFrame
-::on_checkBox_clicked()
+::on_saveCheckBox_clicked()
 {
     this->modify_nextButton_enabled();
 }
 
 void
 GenerationFrame
-::on_pushButton_clicked()
+::on_outputDirBrowseButton_clicked()
 {
     // Create dialog
     QFileDialog dialog;
     // Look for Directory
     dialog.setFileMode(QFileDialog::Directory);
     dialog.setOption(QFileDialog::ShowDirsOnly);
-    dialog.setDirectory(this->_ui->lineEdit->text());
+    dialog.setDirectory(this->_ui->outputDirectory->text());
 
     if (dialog.exec())
     {
         QString directory = dialog.selectedFiles()[0];
-        this->_ui->lineEdit->setText(directory);
+        this->_ui->outputDirectory->setText(directory);
 
-        this->on_lineEdit_editingFinished();
+        this->on_outputDirectory_editingFinished();
     }
 }
 
 void
 GenerationFrame
-::on_lineEdit_textEdited(const QString &arg1)
+::on_outputDirectory_textEdited(const QString &arg1)
 {
     this->modify_nextButton_enabled();
 }
 
 void
 GenerationFrame
-::on_lineEdit_editingFinished()
+::on_outputDirectory_editingFinished()
 {
     this->modify_nextButton_enabled();
 }
