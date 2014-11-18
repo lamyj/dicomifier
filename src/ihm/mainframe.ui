@@ -548,6 +548,112 @@ QRadioButton::indicator:checked:disabled
  QRadioButton::indicator:checked:pressed {
      image: url(:/images/radiobutton_checked);
  }
+
+QComboBox 
+{
+    margin: 0px 5px;
+    background-color: white;
+    border-radius: 8px;
+    border: 1px solid #2299FF;
+	padding-left: 10px;
+	padding-right: 5px;
+}
+
+QComboBox:disabled
+{
+    border: 1px solid #999999;
+    background-color: #F2F2F2;
+}
+
+QComboBox:!editable, QComboBox::drop-down:editable 
+{
+    background-color: white;
+}
+
+QComboBox:!editable:enabled
+{
+	color: black;
+}
+
+QComboBox:!editable:on, QComboBox::drop-down:editable:on 
+{
+    background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
+                                 stop: 0 #D3D3D3, stop: 0.4 #D8D8D8,
+                                 stop: 0.5 #DDDDDD, stop: 1.0 #E1E1E1);
+	color: black;
+}
+
+QComboBox:on 
+{
+	color: black;
+}
+
+QComboBox::drop-down {
+    subcontrol-origin: margin;
+    subcontrol-position: top right;
+	margin-right: 25px;
+ 
+    border-left-width: 0px;
+    border-left-color: white;
+    border-left-style: solid; /* just a single line */
+    border-top-right-radius: 3px; /* same radius as the QComboBox */
+    border-bottom-right-radius: 3px;
+}
+
+QComboBox::down-arrow 
+{
+    image: url(:/images/combobox_arrow);
+}
+
+QComboBox::down-arrow:disabled
+{
+    image: url(:/images/combobox_arrow_off);
+}
+
+QComboBox QAbstractItemView {
+     border: 2px solid #2299FF;
+     selection-background-color: lightgray;
+ }
+
+QDateEdit 
+{
+    padding-right: 35px; 
+	font-size: 18px;
+    background-color: white;
+    border-radius: 8px;
+    border: 1px solid #2299FF;
+	margin-right: 5px;
+}
+
+QDateEdit:disabled
+{
+    border: 1px solid #999999;
+    background-color: #F2F2F2;
+}
+
+QDateEdit::drop-down 
+{
+    subcontrol-origin: margin;
+    subcontrol-position: top right;
+	margin-right: 25px;
+ 
+    border: none;
+}
+
+QDateEdit::down-arrow 
+{
+    image: url(:/images/combobox_arrow);
+}
+
+QDateEdit::down-arrow:disabled
+{
+    image: url(:/images/combobox_arrow_off);
+}
+
+QDateEdit QCalendarWidget
+{
+    border: 1px solid #2299FF;
+}
 </string>
       </property>
       <layout class="QVBoxLayout" name="verticalLayout"/>

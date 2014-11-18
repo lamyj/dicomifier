@@ -12,6 +12,7 @@
 #include <boost/filesystem.hpp>
 
 #include "bruker/BrukerDirectory.h"
+#include "PreferencesFrame.h"
 #include "SubjectsFrame.h"
 #include "ui_SubjectsFrame.h"
 
@@ -43,7 +44,8 @@ SubjectsFrame
     this->_ui->dateFilterEnd->setDate(QDate::currentDate());
 
     QSettings settings;
-    this->_ui->dataDirectory->setText(settings.value(QString("Input/directory"), QString("")).toString());
+    this->_ui->dataDirectory->setText(settings.value(CONF_GROUP_INPUT + "/" + CONF_KEY_DIRECTORY,
+                                                     QString("")).toString());
 }
 
 SubjectsFrame
@@ -67,7 +69,9 @@ void
 SubjectsFrame
 ::Reset()
 {
-    this->_ui->dataDirectory->setText(QString(""));
+    QSettings settings;
+    this->_ui->dataDirectory->setText(settings.value(CONF_GROUP_INPUT + "/" + CONF_KEY_DIRECTORY,
+                                                     QString("")).toString());
     this->on_dataDirectory_editingFinished();
 }
 
@@ -216,6 +220,16 @@ SubjectsFrame
 {
     this->_ui->selectAllCheckBox->setCheckState(this->_treeView->compute_selection());
     this->modify_nextButton_enabled();
+}
+
+void
+SubjectsFrame
+::onUpdate_Preferences()
+{
+    QSettings settings;
+    this->_ui->dataDirectory->setText(settings.value(CONF_GROUP_INPUT + "/" + CONF_KEY_DIRECTORY,
+                                                     QString("")).toString());
+    this->on_dataDirectory_editingFinished();
 }
 
 void

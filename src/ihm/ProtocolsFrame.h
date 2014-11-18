@@ -34,8 +34,12 @@ public:
 
     virtual void Reset();
 
+    std::vector<TreeItem*> get_selectedData() const;
+
 public slots:
     void ontreeViewclicked();
+
+    virtual void onUpdate_Preferences();
 
 protected:
     virtual void modify_nextButton_enabled();

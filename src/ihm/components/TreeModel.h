@@ -33,6 +33,8 @@ public:
 
     bool is_item_selected();
 
+    std::vector<TreeItem*> get_item_selected() const;
+
     Qt::CheckState compute_selection();
 
     void setCheckState_all(Qt::CheckState state);

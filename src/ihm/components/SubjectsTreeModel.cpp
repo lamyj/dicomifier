@@ -58,31 +58,6 @@ SubjectsTreeModel
     }
 }
 
-std::vector<TreeItem *>
-SubjectsTreeModel
-::get_item_selected() const
-{
-    std::vector<TreeItem*>  returnvect;
-    for (int i = 0; i < this->_rootItem->childCount(); i++)
-    {
-        auto child = this->_rootItem->child(i);
-        if (child->get_checkState() == Qt::Unchecked)
-        {// no child selected
-            continue;
-        }
-
-        for (int j = 0; j < child->childCount(); j++)
-        {
-            if (child->child(j)->get_checkState() != Qt::Unchecked)
-            {// child selected
-                returnvect.push_back(child->child(j));
-            }
-        }
-    }
-
-    return returnvect;
-}
-
 void
 SubjectsTreeModel
 ::set_displaySubject(bool displaySubject)

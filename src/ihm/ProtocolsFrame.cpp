@@ -119,12 +119,35 @@ ProtocolsFrame
 
 }
 
+std::vector<TreeItem *>
+ProtocolsFrame
+::get_selectedData() const
+{
+    std::vector<TreeItem*> returnvect;
+    ProtocolsTreeModel* model =
+            dynamic_cast<ProtocolsTreeModel*>(this->_treeView->model());
+
+    if (model != NULL)
+    {
+        returnvect = model->get_item_selected();
+    }
+
+    return returnvect;
+}
+
 void
 ProtocolsFrame
 ::ontreeViewclicked()
 {
     this->_ui->selectAllCheckBox->setCheckState(this->_treeView->compute_selection());
     this->modify_nextButton_enabled();
+}
+
+void
+ProtocolsFrame
+::onUpdate_Preferences()
+{
+    // Nothing to do
 }
 
 void

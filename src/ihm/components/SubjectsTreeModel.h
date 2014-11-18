@@ -27,8 +27,6 @@ public:
     virtual void Initialize(std::map<std::string,
                             std::vector<TreeItem*>> dataList);
 
-    std::vector<TreeItem*> get_item_selected() const;
-
     void set_displaySubject(bool displaySubject);
 
 protected:

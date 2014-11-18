@@ -27,6 +27,8 @@ PreferencesFrame
     QStringList itemslist;
     itemslist << "MRI Multi Frames";
     itemslist << "MRI Single Frame";
+    itemslist << "MRI Multi Frames2";
+    itemslist << "MRI Single Frame2";
     this->_ui->comboBox->addItems(itemslist);
 }
 
@@ -41,9 +43,9 @@ PreferencesFrame
 ::Initialize()
 {
     QSettings settings;
-    this->_ui->lineEdit->setText(settings.value(QString("Input/directory"), QString("")).toString());
-    this->_ui->lineEdit_2->setText(settings.value(QString("Output/directory"), QString("")).toString());
-    this->_ui->comboBox->setCurrentIndex(settings.value(QString("Output/dicomformat"), 0).toInt());
+    this->_ui->lineEdit->setText(settings.value(CONF_GROUP_INPUT + "/" + CONF_KEY_DIRECTORY, QString("")).toString());
+    this->_ui->lineEdit_2->setText(settings.value(CONF_GROUP_OUTPUT + "/" + CONF_KEY_DIRECTORY, QString("")).toString());
+    this->_ui->comboBox->setCurrentIndex(settings.value(CONF_GROUP_OUTPUT + "/" + CONF_KEY_FORMAT, 0).toInt());
 
     BaseFrame::Initialize();
 }
@@ -61,14 +63,21 @@ PreferencesFrame
 {
     QSettings settings;
 
-    settings.beginGroup(QString("Input"));
-    settings.setValue(QString("directory"), this->_ui->lineEdit->text());
+    settings.beginGroup(CONF_GROUP_INPUT);
+    settings.setValue(CONF_KEY_DIRECTORY, this->_ui->lineEdit->text());
     settings.endGroup();
 
-    settings.beginGroup(QString("Output"));
-    settings.setValue(QString("directory"), this->_ui->lineEdit_2->text());
-    settings.setValue(QString("dicomformat"), this->_ui->comboBox->currentIndex());
+    settings.beginGroup(CONF_GROUP_OUTPUT);
+    settings.setValue(CONF_KEY_DIRECTORY, this->_ui->lineEdit_2->text());
+    settings.setValue(CONF_KEY_FORMAT, this->_ui->comboBox->currentIndex());
     settings.endGroup();
+}
+
+void
+PreferencesFrame
+::onUpdate_Preferences()
+{
+    // Nothing to do
 }
 
 void
