@@ -46,35 +46,19 @@ MainFrame
 
     // Create first Widget (Subect Selection)
     this->_subjectsframe = new SubjectsFrame(this->_ui->stepWidget);
-    this->_ui->stepWidget->layout()->addWidget(this->_subjectsframe);
-    connect(this->_subjectsframe, SIGNAL(update_nextButton(bool)),
-            this, SLOT(setEnabled_nextButton(bool)));
-    connect(this->_subjectsframe, SIGNAL(update_previousButton(bool)),
-            this, SLOT(setEnabled_previousButton(bool)));
+    this->InitializeWidget(this->_subjectsframe);
 
     // Create second Widget (Protocols Selection)
     this->_protocolsframe = new ProtocolsFrame(this->_ui->stepWidget);
-    this->_ui->stepWidget->layout()->addWidget(this->_protocolsframe);
-    connect(this->_protocolsframe, SIGNAL(update_nextButton(bool)),
-            this, SLOT(setEnabled_nextButton(bool)));
-    connect(this->_protocolsframe, SIGNAL(update_previousButton(bool)),
-            this, SLOT(setEnabled_previousButton(bool)));
+    this->InitializeWidget(this->_protocolsframe);
 
     // Create third Widget (Generation Parameters)
     this->_generationframe = new GenerationFrame(this->_ui->stepWidget);
-    this->_ui->stepWidget->layout()->addWidget(this->_generationframe);
-    connect(this->_generationframe, SIGNAL(update_nextButton(bool)),
-            this, SLOT(setEnabled_nextButton(bool)));
-    connect(this->_generationframe, SIGNAL(update_previousButton(bool)),
-            this, SLOT(setEnabled_previousButton(bool)));
+    this->InitializeWidget(this->_generationframe);
 
     // Create Preferences Frame
     this->_preferencesframe = new PreferencesFrame(this->_ui->stepWidget);
-    this->_ui->stepWidget->layout()->addWidget(this->_preferencesframe);
-    connect(this->_preferencesframe, SIGNAL(update_nextButton(bool)),
-            this, SLOT(setEnabled_nextButton(bool)));
-    connect(this->_preferencesframe, SIGNAL(update_previousButton(bool)),
-            this, SLOT(setEnabled_previousButton(bool)));
+    this->InitializeWidget(this->_preferencesframe);
 }
 
 MainFrame
@@ -91,6 +75,19 @@ MainFrame
     this->setGeometry(0, 0, 1040, 768);
 
     this->ChangeStep(false);
+}
+
+void
+MainFrame
+::InitializeWidget(BaseFrame * widget)
+{
+    this->_ui->stepWidget->layout()->addWidget(widget);
+    connect(widget, SIGNAL(update_nextButton(bool)),
+            this, SLOT(setEnabled_nextButton(bool)));
+    connect(widget, SIGNAL(update_previousButton(bool)),
+            this, SLOT(setEnabled_previousButton(bool)));
+    connect(this, SIGNAL(UpdatePreferences()),
+            widget, SLOT(onUpdate_Preferences()));
 }
 
 void
@@ -163,7 +160,7 @@ MainFrame
 
         if (nextstep)
         {
-            // TODO emit Run
+            this->_generationframe->RunDicomifier(this->_protocolsframe->get_selectedData());
         }
         break;
     }
@@ -176,6 +173,7 @@ MainFrame
         if (nextstep)
         {
             this->_preferencesframe->SavePreferences();
+            emit this->UpdatePreferences();
         }
         nextstep = false;
         break;
@@ -231,6 +229,9 @@ void
 MainFrame
 ::OpenPreferences()
 {
+    if (this->_currentStep == EDS_Preferences)
+        return;
+
     this->_previousStep = this->_currentStep;
     this->_currentStep = EDS_Preferences;
     this->_ui->stepNumberLabel->hide();

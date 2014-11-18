@@ -29,6 +29,9 @@ public:
 
     virtual void Reset() = 0;
 
+public slots:
+    virtual void onUpdate_Preferences() = 0;
+
 protected:
     virtual void modify_nextButton_enabled() = 0;
 

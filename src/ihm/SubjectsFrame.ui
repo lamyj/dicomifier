@@ -2,6 +2,9 @@
 <ui version="4.0">
  <class>dicomifier::ihm::SubjectsFrame</class>
  <widget class="QWidget" name="dicomifier::ihm::SubjectsFrame">
+  <property name="enabled">
+   <bool>true</bool>
+  </property>
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -47,6 +50,15 @@
    </property>
    <item row="3" column="5">
     <widget class="QDateEdit" name="dateFilterBegin">
+     <property name="enabled">
+      <bool>true</bool>
+     </property>
+     <property name="minimumSize">
+      <size>
+       <width>0</width>
+       <height>35</height>
+      </size>
+     </property>
      <property name="calendarPopup">
       <bool>true</bool>
      </property>
@@ -153,6 +165,12 @@
    </item>
    <item row="4" column="5">
     <widget class="QDateEdit" name="dateFilterEnd">
+     <property name="minimumSize">
+      <size>
+       <width>0</width>
+       <height>35</height>
+      </size>
+     </property>
      <property name="calendarPopup">
       <bool>true</bool>
      </property>

@@ -21,6 +21,11 @@ namespace Ui {
 class PreferencesFrame;
 }
 
+const QString CONF_GROUP_INPUT = "Input";
+const QString CONF_GROUP_OUTPUT = "Output";
+const QString CONF_KEY_DIRECTORY = "directory";
+const QString CONF_KEY_FORMAT = "dicomformat";
+
 class PreferencesFrame : public BaseFrame
 {
     Q_OBJECT
@@ -34,6 +39,9 @@ public:
     virtual void Reset();
 
     void SavePreferences();
+
+public slots:
+    virtual void onUpdate_Preferences();
 
 protected:
     virtual void modify_nextButton_enabled();

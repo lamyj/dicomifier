@@ -47,8 +47,13 @@ public:
 
     void Initialize();
 
+signals:
+    void UpdatePreferences();
+
 protected:
     void InitializeStep(DicomifierStep step);
+
+    void InitializeWidget(BaseFrame* widget);
 
     void ShowHide(bool nextstep);
 

@@ -13,6 +13,7 @@
 #include <boost/filesystem.hpp>
 
 #include "GenerationFrame.h"
+#include "PreferencesFrame.h"
 #include "ui_GenerationFrame.h"
 
 namespace dicomifier
@@ -28,18 +29,7 @@ GenerationFrame
 {
     this->_ui->setupUi(this);
 
-    QSettings settings;
-    this->_ui->outputDirectory->setText(settings.value(QString("Output/directory"), QString("")).toString());
-
-    int selectitem = settings.value(QString("Output/dicomformat"), QString("")).toInt();
-    if (selectitem == 0)
-    {
-        this->_ui->formatMRIMultiple->setChecked(true);
-    }
-    else if (selectitem == 1)
-    {
-        this->_ui->formatMRISingle->setChecked(true);
-    }
+    onUpdate_Preferences();
 }
 
 GenerationFrame
@@ -52,7 +42,38 @@ void
 GenerationFrame
 ::Reset()
 {
+    onUpdate_Preferences();
+    this->_ui->DicomdirCheckBox->setChecked(false);
+    this->_ui->ZIPCheckBox->setChecked(false);
+}
 
+void
+GenerationFrame
+::RunDicomifier(std::vector<TreeItem *> selectedItems)
+{
+    for (auto currentItem : selectedItems)
+    {
+        // TODO
+    }
+}
+
+void
+GenerationFrame
+::onUpdate_Preferences()
+{
+    QSettings settings;
+    this->_ui->outputDirectory->setText(settings.value(CONF_GROUP_OUTPUT + "/" + CONF_KEY_DIRECTORY,
+                                                       QString("")).toString());
+
+    int selectitem = settings.value(CONF_GROUP_OUTPUT + "/" + CONF_KEY_FORMAT, QString("")).toInt();
+    if (selectitem == 0)
+    {
+        this->_ui->formatMRIMultiple->setChecked(true);
+    }
+    else if (selectitem == 1)
+    {
+        this->_ui->formatMRISingle->setChecked(true);
+    }
 }
 
 void

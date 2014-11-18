@@ -11,6 +11,8 @@
 
 #include "BaseFrame.h"
 
+#include <components/TreeItem.h>
+
 namespace dicomifier
 {
 
@@ -30,6 +32,11 @@ public:
     virtual ~GenerationFrame();
 
     virtual void Reset();
+
+    void RunDicomifier(std::vector<TreeItem*> selectedItems);
+
+public slots:
+    virtual void onUpdate_Preferences();
 
 protected:
     virtual void modify_nextButton_enabled();
