@@ -12,6 +12,10 @@
 #include <boost/algorithm/string.hpp>
 #include <boost/filesystem.hpp>
 
+#include <dcmtk/config/osconfig.h>
+#include <dcmtk/dcmdata/dctk.h>
+
+#include "bruker/actions/EnhanceBrukerDicom.h"
 #include "GenerationFrame.h"
 #include "PreferencesFrame.h"
 #include "ui_GenerationFrame.h"
@@ -51,9 +55,43 @@ void
 GenerationFrame
 ::RunDicomifier(std::vector<TreeItem *> selectedItems)
 {
+    std::string format = "";
+    if (this->_ui->formatMRIMultiple->isChecked())
+    {
+        format = "MRImageStorage";
+    }
+    else if (this->_ui->formatMRISingle->isChecked())
+    {
+        format = "EnhancedMRImageStorage";
+    }
+
     for (auto currentItem : selectedItems)
     {
-        // TODO
+        int seriesnum = atoi(currentItem->get_seriesDirectory().c_str());
+        int reconum = atoi(currentItem->get_recoDirectory().c_str());
+
+        // Conversion: seriesnum (A) + reconum (B) => ABBBB
+        char temp[6];
+        memset(&temp[0], 0, 6);
+        snprintf(&temp[0], 6, "%01d%04d", seriesnum, reconum);
+        std::string seriesnumber(temp);
+
+        // Create dataset
+        DcmDataset* dataset = new DcmDataset();
+
+        // Insert SeriesNumber => use to find Bruker data
+        dataset->putAndInsertOFStringArray(DCM_SeriesNumber, OFString(seriesnumber.c_str()));
+
+        // create Rule
+        auto rule = dicomifier::actions::EnhanceBrukerDicom::New(dataset,
+                                                                 currentItem->get_directory(),
+                                                                 format,
+                                                                 this->_ui->outputDirectory->text().toStdString());
+
+        // Execute
+        rule->run();
+
+        delete dataset;
     }
 }
 

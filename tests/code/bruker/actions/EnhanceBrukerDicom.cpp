@@ -27,7 +27,10 @@ BOOST_AUTO_TEST_CASE(TEST_OK_01)
     auto enhanceb2d = dicomifier::actions::EnhanceBrukerDicom::New();
     BOOST_CHECK_EQUAL(enhanceb2d != NULL, true);
     
-    enhanceb2d = dicomifier::actions::EnhanceBrukerDicom::New(NULL, "", "");
+    enhanceb2d = dicomifier::actions::EnhanceBrukerDicom::New(NULL,
+                                                              "",
+                                                              "",
+                                                              "");
     BOOST_CHECK_EQUAL(enhanceb2d != NULL, true);
 }
 
@@ -177,7 +180,7 @@ BOOST_FIXTURE_TEST_CASE(TEST_KO_02, TestDataOK03)
 {
     auto testenhance = 
         dicomifier::actions::EnhanceBrukerDicom::New(dataset, ".", 
-                                                     dictionaryfile);
+                                                     dictionaryfile, ".");
         
     BOOST_REQUIRE_THROW(testenhance->run(), dicomifier::DicomifierException);
 }

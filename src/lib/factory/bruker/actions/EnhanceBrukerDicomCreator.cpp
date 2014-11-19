@@ -79,7 +79,11 @@ EnhanceBrukerDicomCreator
     
     // get 'sopclassuid' attribut (mandatory)
     std::string sopclassuid = value.second.get<std::string>("<xmlattr>.sopclassuid"); // Warning: throw exception if attribut is missing
-    
+
+    // get 'outputdirectory' attribut (mandatory)
+    std::string outputdirectory = value.second.get<std::string>("<xmlattr>.outputdirectory"); // Warning: throw exception if attribut is missing
+    // TODO possibilité d'avoir un lien #
+
     studynum = studynum % 10;       // only 1 byte
     seriesnum = seriesnum % 10000;  // only 4 bytes
     
@@ -93,7 +97,7 @@ EnhanceBrukerDicomCreator
     dataset->putAndInsertOFStringArray(DCM_SeriesNumber, OFString(seriesnumber.c_str()));
     
     return dicomifier::actions::EnhanceBrukerDicom::New(dataset, filename, 
-                                                        sopclassuid);
+                                                        sopclassuid, outputdirectory);
 }
     
 } // namespace factory

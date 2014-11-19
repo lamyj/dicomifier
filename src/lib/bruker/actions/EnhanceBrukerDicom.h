@@ -22,7 +22,7 @@ namespace dicomifier
     
 namespace actions
 {
-    
+
 class EnhanceBrukerDicom : public Action
 {
 public:
@@ -33,9 +33,10 @@ public:
     static Pointer New() { return Pointer(new Self()); }
     static Pointer New(DcmDataset * dataset, 
                        std::string const & brukerDir,
-                       std::string const & sopclassuid) 
+                       std::string const & sopclassuid,
+                       std::string const & outputDir)
                 { return Pointer(new Self(dataset, brukerDir, 
-                                          sopclassuid)); }
+                                          sopclassuid, outputDir)); }
     
     virtual ~EnhanceBrukerDicom();
 
@@ -48,15 +49,19 @@ public:
     std::string const & get_SOPClassUID() const;
     void set_SOPClassUID(std::string const & sopclassuid);
 
+    std::string const & get_outputDir() const;
+    void set_outputDir(std::string const & outputDir);
+
     virtual void run() const;
     
     static std::string get_class_name() { return "EnhanceBrukerDicom"; }
 
 protected:
     EnhanceBrukerDicom();
-    EnhanceBrukerDicom(DcmDataset * dataset, 
+    EnhanceBrukerDicom(DcmDataset * dataset,
                        std::string const & brukerDir,
-                       std::string const & sopclassuid);
+                       std::string const & sopclassuid,
+                       std::string const & outputDir);
 
 private:
     void get_binary_data_information
@@ -86,6 +91,7 @@ private:
     DcmDataset * _dataset;
     std::string _brukerDir;
     std::string _SOPClassUID;
+    std::string _outputDir;
     
     EnhanceBrukerDicom(Self const & other);     // Purposely not implemented
     Self const & operator=(Self const & other); // Purposely not implemented
