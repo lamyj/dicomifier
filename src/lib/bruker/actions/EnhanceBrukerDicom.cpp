@@ -20,17 +20,66 @@ namespace dicomifier
     
 namespace actions
 {
+
+/**
+ * Return hashcode for a given iterator
+ * @param begin: iterator's begin
+ * @param end: iterator's end
+ * @return hashcode
+ */
+template<typename TIterator>
+uint32_t hashCode(TIterator begin, TIterator end)
+{
+    uint32_t hash=0;
+    TIterator it(begin);
+    while(it != end)
+    {
+        hash = 31*hash+(*it);
+        ++it;
+    }
+    return hash;
+}
+
+/**
+ * Return hashcode for a given string
+ * @param s: string value
+ * @return hashcode
+ */
+template<typename TString>
+uint32_t hashCode(TString const & s)
+{
+    char const * const begin = s.c_str();
+    char const * const end = begin+s.size();
+    return hashCode(begin, end);
+}
+
+/**
+ * Convert hashcode to string value
+ * @param hash: hashcode
+ * @return corresponding string
+ */
+std::string hashToString(uint32_t hash)
+{
+    const size_t bufferSize = 9; // Use one more char for '\0'
+    char temp[bufferSize];
+    memset(&temp[0], 0, bufferSize); // Set all to '\0'
+    snprintf(&temp[0], bufferSize, "%08X", hash);
+    memset(&temp[bufferSize-1], 0, 1); // make sure last char is '\0'
+    return std::string(temp);
+}
     
 EnhanceBrukerDicom::EnhanceBrukerDicom():
-    _dataset(NULL), _brukerDir(""), _SOPClassUID("")
+    _dataset(NULL), _brukerDir(""), _SOPClassUID(""), _outputDir("")
 {
     // Nothing to do
 }
 
 EnhanceBrukerDicom::EnhanceBrukerDicom(DcmDataset * dataset, 
                                        std::string const & brukerDir,
-                                       std::string const & sopclassuid):
-    _dataset(dataset), _brukerDir(brukerDir), _SOPClassUID(sopclassuid)
+                                       std::string const & sopclassuid,
+                                       std::string const & outputDir):
+    _dataset(dataset), _brukerDir(brukerDir), _SOPClassUID(sopclassuid),
+    _outputDir(outputDir)
 {
     // Nothing to do
 }
@@ -80,6 +129,20 @@ EnhanceBrukerDicom
 ::set_SOPClassUID(std::string const & sopclassuid)
 {
     this->_SOPClassUID = sopclassuid;
+}
+
+const std::string &
+EnhanceBrukerDicom
+::get_outputDir() const
+{
+    return this->_outputDir;
+}
+
+void
+EnhanceBrukerDicom
+::set_outputDir(const std::string &outputDir)
+{
+    this->_outputDir = outputDir;
 }
 
 void 
@@ -334,13 +397,28 @@ EnhanceBrukerDicom
         
         // Write DICOM Dataset
         // Create path:
-        char temp[256];
-        memset(&temp[0], 0, 256);
-        snprintf(&temp[0], 256, "%s%04d", 
-                 "/home/lahaxe/resultDICOM/dicom_", (generator.get_step() + 1)); // TODO: changer le chemin et le nom du fichier
+        OFString patientid;
+        dataset->findAndGetOFStringArray(DCM_PatientID, patientid);
+        OFString study_instance_uid;
+        dataset->findAndGetOFStringArray(DCM_StudyInstanceUID, study_instance_uid);
+        OFString series_instance_uid;
+        dataset->findAndGetOFStringArray(DCM_SeriesInstanceUID, series_instance_uid);
+        OFString sop_instance_uid;
+        dataset->findAndGetOFStringArray(DCM_SOPInstanceUID, sop_instance_uid);
+
+        std::string const subject_hash = hashToString(hashCode(patientid));
+        std::string const study_hash = hashToString(hashCode(study_instance_uid));
+        std::string const series_hash = hashToString(hashCode(series_instance_uid));
+        std::string const sop_instance_hash = hashToString(hashCode(sop_instance_uid));
+
+        boost::filesystem::path const destination =
+            boost::filesystem::path(this->_outputDir)
+                /subject_hash/study_hash/series_hash/sop_instance_hash;
+        boost::filesystem::create_directories(destination.parent_path());
+
         // write file
         DcmFileFormat fileformat(dataset);
-        OFCondition result = fileformat.saveFile(&temp[0], 
+        OFCondition result = fileformat.saveFile(destination.c_str(),
                                                  EXS_LittleEndianExplicit);
         if (result.bad())
         {

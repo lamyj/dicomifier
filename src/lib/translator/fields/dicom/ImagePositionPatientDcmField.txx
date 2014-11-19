@@ -55,19 +55,23 @@ ImagePositionPatientDcmField<EVR_DS>
                                      indexposition, 
                                      startposition);
     
-    if (indexposition == -1)
-    {
-        throw DicomifierException("Missing VisuCorePosition field");
-    }
-    
     // Clean residual values
     this->_array.clear();
     
     auto brukerfield = brukerdataset->GetFieldData("VisuCorePosition");
     
-    startposition = generator.get_index()[indexposition] * 
-                    brukerfield->get_dimensionNumbers()[1] + 
-                    startposition;
+    if (indexposition == -1)
+    {
+        // Only one position
+        indexposition = 0;
+    }
+    else
+    {
+        startposition = generator.get_index()[indexposition] * 
+                        brukerfield->get_dimensionNumbers()[1] + 
+                        startposition;
+    }
+    
     
     // we assume that dimensionNumbers contains 2 elements
     for (auto i = 0; i < brukerfield->get_dimensionNumbers()[1]; i++)
