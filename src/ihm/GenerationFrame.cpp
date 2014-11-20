@@ -65,6 +65,7 @@ GenerationFrame
         format = "EnhancedMRImageStorage";
     }
 
+    // Create DICOM files
     for (auto currentItem : selectedItems)
     {
         int seriesnum = atoi(currentItem->get_seriesDirectory().c_str());
@@ -92,6 +93,60 @@ GenerationFrame
         rule->run();
 
         delete dataset;
+    }
+
+    if (this->_ui->DicomdirCheckBox->isChecked())
+    {
+        // Create DICOMDIR file (One per Subject)
+
+        // patient_extra_attributes
+        std::vector<DcmTagKey> patient_extra_attributes_cpp =
+        {
+            // insert other DcmTagKey here
+        };
+
+        // study_extra_attributes
+        std::vector<DcmTagKey> study_extra_attributes_cpp =
+        {
+            DCM_StudyDescription
+            // insert other DcmTagKey here
+        };
+
+        // series_extra_attributes
+        std::vector<DcmTagKey> series_extra_attributes_cpp =
+        {
+            DCM_SeriesDescription
+            // insert other DcmTagKey here
+        };
+
+        boost::filesystem::directory_iterator it(this->_ui->outputDirectory->text().toStdString()),
+                                              it_end;
+        for(; it != it_end; ++it)
+        {
+            if( boost::filesystem::is_directory( (*it) ) )
+            {
+                std::string dir = this->_ui->outputDirectory->text().toStdString() +
+                                  VALID_FILE_SEPARATOR +
+                                  std::string((*it).path().filename().c_str());
+
+                std::string dicomdirfile = dir + VALID_FILE_SEPARATOR + "DICOMDIR";
+
+                // Create generator
+                DicomDirGenerator generator;
+                generator.enableMapFilenamesMode();
+                // Create DICOMDIR object
+                generator.createNewDicomDir(DicomDirGenerator::AP_GeneralPurpose,
+                                            dicomdirfile.c_str());
+                // Configure DICOMDIR
+                generator.setPatientExtraAttributes(patient_extra_attributes_cpp);
+                generator.setStudyExtraAttributes(study_extra_attributes_cpp);
+                generator.setSeriesExtraAttributes(series_extra_attributes_cpp);
+                // Add files
+                this->insertFilesForDicomdir(dir, &generator);
+                // Write DICOMDIR
+                generator.writeDicomDir();
+            }
+        }
     }
 }
 
@@ -137,6 +192,30 @@ GenerationFrame
 {
     // always true
     emit this->update_previousButton(true);
+}
+
+void
+GenerationFrame
+::insertFilesForDicomdir(const std::string &directory, DicomDirGenerator *dcmdirgenerator)
+{
+    boost::filesystem::directory_iterator it(directory), it_end;
+    for(; it != it_end; ++it)
+    {
+        // if it is a directory
+        if( boost::filesystem::is_directory( (*it) ) )
+        {
+            std::string const object = directory +
+                                       VALID_FILE_SEPARATOR +
+                                       std::string((*it).path().filename().c_str());
+            // Recursive call
+            this->insertFilesForDicomdir(object, dcmdirgenerator);
+        }
+        else
+        {
+            // add file
+            dcmdirgenerator->addDicomFile((*it).path().filename().c_str(), directory.c_str());
+        }
+    }
 }
 
 void
