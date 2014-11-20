@@ -10,8 +10,8 @@
 #define _c893b98a_2a9d_41b4_bcf7_02699144b4d9
 
 #include "BaseFrame.h"
-
-#include <components/TreeItem.h>
+#include "components/TreeItem.h"
+#include "dicom/DicomDirGenerator.h"
 
 namespace dicomifier
 {
@@ -43,6 +43,8 @@ protected:
 
     virtual void modify_previousButton_enabled();
 
+    void insertFilesForDicomdir(std::string const & directory, DicomDirGenerator* dcmdirgenerator);
+
 private slots:
     void on_saveCheckBox_clicked();
 
@@ -54,6 +56,7 @@ private slots:
 
 private:
     Ui::GenerationFrame * _ui;
+
 };
 
 } // namespace ihm
