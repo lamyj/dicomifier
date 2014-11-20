@@ -40,6 +40,7 @@ struct TestDataOK01
         emptynode.put("<xmlattr>.seriesnumber", "1");
         emptynode.put("<xmlattr>.studynumber", "1");
         emptynode.put("<xmlattr>.sopclassuid", "MR Image Storage");
+        emptynode.put("<xmlattr>.outputdirectory", ".");
         ptr.add_child("EnhanceBrukerDicom", emptynode);
         
         std::string text = "./temp";
@@ -93,6 +94,7 @@ struct TestDataKO01
         emptynode.put("<xmlattr>.seriesnumber", "1");
         emptynode.put("<xmlattr>.studynumber", "1");
         emptynode.put("<xmlattr>.sopclassuid", "MR Image Storage");
+        emptynode.put("<xmlattr>.outputdirectory", ".");
         ptr.add_child("EnhanceBrukerDicom", emptynode);
         
         std::string text = "./temp";
@@ -141,6 +143,7 @@ struct TestDataKO02
         emptynode.put("<xmlattr>.seriesnumber", "1");
         emptynode.put("<xmlattr>.studynumber", "1");
         emptynode.put("<xmlattr>.sopclassuid", "MR Image Storage");
+        emptynode.put("<xmlattr>.outputdirectory", ".");
         ptr.add_child("EnhanceBrukerDicom", emptynode);
         
         std::string text = "./temp";
@@ -184,6 +187,7 @@ struct TestDataKO03
         emptynode.put("<xmlattr>.seriesnumber", "1");
         emptynode.put("<xmlattr>.studynumber", "1");
         emptynode.put("<xmlattr>.sopclassuid", "MR Image Storage");
+        emptynode.put("<xmlattr>.outputdirectory", ".");
         ptr.add_child("EnhanceBrukerDicom", emptynode);
         
         std::string text = "./temp";
@@ -232,6 +236,7 @@ struct TestDataKO04
         emptynode.put("<xmlattr>.seriesnumber", "1");
         emptynode.put("<xmlattr>.studynumber", "1");
         emptynode.put("<xmlattr>.sopclassuid", "MR Image Storage");
+        emptynode.put("<xmlattr>.outputdirectory", ".");
         ptr.add_child("EnhanceBrukerDicom", emptynode);
         
         std::string text = "./temp";
@@ -281,6 +286,7 @@ struct TestDataKO05
         emptynode.put("<xmlattr>.seriesnumber", "1");
         emptynode.put("<xmlattr>.studynumber", "1");
         emptynode.put("<xmlattr>.sopclassuid", "MR Image Storage");
+        emptynode.put("<xmlattr>.outputdirectory", ".");
         ptr.add_child("EnhanceBrukerDicom", emptynode);
         
         std::string text = "./temp";
@@ -328,6 +334,7 @@ struct TestDataKO06
         emptynode.put("<xmlattr>.seriesnumber", "1");
         emptynode.put("<xmlattr>.studynumber", "1");
         emptynode.put("<xmlattr>.sopclassuid", "MR Image Storage");
+        emptynode.put("<xmlattr>.outputdirectory", ".");
         ptr.add_child("EnhanceBrukerDicom", emptynode);
         
         std::string text = "./temp";
@@ -375,6 +382,7 @@ struct TestDataKO07
         emptynode.put("<xmlattr>.dataset", "#input");
         emptynode.put("<xmlattr>.studynumber", "1");
         emptynode.put("<xmlattr>.sopclassuid", "MR Image Storage");
+        emptynode.put("<xmlattr>.outputdirectory", ".");
         ptr.add_child("EnhanceBrukerDicom", emptynode);
         
         std::string text = "./temp";
@@ -424,6 +432,7 @@ struct TestDataKO08
         emptynode.put("<xmlattr>.seriesnumber", "ABCD");
         emptynode.put("<xmlattr>.studynumber", "1");
         emptynode.put("<xmlattr>.sopclassuid", "MR Image Storage");
+        emptynode.put("<xmlattr>.outputdirectory", ".");
         ptr.add_child("EnhanceBrukerDicom", emptynode);
         
         std::string text = "./temp";
