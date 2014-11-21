@@ -7,6 +7,7 @@
  ************************************************************************/
 
 #include <QFileDialog>
+#include <QMessageBox>
 #include <QProcess>
 #include <QSettings>
 
@@ -134,6 +135,11 @@ GenerationFrame
 
                 std::string dicomdirfile = dir + VALID_FILE_SEPARATOR + "DICOMDIR";
 
+                if (boost::filesystem::exists(boost::filesystem::path(dicomdirfile.c_str())))
+                {
+                    throw DicomifierException("DICOMDIR already exist: " + dicomdirfile);
+                }
+
                 // Create generator
                 DicomDirGenerator generator;
                 generator.enableMapFilenamesMode();
@@ -179,8 +185,17 @@ GenerationFrame
                 myProcess->start(command, args);
             }
         }
-
     }
+
+    // Disabled Run button
+    emit this->update_nextButton(false);
+
+    QMessageBox msgBox;
+    msgBox.setWindowTitle("Creation done");
+    msgBox.setInformativeText("The files has been created.");
+    msgBox.setStandardButtons(QMessageBox::Ok);
+    msgBox.setDefaultButton(QMessageBox::Ok);
+    int ret = msgBox.exec();
 }
 
 void
