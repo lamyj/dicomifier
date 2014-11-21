@@ -223,7 +223,22 @@ TreeItem
 
     if (brukerdataset->HasFieldData("SUBJECT_abs_date"))
     {
-        double datestr = brukerdataset->GetFieldData("SUBJECT_abs_date")->get_double(0);
+        double datestr = 0;
+        // Attention: Difference between PV5 et PV6
+        auto field = brukerdataset->GetFieldData("SUBJECT_abs_date");
+        if (field->get_data_type() == "double")
+        {
+            datestr = field->get_double(0);
+        }
+        else if (field->get_data_type() == "Int")
+        {
+            datestr = field->get_int(0);
+        }
+        else
+        {
+            datestr = field->get_struct(0)->get_double(0);
+        }
+
         std::time_t now = datestr;
         tm *ltm = localtime(&now);
 

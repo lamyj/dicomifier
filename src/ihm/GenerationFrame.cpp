@@ -15,6 +15,8 @@
 #include <dcmtk/config/osconfig.h>
 #include <dcmtk/dcmdata/dctk.h>
 
+#include <zlib.h>
+
 #include "bruker/actions/EnhanceBrukerDicom.h"
 #include "GenerationFrame.h"
 #include "PreferencesFrame.h"
@@ -147,6 +149,40 @@ GenerationFrame
                 generator.writeDicomDir();
             }
         }
+    }
+
+    if (this->_ui->ZIPCheckBox->isChecked())
+    {
+        boost::filesystem::directory_iterator it(this->_ui->outputDirectory->text().toStdString()),
+                                              it_end;
+        for(; it != it_end; ++it)
+        {
+            if( boost::filesystem::is_directory( (*it) ) )
+            {
+                std::string dir = this->_ui->outputDirectory->text().toStdString() +
+                                  VALID_FILE_SEPARATOR +
+                                  std::string((*it).path().filename().c_str());
+
+                std::string zipfile = dir + VALID_FILE_SEPARATOR +
+                                      std::string((*it).path().filename().c_str()) +
+                                      ".zip";
+
+                std::string dicomdirfile = dir + VALID_FILE_SEPARATOR + "DICOMDIR";
+
+                // Create ZIP Archive (One per Subject)
+                /*gzFile outfile = gzopen(zipfile.c_str(), "wb");
+                FILE *infile = fopen(dicomdirfile.c_str(), "rb");
+                char inbuffer[1024];
+                int num_read = 0;
+                while ((num_read = fread(inbuffer, 1, sizeof(inbuffer), infile)) > 0)
+                {
+                    gzwrite(outfile, inbuffer, num_read);
+                }
+                fclose(infile);
+                gzclose(outfile);*/
+            }
+        }
+
     }
 }
 
