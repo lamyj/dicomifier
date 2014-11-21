@@ -54,11 +54,12 @@ BrukerFieldData
     boost::cmatch what;
     if (regex_match(data.c_str(), what, RegEx_NotHeader))
     {// it is not a header key
+        bool deletedim = true;
         // look for dimension
-        int dimCompute = this->parse_dimension(data);
+        int dimCompute = this->parse_dimension(data, deletedim);
         
         // look for values
-        int dimFind = this->parse_values(what[1]);
+        int dimFind = this->parse_values(what[1], deletedim);
         
         // if find string or struct and compute size is not correct
         if (dimFind != -1 && dimCompute != dimFind)
@@ -183,8 +184,9 @@ BrukerFieldData
 
 int 
 BrukerFieldData
-::parse_dimension(std::string const & data)
+::parse_dimension(std::string const & data, bool & deleteDim)
 {
+    deleteDim = true;
     boost::cmatch what;
     if (regex_search(data.c_str(), what, RegEx_Dimensionnality))
     {
@@ -195,10 +197,21 @@ BrukerFieldData
         // Get dimension separated by ','
         std::vector<std::string> splitvalues;
         boost::split(splitvalues, valuefind, boost::is_any_of(","));
-        
-        for (auto currentvalue : splitvalues)
+
+        // make sure it is an integer
+        boost::cmatch whatint;
+        if (regex_search(splitvalues[0].c_str(), whatint, RegEx_Integer))
         {
-            this->_dimensionNumbers.push_back(boost::lexical_cast<int>(currentvalue));
+            for (auto currentvalue : splitvalues)
+            {
+                this->_dimensionNumbers.push_back(boost::lexical_cast<int>(currentvalue));
+            }
+        }
+        else
+        {
+            // Only one value
+            this->_dimensionNumbers.push_back(1);
+            deleteDim = false;
         }
     }
     else
@@ -212,15 +225,18 @@ BrukerFieldData
 
 int 
 BrukerFieldData
-::parse_values(std::string const & data)
+::parse_values(std::string const & data, bool deleteDim)
 {
     std::string value = data;
     
     // Delete dimension
-    boost::cmatch what;
-    if (regex_search(data.c_str(), what, RegEx_DeleteDimension))
+    if (deleteDim)
     {
-        value = what[1];
+        boost::cmatch what;
+        if (regex_search(data.c_str(), what, RegEx_DeleteDimension))
+        {
+            value = what[1];
+        }
     }
     
     // Remove '\n'

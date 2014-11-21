@@ -28,6 +28,7 @@ const boost::regex RegEx_Dimensionnality("=\\( ([^[:cntrl:]]+) \\)");
 const boost::regex RegEx_NotHeader("^##\\$[^[:cntrl:]]+=(.*)");
 const boost::regex RegEx_Header("^##[^[:cntrl:]]+=(.*)");
 const boost::regex RegEx_DeleteDimension("^\\( [^[:cntrl:]]+ \\)(.*)");
+const boost::regex RegEx_Integer("^[0-9]+$");
 
 /**
  * \class BrukerFieldDataNEW
@@ -73,9 +74,9 @@ public:
         
     int get_values_number() const;
     
-    int parse_dimension(std::string const& data);
+    int parse_dimension(std::string const& data, bool & deleteDim);
     
-    int parse_values(std::string const& data);
+    int parse_values(std::string const& data, bool deleteDim);
                                            
 protected:
     BrukerFieldData();
