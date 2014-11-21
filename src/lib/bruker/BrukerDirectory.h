@@ -63,8 +63,6 @@ public:
      */
     void ParseDirectory(BrukerDataset * bdataset, std::string const & inputDir);
     
-    dicomifier::Rule::Pointer GenerateDICOMRules(DcmDataset * dataset);
-    
     static void getImhDataType(std::string const & wordtype,
                                std::string const & byteorder,
                                int & pixelSize,
