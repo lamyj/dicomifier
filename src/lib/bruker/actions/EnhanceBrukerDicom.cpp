@@ -157,7 +157,7 @@ EnhanceBrukerDicom
     
     dicomifier::bruker::BrukerDirectory* brukerdirectory = 
             new dicomifier::bruker::BrukerDirectory();
-    
+
     // Parse input bruker directory
     int result = brukerdirectory->CreateMap(this->_brukerDir);
     
@@ -178,7 +178,7 @@ EnhanceBrukerDicom
     int coreFrameCount = 0;
     
     std::vector<int> indexlists = brukerdataset->create_frameGroupLists(coreFrameCount);
-    
+
     // Check frame count
     if (brukerdataset->HasFieldData("VisuCoreFrameCount"))
     {
@@ -313,10 +313,10 @@ EnhanceBrukerDicom
     // Load Dictionary
     boost::property_tree::ptree pt;
     boost::property_tree::xml_parser::read_xml
-        ("/home/lahaxe/dicomifier/Dictionary_BrukerToDICOM/MRImageStorage.xml", pt); // TODO: mettre en conf le chemin
+        ("./Dictionary_BrukerToDICOM/MRImageStorage.xml", pt);
     
     dicomifier::FrameIndexGenerator generator(indexlists);
-    
+
     // Get binary data information
     int size, bitsallocated, bitsstored, highbit, pixelrepresentation;
     bool addtransformationsequence = false;
@@ -328,7 +328,7 @@ EnhanceBrukerDicom
                                       pixelrepresentation,
                                       addtransformationsequence,
                                       rescaleintercept, rescaleslope);
-    
+
     // Process
     while (!generator.done())
     {
@@ -345,7 +345,7 @@ EnhanceBrukerDicom
         dataset->putAndInsertUint16(DCM_BitsStored, bitsstored);
         dataset->putAndInsertUint16(DCM_HighBit, highbit);
         dataset->putAndInsertUint16(DCM_PixelRepresentation, pixelrepresentation);
-        
+
         // Add Pixel Value Transformation Sequence
         if (addtransformationsequence)
         {
@@ -365,7 +365,7 @@ EnhanceBrukerDicom
             
             dataset->putAndInsertOFStringArray(DCM_RescaleType, OFString("US"));
         }
-        
+
         // Parse and run all dictionary entries
         BOOST_FOREACH(boost::property_tree::ptree::value_type &v, pt) // Tag Dictionary
         {
@@ -387,14 +387,14 @@ EnhanceBrukerDicom
                 }
             }
         }
-        
+
         // Add binary Data
         // TODO: who managers the buffer ?
         dataset->putAndInsertUint8Array(DCM_PixelData, 
                                         (Uint8*)(binarydata+generator.get_step()*size), 
                                         size);
         // TODO (maybe) delete[] binarydata;
-        
+
         // Write DICOM Dataset
         // Create path:
         OFString patientid;
@@ -425,7 +425,7 @@ EnhanceBrukerDicom
             throw DicomifierException("Unable to save dataset: " + 
                                       std::string(result.text()));
         }
-        
+
         generator.next();
     }
 }
@@ -439,7 +439,7 @@ EnhanceBrukerDicom
     // Load Dictionary
     boost::property_tree::ptree pt;
     boost::property_tree::xml_parser::read_xml
-        ("/home/lahaxe/dicomifier/Dictionary_BrukerToDICOM/EnhancedMRImageStorage.xml", pt); // TODO: mettre en conf le chemin
+        ("./Dictionary_BrukerToDICOM/EnhancedMRImageStorage.xml", pt);
     
     dicomifier::FrameIndexGenerator generator(indexlists);
     
@@ -522,10 +522,30 @@ EnhanceBrukerDicom
                                     (Uint8*)(binarydata), 
                                     size*generator.get_countMax());
     // TODO (maybe) delete[] binarydata;
+
+    // Create path:
+    OFString patientid;
+    dataset->findAndGetOFStringArray(DCM_PatientID, patientid);
+    OFString study_instance_uid;
+    dataset->findAndGetOFStringArray(DCM_StudyInstanceUID, study_instance_uid);
+    OFString series_instance_uid;
+    dataset->findAndGetOFStringArray(DCM_SeriesInstanceUID, series_instance_uid);
+    OFString sop_instance_uid;
+    dataset->findAndGetOFStringArray(DCM_SOPInstanceUID, sop_instance_uid);
+
+    std::string const subject_hash = hashToString(hashCode(patientid));
+    std::string const study_hash = hashToString(hashCode(study_instance_uid));
+    std::string const series_hash = hashToString(hashCode(series_instance_uid));
+    std::string const sop_instance_hash = hashToString(hashCode(sop_instance_uid));
         
+    boost::filesystem::path const destination =
+        boost::filesystem::path(this->_outputDir)
+            /subject_hash/study_hash/series_hash/sop_instance_hash;
+    boost::filesystem::create_directories(destination.parent_path());
+
     // Write DICOM Dataset
     DcmFileFormat fileformat(dataset);
-    OFCondition result = fileformat.saveFile("/home/lahaxe/resultDICOM/EnhancedDicom_01", 
+    OFCondition result = fileformat.saveFile(destination.c_str(),
                                              EXS_LittleEndianExplicit);
     if (result.bad())
     {

@@ -64,7 +64,6 @@ EnhanceBrukerDicomCreator
     
     // get 'brukerdir' attribut (mandatory)
     filename = value.second.get<std::string>("<xmlattr>.brukerdir"); // Warning: throw exception if attribut is missing
-    
     if (filename[0] == '#')
     {
         filename = filename.replace(0,1,"");
@@ -82,7 +81,17 @@ EnhanceBrukerDicomCreator
 
     // get 'outputdirectory' attribut (mandatory)
     std::string outputdirectory = value.second.get<std::string>("<xmlattr>.outputdirectory"); // Warning: throw exception if attribut is missing
-    // TODO possibilité d'avoir un lien #
+    if (outputdirectory[0] == '#')
+    {
+        outputdirectory = outputdirectory.replace(0,1,"");
+
+        if (this->_outputs->find(outputdirectory) == this->_outputs->end())
+        {
+            throw DicomifierException("No output directory '" + outputdirectory + "'.");
+        }
+
+        outputdirectory = boost::any_cast<std::string>(this->_outputs->find(outputdirectory)->second);
+    }
 
     studynum = studynum % 10;       // only 1 byte
     seriesnum = seriesnum % 10000;  // only 4 bytes
