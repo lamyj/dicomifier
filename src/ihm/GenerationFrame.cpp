@@ -7,6 +7,7 @@
  ************************************************************************/
 
 #include <QFileDialog>
+#include <QProcess>
 #include <QSettings>
 
 #include <boost/algorithm/string.hpp>
@@ -163,23 +164,19 @@ GenerationFrame
                                   VALID_FILE_SEPARATOR +
                                   std::string((*it).path().filename().c_str());
 
-                std::string zipfile = dir + VALID_FILE_SEPARATOR +
-                                      std::string((*it).path().filename().c_str()) +
-                                      ".zip";
+                std::string zipfile = std::string((*it).path().filename().c_str());
 
-                std::string dicomdirfile = dir + VALID_FILE_SEPARATOR + "DICOMDIR";
+                QDir directory(QString(dir.c_str()));
 
                 // Create ZIP Archive (One per Subject)
-                /*gzFile outfile = gzopen(zipfile.c_str(), "wb");
-                FILE *infile = fopen(dicomdirfile.c_str(), "rb");
-                char inbuffer[1024];
-                int num_read = 0;
-                while ((num_read = fread(inbuffer, 1, sizeof(inbuffer), infile)) > 0)
-                {
-                    gzwrite(outfile, inbuffer, num_read);
-                }
-                fclose(infile);
-                gzclose(outfile);*/
+                QString command = "zip";
+                QStringList args;
+                args << "-r" << QString(zipfile.c_str());
+                args << directory.entryList();
+
+                QProcess *myProcess = new QProcess(this);
+                myProcess->setWorkingDirectory(QString(dir.c_str()));
+                myProcess->start(command, args);
             }
         }
 
