@@ -310,10 +310,14 @@ EnhanceBrukerDicom
                         std::vector<int> indexlists,
                         std::string const & seriesnumber) const
 {
+    std::string conffile = "../configuration/Dictionary_BrukerToDICOM/MRImageStorage.xml";
+    if ( ! boost::filesystem::exists(boost::filesystem::path(conffile.c_str())) )
+    {
+        conffile = "/etc/dicomifier/Dictionary_BrukerToDICOM/MRImageStorage.xml";
+    }
     // Load Dictionary
     boost::property_tree::ptree pt;
-    boost::property_tree::xml_parser::read_xml
-        ("./Dictionary_BrukerToDICOM/MRImageStorage.xml", pt);
+    boost::property_tree::xml_parser::read_xml(conffile, pt);
     
     dicomifier::FrameIndexGenerator generator(indexlists);
 
@@ -436,10 +440,14 @@ EnhanceBrukerDicom
                                 std::vector<int> indexlists,
                                 std::string const & seriesnumber) const
 {
+    std::string conffile = "../configuration/Dictionary_BrukerToDICOM/EnhancedMRImageStorage.xml";
+    if ( ! boost::filesystem::exists(boost::filesystem::path(conffile.c_str())) )
+    {
+        conffile = "/etc/dicomifier/Dictionary_BrukerToDICOM/EnhancedMRImageStorage.xml";
+    }
     // Load Dictionary
     boost::property_tree::ptree pt;
-    boost::property_tree::xml_parser::read_xml
-        ("./Dictionary_BrukerToDICOM/EnhancedMRImageStorage.xml", pt);
+    boost::property_tree::xml_parser::read_xml(conffile, pt);
     
     dicomifier::FrameIndexGenerator generator(indexlists);
     
