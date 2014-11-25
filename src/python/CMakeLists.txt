@@ -44,3 +44,10 @@ include_directories(${PYTHON_INCLUDE_PATH})
 include_directories(BEFORE "${CMAKE_CURRENT_SOURCE_DIR}/..")
 swig_python_module(dicomifier dicomifier.i wrapper.cpp)
 swig_link_libraries(dicomifier libdicomifier)
+
+# copy all header files to the include directory
+install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+        FILE_PERMISSIONS OWNER_EXECUTE OWNER_WRITE OWNER_READ GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE
+        DIRECTORY_PERMISSIONS OWNER_EXECUTE OWNER_WRITE OWNER_READ GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE
+        DESTINATION /usr/include/dicomifier/
+        FILES_MATCHING PATTERN "*.h")
