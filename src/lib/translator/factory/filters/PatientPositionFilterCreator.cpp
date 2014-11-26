@@ -21,7 +21,8 @@ namespace translator
 namespace factory
 {
     
-static unsigned int const registration = TranslatorFactory::get_instance().register_<PatientPositionFilterCreator>(); 
+static unsigned int const registration =
+        TranslatorFactory::get_instance().register_<PatientPositionFilterCreator>();
 
 PatientPositionFilterCreator
 ::PatientPositionFilterCreator()

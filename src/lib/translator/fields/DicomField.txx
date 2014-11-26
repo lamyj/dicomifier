@@ -9,8 +9,6 @@
 #include "core/DicomifierException.h"
 #include "DicomField.h"
 #include "translator/SubTag.h"
-#include "translator/fields/BrukerField.h"
-#include "translator/fields/ConstantField.h"
 
 namespace dicomifier
 {

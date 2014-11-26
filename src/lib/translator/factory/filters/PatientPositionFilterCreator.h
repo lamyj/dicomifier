@@ -21,6 +21,9 @@ namespace translator
 namespace factory
 {
     
+/**
+ * @brief The PatientPositionFilterCreator class
+ */
 class PatientPositionFilterCreator : public TranslationCreatorBase
 {
 public:
@@ -28,17 +31,31 @@ public:
     typedef std::shared_ptr<Self> Pointer;
     typedef std::shared_ptr<Self const> ConstPointer;
     
+    /// Create pointer to new instance of PatientPositionFilterCreator
     static Pointer New() { return Pointer(new Self()); }
     
+    /// Destroy the instance of PatientPositionFilterCreator
     virtual ~PatientPositionFilterCreator();
 
+    /**
+     * @brief Create Pointer to class PatientPositionFilter
+     * @param value: XML node
+     * @param dataset: Dataset to modify
+     * @param evr: EVR of tag
+     * @return new PatientPositionFilter
+     */
     virtual Tag::Pointer Create(boost::property_tree::ptree::value_type & value,
                                 DcmDataset* dataset, 
                                 DcmEVR evr);
 
+    /**
+     * @brief get_class_name: return created class name
+     * @return PatientPositionFilter
+     */
     static std::string get_class_name() { return "PatientPositionFilter"; }
     
 protected:
+    /// Create an instance of PatientPositionFilterCreator
     PatientPositionFilterCreator();
 
 private:

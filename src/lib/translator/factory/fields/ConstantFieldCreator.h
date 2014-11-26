@@ -20,6 +20,9 @@ namespace translator
 namespace factory
 {
     
+/**
+ * @brief The ConstantFieldCreator class
+ */
 class ConstantFieldCreator : public TranslationCreatorBase
 {
 public:
@@ -27,17 +30,31 @@ public:
     typedef std::shared_ptr<Self> Pointer;
     typedef std::shared_ptr<Self const> ConstPointer;
     
+    /// Create pointer to new instance of ConstantFieldCreator
     static Pointer New() { return Pointer(new Self()); }
     
+    /// Destroy the instance of ConstantFieldCreator
     virtual ~ConstantFieldCreator();
 
+    /**
+     * @brief Create Pointer to class ConstantField
+     * @param value: XML node
+     * @param dataset: Dataset to modify
+     * @param evr: EVR of tag
+     * @return new ConstantField
+     */
     virtual Tag::Pointer Create(boost::property_tree::ptree::value_type & value,
                                 DcmDataset* dataset, 
                                 DcmEVR evr);
 
+    /**
+     * @brief get_class_name: return created class name
+     * @return ConstantField
+     */
     static std::string get_class_name() { return "ConstantField"; }
 
 protected:
+    /// Create an instance of ConstantFieldCreator
     ConstantFieldCreator();
 
 private:

@@ -16,7 +16,10 @@ namespace dicomifier
     
 namespace translator
 {
-    
+
+/**
+ * @brief The ImageOrientationPatientDcmField class
+ */
 template<DcmEVR VR>
 class ImageOrientationPatientDcmField : public SubTag<VR>
 {
@@ -28,16 +31,29 @@ public:
     /// Create pointer to new instance of ImageOrientationPatientDcmField
     static Pointer New();
     
+    /// Destroy the instance of ImageOrientationPatientDcmField
     virtual ~ImageOrientationPatientDcmField();
-                     
+
+    /**
+     * @brief run: Convert Bruker ImageOrientationPatientDcmField format into
+     *             DICOM ImageOrientationPatientDcmField format
+     * @param brukerdataset: Bruker input data
+     * @param generator: index generator
+     * @param dataset: DICOM output dataset
+     */
     virtual void run(dicomifier::bruker::BrukerDataset* brukerdataset,
                      dicomifier::FrameIndexGenerator const & generator,
                      DcmItem* dataset);
     
+    /**
+     * @brief get_class_type: return type of this class.
+     * @return ECT_ImageOrientationPatientDcmField
+     */
     virtual ClassType get_class_type() const 
             { return ECT_ImageOrientationPatientDcmField; }
 
 protected:
+    /// Create an instance of ImageOrientationPatientDcmField
     ImageOrientationPatientDcmField();
 
 private:

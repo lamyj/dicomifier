@@ -14,23 +14,29 @@ namespace dicomifier
 namespace factory
 {
     
-CreatorBase::CreatorBase()
+CreatorBase
+::CreatorBase()
 {
     this->_inputs = std::make_shared<InOutPutType>();
     this->_outputs = std::make_shared<InOutPutType>();
 }
 
-CreatorBase::~CreatorBase()
+CreatorBase
+::~CreatorBase()
 {
     // Nothing to do
 }
 
-void CreatorBase::set_inputs(std::shared_ptr<InOutPutType> const inputs)
+void
+CreatorBase
+::set_inputs(std::shared_ptr<InOutPutType> const inputs)
 {
     this->_inputs = inputs;
 }
 
-void CreatorBase::set_outputs(std::shared_ptr<InOutPutType> const outputs)
+void
+CreatorBase
+::set_outputs(std::shared_ptr<InOutPutType> const outputs)
 {
     this->_outputs = outputs;
 }

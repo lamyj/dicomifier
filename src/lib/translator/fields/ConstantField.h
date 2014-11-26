@@ -16,7 +16,10 @@ namespace dicomifier
     
 namespace translator
 {
-    
+
+/**
+ * @brief The ConstantField class
+ */
 template<DcmEVR VR>
 class ConstantField : public SubTag<VR>
 {
@@ -28,26 +31,56 @@ public:
     typedef typename ElementTraits<VR>::ValueType ValueType;
     typedef std::vector<ValueType> ArrayType;
     
-    /// Create pointer to new instance of DicomField
+    /// Create pointer to new instance of ConstantField
     static Pointer New();
     
+    /**
+     * @brief Create pointer to new instance of ConstantField
+     * @param value: Single constant value
+     * @return new instance of ConstantField
+     */
     static Pointer New(ValueType const & value);
     
+    /**
+     * @brief Create pointer to new instance of ConstantField
+     * @param array: multiple constant values
+     * @return new instance of ConstantField
+     */
     static Pointer New(ArrayType const & array);
 
+    /// Destroy the instance of ConstantField
     virtual ~ConstantField();
     
+    /**
+     * @brief run: Nothing to do, values are inserted in Constructor
+     * @param brukerdataset: Bruker input data
+     * @param generator: index generator
+     * @param dataset: DICOM output dataset
+     */
     virtual void run(dicomifier::bruker::BrukerDataset* brukerdataset,
                      dicomifier::FrameIndexGenerator const & generator,
                      DcmItem* dataset);
     
+    /**
+     * @brief get_class_type: return type of this class.
+     * @return ECT_ConstantField
+     */
     virtual ClassType get_class_type() const { return ECT_ConstantField; }
     
 protected:
+    /// Create an instance of ConstantField
     ConstantField();
     
+    /**
+     * @brief Create an instance of ConstantField
+     * @param value: Single constant value
+     */
     ConstantField(ValueType const & value);
     
+    /**
+     * @brief Create an instance of ConstantField
+     * @param array: multiple constant values
+     */
     ConstantField(ArrayType const & array);
 
 private:

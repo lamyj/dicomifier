@@ -15,8 +15,11 @@ namespace dicomifier
 namespace actions
 {
 
-SaveDataset::SaveDataset():
-    _dataset(NULL), _filename(""), _includeMetaInfoHeader(false)
+/****************************** Constructor *****************************/
+
+SaveDataset
+::SaveDataset():
+    Action(), _dataset(NULL), _filename(""), _includeMetaInfoHeader(false)
 {
     // Nothing to do
 }
@@ -25,16 +28,21 @@ SaveDataset
 ::SaveDataset(DcmDataset * dataset, 
               std::string filename,
               bool includeMetaInfoHeader):
-    _dataset(dataset), _filename(filename), 
+    Action(), _dataset(dataset), _filename(filename),
     _includeMetaInfoHeader(includeMetaInfoHeader)
 {
     // Nothing to do
 }
 
-SaveDataset::~SaveDataset()
+/****************************** Destructor ******************************/
+
+SaveDataset
+::~SaveDataset()
 {
     // Nothing to do
 }
+
+/****************************** Accessors *******************************/
 
 DcmDataset *
 SaveDataset
@@ -77,6 +85,8 @@ SaveDataset
 {
     this->_includeMetaInfoHeader = includeMetaInfoHeader;
 }
+
+/****************************** Other Functions *************************/
 
 void
 SaveDataset

@@ -22,14 +22,18 @@ namespace dicomifier
 namespace factory
 {
     
-static unsigned int const registration = Factory::get_instance().register_<RuleCreator>();
+static unsigned int const registration =
+        Factory::get_instance().register_<RuleCreator>();
     
-RuleCreator::RuleCreator()
+RuleCreator
+::RuleCreator():
+    CreatorBase()
 {
     // Nothing to do
 }
 
-RuleCreator::~RuleCreator()
+RuleCreator
+::~RuleCreator()
 {
     // Nothing to do
 }
@@ -41,7 +45,8 @@ RuleCreator
     this->_inputs = std::make_shared<CreatorBase::InOutPutType>();
     
     // by default, input is a new Dataset
-    this->_inputs->insert(std::pair<std::string, boost::any>("NEW_DATASET", boost::any(new DcmDataset())));
+    this->_inputs->insert(std::pair<std::string, boost::any>("NEW_DATASET",
+                                                             boost::any(new DcmDataset())));
 
     // Parsing <Input />
     BOOST_FOREACH(boost::property_tree::ptree::value_type &input, 
@@ -92,7 +97,8 @@ RuleCreator
     {
         if ( ! alreadyset)
         {
-            Object::Pointer object = Factory::get_instance().create(v, this->_inputs, this->_outputs);
+            Object::Pointer object = Factory::get_instance().create(v, this->_inputs,
+                                                                    this->_outputs);
             dicomifier::conditions::Condition::Pointer cond = 
                 std::dynamic_pointer_cast<dicomifier::conditions::Condition>(object);
             if (cond != NULL)
@@ -120,7 +126,8 @@ RuleCreator
     BOOST_FOREACH(boost::property_tree::ptree::value_type &v,
             value.second.get_child("Actions"))
     {
-        Object::Pointer object = Factory::get_instance().create(v, this->_inputs, this->_outputs);
+        Object::Pointer object = Factory::get_instance().create(v, this->_inputs,
+                                                                this->_outputs);
         dicomifier::actions::Action::Pointer act = 
             std::dynamic_pointer_cast<dicomifier::actions::Action>(object);
         if (act != NULL)

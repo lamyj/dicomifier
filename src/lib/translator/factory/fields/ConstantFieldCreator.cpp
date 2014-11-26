@@ -22,7 +22,8 @@ namespace translator
 namespace factory
 {
     
-static unsigned int const registration = TranslatorFactory::get_instance().register_<ConstantFieldCreator>(); 
+static unsigned int const registration =
+        TranslatorFactory::get_instance().register_<ConstantFieldCreator>();
 
 ConstantFieldCreator
 ::ConstantFieldCreator()

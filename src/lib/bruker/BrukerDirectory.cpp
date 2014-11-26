@@ -91,12 +91,12 @@ int BrukerDirectory::CreateMap(std::string const & inputDir)
             std::string file = inputDir + VALID_FILE_SEPARATOR + (*iter);
             
             if ((*iter) == "pdata")
-            { // find series directory
-                ParseSeriesDirectory(mainDataset, file, "0");
+            { // find reconstruction directory
+                ParseReconstructionDirectory(mainDataset, file, "0");
             }
             else
-            { // find studies directory
-                ParseStudiesDirectory(mainDataset, file, (*iter));
+            { // find series directory
+                ParseSeriesDirectory(mainDataset, file, (*iter));
             }
         }
         delete mainDataset;
@@ -111,9 +111,9 @@ int BrukerDirectory::CreateMap(std::string const & inputDir)
 
 void 
 BrukerDirectory
-::ParseStudiesDirectory(BrukerDataset * bdataset, 
-                        std::string const & inputDir, 
-                        std::string const & StudyNumber)
+::ParseSeriesDirectory(BrukerDataset * bdataset,
+                       std::string const & inputDir,
+                       std::string const & StudyNumber)
 {
     BrukerDataset * studyDataset = new BrukerDataset(*bdataset);
     std::vector<std::string> subDirectoryName;
@@ -145,7 +145,7 @@ BrukerDirectory
         }
     }
     
-    // Create Studies BrukerDatasets
+    // Create series BrukerDatasets
     if (subDirectoryName.size() != 0)
     {
         for (auto iter = subDirectoryName.begin(); iter != subDirectoryName.end(); ++iter)
@@ -153,8 +153,8 @@ BrukerDirectory
             std::string file = inputDir + VALID_FILE_SEPARATOR + (*iter);
             
             if ((*iter) == "pdata")
-            { // find series directory
-                ParseSeriesDirectory(studyDataset, file, StudyNumber);
+            { // find reconstruction directory
+                ParseReconstructionDirectory(studyDataset, file, StudyNumber);
             }
         }
     }
@@ -162,9 +162,9 @@ BrukerDirectory
 
 void 
 BrukerDirectory
-::ParseSeriesDirectory(BrukerDataset * bdataset, 
-                       std::string const & inputDir, 
-                       std::string const & StudyNumber)
+::ParseReconstructionDirectory(BrukerDataset * bdataset,
+                               std::string const & inputDir,
+                               std::string const & StudyNumber)
 {
     BrukerDataset * seriesdataset = new BrukerDataset(*bdataset);
     std::vector<std::string> subDirectoryName;
@@ -196,7 +196,7 @@ BrukerDirectory
         }
     }
     
-    // Create Series BrukerDatasets
+    // Create reconstruction BrukerDatasets
     if (subDirectoryName.size() != 0)
     {
         for (auto iter = subDirectoryName.begin(); iter != subDirectoryName.end(); ++iter)
@@ -295,7 +295,7 @@ bool BrukerDirectory::isDirToParse(std::string const & dir)
     return false;
 }
 
-void BrukerDirectory::getImhDataType(std::string const & wordtype,
+void BrukerDirectory::getImgDataType(std::string const & wordtype,
                                      std::string const & byteorder,
                                      int & pixelSize,
                                      int & bitsallocated,
@@ -325,6 +325,7 @@ void BrukerDirectory::getImhDataType(std::string const & wordtype,
     }
     else if (wordtype == "_32BIT_FLOAT")
     {
+        // TODO
     }
     else
     {

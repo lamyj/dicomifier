@@ -16,7 +16,10 @@ namespace dicomifier
     
 namespace translator
 {
-    
+
+/**
+ * @brief The MultiplicationOperator class
+ */
 template<DcmEVR VR>
 class MultiplicationOperator : public SubTag<VR>
 {
@@ -28,22 +31,44 @@ public:
     /// Create pointer to new instance of MultiplicationOperator
     static Pointer New();
     
+    /**
+     * @brief Create pointer to new instance of MultiplicationOperator
+     * @param tags: Field to multiply
+     * @return new instance of MultiplicationOperator
+     */
     static Pointer New(std::vector<Tag::Pointer> tags);
 
+    /// Destroy the instance of MultiplicationOperator
     virtual ~MultiplicationOperator();
                      
+    /**
+     * @brief run: Multiply some fields
+     * @param brukerdataset: Bruker input data
+     * @param generator: index generator
+     * @param dataset: DICOM output dataset
+     */
     virtual void run(dicomifier::bruker::BrukerDataset* brukerdataset,
                      dicomifier::FrameIndexGenerator const & generator,
                      DcmItem* dataset);
     
+    /**
+     * @brief get_class_type: return type of this class.
+     * @return ECT_MultiplicationOperator
+     */
     virtual ClassType get_class_type() const { return ECT_MultiplicationOperator; }
     
 protected:
+    /// Create an instance of MultiplicationOperator
     MultiplicationOperator();
     
+    /**
+     * @brief Create an instance of MultiplicationOperator
+     * @param tags: Field to multiply
+     */
     MultiplicationOperator(std::vector<Tag::Pointer> tags);
 
 private:
+    /// Field to multiply
     std::vector<Tag::Pointer> _tags;
 
 };

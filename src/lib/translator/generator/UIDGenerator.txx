@@ -6,8 +6,6 @@
  * for details.
  ************************************************************************/
 
-#include <ctime>
-
 #include "UIDGenerator.h"
 
 namespace dicomifier

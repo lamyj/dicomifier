@@ -16,7 +16,10 @@ namespace dicomifier
     
 namespace translator
 {
-    
+
+/**
+ * @brief The StackIDDcmField class
+ */
 template<DcmEVR VR>
 class StackIDDcmField : public SubTag<VR>
 {
@@ -28,16 +31,29 @@ public:
     /// Create pointer to new instance of StackIDDcmField
     static Pointer New();
     
+    /// Destroy the instance of StackIDDcmField
     virtual ~StackIDDcmField();
                      
+    /**
+     * @brief run: Convert Bruker StackIDDcmField format into
+     *             DICOM StackIDDcmField format
+     * @param brukerdataset: Bruker input data
+     * @param generator: index generator
+     * @param dataset: DICOM output dataset
+     */
     virtual void run(dicomifier::bruker::BrukerDataset* brukerdataset,
                      dicomifier::FrameIndexGenerator const & generator,
                      DcmItem* dataset);
     
+    /**
+     * @brief get_class_type: return type of this class.
+     * @return ECT_StackIDDcmField
+     */
     virtual ClassType get_class_type() const 
             { return ECT_StackIDDcmField; }
 
 protected:
+    /// Create an instance of StackIDDcmField
     StackIDDcmField();
 
 private:

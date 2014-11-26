@@ -16,7 +16,10 @@ namespace dicomifier
     
 namespace translator
 {
-    
+
+/**
+ * @brief The InStackPositionNumberDcmField class
+ */
 template<DcmEVR VR>
 class InStackPositionNumberDcmField : public SubTag<VR>
 {
@@ -28,16 +31,29 @@ public:
     /// Create pointer to new instance of InStackPositionNumberDcmField
     static Pointer New();
     
+    /// Destroy the instance of InStackPositionNumberDcmField
     virtual ~InStackPositionNumberDcmField();
                      
+    /**
+     * @brief run: Convert Bruker InStackPositionNumberDcmField format into
+     *             DICOM InStackPositionNumberDcmField format
+     * @param brukerdataset: Bruker input data
+     * @param generator: index generator
+     * @param dataset: DICOM output dataset
+     */
     virtual void run(dicomifier::bruker::BrukerDataset* brukerdataset,
                      dicomifier::FrameIndexGenerator const & generator,
                      DcmItem* dataset);
     
+    /**
+     * @brief get_class_type: return type of this class.
+     * @return ECT_InStackPositionNumberDcmField
+     */
     virtual ClassType get_class_type() const 
             { return ECT_InStackPositionNumberDcmField; }
 
 protected:
+    /// Create an instance of InStackPositionNumberDcmField
     InStackPositionNumberDcmField();
 
 private:

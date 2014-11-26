@@ -21,6 +21,9 @@ namespace translator
 namespace factory
 {
     
+/**
+ * @brief The InStackPositionNumberDcmFieldCreator class
+ */
 class InStackPositionNumberDcmFieldCreator : public TranslationCreatorBase
 {
 public:
@@ -28,17 +31,31 @@ public:
     typedef std::shared_ptr<Self> Pointer;
     typedef std::shared_ptr<Self const> ConstPointer;
     
+    /// Create pointer to new instance of InStackPositionNumberDcmFieldCreator
     static Pointer New() { return Pointer(new Self()); }
     
+    /// Destroy the instance of InStackPositionNumberDcmFieldCreator
     virtual ~InStackPositionNumberDcmFieldCreator();
 
+    /**
+     * @brief Create Pointer to class InStackPositionNumberDcmField
+     * @param value: XML node
+     * @param dataset: Dataset to modify
+     * @param evr: EVR of tag
+     * @return new InStackPositionNumberDcmField
+     */
     virtual Tag::Pointer Create(boost::property_tree::ptree::value_type & value,
                                 DcmDataset* dataset,
                                 DcmEVR evr);
 
+    /**
+     * @brief get_class_name: return created class name
+     * @return InStackPositionNumberDcmField
+     */
     static std::string get_class_name() { return "InStackPositionNumberDcmField"; }
     
 protected:
+    /// Create an instance of InStackPositionNumberDcmFieldCreator
     InStackPositionNumberDcmFieldCreator();
 
 private:

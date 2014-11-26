@@ -15,35 +15,44 @@ namespace dicomifier
     
 namespace actions
 {
-    
-StoreDataset::StoreDataset()
-: _dataset(NULL), _address(""), _port(0),
-  _AEremote(""), _AElocal(""),
-  _user_identity_type(UserIdentityType::None),
-  _user_identity_primary_field(""), _user_identity_secondary_field("")
+
+/****************************** Constructor *****************************/
+
+StoreDataset
+::StoreDataset()
+    : Action(), _dataset(NULL), _address(""), _port(0),
+      _AEremote(""), _AElocal(""),
+      _user_identity_type(UserIdentityType::None),
+      _user_identity_primary_field(""), _user_identity_secondary_field("")
 {
     // Nothing to do
 }
 
-StoreDataset::StoreDataset(DcmDataset* dataset, 
-    std::string const & address, Uint16 const & port, 
-    std::string const & aeremote, std::string const & aelocal, 
-    UserIdentityType const & user_identity_type,
-    std::string const & user_identity_primary_field,
-    std::string const & user_identity_secondary_field)
-: _dataset(dataset), _address(address), _port(port),
-  _AEremote(aeremote), _AElocal(aelocal),
-  _user_identity_type(user_identity_type),
-  _user_identity_primary_field(user_identity_primary_field), 
-  _user_identity_secondary_field(user_identity_secondary_field)
+StoreDataset
+::StoreDataset(DcmDataset* dataset,
+               std::string const & address, Uint16 const & port,
+               std::string const & aeremote, std::string const & aelocal,
+               UserIdentityType const & user_identity_type,
+               std::string const & user_identity_primary_field,
+               std::string const & user_identity_secondary_field)
+    : Action(), _dataset(dataset), _address(address), _port(port),
+      _AEremote(aeremote), _AElocal(aelocal),
+      _user_identity_type(user_identity_type),
+      _user_identity_primary_field(user_identity_primary_field),
+      _user_identity_secondary_field(user_identity_secondary_field)
 {
     // Nothing to do
 }
 
-StoreDataset::~StoreDataset()
+/****************************** Destructor ******************************/
+
+StoreDataset
+::~StoreDataset()
 {
     // Nothing to do
 }
+
+/****************************** Accessors *******************************/
 
 UserIdentityType
 StoreDataset
@@ -86,7 +95,9 @@ StoreDataset
 {
     this->_user_identity_secondary_field = value;
 }
-    
+
+/****************************** Other Functions *************************/
+
 void
 StoreDataset
 ::run() const

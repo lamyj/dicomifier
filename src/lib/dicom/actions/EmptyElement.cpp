@@ -6,9 +6,6 @@
  * for details.
  ************************************************************************/
 
-#include <sstream>
-#include <stdexcept>
-
 #include "core/DicomifierException.h"
 #include "core/Factory.h"
 #include "EmptyElement.h"
@@ -19,25 +16,24 @@ namespace dicomifier
 namespace actions
 {
 
-/****************************** Constructor ***************************/
+/****************************** Constructor *****************************/
 
 EmptyElement
 ::EmptyElement():
-    _dataset(NULL)
+    Action(), _dataset(NULL)
 {
     // Nothing to do
 }
 
 EmptyElement
 ::EmptyElement(DcmDataset * dataset, std::vector<TagAndRange> tags):
-    _dataset(dataset),
-    _tags(tags)
+    Action(), _dataset(dataset), _tags(tags)
 {
     // Nothing to do
 }
 
 
-/****************************** Destructor ****************************/
+/****************************** Destructor ******************************/
 
 EmptyElement
 ::~EmptyElement()
@@ -45,7 +41,7 @@ EmptyElement
     // Nothing to do
 }
 
-/****************************** Other Functions ***********************/
+/****************************** Other Functions *************************/
 
 void
 EmptyElement
@@ -59,7 +55,9 @@ EmptyElement
     this->emptyItem(0, this->_dataset);
 }
 
-void EmptyElement::emptyItem(int indice, DcmItem* dataset) const
+void
+EmptyElement
+::emptyItem(int indice, DcmItem* dataset) const
 {
     if (dataset == NULL)
     {
@@ -94,7 +92,9 @@ void EmptyElement::emptyItem(int indice, DcmItem* dataset) const
         
         if (ret.good())
         {
-            for (unsigned long i = tar._range._min; i < std::max(tar._range._max, (int)dcmseqitems->card()); i++)
+            for (unsigned long i = tar._range._min;
+                 i < std::max(tar._range._max, (int)dcmseqitems->card());
+                 i++)
             {
                 DcmItem* seq = dcmseqitems->getItem(i);
                 
@@ -107,7 +107,7 @@ void EmptyElement::emptyItem(int indice, DcmItem* dataset) const
     }
 }
 
-/****************************** ActionEmptyElement ********************/
+/****************************** ActionEmptyElement **********************/
 
 template<>
 void 

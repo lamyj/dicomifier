@@ -21,6 +21,9 @@ namespace translator
 namespace factory
 {
     
+/**
+ * @brief The AdditionOperatorCreator class
+ */
 class AdditionOperatorCreator : public TranslationCreatorBase
 {
 public:
@@ -28,17 +31,31 @@ public:
     typedef std::shared_ptr<Self> Pointer;
     typedef std::shared_ptr<Self const> ConstPointer;
     
+    /// Create pointer to new instance of AdditionOperatorCreator
     static Pointer New() { return Pointer(new Self()); }
     
+    /// Destroy the instance of AdditionOperatorCreator
     virtual ~AdditionOperatorCreator();
 
+    /**
+     * @brief Create Pointer to class AdditionOperator
+     * @param value: XML node
+     * @param dataset: Dataset to modify
+     * @param evr: EVR of tag
+     * @return new AdditionOperator
+     */
     virtual Tag::Pointer Create(boost::property_tree::ptree::value_type & value,
                                 DcmDataset* dataset, 
                                 DcmEVR evr);
 
+    /**
+     * @brief get_class_name: return created class name
+     * @return AdditionOperator
+     */
     static std::string get_class_name() { return "AdditionOperator"; }
     
 protected:
+    /// Create an instance of AdditionOperatorCreator
     AdditionOperatorCreator();
 
 private:

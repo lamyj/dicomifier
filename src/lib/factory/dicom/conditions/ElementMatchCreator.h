@@ -17,6 +17,9 @@ namespace dicomifier
 namespace factory
 {
     
+/**
+ * @brief The ElementMatchCreator class: Factory for the class ElementMatch
+ */
 class ElementMatchCreator : public DicomCreatorBase
 {
 public:
@@ -24,15 +27,27 @@ public:
     typedef std::shared_ptr<Self> Pointer;
     typedef std::shared_ptr<Self const> ConstPointer;
     
+    /// Create pointer to new instance of ElementMatchCreator
     static Pointer New() { return Pointer(new Self()); }
     
+    /// Destroy the instance of ElementMatchCreator
     virtual ~ElementMatchCreator();
     
+    /**
+     * @brief Create an object ElementMatch
+     * @param value: XML node
+     * @return new instancce of ElementMatch
+     */
     virtual Object::Pointer Create(boost::property_tree::ptree::value_type & value);
 
+    /**
+     * @brief get_class_name: return XML node name
+     * @return ElementMatch
+     */
     static std::string get_class_name() { return "ElementMatch"; }
 
 protected:
+    /// Create an instance of ElementMatchCreator
     ElementMatchCreator();
 
 private:

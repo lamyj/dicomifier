@@ -19,7 +19,8 @@ namespace translator
 namespace factory
 {
     
-static unsigned int const registration = TranslatorFactory::get_instance().register_<InstanceNumberDcmFieldCreator>(); 
+static unsigned int const registration =
+        TranslatorFactory::get_instance().register_<InstanceNumberDcmFieldCreator>();
 
 InstanceNumberDcmFieldCreator
 ::InstanceNumberDcmFieldCreator()

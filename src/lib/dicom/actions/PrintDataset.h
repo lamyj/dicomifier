@@ -33,6 +33,12 @@ public:
     /// Create pointer to new instance of PrintDataset
     static Pointer New() { return Pointer(new Self()); }
     
+    /**
+     * @brief Create pointer to new instance of PrintDataset
+     * @param dataset: Dataset to print
+     * @param outputfile: Output file path
+     * @return new instance of PrintDataset
+     */
     static Pointer New(DcmDataset* dataset, std::string const & outputfile)
         { return Pointer(new Self(dataset, outputfile)); }
     
@@ -40,37 +46,37 @@ public:
     virtual ~PrintDataset();
     
     /**
-     * 
-     * @return 
+     * @brief get_dataset: getter for attribut dataset
+     * @return dataset
      */
     DcmDataset* get_dataset() const;
     
     /**
-     * 
-     * @param dataset: 
+     * @brief set_dataset: setter for attribut dataset
+     * @param dataset: new value
      */
     void set_dataset(DcmDataset * dataset);
     
     /**
-     * 
-     * @return 
+     * @brief get_outputfile: getter for attribut outputfile
+     * @return outputfile
      */
     std::string get_outputfile() const;
     
     /**
-     * 
-     * @param outputfile: 
+     * @brief set_outputfile: setter for attribut outputfile
+     * @param outputfile: new value
      */
     void set_outputfile(std::string const & outputfile);
 
     /**
-     * @brief Run the action.
+     * @brief run: Execute the print Action
      */
     virtual void run() const;
     
     /**
-     * Get this class name
-     * @return this class name
+     * @brief get_class_name: return this class name
+     * @return PrintDataset
      */
     static std::string get_class_name() { return "PrintDataset"; }
 
@@ -78,6 +84,11 @@ protected:
     /// Create an instance of PrintDataset
     PrintDataset();
     
+    /**
+     * @brief Create an instance of PrintDataset
+     * @param dataset: Dataset to print
+     * @param outputfile: Output file path
+     */
     PrintDataset(DcmDataset* dataset, std::string const & outputfile);
 
 private:
