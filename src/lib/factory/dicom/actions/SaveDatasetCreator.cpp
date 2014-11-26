@@ -16,10 +16,12 @@ namespace dicomifier
 namespace factory
 {
     
-static unsigned int const registration = Factory::get_instance().register_<SaveDatasetCreator>();
+static unsigned int const registration =
+        Factory::get_instance().register_<SaveDatasetCreator>();
 
 SaveDatasetCreator
-::SaveDatasetCreator()
+::SaveDatasetCreator():
+    CreatorBase()
 {
     // Nothing to do
 }

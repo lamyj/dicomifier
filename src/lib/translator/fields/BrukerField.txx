@@ -6,8 +6,6 @@
  * for details.
  ************************************************************************/
 
-#include <sstream>
-
 #include <boost/lexical_cast.hpp>
 
 #include "bruker/BrukerFieldData.h"
@@ -93,7 +91,8 @@ BrukerField<VR>
                  count++)
             {
                 // Warning: cannot lexical_cast String to OFString
-                this->_array.push_back(ElementTraits<VR>::fromString(fielddata->get_string(count)));
+                this->_array.push_back(
+                        ElementTraits<VR>::fromString(fielddata->get_string(count)));
             }
         }
     }

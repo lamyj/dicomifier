@@ -17,6 +17,9 @@ namespace dicomifier
 namespace factory
 {
     
+/**
+ * @brief The AllCreator class: Factory for the class All
+ */
 class AllCreator : public CreatorBase
 {
 public:
@@ -24,15 +27,27 @@ public:
     typedef std::shared_ptr<Self> Pointer;
     typedef std::shared_ptr<Self const> ConstPointer;
     
+    /// Create pointer to new instance of AllCreator
     static Pointer New() { return Pointer(new Self()); }
 
+    /// Destroy the instance of AllCreator
     virtual ~AllCreator();
     
+    /**
+     * @brief Create an object All
+     * @param value: XML node
+     * @return new instancce of All
+     */
     virtual Object::Pointer Create(boost::property_tree::ptree::value_type & value);
 
+    /**
+     * @brief get_class_name: return XML node name
+     * @return All
+     */
     static std::string get_class_name() { return "All"; }
 
 protected:
+    /// Create an instance of AllCreator
     AllCreator();
 
 private:

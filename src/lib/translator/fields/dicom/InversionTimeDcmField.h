@@ -16,7 +16,10 @@ namespace dicomifier
     
 namespace translator
 {
-    
+
+/**
+ * @brief The InversionTimeDcmField class
+ */
 template<DcmEVR VR>
 class InversionTimeDcmField : public SubTag<VR>
 {
@@ -28,16 +31,29 @@ public:
     /// Create pointer to new instance of InversionTimeDcmField
     static Pointer New();
     
+    /// Destroy the instance of InversionTimeDcmField
     virtual ~InversionTimeDcmField();
                      
+    /**
+     * @brief run: Convert Bruker InversionTimeDcmField format into
+     *             DICOM InversionTimeDcmField format
+     * @param brukerdataset: Bruker input data
+     * @param generator: index generator
+     * @param dataset: DICOM output dataset
+     */
     virtual void run(dicomifier::bruker::BrukerDataset* brukerdataset,
                      dicomifier::FrameIndexGenerator const & generator,
                      DcmItem* dataset);
     
+    /**
+     * @brief get_class_type: return type of this class.
+     * @return ECT_InversionTimeDcmField
+     */
     virtual ClassType get_class_type() const 
             { return ECT_InversionTimeDcmField; }
 
 protected:
+    /// Create an instance of InversionTimeDcmField
     InversionTimeDcmField();
 
 private:

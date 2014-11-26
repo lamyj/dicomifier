@@ -17,6 +17,9 @@ namespace dicomifier
 namespace translator
 {
     
+/**
+ * @brief The TestField class: Test class. Do nothing
+ */
 class TestField : public Tag
 {
 public:
@@ -27,17 +30,29 @@ public:
     /// Create pointer to new instance of TestField
     static Pointer New() { return Pointer(new Self()); }
     
+    /// Destroy the instance of TestField
     virtual ~TestField();
     
+    /**
+     * @brief run: nothing to do
+     * @param brukerdataset: Bruker input data
+     * @param generator: index generator
+     * @param dataset: DICOM output dataset
+     */
     virtual void run(dicomifier::bruker::BrukerDataset* brukerdataset,
                      dicomifier::FrameIndexGenerator const & generator,
                      DcmItem* dataset);
     
+    /**
+     * @brief get_class_type: return type of this class.
+     * @return ECT_TestField
+     */
     virtual ClassType get_class_type() const { return ECT_TestField; }
     
 protected:
 
 private:
+    /// Create an instance of TestField
     TestField();
     
 };

@@ -19,7 +19,10 @@ namespace translator
     
 namespace factory
 {
-    
+
+/**
+ * @brief The TestFieldCreator class
+ */
 class TestFieldCreator : public TranslationCreatorBase
 {
 public:
@@ -27,17 +30,31 @@ public:
     typedef std::shared_ptr<Self> Pointer;
     typedef std::shared_ptr<Self const> ConstPointer;
     
+    /// Create pointer to new instance of TestFieldCreator
     static Pointer New() { return Pointer(new Self()); }
     
+    /// Destroy the instance of TestFieldCreator
     virtual ~TestFieldCreator();
 
+    /**
+     * @brief Create Pointer to class TestField
+     * @param value: XML node
+     * @param dataset: Dataset to modify
+     * @param evr: EVR of tag
+     * @return new TestField
+     */
     virtual Tag::Pointer Create(boost::property_tree::ptree::value_type & value,
                                 DcmDataset* dataset, 
                                 DcmEVR evr);
 
+    /**
+     * @brief get_class_name: return created class name
+     * @return TestField
+     */
     static std::string get_class_name() { return "TestField"; }
 
 protected:
+    /// Create an instance of TestFieldCreator
     TestFieldCreator();
 
 private:

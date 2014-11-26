@@ -57,6 +57,9 @@ enum ClassType
     ECT_DimensionIndexValuesDcmField
 };
     
+/**
+ * @brief The Tag class: Abstact base class for translation tag
+ */
 class Tag
 {
 public:
@@ -64,15 +67,28 @@ public:
     typedef std::shared_ptr<Self> Pointer;
     typedef std::shared_ptr<Self const> ConstPointer;
     
+    /// Destroy the instance of Tag
     virtual ~Tag();
     
+    /**
+     * @brief run: Call to execute translation. Should be override by inherit classes
+     * @param brukerdataset: Bruker input data
+     * @param generator: index generator
+     * @param dataset: DICOM output dataset
+     */
     virtual void run(dicomifier::bruker::BrukerDataset* brukerdataset,
                      dicomifier::FrameIndexGenerator const & generator,
                      DcmItem* dataset) = 0;
     
+    /**
+     * @brief get_class_type: return type of this class.
+     *        Should be override by inherit classes
+     * @return class type
+     */
     virtual ClassType get_class_type() const = 0;
 
 protected:
+    /// Create an instance of Tag
     Tag();
 
 private:

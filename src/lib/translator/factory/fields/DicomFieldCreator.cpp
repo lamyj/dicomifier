@@ -22,7 +22,8 @@ namespace translator
 namespace factory
 {
     
-static unsigned int const registration = TranslatorFactory::get_instance().register_<DicomFieldCreator>(); 
+static unsigned int const registration =
+        TranslatorFactory::get_instance().register_<DicomFieldCreator>();
 
 DicomFieldCreator
 ::DicomFieldCreator()
@@ -50,14 +51,16 @@ DicomFieldCreator
     Uint16 element;
     if (private_)
     {
-        element = dicomifier::Dictionaries::get_instance().FindCreatorElementNumber(privatedict, dataset);
+        element = dicomifier::Dictionaries::get_instance().FindCreatorElementNumber(privatedict,
+                                                                                    dataset);
     }
         
     // get tag
     std::string const tag = value.second.get<std::string>("<xmlattr>.tag"); // Warning: throw exception if attribut is missing
     
     bool finalypublic = false;
-    DcmTag dcmtag = dicomifier::Dictionaries::get_instance().GetTagFromKey(tag, privatedict, finalypublic);
+    DcmTag dcmtag = dicomifier::Dictionaries::get_instance().GetTagFromKey(tag, privatedict,
+                                                                           finalypublic);
     
     if (privatedict != "public" && !finalypublic)
     {

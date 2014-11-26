@@ -17,6 +17,9 @@ namespace dicomifier
 namespace translator
 {
     
+/**
+ * @brief The ConditionBase class: Abstract base class for the conditions
+ */
 class ConditionBase : public Tag
 {
 public:
@@ -24,18 +27,36 @@ public:
     typedef std::shared_ptr<Self> Pointer;
     typedef std::shared_ptr<Self const> ConstPointer;
     
+    /// Destroy the instance of ConditionBase
     virtual ~ConditionBase();
     
+    /**
+     * @brief run: nothing to do
+     * @param brukerdataset: Bruker input data
+     * @param generator: index generator
+     * @param dataset: DICOM output dataset
+     */
     virtual void run(dicomifier::bruker::BrukerDataset* brukerdataset,
                      dicomifier::FrameIndexGenerator const & generator,
                      DcmItem* dataset);
                      
+    /**
+     * @brief eval: Evaluate the condition
+     * @param dataset: DICOM data
+     * @param brukerdataset: Bruker data
+     * @return true if condition is met, false otherwise
+     */
     virtual bool eval(DcmItem* dataset,
                       dicomifier::bruker::BrukerDataset* brukerdataset) = 0;
     
+    /**
+     * @brief get_class_type: return this class type
+     * @return ECT_Unknown
+     */
     virtual ClassType get_class_type() const { return ECT_Unknown; }
 
 protected:
+    /// Create an instance of ConditionBase
     ConditionBase();
 
 private:

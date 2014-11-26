@@ -17,6 +17,9 @@ namespace dicomifier
 namespace factory
 {
     
+/**
+ * @brief The DeleteElementCreator class: Factory for the class DeleteElement
+ */
 class DeleteElementCreator : public DicomCreatorBase
 {
 public:
@@ -24,15 +27,27 @@ public:
     typedef std::shared_ptr<Self> Pointer;
     typedef std::shared_ptr<Self const> ConstPointer;
     
+    /// Create pointer to new instance of DeleteElementCreator
     static Pointer New() { return Pointer(new Self()); }
 
+    /// Destroy the instance of DeleteElementCreator
     virtual ~DeleteElementCreator();
     
+    /**
+     * @brief Create an object DeleteElement
+     * @param value: XML node
+     * @return new instancce of DeleteElement
+     */
     virtual Object::Pointer Create(boost::property_tree::ptree::value_type & value);
 
+    /**
+     * @brief get_class_name: return XML node name
+     * @return DeleteElement
+     */
     static std::string get_class_name() { return "DeleteElement"; }
 
 protected:
+    /// Create an instance of DeleteElementCreator
     DeleteElementCreator();
 
 private:

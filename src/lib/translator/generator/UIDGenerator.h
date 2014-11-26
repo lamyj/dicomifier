@@ -16,7 +16,10 @@ namespace dicomifier
     
 namespace translator
 {
-    
+
+/**
+ * @brief The UIDGenerator class
+ */
 template<DcmEVR VR>
 class UIDGenerator : public SubTag<VR>
 {
@@ -28,22 +31,44 @@ public:
     /// Create pointer to new instance of UIDGenerator
     static Pointer New();
     
+    /**
+     * @brief Create pointer to new instance of UIDGenerator
+     * @param uid_type: UID Type to generate
+     * @return new instance of UIDGenerator
+     */
     static Pointer New(std::string const & uid_type);
 
+    /// Destroy the instance of UIDGenerator
     virtual ~UIDGenerator();
     
+    /**
+     * @brief run: Generate new UID
+     * @param brukerdataset: Bruker input data
+     * @param generator: index generator
+     * @param dataset: DICOM output dataset
+     */
     virtual void run(dicomifier::bruker::BrukerDataset* brukerdataset,
                      dicomifier::FrameIndexGenerator const & generator,
                      DcmItem* dataset);
     
+    /**
+     * @brief get_class_type: return type of this class.
+     * @return ECT_UIDGenerator
+     */
     virtual ClassType get_class_type() const { return ECT_UIDGenerator; }
     
 protected:
+    /// Create an instance of UIDGenerator
     UIDGenerator();
     
+    /**
+     * @brief Create an instance of UIDGenerator
+     * @param uid_type: UID Type to generate
+     */
     UIDGenerator(std::string const & uid_type);
 
 private:
+    /// UID Type to generate
     std::string _uid_type;
 
 };

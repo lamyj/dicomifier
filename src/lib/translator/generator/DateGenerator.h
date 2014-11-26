@@ -16,7 +16,10 @@ namespace dicomifier
     
 namespace translator
 {
-    
+
+/**
+ * @brief The DateGenerator class
+ */
 template<DcmEVR VR>
 class DateGenerator : public SubTag<VR>
 {
@@ -28,27 +31,57 @@ public:
     /// Create pointer to new instance of DateGenerator
     static Pointer New();
     
+    /**
+     * @brief Create pointer to new instance of DateGenerator
+     * @param tag: Bruker Date/Time field
+     * @param inputformat: DateTime input format
+     * @param outputformat: DateTime output format
+     * @return new instance of DateGenerator
+     */
     static Pointer New(Tag::Pointer tag, std::string const & inputformat, 
                        std::string const & outputformat);
 
+    /// Destroy the instance of DateGenerator
     virtual ~DateGenerator();
     
+    /**
+     * @brief run: Generate datetime or convert Bruker datetime field format into
+     *             DICOM datetime format
+     * @param brukerdataset: Bruker input data
+     * @param generator: index generator
+     * @param dataset: DICOM output dataset
+     */
     virtual void run(dicomifier::bruker::BrukerDataset* brukerdataset,
                      dicomifier::FrameIndexGenerator const & generator,
                      DcmItem* dataset);
     
+    /**
+     * @brief get_class_type: return type of this class.
+     * @return ECT_DateGenerator
+     */
     virtual ClassType get_class_type() const { return ECT_DateGenerator; }
     
 protected:
+    /// Create an instance of DateGenerator
     DateGenerator();
     
+    /**
+     * @brief Create an instance of DateGenerator
+     * @param tag: Bruker Date/Time field
+     * @param inputformat: DateTime input format
+     * @param outputformat: DateTime output format
+     */
     DateGenerator(Tag::Pointer tag, std::string const & inputformat, 
                   std::string const & outputformat);
 
 private:
+    /// Bruker Date/Time field
     Tag::Pointer _tag;
     
+    /// DateTime input format
     std::string _inputFormat;
+
+    /// DateTime output format
     std::string _outputFormat;
 
 };

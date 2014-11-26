@@ -16,7 +16,10 @@ namespace dicomifier
     
 namespace translator
 {
-    
+
+/**
+ * @brief The AdditionOperator class
+ */
 template<DcmEVR VR>
 class AdditionOperator : public SubTag<VR>
 {
@@ -28,22 +31,44 @@ public:
     /// Create pointer to new instance of AdditionOperator
     static Pointer New();
     
+    /**
+     * @brief Create pointer to new instance of AdditionOperator
+     * @param tags: Field to be added
+     * @return new instance of AdditionOperator
+     */
     static Pointer New(std::vector<Tag::Pointer> tags);
 
+    /// Destroy the instance of AdditionOperator
     virtual ~AdditionOperator();
                      
+    /**
+     * @brief run: add some field
+     * @param brukerdataset: Bruker input data
+     * @param generator: index generator
+     * @param dataset: DICOM output dataset
+     */
     virtual void run(dicomifier::bruker::BrukerDataset* brukerdataset,
                      dicomifier::FrameIndexGenerator const & generator,
                      DcmItem* dataset);
     
+    /**
+     * @brief get_class_type: return type of this class.
+     * @return ECT_AdditionOperator
+     */
     virtual ClassType get_class_type() const { return ECT_AdditionOperator; }
     
 protected:
+    /// Create an instance of AdditionOperator
     AdditionOperator();
     
+    /**
+     * @brief Create an instance of AdditionOperator
+     * @param tags: Field to be added
+     */
     AdditionOperator(std::vector<Tag::Pointer> tags);
 
 private:
+    /// Field to be added
     std::vector<Tag::Pointer> _tags;
 
 };

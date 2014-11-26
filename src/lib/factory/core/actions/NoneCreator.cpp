@@ -16,19 +16,25 @@ namespace dicomifier
 namespace factory
 {
     
-static unsigned int const registration = Factory::get_instance().register_<NoneCreator>();
+static unsigned int const registration =
+        Factory::get_instance().register_<NoneCreator>();
     
-NoneCreator::NoneCreator()
+NoneCreator
+::NoneCreator():
+    CreatorBase()
 {
     // nothing to do
 }
 
-NoneCreator::~NoneCreator()
+NoneCreator
+::~NoneCreator()
 {
     // nothing to do
 }
 
-Object::Pointer NoneCreator::Create(boost::property_tree::ptree::value_type & value)
+Object::Pointer
+NoneCreator
+::Create(boost::property_tree::ptree::value_type & value)
 {
     return dicomifier::actions::None::New();
 }

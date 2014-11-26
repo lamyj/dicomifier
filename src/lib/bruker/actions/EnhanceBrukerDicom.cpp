@@ -221,7 +221,7 @@ EnhanceBrukerDicom
     // Get binary data information
     int pixelSize;
     dicomifier::bruker::BrukerDirectory::
-        getImhDataType(brukerdataset->GetFieldData("VisuCoreWordType")->get_string(0), 
+        getImgDataType(brukerdataset->GetFieldData("VisuCoreWordType")->get_string(0),
                        brukerdataset->GetFieldData("VisuCoreByteOrder")->get_string(0),
                        pixelSize, bitsallocated, bitsstored, highbit,
                        pixelrepresentation);
