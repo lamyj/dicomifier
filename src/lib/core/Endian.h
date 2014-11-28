@@ -9,6 +9,8 @@
 #ifndef _495bd214_52fe_454c_a5a4_7c725e27bde2
 #define _495bd214_52fe_454c_a5a4_7c725e27bde2
 
+#include <stdint.h>
+
 namespace dicomifier
 {
 
@@ -16,75 +18,114 @@ namespace endian
 {
 
 /**
- * @brief is_big_endian: check host Endianness
- * @return true if host is in big Endian, false otherwise
+ * @brief Test if the current byte order is big endian.
  */
-static bool is_big_endian()
+bool is_big_endian()
 {
-    union
+    union Endianness
     {
-        uint32_t i;
-        char c[4];
-    } bint = {0x01020304};
+        uint16_t i;
+        char c[2];
+    };
+    Endianness endianness;
+    endianness.i = 0x0102;
 
-    return (bint.c[0] == 1);
+    return (endianness.c[0] == 1);
 }
 
 /**
- * @brief is_little_endian: check host Endianness
- * @return true if host is in little Endian, false otherwise
+ * @brief Test if the current byte order is little endian.
  */
-static bool is_little_endian()
+bool is_little_endian()
 {
     return !is_big_endian();
 }
 
 /**
- * @brief swap: Convert Little Endian to Big Endian or Big Endian to Little Endian
- * @param objecttoswap: object to convert
- * @param size: size of the object
+ * @brief Swap the endianness of given object in place.
+ *
+ * The object must be a primitive data type.
  */
-static void swap(char* objecttoswap, int const & size)
+template<typename T>
+void swap(T & object)
 {
-    for (unsigned int i = 0; i < size/2; i++)
+    char * buffer = reinterpret_cast<char*>(&object);
+    for (unsigned int i = 0; i < sizeof(object)/2; ++i)
     {
-        char temp;
-        memcpy(&temp, objecttoswap+i, 1);
-        memcpy(objecttoswap+i, objecttoswap+size-(i+1), 1);
-        memcpy(objecttoswap+size-(i+1), &temp, 1);
+        char const temp = buffer[i];
+        buffer[i] = buffer[sizeof(object)-i-1];
+        buffer[sizeof(object)-i-1] = temp;
     }
 }
 
 /**
- * @brief swap_letoh: Convert Little Endian to host Endianness
- * @param objecttoswap: object to convert
- * @param size: size of the object
+ * @brief Swap the endianness of the given sequence in place.
+ *
+ * The sequence must contain primitive data types.
  */
-static void swap_letoh(char * objecttoswap, int const & size)
+template<typename TIterator>
+void swap(TIterator begin, TIterator end)
 {
-    if (is_little_endian())
-    {// Nothing to do: already in Little Endian
-        return;
+    for(TIterator it=begin; it!=end; ++it)
+    {
+        swap(*it);
     }
-
-    // Swap to Big Endian
-    swap(objecttoswap, size);
 }
 
 /**
- * @brief swap_betoh: Convert Big Endian to host Endianness
- * @param objecttoswap: object to convert
- * @param size: size of the object
+ * @brief Adapt the endianness of big-endian object to the current byte order.
+ *
+ * The object must be a primitive data type.
  */
-static void swap_betoh(char * objecttoswap, int const & size)
+template<typename T>
+void from_big_endian(T & object)
 {
-    if (is_big_endian())
-    {// Nothing to do: already in Big Endian
-        return;
+    if(is_little_endian())
+    {
+        swap(object);
     }
+}
 
-    // Swap to Little Endian
-    swap(objecttoswap, size);
+/**
+ * @brief Adapt the endianness of little-endian object to the current byte order.
+ *
+ * The object must be a primitive data type.
+ */
+template<typename T>
+void from_little_endian(T & object)
+{
+    if(is_big_endian())
+    {
+        swap(object);
+    }
+}
+
+/**
+ * @brief Adapt the endianness of big-endian sequence to the current byte order.
+ *
+ * The sequence must contain primitive data types.
+ */
+template<typename TIterator>
+void from_big_endian(TIterator begin, TIterator end)
+{
+    if(is_little_endian())
+    {
+        dicomifier::endian::swap(begin, end);
+    }
+}
+
+/**
+ * @brief Adapt the endianness of little-endian sequence to the current byte order.
+ *
+ * The sequence must contain primitive data types.
+ */
+template<typename TIterator>
+void from_little_endian(TIterator begin, TIterator end)
+{
+    if(is_big_endian())
+    {
+        dicomifier::endian::swap(begin, end);
+    }
 }
 
 } // namespace endian

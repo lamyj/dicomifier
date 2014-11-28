@@ -9,6 +9,7 @@
 #define BOOST_TEST_MODULE ModuleDicomField
 #include <boost/test/unit_test.hpp>
 
+#include "translator/fields/ConstantField.h"
 #include "translator/fields/DicomField.h"
 #include "translator/fields/TestField.h"
 
@@ -28,7 +29,10 @@ BOOST_AUTO_TEST_CASE(TEST_OK_01)
     // Pointer exists and class type is DicomField
     BOOST_CHECK_EQUAL(testfieldas->get_class_type(), dicomifier::translator::ECT_DicomField);
     
-    // Test VR = AT => Not implemented
+    // Test VR = AT
+    auto testfieldat = dicomifier::translator::DicomField<EVR_AT>::New();
+    // Pointer exists and class type is DicomField
+    BOOST_CHECK_EQUAL(testfieldat->get_class_type(), dicomifier::translator::ECT_DicomField);
     
     // Test VR = CS
     auto testfieldcs = dicomifier::translator::DicomField<EVR_CS>::New();
@@ -171,7 +175,11 @@ BOOST_FIXTURE_TEST_CASE(TEST_OK_02, TestDataOK02)
     testfieldas->run(NULL, dicomifier::FrameIndexGenerator({}), dataset);
     BOOST_CHECK_EQUAL(dataset->tagExists(tagandrange._tag), true);
     
-    // Test VR = AT => Not implemented
+    // Test VR = AT
+    tagandrange._tag = DCM_DimensionIndexPointer;
+    auto testfieldat = dicomifier::translator::DicomField<EVR_AT>::New(tagandrange, testfield);
+    testfieldat->run(NULL, dicomifier::FrameIndexGenerator({}), dataset);
+    BOOST_CHECK_EQUAL(dataset->tagExists(tagandrange._tag), true);
     
     // Test VR = CS
     tagandrange._tag = DCM_Modality;
@@ -294,6 +302,45 @@ BOOST_FIXTURE_TEST_CASE(TEST_OK_02, TestDataOK02)
     tagandrange._tag = DCM_PixelDataProviderURL;
     auto testfieldut = dicomifier::translator::DicomField<EVR_UT>::New(tagandrange, testfield);
     testfieldut->run(NULL, dicomifier::FrameIndexGenerator({}), dataset);
+    BOOST_CHECK_EQUAL(dataset->tagExists(tagandrange._tag), true);
+}
+
+/*************************** TEST OK 03 *******************************/
+/**
+ * Nominal test case: Run with SubTag
+ */
+struct TestDataOK03
+{
+    dicomifier::TagAndRange tagandrange;
+    DcmDataset* dataset;
+    dicomifier::translator::ConstantField<EVR_AT>::Pointer constantfieldat;
+    dicomifier::translator::ConstantField<EVR_CS>::Pointer constantfieldcs;
+
+    TestDataOK03()
+    {
+        dataset = new DcmDataset();
+        constantfieldat = dicomifier::translator::ConstantField<EVR_AT>::New(0);
+        constantfieldcs = dicomifier::translator::ConstantField<EVR_CS>::New("TEST");
+    }
+
+    ~TestDataOK03()
+    {
+        delete dataset;
+    }
+};
+
+BOOST_FIXTURE_TEST_CASE(TEST_OK_03, TestDataOK03)
+{
+    // Test VR = AT
+    tagandrange._tag = DCM_DimensionIndexPointer;
+    auto testfieldat = dicomifier::translator::DicomField<EVR_AT>::New(tagandrange, constantfieldat);
+    testfieldat->run(NULL, dicomifier::FrameIndexGenerator({}), dataset);
+    BOOST_CHECK_EQUAL(dataset->tagExists(tagandrange._tag), true);
+
+    // Test VR = CS
+    tagandrange._tag = DCM_Modality;
+    auto testfieldcs = dicomifier::translator::DicomField<EVR_CS>::New(tagandrange, constantfieldcs);
+    testfieldcs->run(NULL, dicomifier::FrameIndexGenerator({}), dataset);
     BOOST_CHECK_EQUAL(dataset->tagExists(tagandrange._tag), true);
 }
 

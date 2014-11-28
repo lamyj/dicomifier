@@ -105,9 +105,9 @@
         <BrukerField name="VisuSubjectWeight" />
     </DicomField>
 
-    <!--DicomField tag="0010,2201" keyword="PatientSpeciesDescription" vr="LO">
-        Not in Bruker data
-    </DicomField-->
+    <DicomField tag="0010,2201" keyword="PatientSpeciesDescription" vr="LO">
+        <ConstantField values="to be defined" />
+    </DicomField>
 
     <DicomField tag="0010,2203" keyword="PatientSexNeutered" vr="CS">
         <ConstantField values="UNKNOWN" />
@@ -119,25 +119,25 @@
         </UpperCaseGenerator>
     </DicomField>
 
-    <!--DicomField tag="0010,2292" keyword="PatientBreedDescription" vr="LO">
-        Not in Bruker data
-    </DicomField-->
+    <DicomField tag="0010,2292" keyword="PatientBreedDescription" vr="LO">
+        <ConstantField values="" />
+    </DicomField>
 
-    <!--DicomField tag="0010,2294" keyword="BreedRegistrationSequence" vr="SQ">
-        Not in Bruker data
-    </DicomField-->
+    <DicomField tag="0010,2294" keyword="BreedRegistrationSequence" vr="SQ">
+        <!-- Empty Sequence -->
+    </DicomField>
 
-    <!--DicomField tag="0010,2297" keyword="ResponsiblePerson" vr="PN">
-        Not in Bruker data
-    </DicomField-->
+    <DicomField tag="0010,2297" keyword="ResponsiblePerson" vr="PN">
+        <ConstantField values="" />
+    </DicomField>
 
     <!--DicomField tag="0010,2298" keyword="ResponsiblePersonRole" vr="CS">
         Not in Bruker data
     </DicomField-->
 
-    <!--DicomField tag="0010,2299" keyword="ResponsibleOrganization" vr="LO">
-        Not in Bruker data
-    </DicomField-->
+    <DicomField tag="0010,2299" keyword="ResponsibleOrganization" vr="LO">
+        <ConstantField values="" />
+    </DicomField>
 
     <DicomField tag="0010,4000" keyword="PatientComments" vr="LT">
         <BrukerField name="VisuSubjectComment" />
@@ -286,6 +286,18 @@
     <!--DicomField tag="0028,0103" keyword="Pixelrepresentation" vr="US" >
         Auto generate
     </DicomField-->
+    
+    <DicomField tag="0028,0301" keyword="BurnedInAnnotation" vr="CS">
+        <ConstantField values="NO" />
+    </DicomField>
+    
+    <DicomField tag="0028,2110" keyword="LossyImageCompression" vr="CS">
+        <ConstantField values="00" />
+    </DicomField>
+    
+    <DicomField tag="0040,0555" keyword="AcquisitionContextSequence" vr="SQ">
+        <!-- Empty sequence -->
+    </DicomField>
 
     <DicomField tag="5200,9229" keyword="SharedFunctionalGroupsSequence" vr="SQ" >
         
