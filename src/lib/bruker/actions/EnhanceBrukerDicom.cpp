@@ -239,18 +239,18 @@ EnhanceBrukerDicom
         rescaleintercept = (double)min;
         rescaleslope     = (max-min) / exp2(16.0);
 
+        if (byteorder == "bigEndian")
+        {
+            dicomifier::endian::from_big_endian(sint32vector.begin(), sint32vector.end());
+        }
+        else
+        {
+            dicomifier::endian::from_little_endian(sint32vector.begin(), sint32vector.end());
+        }
+
         // Convert data
         for (unsigned int i = 0; i < size; i++)
         {
-            if (byteorder == "bigEndian")
-            {
-                dicomifier::endian::swap_betoh((char*)&sint32vector[i], sizeof(Sint32));
-            }
-            else
-            {
-                dicomifier::endian::swap_letoh((char*)&sint32vector[i], sizeof(Sint32));
-            }
-
             uint16vector[i] = (sint32vector[i] - min) * exp2(16.0) / (max - min) - exp2(15);
         }
     }
@@ -267,17 +267,17 @@ EnhanceBrukerDicom
         rescaleintercept = -exp2(15);
         rescaleslope     = 1;
 
+        if (byteorder == "bigEndian")
+        {
+            dicomifier::endian::from_big_endian(sint16vector.begin(), sint16vector.end());
+        }
+        else
+        {
+            dicomifier::endian::from_little_endian(sint16vector.begin(), sint16vector.end());
+        }
+
         for (unsigned int i = 0; i < size; i++)
         {
-            if (byteorder == "bigEndian")
-            {
-                dicomifier::endian::swap_betoh((char*)&sint16vector[i], sizeof(Sint16));
-            }
-            else
-            {
-                dicomifier::endian::swap_letoh((char*)&sint16vector[i], sizeof(Sint16));
-            }
-
             uint16vector[i] = sint16vector[i] + exp2(15);
         }
     }
@@ -317,18 +317,18 @@ EnhanceBrukerDicom
         rescaleintercept = (double)min;
         rescaleslope     = (max-min) / exp2(16.0);
 
+        if (byteorder == "bigEndian")
+        {
+            dicomifier::endian::from_big_endian(floatvector.begin(), floatvector.end());
+        }
+        else
+        {
+            dicomifier::endian::from_little_endian(floatvector.begin(), floatvector.end());
+        }
+
         // Convert data
         for (unsigned int i = 0; i < size; i++)
         {
-            if (byteorder == "bigEndian")
-            {
-                dicomifier::endian::swap_betoh((char*)&floatvector[i], sizeof(float));
-            }
-            else
-            {
-                dicomifier::endian::swap_letoh((char*)&floatvector[i], sizeof(float));
-            }
-
             uint16vector[i] = (floatvector[i] - min) * exp2(16.0) / (max - min) - exp2(15);
         }
     }

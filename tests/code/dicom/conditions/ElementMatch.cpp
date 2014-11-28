@@ -403,6 +403,20 @@ BOOST_FIXTURE_TEST_CASE(TEST_OK_06, TestDataOK03)
     BOOST_CHECK_EQUAL(testmatch->eval(), true);
 }
 
+/*************************** TEST OK 07 *******************************/
+/**
+ * Nominal test case: Eval return false (different size)
+ */
+BOOST_FIXTURE_TEST_CASE(TEST_OK_07, TestDataOK03)
+{
+    vect.clear();
+    vect.push_back(dicomifier::TagAndRange(DCM_Modality,
+                                           dicomifier::Range(0,1)));
+    auto testmatch = dicomifier::conditions::ElementMatch<EVR_CS>::
+                        New(dataset, vect, {"value1", "value2"});
+    BOOST_CHECK_EQUAL(testmatch->eval(), false);
+}
+
 /*************************** TEST KO 01 *******************************/
 /**
  * Error test case: Empty dataset
