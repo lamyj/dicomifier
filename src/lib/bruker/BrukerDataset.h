@@ -11,7 +11,6 @@
 /*! \file BrukerDataset.h
 */
 
-#include <string>
 #include <fstream>
 
 #include "BrukerFieldData.h"
