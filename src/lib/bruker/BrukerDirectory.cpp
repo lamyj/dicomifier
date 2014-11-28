@@ -295,53 +295,6 @@ bool BrukerDirectory::isDirToParse(std::string const & dir)
     return false;
 }
 
-void BrukerDirectory::getImgDataType(std::string const & wordtype,
-                                     std::string const & byteorder,
-                                     int & pixelSize,
-                                     int & bitsallocated,
-                                     int & bitsstored,
-                                     int & highbit,
-                                     int & pixelrepresentation)
-{
-    pixelrepresentation = 1;
-    if (wordtype == "_32BIT_SGN_INT")
-    {
-        bitsallocated = 32;
-        bitsstored = 32;
-        pixelSize = 4;
-    }
-    else if (wordtype == "_16BIT_SGN_INT")
-    {
-        bitsallocated = 16;
-        bitsstored = 16;
-        pixelSize = 2;
-    }
-    else if (wordtype == "_8BIT_UNSGN_INT")
-    {
-        pixelrepresentation = 0;
-        bitsallocated = 8;
-        bitsstored = 8;
-        pixelSize = 1;
-    }
-    else if (wordtype == "_32BIT_FLOAT")
-    {
-        // TODO
-    }
-    else
-    {
-        throw DicomifierException("Unknown VisuCoreWordType");
-    }
-    
-    if (byteorder == "bigEndian")
-    {
-        highbit = 0;
-    }
-    else // if (byteorder == "littleEndian")
-    {
-        highbit = bitsallocated - 1;
-    }
-}
-
 BrukerDataset* 
 BrukerDirectory
 ::get_brukerDataset(std::string const& seriesnumber)

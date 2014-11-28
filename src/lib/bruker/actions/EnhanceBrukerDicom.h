@@ -133,40 +133,27 @@ private:
     /**
      * @brief get_binary_data_information: Get all information about Image
      * @param brukerdataset: Bruker Dataset to convert
-     * @param generator: current index generator
-     * @param outputbuffer: (out) image
+     * @param uint16vector: (out) image
      * @param size: size of the image
-     * @param bitsallocated: (out) number of bits for each pixel
-     * @param bitsstored: (out) unmber of bits stored
      * @param highbit: (out) high bit (depends on Little endian or Big endian)
-     * @param pixelrepresentation: (out) Flag for Signed or Unsigned
-     * @param addtransformationsequence: (out) Flag for indicate if buffer is convert from 32 to 16 bits
+     * @param addtransformationsequence: (out) Flag for indicate if buffer is convert to 16 bits
      * @param rescaleintercept: (out) value for DICOM field 0028,1052
      * @param rescaleslope: (out) value for DICOM field 0028,1053
      */
     void get_binary_data_information
         (
                 dicomifier::bruker::BrukerDataset* brukerdataset,
-                dicomifier::FrameIndexGenerator const & generator,
-                char* outputbuffer, int & size,
-                int & bitsallocated, int & bitsstored,
-                int & highbit, int & pixelrepresentation,
-                bool & addtransformationsequence,
+                std::vector<Uint16>& uint16vector, int const & size,
+                int & highbit, bool & addtransformationsequence,
                 double & rescaleintercept, double & rescaleslope
         ) const;
-                               
+
     /**
-     * @brief convert_32to16bits: Convert image from 32 bits to 16 bits
-     * @param inputbuffer: Buffer to convert
-     * @param inputbuffersize: Size of input buffer
-     * @param outputbuffer: (out) conversion Result
-     * @param rescaleintercept: (out) value for DICOM field 0028,1052
-     * @param rescaleslope: (out) value for DICOM field 0028,1053
+     * @brief get_destination_filename: get formatted output filepath
+     * @param dataset: dataset to write
+     * @return output filepath
      */
-    void convert_32to16bits(char* inputbuffer, int inputbuffersize,
-                            char* outputbuffer,
-                            double & rescaleintercept,
-                            double & rescaleslope) const;
+    boost::filesystem::path get_destination_filename(DcmDataset* dataset) const;
                             
     /**
      * @brief create_MRImageStorage: Create DICOM files for SOP Class UID MRImageStorage

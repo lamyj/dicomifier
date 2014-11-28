@@ -69,24 +69,6 @@ public:
      * @param inputDir: directory to read
      */
     void ParseDirectory(BrukerDataset * bdataset, std::string const & inputDir);
-    
-    /**
-     * @brief getImgDataType: get information about the image
-     * @param wordtype: value of Paravision field VisuCoreWordType
-     * @param byteorder: value of Paravision filed VisuCoreByteOrder
-     * @param pixelSize: (out) number of bytes for each pixel
-     * @param bitsallocated: (out) number of bits for each pixel
-     * @param bitsstored: (out) number of bits stored
-     * @param highbit: (out) high bit (depends on Little endian or Big endian)
-     * @param pixelrepresentation: (out) Flag for Signed or Unsigned
-     */
-    static void getImgDataType(std::string const & wordtype,
-                               std::string const & byteorder,
-                               int & pixelSize,
-                               int & bitsallocated,
-                               int & bitsstored,
-                               int & highbit,
-                               int & pixelrepresentation);
 
 protected:
     /**
