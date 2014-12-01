@@ -28,7 +28,10 @@ BOOST_AUTO_TEST_CASE(TEST_OK_01)
     // Pointer exists and class type is InversionTimeDcmField
     BOOST_CHECK_EQUAL(testfieldas->get_class_type(), dicomifier::translator::ECT_InversionTimeDcmField);
     
-    // Test VR = AT => Not implemented
+    // Test VR = AT
+    auto testfieldat = dicomifier::translator::InversionTimeDcmField<EVR_AT>::New();
+    // Pointer exists and class type is InversionTimeDcmField
+    BOOST_CHECK_EQUAL(testfieldat->get_class_type(), dicomifier::translator::ECT_InversionTimeDcmField);
     
     // Test VR = CS
     auto testfieldcs = dicomifier::translator::InversionTimeDcmField<EVR_CS>::New();
@@ -208,7 +211,10 @@ BOOST_FIXTURE_TEST_CASE(TEST_KO_01, TestDataOK02)
     BOOST_REQUIRE_THROW(testfieldas->run(brukerdataset, *generator, NULL),
                         dicomifier::DicomifierException);
     
-    // Test VR = AT => Not implemented
+    // Test VR = AT
+    auto testfieldat = dicomifier::translator::InversionTimeDcmField<EVR_AT>::New();
+    BOOST_REQUIRE_THROW(testfieldat->run(brukerdataset, *generator, NULL),
+                        dicomifier::DicomifierException);
     
     // Test VR = CS
     auto testfieldcs = dicomifier::translator::InversionTimeDcmField<EVR_CS>::New();

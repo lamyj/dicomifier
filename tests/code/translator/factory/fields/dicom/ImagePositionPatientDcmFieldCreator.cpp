@@ -49,6 +49,12 @@ BOOST_FIXTURE_TEST_CASE(TEST_OK_01, TestDataOK01)
         dicomifier::translator::ImagePositionPatientDcmField<EVR_AS>::Pointer imagepositionpatientAS = 
                 std::dynamic_pointer_cast<dicomifier::translator::ImagePositionPatientDcmField<EVR_AS>>(objectAS);
         BOOST_CHECK_EQUAL(imagepositionpatientAS != NULL, true);
+
+        // Test VR = AT
+        dicomifier::translator::Tag::Pointer objectAT = imagepositionpatientcreator->Create(v, NULL, EVR_AT);
+        dicomifier::translator::ImagePositionPatientDcmField<EVR_AT>::Pointer imagepositionpatientAT =
+                std::dynamic_pointer_cast<dicomifier::translator::ImagePositionPatientDcmField<EVR_AT>>(objectAT);
+        BOOST_CHECK_EQUAL(imagepositionpatientAT != NULL, true);
         
         // Test VR = CS
         dicomifier::translator::Tag::Pointer objectCS = imagepositionpatientcreator->Create(v, NULL, EVR_CS);

@@ -28,7 +28,10 @@ BOOST_AUTO_TEST_CASE(TEST_OK_01)
     // Pointer exists and class type is InstanceNumberDcmField
     BOOST_CHECK_EQUAL(testfieldas->get_class_type(), dicomifier::translator::ECT_InstanceNumberDcmField);
     
-    // Test VR = AT => Not implemented
+    // Test VR = AT
+    auto testfieldat = dicomifier::translator::InstanceNumberDcmField<EVR_AT>::New();
+    // Pointer exists and class type is InstanceNumberDcmField
+    BOOST_CHECK_EQUAL(testfieldat->get_class_type(), dicomifier::translator::ECT_InstanceNumberDcmField);
     
     // Test VR = CS
     auto testfieldcs = dicomifier::translator::InstanceNumberDcmField<EVR_CS>::New();
@@ -151,7 +154,10 @@ BOOST_AUTO_TEST_CASE(TEST_OK_02)
     testfieldas->run(NULL, dicomifier::FrameIndexGenerator({2}), NULL);
     BOOST_CHECK_EQUAL(testfieldas->get_array().size(), 1);
     
-    // Test VR = AT => Not implemented
+    // Test VR = AT
+    auto testfieldat = dicomifier::translator::InstanceNumberDcmField<EVR_AT>::New();
+    testfieldat->run(NULL, dicomifier::FrameIndexGenerator({2}), NULL);
+    BOOST_CHECK_EQUAL(testfieldat->get_array().size(), 1);
     
     // Test VR = CS
     auto testfieldcs = dicomifier::translator::InstanceNumberDcmField<EVR_CS>::New();
