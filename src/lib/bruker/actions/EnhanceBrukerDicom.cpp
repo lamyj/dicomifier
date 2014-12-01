@@ -12,6 +12,7 @@
 
 #include "core/DicomifierException.h"
 #include "core/Endian.h"
+#include "core/Hashcode.h"
 #include "EnhanceBrukerDicom.h"
 #include "translator/fields/DicomField.h"
 #include "translator/TranslatorFactory.h"
@@ -21,53 +22,6 @@ namespace dicomifier
     
 namespace actions
 {
-
-/**
- * Return hashcode for a given iterator
- * @param begin: iterator's begin
- * @param end: iterator's end
- * @return hashcode
- */
-template<typename TIterator>
-uint32_t hashCode(TIterator begin, TIterator end)
-{
-    uint32_t hash=0;
-    TIterator it(begin);
-    while(it != end)
-    {
-        hash = 31*hash+(*it);
-        ++it;
-    }
-    return hash;
-}
-
-/**
- * Return hashcode for a given string
- * @param s: string value
- * @return hashcode
- */
-template<typename TString>
-uint32_t hashCode(TString const & s)
-{
-    char const * const begin = s.c_str();
-    char const * const end = begin+s.size();
-    return hashCode(begin, end);
-}
-
-/**
- * Convert hashcode to string value
- * @param hash: hashcode
- * @return corresponding string
- */
-std::string hashToString(uint32_t hash)
-{
-    const size_t bufferSize = 9; // Use one more char for '\0'
-    char temp[bufferSize];
-    memset(&temp[0], 0, bufferSize); // Set all to '\0'
-    snprintf(&temp[0], bufferSize, "%08X", hash);
-    memset(&temp[bufferSize-1], 0, 1); // make sure last char is '\0'
-    return std::string(temp);
-}
     
 EnhanceBrukerDicom::EnhanceBrukerDicom():
     _dataset(NULL), _brukerDir(""), _SOPClassUID(""), _outputDir("")
@@ -371,10 +325,14 @@ EnhanceBrukerDicom
                                   std::string(resultdcm.text()));
     }
 
-    std::string const subject_hash = hashToString(hashCode(patientid));
-    std::string const study_hash = hashToString(hashCode(study_instance_uid));
-    std::string const series_hash = hashToString(hashCode(series_instance_uid));
-    std::string const sop_instance_hash = hashToString(hashCode(sop_instance_uid));
+    std::string const subject_hash =
+            dicomifier::hashcode::hashToString(dicomifier::hashcode::hashCode(patientid));
+    std::string const study_hash =
+            dicomifier::hashcode::hashToString(dicomifier::hashcode::hashCode(study_instance_uid));
+    std::string const series_hash =
+            dicomifier::hashcode::hashToString(dicomifier::hashcode::hashCode(series_instance_uid));
+    std::string const sop_instance_hash =
+            dicomifier::hashcode::hashToString(dicomifier::hashcode::hashCode(sop_instance_uid));
 
     boost::filesystem::path const destination =
         boost::filesystem::path(this->_outputDir)

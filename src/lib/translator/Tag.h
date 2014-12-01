@@ -54,7 +54,8 @@ enum ClassType
     ECT_SpacingBetweenSlicesDcmField,
     ECT_StackIDDcmField,
     ECT_InStackPositionNumberDcmField,
-    ECT_DimensionIndexValuesDcmField
+    ECT_DimensionIndexValuesDcmField,
+    ECT_EffectiveEchoTimeField
 };
     
 /**
