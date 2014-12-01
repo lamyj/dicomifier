@@ -28,7 +28,10 @@ BOOST_AUTO_TEST_CASE(TEST_OK_01)
     // Pointer exists and class type is ImagePositionPatientDcmField
     BOOST_CHECK_EQUAL(testfieldas->get_class_type(), dicomifier::translator::ECT_ImagePositionPatientDcmField);
     
-    // Test VR = AT => Not implemented
+    // Test VR = AT
+    auto testfieldat = dicomifier::translator::ImagePositionPatientDcmField<EVR_AT>::New();
+    // Pointer exists and class type is ImagePositionPatientDcmField
+    BOOST_CHECK_EQUAL(testfieldat->get_class_type(), dicomifier::translator::ECT_ImagePositionPatientDcmField);
     
     // Test VR = CS
     auto testfieldcs = dicomifier::translator::ImagePositionPatientDcmField<EVR_CS>::New();
@@ -262,7 +265,10 @@ BOOST_FIXTURE_TEST_CASE(TEST_KO_01, TestDataOK02)
     BOOST_REQUIRE_THROW(testfieldas->run(brukerdataset, *generator, NULL),
                         dicomifier::DicomifierException);
     
-    // Test VR = AT => Not implemented
+    // Test VR = AT
+    auto testfieldat = dicomifier::translator::ImagePositionPatientDcmField<EVR_AT>::New();
+    BOOST_REQUIRE_THROW(testfieldat->run(brukerdataset, *generator, NULL),
+                        dicomifier::DicomifierException);
     
     // Test VR = CS
     auto testfieldcs = dicomifier::translator::ImagePositionPatientDcmField<EVR_CS>::New();
