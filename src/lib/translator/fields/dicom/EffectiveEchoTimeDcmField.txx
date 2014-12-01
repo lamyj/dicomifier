@@ -6,7 +6,7 @@
  * for details.
  ************************************************************************/
 
-#include "EffectiveEchoTimeField.h"
+#include "EffectiveEchoTimeDcmField.h"
 
 namespace dicomifier
 {
@@ -15,31 +15,31 @@ namespace translator
 {
 
 template<DcmEVR VR>
-typename EffectiveEchoTimeField<VR>::Pointer
-EffectiveEchoTimeField<VR>
+typename EffectiveEchoTimeDcmField<VR>::Pointer
+EffectiveEchoTimeDcmField<VR>
 ::New()
 {
     return Pointer(new Self());
 }
 
 template<DcmEVR VR>
-EffectiveEchoTimeField<VR>
-::EffectiveEchoTimeField()
+EffectiveEchoTimeDcmField<VR>
+::EffectiveEchoTimeDcmField()
     :SubTag<VR>()
 {
     // Nothing to do
 }
 
 template<DcmEVR VR>
-EffectiveEchoTimeField<VR>
-::~EffectiveEchoTimeField()
+EffectiveEchoTimeDcmField<VR>
+::~EffectiveEchoTimeDcmField()
 {
     // Nothing to do
 }
 
 template<>
 void
-EffectiveEchoTimeField<EVR_FD>
+EffectiveEchoTimeDcmField<EVR_FD>
 ::run(dicomifier::bruker::BrukerDataset* brukerdataset,
       dicomifier::FrameIndexGenerator const & generator,
       DcmItem* dataset)
@@ -80,7 +80,7 @@ EffectiveEchoTimeField<EVR_FD>
 
 template<DcmEVR VR>
 void
-EffectiveEchoTimeField<VR>
+EffectiveEchoTimeDcmField<VR>
 ::run(dicomifier::bruker::BrukerDataset* brukerdataset,
       dicomifier::FrameIndexGenerator const & generator,
       DcmItem* dataset)

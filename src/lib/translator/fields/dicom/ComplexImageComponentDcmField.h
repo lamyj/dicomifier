@@ -6,8 +6,8 @@
  * for details.
  ************************************************************************/
 
-#ifndef _4cdc3427_f5a6_4bd1_9453_6a278de4f93b
-#define _4cdc3427_f5a6_4bd1_9453_6a278de4f93b
+#ifndef _190730b0_3e54_4c0d_8ddd_897a8e803a29
+#define _190730b0_3e54_4c0d_8ddd_897a8e803a29
 
 #include "translator/SubTag.h"
 
@@ -17,23 +17,26 @@ namespace dicomifier
 namespace translator
 {
 
+/**
+ * @brief The ComplexImageComponentDcmField class
+ */
 template<DcmEVR VR>
-class EffectiveEchoTimeField : public SubTag<VR>
+class ComplexImageComponentDcmField : public SubTag<VR>
 {
 public:
-    typedef EffectiveEchoTimeField Self;
+    typedef ComplexImageComponentDcmField Self;
     typedef std::shared_ptr<Self> Pointer;
     typedef std::shared_ptr<Self const> ConstPointer;
 
-    /// Create pointer to new instance of EffectiveEchoTimeField
+    /// Create pointer to new instance of ComplexImageComponentDcmField
     static Pointer New();
 
-    /// Destroy the instance of EffectiveEchoTimeField
-    virtual ~EffectiveEchoTimeField();
+    /// Destroy the instance of ComplexImageComponentDcmField
+    virtual ~ComplexImageComponentDcmField();
 
     /**
-     * @brief run: Convert Bruker EffectiveEchoTimeField format into
-     *             DICOM EffectiveEchoTimeField format
+     * @brief run: Convert Bruker ComplexImageComponentDcmField format into
+     *             DICOM ComplexImageComponentDcmField format
      * @param brukerdataset: Bruker input data
      * @param generator: index generator
      * @param dataset: DICOM output dataset
@@ -44,14 +47,14 @@ public:
 
     /**
      * @brief get_class_type: return type of this class.
-     * @return ECT_EffectiveEchoTimeField
+     * @return ECT_ComplexImageComponentDcmField
      */
     virtual ClassType get_class_type() const
-            { return ECT_EffectiveEchoTimeField; }
+            { return ECT_ComplexImageComponentDcmField; }
 
 protected:
-    /// Create an instance of EffectiveEchoTimeField
-    EffectiveEchoTimeField();
+    /// Create an instance of ComplexImageComponentDcmField
+    ComplexImageComponentDcmField();
 
 private:
 
@@ -61,6 +64,6 @@ private:
 
 } // namespace dicomifier
 
-#include "EffectiveEchoTimeField.txx"
+#include "ComplexImageComponentDcmField.txx"
 
-#endif // _4cdc3427_f5a6_4bd1_9453_6a278de4f93b
+#endif // _190730b0_3e54_4c0d_8ddd_897a8e803a29
