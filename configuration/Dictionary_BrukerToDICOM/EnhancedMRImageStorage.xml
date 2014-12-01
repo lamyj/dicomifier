@@ -35,6 +35,14 @@
         </DateGenerator>
     </DicomField>
 
+    <DicomField tag="0008,0023" keyword="ContentDate" vr="DA" >
+        <DateGenerator inputformat="%d %b %Y" outputformat="%Y%m%d">
+            <RegExFilter expression="^.*[[:space:]]{1}([0-9]{2}[[:space:]]{1}[a-zA-Z]{3}[[:space:]]{1}[0-9]{4}).*">
+                <BrukerField name="VisuAcqDate" />
+            </RegExFilter>
+        </DateGenerator>
+    </DicomField>
+
     <DicomField tag="0008,0030" keyword="StudyTime" vr="TM">
         <RegExFilter expression="^([0-9]{2}):{1}([0-9]{2}):{1}([0-9]{2}).*">
             <BrukerField name="VisuStudyDate" />
@@ -44,6 +52,12 @@
     <DicomField tag="0008,0031" keyword="SeriesTime" vr="TM">
         <RegExFilter expression="^([0-9]{2}):{1}([0-9]{2}):{1}([0-9]{2}).*">
             <BrukerField name="VisuSeriesDate" />
+        </RegExFilter>
+    </DicomField>
+
+    <DicomField tag="0008,0033" keyword="ContentTime" vr="TM">
+        <RegExFilter expression="^([0-9]{2}):{1}([0-9]{2}):{1}([0-9]{2}).*">
+            <BrukerField name="VisuAcqDate" />
         </RegExFilter>
     </DicomField>
 
@@ -81,6 +95,10 @@
 
     <DicomField tag="0008,1050" keyword="PerformingPhysicianName" vr="PN">
         <BrukerField name="OWNER" />
+    </DicomField>
+
+    <DicomField tag="0008,1090" keyword="ManufacturerModelName" vr="LO">
+        <ConstantField values="ToBeDefined" />
     </DicomField>
 
     <DicomField tag="0010,0010" keyword="PatientName" vr="PN">
@@ -141,6 +159,10 @@
 
     <DicomField tag="0010,4000" keyword="PatientComments" vr="LT">
         <BrukerField name="VisuSubjectComment" />
+    </DicomField>
+
+    <DicomField tag="0018,1000" keyword="DeviceSerialNumber" vr="LO">
+        <ConstantField values="ToBeDefined" />
     </DicomField>
 
     <DicomField tag="0018,1020" keyword="SoftwareVersions" vr="LO">
@@ -335,34 +357,42 @@
                 <BrukerField name="VisuAcqFlipAngle" />
             </DicomField>
             
-            <!--DicomField tag="0018,9240" keyword="RFEchoTrainLength" vr="US">
-                TODO
+            <DicomField tag="0018,9240" keyword="RFEchoTrainLength" vr="US">
+                <ConstantField values="0" />
             </DicomField>
             
             <DicomField tag="0018,9241" keyword="GradientEchoTrainLength" vr="US">
-                TODO
-            </DicomField-->
+                <ConstantField values="0" />
+            </DicomField>
         </DicomField>
         
         <DicomField tag="0018,9114" keyword="MREchoSequence" vr="SQ" >
-            <!--DicomField tag="0018,9082" keyword="EffectiveEchoTime" vr="FD">
-                TODO
-            </DicomField-->
+            <DicomField tag="0018,9082" keyword="EffectiveEchoTime" vr="FD">
+                <EffectiveEchoTimeField />
+            </DicomField>
         </DicomField>
             
         <DicomField tag="0020,9111" keyword="FrameContentSequence" vr="SQ" >
             
-            <!--DicomField tag="0018,9074" keyword="FrameAcquisitionDateTime" vr="DT" >
-                TODO
+            <DicomField tag="0018,9074" keyword="FrameAcquisitionDateTime" vr="DT" >
+                <DateGenerator inputformat="%H:%M:%S %d %b %Y" outputformat="%Y%m%d%T">
+                    <RegExFilter expression="^([0-9]{2}:{1}[0-9]{2}:{1}[0-9]{2}[[:space:]]{1}[0-9]{2}[[:space:]]{1}[a-zA-Z]{3}[[:space:]]{1}[0-9]{4}).*">
+                        <BrukerField name="VisuAcqDate" />
+                    </RegExFilter>
+                </DateGenerator>
             </DicomField>
             
             <DicomField tag="0018,9151" keyword="FrameReferenceDateTime" vr="DT" >
-                TODO
+                <DateGenerator inputformat="%H:%M:%S %d %b %Y" outputformat="%Y%m%d%T">
+                    <RegExFilter expression="^([0-9]{2}:{1}[0-9]{2}:{1}[0-9]{2}[[:space:]]{1}[0-9]{2}[[:space:]]{1}[a-zA-Z]{3}[[:space:]]{1}[0-9]{4}).*">
+                        <BrukerField name="VisuAcqDate" />
+                    </RegExFilter>
+                </DateGenerator>
             </DicomField>
             
             <DicomField tag="0018,9220" keyword="FrameAcquisitionDuration" vr="FD" >
-                TODO
-            </DicomField-->
+                <ConstantField values="0" />
+            </DicomField>
             
             <DicomField tag="0020,9056" keyword="StackID" vr="SH" >
                 <StackIDDcmField />
@@ -395,5 +425,5 @@
     <!--DicomField tag="7fe0,0010" keyword="PixelData" vr="OB" >
         Auto generate
     </DicomField-->
-
+    
 </Dictionary>
