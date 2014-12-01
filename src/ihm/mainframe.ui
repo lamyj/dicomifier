@@ -1,0 +1,708 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>dicomifier::ihm::MainFrame</class>
+ <widget class="QMainWindow" name="dicomifier::ihm::MainFrame">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>1040</width>
+    <height>768</height>
+   </rect>
+  </property>
+  <property name="minimumSize">
+   <size>
+    <width>1040</width>
+    <height>768</height>
+   </size>
+  </property>
+  <property name="contextMenuPolicy">
+   <enum>Qt::NoContextMenu</enum>
+  </property>
+  <property name="windowTitle">
+   <string>Dicomifier Interface</string>
+  </property>
+  <property name="styleSheet">
+   <string notr="true">QWidget 
+{
+    background-color: #F4F4F4;
+}
+
+QWidget #menuBar
+{
+    border: none;
+}
+
+QMenuBar 
+{
+    background-color: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+                                      stop:0 #EEEEEE, stop:1 #BBBBBB);
+}
+ 
+QMenuBar::item 
+{
+    spacing: 3px; /* spacing between menu bar items */
+    padding: 1px 4px;
+    background: transparent;
+    border-radius: 4px;
+}
+
+QMenuBar::item:selected 
+{
+    border-color: lightblue;
+    background: rgba(200, 200, 200, 255);
+}
+
+QMenuBar::item:pressed 
+{
+    background: rgba(200, 200, 200, 200);
+}
+
+QMenu 
+{
+    background-color: white;
+    margin: 2px; /* some spacing around the menu */
+}
+
+QMenu::item 
+{
+    padding: 2px 25px 2px 20px;
+    border: 1px solid transparent;
+}
+
+QMenu::item:selected 
+{
+    border-color: lightblue;
+    background: rgba(200, 200, 200, 150);
+}
+ 
+QMenu::icon:checked 
+{
+    background: #CCCCCC;
+    border: 1px inset lightblue;
+    position: absolute;
+    top: 1px;
+    right: 1px;
+    bottom: 1px;
+    left: 1px;
+}
+
+QMenu::separator 
+{
+    height: 2px;
+    background: #BBBBBB;
+    margin-left: 5spx;
+    margin-right: 5px;
+}
+
+QMenu::indicator 
+{
+    width: 13px;
+    height: 13px;
+}
+</string>
+  </property>
+  <widget class="QWidget" name="centralWidget">
+   <property name="styleSheet">
+    <string notr="true">QPushButton
+{
+    background-color: #2266FF;
+    border: 1px solid grey;
+    border-radius: 10px;
+    margin: 20px;
+    font-size: 20px;
+    font-weight: bold;
+    color: black;
+}
+
+QPushButton:disabled
+{
+    background-color: #BBBBBB;
+    color: #888888;
+}
+
+QPushButton:pressed
+{
+    background-color: #22BBFF;
+}
+
+QPushButton:checked
+{
+    border: 1px solid grey;
+    border-radius: 10px;
+}</string>
+   </property>
+   <layout class="QGridLayout" name="gridLayout_2" rowstretch="0,0">
+    <property name="leftMargin">
+     <number>0</number>
+    </property>
+    <property name="topMargin">
+     <number>0</number>
+    </property>
+    <property name="rightMargin">
+     <number>0</number>
+    </property>
+    <property name="bottomMargin">
+     <number>0</number>
+    </property>
+    <property name="spacing">
+     <number>0</number>
+    </property>
+    <item row="1" column="0" alignment="Qt::AlignBottom">
+     <widget class="QWidget" name="stepBand" native="true">
+      <property name="enabled">
+       <bool>true</bool>
+      </property>
+      <property name="minimumSize">
+       <size>
+        <width>1024</width>
+        <height>88</height>
+       </size>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>16777215</width>
+        <height>88</height>
+       </size>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">QWidget 
+{
+    border: none;
+    font-weight: bold;
+}
+
+QLabel
+{
+    background: transparent;
+    font-size: 14px;
+}</string>
+      </property>
+      <layout class="QGridLayout" name="gridLayout_3" rowstretch="0,0" rowminimumheight="0,0">
+       <property name="leftMargin">
+        <number>0</number>
+       </property>
+       <property name="topMargin">
+        <number>0</number>
+       </property>
+       <property name="rightMargin">
+        <number>0</number>
+       </property>
+       <property name="bottomMargin">
+        <number>0</number>
+       </property>
+       <property name="spacing">
+        <number>0</number>
+       </property>
+       <item row="1" column="2">
+        <widget class="QLabel" name="stepNumberLabel">
+         <property name="text">
+          <string>Step 1 / 5</string>
+         </property>
+         <property name="scaledContents">
+          <bool>true</bool>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignCenter</set>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="4">
+        <widget class="QPushButton" name="nextButton">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>200</width>
+           <height>88</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>200</width>
+           <height>88</height>
+          </size>
+         </property>
+         <property name="text">
+          <string>Next</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="0">
+        <widget class="QPushButton" name="previousButton">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>200</width>
+           <height>88</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>200</width>
+           <height>88</height>
+          </size>
+         </property>
+         <property name="text">
+          <string>Previous</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="1">
+        <spacer name="horizontalSpacer">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>40</width>
+           <height>20</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item row="1" column="3">
+        <spacer name="horizontalSpacer_2">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>40</width>
+           <height>20</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+      </layout>
+     </widget>
+    </item>
+    <item row="0" column="0">
+     <widget class="QWidget" name="stepWidget" native="true">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">QTreeView 
+{
+    show-decoration-selected: 1;
+    margin: 5px;
+    border-radius: 10px;
+    border: 1px solid #2299FF;
+}
+
+QTreeView:disabled
+{
+    border: 1px solid #999999;
+}
+
+QTreeView::item 
+{
+    border-top-color: transparent;
+    border-bottom-color: transparent;
+    height: 20px;
+}
+
+QTreeView::item:hover 
+{
+    background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #e7effd, stop: 1 #cbdaf1);
+    border: 1px solid #bfcde4;
+}
+
+ QTreeView::item:selected {
+     border: 1px solid #567dbc;
+ }
+
+QTreeView::item:selected:active{
+     background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #6ea1f1, stop: 1 #567dbc);
+}
+
+QTreeView::item:selected:!active {
+     background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #6b9be8, stop: 1 #577fbf);
+}
+
+QTreeView::indicator 
+{
+	width: 32px;
+	height: 32px;
+}
+
+ QTreeView::indicator:unchecked {
+     image: url(:/images/checkbox_unchecked);
+ }
+
+ QTreeView::indicator:unchecked:disabled {
+     image: url(:/images/checkbox_unchecked_off);
+ }
+ 
+ QTreeView::indicator:unchecked:hover {
+     image: url(:/images/checkbox_unchecked);
+ }
+ 
+ QTreeView::indicator:unchecked:pressed {
+     image: url(:/images/checkbox_unchecked);
+ }
+ 
+ QTreeView::indicator:checked {
+     image: url(:/images/checkbox_checked);
+ }
+ 
+ QTreeView::indicator:checked:disabled {
+     image: url(:/images/checkbox_checked_off);
+ }
+ 
+ QTreeView::indicator:checked:hover {
+     image: url(:/images/checkbox_checked);
+ }
+ 
+ QTreeView::indicator:checked:pressed {
+     image: url(:/images/checkbox_checked);
+ }
+ 
+ QTreeView::indicator:indeterminate {
+     image: url(:/images/checkbox_partial);
+ }
+ 
+ QTreeView::indicator:indeterminate:disabled {
+     image: url(:/images/checkbox_partial_off);
+ }
+ 
+ QTreeView::indicator:indeterminate:hover {
+     image: url(:/images/checkbox_partial);
+ }
+ 
+ QTreeView::indicator:indeterminate:pressed {
+     image: url(:/images/checkbox_partial);
+ }
+
+QTreeView::branch:has-children:!has-siblings:closed,
+QTreeView::branch:closed:has-children:has-siblings 
+{
+    border-image: none;
+    image: url(:/images/treeview_closed);
+	margin-left: 5px;
+ }
+
+QTreeView::branch:open:has-children:!has-siblings,
+QTreeView::branch:open:has-children:has-siblings  
+{
+    border-image: none;
+    image: url(:/images/treeview_open);
+	margin-left: 5px;
+ }
+
+QWidget #widget
+{
+    border: none;
+    margin: 0px 2px;
+}
+
+QHeaderView::section 
+{
+    background: transparent;
+    color: #777777;
+    padding-left: 4px;
+}
+
+QHeaderView
+{
+    background: transparent;
+    border-bottom: 1px solid #2299FF;
+}
+
+QHeaderView:disabled
+{
+    border-bottom: 1px solid #999999;
+}
+
+QLabel
+{
+    background: transparent;
+    border: none;
+    font-size: 18px;
+    margin: 10px 5px;
+}
+
+QLineEdit
+{
+    margin: 0px 5px;
+    background-color: white;
+    border-radius: 8px;
+    border: 1px solid #2299FF;
+}
+
+QLineEdit:disabled
+{
+    border: 1px solid #999999;
+    background-color: #F2F2F2;
+}
+
+QCheckBox
+{
+    font-size: 18px;
+    spacing: 10px;
+}
+ 
+ QCheckBox::indicator 
+{
+	width: 32px;
+	height: 32px;
+}
+
+QCheckBox::indicator:unchecked {
+     image: url(:/images/checkbox_unchecked);
+ }
+
+ QCheckBox::indicator:unchecked:disabled {
+     image: url(:/images/checkbox_unchecked_off);
+ }
+ 
+ QCheckBox::indicator:unchecked:hover {
+     image: url(:/images/checkbox_unchecked);
+ }
+ 
+ QCheckBox::indicator:unchecked:pressed {
+     image: url(:/images/checkbox_unchecked);
+ }
+ 
+ QCheckBox::indicator:checked {
+     image: url(:/images/checkbox_checked);
+ }
+ 
+ QCheckBox::indicator:checked:disabled {
+     image: url(:/images/checkbox_checked_off);
+ }
+ 
+ QCheckBox::indicator:checked:hover {
+     image: url(:/images/checkbox_checked);
+ }
+ 
+ QCheckBox::indicator:checked:pressed {
+     image: url(:/images/checkbox_checked);
+ }
+ 
+ QCheckBox::indicator:indeterminate {
+     image: url(:/images/checkbox_partial);
+ }
+ 
+ QCheckBox::indicator:indeterminate:disabled {
+     image: url(:/images/checkbox_partial_off);
+ }
+ 
+ QCheckBox::indicator:indeterminate:hover {
+     image: url(:/images/checkbox_partial);
+ }
+ 
+ QCheckBox::indicator:indeterminate:pressed {
+     image: url(:/images/checkbox_partial);
+ }
+
+QRadioButton
+{
+    margin: 5px 15px;
+    font-size: 18px;
+    background: transparent;
+    border: none;
+}
+
+QRadioButton::indicator {
+     width: 20px;
+     height: 20px;
+ }
+ 
+ QRadioButton::indicator::unchecked {
+     image: url(:/images/radiobutton_unchecked);
+ }
+ 
+ QRadioButton::indicator:unchecked:disabled {
+     image: url(:/images/radiobutton_unchecked_off);
+ }
+ 
+ QRadioButton::indicator:unchecked:hover {
+     image: url(:/images/radiobutton_unchecked);
+ }
+ 
+ QRadioButton::indicator:unchecked:pressed {
+     image: url(:/images/radiobutton_unchecked);
+ }
+ 
+ QRadioButton::indicator::checked {
+     image: url(:/images/radiobutton_checked);
+ }
+
+QRadioButton::indicator:checked:disabled
+{
+	image: url(:/images/radiobutton_checked_off);
+}
+ 
+ QRadioButton::indicator:checked:hover {
+     image: url(:/images/radiobutton_checked);
+ }
+ 
+ QRadioButton::indicator:checked:pressed {
+     image: url(:/images/radiobutton_checked);
+ }
+
+QComboBox 
+{
+    margin: 0px 5px;
+    background-color: white;
+    border-radius: 8px;
+    border: 1px solid #2299FF;
+	padding-left: 10px;
+	padding-right: 5px;
+}
+
+QComboBox:disabled
+{
+    border: 1px solid #999999;
+    background-color: #F2F2F2;
+}
+
+QComboBox:!editable, QComboBox::drop-down:editable 
+{
+    background-color: white;
+}
+
+QComboBox:!editable:enabled
+{
+	color: black;
+}
+
+QComboBox:!editable:on, QComboBox::drop-down:editable:on 
+{
+    background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
+                                 stop: 0 #D3D3D3, stop: 0.4 #D8D8D8,
+                                 stop: 0.5 #DDDDDD, stop: 1.0 #E1E1E1);
+	color: black;
+}
+
+QComboBox:on 
+{
+	color: black;
+}
+
+QComboBox::drop-down {
+    subcontrol-origin: margin;
+    subcontrol-position: top right;
+	margin-right: 25px;
+ 
+    border-left-width: 0px;
+    border-left-color: white;
+    border-left-style: solid; /* just a single line */
+    border-top-right-radius: 3px; /* same radius as the QComboBox */
+    border-bottom-right-radius: 3px;
+}
+
+QComboBox::down-arrow 
+{
+    image: url(:/images/combobox_arrow);
+}
+
+QComboBox::down-arrow:disabled
+{
+    image: url(:/images/combobox_arrow_off);
+}
+
+QComboBox QAbstractItemView {
+     border: 2px solid #2299FF;
+     selection-background-color: lightgray;
+ }
+
+QDateEdit 
+{
+    padding-right: 35px; 
+	font-size: 18px;
+    background-color: white;
+    border-radius: 8px;
+    border: 1px solid #2299FF;
+	margin-right: 5px;
+}
+
+QDateEdit:disabled
+{
+    border: 1px solid #999999;
+    background-color: #F2F2F2;
+}
+
+QDateEdit::drop-down 
+{
+    subcontrol-origin: margin;
+    subcontrol-position: top right;
+	margin-right: 25px;
+ 
+    border: none;
+}
+
+QDateEdit::down-arrow 
+{
+    image: url(:/images/combobox_arrow);
+}
+
+QDateEdit::down-arrow:disabled
+{
+    image: url(:/images/combobox_arrow_off);
+}
+
+QDateEdit QCalendarWidget
+{
+    border: 1px solid #2299FF;
+}
+</string>
+      </property>
+      <layout class="QVBoxLayout" name="verticalLayout"/>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QMenuBar" name="menuBar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>1040</width>
+     <height>23</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="menuFiles">
+    <property name="title">
+     <string>Files</string>
+    </property>
+    <addaction name="actionNew"/>
+    <addaction name="separator"/>
+    <addaction name="actionQuit"/>
+   </widget>
+   <widget class="QMenu" name="menuOptions">
+    <property name="title">
+     <string>Options</string>
+    </property>
+    <addaction name="actionPreferences"/>
+   </widget>
+   <addaction name="menuFiles"/>
+   <addaction name="menuOptions"/>
+  </widget>
+  <action name="actionNew">
+   <property name="text">
+    <string>New</string>
+   </property>
+  </action>
+  <action name="actionQuit">
+   <property name="text">
+    <string>Quit</string>
+   </property>
+  </action>
+  <action name="actionPreferences">
+   <property name="text">
+    <string>Preferences</string>
+   </property>
+  </action>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
