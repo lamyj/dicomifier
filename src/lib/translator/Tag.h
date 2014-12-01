@@ -55,7 +55,8 @@ enum ClassType
     ECT_StackIDDcmField,
     ECT_InStackPositionNumberDcmField,
     ECT_DimensionIndexValuesDcmField,
-    ECT_EffectiveEchoTimeField
+    ECT_EffectiveEchoTimeDcmField,
+    ECT_ComplexImageComponentDcmField
 };
     
 /**

@@ -323,6 +323,30 @@
 
     <DicomField tag="5200,9229" keyword="SharedFunctionalGroupsSequence" vr="SQ" >
         
+        <DicomField tag="0020,9071" keyword="FrameAnatomySequence" vr="SQ">
+            <DicomField tag="0008,2218" keyword="AnatomicRegionSequence" vr="SQ">
+                <DicomField tag="0008,0100" keyword="CodeValue" vr="SH">
+                    <ConstantField values="T-D0010" />
+                </DicomField>
+                
+                <DicomField tag="0008,0102" keyword="CodingSchemeDesignator" vr="SH">
+                    <ConstantField values="SRT" />
+                </DicomField>
+                
+                <DicomField tag="0008,0104" keyword="CodeMeaning" vr="LO">
+                    <ConstantField values="Entire body" />
+                </DicomField>
+            </DicomField>
+            
+            <DicomField tag="0020,9072" keyword="FrameLaterality" vr="CS">
+                <ConstantField values="B" />
+            </DicomField>
+        </DicomField>
+        
+        <!--DicomField tag="0020,9145" keyword="PixelValueTransformationSequence" vr="SQ" >
+            Auto generate
+        </DicomField-->
+        
         <DicomField tag="0028,9110" keyword="PixelMeasuresSequence" vr="SQ" >
             <DicomField tag="0028,0030" keyword="PixelSpacing" vr="DS" >
                 <DivisionOperator>
@@ -335,10 +359,6 @@
                 <BrukerField name="VisuCoreFrameThickness" />
             </DicomField>
         </DicomField>
-        
-        <!--DicomField tag="0020,9145" keyword="PixelValueTransformationSequence" vr="SQ" >
-            Auto generate
-        </DicomField-->
         
     </DicomField>
     
@@ -368,7 +388,33 @@
         
         <DicomField tag="0018,9114" keyword="MREchoSequence" vr="SQ" >
             <DicomField tag="0018,9082" keyword="EffectiveEchoTime" vr="FD">
-                <EffectiveEchoTimeField />
+                <EffectiveEchoTimeDcmField />
+            </DicomField>
+        </DicomField>
+        
+        <DicomField tag="0018,9226" keyword="MRImageFrameTypeSequence" vr="SQ" >
+            <DicomField tag="0008,9007" keyword="FrameType" vr="CS">
+                <ConstantField values="ORIGINAL\PRIMARY\OTHER" />
+            </DicomField>
+            
+            <DicomField tag="0008,9205" keyword="PixelPresentation" vr="CS">
+                <ConstantField values="MONOCHROME" />
+            </DicomField>
+            
+            <DicomField tag="0008,9206" keyword="VolumetricProperties" vr="CS">
+                <ConstantField values="VOLUME" />
+            </DicomField>
+            
+            <DicomField tag="0008,9207" keyword="VolumeBasedCalculationTechnique" vr="CS">
+                <ConstantField values="NONE" />
+            </DicomField>
+            
+            <DicomField tag="0008,9208" keyword="ComplexImageComponent" vr="CS">
+                <ComplexImageComponentDcmField />
+            </DicomField>
+            
+            <DicomField tag="0008,9209" keyword="AcquisitionContrast" vr="CS">
+                <ConstantField values="UNKNOWN" />
             </DicomField>
         </DicomField>
             

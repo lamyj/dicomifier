@@ -21,27 +21,27 @@ namespace factory
 {
 
 /**
- * @brief The EffectiveEchoTimeFieldCreator class
+ * @brief The EffectiveEchoTimeDcmFieldCreator class
  */
-class EffectiveEchoTimeFieldCreator : public TranslationCreatorBase
+class EffectiveEchoTimeDcmFieldCreator : public TranslationCreatorBase
 {
 public:
-    typedef EffectiveEchoTimeFieldCreator Self;
+    typedef EffectiveEchoTimeDcmFieldCreator Self;
     typedef std::shared_ptr<Self> Pointer;
     typedef std::shared_ptr<Self const> ConstPointer;
 
-    /// Create pointer to new instance of EffectiveEchoTimeFieldCreator
+    /// Create pointer to new instance of EffectiveEchoTimeDcmFieldCreator
     static Pointer New() { return Pointer(new Self()); }
 
-    /// Destroy the instance of EffectiveEchoTimeFieldCreator
-    virtual ~EffectiveEchoTimeFieldCreator();
+    /// Destroy the instance of EffectiveEchoTimeDcmFieldCreator
+    virtual ~EffectiveEchoTimeDcmFieldCreator();
 
     /**
-     * @brief Create Pointer to class EffectiveEchoTimeField
+     * @brief Create Pointer to class EffectiveEchoTimeDcmField
      * @param value: XML node
      * @param dataset: Dataset to modify
      * @param evr: EVR of tag
-     * @return new EffectiveEchoTimeField
+     * @return new EffectiveEchoTimeDcmField
      */
     virtual Tag::Pointer Create(boost::property_tree::ptree::value_type & value,
                                 DcmDataset* dataset,
@@ -49,19 +49,19 @@ public:
 
     /**
      * @brief get_class_name: return created class name
-     * @return EffectiveEchoTimeField
+     * @return EffectiveEchoTimeDcmField
      */
-    static std::string get_class_name() { return "EffectiveEchoTimeField"; }
+    static std::string get_class_name() { return "EffectiveEchoTimeDcmField"; }
 
 protected:
-    /// Create an instance of EffectiveEchoTimeFieldCreator
-    EffectiveEchoTimeFieldCreator();
+    /// Create an instance of EffectiveEchoTimeDcmFieldCreator
+    EffectiveEchoTimeDcmFieldCreator();
 
 private:
-    EffectiveEchoTimeFieldCreator(Self const & other); // Purposely not implemented
+    EffectiveEchoTimeDcmFieldCreator(Self const & other); // Purposely not implemented
     Self const & operator=(Self const & other); // Purposely not implemented
 
-    struct TranslatorEffectiveEchoTimeFieldCreator
+    struct TranslatorEffectiveEchoTimeDcmFieldCreator
     {
         mutable dicomifier::translator::Tag::Pointer effectiveechotime;
         template<DcmEVR VR> void run() const;
