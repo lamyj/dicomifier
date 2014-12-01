@@ -19,9 +19,16 @@ set(CPACK_GENERATOR "DEB")
 set(CPACK_DEBIAN_PACKAGE_MAINTAINER "ICUBE")
 
 # depends on Boost DCMTK Qt4
-set(CPACK_DEBIAN_PACKAGE_DEPENDS "libboost-filesystem1.54.0,
-                                  libboost-regex1.54.0,
-                                  libboost-system1.54.0,
+execute_process(COMMAND lsb_release -cs OUTPUT_VARIABLE release
+    OUTPUT_STRIP_TRAILING_WHITESPACE)
+if(${release} STREQUAL "precise")
+    set(boost_version "1.46.1")
+else()
+    message(FATAL_ERROR "Unknown release: ${release}")
+endif()
+set(CPACK_DEBIAN_PACKAGE_DEPENDS "libboost-filesystem${boost_version},
+                                  libboost-regex${boost_version},
+                                  libboost-system${boost_version},
                                   libdcmtk2,
                                   libqtcore4,
                                   libqtgui4")
