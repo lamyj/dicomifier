@@ -19,7 +19,8 @@ namespace translator
 namespace factory
 {
     
-static unsigned int const registration = TranslatorFactory::get_instance().register_<ImageOrientationPatientDcmFieldCreator>(); 
+static unsigned int const registration =
+        TranslatorFactory::get_instance().register_<ImageOrientationPatientDcmFieldCreator>();
 
 ImageOrientationPatientDcmFieldCreator
 ::ImageOrientationPatientDcmFieldCreator()

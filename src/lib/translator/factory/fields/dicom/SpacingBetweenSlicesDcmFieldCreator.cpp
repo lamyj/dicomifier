@@ -18,7 +18,8 @@ namespace translator
 namespace factory
 {
     
-static unsigned int const registration = TranslatorFactory::get_instance().register_<SpacingBetweenSlicesDcmFieldCreator>(); 
+static unsigned int const registration =
+        TranslatorFactory::get_instance().register_<SpacingBetweenSlicesDcmFieldCreator>();
 
 SpacingBetweenSlicesDcmFieldCreator
 ::SpacingBetweenSlicesDcmFieldCreator()

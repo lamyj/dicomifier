@@ -17,6 +17,9 @@ namespace dicomifier
 namespace factory
 {
     
+/**
+ * @brief The EnhanceBrukerDicomCreator class: Factory for the class EnhanceBrukerDicom
+ */
 class EnhanceBrukerDicomCreator : public CreatorBase
 {
 public:
@@ -24,15 +27,27 @@ public:
     typedef std::shared_ptr<Self> Pointer;
     typedef std::shared_ptr<Self const> ConstPointer;
     
+    /// Create pointer to new instance of EnhanceBrukerDicomCreator
     static Pointer New() { return Pointer(new Self()); }
 
+    /// Destroy the instance of EnhanceBrukerDicomCreator
     virtual ~EnhanceBrukerDicomCreator();
     
+    /**
+     * @brief Create: Create an Action EnhanceBrukerDicom
+     * @param value: XML node
+     * @return new instance of EnhanceBrukerDicom
+     */
     virtual Object::Pointer Create(boost::property_tree::ptree::value_type & value);
 
+    /**
+     * @brief get_class_name: return XML node name
+     * @return EnhanceBrukerDicom
+     */
     static std::string get_class_name() { return "EnhanceBrukerDicom"; }
 
 protected:
+    /// Create an instance of EnhanceBrukerDicomCreator
     EnhanceBrukerDicomCreator();
     
 private:

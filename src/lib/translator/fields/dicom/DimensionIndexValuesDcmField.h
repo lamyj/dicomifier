@@ -16,7 +16,10 @@ namespace dicomifier
     
 namespace translator
 {
-    
+
+/**
+ * @brief The DimensionIndexValuesDcmField class
+ */
 template<DcmEVR VR>
 class DimensionIndexValuesDcmField : public SubTag<VR>
 {
@@ -28,16 +31,29 @@ public:
     /// Create pointer to new instance of DimensionIndexValuesDcmField
     static Pointer New();
     
+    /// Destroy the instance of DimensionIndexValuesDcmField
     virtual ~DimensionIndexValuesDcmField();
                      
+    /**
+     * @brief run: Convert Bruker DimensionIndexValuesDcmField format into
+     *             DICOM DimensionIndexValuesDcmField format
+     * @param brukerdataset: Bruker input data
+     * @param generator: index generator
+     * @param dataset: DICOM output dataset
+     */
     virtual void run(dicomifier::bruker::BrukerDataset* brukerdataset,
                      dicomifier::FrameIndexGenerator const & generator,
                      DcmItem* dataset);
     
+    /**
+     * @brief get_class_type: return type of this class.
+     * @return ECT_DimensionIndexValuesDcmField
+     */
     virtual ClassType get_class_type() const 
             { return ECT_DimensionIndexValuesDcmField; }
 
 protected:
+    /// Create an instance of DimensionIndexValuesDcmField
     DimensionIndexValuesDcmField();
 
 private:

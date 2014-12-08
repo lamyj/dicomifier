@@ -10,8 +10,6 @@
 #define _af7ae5f1_969d_404d_be7a_4cfe95455eac
 
 #include <map>
-#include <memory>
-#include <string>
 
 #include <boost/any.hpp>
 #include <boost/property_tree/ptree.hpp>
@@ -25,6 +23,9 @@ namespace dicomifier
 namespace factory
 {
     
+/**
+ * @brief The CreatorBase class: Abstract base class for factory
+ */
 class CreatorBase
 {
 public:
@@ -34,17 +35,36 @@ public:
     
     typedef std::map<std::string, boost::any> InOutPutType;
     
+    /// Destroy the instance of CreatorBase
     virtual ~CreatorBase();
     
+    /**
+     * @brief set_inputs: setter for attribut inputs
+     * @param inputs: new value
+     */
     void set_inputs(std::shared_ptr<InOutPutType> const inputs);
+
+    /**
+     * @brief set_outputs: setter for attribut outputs
+     * @param outputs: new value
+     */
     void set_outputs(std::shared_ptr<InOutPutType> const outputs);
     
+    /**
+     * @brief Create: Override by inherit classes
+     * @param value: XML node
+     * @return Object pointer
+     */
     virtual Object::Pointer Create(boost::property_tree::ptree::value_type & value) = 0;
 
 protected:
+    /// Create an instance of CreatorBase
     CreatorBase();
     
+    /// List of the inputs
     std::shared_ptr<InOutPutType> _inputs;
+
+    /// List of the outputs
     std::shared_ptr<InOutPutType> _outputs;
     
     template<typename T>

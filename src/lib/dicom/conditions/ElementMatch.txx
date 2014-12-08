@@ -9,9 +9,6 @@
 #ifndef _1d031fdc_6f06_4415_8b31_3b9270fb67de
 #define _1d031fdc_6f06_4415_8b31_3b9270fb67de
 
-#include <sstream>
-#include <stdexcept>
-
 #include "ElementMatch.h"
 
 namespace dicomifier
@@ -20,7 +17,7 @@ namespace dicomifier
 namespace conditions
 {
 
-/******************* Functions NEW *******************/
+/****************************** New *************************************/
 
 template<DcmEVR VR>
 typename ElementMatch<VR>::Pointer
@@ -45,7 +42,7 @@ ElementMatch<VR>::New(DcmDataset * dataset, std::vector<TagAndRange> tags,
     return Pointer(new Self(dataset, tags, array));
 }
 
-/******************* CONSTRUCTORS *******************/
+/****************************** Constructor *****************************/
 
 template<DcmEVR VR>
 ElementMatch<VR>
@@ -57,7 +54,8 @@ ElementMatch<VR>
 
 template<DcmEVR VR>
 ElementMatch<VR>
-::ElementMatch(DcmDataset * dataset, std::vector<TagAndRange> tags, ValueType const & value):
+::ElementMatch(DcmDataset * dataset, std::vector<TagAndRange> tags,
+               ValueType const & value):
     _dataset(dataset),
     _tags(tags)
 {
@@ -66,14 +64,15 @@ ElementMatch<VR>
 
 template<DcmEVR VR>
 ElementMatch<VR>
-::ElementMatch(DcmDataset * dataset, std::vector<TagAndRange> tags, ArrayType const & array):
+::ElementMatch(DcmDataset * dataset, std::vector<TagAndRange> tags,
+               ArrayType const & array):
     _dataset(dataset),
     _tags(tags),
     _array(array)
 {
 }
 
-/******************* DESTRUCTOR *******************/
+/****************************** Destructor ******************************/
 
 template<DcmEVR VR>
 ElementMatch<VR>
@@ -82,7 +81,7 @@ ElementMatch<VR>
     // Nothing to do
 }
 
-/******************* ACCESSORS *******************/
+/****************************** Accessors *******************************/
 
 template<DcmEVR VR>
 DcmDataset *
@@ -124,7 +123,7 @@ ElementMatch<VR>
     this->_array = array;
 }
 
-/******************* Other Functions *******************/
+/****************************** Other Functions *************************/
 
 template<DcmEVR VR>
 bool
@@ -182,7 +181,8 @@ ElementMatch<VR>
             // Compare values
             for (unsigned int iter = 0; iter < vect.size(); iter++)
             {
-                if ( ! ElementTraits<VR>::equal(this->_array[iter], vect[iter]))
+                if ( ! ElementTraits<VR>::equal(this->_array[iter],
+                                                vect[iter]))
                 {
                     return false;
                 }
@@ -199,7 +199,9 @@ ElementMatch<VR>
         {
             bool ret = true;
             
-            for (unsigned long i = tar._range._min; i < std::max(tar._range._max, (int)dcmstack.card()); i++)
+            for (unsigned long i = tar._range._min;
+                 i < std::max(tar._range._max, (int)dcmstack.card());
+                 i++)
             {
                 DcmObject* obj = dcmstack.elem(i);
                 DcmItem* seq = dynamic_cast<DcmItem*>(obj);

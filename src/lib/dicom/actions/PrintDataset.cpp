@@ -14,7 +14,9 @@ namespace dicomifier
     
 namespace actions
 {
-    
+
+/****************************** Constructor *****************************/
+
 PrintDataset
 ::PrintDataset()
     :Action(), _dataset(NULL), _outputfile("std::cout")
@@ -29,11 +31,15 @@ PrintDataset
     // Nothing to do
 }
 
+/****************************** Destructor ******************************/
+
 PrintDataset
 ::~PrintDataset()
 {
     // Nothing to do
 }
+
+/****************************** Accessors *******************************/
 
 DcmDataset* 
 PrintDataset
@@ -62,6 +68,8 @@ PrintDataset
 {
     this->_outputfile = outputfile;
 }
+
+/****************************** Other Functions *************************/
 
 void 
 PrintDataset

@@ -16,7 +16,10 @@ namespace dicomifier
     
 namespace translator
 {
-    
+
+/**
+ * @brief The PatientSexFilter class
+ */
 template<DcmEVR VR>
 class PatientSexFilter : public SubTag<VR>
 {
@@ -28,22 +31,45 @@ public:
     /// Create pointer to new instance of PatientSexFilter
     static Pointer New();
     
+    /**
+     * @brief Create pointer to new instance of PatientSexFilter
+     * @param tag: VisuSubjectSex BrukerField
+     * @return new instance of PatientSexFilter
+     */
     static Pointer New(Tag::Pointer tag);
 
+    /// Destroy the instance of PatientSexFilter
     virtual ~PatientSexFilter();
     
+    /**
+     * @brief run: Convert Bruker PatientSexFilter format into
+     *             DICOM PatientSexFilter format
+     * @param brukerdataset: Bruker input data
+     * @param generator: index generator
+     * @param dataset: DICOM output dataset
+     */
     virtual void run(dicomifier::bruker::BrukerDataset* brukerdataset,
                      dicomifier::FrameIndexGenerator const & generator,
                      DcmItem* dataset);
     
+    /**
+     * @brief get_class_type: return type of this class.
+     * @return ECT_PatientSexFilter
+     */
     virtual ClassType get_class_type() const { return ECT_PatientSexFilter; }
     
 protected:
+    /// Create an instance of PatientSexFilter
     PatientSexFilter();
     
+    /**
+     * @brief Create an instance of PatientSexFilter
+     * @param tag: VisuSubjectSex BrukerField
+     */
     PatientSexFilter(Tag::Pointer tag);
 
 private:
+    /// VisuSubjectSex BrukerField
     Tag::Pointer _tag;
 
 };

@@ -16,7 +16,10 @@ namespace dicomifier
     
 namespace translator
 {
-    
+
+/**
+ * @brief The TimeGenerator class
+ */
 template<DcmEVR VR>
 class TimeGenerator : public SubTag<VR>
 {
@@ -28,15 +31,27 @@ public:
     /// Create pointer to new instance of TimeGenerator
     static Pointer New();
 
+    /// Destroy the instance of TimeGenerator
     virtual ~TimeGenerator();
     
+    /**
+     * @brief run: Generate time field
+     * @param brukerdataset: Bruker input data
+     * @param generator: index generator
+     * @param dataset: DICOM output dataset
+     */
     virtual void run(dicomifier::bruker::BrukerDataset* brukerdataset,
                      dicomifier::FrameIndexGenerator const & generator,
                      DcmItem* dataset);
     
+    /**
+     * @brief get_class_type: return type of this class.
+     * @return ECT_TimeGenerator
+     */
     virtual ClassType get_class_type() const { return ECT_TimeGenerator; }
     
 protected:
+    /// Create an instance of TimeGenerator
     TimeGenerator();
 
 private:

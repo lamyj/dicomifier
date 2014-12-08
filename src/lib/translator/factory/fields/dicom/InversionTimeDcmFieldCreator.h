@@ -21,6 +21,9 @@ namespace translator
 namespace factory
 {
     
+/**
+ * @brief The InversionTimeDcmFieldCreator class
+ */
 class InversionTimeDcmFieldCreator : public TranslationCreatorBase
 {
 public:
@@ -28,17 +31,31 @@ public:
     typedef std::shared_ptr<Self> Pointer;
     typedef std::shared_ptr<Self const> ConstPointer;
     
+    /// Create pointer to new instance of InversionTimeDcmFieldCreator
     static Pointer New() { return Pointer(new Self()); }
     
+    /// Destroy the instance of InversionTimeDcmFieldCreator
     virtual ~InversionTimeDcmFieldCreator();
 
+    /**
+     * @brief Create Pointer to class InversionTimeDcmField
+     * @param value: XML node
+     * @param dataset: Dataset to modify
+     * @param evr: EVR of tag
+     * @return new InversionTimeDcmField
+     */
     virtual Tag::Pointer Create(boost::property_tree::ptree::value_type & value,
                                 DcmDataset* dataset,
                                 DcmEVR evr);
 
+    /**
+     * @brief get_class_name: return created class name
+     * @return InversionTimeDcmField
+     */
     static std::string get_class_name() { return "InversionTimeDcmField"; }
 
 protected:
+    /// Create an instance of InversionTimeDcmFieldCreator
     InversionTimeDcmFieldCreator();
 
 private:

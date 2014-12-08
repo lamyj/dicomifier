@@ -52,6 +52,12 @@ BOOST_FIXTURE_TEST_CASE(TEST_OK_01, TestDataOK01)
         dicomifier::translator::InPlanePhaseEncodingDirectionDcmField<EVR_AS>::Pointer inplanephaseencodingdirAS = 
                 std::dynamic_pointer_cast<dicomifier::translator::InPlanePhaseEncodingDirectionDcmField<EVR_AS>>(objectAS);
         BOOST_CHECK_EQUAL(inplanephaseencodingdirAS != NULL, true);
+
+        // Test VR = AT
+        dicomifier::translator::Tag::Pointer objectAT = inplanephaseencodingdircreator->Create(v, NULL, EVR_AT);
+        dicomifier::translator::InPlanePhaseEncodingDirectionDcmField<EVR_AT>::Pointer inplanephaseencodingdirAT =
+                std::dynamic_pointer_cast<dicomifier::translator::InPlanePhaseEncodingDirectionDcmField<EVR_AT>>(objectAT);
+        BOOST_CHECK_EQUAL(inplanephaseencodingdirAT != NULL, true);
         
         // Test VR = CS
         dicomifier::translator::Tag::Pointer objectCS = inplanephaseencodingdircreator->Create(v, NULL, EVR_CS);

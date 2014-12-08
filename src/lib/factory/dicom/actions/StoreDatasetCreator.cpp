@@ -17,14 +17,18 @@ namespace dicomifier
 namespace factory
 {
     
-static unsigned int const registration = Factory::get_instance().register_<StoreDatasetCreator>();
+static unsigned int const registration =
+        Factory::get_instance().register_<StoreDatasetCreator>();
 
-StoreDatasetCreator::StoreDatasetCreator()
+StoreDatasetCreator
+::StoreDatasetCreator():
+    CreatorBase()
 {
     // Nothing to do
 }
 
-StoreDatasetCreator::~StoreDatasetCreator()
+StoreDatasetCreator
+::~StoreDatasetCreator()
 {
     // Nothing to do
 }

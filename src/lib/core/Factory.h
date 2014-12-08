@@ -31,6 +31,7 @@ public:
      */
     static Factory & get_instance();
     
+    /// Destroy the unique instance of Factory
     static void delete_instance();
     
     /// Destroy the Factory

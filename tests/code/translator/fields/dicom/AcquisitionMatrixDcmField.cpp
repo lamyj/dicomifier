@@ -29,7 +29,10 @@ BOOST_AUTO_TEST_CASE(TEST_OK_01)
     // Pointer exists and class type is AcquisitionMatrixDcmField
     BOOST_CHECK_EQUAL(testfieldas->get_class_type(), dicomifier::translator::ECT_AcquisitionMatrixDcmField);
     
-    // Test VR = AT => Not implemented
+    // Test VR = AT
+    auto testfieldat = dicomifier::translator::AcquisitionMatrixDcmField<EVR_AT>::New();
+    // Pointer exists and class type is AcquisitionMatrixDcmField
+    BOOST_CHECK_EQUAL(testfieldat->get_class_type(), dicomifier::translator::ECT_AcquisitionMatrixDcmField);
     
     // Test VR = CS
     auto testfieldcs = dicomifier::translator::AcquisitionMatrixDcmField<EVR_CS>::New();
@@ -295,7 +298,12 @@ BOOST_FIXTURE_TEST_CASE(TEST_KO_01, TestDataOK02)
     BOOST_REQUIRE_THROW(testfieldas->run(brukerdataset, *generator, NULL),
                         dicomifier::DicomifierException);
     
-    // Test VR = AT => Not implemented
+    // Test VR = AT
+    auto testfieldat = dicomifier::translator::
+        AcquisitionMatrixDcmField<EVR_AT>::New(dicomifier::translator::
+                            ConstantField<EVR_AT>::New(0xFFFF));
+    BOOST_REQUIRE_THROW(testfieldat->run(brukerdataset, *generator, NULL),
+                        dicomifier::DicomifierException);
     
     // Test VR = CS
     auto testfieldcs = dicomifier::translator::

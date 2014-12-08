@@ -11,7 +11,6 @@
 /*! \file BrukerDataset.h
 */
 
-#include <string>
 #include <fstream>
 
 #include "BrukerFieldData.h"
@@ -29,27 +28,25 @@ struct VISU_FRAMEGROUP_TYPE
     std::vector<std::pair<std::string, int>> groupDepVals;
 } ;
     
-/*! \class  BrukerDataset
-    \brief This class purpose is to extract information from a bruker experiment and setup the extracted information for an easy use
-*/
+/**
+ * @brief The BrukerDataset class: This class purpose is to extract information from a bruker experiment
+ *  and setup the extracted information for an easy use
+ */
 class BrukerDataset
 {
     typedef std::map<std::string, BrukerFieldData::Pointer> BrukerMapType;
     
 public:
-    /**
-     * Constructor
-     */
+    /// Create an instance of BrukerDataset
     BrukerDataset();
     
     /**
-     * Copy Constructor
+     * @brief BrukerDataset: Copy constructor
+     * @param dataset: dataset to copy
      */
     BrukerDataset(BrukerDataset const & dataset);
     
-    /**
-     * Destructor
-     */
+    /// Destroy this instance of BrukerDataset
     virtual ~BrukerDataset();
     
     /**
@@ -91,8 +88,19 @@ public:
      */
     bool HasFieldData(std::string key) const;
     
+    /**
+     * @brief create_frameGroupLists: identify groups of images
+     * @param coreframecount: (out) number of images
+     * @return cardinality of each group
+     */
     std::vector<int> create_frameGroupLists(int & coreframecount);
     
+    /**
+     * @brief get_indexForValue: get index and start position for a given group
+     * @param valuename: name of group
+     * @param indexposition: (out) index of the group
+     * @param startposition: (out) first position for the group
+     */
     void get_indexForValue(std::string const & valuename,
                            int & indexposition,
                            int & startposition) const;
@@ -100,11 +108,10 @@ public:
 protected:
 
 private:
-    /**
-     * Contains all BrukerDataset elements
-     */
+    /// Contains all BrukerDataset elements
     BrukerMapType BrukerHeaderMap;
     
+    /// Groups of images
     std::vector<VISU_FRAMEGROUP_TYPE> _frameGroupLists;
 };
 

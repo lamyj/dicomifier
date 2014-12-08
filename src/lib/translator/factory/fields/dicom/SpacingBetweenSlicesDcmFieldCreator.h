@@ -20,7 +20,10 @@ namespace translator
     
 namespace factory
 {
-    
+
+/**
+ * @brief The SpacingBetweenSlicesDcmFieldCreator class
+ */
 class SpacingBetweenSlicesDcmFieldCreator : public TranslationCreatorBase
 {
 public:
@@ -28,17 +31,31 @@ public:
     typedef std::shared_ptr<Self> Pointer;
     typedef std::shared_ptr<Self const> ConstPointer;
     
+    /// Create pointer to new instance of SpacingBetweenSlicesDcmFieldCreator
     static Pointer New() { return Pointer(new Self()); }
     
+    /// Destroy the instance of SpacingBetweenSlicesDcmFieldCreator
     virtual ~SpacingBetweenSlicesDcmFieldCreator();
 
+    /**
+     * @brief Create Pointer to class SpacingBetweenSlicesDcmField
+     * @param value: XML node
+     * @param dataset: Dataset to modify
+     * @param evr: EVR of tag
+     * @return new SpacingBetweenSlicesDcmField
+     */
     virtual Tag::Pointer Create(boost::property_tree::ptree::value_type & value,
                                 DcmDataset* dataset,
                                 DcmEVR evr);
 
+    /**
+     * @brief get_class_name: return created class name
+     * @return SpacingBetweenSlicesDcmField
+     */
     static std::string get_class_name() { return "SpacingBetweenSlicesDcmField"; }
 
 protected:
+    /// Create an instance of SpacingBetweenSlicesDcmFieldCreator
     SpacingBetweenSlicesDcmFieldCreator();
 
 private:

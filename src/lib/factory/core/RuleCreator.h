@@ -17,6 +17,9 @@ namespace dicomifier
 namespace factory
 {
     
+/**
+ * @brief The RuleCreator class: Factory for the class Rule
+ */
 class RuleCreator : public CreatorBase
 {
 public:
@@ -24,18 +27,37 @@ public:
     typedef std::shared_ptr<Self> Pointer;
     typedef std::shared_ptr<Self const> ConstPointer;
     
+    /// Create pointer to new instance of RuleCreator
     static Pointer New() { return Pointer(new Self()); }
     
+    /// Destroy the instance of RuleCreator
     virtual ~RuleCreator();
     
+    /**
+     * @brief Create an object Rule
+     * @param value: XML node
+     * @return new instance of Rule
+     */
     virtual Object::Pointer Create(boost::property_tree::ptree::value_type & value);
 
+    /**
+     * @brief get_class_name: return XML node name
+     * @return Rule
+     */
     static std::string get_class_name() { return "Rule"; }
     
 protected:
+    /// Create an instance of RuleCreator
     RuleCreator();
 
 private:
+    /**
+     * @brief CreateAnyObject: Create object type boost::any with inputs and outputs
+     * @param type: Object type
+     * @param name: Object name
+     * @param value: Object value
+     * @return Object as boost::any
+     */
 	boost::any CreateAnyObject(std::string const & type, 
 							   std::string const & name, 
 							   std::string const & value);

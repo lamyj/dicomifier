@@ -17,6 +17,9 @@ namespace dicomifier
 namespace factory
 {
 
+/**
+ * @brief The SaveDatasetCreator class: Factory for the class SaveDataset
+ */
 class SaveDatasetCreator : public CreatorBase
 {
 public:
@@ -24,15 +27,27 @@ public:
     typedef std::shared_ptr<Self> Pointer;
     typedef std::shared_ptr<Self const> ConstPointer;
     
+    /// Create pointer to new instance of SaveDatasetCreator
     static Pointer New() { return Pointer(new Self()); }
 
+    /// Destroy the instance of SaveDatasetCreator
     virtual ~SaveDatasetCreator();
     
+    /**
+     * @brief Create an object SaveDataset
+     * @param value: XML node
+     * @return new instancce of SaveDataset
+     */
     virtual Object::Pointer Create(boost::property_tree::ptree::value_type & value);
 
+    /**
+     * @brief get_class_name: return XML node name
+     * @return SaveDataset
+     */
     static std::string get_class_name() { return "SaveDataset"; }
 
 protected:
+    /// Create an instance of SaveDatasetCreator
     SaveDatasetCreator();
 
 private:

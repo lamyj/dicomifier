@@ -81,7 +81,8 @@ SubtractionOperator<VR>
         {
             for (int i = 0; i < array.size(); i++)
             {
-                this->_array[i] = ElementTraits<VR>::subtraction(this->_array[i], array[i]);
+                this->_array[i] =
+                    ElementTraits<VR>::subtraction(this->_array[i], array[i]);
             }
         }
     }

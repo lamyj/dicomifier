@@ -10,8 +10,6 @@
 #define _7a6fdce5_5d17_49f0_8604_2e37b96d427d
 
 #include "factory/dicom/DicomCreatorBase.h"
-#include "dicom/ElementTraits.h"
-#include "dicom/TagAndRange.h"
 
 namespace dicomifier
 {
@@ -19,6 +17,9 @@ namespace dicomifier
 namespace factory
 {
     
+/**
+ * @brief The SetElementCreator class: Factory for the class SetElement
+ */
 class SetElementCreator : public DicomCreatorBase
 {
 public:
@@ -26,15 +27,27 @@ public:
     typedef std::shared_ptr<Self> Pointer;
     typedef std::shared_ptr<Self const> ConstPointer;
     
+    /// Create pointer to new instance of SetElementCreator
     static Pointer New() { return Pointer(new Self()); }
     
+    /// Destroy the instance of SetElementCreator
     virtual ~SetElementCreator();
     
+    /**
+     * @brief Create an object SetElement
+     * @param value: XML node
+     * @return new instancce of SetElement
+     */
     virtual Object::Pointer Create(boost::property_tree::ptree::value_type & value);
 
+    /**
+     * @brief get_class_name: return XML node name
+     * @return SetElement
+     */
     static std::string get_class_name() { return "SetElement"; }
     
 protected:
+    /// Create an instance of SetElementCreator
     SetElementCreator();
     
 private:

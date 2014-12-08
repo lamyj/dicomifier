@@ -17,6 +17,9 @@ namespace dicomifier
 namespace factory
 {
     
+/**
+ * @brief The EmptyElementCreator class: Factory for the class EmptyElement
+ */
 class EmptyElementCreator : public DicomCreatorBase
 {
 public:
@@ -24,15 +27,27 @@ public:
     typedef std::shared_ptr<Self> Pointer;
     typedef std::shared_ptr<Self const> ConstPointer;
     
+    /// Create pointer to new instance of EmptyElementCreator
     static Pointer New() { return Pointer(new Self()); }
 
+    /// Destroy the instance of EmptyElementCreator
     virtual ~EmptyElementCreator();
     
+    /**
+     * @brief Create an object EmptyElement
+     * @param value: XML node
+     * @return new instancce of EmptyElement
+     */
     virtual Object::Pointer Create(boost::property_tree::ptree::value_type & value);
 
+    /**
+     * @brief get_class_name: return XML node name
+     * @return EmptyElement
+     */
     static std::string get_class_name() { return "EmptyElement"; }
 
 protected:
+    /// Create an instance of EmptyElementCreator
     EmptyElementCreator();
 
 private:

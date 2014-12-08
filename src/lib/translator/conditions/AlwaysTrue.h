@@ -17,6 +17,9 @@ namespace dicomifier
 namespace translator
 {
     
+/**
+ * @brief The AlwaysTrue class: Test class
+ */
 class AlwaysTrue : public ConditionBase
 {
 public:
@@ -24,17 +27,25 @@ public:
     typedef std::shared_ptr<Self> Pointer;
     typedef std::shared_ptr<Self const> ConstPointer;
     
-    /// Create pointer to new instance of DicomField
+    /// Create pointer to new instance of AlwaysTrue
     static Pointer New() { return Pointer(new Self()); }
     
+    /// Destroy the instance of AlwaysTrue
     virtual ~AlwaysTrue() {}
     
+    /**
+     * @brief eval: Always return true
+     * @param dataset: DICOM data
+     * @param brukerdataset: Bruker data
+     * @return True
+     */
     virtual bool eval(DcmItem* dataset,
                       dicomifier::bruker::BrukerDataset* brukerdataset) 
         { return true; }
 
 protected:
-    AlwaysTrue() {}
+    /// Create an instance of AlwaysTrue
+    AlwaysTrue(): ConditionBase() {}
 
 private:
     

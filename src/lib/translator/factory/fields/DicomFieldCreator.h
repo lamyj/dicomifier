@@ -22,6 +22,9 @@ namespace translator
 namespace factory
 {
     
+/**
+ * @brief The DicomFieldCreator class
+ */
 class DicomFieldCreator : public TranslationCreatorBase
 {
 public:
@@ -29,17 +32,31 @@ public:
     typedef std::shared_ptr<Self> Pointer;
     typedef std::shared_ptr<Self const> ConstPointer;
     
+    /// Create pointer to new instance of DicomFieldCreator
     static Pointer New() { return Pointer(new Self()); }
     
+    /// Destroy the instance of DicomFieldCreator
     virtual ~DicomFieldCreator();
 
+    /**
+     * @brief Create Pointer to class DicomField
+     * @param value: XML node
+     * @param dataset: Dataset to modify
+     * @param evr: EVR of tag
+     * @return new DicomField
+     */
     virtual Tag::Pointer Create(boost::property_tree::ptree::value_type & value,
                                 DcmDataset* dataset, 
                                 DcmEVR evr);
 
+    /**
+     * @brief get_class_name: return created class name
+     * @return DicomField
+     */
     static std::string get_class_name() { return "DicomField"; }
 
 protected:
+    /// Create an instance of DicomFieldCreator
     DicomFieldCreator();
 
 private:

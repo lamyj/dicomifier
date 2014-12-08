@@ -21,6 +21,9 @@ namespace translator
 namespace factory
 {
     
+/**
+ * @brief The InPlanePhaseEncodingDirectionDcmFieldCreator class
+ */
 class InPlanePhaseEncodingDirectionDcmFieldCreator : public TranslationCreatorBase
 {
 public:
@@ -28,17 +31,31 @@ public:
     typedef std::shared_ptr<Self> Pointer;
     typedef std::shared_ptr<Self const> ConstPointer;
     
+    /// Create pointer to new instance of InPlanePhaseEncodingDirectionDcmFieldCreator
     static Pointer New() { return Pointer(new Self()); }
     
+    /// Destroy the instance of InPlanePhaseEncodingDirectionDcmFieldCreator
     virtual ~InPlanePhaseEncodingDirectionDcmFieldCreator();
 
+    /**
+     * @brief Create Pointer to class InPlanePhaseEncodingDirectionDcmField
+     * @param value: XML node
+     * @param dataset: Dataset to modify
+     * @param evr: EVR of tag
+     * @return new InPlanePhaseEncodingDirectionDcmField
+     */
     virtual Tag::Pointer Create(boost::property_tree::ptree::value_type & value,
                                 DcmDataset* dataset,
                                 DcmEVR evr);
 
+    /**
+     * @brief get_class_name: return created class name
+     * @return InPlanePhaseEncodingDirectionDcmField
+     */
     static std::string get_class_name() { return "InPlanePhaseEncodingDirectionDcmField"; }
 
 protected:
+    /// Create an instance of InPlanePhaseEncodingDirectionDcmFieldCreator
     InPlanePhaseEncodingDirectionDcmFieldCreator();
 
 private:

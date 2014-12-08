@@ -17,6 +17,9 @@ namespace dicomifier
 namespace factory
 {
     
+/**
+ * @brief The NoneCreator class: Factory for the class None
+ */
 class NoneCreator : public CreatorBase
 {
 public:
@@ -24,15 +27,27 @@ public:
     typedef std::shared_ptr<Self> Pointer;
     typedef std::shared_ptr<Self const> ConstPointer;
     
+    /// Create pointer to new instance of NoneCreator
     static Pointer New() { return Pointer(new Self()); }
     
+    /// Destroy the instance of NoneCreator
     virtual ~NoneCreator();
     
+    /**
+     * @brief Create an object None
+     * @param value: XML node
+     * @return new instancce of None
+     */
     virtual Object::Pointer Create(boost::property_tree::ptree::value_type & value);
 
+    /**
+     * @brief get_class_name: return XML node name
+     * @return None
+     */
     static std::string get_class_name() { return "None"; }
 
 protected:
+    /// Create an instance of NoneCreator
     NoneCreator();
 
 private:
