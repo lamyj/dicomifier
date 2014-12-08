@@ -17,7 +17,10 @@ namespace dicomifier
     
 namespace translator
 {
-    
+
+/**
+ * @brief The DicomField class
+ */
 template<DcmEVR VR>
 class DicomField : public Tag
 {
@@ -31,25 +34,51 @@ public:
     /// Create pointer to new instance of DicomField
     static Pointer New();
     
+    /**
+     * @brief Create pointer to new instance of DicomField
+     * @param tagrange: DICOM tag key
+     * @param tag: Value to set for this DICOM tag
+     * @return new instance of DicomField
+     */
     static Pointer New(dicomifier::TagAndRange const & tagrange, 
                        Tag::Pointer tag);
     
+    /// Destroy the instance of DicomField
     virtual ~DicomField();
     
+    /**
+     * @brief run: Compute field values and insert into DICOM Dataset
+     * @param brukerdataset: Bruker input data
+     * @param generator: index generator
+     * @param dataset: DICOM output dataset
+     */
     virtual void run(dicomifier::bruker::BrukerDataset* brukerdataset,
                      dicomifier::FrameIndexGenerator const & generator,
                      DcmItem* dataset);
     
+    /**
+     * @brief get_class_type: return type of this class.
+     * @return ECT_DicomField
+     */
     virtual ClassType get_class_type() const { return ECT_DicomField; }
     
 protected:
 
 private:
+    /// Create an instance of DicomField
     DicomField();
+
+    /**
+     * @brief Create an instance of DicomField
+     * @param tagrange: DICOM tag key
+     * @param tag: Value to set for this DICOM tag
+     */
     DicomField(dicomifier::TagAndRange const & tagrange, Tag::Pointer tag);
     
+    /// DICOM tag key
     TagAndRange _dicomtags;
     
+    /// Value to set for this DICOM tag
     Tag::Pointer _tag;
     
 };

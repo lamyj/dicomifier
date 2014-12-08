@@ -18,7 +18,8 @@ namespace translator
 namespace factory
 {
     
-static unsigned int const registration = TranslatorFactory::get_instance().register_<InversionTimeDcmFieldCreator>(); 
+static unsigned int const registration =
+        TranslatorFactory::get_instance().register_<InversionTimeDcmFieldCreator>();
 
 InversionTimeDcmFieldCreator
 ::InversionTimeDcmFieldCreator()

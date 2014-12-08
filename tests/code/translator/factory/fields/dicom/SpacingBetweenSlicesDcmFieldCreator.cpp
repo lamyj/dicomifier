@@ -49,7 +49,13 @@ BOOST_FIXTURE_TEST_CASE(TEST_OK_01, TestDataOK01)
         dicomifier::translator::SpacingBetweenSlicesDcmField<EVR_AS>::Pointer spacingbetweenslicesAS = 
                 std::dynamic_pointer_cast<dicomifier::translator::SpacingBetweenSlicesDcmField<EVR_AS>>(objectAS);
         BOOST_CHECK_EQUAL(spacingbetweenslicesAS != NULL, true);
-        
+
+        // Test VR = AT
+        dicomifier::translator::Tag::Pointer objectAT = spacingbetweenslicescreator->Create(v, NULL, EVR_AT);
+        dicomifier::translator::SpacingBetweenSlicesDcmField<EVR_AT>::Pointer spacingbetweenslicesAT =
+                std::dynamic_pointer_cast<dicomifier::translator::SpacingBetweenSlicesDcmField<EVR_AT>>(objectAT);
+        BOOST_CHECK_EQUAL(spacingbetweenslicesAT != NULL, true);
+
         // Test VR = CS
         dicomifier::translator::Tag::Pointer objectCS = spacingbetweenslicescreator->Create(v, NULL, EVR_CS);
         dicomifier::translator::SpacingBetweenSlicesDcmField<EVR_CS>::Pointer spacingbetweenslicesCS = 

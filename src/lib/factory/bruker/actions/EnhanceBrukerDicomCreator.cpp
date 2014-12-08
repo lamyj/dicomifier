@@ -16,14 +16,18 @@ namespace dicomifier
 namespace factory
 {
     
-static unsigned int const registration = Factory::get_instance().register_<EnhanceBrukerDicomCreator>();
+static unsigned int const registration =
+        Factory::get_instance().register_<EnhanceBrukerDicomCreator>();
     
-EnhanceBrukerDicomCreator::EnhanceBrukerDicomCreator()
+EnhanceBrukerDicomCreator
+::EnhanceBrukerDicomCreator():
+    CreatorBase()
 {
     // Nothing to do
 }
 
-EnhanceBrukerDicomCreator::~EnhanceBrukerDicomCreator()
+EnhanceBrukerDicomCreator
+::~EnhanceBrukerDicomCreator()
 {
     // Nothing to do
 }

@@ -21,7 +21,8 @@ namespace translator
 namespace factory
 {
     
-static unsigned int const registration = TranslatorFactory::get_instance().register_<AdditionOperatorCreator>(); 
+static unsigned int const registration =
+        TranslatorFactory::get_instance().register_<AdditionOperatorCreator>();
 
 AdditionOperatorCreator
 ::AdditionOperatorCreator()

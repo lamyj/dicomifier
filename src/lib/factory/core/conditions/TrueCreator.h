@@ -17,6 +17,9 @@ namespace dicomifier
 namespace factory
 {
 
+/**
+ * @brief The TrueCreator class: Factory for the class True
+ */
 class TrueCreator : public CreatorBase
 {
 public:
@@ -24,15 +27,27 @@ public:
     typedef std::shared_ptr<Self> Pointer;
     typedef std::shared_ptr<Self const> ConstPointer;
     
+    /// Create pointer to new instance of TrueCreator
     static Pointer New() { return Pointer(new Self()); }
     
+    /// Destroy the instance of TrueCreator
     virtual ~TrueCreator();
     
+    /**
+     * @brief Create an object True
+     * @param value: XML node
+     * @return new instancce of True
+     */
     virtual Object::Pointer Create(boost::property_tree::ptree::value_type & value);
 
+    /**
+     * @brief get_class_name: return XML node name
+     * @return True
+     */
     static std::string get_class_name() { return "True"; }
 
 protected:
+    /// Create an instance of TrueCreator
     TrueCreator();
 
 private:

@@ -20,25 +20,32 @@ namespace dicomifier
 namespace factory
 {
     
-static unsigned int const registration = Factory::get_instance().register_<AnyCreator>();
+static unsigned int const registration =
+        Factory::get_instance().register_<AnyCreator>();
     
-AnyCreator::AnyCreator()
+AnyCreator
+::AnyCreator():
+    CreatorBase()
 {
     // nothing to do
 }
 
-AnyCreator::~AnyCreator()
+AnyCreator
+::~AnyCreator()
 {
     // nothing to do
 }
 
-Object::Pointer AnyCreator::Create(boost::property_tree::ptree::value_type & value)
+Object::Pointer
+AnyCreator
+::Create(boost::property_tree::ptree::value_type & value)
 {
     dicomifier::conditions::Any::Pointer any = dicomifier::conditions::Any::New();
     BOOST_FOREACH(boost::property_tree::ptree::value_type &v,
             value.second)
     {
-        Object::Pointer object = Factory::get_instance().create(v, this->_inputs, this->_outputs);
+        Object::Pointer object = Factory::get_instance().create(v, this->_inputs,
+                                                                this->_outputs);
         dicomifier::conditions::Condition::Pointer cond = 
             std::dynamic_pointer_cast<dicomifier::conditions::Condition>(object);
         if (cond != NULL)

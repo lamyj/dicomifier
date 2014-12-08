@@ -21,6 +21,9 @@ namespace translator
 namespace factory
 {
     
+/**
+ * @brief The BrukerFieldExistCreator class
+ */
 class BrukerFieldExistCreator : public TranslationCreatorBase
 {
 public:
@@ -28,17 +31,31 @@ public:
     typedef std::shared_ptr<Self> Pointer;
     typedef std::shared_ptr<Self const> ConstPointer;
     
+    /// Create pointer to new instance of BrukerFieldExistCreator
     static Pointer New() { return Pointer(new Self()); }
     
+    /// Destroy the instance of BrukerFieldExistCreator
     virtual ~BrukerFieldExistCreator();
 
+    /**
+     * @brief Create Pointer to class BrukerFieldExist
+     * @param value: XML node
+     * @param dataset: Dataset to modify
+     * @param evr: EVR of tag
+     * @return new BrukerFieldExist
+     */
     virtual Tag::Pointer Create(boost::property_tree::ptree::value_type & value,
                                 DcmDataset* dataset, 
                                 DcmEVR evr);
 
+    /**
+     * @brief get_class_name: return created class name
+     * @return BrukerFieldExist
+     */
     static std::string get_class_name() { return "BrukerFieldExist"; }
     
 protected:
+    /// Create an instance of BrukerFieldExistCreator
     BrukerFieldExistCreator();
     
 private:

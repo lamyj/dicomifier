@@ -20,6 +20,9 @@ namespace translator
 namespace factory
 {
     
+/**
+ * @brief The ImageOrientationPatientDcmFieldCreator class
+ */
 class ImageOrientationPatientDcmFieldCreator : public TranslationCreatorBase
 {
 public:
@@ -27,17 +30,31 @@ public:
     typedef std::shared_ptr<Self> Pointer;
     typedef std::shared_ptr<Self const> ConstPointer;
     
+    /// Create pointer to new instance of ImageOrientationPatientDcmFieldCreator
     static Pointer New() { return Pointer(new Self()); }
     
+    /// Destroy the instance of ImageOrientationPatientDcmFieldCreator
     virtual ~ImageOrientationPatientDcmFieldCreator();
 
+    /**
+     * @brief Create Pointer to class ImageOrientationPatientDcmField
+     * @param value: XML node
+     * @param dataset: Dataset to modify
+     * @param evr: EVR of tag
+     * @return new ImageOrientationPatientDcmField
+     */
     virtual Tag::Pointer Create(boost::property_tree::ptree::value_type & value,
                                 DcmDataset* dataset,
                                 DcmEVR evr);
 
+    /**
+     * @brief get_class_name: return created class name
+     * @return ImageOrientationPatientDcmField
+     */
     static std::string get_class_name() { return "ImageOrientationPatientDcmField"; }
 
 protected:
+    /// Create an instance of ImageOrientationPatientDcmFieldCreator
     ImageOrientationPatientDcmFieldCreator();
 
 private:

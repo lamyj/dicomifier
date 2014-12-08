@@ -25,14 +25,26 @@ namespace factory
     
 const boost::regex RegEx_tag("^\\s*([^\\[]+)\\[(\\d*:?\\d*)\\]\\s*$");
     
+/**
+ * @brief The DicomCreatorBase class: Base class for all Dicom actions/conditions factory
+ */
 class DicomCreatorBase : public CreatorBase
 {
 public:
+    /// Destroy the instance of DicomCreatorBase
     virtual ~DicomCreatorBase() {}
 
 protected:
-    DicomCreatorBase() {}
+    /// Create an instance of DicomCreatorBase
+    DicomCreatorBase(): CreatorBase() {}
     
+    /**
+     * @brief Parse_Tag: Parse a formatted string and identify tags
+     * @param tag: tag to parse
+     * @param privatedict: dicom Dictionary name
+     * @param element: number for private dictionary
+     * @return list of tags
+     */
     static std::vector<dicomifier::TagAndRange> Parse_Tag(std::string const & tag, 
                                                           std::string const & privatedict = "public", 
                                                           Uint16 element = 0x0000)

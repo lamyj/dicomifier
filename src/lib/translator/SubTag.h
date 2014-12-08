@@ -17,6 +17,9 @@ namespace dicomifier
 namespace translator
 {
     
+/**
+ * @brief The SubTag class: Abstact base class for translation SubTag
+ */
 template<DcmEVR VR>
 class SubTag : public Tag
 {
@@ -28,19 +31,37 @@ public:
     typedef typename ElementTraits<VR>::ValueType ValueType;
     typedef std::vector<ValueType> ArrayType;
     
+    /// Destroy the instance of SubTag
     virtual ~SubTag();
     
+    /**
+     * @brief run: Call to execute translation. Should be override by inherit classes
+     * @param brukerdataset: Bruker input data
+     * @param generator: index generator
+     * @param dataset: DICOM output dataset
+     */
     virtual void run(dicomifier::bruker::BrukerDataset* brukerdataset,
                      dicomifier::FrameIndexGenerator const & generator,
                      DcmItem* dataset) = 0;
     
+    /**
+     * @brief get_class_type: return type of this class.
+     *        Should be override by inherit classes
+     * @return class type
+     */
     virtual ClassType get_class_type() const = 0;
 
+    /**
+     * @brief get_array: getter for attribut array
+     * @return array
+     */
     ArrayType get_array() const;
     
 protected:
+    /// Create an instance of SubTag
     SubTag();
 
+    /// Values of this tag
     ArrayType _array;
     
 private:

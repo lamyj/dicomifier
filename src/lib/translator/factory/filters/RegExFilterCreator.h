@@ -21,6 +21,9 @@ namespace translator
 namespace factory
 {
     
+/**
+ * @brief The RegExFilterCreator class
+ */
 class RegExFilterCreator : public TranslationCreatorBase
 {
 public:
@@ -28,17 +31,31 @@ public:
     typedef std::shared_ptr<Self> Pointer;
     typedef std::shared_ptr<Self const> ConstPointer;
     
+    /// Create pointer to new instance of RegExFilterCreator
     static Pointer New() { return Pointer(new Self()); }
     
+    /// Destroy the instance of RegExFilterCreator
     virtual ~RegExFilterCreator();
 
+    /**
+     * @brief Create Pointer to class RegExFilter
+     * @param value: XML node
+     * @param dataset: Dataset to modify
+     * @param evr: EVR of tag
+     * @return new RegExFilter
+     */
     virtual Tag::Pointer Create(boost::property_tree::ptree::value_type & value,
                                 DcmDataset* dataset, 
                                 DcmEVR evr);
 
+    /**
+     * @brief get_class_name: return created class name
+     * @return RegExFilter
+     */
     static std::string get_class_name() { return "RegExFilter"; }
     
 protected:
+    /// Create an instance of RegExFilterCreator
     RegExFilterCreator();
 
 private:

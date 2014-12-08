@@ -6,10 +6,6 @@
  * for details.
  ************************************************************************/
 
-#include <sstream>
-#include <stdexcept>
-#include <algorithm>
-
 #include "core/DicomifierException.h"
 #include "core/Factory.h"
 #include "DeleteElement.h"
@@ -19,25 +15,24 @@ namespace dicomifier
     
 namespace actions
 {
-    
-/****************************** Constructor ***************************/
+
+/****************************** Constructor *****************************/
 
 DeleteElement
 ::DeleteElement():
-    _dataset(NULL)
+    Action(), _dataset(NULL)
 {
     // Nothing to do
 }
 
 DeleteElement
 ::DeleteElement(DcmDataset * dataset, std::vector<TagAndRange> tags):
-    _dataset(dataset),
-    _tags(tags)
+    Action(), _dataset(dataset), _tags(tags)
 {
     // Nothing to do
 }
 
-/****************************** Destructor ****************************/
+/****************************** Destructor ******************************/
 
 DeleteElement
 ::~DeleteElement()
@@ -45,7 +40,7 @@ DeleteElement
     // Nothing to do
 }
 
-/****************************** Other Functions ***********************/
+/****************************** Other Functions *************************/
 
 void
 DeleteElement
@@ -59,7 +54,9 @@ DeleteElement
     this->removeItem(0, this->_dataset);
 }
 
-void DeleteElement::removeItem(int indice, DcmItem* dataset) const
+void
+DeleteElement
+::removeItem(int indice, DcmItem* dataset) const
 {
     if (dataset == NULL)
     {
@@ -90,7 +87,9 @@ void DeleteElement::removeItem(int indice, DcmItem* dataset) const
         
         if (ret.good())
         {
-            for (unsigned long i = tar._range._min; i < std::max(tar._range._max, (int)dcmstack.card()); i++)
+            for (unsigned long i = tar._range._min;
+                 i < std::max(tar._range._max, (int)dcmstack.card());
+                 i++)
             {
                 DcmObject* obj = dcmstack.elem(i);
                 DcmItem* seq = dynamic_cast<DcmItem*>(obj);
@@ -104,7 +103,7 @@ void DeleteElement::removeItem(int indice, DcmItem* dataset) const
     }
 }
 
-/****************************** ActionDeleteElement *******************/
+/****************************** ActionDeleteElement *********************/
 
 template<>
 void 
@@ -156,7 +155,9 @@ DeleteElement::ActionDeleteElement
     }
     else
     {
-        dicomifier::ElementTraits<VR>::array_setter(element, &values[0], values.size());
+        dicomifier::ElementTraits<VR>::array_setter(element,
+                                                    &values[0],
+                                                    values.size());
     }
 }
     

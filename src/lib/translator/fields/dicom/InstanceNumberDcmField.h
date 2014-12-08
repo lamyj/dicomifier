@@ -16,7 +16,10 @@ namespace dicomifier
     
 namespace translator
 {
-    
+
+/**
+ * @brief The InstanceNumberDcmField class
+ */
 template<DcmEVR VR>
 class InstanceNumberDcmField : public SubTag<VR>
 {
@@ -28,16 +31,28 @@ public:
     /// Create pointer to new instance of InstanceNumberDcmField
     static Pointer New();
     
+    /// Destroy the instance of InstanceNumberDcmField
     virtual ~InstanceNumberDcmField();
                      
+    /**
+     * @brief run: Compute instance number with Generator
+     * @param brukerdataset: Bruker input data
+     * @param generator: index generator
+     * @param dataset: DICOM output dataset
+     */
     virtual void run(dicomifier::bruker::BrukerDataset* brukerdataset,
                      dicomifier::FrameIndexGenerator const & generator,
                      DcmItem* dataset);
     
+    /**
+     * @brief get_class_type: return type of this class.
+     * @return ECT_InstanceNumberDcmField
+     */
     virtual ClassType get_class_type() const 
             { return ECT_InstanceNumberDcmField; }
     
 protected:
+    /// Create an instance of InstanceNumberDcmField
     InstanceNumberDcmField();
 
 private:

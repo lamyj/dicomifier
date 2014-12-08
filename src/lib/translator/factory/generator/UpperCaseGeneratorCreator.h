@@ -21,6 +21,9 @@ namespace translator
 namespace factory
 {
     
+/**
+ * @brief The UpperCaseGeneratorCreator class
+ */
 class UpperCaseGeneratorCreator : public TranslationCreatorBase
 {
 public:
@@ -28,17 +31,31 @@ public:
     typedef std::shared_ptr<Self> Pointer;
     typedef std::shared_ptr<Self const> ConstPointer;
     
+    /// Create pointer to new instance of UpperCaseGeneratorCreator
     static Pointer New() { return Pointer(new Self()); }
     
+    /// Destroy the instance of UpperCaseGeneratorCreator
     virtual ~UpperCaseGeneratorCreator();
 
+    /**
+     * @brief Create Pointer to class UpperCaseGenerator
+     * @param value: XML node
+     * @param dataset: Dataset to modify
+     * @param evr: EVR of tag
+     * @return new UpperCaseGenerator
+     */
     virtual Tag::Pointer Create(boost::property_tree::ptree::value_type & value,
                                 DcmDataset* dataset, 
                                 DcmEVR evr);
 
+    /**
+     * @brief get_class_name: return created class name
+     * @return UpperCaseGenerator
+     */
     static std::string get_class_name() { return "UpperCaseGenerator"; }
     
 protected:
+    /// Create an instance of UpperCaseGeneratorCreator
     UpperCaseGeneratorCreator();
 
 private:

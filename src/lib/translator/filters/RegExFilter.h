@@ -16,7 +16,10 @@ namespace dicomifier
     
 namespace translator
 {
-    
+
+/**
+ * @brief The RegExFilter class
+ */
 template<DcmEVR VR>
 class RegExFilter : public SubTag<VR>
 {
@@ -28,24 +31,49 @@ public:
     /// Create pointer to new instance of RegExFilter
     static Pointer New();
     
+    /**
+     * @brief Create pointer to new instance of RegExFilter
+     * @param tag: Bruker Field to process
+     * @param expression: Regular expression
+     * @return new instance of RegExFilter
+     */
     static Pointer New(Tag::Pointer tag, std::string const & expression);
 
+    /// Destroy the instance of RegExFilter
     virtual ~RegExFilter();
     
+    /**
+     * @brief run: Get data from Bruker field using a regular expression
+     * @param brukerdataset: Bruker input data
+     * @param generator: index generator
+     * @param dataset: DICOM output dataset
+     */
     virtual void run(dicomifier::bruker::BrukerDataset* brukerdataset,
                      dicomifier::FrameIndexGenerator const & generator,
                      DcmItem* dataset);
     
+    /**
+     * @brief get_class_type: return type of this class.
+     * @return ECT_RegExFilter
+     */
     virtual ClassType get_class_type() const { return ECT_RegExFilter; }
     
 protected:
+    /// Create an instance of RegExFilter
     RegExFilter();
     
+    /**
+     * @brief Create an instance of RegExFilter
+     * @param tag: Bruker Field to process
+     * @param expression: Regular expression
+     */
     RegExFilter(Tag::Pointer tag, std::string const & expression);
 
 private:
+    /// Bruker Field to process
     Tag::Pointer _tag;
     
+    /// Regular expression
     std::string _expression;
 
 };

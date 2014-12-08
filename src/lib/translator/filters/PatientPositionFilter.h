@@ -16,7 +16,10 @@ namespace dicomifier
     
 namespace translator
 {
-    
+
+/**
+ * @brief The PatientPositionFilter class
+ */
 template<DcmEVR VR>
 class PatientPositionFilter : public SubTag<VR>
 {
@@ -25,25 +28,48 @@ public:
     typedef std::shared_ptr<Self> Pointer;
     typedef std::shared_ptr<Self const> ConstPointer;
     
-    /// Create pointer to new instance of RegExFilter
+    /// Create pointer to new instance of PatientPositionFilter
     static Pointer New();
     
+    /**
+     * @brief New
+     * @param tag: VisuSubjectPosition PatientPositionFilter
+     * @return
+     */
     static Pointer New(Tag::Pointer tag);
 
+    /// Destroy the instance of PatientPositionFilter
     virtual ~PatientPositionFilter();
     
+    /**
+     * @brief run: Convert Bruker PatientPositionFilter format into
+     *             DICOM PatientPositionFilter format
+     * @param brukerdataset: Bruker input data
+     * @param generator: index generator
+     * @param dataset: DICOM output dataset
+     */
     virtual void run(dicomifier::bruker::BrukerDataset* brukerdataset,
                      dicomifier::FrameIndexGenerator const & generator,
                      DcmItem* dataset);
     
+    /**
+     * @brief get_class_type: return type of this class.
+     * @return ECT_PatientPositionFilter
+     */
     virtual ClassType get_class_type() const { return ECT_PatientPositionFilter; }
     
 protected:
+    /// Create an instance of PatientPositionFilter
     PatientPositionFilter();
     
+    /**
+     * @brief Create an instance of PatientPositionFilter
+     * @param tag: VisuSubjectPosition BrukerField
+     */
     PatientPositionFilter(Tag::Pointer tag);
 
 private:
+    /// VisuSubjectPosition BrukerField
     Tag::Pointer _tag;
 
 };

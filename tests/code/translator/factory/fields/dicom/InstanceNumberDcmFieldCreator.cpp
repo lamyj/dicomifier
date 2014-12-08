@@ -49,7 +49,13 @@ BOOST_FIXTURE_TEST_CASE(TEST_OK_01, TestDataOK01)
         dicomifier::translator::InstanceNumberDcmField<EVR_AS>::Pointer instancenumberAS = 
                 std::dynamic_pointer_cast<dicomifier::translator::InstanceNumberDcmField<EVR_AS>>(objectAS);
         BOOST_CHECK_EQUAL(instancenumberAS != NULL, true);
-        
+
+        // Test VR = AT
+        dicomifier::translator::Tag::Pointer objectAT = instancenumbercreator->Create(v, NULL, EVR_AT);
+        dicomifier::translator::InstanceNumberDcmField<EVR_AT>::Pointer instancenumberAT =
+                std::dynamic_pointer_cast<dicomifier::translator::InstanceNumberDcmField<EVR_AT>>(objectAT);
+        BOOST_CHECK_EQUAL(instancenumberAT != NULL, true);
+
         // Test VR = CS
         dicomifier::translator::Tag::Pointer objectCS = instancenumbercreator->Create(v, NULL, EVR_CS);
         dicomifier::translator::InstanceNumberDcmField<EVR_CS>::Pointer instancenumberCS = 

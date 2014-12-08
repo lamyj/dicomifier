@@ -16,7 +16,10 @@ namespace dicomifier
     
 namespace translator
 {
-    
+
+/**
+ * @brief The SpacingBetweenSlicesDcmField class
+ */
 template<DcmEVR VR>
 class SpacingBetweenSlicesDcmField : public SubTag<VR>
 {
@@ -28,16 +31,29 @@ public:
     /// Create pointer to new instance of SpacingBetweenSlicesDcmField
     static Pointer New();
     
+    /// Destroy the instance of SpacingBetweenSlicesDcmField
     virtual ~SpacingBetweenSlicesDcmField();
                      
+    /**
+     * @brief run: Convert Bruker SpacingBetweenSlicesDcmField format into
+     *             DICOM SpacingBetweenSlicesDcmField format
+     * @param brukerdataset: Bruker input data
+     * @param generator: index generator
+     * @param dataset: DICOM output dataset
+     */
     virtual void run(dicomifier::bruker::BrukerDataset* brukerdataset,
                      dicomifier::FrameIndexGenerator const & generator,
                      DcmItem* dataset);
     
+    /**
+     * @brief get_class_type: return type of this class.
+     * @return ECT_SpacingBetweenSlicesDcmField
+     */
     virtual ClassType get_class_type() const 
             { return ECT_SpacingBetweenSlicesDcmField; }
 
 protected:
+    /// Create an instance of SpacingBetweenSlicesDcmField
     SpacingBetweenSlicesDcmField();
 
 private:

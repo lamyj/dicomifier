@@ -17,6 +17,9 @@ namespace dicomifier
 namespace translator
 {
     
+/**
+ * @brief The BrukerFieldExist class
+ */
 class BrukerFieldExist : public ConditionBase
 {
 public:
@@ -24,23 +27,41 @@ public:
     typedef std::shared_ptr<Self> Pointer;
     typedef std::shared_ptr<Self const> ConstPointer;
     
-    /// Create pointer to new instance of DicomField
+    /// Create pointer to new instance of BrukerFieldExist
     static Pointer New() { return Pointer(new Self()); }
     
+    /**
+     * @brief Create pointer to new instance of BrukerFieldExist
+     * @param brukerFieldName: Name of searched Bruker field
+     * @return new instance of BrukerFieldExist
+     */
     static Pointer New(std::string const & brukerFieldName)
         { return Pointer(new Self(brukerFieldName)); }
     
+    /// Destroy the instance of BrukerFieldExist
     virtual ~BrukerFieldExist();
     
+    /**
+     * @brief eval: Search a given Bruker field in the Bruker dataset
+     * @param dataset: DICOM data
+     * @param brukerdataset: Bruker data
+     * @return true if field exists, false otherwise
+     */
     virtual bool eval(DcmItem* dataset,
                       dicomifier::bruker::BrukerDataset* brukerdataset);
 
 protected:
+    /// Create an instance of BrukerFieldExist
     BrukerFieldExist();
     
+    /**
+     * @brief BrukerFieldExist
+     * @param brukerfieldname
+     */
     BrukerFieldExist(std::string const & brukerfieldname);
 
 private:
+    /// Name of searched Bruker field
     std::string _brukerFieldName;
     
 };

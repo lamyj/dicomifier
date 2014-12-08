@@ -19,7 +19,8 @@ namespace translator
 namespace factory
 {
     
-static unsigned int const registration = TranslatorFactory::get_instance().register_<BrukerFieldCreator>(); 
+static unsigned int const registration =
+        TranslatorFactory::get_instance().register_<BrukerFieldCreator>();
 
 BrukerFieldCreator
 ::BrukerFieldCreator()
@@ -51,7 +52,8 @@ BrukerFieldCreator
     {
         std::string rangestr = range_.get();
         std::string minstr = rangestr.substr(0, rangestr.find(","));
-        std::string maxstr = rangestr.substr(rangestr.find(",") + 1, rangestr.length() - 1);
+        std::string maxstr = rangestr.substr(rangestr.find(",") + 1,
+                                             rangestr.length() - 1);
         
         range._min = atoi(minstr.c_str());
         range._max = atoi(maxstr.c_str());
@@ -83,7 +85,8 @@ void
 BrukerFieldCreator::TranslatorBrukerFieldCreator
 ::run() const
 {
-    brukerField = dicomifier::translator::BrukerField<VR>::New(brukerfieldname, range);
+    brukerField = dicomifier::translator::BrukerField<VR>::New(brukerfieldname,
+                                                               range);
 }
 
 } // namespace factory

@@ -21,6 +21,9 @@ namespace translator
 namespace factory
 {
     
+/**
+ * @brief The DateGeneratorCreator class
+ */
 class DateGeneratorCreator : public TranslationCreatorBase
 {
 public:
@@ -28,17 +31,31 @@ public:
     typedef std::shared_ptr<Self> Pointer;
     typedef std::shared_ptr<Self const> ConstPointer;
     
+    /// Create pointer to new instance of DateGeneratorCreator
     static Pointer New() { return Pointer(new Self()); }
     
+    /// Destroy the instance of DateGeneratorCreator
     virtual ~DateGeneratorCreator();
 
+    /**
+     * @brief Create Pointer to class DateGenerator
+     * @param value: XML node
+     * @param dataset: Dataset to modify
+     * @param evr: EVR of tag
+     * @return new DateGenerator
+     */
     virtual Tag::Pointer Create(boost::property_tree::ptree::value_type & value,
                                 DcmDataset* dataset, 
                                 DcmEVR evr);
 
+    /**
+     * @brief get_class_name: return created class name
+     * @return DateGenerator
+     */
     static std::string get_class_name() { return "DateGenerator"; }
     
 protected:
+    /// Create an instance of DateGeneratorCreator
     DateGeneratorCreator();
 
 private:

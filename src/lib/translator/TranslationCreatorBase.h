@@ -19,6 +19,9 @@ namespace dicomifier
 namespace translator
 {
 
+/**
+ * @brief The TranslationCreatorBase class: Abstract base class for translation factory
+ */
 class TranslationCreatorBase
 {
 public:
@@ -26,13 +29,22 @@ public:
     typedef std::shared_ptr<Self> Pointer;
     typedef std::shared_ptr<Self const> ConstPointer;
     
+    /// Destroy the instance of TranslationCreatorBase
     virtual ~TranslationCreatorBase();
 
+    /**
+     * @brief Create pointer to Tag object
+     * @param value: XML node
+     * @param dataset: Dataset to modify
+     * @param evr: EVR of tag
+     * @return Tag object
+     */
     virtual Tag::Pointer Create(boost::property_tree::ptree::value_type & value,
                                 DcmDataset* dataset, 
                                 DcmEVR evr) = 0;
     
 protected:
+    /// Create an instance of TranslationCreatorBase
     TranslationCreatorBase();
 
 private:

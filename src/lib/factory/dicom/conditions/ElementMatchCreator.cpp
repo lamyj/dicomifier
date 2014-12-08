@@ -19,14 +19,18 @@ namespace dicomifier
 namespace factory
 {
     
-static unsigned int const registration = Factory::get_instance().register_<ElementMatchCreator>();
+static unsigned int const registration =
+        Factory::get_instance().register_<ElementMatchCreator>();
     
-ElementMatchCreator::ElementMatchCreator()
+ElementMatchCreator
+::ElementMatchCreator():
+    DicomCreatorBase()
 {
     // Nothing to do
 }
 
-ElementMatchCreator::~ElementMatchCreator()
+ElementMatchCreator
+::~ElementMatchCreator()
 {
     // Nothing to do
 }

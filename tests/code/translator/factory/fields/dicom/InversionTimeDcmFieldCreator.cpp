@@ -49,7 +49,13 @@ BOOST_FIXTURE_TEST_CASE(TEST_OK_01, TestDataOK01)
         dicomifier::translator::InversionTimeDcmField<EVR_AS>::Pointer inversiontimeAS = 
                 std::dynamic_pointer_cast<dicomifier::translator::InversionTimeDcmField<EVR_AS>>(objectAS);
         BOOST_CHECK_EQUAL(inversiontimeAS != NULL, true);
-        
+
+        // Test VR = AT
+        dicomifier::translator::Tag::Pointer objectAT = inversiontimecreator->Create(v, NULL, EVR_AT);
+        dicomifier::translator::InversionTimeDcmField<EVR_AT>::Pointer inversiontimeAT =
+                std::dynamic_pointer_cast<dicomifier::translator::InversionTimeDcmField<EVR_AT>>(objectAT);
+        BOOST_CHECK_EQUAL(inversiontimeAT != NULL, true);
+
         // Test VR = CS
         dicomifier::translator::Tag::Pointer objectCS = inversiontimecreator->Create(v, NULL, EVR_CS);
         dicomifier::translator::InversionTimeDcmField<EVR_CS>::Pointer inversiontimeCS = 
