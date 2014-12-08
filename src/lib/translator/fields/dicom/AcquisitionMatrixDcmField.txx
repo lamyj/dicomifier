@@ -7,6 +7,7 @@
  ************************************************************************/
 
 #include "AcquisitionMatrixDcmField.h"
+#include "core/Logger.h"
 
 namespace dicomifier
 {
@@ -21,27 +22,11 @@ AcquisitionMatrixDcmField<VR>
 {
     return Pointer(new Self());
 }
-    
-template<DcmEVR VR>
-typename AcquisitionMatrixDcmField<VR>::Pointer
-AcquisitionMatrixDcmField<VR>
-::New(Tag::Pointer tag)
-{
-    return Pointer(new Self(tag));
-}
 
 template<DcmEVR VR>
 AcquisitionMatrixDcmField<VR>
 ::AcquisitionMatrixDcmField()
-    :SubTag<VR>(), _tag(NULL)
-{
-    // Nothing to do
-}
-
-template<DcmEVR VR>
-AcquisitionMatrixDcmField<VR>
-::AcquisitionMatrixDcmField(Tag::Pointer tag)
-    :SubTag<VR>(), _tag(tag)
+    :SubTag<VR>()
 {
     // Nothing to do
 }
@@ -65,38 +50,35 @@ AcquisitionMatrixDcmField<EVR_US>
         throw DicomifierException("Bruker Dataset is NULL");
     }
     
-    if (this->_tag == NULL)
-    {
-        throw DicomifierException("Missing node");
-    }
-    
     // Clean residual values
     this->_array.clear();
     
     std::string const brukerfield = 
         brukerdataset->GetFieldData("VisuAcqImagePhaseEncDir")->
             get_string(generator.get_step());
-    
-    typename SubTag<EVR_US>::Pointer subtag = 
-        std::dynamic_pointer_cast<SubTag<EVR_US>>(this->_tag);
 
-    subtag->run(brukerdataset, generator, dataset);
-    
-    auto array = subtag->get_array();
+    Uint16 value1 = brukerdataset->GetFieldData("VisuAcqSize")->get_int(0);
+    Uint16 value2 = brukerdataset->GetFieldData("VisuAcqSize")->get_int(1);
     
     if (brukerfield == "col_dir")
     {
-        this->_array.push_back(array[0]);
+        this->_array.push_back(value1);
         this->_array.push_back(0);
         this->_array.push_back(0);
-        this->_array.push_back(array[1]);
+        this->_array.push_back(value2);
     }
-    else //if (brukerfield == "row_dir")
+    else if (brukerfield == "row_dir")
     {
         this->_array.push_back(0);
-        this->_array.push_back(array[0]);
-        this->_array.push_back(array[1]);
+        this->_array.push_back(value1);
+        this->_array.push_back(value2);
         this->_array.push_back(0);
+    }
+    else
+    {
+        std::stringstream stream;
+        stream << "Bad value for VisuAcqImagePhaseEncDir field: " << brukerfield;
+        throw DicomifierException(stream.str());
     }
 }
 

@@ -6,10 +6,13 @@
  * for details.
  ************************************************************************/
 
+#include <cstdlib>
+
 #include <QApplication>
 
 #include <boost/filesystem.hpp>
 
+#include "core/Logger.h"
 #include "dicom/Dictionaries.h"
 #include "mainframe.h"
 
@@ -20,6 +23,10 @@ int main(int argc, char *argv[])
     // Configure application
     QCoreApplication::setOrganizationName("Dicomifier");
     QCoreApplication::setApplicationName("dicomifier");
+
+    char* mode = getenv("DICOMIFIER_LOGGER");
+    std::string logmode = mode != NULL ? std::string(mode): "ERROR";
+    dicomifier::InitializeLogger(logmode);
 
     // Load Private Dictionary
     // if file exist locally
@@ -34,7 +41,7 @@ int main(int argc, char *argv[])
     }
 
     // Create main frame
-    dicomifier::ihm::MainFrame frame;
+    dicomifier::gui::MainFrame frame;
     frame.Initialize();
     frame.show();
 

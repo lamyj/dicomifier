@@ -23,25 +23,9 @@ InPlanePhaseEncodingDirectionDcmField<VR>
 }
 
 template<DcmEVR VR>
-typename InPlanePhaseEncodingDirectionDcmField<VR>::Pointer
-InPlanePhaseEncodingDirectionDcmField<VR>
-::New(Tag::Pointer tag)
-{
-    return Pointer(new Self(tag));
-}
-
-template<DcmEVR VR>
 InPlanePhaseEncodingDirectionDcmField<VR>
 ::InPlanePhaseEncodingDirectionDcmField()
-    :SubTag<VR>(), _tag(NULL)
-{
-    // Nothing to do
-}
-
-template<DcmEVR VR>
-InPlanePhaseEncodingDirectionDcmField<VR>
-::InPlanePhaseEncodingDirectionDcmField(Tag::Pointer tag)
-    :SubTag<VR>(), _tag(tag)
+    :SubTag<VR>()
 {
     // Nothing to do
 }
@@ -60,24 +44,32 @@ InPlanePhaseEncodingDirectionDcmField<EVR_CS>
       dicomifier::FrameIndexGenerator const & generator,
       DcmItem* dataset)
 {
-    if (this->_tag == NULL)
+    if (brukerdataset == NULL)
     {
-        throw DicomifierException("Missing node");
+        throw DicomifierException("Bruker Dataset is NULL");
     }
     
     // Clean residual values
     this->_array.clear();
-    
-    typename SubTag<EVR_CS>::Pointer subtag = 
-        std::dynamic_pointer_cast<SubTag<EVR_CS>>(this->_tag);
 
-    subtag->run(brukerdataset, generator, dataset);
+    std::string const brukerfield =
+        brukerdataset->GetFieldData("VisuAcqImagePhaseEncDir")->
+            get_string(generator.get_step());
     
-    auto array = subtag->get_array();
-    
-    int step = generator.get_step();
-    
-    this->_array.push_back(array[step]);
+    if (brukerfield == "col_dir")
+    {
+        this->_array.push_back("COL");
+    }
+    else if (brukerfield == "row_dir")
+    {
+        this->_array.push_back("ROW");
+    }
+    else
+    {
+        std::stringstream stream;
+        stream << "Bad value for VisuAcqImagePhaseEncDir field: " << brukerfield;
+        throw DicomifierException(stream.str());
+    }
 }
 
 template<DcmEVR VR>

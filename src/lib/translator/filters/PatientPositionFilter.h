@@ -52,12 +52,6 @@ public:
                      dicomifier::FrameIndexGenerator const & generator,
                      DcmItem* dataset);
     
-    /**
-     * @brief get_class_type: return type of this class.
-     * @return ECT_PatientPositionFilter
-     */
-    virtual ClassType get_class_type() const { return ECT_PatientPositionFilter; }
-    
 protected:
     /// Create an instance of PatientPositionFilter
     PatientPositionFilter();

@@ -6,7 +6,7 @@ include(${QT_USE_FILE})
 add_definitions(-DHAVE_CONFIG_H)
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../lib
-                    ${CMAKE_CURRENT_SOURCE_DIR}/../ihm
+                    ${CMAKE_CURRENT_SOURCE_DIR}/../gui
                     ${QT_INCLUDES})
 
 add_executable(dicomifier "main.cpp")

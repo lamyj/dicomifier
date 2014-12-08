@@ -31,13 +31,6 @@ public:
     /// Create pointer to new instance of InPlanePhaseEncodingDirectionDcmField
     static Pointer New();
     
-    /**
-     * @brief Create pointer to new instance of InPlanePhaseEncodingDirectionDcmField
-     * @param tag: VisuAcqImagePhaseEncDir Brukerfield (pre-processed)
-     * @return new instance of InPlanePhaseEncodingDirectionDcmField
-     */
-    static Pointer New(Tag::Pointer tag);
-    
     /// Destroy the instance of InPlanePhaseEncodingDirectionDcmField
     virtual ~InPlanePhaseEncodingDirectionDcmField();
 
@@ -52,26 +45,11 @@ public:
                      dicomifier::FrameIndexGenerator const & generator,
                      DcmItem* dataset);
     
-    /**
-     * @brief get_class_type: return type of this class.
-     * @return ECT_InPlanePhaseEncodingDirectionDcmField
-     */
-    virtual ClassType get_class_type() const 
-            { return ECT_InPlanePhaseEncodingDirectionDcmField; }
-    
 protected:
     /// Create an instance of InPlanePhaseEncodingDirectionDcmField
     InPlanePhaseEncodingDirectionDcmField();
-    
-    /**
-     * @brief Create an instance of InPlanePhaseEncodingDirectionDcmField
-     * @param tag: Bruker VisuAcqImagePhaseEncDir field (pre-processed)
-     */
-    InPlanePhaseEncodingDirectionDcmField(Tag::Pointer tag);
 
 private:
-    /// Bruker VisuAcqImagePhaseEncDir field (pre-processed)
-    Tag::Pointer _tag;
 
 };
     

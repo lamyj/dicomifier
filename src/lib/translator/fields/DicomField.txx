@@ -8,6 +8,7 @@
 
 #include "core/DicomifierException.h"
 #include "DicomField.h"
+#include "TestField.h"
 #include "translator/SubTag.h"
 
 namespace dicomifier
@@ -86,8 +87,10 @@ DicomField<VR>
     if (VR != EVR_AT)
     {
         std::vector<ValueType> values;
-        
-        if (this->_tag->get_class_type() != ECT_TestField)
+
+        typename TestField::Pointer tagtest =
+            std::dynamic_pointer_cast<TestField>(this->_tag);
+        if (tagtest == NULL)
         {
             typename SubTag<VR>::Pointer subtag = 
                 std::dynamic_pointer_cast<SubTag<VR>>(this->_tag);
@@ -105,11 +108,12 @@ DicomField<VR>
     else // VR == AT
     {
         std::vector<Uint16> values;
-        
-        if (this->_tag->get_class_type() != ECT_TestField)
+
+        typename SubTag<EVR_AT>::Pointer subtag =
+            std::dynamic_pointer_cast<SubTag<EVR_AT>>(this->_tag);
+
+        if (subtag != NULL)
         {
-            typename SubTag<EVR_AT>::Pointer subtag = 
-                std::dynamic_pointer_cast<SubTag<EVR_AT>>(this->_tag);
             values = subtag->get_array();
         }
         

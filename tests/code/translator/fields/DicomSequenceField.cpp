@@ -20,9 +20,8 @@ BOOST_AUTO_TEST_CASE(TEST_OK_01)
 {
     // Test VR = SQ
     auto testfieldae = dicomifier::translator::DicomSequenceField::New();
-    // Pointer exists and class type is DicomSequenceField
-    BOOST_CHECK_EQUAL(testfieldae->get_class_type(), 
-                      dicomifier::translator::ECT_DicomSequenceField);
+    // Pointer exists
+    BOOST_CHECK_EQUAL(testfieldae != NULL, true);
 }
 
 /*************************** TEST OK 02 *******************************/

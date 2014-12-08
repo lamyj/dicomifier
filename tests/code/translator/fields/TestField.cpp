@@ -20,8 +20,8 @@ BOOST_AUTO_TEST_CASE(TEST_OK_01)
     // creation: no error expected
     auto testfield = dicomifier::translator::TestField::New();
     
-    // Pointer exists and class type is TestField
-    BOOST_CHECK_EQUAL(testfield->get_class_type(), dicomifier::translator::ECT_TestField);
+    // Pointer exists
+    BOOST_CHECK_EQUAL(testfield != NULL, true);
     
     // no error expected
     testfield->run(NULL, dicomifier::FrameIndexGenerator({}), NULL);

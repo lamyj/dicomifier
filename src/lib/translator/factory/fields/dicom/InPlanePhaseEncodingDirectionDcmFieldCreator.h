@@ -64,7 +64,6 @@ private:
 
     struct TranslatorInPlanePhaseEncodingDirectionDcmFieldCreator
     {
-        std::vector<dicomifier::translator::Tag::Pointer> pttag;
         mutable dicomifier::translator::Tag::Pointer inplanephaseencodingdir;
         template<DcmEVR VR> void run() const;
     };

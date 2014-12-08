@@ -23,11 +23,8 @@ struct TestDataOK01
  
     TestDataOK01()
     {
-        boost::property_tree::ptree inplanephaseencodingdirnode;
-        boost::property_tree::ptree constantfield;
-        constantfield.put("<xmlattr>.values", "COL\\COL\\COL");
-        inplanephaseencodingdirnode.add_child("ConstantField", constantfield);
-        ptr.add_child("InPlanePhaseEncodingDirectionDcmField", inplanephaseencodingdirnode);
+        boost::property_tree::ptree emptyfield;
+        ptr.add_child("InPlanePhaseEncodingDirectionDcmField", emptyfield);
     }
  
     ~TestDataOK01()

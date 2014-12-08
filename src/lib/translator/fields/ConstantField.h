@@ -61,12 +61,6 @@ public:
                      dicomifier::FrameIndexGenerator const & generator,
                      DcmItem* dataset);
     
-    /**
-     * @brief get_class_type: return type of this class.
-     * @return ECT_ConstantField
-     */
-    virtual ClassType get_class_type() const { return ECT_ConstantField; }
-    
 protected:
     /// Create an instance of ConstantField
     ConstantField();

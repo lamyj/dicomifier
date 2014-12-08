@@ -28,13 +28,6 @@ public:
     /// Create pointer to new instance of AcquisitionMatrixDcmField
     static Pointer New();
     
-    /**
-     * @brief Create pointer to new instance of AcquisitionMatrixDcmField
-     * @param tag: Bruker field to process
-     * @return new instance of AcquisitionMatrixDcmField
-     */
-    static Pointer New(Tag::Pointer tag);
-    
     /// Destroy the instance of AcquisitionMatrixDcmField
     virtual ~AcquisitionMatrixDcmField();
                      
@@ -48,27 +41,12 @@ public:
     virtual void run(dicomifier::bruker::BrukerDataset* brukerdataset,
                      dicomifier::FrameIndexGenerator const & generator,
                      DcmItem* dataset);
-    
-    /**
-     * @brief get_class_type: return type of this class.
-     * @return ECT_AcquisitionMatrixDcmField
-     */
-    virtual ClassType get_class_type() const 
-            { return ECT_AcquisitionMatrixDcmField; }
 
 protected:
     /// Create an instance of AcquisitionMatrixDcmField
     AcquisitionMatrixDcmField();
-    
-    /**
-     * @brief Create an instance of AcquisitionMatrixDcmField
-     * @param tag: Bruker field to process
-     */
-    AcquisitionMatrixDcmField(Tag::Pointer tag);
 
 private:
-    /// Bruker field to process
-    Tag::Pointer _tag;
 
 };
     

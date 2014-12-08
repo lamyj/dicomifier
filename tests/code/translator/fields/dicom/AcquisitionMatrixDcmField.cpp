@@ -21,63 +21,63 @@ BOOST_AUTO_TEST_CASE(TEST_OK_01)
 {
     // Test VR = AE
     auto testfieldae = dicomifier::translator::AcquisitionMatrixDcmField<EVR_AE>::New();
-    // Pointer exists and class type is AcquisitionMatrixDcmField
-    BOOST_CHECK_EQUAL(testfieldae->get_class_type(), dicomifier::translator::ECT_AcquisitionMatrixDcmField);
+    // Pointer exists
+    BOOST_CHECK_EQUAL(testfieldae != NULL, true);
     
     // Test VR = AS
     auto testfieldas = dicomifier::translator::AcquisitionMatrixDcmField<EVR_AS>::New();
-    // Pointer exists and class type is AcquisitionMatrixDcmField
-    BOOST_CHECK_EQUAL(testfieldas->get_class_type(), dicomifier::translator::ECT_AcquisitionMatrixDcmField);
+    // Pointer exists
+    BOOST_CHECK_EQUAL(testfieldas != NULL, true);
     
     // Test VR = AT
     auto testfieldat = dicomifier::translator::AcquisitionMatrixDcmField<EVR_AT>::New();
-    // Pointer exists and class type is AcquisitionMatrixDcmField
-    BOOST_CHECK_EQUAL(testfieldat->get_class_type(), dicomifier::translator::ECT_AcquisitionMatrixDcmField);
+    // Pointer exists
+    BOOST_CHECK_EQUAL(testfieldat != NULL, true);
     
     // Test VR = CS
     auto testfieldcs = dicomifier::translator::AcquisitionMatrixDcmField<EVR_CS>::New();
-    // Pointer exists and class type is AcquisitionMatrixDcmField
-    BOOST_CHECK_EQUAL(testfieldcs->get_class_type(), dicomifier::translator::ECT_AcquisitionMatrixDcmField);
+    // Pointer exists
+    BOOST_CHECK_EQUAL(testfieldcs != NULL, true);
     
     // Test VR = DA
     auto testfieldda = dicomifier::translator::AcquisitionMatrixDcmField<EVR_DA>::New();
-    // Pointer exists and class type is AcquisitionMatrixDcmField
-    BOOST_CHECK_EQUAL(testfieldda->get_class_type(), dicomifier::translator::ECT_AcquisitionMatrixDcmField);
+    // Pointer exists
+    BOOST_CHECK_EQUAL(testfieldda != NULL, true);
     
     // Test VR = DS
     auto testfieldds = dicomifier::translator::AcquisitionMatrixDcmField<EVR_DS>::New();
-    // Pointer exists and class type is AcquisitionMatrixDcmField
-    BOOST_CHECK_EQUAL(testfieldds->get_class_type(), dicomifier::translator::ECT_AcquisitionMatrixDcmField);
+    // Pointer exists
+    BOOST_CHECK_EQUAL(testfieldds != NULL, true);
     
     // Test VR = DT
     auto testfielddt = dicomifier::translator::AcquisitionMatrixDcmField<EVR_DT>::New();
-    // Pointer exists and class type is AcquisitionMatrixDcmField
-    BOOST_CHECK_EQUAL(testfielddt->get_class_type(), dicomifier::translator::ECT_AcquisitionMatrixDcmField);
+    // Pointer exists
+    BOOST_CHECK_EQUAL(testfielddt != NULL, true);
     
     // Test VR = FL
     auto testfieldfl = dicomifier::translator::AcquisitionMatrixDcmField<EVR_FL>::New();
-    // Pointer exists and class type is AcquisitionMatrixDcmField
-    BOOST_CHECK_EQUAL(testfieldfl->get_class_type(), dicomifier::translator::ECT_AcquisitionMatrixDcmField);
+    // Pointer exists
+    BOOST_CHECK_EQUAL(testfieldfl != NULL, true);
     
     // Test VR = FD
     auto testfieldfd = dicomifier::translator::AcquisitionMatrixDcmField<EVR_FD>::New();
-    // Pointer exists and class type is AcquisitionMatrixDcmField
-    BOOST_CHECK_EQUAL(testfieldfd->get_class_type(), dicomifier::translator::ECT_AcquisitionMatrixDcmField);
+    // Pointer exists
+    BOOST_CHECK_EQUAL(testfieldfd != NULL, true);
     
     // Test VR = IS
     auto testfieldis = dicomifier::translator::AcquisitionMatrixDcmField<EVR_IS>::New();
-    // Pointer exists and class type is AcquisitionMatrixDcmField
-    BOOST_CHECK_EQUAL(testfieldis->get_class_type(), dicomifier::translator::ECT_AcquisitionMatrixDcmField);
+    // Pointer exists
+    BOOST_CHECK_EQUAL(testfieldis != NULL, true);
     
     // Test VR = LO
     auto testfieldlo = dicomifier::translator::AcquisitionMatrixDcmField<EVR_LO>::New();
-    // Pointer exists and class type is AcquisitionMatrixDcmField
-    BOOST_CHECK_EQUAL(testfieldlo->get_class_type(), dicomifier::translator::ECT_AcquisitionMatrixDcmField);
+    // Pointer exists
+    BOOST_CHECK_EQUAL(testfieldlo != NULL, true);
     
     // Test VR = LT
     auto testfieldlt = dicomifier::translator::AcquisitionMatrixDcmField<EVR_LT>::New();
-    // Pointer exists and class type is AcquisitionMatrixDcmField
-    BOOST_CHECK_EQUAL(testfieldlt->get_class_type(), dicomifier::translator::ECT_AcquisitionMatrixDcmField);
+    // Pointer exists
+    BOOST_CHECK_EQUAL(testfieldlt != NULL, true);
     
     // Test VR = OB => Not implemented
     // Test VR = OD => Not implemented
@@ -86,57 +86,57 @@ BOOST_AUTO_TEST_CASE(TEST_OK_01)
     
     // Test VR = PN
     auto testfieldpn = dicomifier::translator::AcquisitionMatrixDcmField<EVR_PN>::New();
-    // Pointer exists and class type is AcquisitionMatrixDcmField
-    BOOST_CHECK_EQUAL(testfieldpn->get_class_type(), dicomifier::translator::ECT_AcquisitionMatrixDcmField);
+    // Pointer exists
+    BOOST_CHECK_EQUAL(testfieldpn != NULL, true);
     
     // Test VR = SH
     auto testfieldsh = dicomifier::translator::AcquisitionMatrixDcmField<EVR_SH>::New();
-    // Pointer exists and class type is AcquisitionMatrixDcmField
-    BOOST_CHECK_EQUAL(testfieldsh->get_class_type(), dicomifier::translator::ECT_AcquisitionMatrixDcmField);
+    // Pointer exists
+    BOOST_CHECK_EQUAL(testfieldsh != NULL, true);
     
     // Test VR = SL
     auto testfieldsl = dicomifier::translator::AcquisitionMatrixDcmField<EVR_SL>::New();
-    // Pointer exists and class type is AcquisitionMatrixDcmField
-    BOOST_CHECK_EQUAL(testfieldsl->get_class_type(), dicomifier::translator::ECT_AcquisitionMatrixDcmField);
+    // Pointer exists
+    BOOST_CHECK_EQUAL(testfieldsl != NULL, true);
     
     // Test VR = SQ => Not implemented
     
     // Test VR = SS
     auto testfieldss = dicomifier::translator::AcquisitionMatrixDcmField<EVR_SS>::New();
-    // Pointer exists and class type is AcquisitionMatrixDcmField
-    BOOST_CHECK_EQUAL(testfieldss->get_class_type(), dicomifier::translator::ECT_AcquisitionMatrixDcmField);
+    // Pointer exists
+    BOOST_CHECK_EQUAL(testfieldss != NULL, true);
     
     // Test VR = ST
     auto testfieldst = dicomifier::translator::AcquisitionMatrixDcmField<EVR_ST>::New();
-    // Pointer exists and class type is AcquisitionMatrixDcmField
-    BOOST_CHECK_EQUAL(testfieldst->get_class_type(), dicomifier::translator::ECT_AcquisitionMatrixDcmField);
+    // Pointer exists
+    BOOST_CHECK_EQUAL(testfieldst != NULL, true);
     
     // Test VR = TM
     auto testfieldtm = dicomifier::translator::AcquisitionMatrixDcmField<EVR_TM>::New();
-    // Pointer exists and class type is AcquisitionMatrixDcmField
-    BOOST_CHECK_EQUAL(testfieldtm->get_class_type(), dicomifier::translator::ECT_AcquisitionMatrixDcmField);
+    // Pointer exists
+    BOOST_CHECK_EQUAL(testfieldtm != NULL, true);
     
     // Test VR = UI
     auto testfieldui = dicomifier::translator::AcquisitionMatrixDcmField<EVR_UI>::New();
-    // Pointer exists and class type is AcquisitionMatrixDcmField
-    BOOST_CHECK_EQUAL(testfieldui->get_class_type(), dicomifier::translator::ECT_AcquisitionMatrixDcmField);
+    // Pointer exists
+    BOOST_CHECK_EQUAL(testfieldui != NULL, true);
     
     // Test VR = UL
     auto testfieldul = dicomifier::translator::AcquisitionMatrixDcmField<EVR_UL>::New();
-    // Pointer exists and class type is AcquisitionMatrixDcmField
-    BOOST_CHECK_EQUAL(testfieldul->get_class_type(), dicomifier::translator::ECT_AcquisitionMatrixDcmField);
+    // Pointer exists
+    BOOST_CHECK_EQUAL(testfieldul != NULL, true);
     
     // Test VR = UN => Not implemented
     
     // Test VR = US
     auto testfieldus = dicomifier::translator::AcquisitionMatrixDcmField<EVR_US>::New();
-    // Pointer exists and class type is AcquisitionMatrixDcmField
-    BOOST_CHECK_EQUAL(testfieldus->get_class_type(), dicomifier::translator::ECT_AcquisitionMatrixDcmField);
+    // Pointer exists
+    BOOST_CHECK_EQUAL(testfieldus != NULL, true);
     
     // Test VR = UT
     auto testfieldut = dicomifier::translator::AcquisitionMatrixDcmField<EVR_UT>::New();
-    // Pointer exists and class type is AcquisitionMatrixDcmField
-    BOOST_CHECK_EQUAL(testfieldut->get_class_type(), dicomifier::translator::ECT_AcquisitionMatrixDcmField);
+    // Pointer exists
+    BOOST_CHECK_EQUAL(testfieldut != NULL, true);
 }
 
 /*************************** TEST OK 02 *******************************/
@@ -169,6 +169,8 @@ struct TestDataOK02
         myfile << "col_dir col_dir col_dir col_dir col_dir col_dir col_dir col_dir col_dir \n";
         myfile << "col_dir col_dir col_dir col_dir col_dir col_dir col_dir col_dir col_dir \n";
         myfile << "col_dir col_dir col_dir\n";
+        myfile << "##$VisuAcqSize=( 2 )\n";
+        myfile << "128 256\n";
         myfile << "##$VisuFGOrderDescDim=2\n";
         myfile << "##$VisuFGOrderDesc=( 2 )\n";
         myfile << "(5, <FG_SLICE>, <>, 0, 2) (15, <FG_MOVIE>, <Selective Inversion>, 2, 1)\n";
@@ -198,8 +200,7 @@ BOOST_FIXTURE_TEST_CASE(TEST_OK_02, TestDataOK02)
 {
     // Test VR = US
     auto testfieldus = dicomifier::translator::
-        AcquisitionMatrixDcmField<EVR_US>::New(dicomifier::translator::
-                            ConstantField<EVR_US>::New({128,256}));
+        AcquisitionMatrixDcmField<EVR_US>::New();
     testfieldus->run(brukerdataset, *generator, NULL);
     BOOST_CHECK_EQUAL(testfieldus->get_array().size(), 4);
     BOOST_CHECK_EQUAL(testfieldus->get_array()[0], 128);
@@ -238,6 +239,8 @@ struct TestDataOK03
         myfile << "row_dir row_dir row_dir row_dir row_dir row_dir row_dir row_dir row_dir \n";
         myfile << "row_dir row_dir row_dir row_dir row_dir row_dir row_dir row_dir row_dir \n";
         myfile << "row_dir row_dir row_dir\n";
+        myfile << "##$VisuAcqSize=( 2 )\n";
+        myfile << "128 256\n";
         myfile << "##$VisuFGOrderDescDim=2\n";
         myfile << "##$VisuFGOrderDesc=( 2 )\n";
         myfile << "(5, <FG_SLICE>, <>, 0, 2) (15, <FG_MOVIE>, <Selective Inversion>, 2, 1)\n";
@@ -267,8 +270,7 @@ BOOST_FIXTURE_TEST_CASE(TEST_OK_03, TestDataOK03)
 {
     // Test VR = US
     auto testfieldus = dicomifier::translator::
-        AcquisitionMatrixDcmField<EVR_US>::New(dicomifier::translator::
-                            ConstantField<EVR_US>::New({128,256}));
+        AcquisitionMatrixDcmField<EVR_US>::New();
     testfieldus->run(brukerdataset, *generator, NULL);
     BOOST_CHECK_EQUAL(testfieldus->get_array().size(), 4);
     BOOST_CHECK_EQUAL(testfieldus->get_array()[0], 0);
@@ -286,85 +288,73 @@ BOOST_FIXTURE_TEST_CASE(TEST_KO_01, TestDataOK02)
 {
     // Test VR = AE
     auto testfieldae = dicomifier::translator::
-        AcquisitionMatrixDcmField<EVR_AE>::New(dicomifier::translator::
-                            ConstantField<EVR_AE>::New("128\\256"));
+        AcquisitionMatrixDcmField<EVR_AE>::New();
     BOOST_REQUIRE_THROW(testfieldae->run(brukerdataset, *generator, NULL),
                         dicomifier::DicomifierException);
     
     // Test VR = AS
     auto testfieldas = dicomifier::translator::
-        AcquisitionMatrixDcmField<EVR_AS>::New(dicomifier::translator::
-                            ConstantField<EVR_AS>::New("128\\256"));
+        AcquisitionMatrixDcmField<EVR_AS>::New();
     BOOST_REQUIRE_THROW(testfieldas->run(brukerdataset, *generator, NULL),
                         dicomifier::DicomifierException);
     
     // Test VR = AT
     auto testfieldat = dicomifier::translator::
-        AcquisitionMatrixDcmField<EVR_AT>::New(dicomifier::translator::
-                            ConstantField<EVR_AT>::New(0xFFFF));
+        AcquisitionMatrixDcmField<EVR_AT>::New();
     BOOST_REQUIRE_THROW(testfieldat->run(brukerdataset, *generator, NULL),
                         dicomifier::DicomifierException);
     
     // Test VR = CS
     auto testfieldcs = dicomifier::translator::
-        AcquisitionMatrixDcmField<EVR_CS>::New(dicomifier::translator::
-                            ConstantField<EVR_CS>::New("128\\256"));
+        AcquisitionMatrixDcmField<EVR_CS>::New();
     BOOST_REQUIRE_THROW(testfieldcs->run(brukerdataset, *generator, NULL),
                         dicomifier::DicomifierException);
     
     // Test VR = DA
     auto testfieldda = dicomifier::translator::
-        AcquisitionMatrixDcmField<EVR_DA>::New(dicomifier::translator::
-                            ConstantField<EVR_DA>::New("128\\256"));
+        AcquisitionMatrixDcmField<EVR_DA>::New();
     BOOST_REQUIRE_THROW(testfieldda->run(brukerdataset, *generator, NULL),
                         dicomifier::DicomifierException);
                         
     // Test VR = DS
     auto testfieldds = dicomifier::translator::
-        AcquisitionMatrixDcmField<EVR_DS>::New(dicomifier::translator::
-                            ConstantField<EVR_DS>::New({128,256}));
+        AcquisitionMatrixDcmField<EVR_DS>::New();
     BOOST_REQUIRE_THROW(testfieldds->run(brukerdataset, *generator, NULL),
                         dicomifier::DicomifierException);
     
     // Test VR = DT
     auto testfielddt = dicomifier::translator::
-        AcquisitionMatrixDcmField<EVR_DT>::New(dicomifier::translator::
-                            ConstantField<EVR_DT>::New("128\\256"));
+        AcquisitionMatrixDcmField<EVR_DT>::New();
     BOOST_REQUIRE_THROW(testfielddt->run(brukerdataset, *generator, NULL),
                         dicomifier::DicomifierException);
     
     // Test VR = FL
     auto testfieldfl = dicomifier::translator::
-        AcquisitionMatrixDcmField<EVR_FL>::New(dicomifier::translator::
-                            ConstantField<EVR_FL>::New({128,256}));
+        AcquisitionMatrixDcmField<EVR_FL>::New();
     BOOST_REQUIRE_THROW(testfieldfl->run(brukerdataset, *generator, NULL),
                         dicomifier::DicomifierException);
     
     // Test VR = FD
     auto testfieldfd = dicomifier::translator::
-        AcquisitionMatrixDcmField<EVR_FD>::New(dicomifier::translator::
-                            ConstantField<EVR_FD>::New({128,256}));
+        AcquisitionMatrixDcmField<EVR_FD>::New();
     BOOST_REQUIRE_THROW(testfieldfd->run(brukerdataset, *generator, NULL),
                         dicomifier::DicomifierException);
     
     // Test VR = IS
     auto testfieldis = dicomifier::translator::
-        AcquisitionMatrixDcmField<EVR_IS>::New(dicomifier::translator::
-                            ConstantField<EVR_IS>::New({128,256}));
+        AcquisitionMatrixDcmField<EVR_IS>::New();
     BOOST_REQUIRE_THROW(testfieldis->run(brukerdataset, *generator, NULL),
                         dicomifier::DicomifierException);
     
     // Test VR = LO
     auto testfieldlo = dicomifier::translator::
-        AcquisitionMatrixDcmField<EVR_LO>::New(dicomifier::translator::
-                            ConstantField<EVR_LO>::New("128\\256"));
+        AcquisitionMatrixDcmField<EVR_LO>::New();
     BOOST_REQUIRE_THROW(testfieldlo->run(brukerdataset, *generator, NULL),
                         dicomifier::DicomifierException);
     
     // Test VR = LT
     auto testfieldlt = dicomifier::translator::
-        AcquisitionMatrixDcmField<EVR_LT>::New(dicomifier::translator::
-                            ConstantField<EVR_LT>::New("128\\256"));
+        AcquisitionMatrixDcmField<EVR_LT>::New();
     BOOST_REQUIRE_THROW(testfieldlt->run(brukerdataset, *generator, NULL),
                         dicomifier::DicomifierException);
     
@@ -375,22 +365,19 @@ BOOST_FIXTURE_TEST_CASE(TEST_KO_01, TestDataOK02)
     
     // Test VR = PN
     auto testfieldpn = dicomifier::translator::
-        AcquisitionMatrixDcmField<EVR_PN>::New(dicomifier::translator::
-                            ConstantField<EVR_PN>::New("128\\256"));
+        AcquisitionMatrixDcmField<EVR_PN>::New();
     BOOST_REQUIRE_THROW(testfieldpn->run(brukerdataset, *generator, NULL),
                         dicomifier::DicomifierException);
     
     // Test VR = SH
     auto testfieldsh = dicomifier::translator::
-        AcquisitionMatrixDcmField<EVR_SH>::New(dicomifier::translator::
-                            ConstantField<EVR_SH>::New("128\\256"));
+        AcquisitionMatrixDcmField<EVR_SH>::New();
     BOOST_REQUIRE_THROW(testfieldsh->run(brukerdataset, *generator, NULL),
                         dicomifier::DicomifierException);
     
     // Test VR = SL
     auto testfieldsl = dicomifier::translator::
-        AcquisitionMatrixDcmField<EVR_SL>::New(dicomifier::translator::
-                            ConstantField<EVR_SL>::New({128,256}));
+        AcquisitionMatrixDcmField<EVR_SL>::New();
     BOOST_REQUIRE_THROW(testfieldsl->run(brukerdataset, *generator, NULL),
                         dicomifier::DicomifierException);
     
@@ -398,36 +385,31 @@ BOOST_FIXTURE_TEST_CASE(TEST_KO_01, TestDataOK02)
     
     // Test VR = SS
     auto testfieldss = dicomifier::translator::
-        AcquisitionMatrixDcmField<EVR_SS>::New(dicomifier::translator::
-                            ConstantField<EVR_SS>::New({128,256}));
+        AcquisitionMatrixDcmField<EVR_SS>::New();
     BOOST_REQUIRE_THROW(testfieldss->run(brukerdataset, *generator, NULL),
                         dicomifier::DicomifierException);
     
     // Test VR = ST
     auto testfieldst = dicomifier::translator::
-        AcquisitionMatrixDcmField<EVR_ST>::New(dicomifier::translator::
-                            ConstantField<EVR_ST>::New("128\\256"));
+        AcquisitionMatrixDcmField<EVR_ST>::New();
     BOOST_REQUIRE_THROW(testfieldst->run(brukerdataset, *generator, NULL),
                         dicomifier::DicomifierException);
     
     // Test VR = TM
     auto testfieldtm = dicomifier::translator::
-        AcquisitionMatrixDcmField<EVR_TM>::New(dicomifier::translator::
-                            ConstantField<EVR_TM>::New("128\\256"));
+        AcquisitionMatrixDcmField<EVR_TM>::New();
     BOOST_REQUIRE_THROW(testfieldtm->run(brukerdataset, *generator, NULL),
                         dicomifier::DicomifierException);
     
     // Test VR = UI
     auto testfieldui = dicomifier::translator::
-        AcquisitionMatrixDcmField<EVR_UI>::New(dicomifier::translator::
-                            ConstantField<EVR_UI>::New("128\\256"));
+        AcquisitionMatrixDcmField<EVR_UI>::New();
     BOOST_REQUIRE_THROW(testfieldui->run(brukerdataset, *generator, NULL),
                         dicomifier::DicomifierException);
     
     // Test VR = UL
     auto testfieldul = dicomifier::translator::
-        AcquisitionMatrixDcmField<EVR_UL>::New(dicomifier::translator::
-                            ConstantField<EVR_UL>::New({128,256}));
+        AcquisitionMatrixDcmField<EVR_UL>::New();
     BOOST_REQUIRE_THROW(testfieldul->run(brukerdataset, *generator, NULL),
                         dicomifier::DicomifierException);
     
@@ -435,8 +417,7 @@ BOOST_FIXTURE_TEST_CASE(TEST_KO_01, TestDataOK02)
     
     // Test VR = UT
     auto testfieldut = dicomifier::translator::
-        AcquisitionMatrixDcmField<EVR_UT>::New(dicomifier::translator::
-                            ConstantField<EVR_UT>::New("128\\256"));
+        AcquisitionMatrixDcmField<EVR_UT>::New();
     BOOST_REQUIRE_THROW(testfieldut->run(brukerdataset, *generator, NULL),
                         dicomifier::DicomifierException);
 }
@@ -449,21 +430,73 @@ BOOST_FIXTURE_TEST_CASE(TEST_KO_02, TestDataOK02)
 {
     // Test VR = US
     auto testfieldUS = dicomifier::translator::
-        AcquisitionMatrixDcmField<EVR_US>::New(dicomifier::translator::
-                            ConstantField<EVR_US>::New({128,256}));
+        AcquisitionMatrixDcmField<EVR_US>::New();
     BOOST_REQUIRE_THROW(testfieldUS->run(NULL, *generator, NULL), 
                         dicomifier::DicomifierException);
 }
- 
+
 /*************************** TEST KO 03 *******************************/
 /**
- * Error test case: Missing Sub Tag
+ * Error test case: Corrupted data
  */
-BOOST_FIXTURE_TEST_CASE(TEST_KO_03, TestDataOK02)
+struct TestDataKO03
+{
+    std::string filename;
+    dicomifier::bruker::BrukerDataset* brukerdataset;
+
+    dicomifier::FrameIndexGenerator* generator;
+
+    TestDataKO03()
+    {
+        brukerdataset = new dicomifier::bruker::BrukerDataset();
+
+        filename = "./tmp_test_ModuleAcquisitionMatrixDcmField";
+
+        std::ofstream myfile;
+        myfile.open(filename);
+        myfile << "##TITLE=tmp_test_brukerfieldmodule\n";
+        myfile << "##$VisuAcqImagePhaseEncDir=( 75 )\n";
+        myfile << "bad_val col_dir col_dir col_dir col_dir col_dir col_dir col_dir col_dir \n";
+        myfile << "col_dir col_dir col_dir col_dir col_dir col_dir col_dir col_dir col_dir \n";
+        myfile << "col_dir col_dir col_dir col_dir col_dir col_dir col_dir col_dir col_dir \n";
+        myfile << "col_dir col_dir col_dir col_dir col_dir col_dir col_dir col_dir col_dir \n";
+        myfile << "col_dir col_dir col_dir col_dir col_dir col_dir col_dir col_dir col_dir \n";
+        myfile << "col_dir col_dir col_dir col_dir col_dir col_dir col_dir col_dir col_dir \n";
+        myfile << "col_dir col_dir col_dir col_dir col_dir col_dir col_dir col_dir col_dir \n";
+        myfile << "col_dir col_dir col_dir col_dir col_dir col_dir col_dir col_dir col_dir \n";
+        myfile << "col_dir col_dir col_dir\n";
+        myfile << "##$VisuAcqSize=( 2 )\n";
+        myfile << "128 256\n";
+        myfile << "##$VisuFGOrderDescDim=2\n";
+        myfile << "##$VisuFGOrderDesc=( 2 )\n";
+        myfile << "(5, <FG_SLICE>, <>, 0, 2) (15, <FG_MOVIE>, <Selective Inversion>, 2, 1)\n";
+        myfile << "##$VisuGroupDepVals=( 3 )\n";
+        myfile << "(<VisuCoreOrientation>, 0) (<VisuCorePosition>, 0) (<VisuAcqInversionTime>, 0)\n";
+        myfile << "##$VisuCoreFrameCount=75\n";
+        myfile << "##END=\n";
+        myfile.close();
+
+        brukerdataset->LoadFile(filename);
+
+        int coreFrameCount = 0;
+        std::vector<int> indexlists = brukerdataset->create_frameGroupLists(coreFrameCount);
+
+        generator = new dicomifier::FrameIndexGenerator(indexlists);
+    }
+
+    ~TestDataKO03()
+    {
+        remove(filename.c_str());
+        delete brukerdataset;
+        delete generator;
+    }
+};
+
+BOOST_FIXTURE_TEST_CASE(TEST_KO_03, TestDataKO03)
 {
     // Test VR = US
     auto testfieldUS = dicomifier::translator::
         AcquisitionMatrixDcmField<EVR_US>::New();
-    BOOST_REQUIRE_THROW(testfieldUS->run(brukerdataset, *generator, NULL), 
+    BOOST_REQUIRE_THROW(testfieldUS->run(brukerdataset, *generator, NULL),
                         dicomifier::DicomifierException);
 }

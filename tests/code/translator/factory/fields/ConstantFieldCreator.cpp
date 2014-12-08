@@ -50,6 +50,12 @@ BOOST_FIXTURE_TEST_CASE(TEST_OK_01, TestDataOK01)
         dicomifier::translator::ConstantField<EVR_AS>::Pointer constantfieldAS = 
                 std::dynamic_pointer_cast<dicomifier::translator::ConstantField<EVR_AS>>(objectAS);
         BOOST_CHECK_EQUAL(constantfieldAS != NULL, true);
+
+        // Test VR = AT
+        dicomifier::translator::Tag::Pointer objectAT = constantfieldcreator->Create(v, NULL, EVR_AT);
+        dicomifier::translator::ConstantField<EVR_AT>::Pointer constantfieldAT =
+                std::dynamic_pointer_cast<dicomifier::translator::ConstantField<EVR_AT>>(objectAT);
+        BOOST_CHECK_EQUAL(constantfieldAT != NULL, true);
         
         // Test VR = CS
         dicomifier::translator::Tag::Pointer objectCS = constantfieldcreator->Create(v, NULL, EVR_CS);

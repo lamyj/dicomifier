@@ -43,13 +43,6 @@ public:
     virtual void run(dicomifier::bruker::BrukerDataset* brukerdataset,
                      dicomifier::FrameIndexGenerator const & generator,
                      DcmItem* dataset) = 0;
-    
-    /**
-     * @brief get_class_type: return type of this class.
-     *        Should be override by inherit classes
-     * @return class type
-     */
-    virtual ClassType get_class_type() const = 0;
 
     /**
      * @brief get_array: getter for attribut array

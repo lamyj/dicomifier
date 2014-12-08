@@ -23,11 +23,8 @@ struct TestDataOK01
  
     TestDataOK01()
     {
-        boost::property_tree::ptree acquisitionmatrixnode;
-        boost::property_tree::ptree constantfield;
-        constantfield.put("<xmlattr>.values", "64\\64");
-        acquisitionmatrixnode.add_child("ConstantField", constantfield);
-        ptr.add_child("AcquisitionMatrixDcmField", acquisitionmatrixnode);
+        boost::property_tree::ptree emptynode;
+        ptr.add_child("AcquisitionMatrixDcmField", emptynode);
     }
  
     ~TestDataOK01()

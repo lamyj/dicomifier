@@ -44,13 +44,6 @@ public:
                      dicomifier::FrameIndexGenerator const & generator,
                      DcmItem* dataset);
     
-    /**
-     * @brief get_class_type: return type of this class.
-     * @return ECT_InstanceNumberDcmField
-     */
-    virtual ClassType get_class_type() const 
-            { return ECT_InstanceNumberDcmField; }
-    
 protected:
     /// Create an instance of InstanceNumberDcmField
     InstanceNumberDcmField();

@@ -64,7 +64,6 @@ private:
 
     struct TranslatorAcquisitionMatrixDcmFieldCreator
     {
-        std::vector<dicomifier::translator::Tag::Pointer> pttag;
         mutable dicomifier::translator::Tag::Pointer acquisitionmatrix;
         template<DcmEVR VR> void run() const;
     };
