@@ -25,7 +25,7 @@
     
     <DicomField tag="0008,0020" keyword="StudyDate" vr="DA">
         <DateGenerator inputformat="%d %b %Y" outputformat="%Y%m%d">
-            <RegExFilter expression="^.*[[:space:]]{1}([0-9]{2}[[:space:]]{1}[a-zA-Z]{3}[[:space:]]{1}[0-9]{4}).*">
+            <RegExFilter expression="^.* (\d{2} \w{3} \d{4}).*">
                 <BrukerField name="VisuStudyDate" />
             </RegExFilter>
         </DateGenerator>
@@ -33,7 +33,7 @@
 
     <DicomField tag="0008,0021" keyword="SeriesDate" vr="DA" >
         <DateGenerator inputformat="%d %b %Y" outputformat="%Y%m%d">
-            <RegExFilter expression="^.*[[:space:]]{1}([0-9]{2}[[:space:]]{1}[a-zA-Z]{3}[[:space:]]{1}[0-9]{4}).*">
+            <RegExFilter expression="^.* (\d{2} \w{3} \d{4}).*">
                 <BrukerField name="VisuSeriesDate" />
             </RegExFilter>
         </DateGenerator>
@@ -41,26 +41,26 @@
 
     <DicomField tag="0008,0022" keyword="AcquisitionDate" vr="DA" >
         <DateGenerator inputformat="%d %b %Y" outputformat="%Y%m%d">
-            <RegExFilter expression="^.*[[:space:]]{1}([0-9]{2}[[:space:]]{1}[a-zA-Z]{3}[[:space:]]{1}[0-9]{4}).*">
+            <RegExFilter expression="^.* (\d{2} \w{3} \d{4}).*">
                 <BrukerField name="VisuAcqDate" />
             </RegExFilter>
         </DateGenerator>
     </DicomField>
 
     <DicomField tag="0008,0030" keyword="StudyTime" vr="TM">
-        <RegExFilter expression="^([0-9]{2}):{1}([0-9]{2}):{1}([0-9]{2}).*">
+        <RegExFilter expression="^(\d{2}):(\d{2}):(\d{2}).*">
             <BrukerField name="VisuStudyDate" />
         </RegExFilter>
     </DicomField>
 
     <DicomField tag="0008,0031" keyword="SeriesTime" vr="TM">
-        <RegExFilter expression="^([0-9]{2}):{1}([0-9]{2}):{1}([0-9]{2}).*">
+        <RegExFilter expression="^(\d{2}):(\d{2}):(\d{2}).*">
             <BrukerField name="VisuSeriesDate" />
         </RegExFilter>
     </DicomField>
 
     <DicomField tag="0008,0032" keyword="AcquisitionTime" vr="TM">
-        <RegExFilter expression="^([0-9]{2}):{1}([0-9]{2}):{1}([0-9]{2}).*">
+        <RegExFilter expression="^(\d{2}):(\d{2}):(\d{2}).*">
             <BrukerField name="VisuAcqDate" />
         </RegExFilter>
     </DicomField>
@@ -244,19 +244,11 @@
     </DicomField>
 
     <DicomField tag="0018,1310" keyword="AcquisitionMatrix" vr="US">
-        <AcquisitionMatrixDcmField>
-            <BrukerField name="VisuAcqSize" />
-        </AcquisitionMatrixDcmField>
+        <AcquisitionMatrixDcmField />
     </DicomField>
 
     <DicomField tag="0018,1312" keyword="InPlanePhaseEncodingDirection" vr="CS">
-        <InPlanePhaseEncodingDirectionDcmField>
-            <UpperCaseGenerator>
-                <RegExFilter expression="^([a-zA-Z]{3}).{4}">
-                    <BrukerField name="VisuAcqImagePhaseEncDir" />
-                </RegExFilter>
-            </UpperCaseGenerator>
-        </InPlanePhaseEncodingDirectionDcmField>
+        <InPlanePhaseEncodingDirectionDcmField />
     </DicomField>
 
     <DicomField tag="0018,1314" keyword="FlipAngle" vr="DS">

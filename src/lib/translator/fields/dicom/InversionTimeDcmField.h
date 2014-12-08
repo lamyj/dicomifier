@@ -44,13 +44,6 @@ public:
     virtual void run(dicomifier::bruker::BrukerDataset* brukerdataset,
                      dicomifier::FrameIndexGenerator const & generator,
                      DcmItem* dataset);
-    
-    /**
-     * @brief get_class_type: return type of this class.
-     * @return ECT_InversionTimeDcmField
-     */
-    virtual ClassType get_class_type() const 
-            { return ECT_InversionTimeDcmField; }
 
 protected:
     /// Create an instance of InversionTimeDcmField

@@ -21,63 +21,63 @@ BOOST_AUTO_TEST_CASE(TEST_OK_01)
 {
     // Test VR = AE
     auto testfieldae = dicomifier::translator::InPlanePhaseEncodingDirectionDcmField<EVR_AE>::New();
-    // Pointer exists and class type is InPlanePhaseEncodingDirectionDcmField
-    BOOST_CHECK_EQUAL(testfieldae->get_class_type(), dicomifier::translator::ECT_InPlanePhaseEncodingDirectionDcmField);
+    // Pointer exists
+    BOOST_CHECK_EQUAL(testfieldae != NULL, true);
     
     // Test VR = AS
     auto testfieldas = dicomifier::translator::InPlanePhaseEncodingDirectionDcmField<EVR_AS>::New();
-    // Pointer exists and class type is InPlanePhaseEncodingDirectionDcmField
-    BOOST_CHECK_EQUAL(testfieldas->get_class_type(), dicomifier::translator::ECT_InPlanePhaseEncodingDirectionDcmField);
+    // Pointer exists
+    BOOST_CHECK_EQUAL(testfieldas != NULL, true);
     
     // Test VR = AT
     auto testfieldat = dicomifier::translator::InPlanePhaseEncodingDirectionDcmField<EVR_AT>::New();
-    // Pointer exists and class type is InPlanePhaseEncodingDirectionDcmField
-    BOOST_CHECK_EQUAL(testfieldat->get_class_type(), dicomifier::translator::ECT_InPlanePhaseEncodingDirectionDcmField);
+    // Pointer exists
+    BOOST_CHECK_EQUAL(testfieldat != NULL, true);
     
     // Test VR = CS
     auto testfieldcs = dicomifier::translator::InPlanePhaseEncodingDirectionDcmField<EVR_CS>::New();
-    // Pointer exists and class type is InPlanePhaseEncodingDirectionDcmField
-    BOOST_CHECK_EQUAL(testfieldcs->get_class_type(), dicomifier::translator::ECT_InPlanePhaseEncodingDirectionDcmField);
+    // Pointer exists
+    BOOST_CHECK_EQUAL(testfieldcs != NULL, true);
     
     // Test VR = DA
     auto testfieldda = dicomifier::translator::InPlanePhaseEncodingDirectionDcmField<EVR_DA>::New();
-    // Pointer exists and class type is InPlanePhaseEncodingDirectionDcmField
-    BOOST_CHECK_EQUAL(testfieldda->get_class_type(), dicomifier::translator::ECT_InPlanePhaseEncodingDirectionDcmField);
+    // Pointer exists
+    BOOST_CHECK_EQUAL(testfieldda != NULL, true);
     
     // Test VR = DS
     auto testfieldds = dicomifier::translator::InPlanePhaseEncodingDirectionDcmField<EVR_DS>::New();
-    // Pointer exists and class type is InPlanePhaseEncodingDirectionDcmField
-    BOOST_CHECK_EQUAL(testfieldds->get_class_type(), dicomifier::translator::ECT_InPlanePhaseEncodingDirectionDcmField);
+    // Pointer exists
+    BOOST_CHECK_EQUAL(testfieldds != NULL, true);
     
     // Test VR = DT
     auto testfielddt = dicomifier::translator::InPlanePhaseEncodingDirectionDcmField<EVR_DT>::New();
-    // Pointer exists and class type is InPlanePhaseEncodingDirectionDcmField
-    BOOST_CHECK_EQUAL(testfielddt->get_class_type(), dicomifier::translator::ECT_InPlanePhaseEncodingDirectionDcmField);
+    // Pointer exists
+    BOOST_CHECK_EQUAL(testfielddt != NULL, true);
     
     // Test VR = FL
     auto testfieldfl = dicomifier::translator::InPlanePhaseEncodingDirectionDcmField<EVR_FL>::New();
-    // Pointer exists and class type is InPlanePhaseEncodingDirectionDcmField
-    BOOST_CHECK_EQUAL(testfieldfl->get_class_type(), dicomifier::translator::ECT_InPlanePhaseEncodingDirectionDcmField);
+    // Pointer exists
+    BOOST_CHECK_EQUAL(testfieldfl != NULL, true);
     
     // Test VR = FD
     auto testfieldfd = dicomifier::translator::InPlanePhaseEncodingDirectionDcmField<EVR_FD>::New();
-    // Pointer exists and class type is InPlanePhaseEncodingDirectionDcmField
-    BOOST_CHECK_EQUAL(testfieldfd->get_class_type(), dicomifier::translator::ECT_InPlanePhaseEncodingDirectionDcmField);
+    // Pointer exists
+    BOOST_CHECK_EQUAL(testfieldfd != NULL, true);
     
     // Test VR = IS
     auto testfieldis = dicomifier::translator::InPlanePhaseEncodingDirectionDcmField<EVR_IS>::New();
-    // Pointer exists and class type is InPlanePhaseEncodingDirectionDcmField
-    BOOST_CHECK_EQUAL(testfieldis->get_class_type(), dicomifier::translator::ECT_InPlanePhaseEncodingDirectionDcmField);
+    // Pointer exists
+    BOOST_CHECK_EQUAL(testfieldis != NULL, true);
     
     // Test VR = LO
     auto testfieldlo = dicomifier::translator::InPlanePhaseEncodingDirectionDcmField<EVR_LO>::New();
-    // Pointer exists and class type is InPlanePhaseEncodingDirectionDcmField
-    BOOST_CHECK_EQUAL(testfieldlo->get_class_type(), dicomifier::translator::ECT_InPlanePhaseEncodingDirectionDcmField);
+    // Pointer exists
+    BOOST_CHECK_EQUAL(testfieldlo != NULL, true);
     
     // Test VR = LT
     auto testfieldlt = dicomifier::translator::InPlanePhaseEncodingDirectionDcmField<EVR_LT>::New();
-    // Pointer exists and class type is InPlanePhaseEncodingDirectionDcmField
-    BOOST_CHECK_EQUAL(testfieldlt->get_class_type(), dicomifier::translator::ECT_InPlanePhaseEncodingDirectionDcmField);
+    // Pointer exists
+    BOOST_CHECK_EQUAL(testfieldlt != NULL, true);
     
     // Test VR = OB => Not implemented
     // Test VR = OD => Not implemented
@@ -86,62 +86,62 @@ BOOST_AUTO_TEST_CASE(TEST_OK_01)
     
     // Test VR = PN
     auto testfieldpn = dicomifier::translator::InPlanePhaseEncodingDirectionDcmField<EVR_PN>::New();
-    // Pointer exists and class type is InPlanePhaseEncodingDirectionDcmField
-    BOOST_CHECK_EQUAL(testfieldpn->get_class_type(), dicomifier::translator::ECT_InPlanePhaseEncodingDirectionDcmField);
+    // Pointer exists
+    BOOST_CHECK_EQUAL(testfieldpn != NULL, true);
     
     // Test VR = SH
     auto testfieldsh = dicomifier::translator::InPlanePhaseEncodingDirectionDcmField<EVR_SH>::New();
-    // Pointer exists and class type is InPlanePhaseEncodingDirectionDcmField
-    BOOST_CHECK_EQUAL(testfieldsh->get_class_type(), dicomifier::translator::ECT_InPlanePhaseEncodingDirectionDcmField);
+    // Pointer exists
+    BOOST_CHECK_EQUAL(testfieldsh != NULL, true);
     
     // Test VR = SL
     auto testfieldsl = dicomifier::translator::InPlanePhaseEncodingDirectionDcmField<EVR_SL>::New();
-    // Pointer exists and class type is InPlanePhaseEncodingDirectionDcmField
-    BOOST_CHECK_EQUAL(testfieldsl->get_class_type(), dicomifier::translator::ECT_InPlanePhaseEncodingDirectionDcmField);
+    // Pointer exists
+    BOOST_CHECK_EQUAL(testfieldsl != NULL, true);
     
     // Test VR = SQ => Not implemented
     
     // Test VR = SS
     auto testfieldss = dicomifier::translator::InPlanePhaseEncodingDirectionDcmField<EVR_SS>::New();
-    // Pointer exists and class type is InPlanePhaseEncodingDirectionDcmField
-    BOOST_CHECK_EQUAL(testfieldss->get_class_type(), dicomifier::translator::ECT_InPlanePhaseEncodingDirectionDcmField);
+    // Pointer exists
+    BOOST_CHECK_EQUAL(testfieldss != NULL, true);
     
     // Test VR = ST
     auto testfieldst = dicomifier::translator::InPlanePhaseEncodingDirectionDcmField<EVR_ST>::New();
-    // Pointer exists and class type is InPlanePhaseEncodingDirectionDcmField
-    BOOST_CHECK_EQUAL(testfieldst->get_class_type(), dicomifier::translator::ECT_InPlanePhaseEncodingDirectionDcmField);
+    // Pointer exists
+    BOOST_CHECK_EQUAL(testfieldst != NULL, true);
     
     // Test VR = TM
     auto testfieldtm = dicomifier::translator::InPlanePhaseEncodingDirectionDcmField<EVR_TM>::New();
-    // Pointer exists and class type is InPlanePhaseEncodingDirectionDcmField
-    BOOST_CHECK_EQUAL(testfieldtm->get_class_type(), dicomifier::translator::ECT_InPlanePhaseEncodingDirectionDcmField);
+    // Pointer exists
+    BOOST_CHECK_EQUAL(testfieldtm != NULL, true);
     
     // Test VR = UI
     auto testfieldui = dicomifier::translator::InPlanePhaseEncodingDirectionDcmField<EVR_UI>::New();
-    // Pointer exists and class type is InPlanePhaseEncodingDirectionDcmField
-    BOOST_CHECK_EQUAL(testfieldui->get_class_type(), dicomifier::translator::ECT_InPlanePhaseEncodingDirectionDcmField);
+    // Pointer exists
+    BOOST_CHECK_EQUAL(testfieldui != NULL, true);
     
     // Test VR = UL
     auto testfieldul = dicomifier::translator::InPlanePhaseEncodingDirectionDcmField<EVR_UL>::New();
-    // Pointer exists and class type is InPlanePhaseEncodingDirectionDcmField
-    BOOST_CHECK_EQUAL(testfieldul->get_class_type(), dicomifier::translator::ECT_InPlanePhaseEncodingDirectionDcmField);
+    // Pointer exists
+    BOOST_CHECK_EQUAL(testfieldul != NULL, true);
     
     // Test VR = UN => Not implemented
     
     // Test VR = US
     auto testfieldus = dicomifier::translator::InPlanePhaseEncodingDirectionDcmField<EVR_US>::New();
-    // Pointer exists and class type is InPlanePhaseEncodingDirectionDcmField
-    BOOST_CHECK_EQUAL(testfieldus->get_class_type(), dicomifier::translator::ECT_InPlanePhaseEncodingDirectionDcmField);
+    // Pointer exists
+    BOOST_CHECK_EQUAL(testfieldus != NULL, true);
     
     // Test VR = UT
     auto testfieldut = dicomifier::translator::InPlanePhaseEncodingDirectionDcmField<EVR_UT>::New();
-    // Pointer exists and class type is InPlanePhaseEncodingDirectionDcmField
-    BOOST_CHECK_EQUAL(testfieldut->get_class_type(), dicomifier::translator::ECT_InPlanePhaseEncodingDirectionDcmField);
+    // Pointer exists
+    BOOST_CHECK_EQUAL(testfieldut != NULL, true);
 }
 
 /*************************** TEST OK 02 *******************************/
 /**
- * Nominal test case: Run
+ * Nominal test case: Run (ROW)
  */
 struct TestDataOK02
 {
@@ -165,6 +165,8 @@ struct TestDataOK02
         myfile << "##$VisuGroupDepVals=( 2 )\n";
         myfile << "(<VisuCoreOrientation>, 0) (<VisuCorePosition>, 0)\n";
         myfile << "##$VisuCoreFrameCount=3\n";
+        myfile << "##$VisuAcqImagePhaseEncDir=( 3 )\n";
+        myfile << "row_dir row_dir row_dir\n";
         myfile << "##END=\n";
         myfile.close();
         
@@ -188,10 +190,67 @@ BOOST_FIXTURE_TEST_CASE(TEST_OK_02, TestDataOK02)
 {
     // Test VR = CS
     auto testfieldcs = dicomifier::translator::
-        InPlanePhaseEncodingDirectionDcmField<EVR_CS>::New(dicomifier::translator::
-                                 ConstantField<EVR_CS>::New("COL\\COL\\COL"));
+        InPlanePhaseEncodingDirectionDcmField<EVR_CS>::New();
     testfieldcs->run(brukerdataset, *generator, NULL);
     BOOST_CHECK_EQUAL(testfieldcs->get_array().size(), 1);
+    BOOST_CHECK_EQUAL(testfieldcs->get_array()[0], "ROW");
+}
+
+/*************************** TEST OK 03 *******************************/
+/**
+ * Nominal test case: Run (COL)
+ */
+struct TestDataOK03
+{
+    std::string filename;
+    dicomifier::bruker::BrukerDataset* brukerdataset;
+
+    dicomifier::FrameIndexGenerator* generator;
+
+    TestDataOK03()
+    {
+        brukerdataset = new dicomifier::bruker::BrukerDataset();
+
+        filename = "./tmp_test_ModuleInPlanePhaseEncodingDirectionDcmField";
+
+        std::ofstream myfile;
+        myfile.open(filename);
+        myfile << "##TITLE=tmp_test_ModuleInPlanePhaseEncodingDirectionDcmField\n";
+        myfile << "##$VisuFGOrderDescDim=1\n";
+        myfile << "##$VisuFGOrderDesc=( 1 )\n";
+        myfile << "(3, <FG_SLICE>, <>, 0, 2)\n";
+        myfile << "##$VisuGroupDepVals=( 2 )\n";
+        myfile << "(<VisuCoreOrientation>, 0) (<VisuCorePosition>, 0)\n";
+        myfile << "##$VisuCoreFrameCount=3\n";
+        myfile << "##$VisuAcqImagePhaseEncDir=( 3 )\n";
+        myfile << "col_dir col_dir col_dir\n";
+        myfile << "##END=\n";
+        myfile.close();
+
+        brukerdataset->LoadFile(filename);
+
+        int coreFrameCount = 0;
+        std::vector<int> indexlists = brukerdataset->create_frameGroupLists(coreFrameCount);
+
+        generator = new dicomifier::FrameIndexGenerator(indexlists);
+    }
+
+    ~TestDataOK03()
+    {
+        remove(filename.c_str());
+        delete brukerdataset;
+        delete generator;
+    }
+};
+
+BOOST_FIXTURE_TEST_CASE(TEST_OK_03, TestDataOK03)
+{
+    // Test VR = CS
+    auto testfieldcs = dicomifier::translator::
+        InPlanePhaseEncodingDirectionDcmField<EVR_CS>::New();
+    testfieldcs->run(brukerdataset, *generator, NULL);
+    BOOST_CHECK_EQUAL(testfieldcs->get_array().size(), 1);
+    BOOST_CHECK_EQUAL(testfieldcs->get_array()[0], "COL");
 }
 
 /*************************** TEST KO 01 *******************************/
@@ -318,13 +377,69 @@ BOOST_FIXTURE_TEST_CASE(TEST_KO_01, TestDataOK02)
  
 /*************************** TEST KO 02 *******************************/
 /**
- * Error test case: Missing Sub Tag
+ * Error test case: Corrupted data
  */
-BOOST_FIXTURE_TEST_CASE(TEST_KO_02, TestDataOK02)
+struct TestDataKO02
+{
+    std::string filename;
+    dicomifier::bruker::BrukerDataset* brukerdataset;
+
+    dicomifier::FrameIndexGenerator* generator;
+
+    TestDataKO02()
+    {
+        brukerdataset = new dicomifier::bruker::BrukerDataset();
+
+        filename = "./tmp_test_ModuleInPlanePhaseEncodingDirectionDcmField";
+
+        std::ofstream myfile;
+        myfile.open(filename);
+        myfile << "##TITLE=tmp_test_ModuleInPlanePhaseEncodingDirectionDcmField\n";
+        myfile << "##$VisuFGOrderDescDim=1\n";
+        myfile << "##$VisuFGOrderDesc=( 1 )\n";
+        myfile << "(3, <FG_SLICE>, <>, 0, 2)\n";
+        myfile << "##$VisuGroupDepVals=( 2 )\n";
+        myfile << "(<VisuCoreOrientation>, 0) (<VisuCorePosition>, 0)\n";
+        myfile << "##$VisuCoreFrameCount=3\n";
+        myfile << "##$VisuAcqImagePhaseEncDir=( 3 )\n";
+        myfile << "bad_val col_dir col_dir\n";
+        myfile << "##END=\n";
+        myfile.close();
+
+        brukerdataset->LoadFile(filename);
+
+        int coreFrameCount = 0;
+        std::vector<int> indexlists = brukerdataset->create_frameGroupLists(coreFrameCount);
+
+        generator = new dicomifier::FrameIndexGenerator(indexlists);
+    }
+
+    ~TestDataKO02()
+    {
+        remove(filename.c_str());
+        delete brukerdataset;
+        delete generator;
+    }
+};
+
+BOOST_FIXTURE_TEST_CASE(TEST_KO_02, TestDataKO02)
 {
     // Test VR = CS
     auto testfieldcs = dicomifier::translator::
         InPlanePhaseEncodingDirectionDcmField<EVR_CS>::New();
     BOOST_REQUIRE_THROW(testfieldcs->run(brukerdataset, *generator, NULL), 
+                        dicomifier::DicomifierException);
+}
+
+/*************************** TEST KO 03 *******************************/
+/**
+ * Error test case: Empty Bruker Dataset
+ */
+BOOST_FIXTURE_TEST_CASE(TEST_KO_03, TestDataOK02)
+{
+    // Test VR = CS
+    auto testfieldcs = dicomifier::translator::
+        InPlanePhaseEncodingDirectionDcmField<EVR_CS>::New();
+    BOOST_REQUIRE_THROW(testfieldcs->run(NULL, *generator, NULL),
                         dicomifier::DicomifierException);
 }

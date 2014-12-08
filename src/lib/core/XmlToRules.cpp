@@ -15,10 +15,12 @@
 
 namespace dicomifier
 {
-    
+
+namespace XmlToRules
+{
+
 std::vector<Object::Pointer> 
-XmlToRules
-::Convert(std::string const & filename)
+Convert(std::string const & filename)
 {
     boost::property_tree::ptree pt;
     boost::property_tree::xml_parser::read_xml(filename, pt);
@@ -27,8 +29,7 @@ XmlToRules
 }
 
 std::vector<Object::Pointer> 
-XmlToRules
-::Convert(boost::property_tree::ptree & pt)
+Convert(boost::property_tree::ptree & pt)
 {
     std::vector<Object::Pointer> rules;
     
@@ -39,5 +40,7 @@ XmlToRules
     
     return rules;
 }
+
+} // namespace XmlToRules
     
 } // namespace dicomifier

@@ -24,41 +24,6 @@ namespace dicomifier
 namespace translator
 {
     
-enum ClassType
-{
-    ECT_Unknown,
-    ECT_SubTag,
-    ECT_DicomField,
-    ECT_DicomSequenceField,
-    ECT_ConstantField,
-    ECT_BrukerField,
-    ECT_TestField,
-    ECT_AdditionOperator,
-    ECT_DivisionOperator,
-    ECT_MultiplicationOperator,
-    ECT_SubtractionOperator,
-    ECT_RegExFilter,
-    ECT_ConditionField,
-    ECT_PatientPositionFilter,
-    ECT_PatientSexFilter,
-    ECT_DateGenerator,
-    ECT_TimeGenerator,
-    ECT_UIDGenerator,
-    ECT_UpperCaseGenerator,
-    ECT_InstanceNumberDcmField,
-    ECT_ImagePositionPatientDcmField,
-    ECT_ImageOrientationPatientDcmField,
-    ECT_InPlanePhaseEncodingDirectionDcmField,
-    ECT_InversionTimeDcmField,
-    ECT_AcquisitionMatrixDcmField,
-    ECT_SpacingBetweenSlicesDcmField,
-    ECT_StackIDDcmField,
-    ECT_InStackPositionNumberDcmField,
-    ECT_DimensionIndexValuesDcmField,
-    ECT_EffectiveEchoTimeDcmField,
-    ECT_ComplexImageComponentDcmField
-};
-    
 /**
  * @brief The Tag class: Abstact base class for translation tag
  */
@@ -81,13 +46,6 @@ public:
     virtual void run(dicomifier::bruker::BrukerDataset* brukerdataset,
                      dicomifier::FrameIndexGenerator const & generator,
                      DcmItem* dataset) = 0;
-    
-    /**
-     * @brief get_class_type: return type of this class.
-     *        Should be override by inherit classes
-     * @return class type
-     */
-    virtual ClassType get_class_type() const = 0;
 
 protected:
     /// Create an instance of Tag

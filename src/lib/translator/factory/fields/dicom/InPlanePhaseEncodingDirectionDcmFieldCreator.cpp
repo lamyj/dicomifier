@@ -43,21 +43,7 @@ InPlanePhaseEncodingDirectionDcmFieldCreator
          DcmDataset* dataset, 
          DcmEVR evr)
 {
-    std::vector<dicomifier::translator::Tag::Pointer> pttag;
-    BOOST_FOREACH(boost::property_tree::ptree::value_type &child, value.second)
-    {
-        if (dicomifier::translator::
-                TranslatorFactory::get_instance().can_create(child.first.data()))
-        {
-            pttag.push_back(dicomifier::translator::
-                    TranslatorFactory::get_instance().create(child,
-                                                             dataset,
-                                                             evr));
-        }
-    }
-    
     TranslatorInPlanePhaseEncodingDirectionDcmFieldCreator action;
-    action.pttag = pttag;
     
     dicomifier::vr_dispatch(action, evr);
     
@@ -78,7 +64,7 @@ InPlanePhaseEncodingDirectionDcmFieldCreator::TranslatorInPlanePhaseEncodingDire
 ::run() const
 {
     inplanephaseencodingdir = dicomifier::translator::
-            InPlanePhaseEncodingDirectionDcmField<VR>::New(pttag[0]);
+            InPlanePhaseEncodingDirectionDcmField<VR>::New();
 }
 
 } // namespace factory

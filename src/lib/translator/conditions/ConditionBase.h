@@ -48,12 +48,6 @@ public:
      */
     virtual bool eval(DcmItem* dataset,
                       dicomifier::bruker::BrukerDataset* brukerdataset) = 0;
-    
-    /**
-     * @brief get_class_type: return this class type
-     * @return ECT_Unknown
-     */
-    virtual ClassType get_class_type() const { return ECT_Unknown; }
 
 protected:
     /// Create an instance of ConditionBase

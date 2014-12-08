@@ -9,15 +9,20 @@
 #include <iostream>
 #include <memory>
 
+#include "core/Logger.h"
 #include "core/Rule.h"
 #include "core/XmlToRules.h"
 #include "dicom/Dictionaries.h"
 
 int main(int argc, char *argv[])
 {
+    char* mode = getenv("DICOMIFIER_LOGGER");
+    std::string logmode = mode != NULL ? std::string(mode): "ERROR";
+    dicomifier::InitializeLogger(logmode);
+
     if (argc < 2)
     {
-        std::cout << "Argument is missing." << std::endl;
+        dicomifier::loggerError() << "Argument is missing.";
         return EXIT_FAILURE;
     }
     
@@ -42,7 +47,7 @@ int main(int argc, char *argv[])
         }
         else
         {
-            std::cout << "Error: Created object is not a Rule." << std::endl;
+            dicomifier::loggerError() << "Created object is not a Rule.";
         }
     }
             

@@ -55,12 +55,6 @@ public:
                      dicomifier::FrameIndexGenerator const & generator,
                      DcmItem* dataset);
     
-    /**
-     * @brief get_class_type: return type of this class.
-     * @return ECT_DateGenerator
-     */
-    virtual ClassType get_class_type() const { return ECT_DateGenerator; }
-    
 protected:
     /// Create an instance of DateGenerator
     DateGenerator();

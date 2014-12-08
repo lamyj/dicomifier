@@ -19,60 +19,60 @@ BOOST_AUTO_TEST_CASE(TEST_OK_01)
 {
     // Test VR = AE
     auto testfieldae = dicomifier::translator::BrukerField<EVR_AE>::New();
-    // Pointer exists and class type is BrukerField
-    BOOST_CHECK_EQUAL(testfieldae->get_class_type(), dicomifier::translator::ECT_BrukerField);
+    // Pointer exists
+    BOOST_CHECK_EQUAL(testfieldae != NULL, true);
     
     // Test VR = AS
     auto testfieldas = dicomifier::translator::BrukerField<EVR_AS>::New();
-    // Pointer exists and class type is BrukerField
-    BOOST_CHECK_EQUAL(testfieldas->get_class_type(), dicomifier::translator::ECT_BrukerField);
+    // Pointer exists
+    BOOST_CHECK_EQUAL(testfieldas != NULL, true);
     
     // Test VR = AT => Not implemented
     
     // Test VR = CS
     auto testfieldcs = dicomifier::translator::BrukerField<EVR_CS>::New();
-    // Pointer exists and class type is BrukerField
-    BOOST_CHECK_EQUAL(testfieldcs->get_class_type(), dicomifier::translator::ECT_BrukerField);
+    // Pointer exists
+    BOOST_CHECK_EQUAL(testfieldcs != NULL, true);
     
     // Test VR = DA
     auto testfieldda = dicomifier::translator::BrukerField<EVR_DA>::New();
-    // Pointer exists and class type is BrukerField
-    BOOST_CHECK_EQUAL(testfieldda->get_class_type(), dicomifier::translator::ECT_BrukerField);
+    // Pointer exists
+    BOOST_CHECK_EQUAL(testfieldda != NULL, true);
     
     // Test VR = DS
     auto testfieldds = dicomifier::translator::BrukerField<EVR_DS>::New();
-    // Pointer exists and class type is BrukerField
-    BOOST_CHECK_EQUAL(testfieldds->get_class_type(), dicomifier::translator::ECT_BrukerField);
+    // Pointer exists
+    BOOST_CHECK_EQUAL(testfieldds != NULL, true);
     
     // Test VR = DT
     auto testfielddt = dicomifier::translator::BrukerField<EVR_DT>::New();
-    // Pointer exists and class type is BrukerField
-    BOOST_CHECK_EQUAL(testfielddt->get_class_type(), dicomifier::translator::ECT_BrukerField);
+    // Pointer exists
+    BOOST_CHECK_EQUAL(testfielddt != NULL, true);
     
     // Test VR = FL
     auto testfieldfl = dicomifier::translator::BrukerField<EVR_FL>::New();
-    // Pointer exists and class type is BrukerField
-    BOOST_CHECK_EQUAL(testfieldfl->get_class_type(), dicomifier::translator::ECT_BrukerField);
+    // Pointer exists
+    BOOST_CHECK_EQUAL(testfieldfl != NULL, true);
     
     // Test VR = FD
     auto testfieldfd = dicomifier::translator::BrukerField<EVR_FD>::New();
-    // Pointer exists and class type is BrukerField
-    BOOST_CHECK_EQUAL(testfieldfd->get_class_type(), dicomifier::translator::ECT_BrukerField);
+    // Pointer exists
+    BOOST_CHECK_EQUAL(testfieldfd != NULL, true);
     
     // Test VR = IS
     auto testfieldis = dicomifier::translator::BrukerField<EVR_IS>::New();
-    // Pointer exists and class type is BrukerField
-    BOOST_CHECK_EQUAL(testfieldis->get_class_type(), dicomifier::translator::ECT_BrukerField);
+    // Pointer exists
+    BOOST_CHECK_EQUAL(testfieldis != NULL, true);
     
     // Test VR = LO
     auto testfieldlo = dicomifier::translator::BrukerField<EVR_LO>::New();
-    // Pointer exists and class type is BrukerField
-    BOOST_CHECK_EQUAL(testfieldlo->get_class_type(), dicomifier::translator::ECT_BrukerField);
+    // Pointer exists
+    BOOST_CHECK_EQUAL(testfieldlo != NULL, true);
     
     // Test VR = LT
     auto testfieldlt = dicomifier::translator::BrukerField<EVR_LT>::New();
-    // Pointer exists and class type is BrukerField
-    BOOST_CHECK_EQUAL(testfieldlt->get_class_type(), dicomifier::translator::ECT_BrukerField);
+    // Pointer exists
+    BOOST_CHECK_EQUAL(testfieldlt != NULL, true);
     
     // Test VR = OB => Not implemented
     // Test VR = OD => Not implemented
@@ -81,57 +81,57 @@ BOOST_AUTO_TEST_CASE(TEST_OK_01)
     
     // Test VR = PN
     auto testfieldpn = dicomifier::translator::BrukerField<EVR_PN>::New();
-    // Pointer exists and class type is BrukerField
-    BOOST_CHECK_EQUAL(testfieldpn->get_class_type(), dicomifier::translator::ECT_BrukerField);
+    // Pointer exists
+    BOOST_CHECK_EQUAL(testfieldpn != NULL, true);
     
     // Test VR = SH
     auto testfieldsh = dicomifier::translator::BrukerField<EVR_SH>::New();
-    // Pointer exists and class type is BrukerField
-    BOOST_CHECK_EQUAL(testfieldsh->get_class_type(), dicomifier::translator::ECT_BrukerField);
+    // Pointer exists
+    BOOST_CHECK_EQUAL(testfieldsh != NULL, true);
     
     // Test VR = SL
     auto testfieldsl = dicomifier::translator::BrukerField<EVR_SL>::New();
-    // Pointer exists and class type is BrukerField
-    BOOST_CHECK_EQUAL(testfieldsl->get_class_type(), dicomifier::translator::ECT_BrukerField);
+    // Pointer exists
+    BOOST_CHECK_EQUAL(testfieldsl != NULL, true);
     
     // Test VR = SQ => Not implemented
     
     // Test VR = SS
     auto testfieldss = dicomifier::translator::BrukerField<EVR_SS>::New();
-    // Pointer exists and class type is BrukerField
-    BOOST_CHECK_EQUAL(testfieldss->get_class_type(), dicomifier::translator::ECT_BrukerField);
+    // Pointer exists
+    BOOST_CHECK_EQUAL(testfieldss != NULL, true);
     
     // Test VR = ST
     auto testfieldst = dicomifier::translator::BrukerField<EVR_ST>::New();
-    // Pointer exists and class type is BrukerField
-    BOOST_CHECK_EQUAL(testfieldst->get_class_type(), dicomifier::translator::ECT_BrukerField);
+    // Pointer exists
+    BOOST_CHECK_EQUAL(testfieldst != NULL, true);
     
     // Test VR = TM
     auto testfieldtm = dicomifier::translator::BrukerField<EVR_TM>::New();
-    // Pointer exists and class type is BrukerField
-    BOOST_CHECK_EQUAL(testfieldtm->get_class_type(), dicomifier::translator::ECT_BrukerField);
+    // Pointer exists
+    BOOST_CHECK_EQUAL(testfieldtm != NULL, true);
     
     // Test VR = UI
     auto testfieldui = dicomifier::translator::BrukerField<EVR_UI>::New();
-    // Pointer exists and class type is BrukerField
-    BOOST_CHECK_EQUAL(testfieldui->get_class_type(), dicomifier::translator::ECT_BrukerField);
+    // Pointer exists
+    BOOST_CHECK_EQUAL(testfieldui != NULL, true);
     
     // Test VR = UL
     auto testfieldul = dicomifier::translator::BrukerField<EVR_UL>::New();
-    // Pointer exists and class type is BrukerField
-    BOOST_CHECK_EQUAL(testfieldul->get_class_type(), dicomifier::translator::ECT_BrukerField);
+    // Pointer exists
+    BOOST_CHECK_EQUAL(testfieldul != NULL, true);
     
     // Test VR = UN => Not implemented
     
     // Test VR = US
     auto testfieldus = dicomifier::translator::BrukerField<EVR_US>::New();
-    // Pointer exists and class type is BrukerField
-    BOOST_CHECK_EQUAL(testfieldus->get_class_type(), dicomifier::translator::ECT_BrukerField);
+    // Pointer exists
+    BOOST_CHECK_EQUAL(testfieldus != NULL, true);
     
     // Test VR = UT
     auto testfieldut = dicomifier::translator::BrukerField<EVR_UT>::New();
-    // Pointer exists and class type is BrukerField
-    BOOST_CHECK_EQUAL(testfieldut->get_class_type(), dicomifier::translator::ECT_BrukerField);
+    // Pointer exists
+    BOOST_CHECK_EQUAL(testfieldut != NULL, true);
 }
 
 /*************************** TEST OK 02 *******************************/

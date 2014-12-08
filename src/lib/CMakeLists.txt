@@ -12,7 +12,7 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}
 file(GLOB_RECURSE files "*.cpp")
 add_library(libdicomifier SHARED ${files})
 set_target_properties(libdicomifier PROPERTIES OUTPUT_NAME dicomifier)
-target_link_libraries(libdicomifier dcmtls ssl dcmdata dcmnet oflog ofstd wrap pthread z ${Boost_LIBRARIES})
+target_link_libraries(libdicomifier dcmtls ssl dcmdata dcmnet log4cpp oflog ofstd wrap pthread z ${Boost_LIBRARIES})
 
 # deploy the library
 install(TARGETS libdicomifier

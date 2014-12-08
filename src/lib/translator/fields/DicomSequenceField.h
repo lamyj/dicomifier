@@ -56,12 +56,6 @@ public:
                      dicomifier::FrameIndexGenerator const & generator,
                      DcmItem* dataset);
     
-    /**
-     * @brief get_class_type: return type of this class.
-     * @return ECT_DicomSequenceField
-     */
-    virtual ClassType get_class_type() const { return ECT_DicomSequenceField; }
-    
 protected:
     /// Create an instance of DicomSequenceField
     DicomSequenceField();
