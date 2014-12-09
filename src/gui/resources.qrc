@@ -14,5 +14,6 @@
         <file alias="treeview_open">images/treeview_open.svg</file>
         <file alias="combobox_arrow">images/combobox_arrow.svg</file>
         <file alias="combobox_arrow_off">images/combobox_arrow_disabled.svg</file>
+        <file alias="button_refresh">images/button_refresh.svg</file>
     </qresource>
 </RCC>

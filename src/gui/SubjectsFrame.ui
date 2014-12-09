@@ -48,42 +48,6 @@
    <property name="spacing">
     <number>0</number>
    </property>
-   <item row="3" column="5">
-    <widget class="QDateEdit" name="dateFilterBegin">
-     <property name="enabled">
-      <bool>true</bool>
-     </property>
-     <property name="minimumSize">
-      <size>
-       <width>0</width>
-       <height>35</height>
-      </size>
-     </property>
-     <property name="calendarPopup">
-      <bool>true</bool>
-     </property>
-     <property name="date">
-      <date>
-       <year>2014</year>
-       <month>1</month>
-       <day>1</day>
-      </date>
-     </property>
-    </widget>
-   </item>
-   <item row="5" column="0" colspan="6">
-    <widget class="QWidget" name="widget" native="true">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
-     <property name="styleSheet">
-      <string notr="true"/>
-     </property>
-    </widget>
-   </item>
    <item row="0" column="5" rowspan="2" alignment="Qt::AlignBottom">
     <widget class="QPushButton" name="browserButton">
      <property name="minimumSize">
@@ -97,6 +61,12 @@
        <width>200</width>
        <height>16777215</height>
       </size>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">QPushButton#browserButton
+{
+	margin-right: 10px;
+}</string>
      </property>
      <property name="text">
       <string>Browse</string>
@@ -129,17 +99,17 @@
      </property>
     </widget>
    </item>
-   <item row="3" column="4">
-    <widget class="QLabel" name="fromDateTitle">
-     <property name="text">
-      <string>From:</string>
-     </property>
-    </widget>
-   </item>
    <item row="4" column="0">
     <widget class="QLabel" name="filtersTitle">
      <property name="text">
       <string>Filters:</string>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="0">
+    <widget class="QLabel" name="sortedTitle">
+     <property name="text">
+      <string>Sorted by:</string>
      </property>
     </widget>
    </item>
@@ -156,33 +126,6 @@
      </property>
     </widget>
    </item>
-   <item row="3" column="0">
-    <widget class="QLabel" name="sortedTitle">
-     <property name="text">
-      <string>Sorted by:</string>
-     </property>
-    </widget>
-   </item>
-   <item row="4" column="5">
-    <widget class="QDateEdit" name="dateFilterEnd">
-     <property name="minimumSize">
-      <size>
-       <width>0</width>
-       <height>35</height>
-      </size>
-     </property>
-     <property name="calendarPopup">
-      <bool>true</bool>
-     </property>
-     <property name="date">
-      <date>
-       <year>2014</year>
-       <month>1</month>
-       <day>1</day>
-      </date>
-     </property>
-    </widget>
-   </item>
    <item row="3" column="3">
     <spacer name="horizontalSpacer_2">
      <property name="orientation">
@@ -195,6 +138,46 @@
       </size>
      </property>
     </spacer>
+   </item>
+   <item row="3" column="1">
+    <widget class="QRadioButton" name="sortedBySubjects">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="text">
+      <string>Subjects</string>
+     </property>
+     <property name="checked">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="6" column="0" colspan="3">
+    <widget class="QCheckBox" name="selectAllCheckBox">
+     <property name="styleSheet">
+      <string notr="true">QCheckBox 
+{
+	margin-left: 25px;
+ }
+</string>
+     </property>
+     <property name="text">
+      <string>Select All</string>
+     </property>
+     <property name="tristate">
+      <bool>false</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="4">
+    <widget class="QLabel" name="fromDateTitle">
+     <property name="text">
+      <string>From:</string>
+     </property>
+    </widget>
    </item>
    <item row="1" column="0" colspan="5">
     <widget class="QLineEdit" name="dataDirectory">
@@ -218,19 +201,41 @@
      </property>
     </widget>
    </item>
-   <item row="3" column="1">
-    <widget class="QRadioButton" name="sortedBySubjects">
+   <item row="0" column="6" rowspan="2">
+    <widget class="QPushButton" name="refreshButton">
      <property name="sizePolicy">
-      <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+      <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
        <horstretch>0</horstretch>
        <verstretch>0</verstretch>
       </sizepolicy>
      </property>
-     <property name="text">
-      <string>Subjects</string>
+     <property name="minimumSize">
+      <size>
+       <width>32</width>
+       <height>32</height>
+      </size>
      </property>
-     <property name="checked">
-      <bool>true</bool>
+     <property name="maximumSize">
+      <size>
+       <width>68</width>
+       <height>88</height>
+      </size>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">QPushButton#refreshButton
+{
+	background-color: transparent;
+	image: url(:/images/button_refresh) 0 0 0 0 stretch stretch;
+	border: 1px solid #2299FF;
+    border-radius: 10px;
+    margin-top: 30px;
+    margin-bottom: 10px;
+    margin-left: 10px;
+    margin-right: 10px;
+}</string>
+     </property>
+     <property name="text">
+      <string/>
      </property>
     </widget>
    </item>
@@ -241,20 +246,43 @@
      </property>
     </widget>
    </item>
-   <item row="6" column="0" colspan="3">
-    <widget class="QCheckBox" name="selectAllCheckBox">
+   <item row="5" column="0" colspan="7">
+    <widget class="QWidget" name="widget" native="true">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
      <property name="styleSheet">
-      <string notr="true">QCheckBox 
-{
-	margin-left: 25px;
- }
-</string>
+      <string notr="true"/>
      </property>
-     <property name="text">
-      <string>Select All</string>
+     <zorder>browserButton</zorder>
+    </widget>
+   </item>
+   <item row="4" column="5" colspan="2">
+    <widget class="QDateTimeEdit" name="dateFilterEnd">
+     <property name="minimumSize">
+      <size>
+       <width>0</width>
+       <height>35</height>
+      </size>
      </property>
-     <property name="tristate">
-      <bool>false</bool>
+     <property name="calendarPopup">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="5" colspan="2">
+    <widget class="QDateTimeEdit" name="dateFilterBegin">
+     <property name="minimumSize">
+      <size>
+       <width>0</width>
+       <height>35</height>
+      </size>
+     </property>
+     <property name="calendarPopup">
+      <bool>true</bool>
      </property>
     </widget>
    </item>

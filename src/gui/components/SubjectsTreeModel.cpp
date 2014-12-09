@@ -7,6 +7,7 @@
  ************************************************************************/
 
 #include "SubjectsTreeModel.h"
+#include "core/Logger.h"
 
 namespace dicomifier
 {
@@ -19,7 +20,7 @@ SubjectsTreeModel
     TreeModel(parent), _displaySubject(displaySubject)
 {
     QList<QVariant> rootData;
-    rootData << "Select" << "Name" << "Date";
+    rootData << "Select" << "Name" << "Directory" << "Date";
     this->_rootItem->set_data(rootData);
 }
 
@@ -38,6 +39,7 @@ SubjectsTreeModel
         columnData << "";
         columnData << QString(iter->first.c_str());
         columnData << "";
+        columnData << "";
         TreeItem * item = new TreeItem(this->_rootItem);
         item->set_data(columnData);
 
@@ -47,6 +49,7 @@ SubjectsTreeModel
             data << "";
             data << QString(this->_displaySubject ? iterdata->get_study().c_str() :
                                                     iterdata->get_name().c_str());
+            data << QString(iterdata->get_subjectDirectory().c_str());
             data << QString(iterdata->get_date().c_str());
 
             iterdata->set_data(data);

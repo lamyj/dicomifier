@@ -19,7 +19,7 @@ ProtocolsTreeModel
     TreeModel(parent)
 {
     QList<QVariant> rootData;
-    rootData << "Select" << "Name" << "Date";
+    rootData << "Select" << "Name" << "Protocol Name" << "Subject name" << "Date";
     this->_rootItem->set_data(rootData);
 }
 
@@ -37,14 +37,25 @@ ProtocolsTreeModel
         columnData << "";
         columnData << QString(iter->first.c_str());
         columnData << "";
+        columnData << "";
+        columnData << "";
         TreeItem * item = new TreeItem(this->_rootItem);
         item->set_data(columnData);
 
         for (auto iterdata : iter->second)
         {
+            std::stringstream name;
+            name << iterdata->get_reconstruction();
+            if ( !iterdata->isEnabled() )
+            {
+                name << " - No Data";
+            }
+
             QList<QVariant> data;
             data << "";
-            data << QString(iterdata->get_reconstruction().c_str());
+            data << QString(name.str().c_str());
+            data << QString(iterdata->get_protocolName().c_str());
+            data << QString(iterdata->get_name().c_str());
             data << QString(iterdata->get_date().c_str());
             iterdata->set_data(data);
             iterdata->set_parent(item);

@@ -33,14 +33,14 @@ public:
 
     void filter_name(const QString & filter);
 
-    void filter_date(const QDate & begin, const QDate & end, bool refresh = true);
+    void filter_date(const QDateTime & begin, const QDateTime & end, bool refresh = true);
 
 private :
     bool _displaySubject;
 
     std::string _expression;
-    QDate _begin;
-    QDate _end;
+    QDateTime _begin;
+    QDateTime _end;
 
     virtual std::map<std::string, std::vector<TreeItem*>> sortedItems() const;
 

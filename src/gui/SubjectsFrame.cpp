@@ -25,7 +25,7 @@ namespace gui
 SubjectsFrame
 ::SubjectsFrame(QWidget *parent) :
     BaseFrame(parent),
-    _ui(new Ui::SubjectsFrame), _treeView(NULL), _datemin(QDate::currentDate())
+    _ui(new Ui::SubjectsFrame), _treeView(NULL), _datetimemin(QDateTime::currentDateTime())
 {
     this->_ui->setupUi(this);
 
@@ -37,11 +37,11 @@ SubjectsFrame
 
     this->set_list_enabled(false);
 
-    this->_ui->dateFilterBegin->setDisplayFormat(QString("dd/MM/yyyy"));
-    this->_ui->dateFilterEnd->setDisplayFormat(QString("dd/MM/yyyy"));
+    this->_ui->dateFilterBegin->setDisplayFormat(QString("dd/MM/yyyy HH:mm:ss"));
+    this->_ui->dateFilterEnd->setDisplayFormat(QString("dd/MM/yyyy HH:mm:ss"));
 
-    this->_ui->dateFilterBegin->setDate(this->_datemin);
-    this->_ui->dateFilterEnd->setDate(QDate::currentDate());
+    this->_ui->dateFilterBegin->setDateTime(this->_datetimemin);
+    this->_ui->dateFilterEnd->setDateTime(QDateTime::currentDateTime());
 
     QSettings settings;
     this->_ui->dataDirectory->setText(settings.value(CONF_GROUP_INPUT + "/" +
@@ -122,6 +122,13 @@ SubjectsFrame
 
 void
 SubjectsFrame
+::on_refreshButton_clicked()
+{
+    this->on_dataDirectory_editingFinished();
+}
+
+void
+SubjectsFrame
 ::paintEvent(QPaintEvent *event)
 {
     if (this->_treeView != NULL)
@@ -153,7 +160,7 @@ void
 SubjectsFrame
 ::on_dataDirectory_editingFinished()
 {
-    this->_datemin = QDate::currentDate();
+    this->_datetimemin = QDateTime::currentDateTime();
 
     std::string const directory =
             this->_ui->dataDirectory->text().toUtf8().constData();
@@ -195,6 +202,7 @@ SubjectsFrame
             connect(treeitem, SIGNAL(SendDate(double)), this, SLOT(ReceivedDate(double)));
             treeitem->set_directory(dir);
             treeitem->fill_data(dataset);
+            treeitem->set_subjectDirectory(std::string((*it).path().filename().c_str()));
             disconnect(treeitem, SIGNAL(SendDate(double)), this, SLOT(ReceivedDate(double)));
 
             subjectsAndStudiesList.push_back(treeitem);
@@ -203,8 +211,8 @@ SubjectsFrame
         }
         // else ignore files
     }
-    this->_ui->dateFilterBegin->setDate(this->_datemin);
-    this->_treeView->filter_date(this->_datemin, QDate::currentDate(), false);
+    this->_ui->dateFilterBegin->setDateTime(this->_datetimemin);
+    this->_treeView->filter_date(this->_datetimemin, QDateTime::currentDateTime(), false);
 
     this->_treeView->Initialize(subjectsAndStudiesList);
 }
@@ -280,16 +288,16 @@ SubjectsFrame
 
 void
 SubjectsFrame
-::on_dateFilterBegin_dateChanged(const QDate &date)
+::on_dateFilterBegin_dateTimeChanged(const QDateTime &dateTime)
 {
-    this->_treeView->filter_date(date, this->_ui->dateFilterEnd->date());
+    this->_treeView->filter_date(dateTime, this->_ui->dateFilterEnd->dateTime());
 }
 
 void
 SubjectsFrame
-::on_dateFilterEnd_dateChanged(const QDate &date)
+::on_dateFilterEnd_dateTimeChanged(const QDateTime &dateTime)
 {
-    this->_treeView->filter_date(this->_datemin, date);
+    this->_treeView->filter_date(this->_datetimemin, dateTime);
 }
 
 void
@@ -298,11 +306,12 @@ SubjectsFrame
 {
     std::time_t now = date;
     tm *ltm = localtime(&now);
-    QDate datetemp(ltm->tm_year + 1900, ltm->tm_mon + 1, ltm->tm_mday);
+    QDateTime datetemp(QDate(ltm->tm_year + 1900, ltm->tm_mon + 1, ltm->tm_mday),
+                       QTime(ltm->tm_hour, ltm->tm_min, ltm->tm_sec));
 
-    if (this->_datemin > datetemp)
+    if (this->_datetimemin > datetemp)
     {
-        this->_datemin = datetemp;
+        this->_datetimemin = datetemp;
     }
 }
 

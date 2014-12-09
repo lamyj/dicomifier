@@ -85,16 +85,33 @@ ProtocolsFrame
                             continue;
                         }
 
+                        std::string filevisu = dirsub +
+                                               VALID_FILE_SEPARATOR +
+                                               "visu_pars";
+
                         dicomifier::bruker::BrukerDataset * dataset =
                                 new dicomifier::bruker::BrukerDataset();
 
                         dataset->LoadFile(filemethod);
                         dataset->LoadFile(filereco);
+                        if (boost::filesystem::exists(boost::filesystem::path(filevisu)))
+                        {
+                            dataset->LoadFile(filevisu);
+                        }
 
                         TreeItem* item = new TreeItem(NULL, subjects);
                         item->set_seriesDirectory(std::string((*it).path().filename().c_str()));
                         item->set_recoDirectory(std::string((*itsub).path().filename().c_str()));
                         item->fill_data(dataset);
+
+                        std::string filebinary = dirsub +
+                                                 VALID_FILE_SEPARATOR +
+                                                 "2dseq";
+                        if (!boost::filesystem::exists(boost::filesystem::path(filebinary)) ||
+                            !boost::filesystem::exists(boost::filesystem::path(filevisu)))
+                        {
+                            item->setEnabled(false);
+                        }
 
                         itemslist.push_back(item);
 

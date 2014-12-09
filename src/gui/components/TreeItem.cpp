@@ -17,13 +17,15 @@ namespace gui
 TreeItem
 ::TreeItem(TreeItem *parent, TreeItem * copy):
     _parentItem(parent), _checkState(Qt::Unchecked),
-    _name(""), _study(""), _series(""), _reconstruction(""),
-    _date(""), _directory(""), _seriesDirectory(""), _recoDirectory(""),
-    _qdate(QDate::currentDate())
+    _name(""), _subjectDirectory(""), _study(""), _series(""),
+    _reconstruction(""), _date(""), _directory(""),
+    _seriesDirectory(""), _recoDirectory(""), _protocolName(""),
+    _qdatetime(QDateTime::currentDateTime()), _enabled(true)
 {
     if (copy != NULL)
     {
         this->_name            = copy->get_name();
+        this->_subjectDirectory= copy->get_subjectDirectory();
         this->_study           = copy->get_study();
         this->_series          = copy->get_series();
         this->_reconstruction  = copy->get_reconstruction();
@@ -31,7 +33,8 @@ TreeItem
         this->_directory       = copy->get_directory();
         this->_seriesDirectory = copy->get_seriesDirectory();
         this->_recoDirectory   = copy->get_recoDirectory();
-        this->_qdate           = copy->get_qdate();
+        this->_protocolName    = copy->get_protocolName();
+        this->_qdatetime       = copy->get_qdatetime();
     }
 }
 
@@ -204,7 +207,10 @@ void
 TreeItem
 ::update_from_parent(Qt::CheckState parentState)
 {
-    this->_checkState = parentState;
+    if (this->isEnabled())
+    {
+        this->_checkState = parentState;
+    }
 }
 
 void
@@ -224,7 +230,7 @@ TreeItem
     if (brukerdataset->HasFieldData("SUBJECT_abs_date"))
     {
         double datestr = 0;
-        // Attention: Difference between PV5 et PV6
+        // Be carefull: Difference between PV5 et PV6
         auto field = brukerdataset->GetFieldData("SUBJECT_abs_date");
         if (field->get_data_type() == "double")
         {
@@ -244,10 +250,11 @@ TreeItem
 
         char format[64];
         memset(&format[0], 0, 64);
-        strftime(format, 64, "%d / %m / %Y", ltm);
+        strftime(format, 64, "%d / %m / %Y %H:%M:%S", ltm);
 
         this->_date = std::string(&format[0]);
-        this->_qdate = QDate(ltm->tm_year + 1900, ltm->tm_mon + 1, ltm->tm_mday);
+        this->_qdatetime = QDateTime(QDate(ltm->tm_year + 1900, ltm->tm_mon + 1, ltm->tm_mday),
+                                     QTime(ltm->tm_hour, ltm->tm_min, ltm->tm_sec));
 
         emit this->SendDate(datestr);
     }
@@ -260,6 +267,11 @@ TreeItem
     if (brukerdataset->HasFieldData("RECO_mode"))
     {
         this->_reconstruction = brukerdataset->GetFieldData("RECO_mode")->get_string(0);
+    }
+
+    if (brukerdataset->HasFieldData("VisuAcquisitionProtocol"))
+    {
+        this->_protocolName = brukerdataset->GetFieldData("VisuAcquisitionProtocol")->get_string(0);
     }
 }
 
