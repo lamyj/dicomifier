@@ -44,9 +44,13 @@ ProtocolsTreeView
     this->header()->setResizeMode(0, QHeaderView::Fixed);
     this->header()->setResizeMode(1, QHeaderView::Stretch);
     this->header()->setResizeMode(2, QHeaderView::Fixed);
+    this->header()->setResizeMode(3, QHeaderView::Fixed);
+    this->header()->setResizeMode(4, QHeaderView::Fixed);
 
     this->header()->resizeSection(0, 80);
     this->header()->resizeSection(2, 200);
+    this->header()->resizeSection(3, 200);
+    this->header()->resizeSection(4, 200);
 }
 
 bool

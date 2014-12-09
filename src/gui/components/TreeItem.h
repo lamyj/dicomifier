@@ -24,6 +24,7 @@ namespace gui
 class TreeItem : public QObject
 {
     Q_OBJECT
+    Q_PROPERTY(bool enabled READ isEnabled WRITE setEnabled NOTIFY enabledChanged)
 
 public:
     TreeItem(TreeItem * parent = 0, TreeItem * copy = NULL);
@@ -46,6 +47,7 @@ public:
     void update_from_parent(Qt::CheckState parentState);
 
     std::string get_name() const { return this->_name; }
+    std::string get_subjectDirectory() const { return this->_subjectDirectory; }
     std::string get_study() const { return this->_study; }
     std::string get_series() const { return this->_series; }
     std::string get_reconstruction() const { return this->_reconstruction; }
@@ -53,8 +55,11 @@ public:
     std::string get_directory() const { return this->_directory; }
     std::string get_seriesDirectory() const { return this->_seriesDirectory; }
     std::string get_recoDirectory() const { return this->_recoDirectory; }
-    QDate get_qdate() const { return this->_qdate; }
+    std::string get_protocolName() const { return this->_protocolName; }
+    QDateTime get_qdatetime() const { return this->_qdatetime; }
 
+    void set_subjectDirectory(std::string const & subjectDirectory)
+            { this->_subjectDirectory = subjectDirectory; }
     void set_data(const QList<QVariant> & data) { this->_itemData = data; }
     void set_parent(TreeItem* parent) { this->_parentItem = parent; }
     void set_directory(std::string const & directory)
@@ -66,8 +71,19 @@ public:
 
     void fill_data(dicomifier::bruker::BrukerDataset* const brukerdataset);
 
+    void setEnabled(bool enabled)
+    {
+        this->_enabled = enabled;
+        emit enabledChanged(enabled);
+    }
+
+    bool isEnabled() const
+    { return this->_enabled; }
+
 signals:
     void SendDate(double date);
+
+    void enabledChanged(bool enabled);
 
 private:
     QList<TreeItem*> _childItems;
@@ -76,6 +92,7 @@ private:
     Qt::CheckState   _checkState;
 
     std::string _name;
+    std::string _subjectDirectory;
     std::string _study;
     std::string _series;
     std::string _reconstruction;
@@ -83,7 +100,10 @@ private:
     std::string _directory;
     std::string _seriesDirectory;
     std::string _recoDirectory;
-    QDate _qdate;
+    std::string _protocolName;
+    QDateTime _qdatetime;
+
+    bool _enabled;
 
 };
 

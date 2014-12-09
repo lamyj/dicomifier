@@ -49,9 +49,11 @@ SubjectsTreeView
     this->header()->setResizeMode(0, QHeaderView::Fixed);
     this->header()->setResizeMode(1, QHeaderView::Stretch);
     this->header()->setResizeMode(2, QHeaderView::Fixed);
+    this->header()->setResizeMode(3, QHeaderView::Fixed);
 
     this->header()->resizeSection(0, 80);
-    this->header()->resizeSection(2, 200);
+    this->header()->resizeSection(2, 160);
+    this->header()->resizeSection(3, 250);
 }
 
 void
@@ -90,7 +92,7 @@ SubjectsTreeView
 
 void
 SubjectsTreeView
-::filter_date(const QDate &begin, const QDate &end, bool refresh)
+::filter_date(const QDateTime &begin, const QDateTime &end, bool refresh)
 {
     this->_begin = begin;
     this->_end = end;
@@ -115,7 +117,7 @@ SubjectsTreeView
         boost::cmatch what;
         if (regex_search(name.c_str(), what, this->transform_regex()))
         {
-            if (couple->get_qdate() >= this->_begin && couple->get_qdate() <= this->_end)
+            if (couple->get_qdatetime() >= this->_begin && couple->get_qdatetime() <= this->_end)
             {
                 if (returnmap.find(name) == returnmap.end())
                 {// create new entry

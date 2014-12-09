@@ -42,6 +42,8 @@ public:
 public slots:
     void on_browserButton_clicked();
 
+    void on_refreshButton_clicked();
+
     void on_dataDirectory_editingFinished();
 
     void on_sortedBySubjects_toggled(bool checked);
@@ -66,16 +68,16 @@ private slots:
 
     void ReceivedDate(double date);
 
-    void on_dateFilterBegin_dateChanged(const QDate &date);
+    void on_dateFilterBegin_dateTimeChanged(const QDateTime &dateTime);
 
-    void on_dateFilterEnd_dateChanged(const QDate &date);
+    void on_dateFilterEnd_dateTimeChanged(const QDateTime &dateTime);
 
 private:
     Ui::SubjectsFrame * _ui;
 
     SubjectsTreeView * _treeView;
 
-    QDate _datemin;
+    QDateTime _datetimemin;
 
 };
 

@@ -654,6 +654,46 @@ QDateEdit QCalendarWidget
 {
     border: 1px solid #2299FF;
 }
+
+QDateTimeEdit 
+{
+    padding-right: 35px; 
+	font-size: 18px;
+    background-color: white;
+    border-radius: 8px;
+    border: 1px solid #2299FF;
+	margin-right: 5px;
+}
+
+QDateTimeEdit:disabled
+{
+    border: 1px solid #999999;
+    background-color: #F2F2F2;
+}
+
+QDateTimeEdit::drop-down 
+{
+    subcontrol-origin: margin;
+    subcontrol-position: top right;
+	margin-right: 25px;
+ 
+    border: none;
+}
+
+QDateTimeEdit::down-arrow 
+{
+    image: url(:/images/combobox_arrow);
+}
+
+QDateTimeEdit::down-arrow:disabled
+{
+    image: url(:/images/combobox_arrow_off);
+}
+
+QDateTimeEdit QCalendarWidget
+{
+    border: 1px solid #2299FF;
+}
 </string>
       </property>
       <layout class="QVBoxLayout" name="verticalLayout"/>

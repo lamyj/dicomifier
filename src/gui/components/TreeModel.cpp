@@ -38,14 +38,15 @@ TreeModel
     for (int i = 0; i < this->_rootItem->childCount(); i++)
     {
         auto child = this->_rootItem->child(i);
-        if (child->get_checkState() != Qt::Unchecked)
+        if (child->isEnabled() && child->get_checkState() != Qt::Unchecked)
         {
             return true;
         }
 
         for (int j = 0; j < child->childCount(); j++)
         {
-            if (child->child(j)->get_checkState() != Qt::Unchecked)
+            if (child->child(j)->isEnabled() &&
+                child->child(j)->get_checkState() != Qt::Unchecked)
             {
                 return true;
             }
@@ -62,14 +63,15 @@ TreeModel
     for (int i = 0; i < this->_rootItem->childCount(); i++)
     {
         auto child = this->_rootItem->child(i);
-        if (child->get_checkState() == Qt::Unchecked)
+        if ( !child->isEnabled() || child->get_checkState() == Qt::Unchecked)
         {// no child selected
             continue;
         }
 
         for (int j = 0; j < child->childCount(); j++)
         {
-            if (child->child(j)->get_checkState() != Qt::Unchecked)
+            if ( child->child(j)->isEnabled() &&
+                 child->child(j)->get_checkState() != Qt::Unchecked)
             {// child selected
                 returnvect.push_back(child->child(j));
             }
@@ -86,11 +88,11 @@ Qt::CheckState TreeModel::compute_selection()
     for (int i = 0; i < this->_rootItem->childCount(); i++)
     {
         auto child = this->_rootItem->child(i);
-        if (child->get_checkState() == Qt::PartiallyChecked)
+        if (child->isEnabled() && child->get_checkState() == Qt::PartiallyChecked)
         {
             return Qt::PartiallyChecked;
         }
-        else if (child->get_checkState() == Qt::Checked)
+        else if (child->isEnabled() && child->get_checkState() == Qt::Checked)
         {
             oneselected = true;
         }
@@ -118,11 +120,17 @@ TreeModel
     for (int i = 0; i < this->_rootItem->childCount(); i++)
     {
         auto child = this->_rootItem->child(i);
-        child->set_checkState(state);
-
-        for (int j = 0; j < child->childCount(); j++)
+        if (child->isEnabled())
         {
-            child->child(j)->set_checkState(state);
+            child->set_checkState(state);
+
+            for (int j = 0; j < child->childCount(); j++)
+            {
+                if (child->child(j)->isEnabled())
+                {
+                    child->child(j)->set_checkState(state);
+                }
+            }
         }
     }
 }
@@ -170,6 +178,13 @@ TreeModel
     if (!index.isValid())
     {
         return 0;
+    }
+
+    TreeItem *item = static_cast<TreeItem*>(index.internalPointer());
+
+    if (! item->isEnabled())
+    {
+        return Qt::ItemIsUserCheckable;
     }
 
     // Items are selectable

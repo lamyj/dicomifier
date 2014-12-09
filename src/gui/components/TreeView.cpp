@@ -62,7 +62,10 @@ TreeView
         TreeItem *item =
                 static_cast<TreeItem*>(index.internalPointer());
 
-        item->update_checkState();
+        if (item->isEnabled())
+        {
+            item->update_checkState();
+        }
 
         this->update(index.parent());
 
