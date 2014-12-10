@@ -38,7 +38,7 @@ struct TestDataOK01
         emptynode.put("<xmlattr>.brukerdir", "#inputdir");
         emptynode.put("<xmlattr>.dataset", "#input");
         emptynode.put("<xmlattr>.seriesnumber", "1");
-        emptynode.put("<xmlattr>.studynumber", "1");
+        emptynode.put("<xmlattr>.reconumber", "1");
         emptynode.put("<xmlattr>.sopclassuid", "MR Image Storage");
         emptynode.put("<xmlattr>.outputdirectory", ".");
         ptr.add_child("EnhanceBrukerDicom", emptynode);
@@ -92,7 +92,7 @@ struct TestDataKO01
         emptynode.put("<xmlattr>.brukerdir", "#inputdir");
         emptynode.put("<xmlattr>.dataset", "#badvalue");
         emptynode.put("<xmlattr>.seriesnumber", "1");
-        emptynode.put("<xmlattr>.studynumber", "1");
+        emptynode.put("<xmlattr>.reconumber", "1");
         emptynode.put("<xmlattr>.sopclassuid", "MR Image Storage");
         emptynode.put("<xmlattr>.outputdirectory", ".");
         ptr.add_child("EnhanceBrukerDicom", emptynode);
@@ -141,7 +141,7 @@ struct TestDataKO02
         emptynode.put("<xmlattr>.brukerdir", "#inputdir");
         emptynode.put("<xmlattr>.dataset", "input");
         emptynode.put("<xmlattr>.seriesnumber", "1");
-        emptynode.put("<xmlattr>.studynumber", "1");
+        emptynode.put("<xmlattr>.reconumber", "1");
         emptynode.put("<xmlattr>.sopclassuid", "MR Image Storage");
         emptynode.put("<xmlattr>.outputdirectory", ".");
         ptr.add_child("EnhanceBrukerDicom", emptynode);
@@ -185,7 +185,7 @@ struct TestDataKO03
         emptynode.put("<xmlattr>.brukerdir", "#inputdir");
         emptynode.put("<xmlattr>.dataset", "#input");
         emptynode.put("<xmlattr>.seriesnumber", "1");
-        emptynode.put("<xmlattr>.studynumber", "1");
+        emptynode.put("<xmlattr>.reconumber", "1");
         emptynode.put("<xmlattr>.sopclassuid", "MR Image Storage");
         emptynode.put("<xmlattr>.outputdirectory", ".");
         ptr.add_child("EnhanceBrukerDicom", emptynode);
@@ -234,7 +234,7 @@ struct TestDataKO04
         boost::property_tree::ptree emptynode;
         emptynode.put("<xmlattr>.brukerdir", "#inputdir");
         emptynode.put("<xmlattr>.seriesnumber", "1");
-        emptynode.put("<xmlattr>.studynumber", "1");
+        emptynode.put("<xmlattr>.reconumber", "1");
         emptynode.put("<xmlattr>.sopclassuid", "MR Image Storage");
         emptynode.put("<xmlattr>.outputdirectory", ".");
         ptr.add_child("EnhanceBrukerDicom", emptynode);
@@ -284,7 +284,7 @@ struct TestDataKO05
         emptynode.put("<xmlattr>.brukerdir", "#badvalue");
         emptynode.put("<xmlattr>.dataset", "#input");
         emptynode.put("<xmlattr>.seriesnumber", "1");
-        emptynode.put("<xmlattr>.studynumber", "1");
+        emptynode.put("<xmlattr>.reconumber", "1");
         emptynode.put("<xmlattr>.sopclassuid", "MR Image Storage");
         emptynode.put("<xmlattr>.outputdirectory", ".");
         ptr.add_child("EnhanceBrukerDicom", emptynode);
@@ -332,7 +332,7 @@ struct TestDataKO06
         boost::property_tree::ptree emptynode;
         emptynode.put("<xmlattr>.dataset", "#input");
         emptynode.put("<xmlattr>.seriesnumber", "1");
-        emptynode.put("<xmlattr>.studynumber", "1");
+        emptynode.put("<xmlattr>.reconumber", "1");
         emptynode.put("<xmlattr>.sopclassuid", "MR Image Storage");
         emptynode.put("<xmlattr>.outputdirectory", ".");
         ptr.add_child("EnhanceBrukerDicom", emptynode);
@@ -362,7 +362,7 @@ BOOST_FIXTURE_TEST_CASE(TEST_KO_06, TestDataKO06)
 
 /*************************** TEST KO 07 *******************************/
 /**
- * Error test case: Missing seriesnunmber mandatory attribut
+ * Error test case: Missing reconumber mandatory attribut
  */
 struct TestDataKO07
 {
@@ -380,7 +380,7 @@ struct TestDataKO07
         boost::property_tree::ptree emptynode;
         emptynode.put("<xmlattr>.brukerdir", "#inputdir");
         emptynode.put("<xmlattr>.dataset", "#input");
-        emptynode.put("<xmlattr>.studynumber", "1");
+        emptynode.put("<xmlattr>.seriesnunmber", "1");
         emptynode.put("<xmlattr>.sopclassuid", "MR Image Storage");
         emptynode.put("<xmlattr>.outputdirectory", ".");
         ptr.add_child("EnhanceBrukerDicom", emptynode);
@@ -411,7 +411,7 @@ BOOST_FIXTURE_TEST_CASE(TEST_KO_07, TestDataKO07)
 
 /*************************** TEST KO 08 *******************************/
 /**
- * Error test case: Bad Series number value
+ * Error test case: Bad Reconstruction number value
  */
 struct TestDataKO08
 {
@@ -429,8 +429,8 @@ struct TestDataKO08
         boost::property_tree::ptree emptynode;
         emptynode.put("<xmlattr>.brukerdir", "#inputdir");
         emptynode.put("<xmlattr>.dataset", "#input");
-        emptynode.put("<xmlattr>.seriesnumber", "ABCD");
-        emptynode.put("<xmlattr>.studynumber", "1");
+        emptynode.put("<xmlattr>.reconumber", "ABCD");
+        emptynode.put("<xmlattr>.seriesnumber", "1");
         emptynode.put("<xmlattr>.sopclassuid", "MR Image Storage");
         emptynode.put("<xmlattr>.outputdirectory", ".");
         ptr.add_child("EnhanceBrukerDicom", emptynode);

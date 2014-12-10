@@ -56,18 +56,20 @@ InPlanePhaseEncodingDirectionDcmField<EVR_CS>
         brukerdataset->GetFieldData("VisuAcqImagePhaseEncDir")->
             get_string(generator.get_step());
     
-    if (brukerfield == "col_dir")
+    if (brukerfield.find("col") != std::string::npos ||
+        brukerfield.find("COL") != std::string::npos)
     {
         this->_array.push_back("COL");
     }
-    else if (brukerfield == "row_dir")
+    else if (brukerfield.find("row") != std::string::npos ||
+             brukerfield.find("ROW") != std::string::npos)
     {
         this->_array.push_back("ROW");
     }
     else
     {
         std::stringstream stream;
-        stream << "Bad value for VisuAcqImagePhaseEncDir field: " << brukerfield;
+        stream << "Bad value for VisuAcqImagePhaseEncDir: " << brukerfield;
         throw DicomifierException(stream.str());
     }
 }

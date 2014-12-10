@@ -9,6 +9,7 @@
 #include <QFileDialog>
 #include <QMessageBox>
 #include <QProcess>
+#include <QProgressDialog>
 #include <QSettings>
 
 #include <boost/algorithm/string.hpp>
@@ -20,6 +21,7 @@
 #include <zlib.h>
 
 #include "bruker/actions/EnhanceBrukerDicom.h"
+#include "core/Logger.h"
 #include "GenerationFrame.h"
 #include "PreferencesFrame.h"
 #include "ui_GenerationFrame.h"
@@ -59,6 +61,15 @@ void
 GenerationFrame
 ::RunDicomifier(std::vector<TreeItem *> selectedItems)
 {
+    // Create ProgressDialog
+    QProgressDialog progress("Copying files...", "Cancel", 0, selectedItems.size(), this);
+    progress.setWindowModality(Qt::WindowModal);
+    QRect geom = progress.geometry();
+    geom.setWidth(900);
+    progress.setGeometry(geom);
+    progress.setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+    progress.show();
+
     std::string format = "";
     if (this->_ui->formatMRIMultiple->isChecked())
     {
@@ -69,23 +80,48 @@ GenerationFrame
         format = "EnhancedMRImageStorage";
     }
 
+    int progressValue = 0;
     // Create DICOM files
     for (auto currentItem : selectedItems)
     {
+        // Canceled => force stop
+        if (progress.wasCanceled())
+        {
+            return;
+        }
+
+        // Update progressDialog
+        progress.setValue(progressValue);
+        ++progressValue;
+        // Update ProgressDialog label
+        std::stringstream progressLabel;
+        progressLabel << "Create DICOM " << progressValue << " / " << selectedItems.size()
+                      << " (Directory = " << currentItem->get_subjectDirectory() << ", "
+                      << "Series=" << currentItem->get_seriesDirectory() << ", "
+                      << "Reco=" << currentItem->get_recoDirectory() << ")";
+        progress.setLabelText(QString(progressLabel.str().c_str()));
+
         int seriesnum = atoi(currentItem->get_seriesDirectory().c_str());
         int reconum = atoi(currentItem->get_recoDirectory().c_str());
 
-        // Conversion: seriesnum (A) + reconum (B) => ABBBB
-        char temp[6];
-        memset(&temp[0], 0, 6);
-        snprintf(&temp[0], 6, "%01d%04d", seriesnum, reconum);
+        std::string mask = seriesnum < 10 ? "%01d%04d" : "%02d%04d";
+
+        // Conversion: seriesnum (A) + reconum (B) => AABBBB
+        char temp[7];
+        memset(&temp[0], 0, 7);
+        snprintf(&temp[0], 7, mask.c_str(), seriesnum, reconum);
         std::string seriesnumber(temp);
 
         // Create dataset
         DcmDataset* dataset = new DcmDataset();
 
         // Insert SeriesNumber => use to find Bruker data
-        dataset->putAndInsertOFStringArray(DCM_SeriesNumber, OFString(seriesnumber.c_str()));
+        OFCondition ret = dataset->putAndInsertOFStringArray(DCM_SeriesNumber,
+                                                            OFString(seriesnumber.c_str()));
+        if (ret.bad())
+        {
+            // TODO do something
+        }
 
         // create Rule
         auto rule = dicomifier::actions::EnhanceBrukerDicom::New(dataset,
@@ -93,8 +129,27 @@ GenerationFrame
                                                                  format,
                                                                  this->_ui->outputDirectory->text().toStdString());
 
-        // Execute
-        rule->run();
+        if (rule == NULL)
+        {
+            // TODO do something
+        }
+
+        // Force to look if Cancel is called
+        QApplication::processEvents( QEventLoop::AllEvents );
+
+        try
+        {
+            // Execute
+            rule->run();
+        }
+        catch (dicomifier::DicomifierException &exc)
+        {
+            dicomifier::loggerError() << exc.what();
+        }
+        catch (std::exception &e)
+        {
+            dicomifier::loggerError() << e.what();
+        }
 
         delete dataset;
     }
@@ -124,11 +179,41 @@ GenerationFrame
         };
 
         boost::filesystem::directory_iterator it(this->_ui->outputDirectory->text().toStdString()),
+                                              countdir(this->_ui->outputDirectory->text().toStdString()),
                                               it_end;
+
+        int nbdir = 0;
+        for(; countdir != it_end; ++countdir)
+        {
+            if( boost::filesystem::is_directory( (*countdir) ) )
+            {
+                ++nbdir;
+            }
+        }
+
+        progressValue = 0;
+        progress.setValue(progressValue);
+        progress.setMaximum(nbdir);
+
         for(; it != it_end; ++it)
         {
+            // Canceled => force stop
+            if (progress.wasCanceled())
+            {
+                return;
+            }
+
             if( boost::filesystem::is_directory( (*it) ) )
             {
+                // Update progressDialog
+                progress.setValue(progressValue);
+                ++progressValue;
+                // Update ProgressDialog label
+                std::stringstream progressLabel;
+                progressLabel << "Create DICOMDIR " << progressValue << " / " << nbdir
+                              << " (Directory = " << std::string((*it).path().filename().c_str()) << ")";
+                progress.setLabelText(QString(progressLabel.str().c_str()));
+
                 std::string dir = this->_ui->outputDirectory->text().toStdString() +
                                   VALID_FILE_SEPARATOR +
                                   std::string((*it).path().filename().c_str());
@@ -137,6 +222,7 @@ GenerationFrame
 
                 if (boost::filesystem::exists(boost::filesystem::path(dicomdirfile.c_str())))
                 {
+                    // TODO log an error and continue
                     throw DicomifierException("DICOMDIR already exist: " + dicomdirfile);
                 }
 
@@ -144,8 +230,15 @@ GenerationFrame
                 DicomDirGenerator generator;
                 generator.enableMapFilenamesMode();
                 // Create DICOMDIR object
-                generator.createNewDicomDir(DicomDirGenerator::AP_GeneralPurpose,
+                OFCondition ret = generator.createNewDicomDir(DicomDirGenerator::AP_GeneralPurpose,
                                             dicomdirfile.c_str());
+
+                if (ret.bad())
+                {
+                    // TODO do something
+                    continue;
+                }
+
                 // Configure DICOMDIR
                 generator.setPatientExtraAttributes(patient_extra_attributes_cpp);
                 generator.setStudyExtraAttributes(study_extra_attributes_cpp);
@@ -153,7 +246,12 @@ GenerationFrame
                 // Add files
                 this->insertFilesForDicomdir(dir, &generator);
                 // Write DICOMDIR
-                generator.writeDicomDir();
+                ret = generator.writeDicomDir();
+
+                if (ret.bad())
+                {
+                    // TODO do something
+                }
             }
         }
     }
@@ -161,11 +259,39 @@ GenerationFrame
     if (this->_ui->ZIPCheckBox->isChecked())
     {
         boost::filesystem::directory_iterator it(this->_ui->outputDirectory->text().toStdString()),
+                                              countdir(this->_ui->outputDirectory->text().toStdString()),
                                               it_end;
+
+        int nbdir = 0;
+        for(; countdir != it_end; ++countdir)
+        {
+            if( boost::filesystem::is_directory( (*countdir) ) )
+            {
+                ++nbdir;
+            }
+        }
+
+        progressValue = 0;
+        progress.setValue(progressValue);
+        progress.setMaximum(nbdir);
+
         for(; it != it_end; ++it)
         {
+            // Canceled => force stop
+            if (progress.wasCanceled())
+            {
+                return;
+            }
+
             if( boost::filesystem::is_directory( (*it) ) )
             {
+                ++progressValue;
+                // Update ProgressDialog label
+                std::stringstream progressLabel;
+                progressLabel << "Create ZIP Archive " << progressValue << " / " << nbdir
+                              << " (Directory = " << std::string((*it).path().filename().c_str()) << ")";
+                progress.setLabelText(QString(progressLabel.str().c_str()));
+
                 std::string dir = this->_ui->outputDirectory->text().toStdString() +
                                   VALID_FILE_SEPARATOR +
                                   std::string((*it).path().filename().c_str());
@@ -183,6 +309,13 @@ GenerationFrame
                 QProcess *myProcess = new QProcess(this);
                 myProcess->setWorkingDirectory(QString(dir.c_str()));
                 myProcess->start(command, args);
+
+                myProcess->waitForFinished();
+
+                // TODO look the process return
+
+                // Update progressDialog
+                progress.setValue(progressValue);
             }
         }
     }
@@ -190,12 +323,8 @@ GenerationFrame
     // Disabled Run button
     emit this->update_nextButton(false);
 
-    QMessageBox msgBox;
-    msgBox.setWindowTitle("Creation done");
-    msgBox.setInformativeText("The files has been created.");
-    msgBox.setStandardButtons(QMessageBox::Ok);
-    msgBox.setDefaultButton(QMessageBox::Ok);
-    int ret = msgBox.exec();
+    // Terminate the progressDialog
+    progress.setValue(progress.maximum());
 }
 
 void
@@ -264,7 +393,13 @@ GenerationFrame
         else
         {
             // add file
-            dcmdirgenerator->addDicomFile((*it).path().filename().c_str(), directory.c_str());
+            OFCondition ret = dcmdirgenerator->addDicomFile((*it).path().filename().c_str(),
+                                                            directory.c_str());
+
+            if (ret.bad())
+            {
+                // TODO do something (error ?)
+            }
         }
     }
 }

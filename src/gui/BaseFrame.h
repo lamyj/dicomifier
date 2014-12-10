@@ -42,6 +42,8 @@ signals:
 
     void update_previousButton(bool enabled);
 
+    void cancelled();
+
 };
 
 } // namespace gui
