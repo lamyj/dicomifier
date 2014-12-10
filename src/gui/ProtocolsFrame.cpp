@@ -43,13 +43,33 @@ void
 ProtocolsFrame
 ::InitializeWithData(std::vector<TreeItem *> subjectslist)
 {
+    // Create ProgressDialog
+    QProgressDialog progress("", "Cancel", 0, subjectslist.size(), this);
+    progress.setWindowModality(Qt::WindowModal);
+    QRect geom = progress.geometry();
+    geom.setWidth(900);
+    progress.setGeometry(geom);
+    progress.setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+    progress.show();
+
     std::vector<TreeItem*> itemslist;
 
+    int progressValue = 0;
     for (TreeItem* subjects : subjectslist)
     {
+        ++progressValue;
+        // Update ProgressDialog label
+        std::stringstream progressLabel;
+        progressLabel << "Process Subject " << progressValue << " / " << subjectslist.size();
+        progressLabel << " (Name = " << subjects->get_name() << ")";
+        progress.setLabelText(QString(progressLabel.str().c_str()));
+
         boost::filesystem::directory_iterator it(subjects->get_directory()), it_end;
         for(; it != it_end; ++it)
         {
+            // Force to look if Cancel is called
+            QApplication::processEvents( QEventLoop::AllEvents );
+
             // If we find a directory ( = series )
             if( boost::filesystem::is_directory( (*it) ) )
             {
@@ -99,6 +119,9 @@ ProtocolsFrame
                             dataset->LoadFile(filevisu);
                         }
 
+                        // Force to look if Cancel is called
+                        QApplication::processEvents( QEventLoop::AllEvents );
+
                         TreeItem* item = new TreeItem(NULL, subjects);
                         item->set_seriesDirectory(std::string((*it).path().filename().c_str()));
                         item->set_recoDirectory(std::string((*itsub).path().filename().c_str()));
@@ -119,14 +142,45 @@ ProtocolsFrame
                     }
                     // else ignore files
 
+                    // Canceled => force stop
+                    if (progress.wasCanceled())
+                    {
+                        break;
+                    }
                 } // for itsub
             }
             // else ignore files
+
+            // Canceled => force stop
+            if (progress.wasCanceled())
+            {
+                break;
+            }
+        } // for (; it != it_end; ++it)
+
+
+        // Canceled => force stop
+        if (progress.wasCanceled())
+        {
+            break;
         }
+        // Update progressDialog
+        progress.setValue(progressValue);
     }
 
-    this->Initialize();
-    this->_treeView->Initialize(itemslist);
+    // Canceled => force stop
+    if ( ! progress.wasCanceled())
+    {
+        this->Initialize();
+        this->_treeView->Initialize(itemslist);
+
+        // Terminate the progressDialog
+        progress.setValue(subjectslist.size());
+    }
+    else
+    {
+        emit this->cancelled();
+    }
 }
 
 void

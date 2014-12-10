@@ -125,11 +125,16 @@ EnhanceBrukerDicom
         throw dicomifier::DicomifierException("Can't read SeriesNumber attribut, error = " + 
                                               std::string(cond.text()));
     }
-    
+
     // Search corresponding Bruker Dataset
     dicomifier::bruker::BrukerDataset* brukerdataset = 
             brukerdirectory->get_brukerDataset(str.c_str());
-    
+
+    if (brukerdataset == NULL)
+    {
+        throw DicomifierException("Bruker Dataset is NULL");
+    }
+
     int coreFrameCount = 0;
     
     std::vector<int> indexlists = brukerdataset->create_frameGroupLists(coreFrameCount);

@@ -63,6 +63,7 @@ SubjectsFrame
     {
         on_dataDirectory_editingFinished();
     }
+    ontreeViewclicked();
     BaseFrame::Initialize();
 }
 

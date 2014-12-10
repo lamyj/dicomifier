@@ -213,7 +213,7 @@ BrukerDirectory
                 name = "0" + name;
             }
             name = StudyNumber + name;
-            
+
             this->_BrukerDatasetList[ name ] = dataset;
         }
     }
@@ -299,14 +299,7 @@ BrukerDataset*
 BrukerDirectory
 ::get_brukerDataset(std::string const& seriesnumber)
 {
-    std::string seriesnum(seriesnumber);
-    // check value
-    if (seriesnum.length() == 6)
-    {
-        seriesnum = "0" + seriesnum.substr(2,4);
-    }
-    
-    auto it = _BrukerDatasetList.find(seriesnum);
+    auto it = _BrukerDatasetList.find(seriesnumber);
     if (it != _BrukerDatasetList.end())
     {
         return (*it).second;

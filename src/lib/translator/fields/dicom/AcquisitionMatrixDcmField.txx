@@ -60,14 +60,16 @@ AcquisitionMatrixDcmField<EVR_US>
     Uint16 value1 = brukerdataset->GetFieldData("VisuAcqSize")->get_int(0);
     Uint16 value2 = brukerdataset->GetFieldData("VisuAcqSize")->get_int(1);
     
-    if (brukerfield == "col_dir")
+    if (brukerfield.find("col") != std::string::npos ||
+        brukerfield.find("COL") != std::string::npos)
     {
         this->_array.push_back(value1);
         this->_array.push_back(0);
         this->_array.push_back(0);
         this->_array.push_back(value2);
     }
-    else if (brukerfield == "row_dir")
+    else if (brukerfield.find("row") != std::string::npos ||
+             brukerfield.find("ROW") != std::string::npos)
     {
         this->_array.push_back(0);
         this->_array.push_back(value1);
@@ -77,7 +79,7 @@ AcquisitionMatrixDcmField<EVR_US>
     else
     {
         std::stringstream stream;
-        stream << "Bad value for VisuAcqImagePhaseEncDir field: " << brukerfield;
+        stream << "Bad value for VisuAcqImagePhaseEncDir: " << brukerfield;
         throw DicomifierException(stream.str());
     }
 }

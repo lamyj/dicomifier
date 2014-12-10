@@ -88,6 +88,8 @@ MainFrame
             this, SLOT(setEnabled_previousButton(bool)));
     connect(this, SIGNAL(UpdatePreferences()),
             widget, SLOT(onUpdate_Preferences()));
+    connect(widget, SIGNAL(cancelled()),
+            this, SLOT(on_previousButton_clicked()));
 }
 
 void

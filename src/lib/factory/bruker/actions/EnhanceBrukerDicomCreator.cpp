@@ -59,12 +59,12 @@ EnhanceBrukerDicomCreator
         throw DicomifierException("Unable to load dataset '" + filename + "'.");
     }
     
-    // get 'seriesnumber' attribut (mandatory)
-    int seriesnum = value.second.get<int>("<xmlattr>.seriesnumber"); // Warning: throw exception if attribut is missing
+    // get 'reconumber' attribut (mandatory)
+    int reconum = value.second.get<int>("<xmlattr>.reconumber"); // Warning: throw exception if attribut is missing
     
-    // get 'studynumber' attribut (optional)
-    auto studynum_ = value.second.get_optional<int>("<xmlattr>.studynumber");
-    int studynum = studynum_ ? studynum_.get() : 0;
+    // get 'seriesnumber' attribut (optional)
+    auto seriesnum_ = value.second.get_optional<int>("<xmlattr>.seriesnumber");
+    int seriesnum = seriesnum_ ? seriesnum_.get() : 0;
     
     // get 'brukerdir' attribut (mandatory)
     filename = value.second.get<std::string>("<xmlattr>.brukerdir"); // Warning: throw exception if attribut is missing
@@ -97,13 +97,15 @@ EnhanceBrukerDicomCreator
         outputdirectory = boost::any_cast<std::string>(this->_outputs->find(outputdirectory)->second);
     }
 
-    studynum = studynum % 10;       // only 1 byte
-    seriesnum = seriesnum % 10000;  // only 4 bytes
+    seriesnum = seriesnum % 100;      // only 2 byte
+    reconum = reconum % 10000;  // only 4 bytes
+
+    std::string mask = seriesnum < 10 ? "%01d%04d" : "%02d%04d";
     
-    // Conversion: StudyNum (A) + SeriesNum (B) => ABBBB
-    char temp[6];
-    memset(&temp[0], 0, 6);
-    snprintf(&temp[0], 6, "%01d%04d", studynum, seriesnum);
+    // Conversion: seriesnum (A) + reconum (B) => AABBBB
+    char temp[7];
+    memset(&temp[0], 0, 7);
+    snprintf(&temp[0], 7, mask.c_str(), seriesnum, reconum);
     std::string seriesnumber(temp);
     
     // Insert SeriesNumber => use to find Bruker data
