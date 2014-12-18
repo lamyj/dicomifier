@@ -11,8 +11,8 @@ add_subdirectory(configuration)
 set(CPACK_PACKAGE_NAME "dicomifier")
 set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "Dicomifier")
 set(CPACK_PACKAGE_VERSION_MAJOR "0")
-set(CPACK_PACKAGE_VERSION_MINOR "2")
-set(CPACK_PACKAGE_VERSION_PATCH "1")
+set(CPACK_PACKAGE_VERSION_MINOR "3")
+set(CPACK_PACKAGE_VERSION_PATCH "0")
 set(CPACK_PACKAGE_VERSION 
 	"${CPACK_PACKAGE_VERSION_MAJOR}.${CPACK_PACKAGE_VERSION_MINOR}.${CPACK_PACKAGE_VERSION_PATCH}")
 
@@ -34,11 +34,12 @@ else()
     message(FATAL_ERROR "Unknown release: ${release}")
 endif()
 
-# depends on Boost DCMTK Qt4
+# depends on Boost DCMTK Log4cpp Qt4
 set(CPACK_DEBIAN_PACKAGE_DEPENDS "libboost-filesystem${boost_version},
                                   libboost-regex${boost_version},
                                   libboost-system${boost_version},
                                   libdcmtk2,
+                                  liblog4cpp5,
                                   libqtcore4,
                                   libqtgui4")
 
