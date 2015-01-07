@@ -14,6 +14,7 @@
 #include "GenerationFrame.h"
 #include "PreferencesFrame.h"
 #include "ProtocolsFrame.h"
+#include "ResultsFrame.h"
 #include "SubjectsFrame.h"
 
 namespace dicomifier
@@ -27,14 +28,15 @@ namespace Ui
 class MainFrame;
 } // namespace Ui
 
-enum DicomifierStep
+enum class DicomifierStep
 {
-    EDS_SelectSubject = 0,
-    EDS_SelectProtocols,
-    EDS_Generation,
-    EDS_CountMax,
+    SelectSubject = 0,
+    SelectProtocols,
+    Generation,
+    Results,
+    CountMax,
 
-    EDS_Preferences
+    Preferences
 };
 
 class MainFrame : public QMainWindow
@@ -81,11 +83,15 @@ private:
 
     GenerationFrame * _generationframe;
 
+    ResultsFrame * _resultsframe;
+
     PreferencesFrame * _preferencesframe;
 
     DicomifierStep _currentStep;
 
     DicomifierStep _previousStep;
+
+    std::vector<TreeItem *> _itemsToProcess;
 
 };
 

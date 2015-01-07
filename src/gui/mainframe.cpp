@@ -26,9 +26,10 @@ MainFrame
     _subjectsframe(NULL),
     _protocolsframe(NULL),
     _generationframe(NULL),
+    _resultsframe(NULL),
     _preferencesframe(NULL),
-    _currentStep(EDS_CountMax),
-    _previousStep(EDS_CountMax)
+    _currentStep(DicomifierStep::CountMax),
+    _previousStep(DicomifierStep::CountMax)
 {
     this->_ui->setupUi(this);
 
@@ -55,6 +56,10 @@ MainFrame
     // Create third Widget (Generation Parameters)
     this->_generationframe = new GenerationFrame(this->_ui->stepWidget);
     this->InitializeWidget(this->_generationframe);
+
+    // Create Fourth Widget (Results information)
+    this->_resultsframe = new ResultsFrame(this->_ui->stepWidget);
+    this->InitializeWidget(this->_resultsframe);
 
     // Create Preferences Frame
     this->_preferencesframe = new PreferencesFrame(this->_ui->stepWidget);
@@ -96,7 +101,7 @@ void
 MainFrame
 ::ShowHide(bool nextstep)
 {
-    if (this->_currentStep == EDS_SelectSubject)
+    if (this->_currentStep == DicomifierStep::SelectSubject)
     {
         this->_subjectsframe->Initialize();
     }
@@ -105,7 +110,7 @@ MainFrame
         this->_subjectsframe->hide();
     }
 
-    if (this->_currentStep == EDS_SelectProtocols)
+    if (this->_currentStep == DicomifierStep::SelectProtocols)
     {
         if (nextstep)
         {
@@ -121,7 +126,7 @@ MainFrame
         this->_protocolsframe->hide();
     }
 
-    if (this->_currentStep == EDS_Generation)
+    if (this->_currentStep == DicomifierStep::Generation)
     {
         this->_generationframe->Initialize();
     }
@@ -130,7 +135,24 @@ MainFrame
         this->_generationframe->hide();
     }
 
-    if (this->_currentStep == EDS_Preferences)
+    if (this->_currentStep == DicomifierStep::Results)
+    {
+        if (nextstep)
+        {
+            this->_resultsframe->InitializeWithData(this->_itemsToProcess,
+                                                    this->_generationframe->get_Results());
+        }
+        else
+        {
+            this->_resultsframe->Initialize();
+        }
+    }
+    else
+    {
+        this->_resultsframe->hide();
+    }
+
+    if (this->_currentStep == DicomifierStep::Preferences)
     {
         this->_preferencesframe->Initialize();
     }
@@ -146,27 +168,44 @@ MainFrame
 {
     switch (this->_currentStep)
     {
-    case EDS_SelectSubject:
+    case DicomifierStep::SelectSubject:
     {
-        this->_currentStep = nextstep ? EDS_SelectProtocols : EDS_SelectSubject;
+        this->_currentStep = nextstep ? DicomifierStep::SelectProtocols :
+                                        DicomifierStep::SelectSubject;
         break;
     }
-    case EDS_SelectProtocols:
+    case DicomifierStep::SelectProtocols:
     {
-        this->_currentStep = nextstep ? EDS_Generation : EDS_SelectSubject;
+        this->_currentStep = nextstep ? DicomifierStep::Generation :
+                                        DicomifierStep::SelectSubject;
         break;
     }
-    case EDS_Generation:
+    case DicomifierStep::Generation:
     {
-        this->_currentStep = nextstep ? EDS_Generation : EDS_SelectProtocols;
+        this->_currentStep = nextstep ? DicomifierStep::Results :
+                                        DicomifierStep::SelectProtocols;
 
         if (nextstep)
         {
-            this->_generationframe->RunDicomifier(this->_protocolsframe->get_selectedData());
+            _itemsToProcess = this->_protocolsframe->get_selectedData();
+            this->_generationframe->RunDicomifier(_itemsToProcess);
         }
         break;
     }
-    case EDS_Preferences:
+    case DicomifierStep::Results:
+    {
+        if (nextstep)
+        {
+            this->close();
+        }
+        else
+        {
+            this->reset();
+        }
+
+        return;
+    }
+    case DicomifierStep::Preferences:
     {
         this->_currentStep = this->_previousStep;
         this->_ui->stepNumberLabel->show();
@@ -180,10 +219,10 @@ MainFrame
         nextstep = false;
         break;
     }
-    case EDS_CountMax:
+    case DicomifierStep::CountMax:
     default:
     {
-        this->_currentStep = EDS_SelectSubject;
+        this->_currentStep = DicomifierStep::SelectSubject;
         break;
     }
     }
@@ -191,11 +230,32 @@ MainFrame
     this->ShowHide(nextstep);
 
     std::stringstream stream;
-    stream << (this->_currentStep + 1) << " / " << EDS_CountMax;
-    this->_ui->stepNumberLabel->setText(QString(stream.str().c_str()));
+    stream << ((int)this->_currentStep + 1) << " / " << (int)DicomifierStep::Results;
 
-    this->_ui->nextButton->setText(this->_currentStep + 1 == EDS_CountMax ? QString("Run") :
-                                                                            QString("Next"));
+    if (this->_currentStep != DicomifierStep::Results)
+    {
+        this->_ui->stepNumberLabel->setText(QString(stream.str().c_str()));
+    }
+    else
+    {
+        this->_ui->stepNumberLabel->setText("");
+    }
+
+    if (this->_currentStep == DicomifierStep::Generation)
+    {
+        this->_ui->nextButton->setText(QString("Run"));
+        this->_ui->previousButton->setText(QString("Previous"));
+    }
+    else if (this->_currentStep == DicomifierStep::Results)
+    {
+        this->_ui->nextButton->setText(QString("Close"));
+        this->_ui->previousButton->setText(QString("New"));
+    }
+    else
+    {
+        this->_ui->nextButton->setText(QString("Next"));
+        this->_ui->previousButton->setText(QString("Previous"));
+    }
 }
 
 void
@@ -231,11 +291,11 @@ void
 MainFrame
 ::OpenPreferences()
 {
-    if (this->_currentStep == EDS_Preferences)
+    if (this->_currentStep == DicomifierStep::Preferences)
         return;
 
     this->_previousStep = this->_currentStep;
-    this->_currentStep = EDS_Preferences;
+    this->_currentStep = DicomifierStep::Preferences;
     this->_ui->stepNumberLabel->hide();
 
     this->_ui->nextButton->setText(QString("Validate"));
@@ -254,7 +314,7 @@ MainFrame
     this->_generationframe->Reset();
 
     // Initialize window
-    this->_currentStep = EDS_CountMax;
+    this->_currentStep = DicomifierStep::CountMax;
     this->ChangeStep(false);
 }
 

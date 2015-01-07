@@ -6,6 +6,7 @@
  * for details.
  ************************************************************************/
 
+#include "core/Hashcode.h"
 #include "TreeItem.h"
 
 namespace dicomifier
@@ -20,7 +21,9 @@ TreeItem
     _name(""), _subjectDirectory(""), _study(""), _series(""),
     _reconstruction(""), _date(""), _directory(""),
     _seriesDirectory(""), _recoDirectory(""), _protocolName(""),
-    _qdatetime(QDateTime::currentDateTime()), _enabled(true)
+    _qdatetime(QDateTime::currentDateTime()), _enabled(true),
+    _DicomErrorMsg("Canceled"), _DicomdirErrorMsg(""),
+    _ZipErrorMsg(""), _destinationDirectory("")
 {
     if (copy != NULL)
     {
@@ -35,6 +38,10 @@ TreeItem
         this->_recoDirectory   = copy->get_recoDirectory();
         this->_protocolName    = copy->get_protocolName();
         this->_qdatetime       = copy->get_qdatetime();
+        this->_DicomErrorMsg   = copy->get_DicomErrorMsg();
+        this->_DicomdirErrorMsg= copy->get_DicomdirErrorMsg();
+        this->_ZipErrorMsg     = copy->get_ZipErrorMsg();
+        this->_destinationDirectory= copy->get_destinationDirectory();
     }
 }
 
@@ -272,6 +279,13 @@ TreeItem
     if (brukerdataset->HasFieldData("VisuAcquisitionProtocol"))
     {
         this->_protocolName = brukerdataset->GetFieldData("VisuAcquisitionProtocol")->get_string(0);
+    }
+
+    if (brukerdataset->HasFieldData("VisuSubjectId"))
+    {
+        this->_destinationDirectory = brukerdataset->GetFieldData("VisuSubjectId")->get_string(0);
+        this->_destinationDirectory =
+                dicomifier::hashcode::hashToString(dicomifier::hashcode::hashCode(this->_destinationDirectory));
     }
 }
 

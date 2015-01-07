@@ -58,6 +58,16 @@ public:
     std::string get_protocolName() const { return this->_protocolName; }
     QDateTime get_qdatetime() const { return this->_qdatetime; }
 
+    std::string get_DicomErrorMsg() const { return this->_DicomErrorMsg; }
+    std::string get_DicomdirErrorMsg() const { return this->_DicomdirErrorMsg; }
+    std::string get_ZipErrorMsg() const { return this->_ZipErrorMsg; }
+
+    std::string get_destinationDirectory() const { return this->_destinationDirectory; }
+
+    void set_name(std::string const & name) { this->_name = name; }
+    void set_study(std::string const & study) { this->_study = study; }
+    void set_series(std::string const & series) { this->_series = series; }
+
     void set_subjectDirectory(std::string const & subjectDirectory)
             { this->_subjectDirectory = subjectDirectory; }
     void set_data(const QList<QVariant> & data) { this->_itemData = data; }
@@ -68,6 +78,14 @@ public:
             { this->_seriesDirectory = seriesDirectory; }
     void set_recoDirectory(std::string const & recoDirectory)
             { this->_recoDirectory = recoDirectory; }
+
+    void set_DicomErrorMsg(std::string const & dicomerrormsg)
+            { this->_DicomErrorMsg = dicomerrormsg; }
+    void set_DicomdirErrorMsg(std::string const & message) { this->_DicomdirErrorMsg = message; }
+    void set_ZipErrorMsg(std::string const & message) { this->_ZipErrorMsg = message; }
+
+    void set_destinationDirectory(std::string const & destination)
+            { this->_destinationDirectory = destination; }
 
     void fill_data(dicomifier::bruker::BrukerDataset* const brukerdataset);
 
@@ -102,6 +120,12 @@ private:
     std::string _recoDirectory;
     std::string _protocolName;
     QDateTime _qdatetime;
+
+    std::string _DicomErrorMsg;
+    std::string _DicomdirErrorMsg;
+    std::string _ZipErrorMsg;
+
+    std::string _destinationDirectory;
 
     bool _enabled;
 
