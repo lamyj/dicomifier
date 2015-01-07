@@ -9,6 +9,7 @@
 #ifndef _26ab5a53_b1ad_4511_b73a_17e54bb74b19
 #define _26ab5a53_b1ad_4511_b73a_17e54bb74b19
 
+#include <cstring>
 #include <stdint.h>
 #include <string>
 

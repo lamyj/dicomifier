@@ -80,6 +80,8 @@ GenerationFrame
         format = "EnhancedMRImageStorage";
     }
 
+    std::map<std::string, std::string> mapHascodeToSubject;
+
     int progressValue = 0;
     // Create DICOM files
     for (auto currentItem : selectedItems)
@@ -101,6 +103,11 @@ GenerationFrame
                       << "Reco=" << currentItem->get_recoDirectory() << ")";
         progress.setLabelText(QString(progressLabel.str().c_str()));
 
+        if (mapHascodeToSubject.find(currentItem->get_destinationDirectory()) == mapHascodeToSubject.end())
+        {
+            mapHascodeToSubject[currentItem->get_destinationDirectory()] = currentItem->get_name();
+        }
+
         int seriesnum = atoi(currentItem->get_seriesDirectory().c_str());
         int reconum = atoi(currentItem->get_recoDirectory().c_str());
 
@@ -120,7 +127,9 @@ GenerationFrame
                                                             OFString(seriesnumber.c_str()));
         if (ret.bad())
         {
-            // TODO do something
+            delete dataset;
+            currentItem->set_DicomErrorMsg(ret.text());
+            continue;
         }
 
         // create Rule
@@ -131,7 +140,9 @@ GenerationFrame
 
         if (rule == NULL)
         {
-            // TODO do something
+            delete dataset;
+            currentItem->set_DicomErrorMsg("Cannot create conversion rule");
+            continue;
         }
 
         // Force to look if Cancel is called
@@ -141,17 +152,29 @@ GenerationFrame
         {
             // Execute
             rule->run();
+
+            currentItem->set_DicomErrorMsg("OK");
         }
         catch (dicomifier::DicomifierException &exc)
         {
             dicomifier::loggerError() << exc.what();
+            currentItem->set_DicomErrorMsg(exc.what());
         }
         catch (std::exception &e)
         {
             dicomifier::loggerError() << e.what();
+            currentItem->set_DicomErrorMsg(e.what());
         }
 
         delete dataset;
+    }
+
+    this->_Results.clear();
+    for (auto iter = mapHascodeToSubject.begin();
+         iter != mapHascodeToSubject.end();
+         iter++)
+    {
+        this->_Results[iter->second] = GenerationResultItem();
     }
 
     if (this->_ui->DicomdirCheckBox->isChecked())
@@ -222,8 +245,9 @@ GenerationFrame
 
                 if (boost::filesystem::exists(boost::filesystem::path(dicomdirfile.c_str())))
                 {
-                    // TODO log an error and continue
-                    throw DicomifierException("DICOMDIR already exist: " + dicomdirfile);
+                    this->_Results[mapHascodeToSubject[std::string((*it).path().filename().c_str())]].set_dicomdirCreation(GenerationResultItem::Result::Fail);
+                    this->_Results[mapHascodeToSubject[std::string((*it).path().filename().c_str())]].set_DicomdirErrorMsg("DICOMDIR already exist: " + dicomdirfile);
+                    continue;
                 }
 
                 // Create generator
@@ -235,7 +259,8 @@ GenerationFrame
 
                 if (ret.bad())
                 {
-                    // TODO do something
+                    this->_Results[mapHascodeToSubject[std::string((*it).path().filename().c_str())]].set_dicomdirCreation(GenerationResultItem::Result::Fail);
+                    this->_Results[mapHascodeToSubject[std::string((*it).path().filename().c_str())]].set_DicomdirErrorMsg(ret.text());
                     continue;
                 }
 
@@ -250,7 +275,12 @@ GenerationFrame
 
                 if (ret.bad())
                 {
-                    // TODO do something
+                    this->_Results[mapHascodeToSubject[std::string((*it).path().filename().c_str())]].set_dicomdirCreation(GenerationResultItem::Result::Fail);
+                    this->_Results[mapHascodeToSubject[std::string((*it).path().filename().c_str())]].set_DicomdirErrorMsg(ret.text());
+                }
+                else
+                {
+                    this->_Results[mapHascodeToSubject[std::string((*it).path().filename().c_str())]].set_dicomdirCreation(GenerationResultItem::Result::OK);
                 }
             }
         }
@@ -312,7 +342,15 @@ GenerationFrame
 
                 myProcess->waitForFinished();
 
-                // TODO look the process return
+                if (myProcess->exitCode() == EXIT_SUCCESS)
+                {
+                    this->_Results[mapHascodeToSubject[std::string((*it).path().filename().c_str())]].set_zipCreation(GenerationResultItem::Result::OK);
+                }
+                else
+                {
+                    this->_Results[mapHascodeToSubject[std::string((*it).path().filename().c_str())]].set_zipCreation(GenerationResultItem::Result::Fail);
+                    this->_Results[mapHascodeToSubject[std::string((*it).path().filename().c_str())]].set_ZipErrorMsg(myProcess->errorString().toStdString());
+                }
 
                 // Update progressDialog
                 progress.setValue(progressValue);
