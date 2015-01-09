@@ -32,6 +32,8 @@ public:
     explicit GenerationFrame(QWidget *parent = 0);
     virtual ~GenerationFrame();
 
+    virtual void Initialize();
+
     virtual void Reset();
 
     void RunDicomifier(std::vector<TreeItem*> selectedItems);

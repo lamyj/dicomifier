@@ -12,7 +12,6 @@
 #include <boost/filesystem.hpp>
 
 #include "bruker/BrukerDirectory.h"
-#include "PreferencesFrame.h"
 #include "SubjectsFrame.h"
 #include "ui_SubjectsFrame.h"
 
@@ -116,6 +115,12 @@ SubjectsFrame
     {
         QString directory = dialog.selectedFiles()[0];
         this->_ui->dataDirectory->setText(directory);
+
+        QSettings settings;
+
+        settings.beginGroup(CONF_GROUP_INPUT);
+        settings.setValue(CONF_KEY_DIRECTORY, directory);
+        settings.endGroup();
 
         this->on_dataDirectory_editingFinished();
     }
@@ -237,11 +242,7 @@ void
 SubjectsFrame
 ::onUpdate_Preferences()
 {
-    QSettings settings;
-    this->_ui->dataDirectory->setText(settings.value(CONF_GROUP_INPUT + "/" +
-                                                     CONF_KEY_DIRECTORY,
-                                                     QString("")).toString());
-    this->on_dataDirectory_editingFinished();
+    // Nothing to do
 }
 
 void

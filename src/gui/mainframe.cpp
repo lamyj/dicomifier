@@ -206,13 +206,13 @@ MainFrame
         return;
     }
     case DicomifierStep::Preferences:
-    {
+    {std::cout << "DEBUG RLA preference" << std::endl;
         this->_currentStep = this->_previousStep;
         this->_ui->stepNumberLabel->show();
         this->_ui->nextButton->setText(QString("Next"));
         this->_ui->previousButton->setText(QString("Previous"));
         if (nextstep)
-        {
+        {std::cout << "DEBUG RLA save" << std::endl;
             this->_preferencesframe->SavePreferences();
             emit this->UpdatePreferences();
         }
@@ -226,9 +226,9 @@ MainFrame
         break;
     }
     }
-
+std::cout << "DEBUG RLA show" << std::endl;
     this->ShowHide(nextstep);
-
+std::cout << "DEBUG RLA show ok" << std::endl;
     std::stringstream stream;
     stream << ((int)this->_currentStep + 1) << " / " << (int)DicomifierStep::Results;
 
