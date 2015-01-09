@@ -11,6 +11,8 @@
 
 #include "BaseFrame.h"
 
+#include "components/PACSTreeView.h"
+
 namespace dicomifier
 {
 
@@ -20,11 +22,6 @@ namespace gui
 namespace Ui {
 class PreferencesFrame;
 }
-
-QString const CONF_GROUP_INPUT = "Input";
-QString const CONF_GROUP_OUTPUT = "Output";
-QString const CONF_KEY_DIRECTORY = "directory";
-QString const CONF_KEY_FORMAT = "dicomformat";
 
 class PreferencesFrame : public BaseFrame
 {
@@ -43,13 +40,27 @@ public:
 public slots:
     virtual void onUpdate_Preferences();
 
+    void TreeViewClicked(QModelIndex index);
+
 protected:
     virtual void modify_nextButton_enabled();
 
     virtual void modify_previousButton_enabled();
 
+    void paintEvent(QPaintEvent *event);
+
+private slots:
+    void on_NewButton_clicked();
+
+    void on_EditButton_clicked();
+
+    void on_DeleteButton_clicked();
+
 private:
     Ui::PreferencesFrame * _ui;
+
+    PACSTreeView * _treeView;
+
 };
 
 } // namespace gui

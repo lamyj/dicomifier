@@ -23,7 +23,7 @@
 #include "bruker/actions/EnhanceBrukerDicom.h"
 #include "core/Logger.h"
 #include "GenerationFrame.h"
-#include "PreferencesFrame.h"
+#include "components/PACSTreeItem.h"
 #include "ui_GenerationFrame.h"
 
 namespace dicomifier
@@ -38,8 +38,6 @@ GenerationFrame
     _ui(new Ui::GenerationFrame)
 {
     this->_ui->setupUi(this);
-
-    onUpdate_Preferences();
 }
 
 GenerationFrame
@@ -50,11 +48,77 @@ GenerationFrame
 
 void
 GenerationFrame
+::Initialize()
+{
+    QSettings settings;
+
+    // Set Output Directory
+    this->_ui->outputDirectory->setText(settings.value(CONF_GROUP_OUTPUT + "/" +
+                                                       CONF_KEY_DIRECTORY,
+                                                       QString("")).toString());
+
+    // Set Output Format File
+    QString selectitem = settings.value(CONF_GROUP_OUTPUT + "/" +
+                                    CONF_KEY_FORMAT,
+                                    QString("")).toString();
+    if (selectitem.toStdString() == "MRImageStorage")
+    {
+        this->_ui->formatMRIMultiple->setChecked(true);
+    }
+    else if (selectitem.toStdString() == "EnhancedMRImageStorage")
+    {
+        this->_ui->formatMRISingle->setChecked(true);
+    }
+
+    // Set DICOMDIR Creation
+    Qt::CheckState checkstate =
+            (Qt::CheckState)settings.value(CONF_GROUP_OUTPUT + "/" + CONF_KEY_DICOMDIR,
+                                           Qt::CheckState::Unchecked).toInt();
+    this->_ui->DicomdirCheckBox->setCheckState(checkstate);
+
+    // Set ZIP Creation
+    checkstate =
+            (Qt::CheckState)settings.value(CONF_GROUP_OUTPUT + "/" + CONF_KEY_ZIP,
+                                           Qt::CheckState::Unchecked).toInt();
+    this->_ui->ZIPCheckBox->setCheckState(checkstate);
+
+    // Set Save Option
+    checkstate =
+            (Qt::CheckState)settings.value(CONF_GROUP_OUTPUT + "/" + CONF_KEY_SAVE,
+                                           Qt::CheckState::Unchecked).toInt();
+    this->_ui->saveCheckBox->setCheckState(checkstate);
+
+    // Set Store Option
+    checkstate =
+            (Qt::CheckState)settings.value(CONF_GROUP_OUTPUT + "/" + CONF_KEY_STORE,
+                                           Qt::CheckState::Unchecked).toInt();
+    this->_ui->StoreCheckBox->setCheckState(checkstate);
+
+    // Set PACS name
+    this->_ui->PACSComboBox->clear();
+    int number = settings.value(CONF_GROUP_PACS + "/" + CONF_KEY_NUMBER, 0).toInt();
+    QStringList itemslist;
+    for (unsigned int i = 0 ; i < number ; ++i)
+    {
+        std::stringstream stream;
+        stream << CONF_GROUP_PACS.toStdString() << "/"
+               << CONF_GROUP_PACS.toStdString() << i << "_";
+
+        std::stringstream streamname;
+        streamname << stream.str() << CONF_KEY_NAME.toStdString();
+
+        itemslist << settings.value(streamname.str().c_str(), QString("")).toString();
+    }
+    this->_ui->PACSComboBox->addItems(itemslist);
+
+    BaseFrame::Initialize();
+}
+
+void
+GenerationFrame
 ::Reset()
 {
-    onUpdate_Preferences();
-    this->_ui->DicomdirCheckBox->setChecked(false);
-    this->_ui->ZIPCheckBox->setChecked(false);
+    this->Initialize();
 }
 
 void
@@ -79,6 +143,16 @@ GenerationFrame
     {
         format = "EnhancedMRImageStorage";
     }
+
+    // Save preferences
+    QSettings settings;
+    settings.beginGroup(CONF_GROUP_OUTPUT);
+    settings.setValue(CONF_KEY_FORMAT, QString(format.c_str()));
+    settings.setValue(CONF_KEY_DICOMDIR, this->_ui->DicomdirCheckBox->checkState());
+    settings.setValue(CONF_KEY_ZIP, this->_ui->ZIPCheckBox->checkState());
+    settings.setValue(CONF_KEY_SAVE, this->_ui->saveCheckBox->checkState());
+    settings.setValue(CONF_KEY_STORE, this->_ui->StoreCheckBox->checkState());
+    settings.endGroup();
 
     std::map<std::string, std::string> mapHascodeToSubject;
 
@@ -370,21 +444,23 @@ GenerationFrame
 ::onUpdate_Preferences()
 {
     QSettings settings;
-    this->_ui->outputDirectory->setText(settings.value(CONF_GROUP_OUTPUT + "/" +
-                                                       CONF_KEY_DIRECTORY,
-                                                       QString("")).toString());
 
-    int selectitem = settings.value(CONF_GROUP_OUTPUT + "/" +
-                                    CONF_KEY_FORMAT,
-                                    QString("")).toInt();
-    if (selectitem == 0)
+    // Set PACS name
+    this->_ui->PACSComboBox->clear();
+    int number = settings.value(CONF_GROUP_PACS + "/" + CONF_KEY_NUMBER, 0).toInt();
+    QStringList itemslist;
+    for (unsigned int i = 0 ; i < number ; ++i)
     {
-        this->_ui->formatMRIMultiple->setChecked(true);
+        std::stringstream stream;
+        stream << CONF_GROUP_PACS.toStdString() << "/"
+               << CONF_GROUP_PACS.toStdString() << i << "_";
+
+        std::stringstream streamname;
+        streamname << stream.str() << CONF_KEY_NAME.toStdString();
+
+        itemslist << settings.value(streamname.str().c_str(), QString("")).toString();
     }
-    else if (selectitem == 1)
-    {
-        this->_ui->formatMRISingle->setChecked(true);
-    }
+    this->_ui->PACSComboBox->addItems(itemslist);
 }
 
 void
@@ -464,6 +540,12 @@ GenerationFrame
     {
         QString directory = dialog.selectedFiles()[0];
         this->_ui->outputDirectory->setText(directory);
+
+        QSettings settings;
+
+        settings.beginGroup(CONF_GROUP_OUTPUT);
+        settings.setValue(CONF_KEY_DIRECTORY, directory);
+        settings.endGroup();
 
         this->on_outputDirectory_editingFinished();
     }

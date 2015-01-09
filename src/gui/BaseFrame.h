@@ -17,6 +17,15 @@ namespace dicomifier
 namespace gui
 {
 
+QString const CONF_GROUP_INPUT = "Input";
+QString const CONF_GROUP_OUTPUT = "Output";
+QString const CONF_KEY_DIRECTORY = "directory";
+QString const CONF_KEY_FORMAT = "dicomformat";
+QString const CONF_KEY_DICOMDIR = "dicomdir";
+QString const CONF_KEY_ZIP = "zip";
+QString const CONF_KEY_SAVE = "save";
+QString const CONF_KEY_STORE = "store";
+
 class BaseFrame : public QWidget
 {
     Q_OBJECT

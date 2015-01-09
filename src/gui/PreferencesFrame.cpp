@@ -6,6 +6,7 @@
  * for details.
  ************************************************************************/
 
+#include "PACSConfigurationFrame.h"
 #include "PreferencesFrame.h"
 #include "ui_PreferencesFrame.h"
 
@@ -24,12 +25,11 @@ PreferencesFrame
 {
     this->_ui->setupUi(this);
 
-    QStringList itemslist;
-    itemslist << "MRI Multi Frames";
-    itemslist << "MRI Single Frame";
-    itemslist << "MRI Multi Frames2";
-    itemslist << "MRI Single Frame2";
-    this->_ui->comboBox->addItems(itemslist);
+    this->_treeView = new PACSTreeView(this->_ui->widget);
+    this->_treeView->Initialize();
+
+    connect(this->_treeView, SIGNAL(clicked(QModelIndex)),
+            this, SLOT(TreeViewClicked(QModelIndex)));
 }
 
 PreferencesFrame
@@ -42,10 +42,9 @@ void
 PreferencesFrame
 ::Initialize()
 {
-    QSettings settings;
-    this->_ui->lineEdit->setText(settings.value(CONF_GROUP_INPUT + "/" + CONF_KEY_DIRECTORY, QString("")).toString());
-    this->_ui->lineEdit_2->setText(settings.value(CONF_GROUP_OUTPUT + "/" + CONF_KEY_DIRECTORY, QString("")).toString());
-    this->_ui->comboBox->setCurrentIndex(settings.value(CONF_GROUP_OUTPUT + "/" + CONF_KEY_FORMAT, 0).toInt());
+    this->_treeView->Initialize();
+
+    TreeViewClicked(QModelIndex());
 
     BaseFrame::Initialize();
 }
@@ -61,16 +60,10 @@ void
 PreferencesFrame
 ::SavePreferences()
 {
-    QSettings settings;
-
-    settings.beginGroup(CONF_GROUP_INPUT);
-    settings.setValue(CONF_KEY_DIRECTORY, this->_ui->lineEdit->text());
-    settings.endGroup();
-
-    settings.beginGroup(CONF_GROUP_OUTPUT);
-    settings.setValue(CONF_KEY_DIRECTORY, this->_ui->lineEdit_2->text());
-    settings.setValue(CONF_KEY_FORMAT, this->_ui->comboBox->currentIndex());
-    settings.endGroup();
+    if (this->_treeView != NULL)
+    {
+        this->_treeView->SaveData();
+    }
 }
 
 void
@@ -78,6 +71,16 @@ PreferencesFrame
 ::onUpdate_Preferences()
 {
     // Nothing to do
+}
+
+void
+PreferencesFrame
+::TreeViewClicked(QModelIndex index)
+{
+    bool selected = index.isValid();
+
+    this->_ui->EditButton->setEnabled(selected);
+    this->_ui->DeleteButton->setEnabled(selected);
 }
 
 void
@@ -92,6 +95,54 @@ PreferencesFrame
 ::modify_previousButton_enabled()
 {
     emit this->update_previousButton(true);
+}
+
+void PreferencesFrame::paintEvent(QPaintEvent *event)
+{
+    if (this->_treeView != NULL)
+    {
+        this->_treeView->resize(this->_ui->widget->size());
+    }
+
+    QWidget::paintEvent(event);
+}
+
+void
+PreferencesFrame
+::on_NewButton_clicked()
+{
+    PACSConfigurationFrame * frame =
+            new PACSConfigurationFrame((QWidget*)this->parent());
+    connect(frame, SIGNAL(SendItem(PACSTreeItem*)),
+            this->_treeView, SLOT(receiveNewItem(PACSTreeItem*)));
+    frame->setModal(true);
+    frame->show();
+}
+
+void
+PreferencesFrame
+::on_EditButton_clicked()
+{
+    if (this->_treeView != NULL && this->_treeView->currentIndex().isValid())
+    {
+        PACSConfigurationFrame * frame =
+                new PACSConfigurationFrame((QWidget*)this->parent());
+        frame->Initialize(this->_treeView->currentIndex());
+        connect(frame, SIGNAL(SendItem(PACSTreeItem*)),
+                this->_treeView, SLOT(receiveNewItem(PACSTreeItem*)));
+        frame->setModal(true);
+        frame->show();
+    }
+}
+
+void
+PreferencesFrame
+::on_DeleteButton_clicked()
+{
+    if (this->_treeView != NULL)
+    {
+        this->_treeView->DeleteSelectedItem();
+    }
 }
 
 } // namespace gui
