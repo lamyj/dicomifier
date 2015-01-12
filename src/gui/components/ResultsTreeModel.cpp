@@ -13,7 +13,7 @@ ResultsTreeModel
     this->_rootItem = new TreeItem();
 
     QList<QVariant> rootData;
-    rootData << "Name" << "DICOM" << "DICOMDIR" << "ZIP";
+    rootData << "Name" << "DICOM" << "Store" << "DICOMDIR" << "ZIP";
     this->_rootItem->set_data(rootData);
 }
 
@@ -72,6 +72,7 @@ ResultsTreeModel
         itemSubject->set_name(itersubject->first);
 
         bool subjectstatus = true;
+        bool subjectstorestatus = true;
 
         // Create sub-item
         for (auto iterstudy = itersubject->second.begin();
@@ -83,6 +84,7 @@ ResultsTreeModel
             itemStudy->set_study(iterstudy->first);
 
             bool studystatus = true;
+            bool studystorestatus = true;
 
             // Create sub-item
             for (auto iterseries = iterstudy->second.begin();
@@ -94,6 +96,7 @@ ResultsTreeModel
                 itemSeries->set_series(iterseries->first);
 
                 bool seriesstatus = true;
+                bool seriesstorestatus = true;
 
                 // Create sub-item
                 for (auto iterReco : iterseries->second)
@@ -102,25 +105,40 @@ ResultsTreeModel
                     TreeItem * itemReco = new TreeItem(itemSeries, iterReco);
 
                     QString dicommsg;
+                    QString storemsg = QString("Fail");
                     if (itemReco->get_DicomErrorMsg() == "" || itemReco->get_DicomErrorMsg() == "OK")
                     {
                         dicommsg = QString("OK");
+
+                        if (itemReco->get_StoreErrorMsg() == "" || itemReco->get_StoreErrorMsg() == "OK")
+                        {
+                            storemsg = QString("OK");
+                        }
+                        else
+                        {
+                            storemsg = QString("Fail");
+                            seriesstorestatus = false;
+                        }
                     }
                     else if (itemReco->get_DicomErrorMsg() == "Canceled")
                     {
                         dicommsg = QString("Canceled");
+                        storemsg = QString("Canceled");
                         seriesstatus = false;
+                        seriesstorestatus = false;
                     }
                     else
                     {
                         dicommsg = QString("Fail");
                         seriesstatus = false;
+                        seriesstorestatus = false;
                     }
 
                     // set reconstruction data
                     QList<QVariant> itemRecoData;
                     itemRecoData << QString(itemReco->get_reconstruction().c_str());
                     itemRecoData << dicommsg;
+                    itemRecoData << storemsg;
                     itemRecoData << "";
                     itemRecoData << "";
                     itemReco->set_data(itemRecoData);
@@ -133,9 +151,11 @@ ResultsTreeModel
 
                 // set series data
                 QString dicommsg = seriesstatus ? QString("OK") : QString("Fail");
+                QString storemsg = seriesstorestatus ? QString("OK") : QString("Fail");
                 QList<QVariant> itemSeriesData;
                 itemSeriesData << QString(itemSeries->get_series().c_str());
                 itemSeriesData << dicommsg;
+                itemSeriesData << storemsg;
                 itemSeriesData << "";
                 itemSeriesData << "";
                 itemSeries->set_data(itemSeriesData);
@@ -144,15 +164,19 @@ ResultsTreeModel
                 itemStudy->appendChild(itemSeries);
 
                 studystatus &= seriesstatus;
+                studystorestatus &= seriesstorestatus;
             }
 
             itemStudy->set_DicomErrorMsg("");
+            itemStudy->set_StoreErrorMsg("");
 
             // set study data
             QString dicommsg = studystatus ? QString("OK") : QString("Fail");
+            QString storemsg = studystorestatus ? QString("OK") : QString("Fail");
             QList<QVariant> itemStudyData;
             itemStudyData << QString(itemStudy->get_study().c_str());
             itemStudyData << dicommsg;
+            itemStudyData << storemsg;
             itemStudyData << "";
             itemStudyData << "";
             itemStudy->set_data(itemStudyData);
@@ -161,17 +185,21 @@ ResultsTreeModel
             itemSubject->appendChild(itemStudy);
 
             subjectstatus &= studystatus;
+            subjectstorestatus &= studystorestatus;
         }
 
         itemSubject->set_DicomErrorMsg("");
+        itemSubject->set_StoreErrorMsg("");
         itemSubject->set_DicomdirErrorMsg(results[itemSubject->get_name()].get_DicomdirErrorMsg());
         itemSubject->set_ZipErrorMsg(results[itemSubject->get_name()].get_ZipErrorMsg());
 
         // set subject data
         QString dicommsg = subjectstatus ? QString("OK") : QString("Fail");
+        QString storemsg = subjectstorestatus ? QString("OK") : QString("Fail");
         QList<QVariant> itemSubjectData;
         itemSubjectData << QString(itemSubject->get_name().c_str());
         itemSubjectData << dicommsg;
+        itemSubjectData << storemsg;
         itemSubjectData << QString(results[itemSubject->get_name()].get_dicomdirCreationToString().c_str());
         itemSubjectData << QString(results[itemSubject->get_name()].get_zipCreationToString().c_str());
         itemSubject->set_data(itemSubjectData);
@@ -236,14 +264,21 @@ ResultsTreeModel
         }
         else if (index.column() == 2)
         {
-            if (item->get_DicomErrorMsg() != "")
+            if (item->get_StoreErrorMsg() != "" && item->get_StoreErrorMsg() != "OK")
             {
-                return QString(item->get_DicomdirErrorMsg().c_str());
+                return QString(item->get_StoreErrorMsg().c_str());
             }
         }
         else if (index.column() == 3)
         {
-            if (item->get_DicomErrorMsg() != "")
+            if (item->get_DicomdirErrorMsg() != "")
+            {
+                return QString(item->get_DicomdirErrorMsg().c_str());
+            }
+        }
+        else if (index.column() == 4)
+        {
+            if (item->get_ZipErrorMsg() != "")
             {
                 return QString(item->get_ZipErrorMsg().c_str());
             }

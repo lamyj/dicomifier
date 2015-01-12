@@ -22,6 +22,7 @@
 
 #include "bruker/actions/EnhanceBrukerDicom.h"
 #include "core/Logger.h"
+#include "dicom/actions/StoreDataset.h"
 #include "GenerationFrame.h"
 #include "components/PACSTreeItem.h"
 #include "ui_GenerationFrame.h"
@@ -206,11 +207,22 @@ GenerationFrame
             continue;
         }
 
+        std::string outputdir = this->_ui->outputDirectory->text().toStdString();
+        if (this->_ui->saveCheckBox->isChecked() == false)
+        {
+            // Create temporary directory
+            boost::filesystem::path uniquepath = boost::filesystem::unique_path();
+            boost::filesystem::path temp = boost::filesystem::temp_directory_path();
+
+            outputdir = boost::filesystem::canonical(temp).string() + "/" + uniquepath.filename().string();
+            boost::filesystem::create_directories(boost::filesystem::path(outputdir.c_str()));
+        }
+
         // create Rule
         auto rule = dicomifier::actions::EnhanceBrukerDicom::New(dataset,
                                                                  currentItem->get_directory(),
                                                                  format,
-                                                                 this->_ui->outputDirectory->text().toStdString());
+                                                                 outputdir);
 
         if (rule == NULL)
         {
@@ -224,7 +236,7 @@ GenerationFrame
 
         try
         {
-            // Execute
+            // Execute Save
             rule->run();
 
             currentItem->set_DicomErrorMsg("OK");
@@ -240,6 +252,33 @@ GenerationFrame
             currentItem->set_DicomErrorMsg(e.what());
         }
 
+        if (this->_ui->StoreCheckBox->isChecked() &&
+            currentItem->get_DicomErrorMsg() == "OK")
+        {
+            try
+            {
+                this->storeFilesIntoPACS(outputdir);
+
+                currentItem->set_StoreErrorMsg("OK"); // TODO
+            }
+            catch (dicomifier::DicomifierException &exc)
+            {
+                dicomifier::loggerError() << exc.what();
+                currentItem->set_StoreErrorMsg(exc.what());
+            }
+            catch (std::exception &e)
+            {
+                dicomifier::loggerError() << e.what();
+                currentItem->set_StoreErrorMsg(e.what());
+            }
+        }
+
+        if (this->_ui->saveCheckBox->isChecked() == false)
+        {
+            // Remove temporary directory
+            boost::filesystem::remove_all(boost::filesystem::path(outputdir.c_str()));
+        }
+
         delete dataset;
     }
 
@@ -251,7 +290,8 @@ GenerationFrame
         this->_Results[iter->second] = GenerationResultItem();
     }
 
-    if (this->_ui->DicomdirCheckBox->isChecked())
+    if (this->_ui->saveCheckBox->isChecked() &&
+        this->_ui->DicomdirCheckBox->isChecked())
     {
         // Create DICOMDIR file (One per Subject)
 
@@ -360,7 +400,8 @@ GenerationFrame
         }
     }
 
-    if (this->_ui->ZIPCheckBox->isChecked())
+    if (this->_ui->saveCheckBox->isChecked() &&
+        this->_ui->ZIPCheckBox->isChecked())
     {
         boost::filesystem::directory_iterator it(this->_ui->outputDirectory->text().toStdString()),
                                               countdir(this->_ui->outputDirectory->text().toStdString()),
@@ -473,9 +514,11 @@ GenerationFrame
             this->_ui->outputDirectory->text().toUtf8().constData();
 
     // Directory is filled and available
-    bool enabled = this->_ui->saveCheckBox->checkState() == Qt::Checked &&
+    bool enabled = (this->_ui->saveCheckBox->checkState() == Qt::Checked &&
                    directory != "" &&
-                   boost::filesystem::exists(boost::filesystem::path(directory));
+                   boost::filesystem::exists(boost::filesystem::path(directory))) ||
+
+                   (this->_ui->StoreCheckBox->checkState() == Qt::Checked);
 
     emit this->update_nextButton(enabled);
 }
@@ -486,6 +529,95 @@ GenerationFrame
 {
     // always true
     emit this->update_previousButton(true);
+}
+
+void
+GenerationFrame
+::storeFilesIntoPACS(std::string const & directory)
+{
+    std::string address = "";
+    std::string port = "";
+    std::string called = "";
+    std::string caller = "";
+    UserIdentityType idType = UserIdentityType::None;
+    std::string first = "";
+    std::string second = "";
+
+    // Search PACS information
+    QSettings settings;
+    int number = settings.value(CONF_GROUP_PACS + "/" + CONF_KEY_NUMBER, 0).toInt();
+    QStringList itemslist;
+    for (unsigned int i = 0 ; i < number ; ++i)
+    {
+        std::stringstream stream;
+        stream << CONF_GROUP_PACS.toStdString() << "/"
+               << CONF_GROUP_PACS.toStdString() << i << "_";
+
+        std::stringstream streamname;
+        streamname << stream.str() << CONF_KEY_NAME.toStdString();
+
+        if (settings.value(streamname.str().c_str(), QString("")).toString() ==
+                this->_ui->PACSComboBox->currentText())
+        {
+            std::stringstream streamaddress;
+            streamaddress << stream.str() << CONF_KEY_ADDRESS.toStdString();
+            address = settings.value(streamaddress.str().c_str(), QString("")).toString().toStdString();
+
+            std::stringstream streamport;
+            streamport << stream.str() << CONF_KEY_PORT.toStdString();
+            port = settings.value(streamport.str().c_str(), QString("")).toString().toStdString();
+
+            std::stringstream streamcalled;
+            streamcalled << stream.str() << CONF_KEY_CALLED.toStdString();
+            called = settings.value(streamcalled.str().c_str(), QString("")).toString().toStdString();
+
+            std::stringstream streamcaller;
+            streamcaller << stream.str() << CONF_KEY_CALLER.toStdString();
+            caller = settings.value(streamcaller.str().c_str(), QString("")).toString().toStdString();
+
+            std::stringstream streamidentity;
+            streamidentity << stream.str() << CONF_KEY_IDENTITY.toStdString();
+            idType = (UserIdentityType)settings.value(streamidentity.str().c_str(), 0).toInt();
+
+            std::stringstream streamfirst;
+            streamfirst << stream.str() << CONF_KEY_FIRST.toStdString();
+            first = settings.value(streamfirst.str().c_str(), QString("")).toString().toStdString();
+
+            std::stringstream streamsecond;
+            streamsecond << stream.str() << CONF_KEY_SECOND.toStdString();
+            second = settings.value(streamsecond.str().c_str(), QString("")).toString().toStdString();
+
+            break;
+        }
+    }
+
+    boost::filesystem::directory_iterator it(directory), it_end;
+    for(; it != it_end; ++it)
+    {
+        // if it is a directory
+        if( boost::filesystem::is_directory( (*it) ) )
+        {
+            std::string const object = directory +
+                                       VALID_FILE_SEPARATOR +
+                                       std::string((*it).path().filename().c_str());
+            // Recursive call
+            this->storeFilesIntoPACS(object);
+        }
+        else
+        {
+            DcmFileFormat fileformat;
+            fileformat.loadFile(boost::filesystem::canonical(*it).string().c_str());
+            DcmDataset * dataset = fileformat.getAndRemoveDataset();
+
+            // Create Store Rule
+            auto storerule = dicomifier::actions::StoreDataset::New(
+                        dataset, address, std::stoi(port), called, caller,
+                        idType, first, second);
+
+            // Execute Store
+            storerule->run();
+        }
+    }
 }
 
 void

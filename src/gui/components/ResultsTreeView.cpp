@@ -46,10 +46,12 @@ ResultsTreeView
     this->header()->setResizeMode(1, QHeaderView::Fixed);
     this->header()->setResizeMode(2, QHeaderView::Fixed);
     this->header()->setResizeMode(3, QHeaderView::Fixed);
+    this->header()->setResizeMode(4, QHeaderView::Fixed);
 
     this->header()->resizeSection(1, 150);
     this->header()->resizeSection(2, 150);
     this->header()->resizeSection(3, 150);
+    this->header()->resizeSection(4, 150);
 }
 
 bool

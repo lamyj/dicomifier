@@ -10,6 +10,7 @@
 #include "ui_PACSConfigurationFrame.h"
 
 #include <iostream>
+#include <stdexcept>
 
 namespace dicomifier
 {
@@ -107,7 +108,7 @@ void PACSConfigurationFrame::onDataChanged()
 
         status &= std::to_string(i) == this->_ui->pacsPort->text().toStdString();
     }
-    catch (std::invalid_argument e)
+    catch (std::invalid_argument &e)
     {
         status = false;
     }
