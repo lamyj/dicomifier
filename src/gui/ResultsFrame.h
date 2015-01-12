@@ -10,7 +10,7 @@
 #define _508febdb_0508_40bd_8395_726fad7b436e
 
 #include "BaseFrame.h"
-#include "GenerationResultItem.h"
+#include "components/GenerationResultItem.h"
 #include "components/ResultsTreeView.h"
 
 namespace dicomifier

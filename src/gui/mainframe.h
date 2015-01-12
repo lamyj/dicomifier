@@ -74,6 +74,8 @@ private slots:
 
     void OpenPreferences();
 
+    void CreateNewPACS();
+
 private:
     Ui::MainFrame * _ui;
 

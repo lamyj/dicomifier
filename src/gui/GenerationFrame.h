@@ -10,7 +10,7 @@
 #define _c893b98a_2a9d_41b4_bcf7_02699144b4d9
 
 #include "BaseFrame.h"
-#include "GenerationResultItem.h"
+#include "components/GenerationResultItem.h"
 #include "components/TreeItem.h"
 #include "dicom/DicomDirGenerator.h"
 
@@ -44,6 +44,9 @@ public:
 public slots:
     virtual void onUpdate_Preferences();
 
+signals:
+    void CreateNewPACSConfiguration();
+
 protected:
     virtual void modify_nextButton_enabled();
 
@@ -60,6 +63,8 @@ private slots:
     void on_outputDirectory_editingFinished();
 
     void on_outputDirectory_textEdited(const QString &arg1);
+
+    void on_CreateButton_clicked();
 
 private:
     Ui::GenerationFrame * _ui;
