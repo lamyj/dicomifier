@@ -328,9 +328,9 @@ QWidget#widget_6
           </widget>
          </item>
          <item row="0" column="1">
-          <widget class="QLabel" name="label_9">
+          <widget class="QLabel" name="TestResultTitle">
            <property name="text">
-            <string>TextLabel</string>
+            <string>Result: </string>
            </property>
           </widget>
          </item>

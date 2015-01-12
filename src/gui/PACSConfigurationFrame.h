@@ -44,6 +44,8 @@ private slots:
 
     void on_pacsIdType_currentIndexChanged(int index);
 
+    void on_TestButton_clicked();
+
 private:
 
     Ui::PACSConfigurationFrame * _ui;

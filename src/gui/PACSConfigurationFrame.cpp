@@ -12,6 +12,10 @@
 #include <iostream>
 #include <stdexcept>
 
+#include "dcmtk/config/osconfig.h" /* make sure OS specific configuration is included first */
+#include "dcmtk/dcmnet/assoc.h"
+#include "dcmtk/dcmnet/dimse.h"
+
 namespace dicomifier
 {
 
@@ -147,6 +151,129 @@ PACSConfigurationFrame
     this->_ui->pacsFrist->setVisible(firstvisible);
     this->_ui->secondTitle->setVisible(secondvisible);
     this->_ui->pacsSecond->setVisible(secondvisible);
+}
+
+void
+PACSConfigurationFrame
+::on_TestButton_clicked()
+{
+    std::string result = "";
+
+    try
+    {
+        T_ASC_Network * networkSCU;
+        OFCondition condition = ASC_initializeNetwork(NET_REQUESTOR,
+                                                      0, 30, &networkSCU);
+
+        T_ASC_Parameters * params;
+        if (condition.good())
+        {
+            condition = ASC_createAssociationParameters(&params, ASC_MAXIMUMPDUSIZE);
+        }
+
+        if (condition.good())
+        {
+            condition = ASC_setAPTitles(params,
+                                        this->_ui->pacsCaller->text().toStdString().c_str(),
+                                        this->_ui->pacsCalled->text().toStdString().c_str(),
+                                        NULL);
+        }
+
+        if (condition.good())
+        {
+            std::stringstream addressport;
+            addressport << this->_ui->pacsAddress->text().toStdString() << ":"
+                        << this->_ui->pacsPort->text().toStdString();
+
+            condition = ASC_setPresentationAddresses(params, "localhost",
+                                                     addressport.str().c_str());
+        }
+
+        if (condition.good())
+        {
+            typedef std::pair<std::string, std::vector<std::string> > PresentationContext;
+            std::vector<PresentationContext> presentation_contexts;
+            std::vector<std::string> tempvect = { UID_LittleEndianImplicitTransferSyntax };
+            presentation_contexts.push_back(std::make_pair(UID_VerificationSOPClass,
+                                                           tempvect));
+            presentation_contexts.push_back(std::make_pair(UID_MRImageStorage,
+                                                           tempvect));
+            presentation_contexts.push_back(std::make_pair(UID_EnhancedMRImageStorage,
+                                                           tempvect));
+
+            unsigned int context_id = 1;
+            for(auto const & context: presentation_contexts)
+            {
+                char const ** transfer_syntaxes = new char const *[context.second.size()];
+                for(std::size_t i = 0; i < context.second.size(); ++i)
+                {
+                    transfer_syntaxes[i] = context.second[i].c_str();
+                }
+
+                if (condition.good())
+                {
+                    condition = ASC_addPresentationContext(params, context_id,
+                                                           context.first.c_str(),
+                                                           transfer_syntaxes,
+                                                           context.second.size());
+                }
+
+                context_id += 2;
+            }
+        }
+
+        T_ASC_Association * association;
+        if (condition.good())
+        {
+            condition = ASC_requestAssociation(networkSCU, params, &association);
+        }
+
+        if (condition.good())
+        {
+            DIC_US const message_id = association->nextMsgID++;
+            DIC_US status;
+            DcmDataset *detail = NULL;
+            condition = DIMSE_echoUser(association, message_id, DIMSE_BLOCKING, 30,
+                                       &status, &detail);
+        }
+
+        if (condition.good())
+        {
+            condition = ASC_dropAssociation(association);
+        }
+
+        if (condition.good())
+        {
+            condition = ASC_destroyAssociation(&association);
+        }
+
+        if (condition.good())
+        {
+            condition = ASC_dropNetwork(&networkSCU);
+        }
+
+        std::stringstream streamresult;
+        streamresult << "Result: ";
+        if (condition.good())
+        {
+            streamresult << "OK";
+        }
+        else
+        {
+            streamresult << "Fail: " << condition.text();
+        }
+
+        result = streamresult.str();
+    }
+    catch (std::exception &e)
+    {
+        std::stringstream streamresult;
+        streamresult << "Result: Fail: " << e.what();
+
+        result = streamresult.str();
+    }
+
+    this->_ui->TestResultTitle->setText(QString(result.c_str()));
 }
 
 } // namespace gui
