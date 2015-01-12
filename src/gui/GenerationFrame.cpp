@@ -565,6 +565,13 @@ GenerationFrame
     this->modify_nextButton_enabled();
 }
 
+void
+GenerationFrame
+::on_CreateButton_clicked()
+{
+    emit this->CreateNewPACSConfiguration();
+}
+
 } // namespace gui
 
 } // namespace dicomifier

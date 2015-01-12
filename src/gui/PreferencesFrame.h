@@ -42,6 +42,8 @@ public slots:
 
     void TreeViewClicked(QModelIndex index);
 
+    void on_NewButton_clicked();
+
 protected:
     virtual void modify_nextButton_enabled();
 
@@ -50,8 +52,6 @@ protected:
     void paintEvent(QPaintEvent *event);
 
 private slots:
-    void on_NewButton_clicked();
-
     void on_EditButton_clicked();
 
     void on_DeleteButton_clicked();

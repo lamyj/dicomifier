@@ -64,6 +64,10 @@ MainFrame
     // Create Preferences Frame
     this->_preferencesframe = new PreferencesFrame(this->_ui->stepWidget);
     this->InitializeWidget(this->_preferencesframe);
+
+    // Add specifics links
+    connect(this->_generationframe, SIGNAL(CreateNewPACSConfiguration()),
+            this, SLOT(CreateNewPACS()));
 }
 
 MainFrame
@@ -206,13 +210,13 @@ MainFrame
         return;
     }
     case DicomifierStep::Preferences:
-    {std::cout << "DEBUG RLA preference" << std::endl;
+    {
         this->_currentStep = this->_previousStep;
         this->_ui->stepNumberLabel->show();
         this->_ui->nextButton->setText(QString("Next"));
         this->_ui->previousButton->setText(QString("Previous"));
         if (nextstep)
-        {std::cout << "DEBUG RLA save" << std::endl;
+        {
             this->_preferencesframe->SavePreferences();
             emit this->UpdatePreferences();
         }
@@ -226,9 +230,9 @@ MainFrame
         break;
     }
     }
-std::cout << "DEBUG RLA show" << std::endl;
+
     this->ShowHide(nextstep);
-std::cout << "DEBUG RLA show ok" << std::endl;
+
     std::stringstream stream;
     stream << ((int)this->_currentStep + 1) << " / " << (int)DicomifierStep::Results;
 
@@ -302,6 +306,12 @@ MainFrame
     this->_ui->previousButton->setText(QString("Cancel"));
 
     this->ShowHide(false);
+}
+
+void MainFrame::CreateNewPACS()
+{
+    this->OpenPreferences();
+    this->_preferencesframe->on_NewButton_clicked();
 }
 
 void
