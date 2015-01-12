@@ -214,7 +214,8 @@ GenerationFrame
             boost::filesystem::path uniquepath = boost::filesystem::unique_path();
             boost::filesystem::path temp = boost::filesystem::temp_directory_path();
 
-            outputdir = boost::filesystem::canonical(temp).string() + "/" + uniquepath.filename().string();
+            outputdir = boost::filesystem::absolute(temp).string() + "/" + uniquepath.filename().string();
+
             boost::filesystem::create_directories(boost::filesystem::path(outputdir.c_str()));
         }
 
@@ -606,7 +607,7 @@ GenerationFrame
         else
         {
             DcmFileFormat fileformat;
-            fileformat.loadFile(boost::filesystem::canonical(*it).string().c_str());
+            fileformat.loadFile(boost::filesystem::absolute(*it).string().c_str());
             DcmDataset * dataset = fileformat.getAndRemoveDataset();
 
             // Create Store Rule
