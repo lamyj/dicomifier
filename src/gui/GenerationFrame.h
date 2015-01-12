@@ -52,6 +52,8 @@ protected:
 
     virtual void modify_previousButton_enabled();
 
+    void storeFilesIntoPACS(std::string const & directory);
+
     void insertFilesForDicomdir(std::string const & directory,
                                 DicomDirGenerator* dcmdirgenerator);
 

@@ -59,6 +59,7 @@ public:
     QDateTime get_qdatetime() const { return this->_qdatetime; }
 
     std::string get_DicomErrorMsg() const { return this->_DicomErrorMsg; }
+    std::string get_StoreErrorMsg() const { return this->_StoreErrorMsg; }
     std::string get_DicomdirErrorMsg() const { return this->_DicomdirErrorMsg; }
     std::string get_ZipErrorMsg() const { return this->_ZipErrorMsg; }
 
@@ -81,6 +82,8 @@ public:
 
     void set_DicomErrorMsg(std::string const & dicomerrormsg)
             { this->_DicomErrorMsg = dicomerrormsg; }
+    void set_StoreErrorMsg(std::string const & storeerrormsg)
+            { this->_StoreErrorMsg = storeerrormsg; }
     void set_DicomdirErrorMsg(std::string const & message) { this->_DicomdirErrorMsg = message; }
     void set_ZipErrorMsg(std::string const & message) { this->_ZipErrorMsg = message; }
 
@@ -122,6 +125,7 @@ private:
     QDateTime _qdatetime;
 
     std::string _DicomErrorMsg;
+    std::string _StoreErrorMsg;
     std::string _DicomdirErrorMsg;
     std::string _ZipErrorMsg;
 

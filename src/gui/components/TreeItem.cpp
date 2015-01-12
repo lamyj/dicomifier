@@ -22,8 +22,8 @@ TreeItem
     _reconstruction(""), _date(""), _directory(""),
     _seriesDirectory(""), _recoDirectory(""), _protocolName(""),
     _qdatetime(QDateTime::currentDateTime()), _enabled(true),
-    _DicomErrorMsg("Canceled"), _DicomdirErrorMsg(""),
-    _ZipErrorMsg(""), _destinationDirectory("")
+    _DicomErrorMsg("Canceled"), _StoreErrorMsg(""),
+    _DicomdirErrorMsg(""), _ZipErrorMsg(""), _destinationDirectory("")
 {
     if (copy != NULL)
     {
@@ -39,6 +39,7 @@ TreeItem
         this->_protocolName    = copy->get_protocolName();
         this->_qdatetime       = copy->get_qdatetime();
         this->_DicomErrorMsg   = copy->get_DicomErrorMsg();
+        this->_StoreErrorMsg   = copy->get_StoreErrorMsg();
         this->_DicomdirErrorMsg= copy->get_DicomdirErrorMsg();
         this->_ZipErrorMsg     = copy->get_ZipErrorMsg();
         this->_destinationDirectory= copy->get_destinationDirectory();
