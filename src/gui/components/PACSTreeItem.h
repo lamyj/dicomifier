@@ -33,27 +33,75 @@ QString const CONF_KEY_IDENTITY = "identity";
 QString const CONF_KEY_FIRST    = "first";
 QString const CONF_KEY_SECOND   = "second";
 
+/**
+ * @brief The PACSTreeItem class
+ */
 class PACSTreeItem : public QObject
 {
     Q_OBJECT
 
 public:
+    /**
+     * @brief Create an instance of PACSTreeItem
+     * @param parent: item containing this PACSTreeItem
+     * @param copy: copy the values
+     */
     PACSTreeItem(PACSTreeItem * parent = 0, PACSTreeItem * copy = NULL);
+
+    /// Destroy the instance of PACSTreeItem
     virtual ~PACSTreeItem();
 
+    /// Copy the values of a given PACSTreeItem
     void extractData(PACSTreeItem * copy);
 
+    /**
+     * @brief Add a child item
+     * @param child: child to append
+     */
     void appendChild(PACSTreeItem * child);
+
     void set_data(const QList<QVariant> & data) { this->_itemData = data; }
     void set_parent(PACSTreeItem* parent) { this->_parentItem = parent; }
 
+    /// Compute and add item's data
     void fill_data();
 
+    /**
+     * @brief Get child item from a given position
+     * @param row: position of the child
+     * @return child item
+     */
     PACSTreeItem * child(int row);
+
+    /**
+     * @brief Return number of child
+     * @return childs count
+     */
     int childCount() const;
+
+    /**
+     * @brief Return the number of column for this items
+     * @return columns count
+     */
     int columnCount() const;
+
+    /**
+     * @brief Get the data for a given column
+     * @param column: position of the column
+     * @return column value
+     */
     QVariant data(int column) const;
+
+    /**
+     * @brief Return the position of this child in his parent
+     * @return this position
+     */
     int row() const;
+
+    /**
+     * @brief Return the parent item
+     * @return _parent
+     */
     PACSTreeItem * parent();
 
     void set_name(std::string const & name) { this->_name = name; }
@@ -77,17 +125,37 @@ public:
 protected:
 
 private:
+    /// Childs
     QList<PACSTreeItem *> _childItems;
+
+    /// Values
     QList<QVariant>       _itemData;
+
+    /// Parent
     PACSTreeItem *        _parentItem;
 
+    /// PACS name
     std::string _name;
+
+    /// PACS Address
     std::string _address;
+
+    /// PACS Port
     std::string _port;
+
+    /// Caller name
     std::string _caller;
+
+    /// Called name
     std::string _called;
+
+    /// Authentification type
     UserIdentityType _identityType;
+
+    /// Authentification first parameter
     std::string _idTypeFirst;
+
+    /// Authentification second parameter
     std::string _idTypeSecond;
 
 };

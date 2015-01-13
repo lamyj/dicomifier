@@ -18,23 +18,40 @@ namespace dicomifier
 namespace gui
 {
 
+/**
+ * @brief The ResultsTreeView class
+ */
 class ResultsTreeView: public TreeView
 {
     Q_OBJECT
 
 public:
+    /**
+     * @brief Create an instance of ResultsTreeView
+     * @param parent: Widget containing the ResultsTreeView
+     */
     ResultsTreeView(QWidget * parent = 0);
 
+    /**
+     * @brief Initialize the instance of ResultsTreeView
+     * @param dataList: list of items
+     */
     virtual void Initialize(std::vector<TreeItem*> const & dataList);
 
+    /// Indicate if at least one item is selected
     virtual bool is_item_selected();
 
     void set_results(std::map<std::string, GenerationResultItem> results)
             { this->_results = results; }
 
 private:
+    /**
+     * @brief Sort the items list
+     * @return Sorted items list
+     */
     virtual std::map<std::string, std::vector<TreeItem*>> sortedItems() const;
 
+    /// Results list
     std::map<std::string, GenerationResultItem> _results;
 
 };

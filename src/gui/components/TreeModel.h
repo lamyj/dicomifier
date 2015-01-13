@@ -20,23 +20,43 @@ namespace dicomifier
 namespace gui
 {
 
+/**
+ * @brief The TreeModel abstract class
+ */
 class TreeModel : public QAbstractItemModel
 {
     Q_OBJECT
 
 public:
+    /**
+     * @brief Create an instance of TreeModel
+     * @param parent: Object containing the treeModel
+     */
     TreeModel(QObject * parent = 0);
+
+    /// Destroy the instance of TreeModel
     virtual ~TreeModel();
 
+    /**
+     * @brief Initialize the instance of TreeModel
+     * @param dataList: list of items
+     */
     virtual void Initialize(std::map<std::string,
-                            std::vector<TreeItem*>> dataList) = 0;
+                                     std::vector<TreeItem*>> dataList) = 0;
 
+    /// Indicate if at least one item is selected
     bool is_item_selected();
 
+    /**
+     * @brief Return all selected items
+     * @return selected items
+     */
     std::vector<TreeItem*> get_item_selected() const;
 
+    /// Indicate "Select All" check state
     Qt::CheckState compute_selection();
 
+    /// Modify check state for all items
     void setCheckState_all(Qt::CheckState state);
 
     QVariant data(const QModelIndex & index, int role) const;
@@ -50,8 +70,10 @@ public:
     int columnCount(const QModelIndex & parent = QModelIndex()) const;
 
 protected:
+    /// Main item
     TreeItem * _rootItem;
 
+    /// List of items
     std::map<std::string, std::vector<TreeItem*> > _datalist;
 
 private:

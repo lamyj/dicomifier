@@ -17,6 +17,9 @@ namespace dicomifier
 namespace gui
 {
 
+/**
+ * @brief The GenerationResultItem class
+ */
 class GenerationResultItem
 {
 public:
@@ -28,7 +31,10 @@ public:
         Canceled
     };
 
+    /// Create an instance of GenerationResultItem
     GenerationResultItem();
+
+    /// Destroy the instance of GenerationResultItem
     ~GenerationResultItem();
 
     void set_subjectName(std::string const & name) { this->_subjectName = name; }
@@ -45,6 +51,7 @@ public:
     std::string get_DicomdirErrorMsg() const { return this->_DicomdirErrorMsg; }
     std::string get_ZipErrorMsg() const { return this->_ZipErrorMsg; }
 
+    /// Convert Result to std::string
     std::string resultToString(Result const result) const;
 
     std::string get_dicomdirCreationToString() const;
@@ -53,13 +60,22 @@ public:
 protected:
 
 private:
+    /// Subject Name
     std::string _subjectName;
+
+    /// Output directory
     std::string _resultDirectory;
 
+    /// DICOMDIR creation status
     Result _dicomdirCreation;
+
+    /// ZIP creation status
     Result _zipCreation;
 
+    /// DICOMDIR creation error message
     std::string _DicomdirErrorMsg;
+
+    /// ZIP creation error message
     std::string _ZipErrorMsg;
 
 };

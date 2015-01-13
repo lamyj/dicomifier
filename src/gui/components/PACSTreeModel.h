@@ -20,14 +20,27 @@ namespace dicomifier
 namespace gui
 {
 
+/**
+ * @brief The PACSTreeModel class
+ */
 class PACSTreeModel: public QAbstractItemModel
 {
     Q_OBJECT
 
 public:
+    /**
+     * @brief Create an instance of PACSTreeModel
+     * @param parent: Object containing the treeModel
+     */
     PACSTreeModel(QObject * parent = 0);
+
+    /// Destroy the instance of PACSTreeModel
     virtual ~PACSTreeModel();
 
+    /**
+     * @brief Initialize the instance of PACSTreeModel
+     * @param items: list of items
+     */
     void Initialize(std::vector<PACSTreeItem *> items);
 
     QVariant data(const QModelIndex & index, int role) const;
@@ -41,6 +54,9 @@ public:
     int columnCount(const QModelIndex & parent = QModelIndex()) const;
 
 protected:
+
+private:
+    /// Main item
     PACSTreeItem * _rootItem;
 
 };

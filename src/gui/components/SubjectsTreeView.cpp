@@ -19,7 +19,8 @@ namespace gui
 
 SubjectsTreeView
 ::SubjectsTreeView(QWidget *parent) :
-    TreeView(parent), _displaySubject(true), _expression("*"),
+    TreeView(parent),
+    _displaySubject(true), _expression("*"),
     _begin(QDate::currentDate()), _end(QDate::currentDate())
 {
     // Nothing to do

@@ -104,7 +104,9 @@ PACSTreeView
     this->header()->resizeSection(3, 170);
 }
 
-void PACSTreeView::DeleteSelectedItem()
+void
+PACSTreeView
+::DeleteSelectedItem()
 {
     if (this->currentIndex().isValid())
     {

@@ -20,31 +20,54 @@ namespace dicomifier
 namespace gui
 {
 
+/**
+ * @brief The TreeView abstract class
+ */
 class TreeView : public QTreeView
 {
     Q_OBJECT
 
 public:
+    /**
+     * @brief Create an instance of TreeView
+     * @param parent: Widget containing this TreeView
+     */
     explicit TreeView(QWidget *parent = 0);
+
+    /// Destroy the instance of TreeView
     virtual ~TreeView();
 
+    /**
+     * @brief Initialize the instance of TreeView
+     * @param dataList: list of items
+     */
     virtual void Initialize(std::vector<TreeItem*> const & dataList) = 0;
 
+    /// Indicate if at least one item is selected
     virtual bool is_item_selected() = 0;
 
+    /// Indicate "Select All" check state
     Qt::CheckState compute_selection();
 
+    /// Modify check state for all items
     void setCheckState_all(Qt::CheckState state);
 
 signals:
+    /// Signal emit if selection changed
     void itemsSelectionChanged();
 
 private slots:
+    /// Event triggered by clicking on the treeView
     void OnTreeViewClicked(const QModelIndex &index);
 
 protected:
+    /**
+     * @brief Sort the items list
+     * @return Sorted items list
+     */
     virtual std::map<std::string, std::vector<TreeItem*>> sortedItems() const = 0;
 
+    /// list of items
     std::vector<TreeItem*> _dataList;
 
 };

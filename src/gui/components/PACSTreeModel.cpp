@@ -16,7 +16,8 @@ namespace gui
 
 PACSTreeModel
 ::PACSTreeModel(QObject *parent):
-    QAbstractItemModel(parent)
+    QAbstractItemModel(parent),
+    _rootItem(NULL)
 {
     this->_rootItem = new PACSTreeItem();
 
