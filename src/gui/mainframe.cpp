@@ -7,8 +7,6 @@
  ************************************************************************/
 
 #include "mainframe.h"
-#include "ProtocolsFrame.h"
-#include "SubjectsFrame.h"
 #include "ui_mainframe.h"
 
 #include <QGridLayout>
@@ -23,24 +21,25 @@ MainFrame
 ::MainFrame(QWidget *parent) :
     QMainWindow(parent),
     _ui(new Ui::MainFrame),
-    _subjectsframe(NULL),
-    _protocolsframe(NULL),
-    _generationframe(NULL),
-    _resultsframe(NULL),
+    _subjectsframe(NULL), _protocolsframe(NULL),
+    _generationframe(NULL), _resultsframe(NULL),
     _preferencesframe(NULL),
     _currentStep(DicomifierStep::CountMax),
     _previousStep(DicomifierStep::CountMax)
 {
     this->_ui->setupUi(this);
 
+    // Link menu item Quit
     this->_ui->actionQuit->setShortcuts(QKeySequence::Quit);
     this->_ui->actionQuit->setStatusTip(tr("Close the application"));
     connect(this->_ui->actionQuit, SIGNAL(triggered()), this, SLOT(close()));
 
+    // Link menu item New
     this->_ui->actionNew->setShortcuts(QKeySequence::New);
     this->_ui->actionNew->setStatusTip(tr("New process"));
     connect(this->_ui->actionNew, SIGNAL(triggered()), this, SLOT(reset()));
 
+    // Link menu item Preferences
     this->_ui->actionPreferences->setShortcuts(QKeySequence::Preferences);
     this->_ui->actionPreferences->setStatusTip(tr("Modify Dicomifier Preferences"));
     connect(this->_ui->actionPreferences, SIGNAL(triggered()), this, SLOT(OpenPreferences()));
@@ -73,16 +72,22 @@ MainFrame
 MainFrame
 ::~MainFrame()
 {
+    // Frames are destroyed by delete _ui
+
     delete this->_ui;
 }
 
 void
 MainFrame
-::Initialize()
+::Initialize(bool resize)
 {
-    // Window Position and Size
-    this->setGeometry(0, 0, 1040, 768);
+    if (resize)
+    {
+        // Window Position and Size
+        this->setGeometry(0, 0, 1040, 768);
+    }
 
+    // Display first Frame
     this->ChangeStep(false);
 }
 
@@ -91,20 +96,23 @@ MainFrame
 ::InitializeWidget(BaseFrame * widget)
 {
     this->_ui->stepWidget->layout()->addWidget(widget);
-    connect(widget, SIGNAL(update_nextButton(bool)),
-            this, SLOT(setEnabled_nextButton(bool)));
-    connect(widget, SIGNAL(update_previousButton(bool)),
-            this, SLOT(setEnabled_previousButton(bool)));
     connect(this, SIGNAL(UpdatePreferences()),
             widget, SLOT(onUpdate_Preferences()));
     connect(widget, SIGNAL(cancelled()),
             this, SLOT(on_previousButton_clicked()));
+
+    connect(widget, SIGNAL(update_previousButton(bool)),
+            this->_ui->previousButton, SLOT(setEnabled(bool)));
+    connect(widget, SIGNAL(update_nextButton(bool)),
+            this->_ui->nextButton, SLOT(setEnabled(bool)));
+
 }
 
 void
 MainFrame
 ::ShowHide(bool nextstep)
 {
+    // Show or Hide SubjectsFrame
     if (this->_currentStep == DicomifierStep::SelectSubject)
     {
         this->_subjectsframe->Initialize();
@@ -114,6 +122,7 @@ MainFrame
         this->_subjectsframe->hide();
     }
 
+    // Show or Hide ProtocolsFrame
     if (this->_currentStep == DicomifierStep::SelectProtocols)
     {
         if (nextstep)
@@ -130,6 +139,7 @@ MainFrame
         this->_protocolsframe->hide();
     }
 
+    // Show or Hide GenerationFrame
     if (this->_currentStep == DicomifierStep::Generation)
     {
         this->_generationframe->Initialize();
@@ -139,6 +149,7 @@ MainFrame
         this->_generationframe->hide();
     }
 
+    // Show or Hide ResultsFrame
     if (this->_currentStep == DicomifierStep::Results)
     {
         if (nextstep)
@@ -156,6 +167,7 @@ MainFrame
         this->_resultsframe->hide();
     }
 
+    // Show or Hide PreferencesFrame
     if (this->_currentStep == DicomifierStep::Preferences)
     {
         this->_preferencesframe->Initialize();
@@ -170,22 +182,23 @@ void
 MainFrame
 ::ChangeStep(bool nextstep)
 {
+    // State Machine: select the next or previous Frame (depends on clicked button)
     switch (this->_currentStep)
     {
     case DicomifierStep::SelectSubject:
-    {
+    {   // No previous step -> SubjectsFrame -> ProtocolsFrame
         this->_currentStep = nextstep ? DicomifierStep::SelectProtocols :
                                         DicomifierStep::SelectSubject;
         break;
     }
     case DicomifierStep::SelectProtocols:
-    {
+    {   // SubjectsFrame -> ProtocolsFrame -> GenerationFrame
         this->_currentStep = nextstep ? DicomifierStep::Generation :
                                         DicomifierStep::SelectSubject;
         break;
     }
     case DicomifierStep::Generation:
-    {
+    {   // ProtocolsFrame -> GenerationFrame -> ResultsFrame
         this->_currentStep = nextstep ? DicomifierStep::Results :
                                         DicomifierStep::SelectProtocols;
 
@@ -197,7 +210,7 @@ MainFrame
         break;
     }
     case DicomifierStep::Results:
-    {
+    {   // New process (Re-initialize) -> ResultsFrame -> End (Close Dicomifier)
         if (nextstep)
         {
             this->close();
@@ -210,7 +223,7 @@ MainFrame
         return;
     }
     case DicomifierStep::Preferences:
-    {
+    {   // Display previous step
         this->_currentStep = this->_previousStep;
         this->_ui->stepNumberLabel->show();
         this->_ui->nextButton->setText(QString("Next"));
@@ -225,7 +238,7 @@ MainFrame
     }
     case DicomifierStep::CountMax:
     default:
-    {
+    {   // Select First step by default
         this->_currentStep = DicomifierStep::SelectSubject;
         break;
     }
@@ -233,54 +246,14 @@ MainFrame
 
     this->ShowHide(nextstep);
 
-    std::stringstream stream;
-    stream << ((int)this->_currentStep + 1) << " / " << (int)DicomifierStep::Results;
-
-    if (this->_currentStep != DicomifierStep::Results)
-    {
-        this->_ui->stepNumberLabel->setText(QString(stream.str().c_str()));
-    }
-    else
-    {
-        this->_ui->stepNumberLabel->setText("");
-    }
-
-    if (this->_currentStep == DicomifierStep::Generation)
-    {
-        this->_ui->nextButton->setText(QString("Run"));
-        this->_ui->previousButton->setText(QString("Previous"));
-    }
-    else if (this->_currentStep == DicomifierStep::Results)
-    {
-        this->_ui->nextButton->setText(QString("Close"));
-        this->_ui->previousButton->setText(QString("New"));
-    }
-    else
-    {
-        this->_ui->nextButton->setText(QString("Next"));
-        this->_ui->previousButton->setText(QString("Previous"));
-    }
-}
-
-void
-MainFrame
-::setEnabled_previousButton(bool enabled)
-{
-    this->_ui->previousButton->setEnabled(enabled);
-}
-
-void
-MainFrame
-::setEnabled_nextButton(bool enabled)
-{
-    this->_ui->nextButton->setEnabled(enabled);
+    this->ModifyComponentsText();
 }
 
 void
 MainFrame
 ::on_nextButton_clicked()
 {
-    this->setEnabled_nextButton(false);
+    this->_ui->nextButton->setEnabled(false);
     this->ChangeStep(true);
 }
 
@@ -295,23 +268,79 @@ void
 MainFrame
 ::OpenPreferences()
 {
+    // Already open
     if (this->_currentStep == DicomifierStep::Preferences)
         return;
 
+    // Remember current Frame
     this->_previousStep = this->_currentStep;
+
+    // Open PreferencesFrame
     this->_currentStep = DicomifierStep::Preferences;
-    this->_ui->stepNumberLabel->hide();
 
-    this->_ui->nextButton->setText(QString("Validate"));
-    this->_ui->previousButton->setText(QString("Cancel"));
-
+    this->ModifyComponentsText();
     this->ShowHide(false);
 }
 
-void MainFrame::CreateNewPACS()
+void
+MainFrame
+::CreateNewPACS()
 {
     this->OpenPreferences();
     this->_preferencesframe->on_NewButton_clicked();
+}
+
+void
+MainFrame
+::ModifyComponentsText()
+{
+    std::stringstream stream;
+    stream << ((int)this->_currentStep + 1) << " / " << (int)DicomifierStep::Results;
+
+    switch (this->_currentStep)
+    {
+    case DicomifierStep::Generation:
+    {
+        // Current Step Number => 1/3
+        this->_ui->stepNumberLabel->setText(QString(stream.str().c_str()));
+        this->_ui->stepNumberLabel->show();
+        // Previous = Previous ; Next =  Run
+        this->_ui->nextButton->setText(QString("Run"));
+        this->_ui->previousButton->setText(QString("Previous"));
+        break;
+    }
+    case DicomifierStep::Results:
+    {
+        // Current Step Number => None
+        this->_ui->stepNumberLabel->setText("");
+        this->_ui->stepNumberLabel->hide();
+        // Previous = Close ; Next =  New
+        this->_ui->nextButton->setText(QString("Close"));
+        this->_ui->previousButton->setText(QString("New"));
+        break;
+    }
+    case DicomifierStep::Preferences:
+    {
+        this->_ui->stepNumberLabel->setText("");
+        this->_ui->stepNumberLabel->hide();
+
+        this->_ui->nextButton->setText(QString("Validate"));
+        this->_ui->previousButton->setText(QString("Cancel"));
+        break;
+    }
+    case DicomifierStep::SelectSubject:
+    case DicomifierStep::SelectProtocols:
+    default:
+    {
+        // Step Number label
+        this->_ui->stepNumberLabel->setText(QString(stream.str().c_str()));
+        this->_ui->stepNumberLabel->show();
+        // Buttons Previous and Next
+        this->_ui->nextButton->setText(QString("Previous"));
+        this->_ui->previousButton->setText(QString("Next"));
+        break;
+    }
+    }
 }
 
 void
@@ -325,7 +354,7 @@ MainFrame
 
     // Initialize window
     this->_currentStep = DicomifierStep::CountMax;
-    this->ChangeStep(false);
+    this->Initialize(false);
 }
 
 } // namespace gui

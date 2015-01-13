@@ -31,9 +31,11 @@ void
 BaseFrame
 ::Initialize()
 {
+    // Check button state
     this->modify_previousButton_enabled();
     this->modify_nextButton_enabled();
 
+    // Display the widget
     this->show();
 }
 

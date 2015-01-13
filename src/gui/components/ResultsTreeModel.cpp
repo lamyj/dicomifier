@@ -73,6 +73,7 @@ ResultsTreeModel
 
         bool subjectstatus = true;
         bool subjectstorestatus = true;
+        bool storerequested = false;
 
         // Create sub-item
         for (auto iterstudy = itersubject->second.begin();
@@ -110,9 +111,11 @@ ResultsTreeModel
                     {
                         dicommsg = QString("OK");
 
+                        storerequested |= itemReco->get_StoreErrorMsg() != "";
+
                         if (itemReco->get_StoreErrorMsg() == "" || itemReco->get_StoreErrorMsg() == "OK")
                         {
-                            storemsg = QString("OK");
+                            storemsg = QString(itemReco->get_StoreErrorMsg().c_str());
                         }
                         else
                         {
@@ -151,7 +154,8 @@ ResultsTreeModel
 
                 // set series data
                 QString dicommsg = seriesstatus ? QString("OK") : QString("Fail");
-                QString storemsg = seriesstorestatus ? QString("OK") : QString("Fail");
+                QString storemsg = !storerequested ? QString("") : seriesstorestatus ? QString("OK") :
+                                                                                       QString("Fail");
                 QList<QVariant> itemSeriesData;
                 itemSeriesData << QString(itemSeries->get_series().c_str());
                 itemSeriesData << dicommsg;
@@ -172,7 +176,8 @@ ResultsTreeModel
 
             // set study data
             QString dicommsg = studystatus ? QString("OK") : QString("Fail");
-            QString storemsg = studystorestatus ? QString("OK") : QString("Fail");
+            QString storemsg = !storerequested ? QString("") : studystorestatus ? QString("OK") :
+                                                                                  QString("Fail");
             QList<QVariant> itemStudyData;
             itemStudyData << QString(itemStudy->get_study().c_str());
             itemStudyData << dicommsg;
@@ -195,7 +200,8 @@ ResultsTreeModel
 
         // set subject data
         QString dicommsg = subjectstatus ? QString("OK") : QString("Fail");
-        QString storemsg = subjectstorestatus ? QString("OK") : QString("Fail");
+        QString storemsg = !storerequested ? QString("") : subjectstorestatus ? QString("OK") :
+                                                                                QString("Fail");
         QList<QVariant> itemSubjectData;
         itemSubjectData << QString(itemSubject->get_name().c_str());
         itemSubjectData << dicommsg;

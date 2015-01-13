@@ -26,9 +26,11 @@ ProtocolsFrame
 {
     this->_ui->setupUi(this);
 
+    // Initialize TreeView
     this->_treeView = new ProtocolsTreeView(this->_ui->widget);
     this->_treeView->Initialize({});
 
+    // Link Signals and Slots
     connect(this->_treeView, SIGNAL(itemsSelectionChanged()),
             this, SLOT(ontreeViewclicked()));
 }
@@ -36,6 +38,8 @@ ProtocolsFrame
 ProtocolsFrame
 ::~ProtocolsFrame()
 {
+    // TreeView is destroy by deleting _ui
+
     delete this->_ui;
 }
 
@@ -45,11 +49,13 @@ ProtocolsFrame
 {
     // Create ProgressDialog
     QProgressDialog progress("", "Cancel", 0, subjectslist.size(), this);
+    // Initialize ProgressDialog
     progress.setWindowModality(Qt::WindowModal);
     QRect geom = progress.geometry();
     geom.setWidth(900);
     progress.setGeometry(geom);
     progress.setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+    // Display ProgressDialog
     progress.show();
 
     std::vector<TreeItem*> itemslist;
@@ -187,7 +193,7 @@ void
 ProtocolsFrame
 ::Reset()
 {
-
+    // Nothing to do
 }
 
 std::vector<TreeItem *>
@@ -237,7 +243,9 @@ ProtocolsFrame
     emit this->update_previousButton(true);
 }
 
-void ProtocolsFrame::paintEvent(QPaintEvent *event)
+void
+ProtocolsFrame
+::paintEvent(QPaintEvent *event)
 {
     if (this->_treeView != NULL)
     {
