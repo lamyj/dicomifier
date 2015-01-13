@@ -8,7 +8,8 @@ namespace gui
 
 ResultsTreeModel
 ::ResultsTreeModel(QObject *parent):
-    QAbstractItemModel(parent)
+    QAbstractItemModel(parent),
+    _rootItem(NULL)
 {
     this->_rootItem = new TreeItem();
 

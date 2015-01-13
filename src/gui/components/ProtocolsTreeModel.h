@@ -17,15 +17,26 @@ namespace dicomifier
 namespace gui
 {
 
+/**
+ * @brief The ProtocolsTreeModel class
+ */
 class ProtocolsTreeModel : public TreeModel
 {
     Q_OBJECT
 
 public:
+    /**
+     * @brief Create an instance of ProtocolsTreeModel
+     * @param parent: Object containing the treeModel
+     */
     ProtocolsTreeModel(QObject * parent = 0);
 
+    /**
+     * @brief Initialize the instance of ProtocolsTreeModel
+     * @param dataList: list of items
+     */
     virtual void Initialize(std::map<std::string,
-                            std::vector<TreeItem*>> dataList);
+                                     std::vector<TreeItem*>> dataList);
 
 protected:
 

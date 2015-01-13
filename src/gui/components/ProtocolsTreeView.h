@@ -18,18 +18,34 @@ namespace dicomifier
 namespace gui
 {
 
+/**
+ * @brief The ProtocolsTreeView class
+ */
 class ProtocolsTreeView : public TreeView
 {
     Q_OBJECT
 
 public:
+    /**
+     * @brief Create an instance of ProtocolsTreeView
+     * @param parent: Widget containing this ProtocolsTreeView
+     */
     explicit ProtocolsTreeView(QWidget *parent = 0);
 
+    /**
+     * @brief Initialize the instance of ProtocolsTreeView
+     * @param dataList: list of items
+     */
     virtual void Initialize(std::vector<TreeItem*> const & dataList);
 
+    /// Indicate if at least one item is selected
     virtual bool is_item_selected();
 
 private:
+    /**
+     * @brief Sort the items list
+     * @return Sorted items list
+     */
     virtual std::map<std::string, std::vector<TreeItem*>> sortedItems() const;
 
 };

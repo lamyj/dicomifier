@@ -20,26 +20,43 @@ namespace dicomifier
 namespace gui
 {
 
+/**
+ * @brief The PACSTreeView class
+ */
 class PACSTreeView: public QTreeView
 {
     Q_OBJECT
 
 public:
+    /**
+     * @brief Create an instance of PACSTreeView
+     * @param parent: Widget containing the PACSTreeView
+     */
     explicit PACSTreeView(QWidget * parent = 0);
+
+    /// Destroy the instance of PACSTreeView
     virtual ~PACSTreeView();
 
+    /// Initialize the instance of PACSTreeView
     void Initialize();
 
+    /// Remove the selected item
     void DeleteSelectedItem();
 
+    /// Save the data with QSettings
     void SaveData();
 
 public slots:
+    /**
+     * @brief insert a new PACS
+     * @param item: new PACS to insert
+     */
     void receiveNewItem(PACSTreeItem * item);
 
 protected:
 
 private:
+    /// List of items
     std::vector<PACSTreeItem *> _items;
 
 };

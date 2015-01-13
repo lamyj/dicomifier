@@ -21,14 +21,28 @@ namespace dicomifier
 namespace gui
 {
 
+/**
+ * @brief The ResultsTreeModel class
+ */
 class ResultsTreeModel: public QAbstractItemModel
 {
     Q_OBJECT
 
 public:
+    /**
+     * @brief Create an instance of ResultsTreeModel
+     * @param parent: Object containing the ResultsTreeModel
+     */
     ResultsTreeModel(QObject * parent = 0);
+
+    /// Destroy the instance of ResultsTreeModel
     virtual ~ResultsTreeModel();
 
+    /**
+     * @brief Initialize the instance of ResultsTreeModel
+     * @param dataList: list of items
+     * @param results: process results
+     */
     void Initialize(std::vector<TreeItem *> dataList,
                     std::map<std::string, GenerationResultItem> results);
 
@@ -43,8 +57,10 @@ public:
     int columnCount(const QModelIndex & parent = QModelIndex()) const;
 
 protected:
+    /// Main item
     TreeItem * _rootItem;
 
+    /// list of items
     std::vector<TreeItem*> _datalist;
 
 };

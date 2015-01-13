@@ -81,7 +81,9 @@ TreeModel
     return returnvect;
 }
 
-Qt::CheckState TreeModel::compute_selection()
+Qt::CheckState
+TreeModel
+::compute_selection()
 {
     bool oneselected = false;
     bool oneunselected = false;

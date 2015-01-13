@@ -17,7 +17,8 @@ namespace gui
 
 SubjectsTreeModel
 ::SubjectsTreeModel(bool displaySubject, QObject *parent) :
-    TreeModel(parent), _displaySubject(displaySubject)
+    TreeModel(parent),
+    _displaySubject(displaySubject)
 {
     QList<QVariant> rootData;
     rootData << "Select" << "Name" << "Directory" << "Date";
