@@ -25,9 +25,11 @@ PreferencesFrame
 {
     this->_ui->setupUi(this);
 
+    // Create TreeView
     this->_treeView = new PACSTreeView(this->_ui->widget);
     this->_treeView->Initialize();
 
+    // Link Signals and Slots
     connect(this->_treeView, SIGNAL(clicked(QModelIndex)),
             this, SLOT(TreeViewClicked(QModelIndex)));
 }
@@ -35,6 +37,8 @@ PreferencesFrame
 PreferencesFrame
 ::~PreferencesFrame()
 {
+    // TreeView is destroy by deleting _ui
+
     delete this->_ui;
 }
 
@@ -42,10 +46,11 @@ void
 PreferencesFrame
 ::Initialize()
 {
+    // Initialize treeView
     this->_treeView->Initialize();
-
     TreeViewClicked(QModelIndex());
 
+    // Initialize frame
     BaseFrame::Initialize();
 }
 
@@ -79,6 +84,7 @@ PreferencesFrame
 {
     bool selected = index.isValid();
 
+    // Edit and Delete button only enabled when treeItem is selected
     this->_ui->EditButton->setEnabled(selected);
     this->_ui->DeleteButton->setEnabled(selected);
 }
@@ -87,6 +93,7 @@ void
 PreferencesFrame
 ::modify_nextButton_enabled()
 {
+    // Always enabled
     emit this->update_nextButton(true);
 }
 
@@ -94,13 +101,17 @@ void
 PreferencesFrame
 ::modify_previousButton_enabled()
 {
+    // Always enabled
     emit this->update_previousButton(true);
 }
 
-void PreferencesFrame::paintEvent(QPaintEvent *event)
+void
+PreferencesFrame
+::paintEvent(QPaintEvent *event)
 {
     if (this->_treeView != NULL)
     {
+        // Resize the treeView (expand)
         this->_treeView->resize(this->_ui->widget->size());
     }
 

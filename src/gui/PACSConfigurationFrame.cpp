@@ -29,6 +29,8 @@ PACSConfigurationFrame
 {
     this->_ui->setupUi(this);
 
+    // Initialize ComboBox Authorization type
+    // c.f. lib/dicom/SCU.h for Name
     QStringList itemslist;
     itemslist << "None";
     itemslist << "Username";
@@ -98,7 +100,9 @@ PACSConfigurationFrame
     this->accept();
 }
 
-void PACSConfigurationFrame::onDataChanged()
+void
+PACSConfigurationFrame
+::onDataChanged()
 {
     bool status = this->_ui->pacsName->text().toStdString() != "" &&
                   this->_ui->pacsAddress->text().toStdString() != "" &&
@@ -109,7 +113,6 @@ void PACSConfigurationFrame::onDataChanged()
     try
     {
         int i = std::stoi(this->_ui->pacsPort->text().toStdString());
-
         status &= std::to_string(i) == this->_ui->pacsPort->text().toStdString();
     }
     catch (std::invalid_argument &e)

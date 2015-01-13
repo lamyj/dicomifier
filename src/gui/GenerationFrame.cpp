@@ -7,9 +7,7 @@
  ************************************************************************/
 
 #include <QFileDialog>
-#include <QMessageBox>
 #include <QProcess>
-#include <QProgressDialog>
 #include <QSettings>
 
 #include <boost/algorithm/string.hpp>
@@ -21,10 +19,10 @@
 #include <zlib.h>
 
 #include "bruker/actions/EnhanceBrukerDicom.h"
+#include "components/PACSTreeItem.h"
 #include "core/Logger.h"
 #include "dicom/actions/StoreDataset.h"
 #include "GenerationFrame.h"
-#include "components/PACSTreeItem.h"
 #include "ui_GenerationFrame.h"
 
 namespace dicomifier
@@ -62,11 +60,11 @@ GenerationFrame
     QString selectitem = settings.value(CONF_GROUP_OUTPUT + "/" +
                                     CONF_KEY_FORMAT,
                                     QString("")).toString();
-    if (selectitem.toStdString() == "MRImageStorage")
+    if (selectitem.toStdString() == UID_MRImageStorage)
     {
         this->_ui->formatMRIMultiple->setChecked(true);
     }
-    else if (selectitem.toStdString() == "EnhancedMRImageStorage")
+    else if (selectitem.toStdString() == UID_EnhancedMRImageStorage)
     {
         this->_ui->formatMRISingle->setChecked(true);
     }
@@ -128,32 +126,17 @@ GenerationFrame
 {
     // Create ProgressDialog
     QProgressDialog progress("Copying files...", "Cancel", 0, selectedItems.size(), this);
+    // Initialize ProgressDialog
     progress.setWindowModality(Qt::WindowModal);
     QRect geom = progress.geometry();
     geom.setWidth(900);
     progress.setGeometry(geom);
     progress.setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+    // Display ProgressDialog
     progress.show();
 
-    std::string format = "";
-    if (this->_ui->formatMRIMultiple->isChecked())
-    {
-        format = "MRImageStorage";
-    }
-    else if (this->_ui->formatMRISingle->isChecked())
-    {
-        format = "EnhancedMRImageStorage";
-    }
-
     // Save preferences
-    QSettings settings;
-    settings.beginGroup(CONF_GROUP_OUTPUT);
-    settings.setValue(CONF_KEY_FORMAT, QString(format.c_str()));
-    settings.setValue(CONF_KEY_DICOMDIR, this->_ui->DicomdirCheckBox->checkState());
-    settings.setValue(CONF_KEY_ZIP, this->_ui->ZIPCheckBox->checkState());
-    settings.setValue(CONF_KEY_SAVE, this->_ui->saveCheckBox->checkState());
-    settings.setValue(CONF_KEY_STORE, this->_ui->StoreCheckBox->checkState());
-    settings.endGroup();
+    this->SavePreferences();
 
     std::map<std::string, std::string> mapHascodeToSubject;
 
@@ -222,7 +205,7 @@ GenerationFrame
         // create Rule
         auto rule = dicomifier::actions::EnhanceBrukerDicom::New(dataset,
                                                                  currentItem->get_directory(),
-                                                                 format,
+                                                                 this->get_selectedFormat_toString(),
                                                                  outputdir);
 
         if (rule == NULL)
@@ -260,7 +243,7 @@ GenerationFrame
             {
                 this->storeFilesIntoPACS(outputdir);
 
-                currentItem->set_StoreErrorMsg("OK"); // TODO
+                currentItem->set_StoreErrorMsg("OK");
             }
             catch (dicomifier::DicomifierException &exc)
             {
@@ -273,6 +256,10 @@ GenerationFrame
                 currentItem->set_StoreErrorMsg(e.what());
             }
         }
+        else if (!this->_ui->StoreCheckBox->isChecked())
+        {
+            currentItem->set_StoreErrorMsg("");
+        }
 
         if (this->_ui->saveCheckBox->isChecked() == false)
         {
@@ -283,6 +270,7 @@ GenerationFrame
         delete dataset;
     }
 
+    // Initialize Result items
     this->_Results.clear();
     for (auto iter = mapHascodeToSubject.begin();
          iter != mapHascodeToSubject.end();
@@ -295,183 +283,14 @@ GenerationFrame
         this->_ui->DicomdirCheckBox->isChecked())
     {
         // Create DICOMDIR file (One per Subject)
-
-        // patient_extra_attributes
-        std::vector<DcmTagKey> patient_extra_attributes_cpp =
-        {
-            // insert other DcmTagKey here
-        };
-
-        // study_extra_attributes
-        std::vector<DcmTagKey> study_extra_attributes_cpp =
-        {
-            DCM_StudyDescription
-            // insert other DcmTagKey here
-        };
-
-        // series_extra_attributes
-        std::vector<DcmTagKey> series_extra_attributes_cpp =
-        {
-            DCM_SeriesDescription
-            // insert other DcmTagKey here
-        };
-
-        boost::filesystem::directory_iterator it(this->_ui->outputDirectory->text().toStdString()),
-                                              countdir(this->_ui->outputDirectory->text().toStdString()),
-                                              it_end;
-
-        int nbdir = 0;
-        for(; countdir != it_end; ++countdir)
-        {
-            if( boost::filesystem::is_directory( (*countdir) ) )
-            {
-                ++nbdir;
-            }
-        }
-
-        progressValue = 0;
-        progress.setValue(progressValue);
-        progress.setMaximum(nbdir);
-
-        for(; it != it_end; ++it)
-        {
-            // Canceled => force stop
-            if (progress.wasCanceled())
-            {
-                return;
-            }
-
-            if( boost::filesystem::is_directory( (*it) ) )
-            {
-                // Update progressDialog
-                progress.setValue(progressValue);
-                ++progressValue;
-                // Update ProgressDialog label
-                std::stringstream progressLabel;
-                progressLabel << "Create DICOMDIR " << progressValue << " / " << nbdir
-                              << " (Directory = " << std::string((*it).path().filename().c_str()) << ")";
-                progress.setLabelText(QString(progressLabel.str().c_str()));
-
-                std::string dir = this->_ui->outputDirectory->text().toStdString() +
-                                  VALID_FILE_SEPARATOR +
-                                  std::string((*it).path().filename().c_str());
-
-                std::string dicomdirfile = dir + VALID_FILE_SEPARATOR + "DICOMDIR";
-
-                if (boost::filesystem::exists(boost::filesystem::path(dicomdirfile.c_str())))
-                {
-                    this->_Results[mapHascodeToSubject[std::string((*it).path().filename().c_str())]].set_dicomdirCreation(GenerationResultItem::Result::Fail);
-                    this->_Results[mapHascodeToSubject[std::string((*it).path().filename().c_str())]].set_DicomdirErrorMsg("DICOMDIR already exist: " + dicomdirfile);
-                    continue;
-                }
-
-                // Create generator
-                DicomDirGenerator generator;
-                generator.enableMapFilenamesMode();
-                // Create DICOMDIR object
-                OFCondition ret = generator.createNewDicomDir(DicomDirGenerator::AP_GeneralPurpose,
-                                            dicomdirfile.c_str());
-
-                if (ret.bad())
-                {
-                    this->_Results[mapHascodeToSubject[std::string((*it).path().filename().c_str())]].set_dicomdirCreation(GenerationResultItem::Result::Fail);
-                    this->_Results[mapHascodeToSubject[std::string((*it).path().filename().c_str())]].set_DicomdirErrorMsg(ret.text());
-                    continue;
-                }
-
-                // Configure DICOMDIR
-                generator.setPatientExtraAttributes(patient_extra_attributes_cpp);
-                generator.setStudyExtraAttributes(study_extra_attributes_cpp);
-                generator.setSeriesExtraAttributes(series_extra_attributes_cpp);
-                // Add files
-                this->insertFilesForDicomdir(dir, &generator);
-                // Write DICOMDIR
-                ret = generator.writeDicomDir();
-
-                if (ret.bad())
-                {
-                    this->_Results[mapHascodeToSubject[std::string((*it).path().filename().c_str())]].set_dicomdirCreation(GenerationResultItem::Result::Fail);
-                    this->_Results[mapHascodeToSubject[std::string((*it).path().filename().c_str())]].set_DicomdirErrorMsg(ret.text());
-                }
-                else
-                {
-                    this->_Results[mapHascodeToSubject[std::string((*it).path().filename().c_str())]].set_dicomdirCreation(GenerationResultItem::Result::OK);
-                }
-            }
-        }
+        this->createDicomdirs(progress, mapHascodeToSubject);
     }
 
     if (this->_ui->saveCheckBox->isChecked() &&
         this->_ui->ZIPCheckBox->isChecked())
     {
-        boost::filesystem::directory_iterator it(this->_ui->outputDirectory->text().toStdString()),
-                                              countdir(this->_ui->outputDirectory->text().toStdString()),
-                                              it_end;
-
-        int nbdir = 0;
-        for(; countdir != it_end; ++countdir)
-        {
-            if( boost::filesystem::is_directory( (*countdir) ) )
-            {
-                ++nbdir;
-            }
-        }
-
-        progressValue = 0;
-        progress.setValue(progressValue);
-        progress.setMaximum(nbdir);
-
-        for(; it != it_end; ++it)
-        {
-            // Canceled => force stop
-            if (progress.wasCanceled())
-            {
-                return;
-            }
-
-            if( boost::filesystem::is_directory( (*it) ) )
-            {
-                ++progressValue;
-                // Update ProgressDialog label
-                std::stringstream progressLabel;
-                progressLabel << "Create ZIP Archive " << progressValue << " / " << nbdir
-                              << " (Directory = " << std::string((*it).path().filename().c_str()) << ")";
-                progress.setLabelText(QString(progressLabel.str().c_str()));
-
-                std::string dir = this->_ui->outputDirectory->text().toStdString() +
-                                  VALID_FILE_SEPARATOR +
-                                  std::string((*it).path().filename().c_str());
-
-                std::string zipfile = std::string((*it).path().filename().c_str());
-
-                QDir directory(QString(dir.c_str()));
-
-                // Create ZIP Archive (One per Subject)
-                QString command = "zip";
-                QStringList args;
-                args << "-r" << QString(zipfile.c_str());
-                args << directory.entryList();
-
-                QProcess *myProcess = new QProcess(this);
-                myProcess->setWorkingDirectory(QString(dir.c_str()));
-                myProcess->start(command, args);
-
-                myProcess->waitForFinished();
-
-                if (myProcess->exitCode() == EXIT_SUCCESS)
-                {
-                    this->_Results[mapHascodeToSubject[std::string((*it).path().filename().c_str())]].set_zipCreation(GenerationResultItem::Result::OK);
-                }
-                else
-                {
-                    this->_Results[mapHascodeToSubject[std::string((*it).path().filename().c_str())]].set_zipCreation(GenerationResultItem::Result::Fail);
-                    this->_Results[mapHascodeToSubject[std::string((*it).path().filename().c_str())]].set_ZipErrorMsg(myProcess->errorString().toStdString());
-                }
-
-                // Update progressDialog
-                progress.setValue(progressValue);
-            }
-        }
+        // Create ZIP Archive (One per Subject)
+        this->createZipArchives(progress, mapHascodeToSubject);
     }
 
     // Disabled Run button
@@ -479,6 +298,23 @@ GenerationFrame
 
     // Terminate the progressDialog
     progress.setValue(progress.maximum());
+}
+
+std::string
+GenerationFrame
+::get_selectedFormat_toString() const
+{
+    std::string format = "";
+    if (this->_ui->formatMRIMultiple->isChecked())
+    {
+        format = UID_MRImageStorage;
+    }
+    else if (this->_ui->formatMRISingle->isChecked())
+    {
+        format = UID_EnhancedMRImageStorage;
+    }
+
+    return format;
 }
 
 void
@@ -514,7 +350,7 @@ GenerationFrame
     std::string const directory =
             this->_ui->outputDirectory->text().toUtf8().constData();
 
-    // Directory is filled and available
+    // Directory is filled and available or Store selected
     bool enabled = (this->_ui->saveCheckBox->checkState() == Qt::Checked &&
                    directory != "" &&
                    boost::filesystem::exists(boost::filesystem::path(directory))) ||
@@ -530,6 +366,191 @@ GenerationFrame
 {
     // always true
     emit this->update_previousButton(true);
+}
+
+void
+GenerationFrame
+::createDicomdirs(QProgressDialog &progress,
+                  std::map<std::string, std::string> &mapHascodeToSubject)
+{
+    // patient_extra_attributes
+    std::vector<DcmTagKey> patient_extra_attributes_cpp =
+    {
+        // insert other DcmTagKey here
+    };
+
+    // study_extra_attributes
+    std::vector<DcmTagKey> study_extra_attributes_cpp =
+    {
+        DCM_StudyDescription
+        // insert other DcmTagKey here
+    };
+
+    // series_extra_attributes
+    std::vector<DcmTagKey> series_extra_attributes_cpp =
+    {
+        DCM_SeriesDescription
+        // insert other DcmTagKey here
+    };
+
+    boost::filesystem::directory_iterator it(this->_ui->outputDirectory->text().toStdString()),
+                                          countdir(this->_ui->outputDirectory->text().toStdString()),
+                                          it_end;
+
+    int nbdir = 0;
+    for(; countdir != it_end; ++countdir)
+    {
+        if( boost::filesystem::is_directory( (*countdir) ) )
+        {
+            ++nbdir;
+        }
+    }
+
+    int progressValue = 0;
+    progress.setValue(progressValue);
+    progress.setMaximum(nbdir);
+
+    for(; it != it_end; ++it)
+    {
+        // Canceled => force stop
+        if (progress.wasCanceled())
+        {
+            return;
+        }
+
+        if( boost::filesystem::is_directory( (*it) ) )
+        {
+            // Update progressDialog
+            progress.setValue(progressValue);
+            ++progressValue;
+            // Update ProgressDialog label
+            std::stringstream progressLabel;
+            progressLabel << "Create DICOMDIR " << progressValue << " / " << nbdir
+                          << " (Directory = " << std::string((*it).path().filename().c_str()) << ")";
+            progress.setLabelText(QString(progressLabel.str().c_str()));
+
+            std::string dir = this->_ui->outputDirectory->text().toStdString() +
+                              VALID_FILE_SEPARATOR +
+                              std::string((*it).path().filename().c_str());
+
+            std::string dicomdirfile = dir + VALID_FILE_SEPARATOR + "DICOMDIR";
+
+            if (boost::filesystem::exists(boost::filesystem::path(dicomdirfile.c_str())))
+            {
+                this->_Results[mapHascodeToSubject[std::string((*it).path().filename().c_str())]].set_dicomdirCreation(GenerationResultItem::Result::Fail);
+                this->_Results[mapHascodeToSubject[std::string((*it).path().filename().c_str())]].set_DicomdirErrorMsg("DICOMDIR already exist: " + dicomdirfile);
+                continue;
+            }
+
+            // Create generator
+            DicomDirGenerator generator;
+            generator.enableMapFilenamesMode();
+            // Create DICOMDIR object
+            OFCondition ret = generator.createNewDicomDir(DicomDirGenerator::AP_GeneralPurpose,
+                                        dicomdirfile.c_str());
+
+            if (ret.bad())
+            {
+                this->_Results[mapHascodeToSubject[std::string((*it).path().filename().c_str())]].set_dicomdirCreation(GenerationResultItem::Result::Fail);
+                this->_Results[mapHascodeToSubject[std::string((*it).path().filename().c_str())]].set_DicomdirErrorMsg(ret.text());
+                continue;
+            }
+
+            // Configure DICOMDIR
+            generator.setPatientExtraAttributes(patient_extra_attributes_cpp);
+            generator.setStudyExtraAttributes(study_extra_attributes_cpp);
+            generator.setSeriesExtraAttributes(series_extra_attributes_cpp);
+            // Add files
+            this->insertFilesForDicomdir(dir, &generator);
+            // Write DICOMDIR
+            ret = generator.writeDicomDir();
+
+            if (ret.bad())
+            {
+                this->_Results[mapHascodeToSubject[std::string((*it).path().filename().c_str())]].set_dicomdirCreation(GenerationResultItem::Result::Fail);
+                this->_Results[mapHascodeToSubject[std::string((*it).path().filename().c_str())]].set_DicomdirErrorMsg(ret.text());
+            }
+            else
+            {
+                this->_Results[mapHascodeToSubject[std::string((*it).path().filename().c_str())]].set_dicomdirCreation(GenerationResultItem::Result::OK);
+            }
+        }
+    }
+}
+
+void
+GenerationFrame
+::createZipArchives(QProgressDialog & progress,
+                    std::map<std::string, std::string> &mapHascodeToSubject)
+{
+    boost::filesystem::directory_iterator it(this->_ui->outputDirectory->text().toStdString()),
+                                          countdir(this->_ui->outputDirectory->text().toStdString()),
+                                          it_end;
+
+    int nbdir = 0;
+    for(; countdir != it_end; ++countdir)
+    {
+        if( boost::filesystem::is_directory( (*countdir) ) )
+        {
+            ++nbdir;
+        }
+    }
+
+    int progressValue = 0;
+    progress.setValue(progressValue);
+    progress.setMaximum(nbdir);
+
+    for(; it != it_end; ++it)
+    {
+        // Canceled => force stop
+        if (progress.wasCanceled())
+        {
+            return;
+        }
+
+        if( boost::filesystem::is_directory( (*it) ) )
+        {
+            ++progressValue;
+            // Update ProgressDialog label
+            std::stringstream progressLabel;
+            progressLabel << "Create ZIP Archive " << progressValue << " / " << nbdir
+                          << " (Directory = " << std::string((*it).path().filename().c_str()) << ")";
+            progress.setLabelText(QString(progressLabel.str().c_str()));
+
+            std::string dir = this->_ui->outputDirectory->text().toStdString() +
+                              VALID_FILE_SEPARATOR +
+                              std::string((*it).path().filename().c_str());
+
+            std::string zipfile = std::string((*it).path().filename().c_str());
+
+            QDir directory(QString(dir.c_str()));
+
+            // Create ZIP Archive (One per Subject)
+            QString command = "zip";
+            QStringList args;
+            args << "-r" << QString(zipfile.c_str());
+            args << directory.entryList();
+
+            QProcess *myProcess = new QProcess(this);
+            myProcess->setWorkingDirectory(QString(dir.c_str()));
+            myProcess->start(command, args);
+
+            myProcess->waitForFinished();
+
+            if (myProcess->exitCode() == EXIT_SUCCESS)
+            {
+                this->_Results[mapHascodeToSubject[std::string((*it).path().filename().c_str())]].set_zipCreation(GenerationResultItem::Result::OK);
+            }
+            else
+            {
+                this->_Results[mapHascodeToSubject[std::string((*it).path().filename().c_str())]].set_zipCreation(GenerationResultItem::Result::Fail);
+                this->_Results[mapHascodeToSubject[std::string((*it).path().filename().c_str())]].set_ZipErrorMsg(myProcess->errorString().toStdString());
+            }
+
+            // Update progressDialog
+            progress.setValue(progressValue);
+        }
+    }
 }
 
 void
@@ -664,22 +685,24 @@ GenerationFrame
 {
     // Create dialog
     QFileDialog dialog;
-    // Look for Directory
+    // Initialize: Only search directory
     dialog.setFileMode(QFileDialog::Directory);
     dialog.setOption(QFileDialog::ShowDirsOnly);
     dialog.setDirectory(this->_ui->outputDirectory->text());
 
     if (dialog.exec())
-    {
+    {   // Dialog validate
+        // Get selected Directory path
         QString directory = dialog.selectedFiles()[0];
         this->_ui->outputDirectory->setText(directory);
 
+        // Save this directory as default path
         QSettings settings;
-
         settings.beginGroup(CONF_GROUP_OUTPUT);
         settings.setValue(CONF_KEY_DIRECTORY, directory);
         settings.endGroup();
 
+        // Update
         this->on_outputDirectory_editingFinished();
     }
 }
@@ -703,6 +726,20 @@ GenerationFrame
 ::on_CreateButton_clicked()
 {
     emit this->CreateNewPACSConfiguration();
+}
+
+void
+GenerationFrame
+::SavePreferences()
+{
+    QSettings settings;
+    settings.beginGroup(CONF_GROUP_OUTPUT);
+    settings.setValue(CONF_KEY_FORMAT, QString(this->get_selectedFormat_toString().c_str()));
+    settings.setValue(CONF_KEY_DICOMDIR, this->_ui->DicomdirCheckBox->checkState());
+    settings.setValue(CONF_KEY_ZIP, this->_ui->ZIPCheckBox->checkState());
+    settings.setValue(CONF_KEY_SAVE, this->_ui->saveCheckBox->checkState());
+    settings.setValue(CONF_KEY_STORE, this->_ui->StoreCheckBox->checkState());
+    settings.endGroup();
 }
 
 } // namespace gui

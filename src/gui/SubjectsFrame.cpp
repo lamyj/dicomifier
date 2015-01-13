@@ -24,24 +24,31 @@ namespace gui
 SubjectsFrame
 ::SubjectsFrame(QWidget *parent) :
     BaseFrame(parent),
-    _ui(new Ui::SubjectsFrame), _treeView(NULL), _datetimemin(QDateTime::currentDateTime())
+    _ui(new Ui::SubjectsFrame),
+    _treeView(NULL), _datetimemin(QDateTime::currentDateTime())
 {
     this->_ui->setupUi(this);
 
+    // Initialize TreeView
     this->_treeView = new SubjectsTreeView(this->_ui->widget);
     this->_treeView->Initialize({});
 
+    // Link Signals and Slots
     connect(this->_treeView, SIGNAL(itemsSelectionChanged()),
             this, SLOT(ontreeViewclicked()));
 
+    // Disabled Subject part
     this->set_list_enabled(false);
 
+    // Default Date Time format
     this->_ui->dateFilterBegin->setDisplayFormat(QString("dd/MM/yyyy HH:mm:ss"));
     this->_ui->dateFilterEnd->setDisplayFormat(QString("dd/MM/yyyy HH:mm:ss"));
 
+    // Default Date and Time => Now
     this->_ui->dateFilterBegin->setDateTime(this->_datetimemin);
     this->_ui->dateFilterEnd->setDateTime(QDateTime::currentDateTime());
 
+    // Initialize Input Directory with Preferences
     QSettings settings;
     this->_ui->dataDirectory->setText(settings.value(CONF_GROUP_INPUT + "/" +
                                                      CONF_KEY_DIRECTORY,
@@ -51,6 +58,8 @@ SubjectsFrame
 SubjectsFrame
 ::~SubjectsFrame()
 {
+    // TreeView is destroy by deleting _ui
+
     delete this->_ui;
 }
 
@@ -58,11 +67,16 @@ void
 SubjectsFrame
 ::Initialize()
 {
+    // Initialize Subject Part
     if (this->_ui->dataDirectory->text() != "")
     {
         on_dataDirectory_editingFinished();
     }
+
+    // Initialize treeView
     ontreeViewclicked();
+
+    // Initialize frame
     BaseFrame::Initialize();
 }
 
@@ -74,6 +88,8 @@ SubjectsFrame
     this->_ui->dataDirectory->setText(settings.value(CONF_GROUP_INPUT + "/" +
                                                      CONF_KEY_DIRECTORY,
                                                      QString("")).toString());
+
+    // Initialize Subject Part
     this->on_dataDirectory_editingFinished();
 }
 
@@ -106,22 +122,24 @@ SubjectsFrame
 {
     // Create dialog
     QFileDialog dialog;
-    // Look for Directory
+    // Initialize: Only search directory
     dialog.setFileMode(QFileDialog::Directory);
     dialog.setOption(QFileDialog::ShowDirsOnly);
     dialog.setDirectory(this->_ui->dataDirectory->text());
 
     if (dialog.exec())
-    {
+    {   // Dialog validate
+        // Get selected Directory path
         QString directory = dialog.selectedFiles()[0];
         this->_ui->dataDirectory->setText(directory);
 
+        // Save this directory as default path
         QSettings settings;
-
         settings.beginGroup(CONF_GROUP_INPUT);
         settings.setValue(CONF_KEY_DIRECTORY, directory);
         settings.endGroup();
 
+        // Update Subject part
         this->on_dataDirectory_editingFinished();
     }
 }
@@ -137,8 +155,11 @@ void
 SubjectsFrame
 ::paintEvent(QPaintEvent *event)
 {
-    if (this->_treeView != NULL)
+    if (this->_treeView != NULL &&
+        (event->type() == QEvent::Resize) ||
+         event->type() == QEvent::Paint)
     {
+        // Resize the treeView (expand)
         this->_treeView->resize(this->_ui->widget->size());
     }
 }
@@ -256,6 +277,7 @@ SubjectsFrame
     bool enabled = directory != "" &&
                    boost::filesystem::exists(boost::filesystem::path(directory));
 
+    // At least one item selected
     enabled &= (this->_ui->selectAllCheckBox->checkState() != Qt::Unchecked);
 
     emit this->update_nextButton(enabled);
