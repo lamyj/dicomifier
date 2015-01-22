@@ -19,62 +19,62 @@
 BOOST_AUTO_TEST_CASE(TEST_OK_01)
 {
     // Test VR = AE
-    auto testfieldae = dicomifier::translator::ComplexImageComponentDcmField<EVR_AE>::New();
+    auto testfieldae = dicomifier::translator::ComplexImageComponentDcmField<EVR_AE>::New(true);
     // Pointer exists
     BOOST_CHECK_EQUAL(testfieldae != NULL, true);
 
     // Test VR = AS
-    auto testfieldas = dicomifier::translator::ComplexImageComponentDcmField<EVR_AS>::New();
+    auto testfieldas = dicomifier::translator::ComplexImageComponentDcmField<EVR_AS>::New(true);
     // Pointer exists
     BOOST_CHECK_EQUAL(testfieldas != NULL, true);
 
     // Test VR = AT
-    auto testfieldat = dicomifier::translator::ComplexImageComponentDcmField<EVR_AT>::New();
+    auto testfieldat = dicomifier::translator::ComplexImageComponentDcmField<EVR_AT>::New(true);
     // Pointer exists
     BOOST_CHECK_EQUAL(testfieldat != NULL, true);
 
     // Test VR = CS
-    auto testfieldcs = dicomifier::translator::ComplexImageComponentDcmField<EVR_CS>::New();
+    auto testfieldcs = dicomifier::translator::ComplexImageComponentDcmField<EVR_CS>::New(true);
     // Pointer exists
     BOOST_CHECK_EQUAL(testfieldcs != NULL, true);
 
     // Test VR = DA
-    auto testfieldda = dicomifier::translator::ComplexImageComponentDcmField<EVR_DA>::New();
+    auto testfieldda = dicomifier::translator::ComplexImageComponentDcmField<EVR_DA>::New(true);
     // Pointer exists
     BOOST_CHECK_EQUAL(testfieldda != NULL, true);
 
     // Test VR = DS
-    auto testfieldds = dicomifier::translator::ComplexImageComponentDcmField<EVR_DS>::New();
+    auto testfieldds = dicomifier::translator::ComplexImageComponentDcmField<EVR_DS>::New(true);
     // Pointer exists
     BOOST_CHECK_EQUAL(testfieldds != NULL, true);
 
     // Test VR = DT
-    auto testfielddt = dicomifier::translator::ComplexImageComponentDcmField<EVR_DT>::New();
+    auto testfielddt = dicomifier::translator::ComplexImageComponentDcmField<EVR_DT>::New(true);
     // Pointer exists
     BOOST_CHECK_EQUAL(testfielddt != NULL, true);
 
     // Test VR = FL
-    auto testfieldfl = dicomifier::translator::ComplexImageComponentDcmField<EVR_FL>::New();
+    auto testfieldfl = dicomifier::translator::ComplexImageComponentDcmField<EVR_FL>::New(true);
     // Pointer exists
     BOOST_CHECK_EQUAL(testfieldfl != NULL, true);
 
     // Test VR = FD
-    auto testfieldfd = dicomifier::translator::ComplexImageComponentDcmField<EVR_FD>::New();
+    auto testfieldfd = dicomifier::translator::ComplexImageComponentDcmField<EVR_FD>::New(true);
     // Pointer exists
     BOOST_CHECK_EQUAL(testfieldfd != NULL, true);
 
     // Test VR = IS
-    auto testfieldis = dicomifier::translator::ComplexImageComponentDcmField<EVR_IS>::New();
+    auto testfieldis = dicomifier::translator::ComplexImageComponentDcmField<EVR_IS>::New(true);
     // Pointer exists
     BOOST_CHECK_EQUAL(testfieldis != NULL, true);
 
     // Test VR = LO
-    auto testfieldlo = dicomifier::translator::ComplexImageComponentDcmField<EVR_LO>::New();
+    auto testfieldlo = dicomifier::translator::ComplexImageComponentDcmField<EVR_LO>::New(true);
     // Pointer exists
     BOOST_CHECK_EQUAL(testfieldlo != NULL, true);
 
     // Test VR = LT
-    auto testfieldlt = dicomifier::translator::ComplexImageComponentDcmField<EVR_LT>::New();
+    auto testfieldlt = dicomifier::translator::ComplexImageComponentDcmField<EVR_LT>::New(true);
     // Pointer exists
     BOOST_CHECK_EQUAL(testfieldlt != NULL, true);
 
@@ -84,56 +84,56 @@ BOOST_AUTO_TEST_CASE(TEST_OK_01)
     // Test VR = OW => Not implemented
 
     // Test VR = PN
-    auto testfieldpn = dicomifier::translator::ComplexImageComponentDcmField<EVR_PN>::New();
+    auto testfieldpn = dicomifier::translator::ComplexImageComponentDcmField<EVR_PN>::New(true);
     // Pointer exists
     BOOST_CHECK_EQUAL(testfieldpn != NULL, true);
 
     // Test VR = SH
-    auto testfieldsh = dicomifier::translator::ComplexImageComponentDcmField<EVR_SH>::New();
+    auto testfieldsh = dicomifier::translator::ComplexImageComponentDcmField<EVR_SH>::New(true);
     // Pointer exists
     BOOST_CHECK_EQUAL(testfieldsh != NULL, true);
 
     // Test VR = SL
-    auto testfieldsl = dicomifier::translator::ComplexImageComponentDcmField<EVR_SL>::New();
+    auto testfieldsl = dicomifier::translator::ComplexImageComponentDcmField<EVR_SL>::New(true);
     // Pointer exists
     BOOST_CHECK_EQUAL(testfieldsl != NULL, true);
 
     // Test VR = SQ => Not implemented
 
     // Test VR = SS
-    auto testfieldss = dicomifier::translator::ComplexImageComponentDcmField<EVR_SS>::New();
+    auto testfieldss = dicomifier::translator::ComplexImageComponentDcmField<EVR_SS>::New(true);
     // Pointer exists
     BOOST_CHECK_EQUAL(testfieldss != NULL, true);
 
     // Test VR = ST
-    auto testfieldst = dicomifier::translator::ComplexImageComponentDcmField<EVR_ST>::New();
+    auto testfieldst = dicomifier::translator::ComplexImageComponentDcmField<EVR_ST>::New(true);
     // Pointer exists
     BOOST_CHECK_EQUAL(testfieldst != NULL, true);
 
     // Test VR = TM
-    auto testfieldtm = dicomifier::translator::ComplexImageComponentDcmField<EVR_TM>::New();
+    auto testfieldtm = dicomifier::translator::ComplexImageComponentDcmField<EVR_TM>::New(true);
     // Pointer exists
     BOOST_CHECK_EQUAL(testfieldtm != NULL, true);
 
     // Test VR = UI
-    auto testfieldui = dicomifier::translator::ComplexImageComponentDcmField<EVR_UI>::New();
+    auto testfieldui = dicomifier::translator::ComplexImageComponentDcmField<EVR_UI>::New(true);
     // Pointer exists
     BOOST_CHECK_EQUAL(testfieldui != NULL, true);
 
     // Test VR = UL
-    auto testfieldul = dicomifier::translator::ComplexImageComponentDcmField<EVR_UL>::New();
+    auto testfieldul = dicomifier::translator::ComplexImageComponentDcmField<EVR_UL>::New(true);
     // Pointer exists
     BOOST_CHECK_EQUAL(testfieldul != NULL, true);
 
     // Test VR = UN => Not implemented
 
     // Test VR = US
-    auto testfieldus = dicomifier::translator::ComplexImageComponentDcmField<EVR_US>::New();
+    auto testfieldus = dicomifier::translator::ComplexImageComponentDcmField<EVR_US>::New(true);
     // Pointer exists
     BOOST_CHECK_EQUAL(testfieldus != NULL, true);
 
     // Test VR = UT
-    auto testfieldut = dicomifier::translator::ComplexImageComponentDcmField<EVR_UT>::New();
+    auto testfieldut = dicomifier::translator::ComplexImageComponentDcmField<EVR_UT>::New(true);
     // Pointer exists
     BOOST_CHECK_EQUAL(testfieldut != NULL, true);
 }
@@ -193,7 +193,7 @@ struct TestDataOK02
 BOOST_FIXTURE_TEST_CASE(TEST_OK_02, TestDataOK02)
 {
     // Test VR = CS
-    auto testfieldcs = dicomifier::translator::ComplexImageComponentDcmField<EVR_CS>::New();
+    auto testfieldcs = dicomifier::translator::ComplexImageComponentDcmField<EVR_CS>::New(true);
     testfieldcs->run(brukerdataset, *generator, NULL);
     BOOST_CHECK_EQUAL(testfieldcs->get_array().size(), 1);
     BOOST_CHECK_EQUAL(testfieldcs->get_array()[0], "MAGNITUDE");
@@ -254,7 +254,7 @@ struct TestDataOK03
 BOOST_FIXTURE_TEST_CASE(TEST_OK_03, TestDataOK03)
 {
     // Test VR = CS
-    auto testfieldcs = dicomifier::translator::ComplexImageComponentDcmField<EVR_CS>::New();
+    auto testfieldcs = dicomifier::translator::ComplexImageComponentDcmField<EVR_CS>::New(true);
     testfieldcs->run(brukerdataset, *generator, NULL);
     BOOST_CHECK_EQUAL(testfieldcs->get_array().size(), 1);
     BOOST_CHECK_EQUAL(testfieldcs->get_array()[0], "PHASE");
@@ -315,7 +315,7 @@ struct TestDataOK04
 BOOST_FIXTURE_TEST_CASE(TEST_OK_04, TestDataOK04)
 {
     // Test VR = CS
-    auto testfieldcs = dicomifier::translator::ComplexImageComponentDcmField<EVR_CS>::New();
+    auto testfieldcs = dicomifier::translator::ComplexImageComponentDcmField<EVR_CS>::New(true);
     testfieldcs->run(brukerdataset, *generator, NULL);
     BOOST_CHECK_EQUAL(testfieldcs->get_array().size(), 1);
     BOOST_CHECK_EQUAL(testfieldcs->get_array()[0], "REAL");
@@ -376,7 +376,7 @@ struct TestDataOK05
 BOOST_FIXTURE_TEST_CASE(TEST_OK_05, TestDataOK05)
 {
     // Test VR = CS
-    auto testfieldcs = dicomifier::translator::ComplexImageComponentDcmField<EVR_CS>::New();
+    auto testfieldcs = dicomifier::translator::ComplexImageComponentDcmField<EVR_CS>::New(true);
     testfieldcs->run(brukerdataset, *generator, NULL);
     BOOST_CHECK_EQUAL(testfieldcs->get_array().size(), 1);
     BOOST_CHECK_EQUAL(testfieldcs->get_array()[0], "IMAGINARY");
@@ -437,7 +437,7 @@ struct TestDataOK06
 BOOST_FIXTURE_TEST_CASE(TEST_OK_06, TestDataOK06)
 {
     // Test VR = CS
-    auto testfieldcs = dicomifier::translator::ComplexImageComponentDcmField<EVR_CS>::New();
+    auto testfieldcs = dicomifier::translator::ComplexImageComponentDcmField<EVR_CS>::New(true);
     testfieldcs->run(brukerdataset, *generator, NULL);
     BOOST_CHECK_EQUAL(testfieldcs->get_array().size(), 1);
     BOOST_CHECK_EQUAL(testfieldcs->get_array()[0], "MIXED");
@@ -451,57 +451,57 @@ BOOST_FIXTURE_TEST_CASE(TEST_OK_06, TestDataOK06)
 BOOST_FIXTURE_TEST_CASE(TEST_KO_01, TestDataOK02)
 {
     // Test VR = AE
-    auto testfieldae = dicomifier::translator::ComplexImageComponentDcmField<EVR_AE>::New();
+    auto testfieldae = dicomifier::translator::ComplexImageComponentDcmField<EVR_AE>::New(true);
     BOOST_REQUIRE_THROW(testfieldae->run(brukerdataset, *generator, NULL),
                         dicomifier::DicomifierException);
 
     // Test VR = AS
-    auto testfieldas = dicomifier::translator::ComplexImageComponentDcmField<EVR_AS>::New();
+    auto testfieldas = dicomifier::translator::ComplexImageComponentDcmField<EVR_AS>::New(true);
     BOOST_REQUIRE_THROW(testfieldas->run(brukerdataset, *generator, NULL),
                         dicomifier::DicomifierException);
 
     // Test VR = AT
-    auto testfieldat = dicomifier::translator::ComplexImageComponentDcmField<EVR_AT>::New();
+    auto testfieldat = dicomifier::translator::ComplexImageComponentDcmField<EVR_AT>::New(true);
     BOOST_REQUIRE_THROW(testfieldat->run(brukerdataset, *generator, NULL),
                         dicomifier::DicomifierException);
 
     // Test VR = DA
-    auto testfieldda = dicomifier::translator::ComplexImageComponentDcmField<EVR_DA>::New();
+    auto testfieldda = dicomifier::translator::ComplexImageComponentDcmField<EVR_DA>::New(true);
     BOOST_REQUIRE_THROW(testfieldda->run(brukerdataset, *generator, NULL),
                         dicomifier::DicomifierException);
 
     // Test VR = DS
-    auto testfieldds = dicomifier::translator::ComplexImageComponentDcmField<EVR_DS>::New();
+    auto testfieldds = dicomifier::translator::ComplexImageComponentDcmField<EVR_DS>::New(true);
     BOOST_REQUIRE_THROW(testfieldds->run(brukerdataset, *generator, NULL),
                         dicomifier::DicomifierException);
 
     // Test VR = DT
-    auto testfielddt = dicomifier::translator::ComplexImageComponentDcmField<EVR_DT>::New();
+    auto testfielddt = dicomifier::translator::ComplexImageComponentDcmField<EVR_DT>::New(true);
     BOOST_REQUIRE_THROW(testfielddt->run(brukerdataset, *generator, NULL),
                         dicomifier::DicomifierException);
 
     // Test VR = FL
-    auto testfieldfl = dicomifier::translator::ComplexImageComponentDcmField<EVR_FL>::New();
+    auto testfieldfl = dicomifier::translator::ComplexImageComponentDcmField<EVR_FL>::New(true);
     BOOST_REQUIRE_THROW(testfieldfl->run(brukerdataset, *generator, NULL),
                         dicomifier::DicomifierException);
 
     // Test VR = FD
-    auto testfieldfd = dicomifier::translator::ComplexImageComponentDcmField<EVR_FD>::New();
+    auto testfieldfd = dicomifier::translator::ComplexImageComponentDcmField<EVR_FD>::New(true);
     BOOST_REQUIRE_THROW(testfieldfd->run(brukerdataset, *generator, NULL),
                         dicomifier::DicomifierException);
 
     // Test VR = IS
-    auto testfieldis = dicomifier::translator::ComplexImageComponentDcmField<EVR_IS>::New();
+    auto testfieldis = dicomifier::translator::ComplexImageComponentDcmField<EVR_IS>::New(true);
     BOOST_REQUIRE_THROW(testfieldis->run(brukerdataset, *generator, NULL),
                         dicomifier::DicomifierException);
 
     // Test VR = LO
-    auto testfieldlo = dicomifier::translator::ComplexImageComponentDcmField<EVR_LO>::New();
+    auto testfieldlo = dicomifier::translator::ComplexImageComponentDcmField<EVR_LO>::New(true);
     BOOST_REQUIRE_THROW(testfieldlo->run(brukerdataset, *generator, NULL),
                         dicomifier::DicomifierException);
 
     // Test VR = LT
-    auto testfieldlt = dicomifier::translator::ComplexImageComponentDcmField<EVR_LT>::New();
+    auto testfieldlt = dicomifier::translator::ComplexImageComponentDcmField<EVR_LT>::New(true);
     BOOST_REQUIRE_THROW(testfieldlt->run(brukerdataset, *generator, NULL),
                         dicomifier::DicomifierException);
 
@@ -511,56 +511,56 @@ BOOST_FIXTURE_TEST_CASE(TEST_KO_01, TestDataOK02)
     // Test VR = OW => Not implemented
 
     // Test VR = PN
-    auto testfieldpn = dicomifier::translator::ComplexImageComponentDcmField<EVR_PN>::New();
+    auto testfieldpn = dicomifier::translator::ComplexImageComponentDcmField<EVR_PN>::New(true);
     BOOST_REQUIRE_THROW(testfieldpn->run(brukerdataset, *generator, NULL),
                         dicomifier::DicomifierException);
 
     // Test VR = SH
-    auto testfieldsh = dicomifier::translator::ComplexImageComponentDcmField<EVR_SH>::New();
+    auto testfieldsh = dicomifier::translator::ComplexImageComponentDcmField<EVR_SH>::New(true);
     BOOST_REQUIRE_THROW(testfieldsh->run(brukerdataset, *generator, NULL),
                         dicomifier::DicomifierException);
 
     // Test VR = SL
-    auto testfieldsl = dicomifier::translator::ComplexImageComponentDcmField<EVR_SL>::New();
+    auto testfieldsl = dicomifier::translator::ComplexImageComponentDcmField<EVR_SL>::New(true);
     BOOST_REQUIRE_THROW(testfieldsl->run(brukerdataset, *generator, NULL),
                         dicomifier::DicomifierException);
 
     // Test VR = SQ => Not implemented
 
     // Test VR = SS
-    auto testfieldss = dicomifier::translator::ComplexImageComponentDcmField<EVR_SS>::New();
+    auto testfieldss = dicomifier::translator::ComplexImageComponentDcmField<EVR_SS>::New(true);
     BOOST_REQUIRE_THROW(testfieldss->run(brukerdataset, *generator, NULL),
                         dicomifier::DicomifierException);
 
     // Test VR = ST
-    auto testfieldst = dicomifier::translator::ComplexImageComponentDcmField<EVR_ST>::New();
+    auto testfieldst = dicomifier::translator::ComplexImageComponentDcmField<EVR_ST>::New(true);
     BOOST_REQUIRE_THROW(testfieldst->run(brukerdataset, *generator, NULL),
                         dicomifier::DicomifierException);
 
     // Test VR = TM
-    auto testfieldtm = dicomifier::translator::ComplexImageComponentDcmField<EVR_TM>::New();
+    auto testfieldtm = dicomifier::translator::ComplexImageComponentDcmField<EVR_TM>::New(true);
     BOOST_REQUIRE_THROW(testfieldtm->run(brukerdataset, *generator, NULL),
                         dicomifier::DicomifierException);
 
     // Test VR = UI
-    auto testfieldui = dicomifier::translator::ComplexImageComponentDcmField<EVR_UI>::New();
+    auto testfieldui = dicomifier::translator::ComplexImageComponentDcmField<EVR_UI>::New(true);
     BOOST_REQUIRE_THROW(testfieldui->run(brukerdataset, *generator, NULL),
                         dicomifier::DicomifierException);
 
     // Test VR = UL
-    auto testfieldul = dicomifier::translator::ComplexImageComponentDcmField<EVR_UL>::New();
+    auto testfieldul = dicomifier::translator::ComplexImageComponentDcmField<EVR_UL>::New(true);
     BOOST_REQUIRE_THROW(testfieldul->run(brukerdataset, *generator, NULL),
                         dicomifier::DicomifierException);
 
     // Test VR = UN => Not implemented
 
     // Test VR = US
-    auto testfieldus = dicomifier::translator::ComplexImageComponentDcmField<EVR_US>::New();
+    auto testfieldus = dicomifier::translator::ComplexImageComponentDcmField<EVR_US>::New(true);
     BOOST_REQUIRE_THROW(testfieldus->run(brukerdataset, *generator, NULL),
                         dicomifier::DicomifierException);
 
     // Test VR = UT
-    auto testfieldut = dicomifier::translator::ComplexImageComponentDcmField<EVR_UT>::New();
+    auto testfieldut = dicomifier::translator::ComplexImageComponentDcmField<EVR_UT>::New(true);
     BOOST_REQUIRE_THROW(testfieldut->run(brukerdataset, *generator, NULL),
                         dicomifier::DicomifierException);
 }
@@ -572,7 +572,7 @@ BOOST_FIXTURE_TEST_CASE(TEST_KO_01, TestDataOK02)
 BOOST_AUTO_TEST_CASE(TEST_KO_02)
 {
     // Test VR = CS
-    auto testfieldcs = dicomifier::translator::ComplexImageComponentDcmField<EVR_CS>::New();
+    auto testfieldcs = dicomifier::translator::ComplexImageComponentDcmField<EVR_CS>::New(true);
     BOOST_REQUIRE_THROW(testfieldcs->run(NULL,
                                          dicomifier::FrameIndexGenerator({2}),
                                          NULL),
@@ -634,7 +634,7 @@ struct TestDataKO03
 BOOST_FIXTURE_TEST_CASE(TEST_KO_03, TestDataKO03)
 {
     // Test VR = CS
-    auto testfieldcs = dicomifier::translator::ComplexImageComponentDcmField<EVR_CS>::New();
+    auto testfieldcs = dicomifier::translator::ComplexImageComponentDcmField<EVR_CS>::New(true);
     BOOST_REQUIRE_THROW(testfieldcs->run(brukerdataset,
                                          *generator,
                                          NULL),

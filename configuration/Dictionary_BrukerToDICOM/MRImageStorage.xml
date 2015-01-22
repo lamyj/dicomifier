@@ -4,7 +4,7 @@
 <Dictionary>
 
     <DicomField tag="0008,0008" keyword="ImageType" vr="CS">
-        <ConstantField values="ORIGINAL\PRIMARY\OTHER" />
+        <ConstantField values="ORIGINAL\PRIMARY\OTHER\" />
     </DicomField>
     
     <DicomField tag="0008,0012" keyword="InstanceCreationDate" vr="DA">
@@ -132,9 +132,8 @@
     </DicomField>
 
     <DicomField tag="0010,2210" keyword="AnatomicalOrientationType" vr="CS">
-        <UpperCaseGenerator>
-            <BrukerField name="SUBJECT_type" />
-        </UpperCaseGenerator>
+        <!-- Possible values: BIPED or QUADRUPED -->
+        <ConstantField values="QUADRUPED" />
     </DicomField>
 
     <!--DicomField tag="0010,2292" keyword="PatientBreedDescription" vr="LO">
@@ -305,6 +304,10 @@
 
     <DicomField tag="0020,0052" keyword="FrameOfReferenceUID" vr="UI" >
         <BrukerField name="VisuUid" />
+    </DicomField>
+
+    <DicomField tag="0020,0060" keyword="Laterality" vr="CS" >
+        <ConstantField values="" />
     </DicomField>
 
     <DicomField tag="0020,1002" keyword="ImagesInAcquisition" vr="IS" >

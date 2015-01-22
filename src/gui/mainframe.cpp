@@ -336,8 +336,8 @@ MainFrame
         this->_ui->stepNumberLabel->setText(QString(stream.str().c_str()));
         this->_ui->stepNumberLabel->show();
         // Buttons Previous and Next
-        this->_ui->nextButton->setText(QString("Previous"));
-        this->_ui->previousButton->setText(QString("Next"));
+        this->_ui->nextButton->setText(QString("Next"));
+        this->_ui->previousButton->setText(QString("Previous"));
         break;
     }
     }
