@@ -6,6 +6,8 @@
  * for details.
  ************************************************************************/
 
+#include <sstream>
+
 #include "DicomSequenceField.h"
 
 namespace dicomifier
@@ -46,6 +48,8 @@ DicomSequenceField
     {
         throw DicomifierException("Empty Dataset");
     }
+
+    OFCondition condition = EC_Normal;
     
     if (this->_perFrame)
     {
@@ -53,7 +57,14 @@ DicomSequenceField
         while (!generatorlocal.done())
         {
             DcmItem* item = NULL;
-            dataset->findOrCreateSequenceItem(this->_dicomtags._tag, item, -2); // -2 = create new
+            condition = dataset->findOrCreateSequenceItem(this->_dicomtags._tag, item, -2); // -2 = create new
+
+            if (condition.bad())
+            {
+                std::stringstream stream;
+                stream << condition.text();
+                throw DicomifierException(stream.str());
+            }
             
             for (auto currentTag : this->_tags)
             {
@@ -69,12 +80,34 @@ DicomSequenceField
              i < this->_dicomtags._range._max; 
              i++)
         {
-            DcmItem* item = NULL;
-            dataset->findOrCreateSequenceItem(this->_dicomtags._tag, item, i);
-            
-            for (auto currentTag : this->_tags)
+            // Empty sequence
+            if (this->_tags.size() == 0)
             {
-                currentTag->run(brukerdataset, generator, item);
+                condition = dataset->insertEmptyElement(this->_dicomtags._tag);
+
+                if (condition.bad())
+                {
+                    std::stringstream stream;
+                    stream << condition.text();
+                    throw DicomifierException(stream.str());
+                }
+            }
+            else
+            {
+                DcmItem* item = NULL;
+                condition = dataset->findOrCreateSequenceItem(this->_dicomtags._tag, item, i);
+
+                if (condition.bad())
+                {
+                    std::stringstream stream;
+                    stream << condition.text();
+                    throw DicomifierException(stream.str());
+                }
+
+                for (auto currentTag : this->_tags)
+                {
+                    currentTag->run(brukerdataset, generator, item);
+                }
             }
         }
     }

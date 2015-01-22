@@ -29,7 +29,7 @@ public:
     typedef std::shared_ptr<Self const> ConstPointer;
 
     /// Create pointer to new instance of ComplexImageComponentDcmField
-    static Pointer New();
+    static Pointer New(bool perFrame);
 
     /// Destroy the instance of ComplexImageComponentDcmField
     virtual ~ComplexImageComponentDcmField();
@@ -47,9 +47,11 @@ public:
 
 protected:
     /// Create an instance of ComplexImageComponentDcmField
-    ComplexImageComponentDcmField();
+    ComplexImageComponentDcmField(bool perframe);
 
 private:
+    /// flag indicate if value is compute only for the current frame or for all
+    bool _perFrame;
 
 };
 

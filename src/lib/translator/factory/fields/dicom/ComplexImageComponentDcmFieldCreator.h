@@ -63,6 +63,7 @@ private:
 
     struct TranslatorComplexImageComponentDcmFieldCreator
     {
+        bool perframe;
         mutable dicomifier::translator::Tag::Pointer compleximagecomponent;
         template<DcmEVR VR> void run() const;
     };

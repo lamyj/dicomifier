@@ -17,15 +17,15 @@ namespace translator
 template<DcmEVR VR>
 typename ComplexImageComponentDcmField<VR>::Pointer
 ComplexImageComponentDcmField<VR>
-::New()
+::New(bool perFrame)
 {
-    return Pointer(new Self());
+    return Pointer(new Self(perFrame));
 }
 
 template<DcmEVR VR>
 ComplexImageComponentDcmField<VR>
-::ComplexImageComponentDcmField()
-    :SubTag<VR>()
+::ComplexImageComponentDcmField(bool perframe)
+    :SubTag<VR>(), _perFrame(perframe)
 {
     // Nothing to do
 }
@@ -50,6 +50,9 @@ ComplexImageComponentDcmField<EVR_CS>
     }
     // Clean residual values
     this->_array.clear();
+
+    // Remark: this->_perFrame not used
+    //         VisuCoreFrameType is the same for all images
 
     std::string brukerfield = brukerdataset->GetFieldData("VisuCoreFrameType")->get_string(0);
 

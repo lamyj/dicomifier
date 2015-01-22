@@ -41,7 +41,15 @@ ComplexImageComponentDcmFieldCreator
          DcmDataset* dataset,
          DcmEVR evr)
 {
+    auto perframe_ = value.second.get_optional<bool>("<xmlattr>.perframe");
+    bool perframe = true;
+    if (perframe_)
+    {
+        perframe = perframe_.get();
+    }
+
     TranslatorComplexImageComponentDcmFieldCreator action;
+    action.perframe = perframe;
 
     dicomifier::vr_dispatch(action, evr);
 
@@ -61,7 +69,8 @@ void
 ComplexImageComponentDcmFieldCreator::TranslatorComplexImageComponentDcmFieldCreator
 ::run() const
 {
-    compleximagecomponent = dicomifier::translator::ComplexImageComponentDcmField<VR>::New();
+    compleximagecomponent =
+            dicomifier::translator::ComplexImageComponentDcmField<VR>::New(perframe);
 }
 
 } // namespace factory
