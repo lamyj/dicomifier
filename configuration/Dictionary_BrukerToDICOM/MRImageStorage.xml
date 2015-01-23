@@ -4,26 +4,37 @@
 <Dictionary>
 
     <DicomField tag="0008,0008" keyword="ImageType" vr="CS">
+        <!-- Required -->
+        <!-- 4 values :
+            - see PS3.03 Table C.8-127
+            - see PS3.03 Table C.8-128
+            - see PS3.03 Table C.8-129
+            - see PS3.03 Table C.8-130 -->
         <ConstantField values="ORIGINAL\PRIMARY\OTHER\" />
     </DicomField>
     
     <DicomField tag="0008,0012" keyword="InstanceCreationDate" vr="DA">
+        <!-- Optional -->
         <DateGenerator />
     </DicomField>
     
     <DicomField tag="0008,0013" keyword="InstanceCreationTime" vr="TM">
+        <!-- Optional -->
         <TimeGenerator />
     </DicomField>
 
     <DicomField tag="0008,0016" keyword="SOPClassUID" vr="UI">
+        <!-- Required -->
         <ConstantField values="1.2.840.10008.5.1.4.1.1.4" /> <!-- MRImageStorage UID -->
     </DicomField>
 
     <DicomField tag="0008,0018" keyword="SOPInstanceUID" vr="UI">
+        <!-- Required -->
         <UIDGenerator uidtype="SOPInstanceUID" />
     </DicomField>
     
     <DicomField tag="0008,0020" keyword="StudyDate" vr="DA">
+        <!-- Required - Can be empty -->
         <DateGenerator inputformat="%d %b %Y" outputformat="%Y%m%d">
             <RegExFilter expression="^.* (\d{2} \w{3} \d{4}).*">
                 <BrukerField name="VisuStudyDate" />
@@ -32,6 +43,7 @@
     </DicomField>
 
     <DicomField tag="0008,0021" keyword="SeriesDate" vr="DA" >
+        <!-- Optional -->
         <DateGenerator inputformat="%d %b %Y" outputformat="%Y%m%d">
             <RegExFilter expression="^.* (\d{2} \w{3} \d{4}).*">
                 <BrukerField name="VisuSeriesDate" />
@@ -40,6 +52,7 @@
     </DicomField>
 
     <DicomField tag="0008,0022" keyword="AcquisitionDate" vr="DA" >
+        <!-- Optional -->
         <DateGenerator inputformat="%d %b %Y" outputformat="%Y%m%d">
             <RegExFilter expression="^.* (\d{2} \w{3} \d{4}).*">
                 <BrukerField name="VisuAcqDate" />
@@ -48,131 +61,172 @@
     </DicomField>
 
     <DicomField tag="0008,0030" keyword="StudyTime" vr="TM">
+        <!-- Required - Can be empty -->
         <RegExFilter expression="^(\d{2}):(\d{2}):(\d{2}).*">
             <BrukerField name="VisuStudyDate" />
         </RegExFilter>
     </DicomField>
 
     <DicomField tag="0008,0031" keyword="SeriesTime" vr="TM">
+        <!-- Optional -->
         <RegExFilter expression="^(\d{2}):(\d{2}):(\d{2}).*">
             <BrukerField name="VisuSeriesDate" />
         </RegExFilter>
     </DicomField>
 
     <DicomField tag="0008,0032" keyword="AcquisitionTime" vr="TM">
+        <!-- Optional -->
         <RegExFilter expression="^(\d{2}):(\d{2}):(\d{2}).*">
             <BrukerField name="VisuAcqDate" />
         </RegExFilter>
     </DicomField>
 
     <DicomField tag="0008,0050" keyword="AccessionNumber" vr="SH">
+        <!-- Required - Can be empty -->
         <ConstantField values="" />
     </DicomField>
 
     <DicomField tag="0008,0060" keyword="Modality" vr="CS">
+        <!-- Required -->
+        <!-- Possible values: see PS3.03 C.7.3.1.1.1 Modality -->
         <ConstantField values="MR" />
     </DicomField>
 
     <DicomField tag="0008,0070" keyword="Manufacturer" vr="LO">
+        <!-- Required -->
         <BrukerField name="ORIGIN" />
     </DicomField>
 
     <DicomField tag="0008,0080" keyword="InstitutionName" vr="LO">
+        <!-- Optional -->
         <BrukerField name="VisuInstitution" />
     </DicomField>
 
     <DicomField tag="0008,0090" keyword="ReferringPhysicianName" vr="PN">
+        <!-- Required - Can be empty -->
         <BrukerField name="VisuStudyReferringPhysician" />
     </DicomField>
 
     <DicomField tag="0008,1010" keyword="StationName" vr="SH">
+        <!-- Optional -->
         <BrukerField name="VisuStation" />
     </DicomField>
 
     <DicomField tag="0008,1030" keyword="StudyDescription" vr="LO">
+        <!-- Optional -->
         <BrukerField name="VisuStudyDescription" />
     </DicomField>
 
     <DicomField tag="0008,103e" keyword="SeriesDescription" vr="LO">
+        <!-- Optional -->
         <BrukerField name="VisuAcquisitionProtocol" />
     </DicomField>
 
     <DicomField tag="0008,1050" keyword="PerformingPhysicianName" vr="PN">
+        <!-- Optional -->
         <BrukerField name="OWNER" />
     </DicomField>
 
     <DicomField tag="0010,0010" keyword="PatientName" vr="PN">
+        <!-- Required - Can be Empty -->
         <BrukerField name="VisuSubjectName" />
     </DicomField>
 
     <DicomField tag="0010,0020" keyword="PatientID" vr="LO">
+        <!-- Required - Can be Empty -->
         <BrukerField name="VisuSubjectId" />
     </DicomField>
 
     <DicomField tag="0010,0030" keyword="PatientBirthDate" vr="DA">
+        <!-- Required - Can be Empty -->
         <BrukerField name="VisuSubjectBirthDate" />
     </DicomField>
 
     <DicomField tag="0010,0040" keyword="PatientSex" vr="CS">
+        <!-- Required - Can be Empty -->
+        <!-- Possible values: M / F / O -->
         <PatientSexFilter>
             <BrukerField name="VisuSubjectSex" />
         </PatientSexFilter>
     </DicomField>
 
     <DicomField tag="0010,1030" keyword="PatientWeight" vr="DS">
+        <!-- Optional -->
         <BrukerField name="VisuSubjectWeight" />
     </DicomField>
 
-    <!--DicomField tag="0010,2201" keyword="PatientSpeciesDescription" vr="LO">
-        Not in Bruker data
+    <DicomField tag="0010,2201" keyword="PatientSpeciesDescription" vr="LO">
+        <!-- Required if patient is an animal and 0010,2202 is not present -->
+        <ConstantField values="to be defined" />
     </DicomField-->
 
     <DicomField tag="0010,2203" keyword="PatientSexNeutered" vr="CS">
-        <ConstantField values="UNKNOWN" />
+        <!-- Required if patient is an animal - Can be empty -->
+        <!-- Possible values: ALTERED / UNALTERED / -->
+        <ConstantField values="" />
     </DicomField>
 
     <DicomField tag="0010,2210" keyword="AnatomicalOrientationType" vr="CS">
+        <!-- Required if the patient is an animal -->
         <!-- Possible values: BIPED or QUADRUPED -->
         <ConstantField values="QUADRUPED" />
     </DicomField>
 
-    <!--DicomField tag="0010,2292" keyword="PatientBreedDescription" vr="LO">
-        Not in Bruker data
+    <DicomField tag="0010,2292" keyword="PatientBreedDescription" vr="LO">
+        <!-- Required if patient is an animal and 0010,2293 is empty -->
+        <ConstantField values="" />
     </DicomField-->
 
-    <!--DicomField tag="0010,2294" keyword="BreedRegistrationSequence" vr="SQ">
-        Not in Bruker data
-    </DicomField-->
+    <DicomField tag="0010,2293" keyword="PatientBreedCodeSequence" vr="SQ">
+        <!-- Required if patient is an animal -->
+        <!-- Empty Sequence -->
+    </DicomField>
+    
+    <DicomField tag="0010,2294" keyword="BreedRegistrationSequence" vr="SQ">
+        <!-- Required if patient is an animal -->
+        <!-- Empty Sequence -->
+    </DicomField>
 
-    <!--DicomField tag="0010,2297" keyword="ResponsiblePerson" vr="PN">
-        Not in Bruker data
-    </DicomField-->
+    <DicomField tag="0010,2297" keyword="ResponsiblePerson" vr="PN">
+        <!-- Required if patient is an animal - Can be empty -->
+        <ConstantField values="" />
+    </DicomField>
 
     <!--DicomField tag="0010,2298" keyword="ResponsiblePersonRole" vr="CS">
-        Not in Bruker data
+        <!-- Required if 0010,2297 is present and not empty ->
     </DicomField-->
 
-    <!--DicomField tag="0010,2299" keyword="ResponsibleOrganization" vr="LO">
-        Not in Bruker data
-    </DicomField-->
+    <DicomField tag="0010,2299" keyword="ResponsibleOrganization" vr="LO">
+        <!-- Required if patient is an animal - Can be empty -->
+        <ConstantField values="" />
+    </DicomField>
 
     <DicomField tag="0010,4000" keyword="PatientComments" vr="LT">
+        <!-- Optional -->
         <BrukerField name="VisuSubjectComment" />
     </DicomField>
     
     <DicomField tag="0018,0020" keyword="ScanningSequence" vr="CS">
+        <!-- Required -->
+        <!-- Possible values: SE / IR / GR / EP / RM -->
         <ConstantField values="RM\IR" />
     </DicomField>
 
     <DicomField tag="0018,0021" keyword="SequenceVariant" vr="CS">
+        <!-- Required -->
+        <!-- Possible values: SK / MTC / SS / TRSS / SP / MP / OSP / NONE -->
         <ConstantField values="NONE" />
     </DicomField>
 
     <DicomField tag="0018,0022" keyword="ScanOptions" vr="CS">
+        <!-- Required - Can be empty -->
+        <!-- Possible values: PER / RG / CG / PPG / FC / PFF / PFP / SP / FS -->
         <ConstantField values="" />
     </DicomField>
 
     <DicomField tag="0018,0023" keyword="MRAcquisitionType" vr="CS">
+        <!-- Required - Can be empty -->
+        <!-- Possible values: 2D / 3D -->
         <AdditionOperator>
             <BrukerField name="VisuCoreDim" />
             <ConstantField values="D" />
@@ -184,54 +238,66 @@
     </DicomField>
 
     <DicomField tag="0018,0050" keyword="SliceThickness" vr="DS">
+        <!-- Required - Can be empty -->
         <BrukerField name="VisuCoreFrameThickness" />
     </DicomField>
 
     <DicomField tag="0018,0080" keyword="RepetitionTime" vr="DS">
+        <!-- Required - Can be empty -->
         <BrukerField name="VisuAcqRepetitionTime" />
     </DicomField>
 
     <DicomField tag="0018,0081" keyword="EchoTime" vr="DS">
+        <!-- Required - Can be empty -->
         <BrukerField name="VisuAcqEchoTime" />
     </DicomField>
 
     <DicomField tag="0018,0082" keyword="InversionTime" vr="DS">
+        <!-- Required - Can be empty -->
         <InversionTimeDcmField />
     </DicomField>
 
     <DicomField tag="0018,0083" keyword="NumberOfAverages" vr="DS">
+        <!-- Optional -->
         <BrukerField name="VisuAcqNumberOfAverages" />
     </DicomField>
 
     <DicomField tag="0018,0084" keyword="ImagingFrequency" vr="DS">
+        <!-- Optional -->
         <BrukerField name="VisuAcqImagingFrequency" />
     </DicomField>
 
     <DicomField tag="0018,0085" keyword="ImagedNucleus" vr="SH">
+        <!-- Optional -->
         <BrukerField name="VisuAcqImagedNucleus" />
     </DicomField>
 
     <DicomField tag="0018,0088" keyword="SpacingBetweenSlices" vr="DS">
+        <!-- Optional -->
         <SpacingBetweenSlicesDcmField />
     </DicomField>
 
     <DicomField tag="0018,0089" keyword="NumberOfPhaseEncodingSteps" vr="IS">
+        <!-- Optional -->
         <BrukerField name="VisuAcqPhaseEncSteps" />
     </DicomField>
 
     <DicomField tag="0018,0091" keyword="EchoTrainLength" vr="IS">
+        <!-- Required - Can be empty -->
         <BrukerField name="VisuAcqEchoTrainLength" />
     </DicomField>
 
     <!--DicomField tag="0018,0094" keyword="PercentPhaseFieldOfView" vr="DS">
-        Not Mandatory
+        <!-- Optional ->
     </DicomField-->
 
     <DicomField tag="0018,0095" keyword="PixelBandwith" vr="DS">
+        <!-- Optional -->
         <BrukerField name="VisuAcqPixelBandwidth" />
     </DicomField>
 
     <DicomField tag="0018,1020" keyword="SoftwareVersions" vr="LO">
+        <!-- Optional -->
         <AdditionOperator>
             <BrukerField name="VisuCreator" />
             <BrukerField name="VisuCreatorVersion" />
@@ -239,36 +305,44 @@
     </DicomField>
 
     <DicomField tag="0018,1030" keyword="ProtocolName" vr="LO">
+        <!-- Optional -->
         <BrukerField name="VisuAcquisitionProtocol" />
     </DicomField>
 
     <DicomField tag="0018,1310" keyword="AcquisitionMatrix" vr="US">
+        <!-- Optional -->
         <AcquisitionMatrixDcmField />
     </DicomField>
 
     <DicomField tag="0018,1312" keyword="InPlanePhaseEncodingDirection" vr="CS">
+        <!-- Optional -->
         <InPlanePhaseEncodingDirectionDcmField />
     </DicomField>
 
     <DicomField tag="0018,1314" keyword="FlipAngle" vr="DS">
+        <!-- Optional -->
         <BrukerField name="VisuAcqFlipAngle" />
     </DicomField>
 
     <DicomField tag="0018,5100" keyword="PatientPosition" vr="CS">
+        <!-- Required for Enhanced MR Image and if 0054,0410 not present - Can be empty -->
         <PatientPositionFilter>
             <BrukerField name="VisuSubjectPosition" />
         </PatientPositionFilter>
     </DicomField>
 
     <DicomField tag="0020,000d" keyword="StudyInstanceUID" vr="UI">
+        <!-- Required -->
         <BrukerField name="VisuStudyUid" />
     </DicomField>
 
     <DicomField tag="0020,000e" keyword="SeriesInstanceUID" vr="UI" >
+        <!-- Required -->
         <BrukerField name="VisuUid" />
     </DicomField>
 
     <DicomField tag="0020,0010" keyword="StudyID" vr="SH">
+        <!-- Required - Can be empty -->
         <ConditionField>
             <If>
                 <BrukerFieldExist name="VisuStudyId" />
@@ -283,66 +357,80 @@
     </DicomField>
     
     <!--DicomField tag="0020,0011" keyword="SeriesNumber" vr="IS" >
+        <!-- Required - Can be empty ->
         Extract from Bruker data Path
     </DicomField-->
 
     <!--DicomField tag="0020,0012" keyword="AcquisitionNumber" vr="IS" >
-        Not Mandatory
+        <!-- Optional ->
     </DicomField-->
 
     <DicomField tag="0020,0013" keyword="InstanceNumber" vr="IS" >
+        <!-- Required - Can be empty -->
         <InstanceNumberDcmField />
     </DicomField>
 
     <DicomField tag="0020,0032" keyword="ImagePositionPatient" vr="DS" >
+        <!-- Required -->
         <ImagePositionPatientDcmField />
     </DicomField>
 
     <DicomField tag="0020,0037" keyword="ImageOrientationPatient" vr="DS" >
+        <!-- Required -->
         <ImageOrientationPatientDcmField />
     </DicomField>
 
     <DicomField tag="0020,0052" keyword="FrameOfReferenceUID" vr="UI" >
+        <!-- Required -->
         <BrukerField name="VisuUid" />
     </DicomField>
 
     <DicomField tag="0020,0060" keyword="Laterality" vr="CS" >
+        <!-- Possible values: R / L -->
         <ConstantField values="" />
     </DicomField>
 
     <DicomField tag="0020,1002" keyword="ImagesInAcquisition" vr="IS" >
+        <!-- Optional -->
         <BrukerField name="VisuCoreFrameCount" />
     </DicomField>
 
     <DicomField tag="0020,1040" keyword="PositionReferenceIndicator" vr="LO" >
+        <!-- Required - Can be empty -->
         <ConstantField values="" />
     </DicomField>
 
     <!--DicomField tag="0020,1041" keyword="SliceLocation" vr="DS" >
-        Not Mandatory
+        <!-- Optional ->
     </DicomField-->
 
     <DicomField tag="0020,4000" keyword="ImageComments" vr="LT" >
+        <!-- Optional -->
         <ConstantField values="" />
     </DicomField>
 
     <DicomField tag="0028,0002" keyword="SamplesPerPixel" vr="US" >
+        <!-- Required -->
         <ConstantField values="1" />
     </DicomField>
 
     <DicomField tag="0028,0004" keyword="PhotometricInterpretation" vr="CS" >
+        <!-- Required -->
         <ConstantField values="MONOCHROME2" />
     </DicomField>
 
     <DicomField tag="0028,0010" keyword="Rows" vr="US" >
+        <!-- Required -->
         <BrukerField name="VisuCoreSize" range="0,1" />
     </DicomField>
 
     <DicomField tag="0028,0011" keyword="Columns" vr="US" >
+        <!-- Required -->
         <BrukerField name="VisuCoreSize" range="1,2" />
     </DicomField>
 
     <DicomField tag="0028,0030" keyword="PixelSpacing" vr="DS" >
+        <!-- Required -->
         <DivisionOperator>
             <BrukerField name="VisuCoreExtent" />
             <BrukerField name="VisuCoreSize" />
@@ -350,22 +438,27 @@
     </DicomField>
 
     <!--DicomField tag="0028,0100" keyword="BitsAllocated" vr="US" >
+        <!-- Required ->
         Auto generate
     </DicomField-->
 
     <!--DicomField tag="0028,0101" keyword="BitsStored" vr="US" >
+        <!-- Required ->
         Auto generate
     </DicomField-->
 
     <!--DicomField tag="0028,0102" keyword="HighBit" vr="US" >
+        <!-- Required ->
         Auto generate
     </DicomField-->
 
     <!--DicomField tag="0028,0103" keyword="Pixelrepresentation" vr="US" >
+        <!-- Required ->
         Auto generate
     </DicomField-->
     
     <!--DicomField tag="7fe0,0010" keyword="PixelData" vr="OB" >
+        <!-- Required ->
         Auto generate
     </DicomField-->
 </Dictionary>
