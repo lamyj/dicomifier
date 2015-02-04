@@ -267,6 +267,13 @@ ProtocolsFrame
     this->modify_nextButton_enabled();
 }
 
+void
+ProtocolsFrame
+::on_sortedByName_toggled(bool checked)
+{
+    this->_treeView->set_sortedByName(checked);
+}
+
 } // namespace gui
 
 } // namespace dicomifier

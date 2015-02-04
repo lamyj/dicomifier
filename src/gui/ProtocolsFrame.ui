@@ -44,7 +44,44 @@
    <property name="spacing">
     <number>0</number>
    </property>
-   <item row="1" column="0" colspan="2">
+   <item row="1" column="2">
+    <widget class="QRadioButton" name="sortedByProtocolName">
+     <property name="text">
+      <string>Protocol Name</string>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="0">
+    <widget class="QLabel" name="label">
+     <property name="text">
+      <string>Sorted by:</string>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="1">
+    <widget class="QRadioButton" name="sortedByName">
+     <property name="text">
+      <string>Name (Series/Reconstruction)</string>
+     </property>
+     <property name="checked">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="3">
+    <spacer name="horizontalSpacer">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>40</width>
+       <height>20</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+   <item row="2" column="0" colspan="4">
     <widget class="QWidget" name="widget" native="true">
      <property name="sizePolicy">
       <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
@@ -57,7 +94,7 @@
      </property>
     </widget>
    </item>
-   <item row="0" column="0">
+   <item row="0" column="0" colspan="4">
     <widget class="QLabel" name="protocolsTitle">
      <property name="sizePolicy">
       <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
@@ -73,7 +110,7 @@
      </property>
     </widget>
    </item>
-   <item row="2" column="0">
+   <item row="3" column="0" colspan="4">
     <widget class="QCheckBox" name="selectAllCheckBox">
      <property name="styleSheet">
       <string notr="true">QCheckBox 

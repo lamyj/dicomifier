@@ -16,7 +16,7 @@ namespace gui
 
 ProtocolsTreeView
 ::ProtocolsTreeView(QWidget *parent):
-    TreeView(parent)
+    TreeView(parent), _sortedByName(true)
 {
     // Nothing to do
 }
@@ -31,7 +31,7 @@ ProtocolsTreeView
     {
         delete this->model();
     }
-    ProtocolsTreeModel * model = new ProtocolsTreeModel();
+    ProtocolsTreeModel * model = new ProtocolsTreeModel(this->_sortedByName);
     model->Initialize(this->sortedItems());
     this->setModel(model);
 
@@ -68,6 +68,12 @@ ProtocolsTreeView
     return model->is_item_selected();
 }
 
+void ProtocolsTreeView::set_sortedByName(bool isbyname)
+{
+    this->_sortedByName = isbyname;
+    this->Initialize(this->_dataList);
+}
+
 std::map<std::string, std::vector<TreeItem *> >
 ProtocolsTreeView
 ::sortedItems() const
@@ -76,13 +82,17 @@ ProtocolsTreeView
 
     for (auto couple : this->_dataList)
     {
-        std::string name = couple->get_series();
+        std::string name = this->_sortedByName ? couple->get_series() :
+                                                 couple->get_protocolName();
+
         if (returnmap.find(name) == returnmap.end())
         {// create new entry
             returnmap[name] = {};
         }
 
-        returnmap[name].push_back(couple);
+        // Create copy
+        TreeItem* item = new TreeItem(NULL, couple);
+        returnmap[name].push_back(item);
     }
 
     return returnmap;

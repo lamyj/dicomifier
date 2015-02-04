@@ -39,6 +39,7 @@ TreeItem
         this->_recoDirectory   = copy->get_recoDirectory();
         this->_protocolName    = copy->get_protocolName();
         this->_qdatetime       = copy->get_qdatetime();
+        this->_enabled         = copy->isEnabled();
         this->_DicomErrorMsg   = copy->get_DicomErrorMsg();
         this->_StoreErrorMsg   = copy->get_StoreErrorMsg();
         this->_DicomdirErrorMsg= copy->get_DicomdirErrorMsg();

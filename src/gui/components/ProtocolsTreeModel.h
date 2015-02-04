@@ -29,7 +29,7 @@ public:
      * @brief Create an instance of ProtocolsTreeModel
      * @param parent: Object containing the treeModel
      */
-    ProtocolsTreeModel(QObject * parent = 0);
+    ProtocolsTreeModel(bool sortedByName, QObject * parent = 0);
 
     /**
      * @brief Initialize the instance of ProtocolsTreeModel
@@ -41,6 +41,7 @@ public:
 protected:
 
 private:
+    bool _sortedByName;
 
 };
 
