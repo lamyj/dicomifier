@@ -15,11 +15,20 @@ namespace gui
 {
 
 ProtocolsTreeModel
-::ProtocolsTreeModel(QObject *parent) :
-    TreeModel(parent)
+::ProtocolsTreeModel(bool sortedByName, QObject *parent) :
+    TreeModel(parent), _sortedByName(sortedByName)
 {
     QList<QVariant> rootData;
-    rootData << "Select" << "Name" << "Protocol Name" << "Subject name" << "Directory" << "Date";
+    rootData << "Select";
+    if (this->_sortedByName)
+    {
+        rootData << "Name" << "Protocol Name";
+    }
+    else
+    {
+        rootData << "Protocol Name" << "Name";
+    }
+    rootData << "Subject name" << "Directory" << "Date";
     this->_rootItem->set_data(rootData);
 }
 
@@ -33,9 +42,14 @@ ProtocolsTreeModel
          iter != this->_datalist.end();
          iter++)
     {
+        QString firstname = "Not defined";
+        if (iter->first != "")
+        {
+            firstname = QString(iter->first.c_str());
+        }
         QList<QVariant> columnData;
         columnData << "";
-        columnData << QString(iter->first.c_str());
+        columnData << firstname;
         columnData << "";
         columnData << "";
         columnData << "";
@@ -55,10 +69,17 @@ ProtocolsTreeModel
             std::stringstream directory;
             directory << iterdata->get_subjectDirectory() << "/" << iterdata->get_seriesDirectory();
 
+            QString firstdata = QString(name.str().c_str());
+            QString seconddata = QString(iterdata->get_protocolName().c_str());
+            if (!this->_sortedByName)
+            {
+                firstdata = QString(iterdata->get_series().c_str());
+                seconddata = QString(name.str().c_str());
+            }
             QList<QVariant> data;
             data << "";
-            data << QString(name.str().c_str());
-            data << QString(iterdata->get_protocolName().c_str());
+            data << firstdata;
+            data << seconddata;
             data << QString(iterdata->get_name().c_str());
             data << QString(directory.str().c_str());
             data << QString(iterdata->get_acquisitionDate().c_str());

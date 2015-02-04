@@ -77,6 +77,9 @@ protected:
      */
     void paintEvent(QPaintEvent *event);
 
+private slots:
+    void on_sortedByName_toggled(bool checked);
+
 private:
     /// User Interface
     Ui::ProtocolsFrame * _ui;

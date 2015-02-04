@@ -41,12 +41,16 @@ public:
     /// Indicate if at least one item is selected
     virtual bool is_item_selected();
 
+    void set_sortedByName(bool isbyname);
+
 private:
     /**
      * @brief Sort the items list
      * @return Sorted items list
      */
     virtual std::map<std::string, std::vector<TreeItem*>> sortedItems() const;
+
+    bool _sortedByName;
 
 };
 
