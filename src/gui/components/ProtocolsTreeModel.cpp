@@ -19,7 +19,7 @@ ProtocolsTreeModel
     TreeModel(parent)
 {
     QList<QVariant> rootData;
-    rootData << "Select" << "Name" << "Protocol Name" << "Subject name" << "Date";
+    rootData << "Select" << "Name" << "Protocol Name" << "Subject name" << "Directory" << "Date";
     this->_rootItem->set_data(rootData);
 }
 
@@ -39,6 +39,7 @@ ProtocolsTreeModel
         columnData << "";
         columnData << "";
         columnData << "";
+        columnData << "";
         TreeItem * item = new TreeItem(this->_rootItem);
         item->set_data(columnData);
 
@@ -51,11 +52,15 @@ ProtocolsTreeModel
                 name << " - No Data";
             }
 
+            std::stringstream directory;
+            directory << iterdata->get_subjectDirectory() << "/" << iterdata->get_seriesDirectory();
+
             QList<QVariant> data;
             data << "";
             data << QString(name.str().c_str());
             data << QString(iterdata->get_protocolName().c_str());
             data << QString(iterdata->get_name().c_str());
+            data << QString(directory.str().c_str());
             data << QString(iterdata->get_date().c_str());
             iterdata->set_data(data);
             iterdata->set_parent(item);
