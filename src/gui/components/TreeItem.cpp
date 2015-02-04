@@ -19,7 +19,7 @@ TreeItem
 ::TreeItem(TreeItem *parent, TreeItem * copy):
     _parentItem(parent), _checkState(Qt::Unchecked),
     _name(""), _subjectDirectory(""), _study(""), _series(""),
-    _reconstruction(""), _date(""), _directory(""),
+    _reconstruction(""), _date(""), _acquisitionDate(""), _directory(""),
     _seriesDirectory(""), _recoDirectory(""), _protocolName(""),
     _qdatetime(QDateTime::currentDateTime()), _enabled(true),
     _DicomErrorMsg("Canceled"), _StoreErrorMsg(""),
@@ -33,6 +33,7 @@ TreeItem
         this->_series          = copy->get_series();
         this->_reconstruction  = copy->get_reconstruction();
         this->_date            = copy->get_date();
+        this->_acquisitionDate = copy->get_acquisitionDate();
         this->_directory       = copy->get_directory();
         this->_seriesDirectory = copy->get_seriesDirectory();
         this->_recoDirectory   = copy->get_recoDirectory();
@@ -287,6 +288,22 @@ TreeItem
         this->_destinationDirectory = brukerdataset->GetFieldData("VisuSubjectId")->get_string(0);
         this->_destinationDirectory =
                 dicomifier::hashcode::hashToString(dicomifier::hashcode::hashCode(this->_destinationDirectory));
+    }
+
+    if (brukerdataset->HasFieldData("VisuAcqDate"))
+    {
+        std::string acqdate = brukerdataset->GetFieldData("VisuAcqDate")->get_string(0);
+
+        struct tm parts = {0};
+        strptime(acqdate.c_str(), "%H:%M:%S %d %b %Y", &parts);
+
+        char format[64];
+        memset(&format[0], 0, 64);
+        strftime(format, 64, "%d / %m / %Y %H:%M:%S", &parts);
+
+        std::string value(&format[0]);
+
+        this->_acquisitionDate = value;
     }
 }
 

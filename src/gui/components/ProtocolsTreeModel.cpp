@@ -61,7 +61,7 @@ ProtocolsTreeModel
             data << QString(iterdata->get_protocolName().c_str());
             data << QString(iterdata->get_name().c_str());
             data << QString(directory.str().c_str());
-            data << QString(iterdata->get_date().c_str());
+            data << QString(iterdata->get_acquisitionDate().c_str());
             iterdata->set_data(data);
             iterdata->set_parent(item);
             item->appendChild(iterdata);

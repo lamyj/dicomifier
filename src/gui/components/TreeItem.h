@@ -111,6 +111,7 @@ public:
     std::string get_series() const { return this->_series; }
     std::string get_reconstruction() const { return this->_reconstruction; }
     std::string get_date() const { return this->_date; }
+    std::string get_acquisitionDate() const { return this->_acquisitionDate; }
     std::string get_directory() const { return this->_directory; }
     std::string get_seriesDirectory() const { return this->_seriesDirectory; }
     std::string get_recoDirectory() const { return this->_recoDirectory; }
@@ -207,8 +208,11 @@ private:
     /// Reconstruction Name
     std::string _reconstruction;
 
-    /// Record creation date
+    /// Study creation date
     std::string _date;
+
+    /// Record creation date
+    std::string _acquisitionDate;
 
     ///
     std::string _directory;
