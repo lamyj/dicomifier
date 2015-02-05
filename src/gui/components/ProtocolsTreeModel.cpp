@@ -88,6 +88,7 @@ ProtocolsTreeModel
             item->appendChild(iterdata);
         }
 
+        item->update_from_child(Qt::Unchecked);
         this->_rootItem->appendChild(item);
     }
 }

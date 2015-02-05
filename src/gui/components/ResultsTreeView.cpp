@@ -63,7 +63,7 @@ ResultsTreeView
 
 std::map<std::string, std::vector<TreeItem *> >
 ResultsTreeView
-::sortedItems() const
+::sortedItems(std::vector<TreeItem *> previouslyselected) const
 {
     std::map<std::string, std::vector<TreeItem*> > returnmap;
 

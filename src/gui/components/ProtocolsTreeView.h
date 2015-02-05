@@ -48,7 +48,7 @@ private:
      * @brief Sort the items list
      * @return Sorted items list
      */
-    virtual std::map<std::string, std::vector<TreeItem*>> sortedItems() const;
+    virtual std::map<std::string, std::vector<TreeItem*>> sortedItems(std::vector<TreeItem*> previouslyselected) const;
 
     bool _sortedByName;
 

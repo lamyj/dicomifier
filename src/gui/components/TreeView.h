@@ -65,7 +65,9 @@ protected:
      * @brief Sort the items list
      * @return Sorted items list
      */
-    virtual std::map<std::string, std::vector<TreeItem*>> sortedItems() const = 0;
+    virtual std::map<std::string, std::vector<TreeItem*>> sortedItems(std::vector<TreeItem*> previouslyselected) const = 0;
+
+    bool wasSelected(TreeItem* currentItem, std::vector<TreeItem*> previouslyselected) const;
 
     /// list of items
     std::vector<TreeItem*> _dataList;

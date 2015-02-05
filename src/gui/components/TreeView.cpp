@@ -91,6 +91,22 @@ TreeView
     emit itemsSelectionChanged();
 }
 
+bool
+TreeView
+::wasSelected(TreeItem *currentItem,
+              std::vector<TreeItem *> previouslyselected) const
+{
+    for (TreeItem * item : previouslyselected)
+    {
+        // if current item is equal to a previous selected item
+        if (currentItem->compareTo(item))
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
 } // namespace gui
 
 } // namespace dicomifier

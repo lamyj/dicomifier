@@ -157,6 +157,8 @@ public:
      */
     void fill_data(dicomifier::bruker::BrukerDataset* const brukerdataset);
 
+    bool compareTo(TreeItem * other) const;
+
     /***************************************************************
      * Accessors for Property Enabled
      **************************************************************/

@@ -45,6 +45,8 @@ TreeItem
         this->_DicomdirErrorMsg= copy->get_DicomdirErrorMsg();
         this->_ZipErrorMsg     = copy->get_ZipErrorMsg();
         this->_destinationDirectory= copy->get_destinationDirectory();
+
+        this->set_checkState(copy->get_checkState());
     }
 }
 
@@ -306,6 +308,33 @@ TreeItem
 
         this->_acquisitionDate = value;
     }
+}
+
+bool TreeItem::compareTo(TreeItem *other) const
+{
+    if (this->_name            == other->get_name() &&
+        this->_subjectDirectory== other->get_subjectDirectory() &&
+        this->_study           == other->get_study() &&
+        this->_series          == other->get_series() &&
+        this->_reconstruction  == other->get_reconstruction() &&
+        this->_date            == other->get_date() &&
+        this->_acquisitionDate == other->get_acquisitionDate() &&
+        this->_directory       == other->get_directory() &&
+        this->_seriesDirectory == other->get_seriesDirectory() &&
+        this->_recoDirectory   == other->get_recoDirectory() &&
+        this->_protocolName    == other->get_protocolName() &&
+        this->_qdatetime       == other->get_qdatetime() &&
+        this->_enabled         == other->isEnabled() &&
+        this->_DicomErrorMsg   == other->get_DicomErrorMsg() &&
+        this->_StoreErrorMsg   == other->get_StoreErrorMsg() &&
+        this->_DicomdirErrorMsg== other->get_DicomdirErrorMsg() &&
+        this->_ZipErrorMsg     == other->get_ZipErrorMsg() &&
+        this->_destinationDirectory== other->get_destinationDirectory())
+    {
+        return true;
+    }
+
+    return false;
 }
 
 } // namespace gui
