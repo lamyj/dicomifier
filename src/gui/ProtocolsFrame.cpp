@@ -132,6 +132,7 @@ ProtocolsFrame
                         item->set_seriesDirectory(std::string((*it).path().filename().c_str()));
                         item->set_recoDirectory(std::string((*itsub).path().filename().c_str()));
                         item->fill_data(dataset);
+                        item->set_checkState(Qt::Unchecked);
 
                         std::string filebinary = dirsub +
                                                  VALID_FILE_SEPARATOR +

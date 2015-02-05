@@ -27,12 +27,18 @@ ProtocolsTreeView
 {
     this->_dataList = dataList;
 
+    std::vector<TreeItem*> previouslyselected;
     if (this->model() != NULL)
     {
+        ProtocolsTreeModel * previousmodel = dynamic_cast<ProtocolsTreeModel *>(this->model());
+        if (previousmodel != NULL)
+        {
+            previouslyselected = previousmodel->get_item_selected();
+        }
         delete this->model();
     }
     ProtocolsTreeModel * model = new ProtocolsTreeModel(this->_sortedByName);
-    model->Initialize(this->sortedItems());
+    model->Initialize(this->sortedItems(previouslyselected));
     this->setModel(model);
 
     disconnect(this, SIGNAL(clicked(QModelIndex)),
@@ -76,7 +82,7 @@ void ProtocolsTreeView::set_sortedByName(bool isbyname)
 
 std::map<std::string, std::vector<TreeItem *> >
 ProtocolsTreeView
-::sortedItems() const
+::sortedItems(std::vector<TreeItem *> previouslyselected) const
 {
     std::map<std::string, std::vector<TreeItem*> > returnmap;
 
@@ -92,6 +98,12 @@ ProtocolsTreeView
 
         // Create copy
         TreeItem* item = new TreeItem(NULL, couple);
+
+        if (this->wasSelected(item, previouslyselected))
+        {
+            item->set_checkState(Qt::Checked);
+        }
+
         returnmap[name].push_back(item);
     }
 

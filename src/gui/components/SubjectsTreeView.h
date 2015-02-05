@@ -64,7 +64,7 @@ private :
      * @brief Sort the items list
      * @return Sorted items list
      */
-    virtual std::map<std::string, std::vector<TreeItem*>> sortedItems() const;
+    virtual std::map<std::string, std::vector<TreeItem*>> sortedItems(std::vector<TreeItem*> previouslyselected) const;
 
     /// Convert _expression (std::string) into boost::regex
     boost::regex transform_regex() const;

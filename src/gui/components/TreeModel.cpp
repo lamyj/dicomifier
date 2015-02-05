@@ -73,7 +73,8 @@ TreeModel
             if ( child->child(j)->isEnabled() &&
                  child->child(j)->get_checkState() != Qt::Unchecked)
             {// child selected
-                returnvect.push_back(child->child(j));
+                TreeItem* item = new TreeItem(NULL, child->child(j));
+                returnvect.push_back(item);
             }
         }
     }
