@@ -58,6 +58,7 @@ endif()
 
 # depends on Boost DCMTK Log4cpp Qt4
 set(CPACK_DEBIAN_PACKAGE_DEPENDS "libboost-filesystem${boost_version},
+                                  libboost-random${boost_version},
                                   libboost-regex${boost_version},
                                   libboost-system${boost_version},
                                   libdcmtk2,
