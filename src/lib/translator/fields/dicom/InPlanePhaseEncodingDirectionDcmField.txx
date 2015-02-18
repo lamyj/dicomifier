@@ -52,6 +52,12 @@ InPlanePhaseEncodingDirectionDcmField<EVR_CS>
     // Clean residual values
     this->_array.clear();
 
+    if (!brukerdataset->HasFieldData("VisuAcqImagePhaseEncDir"))
+    {
+        this->_array.push_back("");
+        return;
+    }
+
     std::string const brukerfield =
         brukerdataset->GetFieldData("VisuAcqImagePhaseEncDir")->
             get_string(generator.get_step());
