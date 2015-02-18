@@ -6,10 +6,10 @@
     <DicomField tag="0008,0008" keyword="ImageType" vr="CS">
         <!-- Required -->
         <!-- 4 values :
-            - see PS3.03 Table C.8-127
-            - see PS3.03 Table C.8-128
-            - see PS3.03 Table C.8-129
-            - see PS3.03 Table C.8-130 -->
+            - see PS3.03 Table C.8-127 (Mandatory)
+            - see PS3.03 Table C.8-128 (Mandatory)
+            - see PS3.03 Table C.8-129 (Optional)
+            - see PS3.03 Table C.8-130 (Optional) -->
         <ConstantField values="ORIGINAL\PRIMARY\OTHER\" />
     </DicomField>
     
@@ -35,50 +35,44 @@
     
     <DicomField tag="0008,0020" keyword="StudyDate" vr="DA">
         <!-- Required - Can be empty -->
-        <DateGenerator inputformat="%d %b %Y" outputformat="%Y%m%d">
-            <RegExFilter expression="^.* (\d{2} \w{3} \d{4}).*">
-                <BrukerField name="VisuStudyDate" />
-            </RegExFilter>
-        </DateGenerator>
+        <DateTimeFilter outputformat="%Y%m%d">
+            <BrukerField name="VisuStudyDate" />
+        </DateTimeFilter>
     </DicomField>
 
     <DicomField tag="0008,0021" keyword="SeriesDate" vr="DA" >
         <!-- Optional -->
-        <DateGenerator inputformat="%d %b %Y" outputformat="%Y%m%d">
-            <RegExFilter expression="^.* (\d{2} \w{3} \d{4}).*">
-                <BrukerField name="VisuSeriesDate" />
-            </RegExFilter>
-        </DateGenerator>
+        <DateTimeFilter outputformat="%Y%m%d">
+            <BrukerField name="VisuSeriesDate" />
+        </DateTimeFilter>
     </DicomField>
 
     <DicomField tag="0008,0022" keyword="AcquisitionDate" vr="DA" >
         <!-- Optional -->
-        <DateGenerator inputformat="%d %b %Y" outputformat="%Y%m%d">
-            <RegExFilter expression="^.* (\d{2} \w{3} \d{4}).*">
-                <BrukerField name="VisuAcqDate" />
-            </RegExFilter>
-        </DateGenerator>
+        <DateTimeFilter outputformat="%Y%m%d">
+            <BrukerField name="VisuAcqDate" />
+        </DateTimeFilter>
     </DicomField>
 
     <DicomField tag="0008,0030" keyword="StudyTime" vr="TM">
         <!-- Required - Can be empty -->
-        <RegExFilter expression="^(\d{2}):(\d{2}):(\d{2}).*">
+        <DateTimeFilter outputformat="%H%M%S">
             <BrukerField name="VisuStudyDate" />
-        </RegExFilter>
+        </DateTimeFilter>
     </DicomField>
 
     <DicomField tag="0008,0031" keyword="SeriesTime" vr="TM">
         <!-- Optional -->
-        <RegExFilter expression="^(\d{2}):(\d{2}):(\d{2}).*">
+        <DateTimeFilter outputformat="%H%M%S">
             <BrukerField name="VisuSeriesDate" />
-        </RegExFilter>
+        </DateTimeFilter>
     </DicomField>
 
     <DicomField tag="0008,0032" keyword="AcquisitionTime" vr="TM">
         <!-- Optional -->
-        <RegExFilter expression="^(\d{2}):(\d{2}):(\d{2}).*">
+        <DateTimeFilter outputformat="%H%M%S">
             <BrukerField name="VisuAcqDate" />
-        </RegExFilter>
+        </DateTimeFilter>
     </DicomField>
 
     <DicomField tag="0008,0050" keyword="AccessionNumber" vr="SH">

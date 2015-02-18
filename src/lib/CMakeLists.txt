@@ -1,5 +1,5 @@
 find_package(DCMTK REQUIRED)
-find_package(Boost COMPONENTS filesystem system regex REQUIRED)
+find_package(Boost COMPONENTS date_time filesystem system regex REQUIRED)
 
 add_definitions(-DBOOST_FILESYSTEM_VERSION=3)
 add_definitions(-DHAVE_CONFIG_H)
