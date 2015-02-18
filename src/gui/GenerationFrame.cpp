@@ -461,9 +461,12 @@ GenerationFrame
             generator.setStudyExtraAttributes(study_extra_attributes_cpp);
             generator.setSeriesExtraAttributes(series_extra_attributes_cpp);
             // Add files
-            this->insertFilesForDicomdir(dir, &generator);
+            ret = this->insertFilesForDicomdir(dir, &generator);
             // Write DICOMDIR
-            ret = generator.writeDicomDir();
+            if (ret.good())
+            {
+                ret = generator.writeDicomDir();
+            }
 
             if (ret.bad())
             {
@@ -642,7 +645,7 @@ GenerationFrame
     }
 }
 
-void
+OFCondition
 GenerationFrame
 ::insertFilesForDicomdir(const std::string &directory, DicomDirGenerator *dcmdirgenerator)
 {
@@ -656,20 +659,36 @@ GenerationFrame
                                        VALID_FILE_SEPARATOR +
                                        std::string((*it).path().filename().c_str());
             // Recursive call
-            this->insertFilesForDicomdir(object, dcmdirgenerator);
+            OFCondition ret = this->insertFilesForDicomdir(object, dcmdirgenerator);
+            if (ret.bad())
+            {
+                return ret;
+            }
         }
         else
         {
+            // dirabs = absolute path of DICOMDIR directory
+            std::string dirabs =
+                directory.substr(0, this->_ui->outputDirectory->text().toStdString().length() + 9);
+
+            // filename = relative path from DICOMDIR directory
+            std::string filename =
+                directory.substr(this->_ui->outputDirectory->text().toStdString().length() + 10) +
+                VALID_FILE_SEPARATOR +
+                std::string((*it).path().filename().c_str());
+
             // add file
-            OFCondition ret = dcmdirgenerator->addDicomFile((*it).path().filename().c_str(),
-                                                            directory.c_str());
+            OFCondition ret = dcmdirgenerator->addDicomFile(filename.c_str(),
+                                                            dirabs.c_str());
 
             if (ret.bad())
             {
-                // TODO do something (error ?)
+                return ret;
             }
         }
     }
+
+    return EC_Normal;
 }
 
 void
