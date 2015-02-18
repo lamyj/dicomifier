@@ -376,7 +376,7 @@ EnhanceBrukerDicom
     std::vector<Uint16> binarydata(size*generator.get_countMax());
 
     this->get_binary_data_information(brukerdataset,
-                                      binarydata, size, highbit,
+                                      binarydata, size*generator.get_countMax(), highbit,
                                       addtransformationsequence,
                                       rescaleintercept, rescaleslope);
 
@@ -469,7 +469,7 @@ EnhanceBrukerDicom
                     TranslatorFactory::get_instance().create(dicomfield,
                                                              dataset,
                                                              EVR_UN);
-                
+
                 if (rule != NULL)
                 {
                     rule->run(brukerdataset, generator, dataset);
