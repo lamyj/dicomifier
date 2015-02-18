@@ -10,7 +10,7 @@
             - see PS3.03 Table C.8-128 (Mandatory)
             - see PS3.03 Table C.8-129 (Optional)
             - see PS3.03 Table C.8-130 (Optional) -->
-        <ConstantField values="ORIGINAL\PRIMARY\OTHER\" />
+        <ConstantField values="ORIGINAL\PRIMARY" />
     </DicomField>
     
     <DicomField tag="0008,0012" keyword="InstanceCreationDate" vr="DA">

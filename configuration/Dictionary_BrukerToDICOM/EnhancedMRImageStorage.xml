@@ -9,7 +9,7 @@
             - see PS3.03 Table C.8-128 (Mandatory)
             - see PS3.03 Table C.8-129 (Optional)
             - see PS3.03 Table C.8-130 (Optional) -->
-        <ConstantField values="ORIGINAL\PRIMARY\STATIC\NONE" />
+        <ConstantField values="ORIGINAL\PRIMARY" />
     </DicomField>
     
     <DicomField tag="0008,0012" keyword="InstanceCreationDate" vr="DA">
@@ -843,11 +843,11 @@
         <DicomField tag="0018,9226" keyword="MRImageFrameTypeSequence" vr="SQ" >
             <DicomField tag="0008,9007" keyword="FrameType" vr="CS">
                 <!-- 4 values :
-                    - see PS3.03 Table C.8-127
-                    - see PS3.03 Table C.8-128
-                    - see PS3.03 Table C.8-129
-                    - see PS3.03 Table C.8-130 -->
-                <ConstantField values="ORIGINAL\PRIMARY\STATIC\NONE" />
+                    - see PS3.03 Table C.8-127 (Mandatory)
+                    - see PS3.03 Table C.8-128 (Mandatory)
+                    - see PS3.03 Table C.8-129 (Optional)
+                    - see PS3.03 Table C.8-130 (Optional) -->
+                <ConstantField values="ORIGINAL\PRIMARY" />
             </DicomField>
             
             <DicomField tag="0008,9205" keyword="PixelPresentation" vr="CS">
