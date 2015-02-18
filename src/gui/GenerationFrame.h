@@ -96,8 +96,8 @@ protected:
      * @param directory: Directory containing DICOM files
      * @param dcmdirgenerator: DICOMDIR
      */
-    void insertFilesForDicomdir(std::string const & directory,
-                                DicomDirGenerator* dcmdirgenerator);
+    OFCondition insertFilesForDicomdir(std::string const & directory,
+                                       DicomDirGenerator* dcmdirgenerator);
 
 private slots:
     /// Event triggered by clicking Save checkBox
