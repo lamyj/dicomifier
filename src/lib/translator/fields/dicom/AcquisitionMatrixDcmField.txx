@@ -52,6 +52,15 @@ AcquisitionMatrixDcmField<EVR_US>
     
     // Clean residual values
     this->_array.clear();
+
+    if (!brukerdataset->HasFieldData("VisuAcqImagePhaseEncDir"))
+    {
+        this->_array.push_back(0);
+        this->_array.push_back(0);
+        this->_array.push_back(0);
+        this->_array.push_back(0);
+        return;
+    }
     
     std::string const brukerfield = 
         brukerdataset->GetFieldData("VisuAcqImagePhaseEncDir")->
