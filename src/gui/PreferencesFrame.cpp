@@ -6,7 +6,6 @@
  * for details.
  ************************************************************************/
 
-#include "PACSConfigurationFrame.h"
 #include "PreferencesFrame.h"
 #include "ui_PreferencesFrame.h"
 
@@ -21,7 +20,8 @@ namespace gui
 PreferencesFrame
 ::PreferencesFrame(QWidget *parent) :
     BaseFrame(parent),
-    _ui(new Ui::PreferencesFrame)
+    _ui(new Ui::PreferencesFrame),
+    _configFrame(NULL)
 {
     this->_ui->setupUi(this);
 
@@ -37,6 +37,12 @@ PreferencesFrame
 PreferencesFrame
 ::~PreferencesFrame()
 {
+    if (this->_configFrame != NULL)
+    {
+        delete this->_configFrame;
+        this->_configFrame = NULL;
+    }
+
     // TreeView is destroy by deleting _ui
 
     delete this->_ui;
@@ -94,7 +100,7 @@ PreferencesFrame
 ::modify_nextButton_enabled()
 {
     // Always enabled
-    emit this->update_nextButton(true);
+    this->update_nextButton(true);
 }
 
 void
@@ -102,7 +108,7 @@ PreferencesFrame
 ::modify_previousButton_enabled()
 {
     // Always enabled
-    emit this->update_previousButton(true);
+    this->update_previousButton(true);
 }
 
 void
@@ -122,12 +128,15 @@ void
 PreferencesFrame
 ::on_NewButton_clicked()
 {
-    PACSConfigurationFrame * frame =
-            new PACSConfigurationFrame((QWidget*)this->parent());
-    connect(frame, SIGNAL(SendItem(PACSTreeItem*)),
+    if (this->_configFrame != NULL)
+    {
+        delete this->_configFrame;
+    }
+    this->_configFrame = new PACSConfigurationFrame((QWidget*)this->parent());
+    connect(this->_configFrame, SIGNAL(SendItem(PACSTreeItem*)),
             this->_treeView, SLOT(receiveNewItem(PACSTreeItem*)));
-    frame->setModal(true);
-    frame->show();
+    this->_configFrame->setModal(true);
+    this->_configFrame->show();
 }
 
 void
@@ -136,13 +145,16 @@ PreferencesFrame
 {
     if (this->_treeView != NULL && this->_treeView->currentIndex().isValid())
     {
-        PACSConfigurationFrame * frame =
-                new PACSConfigurationFrame((QWidget*)this->parent());
-        frame->Initialize(this->_treeView->currentIndex());
-        connect(frame, SIGNAL(SendItem(PACSTreeItem*)),
+        if (this->_configFrame != NULL)
+        {
+            delete this->_configFrame;
+        }
+        this->_configFrame = new PACSConfigurationFrame((QWidget*)this->parent());
+        this->_configFrame->Initialize(this->_treeView->currentIndex());
+        connect(this->_configFrame, SIGNAL(SendItem(PACSTreeItem*)),
                 this->_treeView, SLOT(receiveNewItem(PACSTreeItem*)));
-        frame->setModal(true);
-        frame->show();
+        this->_configFrame->setModal(true);
+        this->_configFrame->show();
     }
 }
 

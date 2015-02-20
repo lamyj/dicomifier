@@ -6,6 +6,8 @@
  * for details.
  ************************************************************************/
 
+#include "core/DicomifierException.h"
+#include "dicom/SCU.h"
 #include "PACSConfigurationFrame.h"
 #include "ui_PACSConfigurationFrame.h"
 
@@ -96,7 +98,7 @@ PACSConfigurationFrame
 
     item->fill_data();
 
-    emit this->SendItem(item);
+    this->SendItem(item);
     this->accept();
 }
 
@@ -160,111 +162,42 @@ void
 PACSConfigurationFrame
 ::on_TestButton_clicked()
 {
-    std::string result = "";
+    std::string result = "Result: OK";
 
     try
     {
-        T_ASC_Network * networkSCU;
-        OFCondition condition = ASC_initializeNetwork(NET_REQUESTOR,
-                                                      0, 30, &networkSCU);
+        // Create SCU
+        SCU * echoscu = new SCU();
 
-        T_ASC_Parameters * params;
-        if (condition.good())
-        {
-            condition = ASC_createAssociationParameters(&params, ASC_MAXIMUMPDUSIZE);
-        }
+        // Set own AE Title
+        echoscu->set_timeout(30);
+        echoscu->set_own_ae_title(this->_ui->pacsCaller->text().toStdString());
 
-        if (condition.good())
-        {
-            condition = ASC_setAPTitles(params,
-                                        this->_ui->pacsCaller->text().toStdString().c_str(),
-                                        this->_ui->pacsCalled->text().toStdString().c_str(),
-                                        NULL);
-        }
+        // Set called information
+        echoscu->set_peer_ae_title(this->_ui->pacsCalled->text().toStdString());
+        echoscu->set_peer_host_name(this->_ui->pacsAddress->text().toStdString());
+        uint16_t port = std::stoi(this->_ui->pacsPort->text().toStdString());
+        echoscu->set_peer_port(port);
 
-        if (condition.good())
-        {
-            std::stringstream addressport;
-            addressport << this->_ui->pacsAddress->text().toStdString() << ":"
-                        << this->_ui->pacsPort->text().toStdString();
+        // Set Presentation Context
+        std::vector<std::string> tempvect = { UID_LittleEndianImplicitTransferSyntax };
+        echoscu->add_presentation_context(UID_VerificationSOPClass, tempvect);
+        echoscu->add_presentation_context(UID_MRImageStorage, tempvect);
+        echoscu->add_presentation_context(UID_EnhancedMRImageStorage, tempvect);
 
-            condition = ASC_setPresentationAddresses(params, "localhost",
-                                                     addressport.str().c_str());
-        }
+        // Create association
+        echoscu->associate();
 
-        if (condition.good())
-        {
-            typedef std::pair<std::string, std::vector<std::string> > PresentationContext;
-            std::vector<PresentationContext> presentation_contexts;
-            std::vector<std::string> tempvect = { UID_LittleEndianImplicitTransferSyntax };
-            presentation_contexts.push_back(std::make_pair(UID_VerificationSOPClass,
-                                                           tempvect));
-            presentation_contexts.push_back(std::make_pair(UID_MRImageStorage,
-                                                           tempvect));
-            presentation_contexts.push_back(std::make_pair(UID_EnhancedMRImageStorage,
-                                                           tempvect));
+        // Send ECHO Request
+        echoscu->echo();
 
-            unsigned int context_id = 1;
-            for(auto const & context: presentation_contexts)
-            {
-                char const ** transfer_syntaxes = new char const *[context.second.size()];
-                for(std::size_t i = 0; i < context.second.size(); ++i)
-                {
-                    transfer_syntaxes[i] = context.second[i].c_str();
-                }
-
-                if (condition.good())
-                {
-                    condition = ASC_addPresentationContext(params, context_id,
-                                                           context.first.c_str(),
-                                                           transfer_syntaxes,
-                                                           context.second.size());
-                }
-
-                context_id += 2;
-            }
-        }
-
-        T_ASC_Association * association;
-        if (condition.good())
-        {
-            condition = ASC_requestAssociation(networkSCU, params, &association);
-        }
-
-        if (condition.good())
-        {
-            DIC_US const message_id = association->nextMsgID++;
-            DIC_US status;
-            DcmDataset *detail = NULL;
-            condition = DIMSE_echoUser(association, message_id, DIMSE_BLOCKING, 30,
-                                       &status, &detail);
-        }
-
-        if (condition.good())
-        {
-            condition = ASC_dropAssociation(association);
-        }
-
-        if (condition.good())
-        {
-            condition = ASC_destroyAssociation(&association);
-        }
-
-        if (condition.good())
-        {
-            condition = ASC_dropNetwork(&networkSCU);
-        }
-
+        // Release and destroy association
+        delete echoscu;
+    }
+    catch (DicomifierException &exc)
+    {
         std::stringstream streamresult;
-        streamresult << "Result: ";
-        if (condition.good())
-        {
-            streamresult << "OK";
-        }
-        else
-        {
-            streamresult << "Fail: " << condition.text();
-        }
+        streamresult << "Result: Fail: " << exc.what();
 
         result = streamresult.str();
     }

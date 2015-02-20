@@ -25,10 +25,6 @@ ResultsFrame
     // Initialize TreeView
     this->_treeView = new ResultsTreeView(this->_ui->widget);
     this->_treeView->Initialize({});
-
-    // Link Signals and Slots
-    connect(this->_treeView, SIGNAL(itemsSelectionChanged()),
-            this, SLOT(ontreeViewclicked()));
 }
 
 ResultsFrame
@@ -61,13 +57,6 @@ ResultsFrame
 
 void
 ResultsFrame
-::ontreeViewclicked()
-{
-    // Nothing to do
-}
-
-void
-ResultsFrame
 ::onUpdate_Preferences()
 {
     // Nothing to do
@@ -80,7 +69,7 @@ ResultsFrame
     // "Next button" is "Close Button" for this Frame
 
     // always true
-    emit this->update_nextButton(true);
+    this->update_nextButton(true);
 }
 
 void
@@ -90,7 +79,7 @@ ResultsFrame
     // "Previous button" is "New Button" for this Frame
 
     // always true
-    emit this->update_previousButton(true);
+    this->update_previousButton(true);
 }
 
 void ResultsFrame::paintEvent(QPaintEvent *event)

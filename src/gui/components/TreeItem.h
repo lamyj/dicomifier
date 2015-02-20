@@ -105,51 +105,43 @@ public:
      */
     void update_from_parent(Qt::CheckState parentState);
 
-    std::string get_name() const { return this->_name; }
-    std::string get_subjectDirectory() const { return this->_subjectDirectory; }
-    std::string get_study() const { return this->_study; }
-    std::string get_series() const { return this->_series; }
-    std::string get_reconstruction() const { return this->_reconstruction; }
-    std::string get_date() const { return this->_date; }
-    std::string get_acquisitionDate() const { return this->_acquisitionDate; }
-    std::string get_directory() const { return this->_directory; }
-    std::string get_seriesDirectory() const { return this->_seriesDirectory; }
-    std::string get_recoDirectory() const { return this->_recoDirectory; }
-    std::string get_protocolName() const { return this->_protocolName; }
-    QDateTime get_qdatetime() const { return this->_qdatetime; }
+    std::string get_name() const;
+    std::string get_subjectDirectory() const;
+    std::string get_study() const;
+    std::string get_series() const;
+    std::string get_reconstruction() const;
+    std::string get_date() const;
+    std::string get_acquisitionDate() const;
+    std::string get_directory() const;
+    std::string get_seriesDirectory() const;
+    std::string get_recoDirectory() const;
+    std::string get_protocolName() const;
+    QDateTime get_qdatetime() const;
 
-    std::string get_DicomErrorMsg() const { return this->_DicomErrorMsg; }
-    std::string get_StoreErrorMsg() const { return this->_StoreErrorMsg; }
-    std::string get_DicomdirErrorMsg() const { return this->_DicomdirErrorMsg; }
-    std::string get_ZipErrorMsg() const { return this->_ZipErrorMsg; }
+    std::string get_DicomErrorMsg() const;
+    std::string get_StoreErrorMsg() const;
+    std::string get_DicomdirErrorMsg() const;
+    std::string get_ZipErrorMsg() const;
 
-    std::string get_destinationDirectory() const { return this->_destinationDirectory; }
+    std::string get_destinationDirectory() const;
 
-    void set_name(std::string const & name) { this->_name = name; }
-    void set_study(std::string const & study) { this->_study = study; }
-    void set_series(std::string const & series) { this->_series = series; }
+    void set_name(std::string const & name);
+    void set_study(std::string const & study);
+    void set_series(std::string const & series);
 
-    void set_subjectDirectory(std::string const & subjectDirectory)
-            { this->_subjectDirectory = subjectDirectory; }
-    void set_data(const QList<QVariant> & data) { this->_itemData = data; }
-    void set_parent(TreeItem* parent) { this->_parentItem = parent; }
-    void set_directory(std::string const & directory)
-            { this->_directory = directory; }
-    void set_seriesDirectory(std::string const & seriesDirectory)
-            { this->_seriesDirectory = seriesDirectory; }
-    void set_recoDirectory(std::string const & recoDirectory)
-            { this->_recoDirectory = recoDirectory; }
+    void set_subjectDirectory(std::string const & subjectDirectory);
+    void set_data(const QList<QVariant> & data);
+    void set_parent(TreeItem* parent);
+    void set_directory(std::string const & directory);
+    void set_seriesDirectory(std::string const & seriesDirectory);
+    void set_recoDirectory(std::string const & recoDirectory);
 
-    void set_DicomErrorMsg(std::string const & dicomerrormsg)
-            { this->_DicomErrorMsg = dicomerrormsg; }
-    void set_StoreErrorMsg(std::string const & storeerrormsg)
-            { this->_StoreErrorMsg = storeerrormsg; }
-    void set_DicomdirErrorMsg(std::string const & message)
-            { this->_DicomdirErrorMsg = message; }
-    void set_ZipErrorMsg(std::string const & message) { this->_ZipErrorMsg = message; }
+    void set_DicomErrorMsg(std::string const & dicomerrormsg);
+    void set_StoreErrorMsg(std::string const & storeerrormsg);
+    void set_DicomdirErrorMsg(std::string const & message);
+    void set_ZipErrorMsg(std::string const & message);
 
-    void set_destinationDirectory(std::string const & destination)
-            { this->_destinationDirectory = destination; }
+    void set_destinationDirectory(std::string const & destination);
 
     /**
      * @brief Initialize item with bruker dataset
@@ -157,7 +149,7 @@ public:
      */
     void fill_data(dicomifier::bruker::BrukerDataset* const brukerdataset);
 
-    bool compareTo(TreeItem * other) const;
+    bool operator ==(const TreeItem &other) const;
 
     /***************************************************************
      * Accessors for Property Enabled
@@ -165,7 +157,7 @@ public:
     void setEnabled(bool enabled)
     {
         this->_enabled = enabled;
-        emit enabledChanged(enabled);
+        enabledChanged(enabled);
     }
 
     bool isEnabled() const { return this->_enabled; }

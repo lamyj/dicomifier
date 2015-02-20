@@ -231,7 +231,7 @@ MainFrame
         if (nextstep)
         {
             this->_preferencesframe->SavePreferences();
-            emit this->UpdatePreferences();
+            this->UpdatePreferences();
         }
         nextstep = false;
         break;

@@ -280,7 +280,7 @@ SubjectsFrame
     // At least one item selected
     enabled &= (this->_ui->selectAllCheckBox->checkState() != Qt::Unchecked);
 
-    emit this->update_nextButton(enabled);
+    this->update_nextButton(enabled);
 }
 
 void
@@ -288,7 +288,7 @@ SubjectsFrame
 ::modify_previousButton_enabled()
 {
     // Nothing to do: always false
-    emit this->update_previousButton(false);
+    this->update_previousButton(false);
 }
 
 void
