@@ -50,6 +50,14 @@ std::string
 BrukerFieldData
 ::Parse(std::string const & data)
 {
+    std::string name = "";
+    // look for data Key name
+    boost::cmatch whatname;
+    if (regex_match(data.c_str(), whatname, RegEx_KeyWord))
+    {
+        name = whatname[1];
+    }
+
     // look for header key or not
     boost::cmatch what;
     if (regex_match(data.c_str(), what, RegEx_NotHeader))
@@ -59,7 +67,17 @@ BrukerFieldData
         int dimCompute = this->parse_dimension(data, deletedim);
         
         // look for values
-        int dimFind = this->parse_values(what[1], deletedim);
+        int dimFind = 0;
+        try
+        {
+            dimFind = this->parse_values(what[1], deletedim);
+        }
+        catch (DicomifierException &exc)
+        {
+            std::stringstream stream;
+            stream << exc.what() << "    name = " << name;
+            throw DicomifierException(stream.str());
+        }
         
         // if find string or struct and compute size is not correct
         if (dimFind != -1 && dimCompute != dimFind)
@@ -76,15 +94,8 @@ BrukerFieldData
             this->_dimensionNumbers.push_back(1);
         }
     }
-    
-    // look for data Key name
-    boost::cmatch whatname;
-    if (regex_match(data.c_str(), whatname, RegEx_KeyWord))
-    {
-        return whatname[1];
-    }
         
-    return "";
+    return name;
 }
 
 std::string 
@@ -240,6 +251,7 @@ BrukerFieldData
     }
     
     // Remove '\n'
+    boost::replace_all(value, "\\\n", "");
     boost::replace_all(value, "\n", "");
     boost::replace_all(value, ", ", ",");
     
@@ -254,7 +266,9 @@ BrukerFieldData
     }
     else
     {
-        throw DicomifierException("Parsing error");
+        std::stringstream stream;
+        stream << "Parsing error: " << std::string(iter,end);
+        throw DicomifierException(stream.str());
     }
     
     return this->_brukervalues.children.size();

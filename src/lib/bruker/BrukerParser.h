@@ -57,37 +57,34 @@ struct BrukerValue_grammar : boost::spirit::qi::grammar<Iterator, BrukerValue(),
 {
     BrukerValue_grammar() : BrukerValue_grammar::base_type(xml)
     {
+        using boost::spirit::ascii::char_;
+        using boost::spirit::qi::_1;
+        using boost::spirit::qi::_val;
+        using boost::spirit::qi::eol;
+
         number_string = boost::spirit::no_skip[
-                boost::spirit::ascii::char_("-+0-9")        [boost::spirit::qi::_val += boost::spirit::qi::_1]
-            >>  *(boost::spirit::ascii::char_("-0-9.e"))    [boost::spirit::qi::_val += boost::spirit::qi::_1]
+                char_("-+0-9")        [_val += _1]
+            >>  *(char_("-0-9.e"))    [_val += _1]
             ];
             
         quoted_string = boost::spirit::no_skip[
                 boost::spirit::qi::lit('<') 
-            >>  *(boost::spirit::ascii::char_ - '>')        [boost::spirit::qi::_val += boost::spirit::qi::_1]
+            >>  *("\\" >> (char_(">\\")[_val += _1] | eol) | (char_ - '>')[_val += _1])
             >>  boost::spirit::qi::lit('>')
             ];
             
         other_string = boost::spirit::no_skip[
-                (boost::spirit::ascii::char_("a-zA-Z0-9_")  [boost::spirit::qi::_val += boost::spirit::qi::_1]
-            >>  *(boost::spirit::ascii::char_("a-zA-Z0-9_"))[boost::spirit::qi::_val += boost::spirit::qi::_1])
+                +(char_("a-zA-Z0-9_&+")  [_val += _1])
             ];
             
-        struct_string =
-                boost::spirit::qi::lit('(') 
-            >>  xml                                         [boost::spirit::qi::_val = boost::spirit::qi::_1]
-            >>  boost::spirit::qi::lit(')');
+        struct_string = "(" >>  xml [_val = _1] >>  ")";
         
-        node = 
-                struct_string [boost::spirit::qi::_val = boost::spirit::qi::_1] |
-                number_string [boost::spirit::qi::_val = boost::spirit::qi::_1] | 
-                quoted_string [boost::spirit::qi::_val = boost::spirit::qi::_1] | 
-                other_string  [boost::spirit::qi::_val = boost::spirit::qi::_1]
-            ;
+        node = struct_string [_val = _1] | number_string [_val = _1] |
+               quoted_string [_val = _1] | other_string  [_val = _1];
     
         // Remark: to be recursive, we should add -lit(',')
         //         Node could be separate by space or by comma (for struct_string)
-        xml = *(-boost::spirit::qi::lit(',') >> node [boost::phoenix::push_back(boost::phoenix::at_c<0>(boost::spirit::qi::_val), boost::spirit::qi::_1)]);
+        xml = *(-boost::spirit::qi::lit(',') >> node [boost::phoenix::push_back(boost::phoenix::at_c<0>(_val), _1)]);
     }
 
     boost::spirit::qi::rule<Iterator, BrukerValue(),        boost::spirit::ascii::space_type> xml;
