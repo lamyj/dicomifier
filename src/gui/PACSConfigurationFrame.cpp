@@ -14,10 +14,6 @@
 #include <iostream>
 #include <stdexcept>
 
-#include "dcmtk/config/osconfig.h" /* make sure OS specific configuration is included first */
-#include "dcmtk/dcmnet/assoc.h"
-#include "dcmtk/dcmnet/dimse.h"
-
 namespace dicomifier
 {
 
