@@ -52,9 +52,6 @@ public:
                             std::map<std::string, GenerationResultItem> results);
 
 public slots:
-    /// Event triggered when user click on TreeView
-    void ontreeViewclicked();
-
     /// Event triggered when Preferences are modify
     virtual void onUpdate_Preferences();
 

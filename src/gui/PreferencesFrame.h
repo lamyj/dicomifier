@@ -11,6 +11,7 @@
 
 #include "BaseFrame.h"
 #include "components/PACSTreeView.h"
+#include "PACSConfigurationFrame.h"
 
 namespace dicomifier
 {
@@ -83,6 +84,8 @@ private:
 
     /// TreeView containing PACS information
     PACSTreeView * _treeView;
+
+    PACSConfigurationFrame * _configFrame;
 
 };
 

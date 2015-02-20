@@ -225,6 +225,221 @@ TreeItem
     }
 }
 
+std::string
+TreeItem
+::get_name() const
+{
+    return this->_name;
+}
+
+std::string
+TreeItem
+::get_subjectDirectory() const
+{
+    return this->_subjectDirectory;
+}
+
+std::string TreeItem::get_study() const
+{
+    return this->_study;
+}
+
+std::string
+TreeItem
+::get_series() const
+{
+    return this->_series;
+}
+
+std::string
+TreeItem
+::get_reconstruction() const
+{
+    return this->_reconstruction;
+}
+
+std::string
+TreeItem
+::get_date() const
+{
+    return this->_date;
+}
+
+std::string
+TreeItem
+::get_acquisitionDate() const
+{
+    return this->_acquisitionDate;
+}
+
+std::string
+TreeItem
+::get_directory() const
+{
+    return this->_directory;
+}
+
+std::string
+TreeItem
+::get_seriesDirectory() const
+{
+    return this->_seriesDirectory;
+}
+
+std::string
+TreeItem
+::get_recoDirectory() const
+{
+    return this->_recoDirectory;
+}
+
+std::string
+TreeItem
+::get_protocolName() const
+{
+    return this->_protocolName;
+}
+
+QDateTime
+TreeItem
+::get_qdatetime() const
+{
+    return this->_qdatetime;
+}
+
+std::string
+TreeItem
+::get_DicomErrorMsg() const
+{
+    return this->_DicomErrorMsg;
+}
+
+std::string
+TreeItem
+::get_StoreErrorMsg() const
+{
+    return this->_StoreErrorMsg;
+}
+
+std::string
+TreeItem
+::get_DicomdirErrorMsg() const
+{
+    return this->_DicomdirErrorMsg;
+}
+
+std::string
+TreeItem
+::get_ZipErrorMsg() const
+{
+    return this->_ZipErrorMsg;
+}
+
+std::string
+TreeItem
+::get_destinationDirectory() const
+{
+    return this->_destinationDirectory;
+}
+
+void
+TreeItem
+::set_name(const std::string &name)
+{
+    this->_name = name;
+}
+
+void
+TreeItem
+::set_study(const std::string &study)
+{
+    this->_study = study;
+}
+
+void
+TreeItem
+::set_series(const std::string &series)
+{
+    this->_series = series;
+}
+
+void
+TreeItem
+::set_subjectDirectory(const std::string &subjectDirectory)
+{
+    this->_subjectDirectory = subjectDirectory;
+}
+
+void
+TreeItem
+::set_data(const QList<QVariant> &data)
+{
+    this->_itemData = data;
+}
+
+void
+TreeItem
+::set_parent(TreeItem *parent)
+{
+    this->_parentItem = parent;
+}
+
+void
+TreeItem
+::set_directory(const std::string &directory)
+{
+    this->_directory = directory;
+}
+
+void
+TreeItem
+::set_seriesDirectory(const std::string &seriesDirectory)
+{
+    this->_seriesDirectory = seriesDirectory;
+}
+
+void
+TreeItem
+::set_recoDirectory(const std::string &recoDirectory)
+{
+    this->_recoDirectory = recoDirectory;
+}
+
+void
+TreeItem
+::set_DicomErrorMsg(const std::string &dicomerrormsg)
+{
+    this->_DicomErrorMsg = dicomerrormsg;
+}
+
+void
+TreeItem
+::set_StoreErrorMsg(const std::string &storeerrormsg)
+{
+    this->_StoreErrorMsg = storeerrormsg;
+}
+
+void
+TreeItem
+::set_DicomdirErrorMsg(const std::string &message)
+{
+    this->_DicomdirErrorMsg = message;
+}
+
+void
+TreeItem
+::set_ZipErrorMsg(const std::string &message)
+{
+    this->_ZipErrorMsg = message;
+}
+
+void
+TreeItem
+::set_destinationDirectory(const std::string &destination)
+{
+    this->_destinationDirectory = destination;
+}
+
 void
 TreeItem
 ::fill_data(bruker::BrukerDataset * const brukerdataset)
@@ -268,7 +483,7 @@ TreeItem
         this->_qdatetime = QDateTime(QDate(ltm->tm_year + 1900, ltm->tm_mon + 1, ltm->tm_mday),
                                      QTime(ltm->tm_hour, ltm->tm_min, ltm->tm_sec));
 
-        emit this->SendDate(datestr);
+        this->SendDate(datestr);
     }
 
     if (brukerdataset->HasFieldData("Method"))
@@ -310,26 +525,28 @@ TreeItem
     }
 }
 
-bool TreeItem::compareTo(TreeItem *other) const
+bool
+TreeItem
+::operator ==(const TreeItem &other) const
 {
-    if (this->_name            == other->get_name() &&
-        this->_subjectDirectory== other->get_subjectDirectory() &&
-        this->_study           == other->get_study() &&
-        this->_series          == other->get_series() &&
-        this->_reconstruction  == other->get_reconstruction() &&
-        this->_date            == other->get_date() &&
-        this->_acquisitionDate == other->get_acquisitionDate() &&
-        this->_directory       == other->get_directory() &&
-        this->_seriesDirectory == other->get_seriesDirectory() &&
-        this->_recoDirectory   == other->get_recoDirectory() &&
-        this->_protocolName    == other->get_protocolName() &&
-        this->_qdatetime       == other->get_qdatetime() &&
-        this->_enabled         == other->isEnabled() &&
-        this->_DicomErrorMsg   == other->get_DicomErrorMsg() &&
-        this->_StoreErrorMsg   == other->get_StoreErrorMsg() &&
-        this->_DicomdirErrorMsg== other->get_DicomdirErrorMsg() &&
-        this->_ZipErrorMsg     == other->get_ZipErrorMsg() &&
-        this->_destinationDirectory== other->get_destinationDirectory())
+    if (this->_name            == other.get_name() &&
+        this->_subjectDirectory== other.get_subjectDirectory() &&
+        this->_study           == other.get_study() &&
+        this->_series          == other.get_series() &&
+        this->_reconstruction  == other.get_reconstruction() &&
+        this->_date            == other.get_date() &&
+        this->_acquisitionDate == other.get_acquisitionDate() &&
+        this->_directory       == other.get_directory() &&
+        this->_seriesDirectory == other.get_seriesDirectory() &&
+        this->_recoDirectory   == other.get_recoDirectory() &&
+        this->_protocolName    == other.get_protocolName() &&
+        this->_qdatetime       == other.get_qdatetime() &&
+        this->_enabled         == other.isEnabled() &&
+        this->_DicomErrorMsg   == other.get_DicomErrorMsg() &&
+        this->_StoreErrorMsg   == other.get_StoreErrorMsg() &&
+        this->_DicomdirErrorMsg== other.get_DicomdirErrorMsg() &&
+        this->_ZipErrorMsg     == other.get_ZipErrorMsg() &&
+        this->_destinationDirectory== other.get_destinationDirectory())
     {
         return true;
     }

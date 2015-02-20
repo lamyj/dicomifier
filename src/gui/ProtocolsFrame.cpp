@@ -186,7 +186,7 @@ ProtocolsFrame
     }
     else
     {
-        emit this->cancelled();
+        this->cancelled();
     }
 }
 
@@ -233,7 +233,7 @@ ProtocolsFrame
 ::modify_nextButton_enabled()
 {
     bool enabled = (this->_ui->selectAllCheckBox->checkState() != Qt::Unchecked);
-    emit this->update_nextButton(enabled);
+    this->update_nextButton(enabled);
 }
 
 void
@@ -241,7 +241,7 @@ ProtocolsFrame
 ::modify_previousButton_enabled()
 {
     // always true
-    emit this->update_previousButton(true);
+    this->update_previousButton(true);
 }
 
 void

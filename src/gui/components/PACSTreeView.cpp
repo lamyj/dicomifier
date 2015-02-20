@@ -150,7 +150,7 @@ PACSTreeView
         }
     }
 
-    emit this->clicked(QModelIndex());
+    this->clicked(QModelIndex());
 }
 
 void
@@ -285,7 +285,7 @@ PACSTreeView
         model->sort(0);
     }
 
-    emit this->clicked(QModelIndex());
+    this->clicked(QModelIndex());
 }
 
 

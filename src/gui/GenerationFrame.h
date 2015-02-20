@@ -79,11 +79,14 @@ protected:
     /// Evaluate the value to set for Enabled property of Previous Button
     virtual void modify_previousButton_enabled();
 
-    void createDicomdirs(QProgressDialog &progress,
-                         std::map<std::string, std::string> &mapHascodeToSubject);
+    OFCondition createDicomdirs(std::string const & directory,
+                                std::string const & dicomdirfile);
 
-    void createZipArchives(QProgressDialog &progress,
-                           std::map<std::string, std::string> &mapHascodeToSubject);
+    std::string createZipArchives(std::string const & directory,
+                                  std::string const & filename);
+
+    void createDicomdirsOrZipFiles(QProgressDialog &progress,
+                                   std::map<std::string, std::string> &mapHascodeToSubject);
 
     /**
      * @brief For each processed item, send the DICOM to selected PACS

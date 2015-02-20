@@ -88,7 +88,7 @@ TreeView
     }
     this->update(index);
 
-    emit itemsSelectionChanged();
+    itemsSelectionChanged();
 }
 
 bool
@@ -99,7 +99,7 @@ TreeView
     for (TreeItem * item : previouslyselected)
     {
         // if current item is equal to a previous selected item
-        if (currentItem->compareTo(item))
+        if ((*currentItem) == (*item))
         {
             return true;
         }
