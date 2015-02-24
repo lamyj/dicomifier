@@ -77,7 +77,7 @@ Dataset
 ::get_field(std::string const & name) const
 {
     auto const field_it = this->_fields.find(name);
-    if(field_it != this->_fields.end())
+    if(field_it == this->_fields.end())
     {
         throw DicomifierException("No such field");
     }
