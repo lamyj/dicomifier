@@ -58,8 +58,12 @@ Dataset
     }
     
     // Update the map
-    for(auto const & field: fields)
+    for(auto field: fields)
     {
+        if(field.name[0] == '$')
+        {
+            field.name = field.name.substr(1);
+        }
         this->set_field(field);
     }
 }
