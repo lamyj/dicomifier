@@ -1,0 +1,358 @@
+# 
+msgid ""
+msgstr ""
+"Project-Id-Version: Dicomifier 1.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2014-08-26 11:34+0200\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: ../../source/documentation/user_guide.rst:5
+msgid "Launch"
+msgstr "Démarrer"
+
+#: ../../source/documentation/user_guide.rst:7
+msgid ""
+"Dicomifier is a binary file. You can use a command prompt to launch him."
+msgstr ""
+"Dicomifier est un exécutable. Il peut être lancer depuis une invite de "
+"commande."
+
+#: ../../source/documentation/user_guide.rst:13
+msgid ""
+"As you can see, Dicomifier takes one mandatory option (Rule file) and one "
+"optional (Private dictionary). Both correspond to XML files and are "
+"described in the next sections."
+msgstr ""
+"Comme vous pouvez le voir, Dicomifier est lancé en utilisant un argument "
+"obligatoire (Rule File) et un argument optionnel (Private Dictionary). Ces 2"
+" arguements sont des fichiers XML.Ils sont décrits dans les paragraphes ci-"
+"dessous."
+
+#: ../../source/documentation/user_guide.rst:19
+msgid "Format of rule XML files"
+msgstr "Format du fichier XML Rule"
+
+#: ../../source/documentation/user_guide.rst:21
+msgid "File contains a list of XML tag :ref:`Rule <Balise_Rule>`."
+msgstr ""
+"Le fichier contient une liste de balise XML :ref:`Rule <Balise_Rule>`."
+
+#: ../../source/documentation/user_guide.rst:24
+#: ../../source/documentation/user_guide.rst:38
+#: ../../source/documentation/user_guide.rst:70
+#: ../../source/documentation/user_guide.rst:105
+msgid "Tags"
+msgstr "Balises"
+
+#: ../../source/documentation/user_guide.rst:24
+#: ../../source/documentation/user_guide.rst:38
+#: ../../source/documentation/user_guide.rst:70
+#: ../../source/documentation/user_guide.rst:105
+#: ../../source/documentation/user_guide.rst:141
+#: ../../source/documentation/user_guide.rst:167
+msgid "Usage"
+msgstr "Usage"
+
+#: ../../source/documentation/user_guide.rst:24
+#: ../../source/documentation/user_guide.rst:38
+#: ../../source/documentation/user_guide.rst:70
+#: ../../source/documentation/user_guide.rst:105
+msgid "Multiplicity"
+msgstr "Multiplicité"
+
+#: ../../source/documentation/user_guide.rst:26
+msgid ":ref:`Rule <Balise_Rule>`"
+msgstr ":ref:`Rule <Balise_Rule>`"
+
+#: ../../source/documentation/user_guide.rst:26
+#: ../../source/documentation/user_guide.rst:40
+#: ../../source/documentation/user_guide.rst:42
+#: ../../source/documentation/user_guide.rst:143
+#: ../../source/documentation/user_guide.rst:145
+#: ../../source/documentation/user_guide.rst:152
+#: ../../source/documentation/user_guide.rst:169
+#: ../../source/documentation/user_guide.rst:171
+#: ../../source/documentation/user_guide.rst:178
+msgid "Mandatory"
+msgstr "Obligatoire"
+
+#: ../../source/documentation/user_guide.rst:26
+msgid "1-n"
+msgstr ""
+
+#: ../../source/documentation/user_guide.rst:32
+msgid "Tag Rule"
+msgstr "Balise Rule"
+
+#: ../../source/documentation/user_guide.rst:34
+msgid ""
+"Tag :ref:`Rule <Balise_Rule>` is the main tag of the XML file. It contains "
+"the followings tags:"
+msgstr ""
+"La balise :ref:`Rule <Balise_Rule>` est la balise principale du fichier XML."
+" Elle peut contenir les balises suiantes :"
+
+#: ../../source/documentation/user_guide.rst:40
+msgid ":ref:`Actions <Balise_Actions>`"
+msgstr ""
+
+#: ../../source/documentation/user_guide.rst:40
+#: ../../source/documentation/user_guide.rst:42
+msgid "1"
+msgstr ""
+
+#: ../../source/documentation/user_guide.rst:42
+msgid ":ref:`Condition <Balise_Condition>`"
+msgstr ""
+
+#: ../../source/documentation/user_guide.rst:44
+msgid ":ref:`Input <Balise_Input>`"
+msgstr ""
+
+#: ../../source/documentation/user_guide.rst:44
+#: ../../source/documentation/user_guide.rst:46
+#: ../../source/documentation/user_guide.rst:107
+#: ../../source/documentation/user_guide.rst:109
+#: ../../source/documentation/user_guide.rst:111
+#: ../../source/documentation/user_guide.rst:113
+#: ../../source/documentation/user_guide.rst:115
+#: ../../source/documentation/user_guide.rst:117
+#: ../../source/documentation/user_guide.rst:119
+#: ../../source/documentation/user_guide.rst:121
+msgid "Optionnal"
+msgstr "Optionnel"
+
+#: ../../source/documentation/user_guide.rst:44
+#: ../../source/documentation/user_guide.rst:46
+#: ../../source/documentation/user_guide.rst:107
+#: ../../source/documentation/user_guide.rst:109
+#: ../../source/documentation/user_guide.rst:111
+#: ../../source/documentation/user_guide.rst:113
+#: ../../source/documentation/user_guide.rst:115
+#: ../../source/documentation/user_guide.rst:117
+#: ../../source/documentation/user_guide.rst:119
+#: ../../source/documentation/user_guide.rst:121
+msgid "0-n"
+msgstr ""
+
+#: ../../source/documentation/user_guide.rst:46
+msgid ":ref:`Output <Balise_Output>`"
+msgstr ""
+
+#: ../../source/documentation/user_guide.rst:49
+#: ../../source/documentation/user_guide.rst:87
+#: ../../source/documentation/user_guide.rst:124
+#: ../../source/documentation/user_guide.rst:155
+#: ../../source/documentation/user_guide.rst:181
+msgid "Sample:"
+msgstr "Exemple :"
+
+#: ../../source/documentation/user_guide.rst:63
+msgid "Tag Condition"
+msgstr "Balise Condition"
+
+#: ../../source/documentation/user_guide.rst:65
+msgid "Condition contains only one of the following tags:"
+msgstr ""
+"La balise Condition contient une et une seule des balises ci-dessous :"
+
+#: ../../source/documentation/user_guide.rst:67
+msgid ":doc:`Avalaible Conditions list <condition>`"
+msgstr ":doc:`Liste des balises Conditions <condition>`"
+
+#: ../../source/documentation/user_guide.rst:72
+msgid ":ref:`All <Balise_All>`"
+msgstr ""
+
+#: ../../source/documentation/user_guide.rst:72
+#: ../../source/documentation/user_guide.rst:74
+#: ../../source/documentation/user_guide.rst:76
+#: ../../source/documentation/user_guide.rst:78
+#: ../../source/documentation/user_guide.rst:80
+#: ../../source/documentation/user_guide.rst:82
+msgid "Conditional"
+msgstr "Conditionnel"
+
+#: ../../source/documentation/user_guide.rst:72
+#: ../../source/documentation/user_guide.rst:74
+#: ../../source/documentation/user_guide.rst:76
+#: ../../source/documentation/user_guide.rst:78
+#: ../../source/documentation/user_guide.rst:80
+#: ../../source/documentation/user_guide.rst:82
+msgid "0-1"
+msgstr ""
+
+#: ../../source/documentation/user_guide.rst:74
+msgid ":ref:`Any <Balise_Any>`"
+msgstr ""
+
+#: ../../source/documentation/user_guide.rst:76
+msgid ":ref:`ElementMatch <Balise_ElementMatch>`"
+msgstr ""
+
+#: ../../source/documentation/user_guide.rst:78
+msgid ":ref:`False <Balise_False>`"
+msgstr ""
+
+#: ../../source/documentation/user_guide.rst:80
+msgid ":ref:`Not <Balise_Not>`"
+msgstr ""
+
+#: ../../source/documentation/user_guide.rst:82
+msgid ":ref:`True <Balise_True>`"
+msgstr ""
+
+#: ../../source/documentation/user_guide.rst:85
+msgid "For each tag, it is present if no other tag is present."
+msgstr ""
+"Pour chaque balise, celle-ci est présente si aucune autre balise n'est "
+"présente."
+
+#: ../../source/documentation/user_guide.rst:98
+msgid "Tag Actions"
+msgstr "Balise Actions"
+
+#: ../../source/documentation/user_guide.rst:100
+msgid "Actions contains a list of action."
+msgstr ""
+"La balise Actions contient un ensemble de balises listées ci-dessous :"
+
+#: ../../source/documentation/user_guide.rst:102
+msgid ":doc:`Avalaible Actions list <actions>`"
+msgstr ":doc:`Liste des balises Actions <actions>`"
+
+#: ../../source/documentation/user_guide.rst:107
+msgid ":ref:`DeleteElement <Balise_DeleteElement>`"
+msgstr ""
+
+#: ../../source/documentation/user_guide.rst:109
+msgid ":ref:`EmptyElement <Balise_EmptyElement>`"
+msgstr ""
+
+#: ../../source/documentation/user_guide.rst:111
+msgid ":ref:`EnhanceBrukerDicom <Balise_EnhanceBrukerDicom>`"
+msgstr ""
+
+#: ../../source/documentation/user_guide.rst:113
+msgid ":ref:`None <Balise_None>`"
+msgstr ""
+
+#: ../../source/documentation/user_guide.rst:117
+msgid ":ref:`SaveDataset <Balise_SaveDataset>`"
+msgstr ""
+
+#: ../../source/documentation/user_guide.rst:119
+msgid ":ref:`SetElement <Balise_SetElement>`"
+msgstr ""
+
+#: ../../source/documentation/user_guide.rst:121
+msgid ":ref:`StoreDataset <Balise_StoreDataset>`"
+msgstr ""
+
+#: ../../source/documentation/user_guide.rst:138
+msgid "Tag Input"
+msgstr "Balise Input"
+
+#: ../../source/documentation/user_guide.rst:141
+#: ../../source/documentation/user_guide.rst:167
+msgid "Attributs"
+msgstr "Attributs"
+
+#: ../../source/documentation/user_guide.rst:141
+#: ../../source/documentation/user_guide.rst:167
+#: ../../source/documentation/user_guide.rst:218
+msgid "Description"
+msgstr "Description"
+
+#: ../../source/documentation/user_guide.rst:143
+#: ../../source/documentation/user_guide.rst:169
+msgid "name"
+msgstr ""
+
+#: ../../source/documentation/user_guide.rst:143
+#: ../../source/documentation/user_guide.rst:169
+msgid "Unique identifier"
+msgstr "Identifiant unique"
+
+#: ../../source/documentation/user_guide.rst:145
+#: ../../source/documentation/user_guide.rst:171
+msgid "type"
+msgstr ""
+
+#: ../../source/documentation/user_guide.rst:145
+msgid "Input type. Available values:"
+msgstr "Type d'entrée. Valeurs possibles :"
+
+#: ../../source/documentation/user_guide.rst:147
+#: ../../source/documentation/user_guide.rst:173
+msgid "dataset"
+msgstr ""
+
+#: ../../source/documentation/user_guide.rst:148
+#: ../../source/documentation/user_guide.rst:174
+msgid "directory"
+msgstr ""
+
+#: ../../source/documentation/user_guide.rst:149
+#: ../../source/documentation/user_guide.rst:175
+msgid "file"
+msgstr ""
+
+#: ../../source/documentation/user_guide.rst:152
+#: ../../source/documentation/user_guide.rst:178
+msgid "value"
+msgstr ""
+
+#: ../../source/documentation/user_guide.rst:152
+msgid "Value of input data"
+msgstr "Valeur de la donnée en entrée."
+
+#: ../../source/documentation/user_guide.rst:164
+msgid "Tag Output"
+msgstr "Balise Output"
+
+#: ../../source/documentation/user_guide.rst:171
+msgid "Output type. Available values:"
+msgstr "Type de sortie. Valeurs possibles :"
+
+#: ../../source/documentation/user_guide.rst:178
+msgid "Value of output data"
+msgstr "Valeur de la donnée de sortie"
+
+#: ../../source/documentation/user_guide.rst:188
+msgid "Sample XML file"
+msgstr "Exemple de fichier XML"
+
+#: ../../source/documentation/user_guide.rst:213
+msgid "Format of Private Dictionary"
+msgstr "Format du Dictionnaire Privé"
+
+#: ../../source/documentation/user_guide.rst:220
+msgid "Private Dictionary contains a set of elements based on DICOM Standard."
+msgstr ""
+"Le dictionnaire privé contient un ensemble d'élément basés sur le standard "
+"DICOM."
+
+#: ../../source/documentation/user_guide.rst:222
+msgid ""
+"Title tag is mandatory and contains dictionary name used by Dicomifier."
+msgstr ""
+"La balise Title est obligatoire et contient le nom du dictionnaire privé "
+"utilisé dans Dicomifier."
+
+#: ../../source/documentation/user_guide.rst:225
+msgid "Sample of Private Dictionary"
+msgstr "Exemple de Dictionnaire privé"
+
+#: ../../source/documentation/user_guide.rst:2
+msgid "User Guide"
+msgstr "Guide de l'utilisateur"
+
+#: ../../source/documentation/user_guide.rst:115
+msgid ":ref:`PrintDataset <Balise_PrintDataset>`"
+msgstr ""
