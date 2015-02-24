@@ -66,6 +66,8 @@ Dataset
         }
         this->set_field(field);
     }
+    
+    this->_update_frame_groups();
 }
 
 bool
@@ -94,6 +96,60 @@ Dataset
 ::set_field(Field const & field)
 {
     this->_fields[field.name] = field;
+}
+
+void
+Dataset
+::_update_frame_groups()
+{
+    // VisuFGOrderDescDim: number of frame groups
+    // VisuFGOrderDesc: array of frame group descriptions
+    //   - len: number of elements in the frame group (e.g. number of echo or slices)
+    //   - groupId: unique identifier string
+    //   - groupComment: free comment or description
+    //   - valsStart: start offset for the frame group parameters in VisuGroupDepVals
+    //   - valsCnt: count of the frame group parameters
+    // VisuGroupDepVals is an array of parameters which depend on a frame group
+    //   - name: name of the parameter
+    //   - valsStart: start index in the parameter array
+    
+    this->_frame_groups.clear();
+    
+    if(!this->has_field("VisuFGOrderDescDim") || 
+       !this->has_field("VisuFGOrderDesc") ||
+       !this->has_field("VisuGroupDepVals"))
+    {
+        return;
+    }
+    
+    for(long fg_index=0; 
+        fg_index < this->get_field("VisuFGOrderDescDim").get_int(0); ++fg_index)
+    {
+        auto const & fg_item = boost::get<std::vector<Field::Item> >(
+            this->get_field("VisuFGOrderDesc").value[fg_index]);
+        
+        FrameGroup fg;
+        fg.count = boost::get<long>(fg_item[0]);
+        fg.name = boost::get<std::string>(fg_item[1]);
+        fg.comment = boost::get<std::string>(fg_item[2]);
+        
+        long const start = boost::get<long>(fg_item[3]);
+        long const parameters_count = boost::get<long>(fg_item[4]);
+        for(long parameter_index=start; 
+            parameter_index < start+parameters_count; ++parameter_index)
+        {
+            auto const & parameter_item = boost::get<std::vector<Field::Item> >(
+                this->get_field("VisuGroupDepVals").value[parameter_index]);
+            
+            FrameGroup::Parameter parameter;
+            parameter.name = boost::get<std::string>(parameter_item[0]);
+            parameter.start_index = boost::get<long>(parameter_item[1]);
+            
+            fg.parameters.push_back(parameter);
+        }
+        
+        this->_frame_groups.push_back(fg);
+    }
 }
 
 } // namespace bruker
