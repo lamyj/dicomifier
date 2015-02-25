@@ -49,6 +49,13 @@ Field
     return boost::get<long>(this->value[index]);
 }
 
+float
+Field
+::get_float(unsigned int index) const
+{
+    return boost::get<float>(this->value[index]);
+}
+
 } // namespace bruker
 
 } // namespace dicomifier
