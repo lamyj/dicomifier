@@ -20,6 +20,20 @@ namespace dicomifier
 namespace bruker
 {
 
+struct FrameGroup
+{
+    struct Parameter
+    {
+        std::string name;
+        int start_index;
+    };
+    
+    long size; // Number of elements in this frame group
+    std::string name;
+    std::string comment;
+    std::vector<Parameter> parameters;
+};
+
 class Dataset
 {
 public:
@@ -35,21 +49,9 @@ public:
     /// @brief Add a field to the dataset or modify an existing field.
     void set_field(Field const & field);
     
-private:
-    struct FrameGroup
-    {
-        struct Parameter
-        {
-            std::string name;
-            int start_index;
-        };
-        
-        long count; // Number of elements in this frame group
-        std::string name;
-        std::string comment;
-        std::vector<Parameter> parameters;
-    };
+    std::vector<FrameGroup> const & get_frame_groups() const;
     
+private:
     std::map<std::string, Field> _fields;
     std::vector<FrameGroup> _frame_groups;
     
