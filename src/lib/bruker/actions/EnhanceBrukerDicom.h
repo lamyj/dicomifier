@@ -9,10 +9,16 @@
 #ifndef _a1d24eb4_37bb_46b4_a769_d76392230052
 #define _a1d24eb4_37bb_46b4_a769_d76392230052
 
+#include <memory>
+#include <string>
+#include <vector>
+
+#include <boost/filesystem.hpp>
+
 #include <dcmtk/config/osconfig.h>
 #include <dcmtk/dcmdata/dctk.h>
 
-#include "bruker/BrukerDirectory.h"
+#include "bruker/Dataset.h"
 #include "core/actions/Action.h"
 #include "core/FrameIndexGenerator.h"
 #include "dicom/SOPClass.h"
@@ -130,23 +136,14 @@ protected:
                        std::string const & outputDir);
 
 private:
-    /**
-     * @brief get_binary_data_information: Get all information about Image
-     * @param brukerdataset: Bruker Dataset to convert
-     * @param uint16vector: (out) image
-     * @param size: size of the image
-     * @param highbit: (out) high bit (depends on Little endian or Big endian)
-     * @param addtransformationsequence: (out) Flag for indicate if buffer is convert to 16 bits
-     * @param rescaleintercept: (out) value for DICOM field 0028,1052
-     * @param rescaleslope: (out) value for DICOM field 0028,1053
-     */
-    void get_binary_data_information
-        (
-                dicomifier::bruker::BrukerDataset* brukerdataset,
-                std::vector<Uint16>& uint16vector, int const & size,
-                int & highbit, bool & addtransformationsequence,
-                double & rescaleintercept, double & rescaleslope
-        ) const;
+    typedef void (EnhanceBrukerDicom::*DicomCreator)(
+        bruker::Dataset const & brukerdataset, std::vector<int> indexlists,
+        std::string const & seriesnumber) const;
+
+    /// @brief Return the pixel data as Uint16 and its transformation.
+    void _get_pixel_data(bruker::Dataset const & dataset,
+        std::vector<Uint16> & pixel_data, 
+        double & rescaleintercept, double & rescaleslope) const;
 
     /**
      * @brief get_destination_filename: get formatted output filepath
@@ -161,7 +158,7 @@ private:
      * @param indexlists: current indexes
      * @param seriesnumber: Series Number
      */
-    void create_MRImageStorage(dicomifier::bruker::BrukerDataset* brukerdataset,
+    void create_MRImageStorage(dicomifier::bruker::Dataset const & brukerdataset,
                                std::vector<int> indexlists,
                                std::string const & seriesnumber) const;
                                
@@ -171,7 +168,7 @@ private:
      * @param indexlists: current indexes
      * @param seriesnumber: Series Number
      */
-    void create_EnhancedMRImageStorage(dicomifier::bruker::BrukerDataset* brukerdataset,
+    void create_EnhancedMRImageStorage(dicomifier::bruker::Dataset const & brukerdataset,
                                        std::vector<int> indexlists,
                                        std::string const & seriesnumber) const;
     
