@@ -96,6 +96,14 @@ Dataset
 ::set_field(Field const & field)
 {
     this->_fields[field.name] = field;
+    this->_update_frame_groups();
+}
+
+std::vector<FrameGroup> const &
+Dataset
+::get_frame_groups() const
+{
+    return this->_frame_groups;
 }
 
 void
@@ -129,7 +137,7 @@ Dataset
             this->get_field("VisuFGOrderDesc").value[fg_index]);
         
         FrameGroup fg;
-        fg.count = boost::get<long>(fg_item[0]);
+        fg.size = boost::get<long>(fg_item[0]);
         fg.name = boost::get<std::string>(fg_item[1]);
         fg.comment = boost::get<std::string>(fg_item[2]);
         
