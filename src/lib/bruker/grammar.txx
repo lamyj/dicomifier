@@ -46,7 +46,7 @@ grammar<TIterator>
     comment = "$$" >> +(~char_("\n"));
     
     field %= identifier >> "=" >> -shape >> omit[*space] >> value;
-    identifier %= "##" >> -char_("$") >> +char_("a-zA-Z");
+    identifier %= "##" >> +(~char_("="));
     // Shape has mandatory space after parenthesis to make a difference with array
     shape %= "(" >> omit[+space] >> (int_ % ("," >> *space)) >> omit[+space] >> ")";
     
