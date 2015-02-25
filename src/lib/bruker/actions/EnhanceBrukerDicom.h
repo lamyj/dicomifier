@@ -47,9 +47,11 @@ public:
     static Pointer New(DcmDataset * dataset, 
                        std::string const & brukerDir,
                        std::string const & sopclassuid,
-                       std::string const & outputDir)
+                       std::string const & outputDir,
+                       std::string const & studyNumber)
                 { return Pointer(new Self(dataset, brukerDir, 
-                                          sopclassuid, outputDir)); }
+                                          sopclassuid, outputDir,
+                                          studyNumber)); }
     
     /// Destroy the instance of EnhanceBrukerDicom
     virtual ~EnhanceBrukerDicom();
@@ -113,6 +115,10 @@ public:
      */
     static std::string get_class_name() { return "EnhanceBrukerDicom"; }
 
+    static std::string get_default_directory_name(boost::filesystem::path const &parentdirectory);
+
+    static void replace_unavailable_char(std::string &text);
+
 protected:
     /// Create an instance of EnhanceBrukerDicom
     EnhanceBrukerDicom();
@@ -127,7 +133,8 @@ protected:
     EnhanceBrukerDicom(DcmDataset * dataset,
                        std::string const & brukerDir,
                        std::string const & sopclassuid,
-                       std::string const & outputDir);
+                       std::string const & outputDir,
+                       std::string const & studyNumber);
 
 private:
     /**
@@ -174,6 +181,8 @@ private:
     void create_EnhancedMRImageStorage(dicomifier::bruker::BrukerDataset* brukerdataset,
                                        std::vector<int> indexlists,
                                        std::string const & seriesnumber) const;
+
+    std::string create_directory_name(int sizemax, std::string const & prefix, std::string const & suffix) const;
     
     /// DICOM Dataset
     DcmDataset * _dataset;
@@ -186,6 +195,8 @@ private:
 
     /// Path to write DICOM Datasets
     std::string _outputDir;
+
+    std::string _studyNumber;
     
     EnhanceBrukerDicom(Self const & other);     // Purposely not implemented
     Self const & operator=(Self const & other); // Purposely not implemented

@@ -11,6 +11,8 @@
 
 #include <QProgressDialog>
 
+#include <boost/filesystem.hpp>
+
 #include "BaseFrame.h"
 #include "components/GenerationResultItem.h"
 #include "components/TreeItem.h"
@@ -80,6 +82,7 @@ protected:
     virtual void modify_previousButton_enabled();
 
     OFCondition createDicomdirs(std::string const & directory,
+                                std::string const & absdirectory,
                                 std::string const & dicomdirfile);
 
     std::string createZipArchives(std::string const & directory,
@@ -100,6 +103,7 @@ protected:
      * @param dcmdirgenerator: DICOMDIR
      */
     OFCondition insertFilesForDicomdir(std::string const & directory,
+                                       std::string const & absdirectory,
                                        DicomDirGenerator* dcmdirgenerator);
 
 private slots:

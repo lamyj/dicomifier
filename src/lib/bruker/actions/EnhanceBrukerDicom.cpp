@@ -29,12 +29,13 @@ EnhanceBrukerDicom::EnhanceBrukerDicom():
     // Nothing to do
 }
 
-EnhanceBrukerDicom::EnhanceBrukerDicom(DcmDataset * dataset, 
+EnhanceBrukerDicom::EnhanceBrukerDicom(DcmDataset * dataset,
                                        std::string const & brukerDir,
                                        std::string const & sopclassuid,
-                                       std::string const & outputDir):
+                                       std::string const & outputDir,
+                                       std::string const & studyNumber):
     _dataset(dataset), _brukerDir(brukerDir), _SOPClassUID(sopclassuid),
-    _outputDir(outputDir)
+    _outputDir(outputDir), _studyNumber(studyNumber)
 {
     // Nothing to do
 }
@@ -152,13 +153,11 @@ EnhanceBrukerDicom
     std::string sopclassuid = dicomifier::get_SOPClassUID_from_name(this->_SOPClassUID);
     if (sopclassuid == UID_MRImageStorage)
     {
-        this->create_MRImageStorage(brukerdataset, indexlists, 
-                                    str.c_str());
+        this->create_MRImageStorage(brukerdataset, indexlists, str.c_str());
     }
     else if (sopclassuid == UID_EnhancedMRImageStorage)
     {
-        this->create_EnhancedMRImageStorage(brukerdataset, indexlists, 
-                                            str.c_str());
+        this->create_EnhancedMRImageStorage(brukerdataset, indexlists, str.c_str());
     }
     else
     {
@@ -166,6 +165,48 @@ EnhanceBrukerDicom
     }
     
     delete brukerdirectory;
+}
+
+std::string
+EnhanceBrukerDicom
+::get_default_directory_name(const boost::filesystem::path &parentdirectory)
+{
+    std::cout << "DEBUG RLA parentdirectory = " << parentdirectory.string() << std::endl;
+    if (! boost::filesystem::exists(parentdirectory))
+    {
+        std::cout << "DEBUG RLA not exist" << std::endl;
+        return "1";
+    }
+
+    // Suppose we can't have more than 100000000 sub-directory
+    for (int output = 1; output < 100000000; ++output)
+    {
+        std::stringstream pattern;
+        pattern << output;
+
+        bool find = true;
+
+        boost::filesystem::directory_iterator it_end;
+        for(boost::filesystem::directory_iterator it(parentdirectory.string());
+            it != it_end; ++it)
+        {
+            std::string currentobj((*it).path().filename().c_str());
+            if(currentobj.find(pattern.str().c_str()) == 0)
+            {
+                // we find a number already used
+                find = false;
+                break;
+            }
+        }
+        if (find)
+        {
+            std::stringstream stream;
+            stream << output;
+            return stream.str();
+        }
+    }
+
+    throw DicomifierException("Cannot find default directory name.");
 }
 
 void 
@@ -301,47 +342,99 @@ boost::filesystem::path
 EnhanceBrukerDicom
 ::get_destination_filename(DcmDataset *dataset) const
 {
-    OFString patientid;
-    OFCondition resultdcm = dataset->findAndGetOFStringArray(DCM_PatientID, patientid);
-    if (resultdcm.bad())
+    // Subject Directory: Patient's name or Patient's ID or Default value
+
+    OFString subject_name;
+    OFCondition resultdcm = dataset->findAndGetOFStringArray(DCM_PatientName,
+                                                             subject_name);
+    if (resultdcm.bad() || subject_name.empty())
     {
-        throw DicomifierException("EnhancedMRImageStorage cannot retrieve PatientID: " +
-                                  std::string(resultdcm.text()));
-    }
-    OFString study_instance_uid;
-    resultdcm = dataset->findAndGetOFStringArray(DCM_StudyInstanceUID, study_instance_uid);
-    if (resultdcm.bad())
-    {
-        throw DicomifierException("EnhancedMRImageStorage cannot retrieve StudyInstanceUID: " +
-                                  std::string(resultdcm.text()));
-    }
-    OFString series_instance_uid;
-    resultdcm = dataset->findAndGetOFStringArray(DCM_SeriesInstanceUID, series_instance_uid);
-    if (resultdcm.bad())
-    {
-        throw DicomifierException("EnhancedMRImageStorage cannot retrieve SeriesInstanceUID: " +
-                                  std::string(resultdcm.text()));
-    }
-    OFString sop_instance_uid;
-    resultdcm = dataset->findAndGetOFStringArray(DCM_SOPInstanceUID, sop_instance_uid);
-    if (resultdcm.bad())
-    {
-        throw DicomifierException("EnhancedMRImageStorage cannot retrieve SOPInstanceUID: " +
-                                  std::string(resultdcm.text()));
+        resultdcm = dataset->findAndGetOFStringArray(DCM_PatientID,
+                                                     subject_name);
+        if (resultdcm.bad() || subject_name.empty())
+        {
+            subject_name = EnhanceBrukerDicom::
+                    get_default_directory_name(boost::filesystem::path(this->_outputDir)).c_str();
+        }
     }
 
-    std::string const subject_hash =
-            dicomifier::hashcode::hashToString(dicomifier::hashcode::hashCode(patientid));
-    std::string const study_hash =
-            dicomifier::hashcode::hashToString(dicomifier::hashcode::hashCode(study_instance_uid));
-    std::string const series_hash =
-            dicomifier::hashcode::hashToString(dicomifier::hashcode::hashCode(series_instance_uid));
-    std::string const sop_instance_hash =
-            dicomifier::hashcode::hashToString(dicomifier::hashcode::hashCode(sop_instance_uid));
+    // Study Directory: Counter + Study Description
 
+    OFString study_description;
+    resultdcm = dataset->findAndGetOFStringArray(DCM_StudyDescription,
+                                                 study_description);
+    if (resultdcm.bad())
+    {
+        std::stringstream stream;
+        stream << "EnhanceBrukerDicom cannot retrieve StudyDescription: "
+                << resultdcm.text();
+        throw DicomifierException(stream.str());
+    }
+    std::string study_description_str(study_description.c_str());
+    std::string study = create_directory_name(8, this->_studyNumber,
+                                              study_description_str);
+
+    // Series Directory: Bruker Series directory + Series Description
+
+    OFString series_description;
+    resultdcm = dataset->findAndGetOFStringArray(DCM_SeriesDescription,
+                                                 series_description);
+    if (resultdcm.bad())
+    {
+        std::stringstream stream;
+        stream << "EnhanceBrukerDicom cannot retrieve SeriesDescription: "
+                << resultdcm.text();
+        throw DicomifierException(stream.str());
+    }
+    std::string series_description_str(series_description.c_str());
+    OFString series_number;
+    resultdcm = dataset->findAndGetOFStringArray(DCM_SeriesNumber, series_number);
+    if (resultdcm.bad())
+    {
+        std::stringstream stream;
+        stream << "EnhanceBrukerDicom cannot retrieve SeriesNumber: "
+                << resultdcm.text();
+        throw DicomifierException(stream.str());
+    }
+    std::string series_number_str(series_number.c_str());
+    series_number_str =
+            series_number_str.substr(0, series_number_str.size() == 6 ? 2 : 1);
+    std::string series = create_directory_name(8, series_number_str,
+                                               series_description_str);
+
+    // Instance file: Instance Number
+
+    Sint32 instance_number;
+    resultdcm = dataset->findAndGetSint32(DCM_InstanceNumber, instance_number);
+    if (resultdcm.bad())
+    {
+        std::stringstream stream;
+        stream << "EnhanceBrukerDicom cannot retrieve InstanceNumber: "
+                << resultdcm.text();
+        throw DicomifierException(stream.str());
+    }
+    Sint32 image_in_acquistion;
+    resultdcm = dataset->findAndGetSint32(DCM_ImagesInAcquisition, image_in_acquistion);
+    if (resultdcm.bad())
+    {
+        std::stringstream stream;
+        stream << "EnhanceBrukerDicom cannot retrieve ImagesInAcquisition: "
+               << resultdcm.text();
+        throw DicomifierException(stream.str());
+    }
+
+    int nbdigit = 1 + floor(log10(image_in_acquistion));
+    std::stringstream format;
+    format << "%." << nbdigit << "i";
+    std::string instance_number_str(nbdigit, '0');
+    std::snprintf(&instance_number_str[0], instance_number_str.length()+1,
+                  format.str().c_str(), instance_number);
+
+
+    // Destination: Subject/Study/Series/Instance
     boost::filesystem::path const destination =
         boost::filesystem::path(this->_outputDir)
-            /subject_hash/study_hash/series_hash/sop_instance_hash;
+            /subject_name.c_str()/study/series/instance_number_str;
     boost::filesystem::create_directories(destination.parent_path());
 
     return destination;
@@ -682,6 +775,44 @@ EnhanceBrukerDicom
         throw DicomifierException("Unable to save dataset: " + 
                                   std::string(result.text()));
     }
+}
+
+void
+EnhanceBrukerDicom
+::replace_unavailable_char(std::string &text)
+{
+    std::stringstream stream;
+    stream << std::uppercase << text;
+    text = stream.str();
+    /* iterate over all charaters */
+    for (unsigned int i = 0; i < text.length(); ++i)
+    {
+        unsigned char c = text.at(i);
+        if (std::isalpha(c) && std::islower(c))
+        {
+            text[i] = std::toupper(c);
+        }
+        else if ((c != '_') && !std::isdigit(c) && !std::isalpha(c))
+        {
+            // char not allowed, replace by _
+            text[i] = '_';
+        }
+    }
+}
+
+std::string
+EnhanceBrukerDicom
+::create_directory_name(int sizemax, const std::string &prefix,
+                        const std::string &suffix) const
+{
+    int size = sizemax - prefix.length() - 1; // 1 is for '_'
+    std::string suffixmodif = suffix.substr(0, size);
+
+    EnhanceBrukerDicom::replace_unavailable_char(suffixmodif);
+
+    std::stringstream streamout;
+    streamout << prefix << "_" << suffixmodif;
+    return streamout.str();
 }
     
 } // namespace actions

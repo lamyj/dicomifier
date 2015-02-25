@@ -65,6 +65,10 @@ EnhanceBrukerDicomCreator
     // get 'seriesnumber' attribut (optional)
     auto seriesnum_ = value.second.get_optional<int>("<xmlattr>.seriesnumber");
     int seriesnum = seriesnum_ ? seriesnum_.get() : 0;
+
+    // get 'studynumber' attribut (optional)
+    auto studynumber_ = value.second.get_optional<std::string>("<xmlattr>.studynumber");
+    std::string studynumber = studynumber_ ? studynumber_.get() : "1";
     
     // get 'brukerdir' attribut (mandatory)
     filename = value.second.get<std::string>("<xmlattr>.brukerdir"); // Warning: throw exception if attribut is missing
@@ -110,9 +114,10 @@ EnhanceBrukerDicomCreator
     
     // Insert SeriesNumber => use to find Bruker data
     dataset->putAndInsertOFStringArray(DCM_SeriesNumber, OFString(seriesnumber.c_str()));
-    
+
     return dicomifier::actions::EnhanceBrukerDicom::New(dataset, filename, 
-                                                        sopclassuid, outputdirectory);
+                                                        sopclassuid, outputdirectory,
+                                                        studynumber);
 }
     
 } // namespace factory
