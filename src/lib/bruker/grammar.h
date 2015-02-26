@@ -50,6 +50,7 @@ private:
     
     boost::spirit::qi::rule<TIterator, std::vector<Field::Item>()> numbers;
     boost::spirit::qi::rule<TIterator, std::vector<Field::Item>()> quoted_strings;
+    boost::spirit::qi::rule<TIterator, std::vector<Field::Item>()> atoms;
     boost::spirit::qi::rule<TIterator, std::vector<Field::Item>()> structs;
     
     boost::spirit::qi::rule<TIterator, std::vector<Field::Item>()> unquoted_string;
@@ -57,6 +58,8 @@ private:
     
     boost::spirit::qi::rule<TIterator, std::string()> quoted_string;
     boost::spirit::qi::rule<TIterator, char()> escaped_char;
+    
+    boost::spirit::qi::rule<TIterator, std::string()> atom;
 
     boost::spirit::qi::real_parser<float, strict_real_policies<float> > real;
 };

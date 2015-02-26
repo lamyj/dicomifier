@@ -27,6 +27,7 @@ grammar<TIterator>
 ::grammar()
 : grammar::base_type(dataset)
 {
+    using boost::phoenix::at_c;
     using boost::phoenix::push_back;
     
     using boost::spirit::qi::as_string;
@@ -45,21 +46,27 @@ grammar<TIterator>
     // No parser action: we just ignore comments
     comment = "$$" >> +(~char_("\n"));
     
-    field %= identifier >> "=" >> -shape >> omit[*space] >> value;
+    // Do not use implicit action (i.e. %=): no shape for "scalar" fields
+    field = identifier[at_c<0>(_val) = _1] >> "=" >> 
+        (
+            (shape[at_c<1>(_val) = _1] >> omit[*space] >> value[at_c<2>(_val) = _1]) | 
+            (numbers | unquoted_string)[at_c<2>(_val) = _1]
+        );
+    
     identifier %= "##" >> +(~char_("="));
     // Shape has mandatory space after parenthesis to make a difference with array
     shape %= "(" >> omit[+space] >> (int_ % ("," >> *space)) >> omit[+space] >> ")";
     
-    value %= numbers | quoted_strings | structs | unquoted_string;
+    value %= (numbers | quoted_strings | atoms | structs) >> omit[*char_(" ")];
     
-    // Numbers *must* be separated with spaces, strings and structures but need
-    // not since they have delimiters.
+    // Numbers and tokens *must* be separated with spaces, strings and 
+    // structures but need not since they have delimiters.
     numbers %= (real | long_) % +space;
     quoted_strings %= quoted_string % *space;
+    atoms %= atom % +space;
     structs %= struct_ % *space;
     
-    // Unquoted strings stop at new line. Not sure if this is correct, the 
-    // JCAMP-DX spec is not clear on this. 
+    // Assume lines have been joined beforehand.
     unquoted_string %= as_string[*(~char_("\n"))][push_back(_val, _1)];
     
     // Array has no space after parenthesis to make a difference with shape
@@ -67,6 +74,8 @@ grammar<TIterator>
     
     quoted_string %= "<" >> *( escaped_char | ~char_(">")) >> ">";
     escaped_char %= "\\" >> (char_(">\\") | eol);
+    
+    atom %= +char_("a-zA-Z0-9_");
 }
 
 } // namespace bruker
