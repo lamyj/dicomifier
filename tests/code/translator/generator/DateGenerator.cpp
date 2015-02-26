@@ -28,7 +28,10 @@ BOOST_AUTO_TEST_CASE(TEST_OK_01)
     // Pointer exists
     BOOST_CHECK_EQUAL(testfieldas != NULL, true);
     
-    // Test VR = AT => Not implemented
+    // Test VR = AT
+    auto testfieldat = dicomifier::translator::DateGenerator<EVR_AT>::New();
+    // Pointer exists
+    BOOST_CHECK_EQUAL(testfieldat != NULL, true);
     
     // Test VR = CS
     auto testfieldcs = dicomifier::translator::DateGenerator<EVR_CS>::New();
@@ -171,12 +174,7 @@ BOOST_AUTO_TEST_CASE(TEST_OK_02)
     auto resultsDA = dategeneratorDA->get_array();
     BOOST_CHECK_EQUAL(resultsDA[0], "20140201");
                         
-    // Test VR = DS
-    /*auto dategeneratorDS = dicomifier::translator::DateGenerator<EVR_DS>::
-        New(dicomifier::translator::ConstantField<EVR_DS>::New(123));
-    dategeneratorDS->run(NULL, dicomifier::FrameIndexGenerator({}), NULL);
-    auto resultsDS = dategeneratorDS->get_array();
-    BOOST_CHECK_EQUAL(resultsDS[0], 123);*/
+    // Test VR = DS => See test error TEST_KO_01
                         
     // Test VR = DT
     auto dategeneratorDT = dicomifier::translator::DateGenerator<EVR_DT>::
@@ -185,26 +183,11 @@ BOOST_AUTO_TEST_CASE(TEST_OK_02)
     auto resultsDT = dategeneratorDT->get_array();
     BOOST_CHECK_EQUAL(resultsDT[0], "20140201");
                         
-    // Test VR = FL
-    /*auto dategeneratorFL = dicomifier::translator::DateGenerator<EVR_FL>::
-        New(dicomifier::translator::ConstantField<EVR_FL>::New(123));
-    dategeneratorFL->run(NULL, dicomifier::FrameIndexGenerator({}), NULL);
-    auto resultsFL = dategeneratorFL->get_array();
-    BOOST_CHECK_EQUAL(resultsFL[0], 123);*/
+    // Test VR = FL => See test error TEST_KO_01
                         
-    // Test VR = FD
-    /*auto dategeneratorFD = dicomifier::translator::DateGenerator<EVR_FD>::
-        New(dicomifier::translator::ConstantField<EVR_FD>::New(123));
-    dategeneratorFD->run(NULL, dicomifier::FrameIndexGenerator({}), NULL);
-    auto resultsFD = dategeneratorFD->get_array();
-    BOOST_CHECK_EQUAL(resultsFD[0], 123);*/
+    // Test VR = FD => See test error TEST_KO_01
                         
-    // Test VR = IS
-    /*auto dategeneratorIS = dicomifier::translator::DateGenerator<EVR_IS>::
-        New(dicomifier::translator::ConstantField<EVR_IS>::New(123));
-    dategeneratorIS->run(NULL, dicomifier::FrameIndexGenerator({}), NULL);
-    auto resultsIS = dategeneratorIS->get_array();
-    BOOST_CHECK_EQUAL(resultsIS[0], 123);*/
+    // Test VR = IS => See test error TEST_KO_01
                         
     // Test VR = LO
     auto dategeneratorLO = dicomifier::translator::DateGenerator<EVR_LO>::
@@ -239,21 +222,11 @@ BOOST_AUTO_TEST_CASE(TEST_OK_02)
     auto resultsSH = dategeneratorSH->get_array();
     BOOST_CHECK_EQUAL(resultsSH[0], "20140201");
                         
-    // Test VR = SL
-    /*auto dategeneratorSL = dicomifier::translator::DateGenerator<EVR_SL>::
-        New(dicomifier::translator::ConstantField<EVR_SL>::New(123));
-    dategeneratorSL->run(NULL, dicomifier::FrameIndexGenerator({}), NULL);
-    auto resultsSL = dategeneratorSL->get_array();
-    BOOST_CHECK_EQUAL(resultsSL[0], 123);*/
+    // Test VR = SL => See test error TEST_KO_01
                         
     // Test VR = SQ => Not implemented
                         
-    // Test VR = SS
-    /*auto dategeneratorSS = dicomifier::translator::DateGenerator<EVR_SS>::
-        New(dicomifier::translator::ConstantField<EVR_SS>::New(123));
-    dategeneratorSS->run(NULL, dicomifier::FrameIndexGenerator({}), NULL);
-    auto resultsSS = dategeneratorSS->get_array();
-    BOOST_CHECK_EQUAL(resultsSS[0], 123);*/
+    // Test VR = SS => See test error TEST_KO_01
                         
     // Test VR = ST
     auto dategeneratorST = dicomifier::translator::DateGenerator<EVR_ST>::
@@ -276,19 +249,9 @@ BOOST_AUTO_TEST_CASE(TEST_OK_02)
     auto resultsUI = dategeneratorUI->get_array();
     BOOST_CHECK_EQUAL(resultsUI[0], "20140201");
                         
-    // Test VR = UL
-    /*auto dategeneratorUL = dicomifier::translator::DateGenerator<EVR_UL>::
-        New(dicomifier::translator::ConstantField<EVR_UL>::New(123));
-    dategeneratorUL->run(NULL, dicomifier::FrameIndexGenerator({}), NULL);
-    auto resultsUL = dategeneratorUL->get_array();
-    BOOST_CHECK_EQUAL(resultsUL[0], 123);*/
+    // Test VR = UL => See test error TEST_KO_01
                         
-    // Test VR = US
-    /*auto dategeneratorUS = dicomifier::translator::DateGenerator<EVR_US>::
-        New(dicomifier::translator::ConstantField<EVR_US>::New(123));
-    dategeneratorUS->run(NULL, dicomifier::FrameIndexGenerator({}), NULL);
-    auto resultsUS = dategeneratorUS->get_array();
-    BOOST_CHECK_EQUAL(resultsUS[0], 123);*/
+    // Test VR = US => See test error TEST_KO_01
                         
     // Test VR = UT
     auto dategeneratorUT = dicomifier::translator::DateGenerator<EVR_UT>::
@@ -310,3 +273,51 @@ BOOST_AUTO_TEST_CASE(TEST_OK_03)
     auto resultsDA = dategeneratorDA->get_array();
     BOOST_CHECK_EQUAL(resultsDA[0] != "", true);
 }
+
+/*************************** TEST KO 01 *******************************/
+/**
+ * Error test case: Bad VR
+ */
+BOOST_AUTO_TEST_CASE(TEST_KO_01)
+{
+    // Test VR = DS
+    auto dategeneratorDS = dicomifier::translator::DateGenerator<EVR_DS>::New();
+    BOOST_REQUIRE_THROW(dategeneratorDS->run(NULL, dicomifier::FrameIndexGenerator({}), NULL),
+                        dicomifier::DicomifierException);
+
+    // Test VR = FL
+    auto dategeneratorFL = dicomifier::translator::DateGenerator<EVR_FL>::New();
+    BOOST_REQUIRE_THROW(dategeneratorFL->run(NULL, dicomifier::FrameIndexGenerator({}), NULL),
+                        dicomifier::DicomifierException);
+
+    // Test VR = FD
+    auto dategeneratorFD = dicomifier::translator::DateGenerator<EVR_FD>::New();
+    BOOST_REQUIRE_THROW(dategeneratorFD->run(NULL, dicomifier::FrameIndexGenerator({}), NULL),
+                        dicomifier::DicomifierException);
+
+    // Test VR = IS
+    auto dategeneratorIS = dicomifier::translator::DateGenerator<EVR_IS>::New();
+    BOOST_REQUIRE_THROW(dategeneratorIS->run(NULL, dicomifier::FrameIndexGenerator({}), NULL),
+                        dicomifier::DicomifierException);
+
+    // Test VR = SL
+    auto dategeneratorSL = dicomifier::translator::DateGenerator<EVR_SL>::New();
+    BOOST_REQUIRE_THROW(dategeneratorSL->run(NULL, dicomifier::FrameIndexGenerator({}), NULL),
+                        dicomifier::DicomifierException);
+
+    // Test VR = SS
+    auto dategeneratorSS = dicomifier::translator::DateGenerator<EVR_SS>::New();
+    BOOST_REQUIRE_THROW(dategeneratorSS->run(NULL, dicomifier::FrameIndexGenerator({}), NULL),
+                        dicomifier::DicomifierException);
+
+    // Test VR = UL
+    auto dategeneratorUL = dicomifier::translator::DateGenerator<EVR_UL>::New();
+    BOOST_REQUIRE_THROW(dategeneratorUL->run(NULL, dicomifier::FrameIndexGenerator({}), NULL),
+                        dicomifier::DicomifierException);
+
+    // Test VR = US
+    auto dategeneratorUS = dicomifier::translator::DateGenerator<EVR_US>::New();
+    BOOST_REQUIRE_THROW(dategeneratorUS->run(NULL, dicomifier::FrameIndexGenerator({}), NULL),
+                        dicomifier::DicomifierException);
+}
+
