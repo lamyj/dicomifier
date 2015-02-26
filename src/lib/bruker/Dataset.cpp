@@ -106,6 +106,29 @@ Dataset
     return this->_frame_groups;
 }
 
+void 
+Dataset
+::get_indexForValue(
+    std::string const & valuename, int & indexposition, int & startposition) const
+{
+    indexposition = -1;
+    startposition = 0;
+    int count = -1;
+    for(auto const & frame_group: this->_frame_groups)
+    {
+        ++count;
+        for(auto const & parameter: frame_group.parameters)
+        {
+            if(parameter.name == valuename)
+            {
+                startposition = parameter.start_index;
+                indexposition = count;
+                return;
+            }
+        }
+    }
+}
+
 void
 Dataset
 ::_update_frame_groups()
