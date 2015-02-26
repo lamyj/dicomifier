@@ -44,7 +44,7 @@ private:
     
     boost::spirit::qi::rule<TIterator, Field()> field;
     boost::spirit::qi::rule<TIterator, std::string()> identifier;
-    boost::spirit::qi::rule<TIterator, std::string()> shape;
+    boost::spirit::qi::rule<TIterator, std::vector<int>()> shape;
     
     boost::spirit::qi::rule<TIterator, std::vector<Field::Item>()> value;
     
