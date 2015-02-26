@@ -51,6 +51,11 @@ public:
     
     std::vector<FrameGroup> const & get_frame_groups() const;
     
+    /// @brief Return the index of the frame group that contains the given parameter.
+    void get_indexForValue(
+        std::string const & valuename, int & indexposition, 
+        int & startposition) const;
+    
 private:
     std::map<std::string, Field> _fields;
     std::vector<FrameGroup> _frame_groups;
