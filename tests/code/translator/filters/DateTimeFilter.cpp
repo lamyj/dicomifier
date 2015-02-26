@@ -28,7 +28,10 @@ BOOST_AUTO_TEST_CASE(TEST_OK_01)
     // Pointer exists
     BOOST_CHECK_EQUAL(testfieldas != NULL, true);
 
-    // Test VR = AT => Not implemented
+    // Test VR = AT
+    auto testfieldat = dicomifier::translator::DateTimeFilter<EVR_AT>::New();
+    // Pointer exists
+    BOOST_CHECK_EQUAL(testfieldat != NULL, true);
 
     // Test VR = CS
     auto testfieldcs = dicomifier::translator::DateTimeFilter<EVR_CS>::New();
@@ -216,6 +219,14 @@ BOOST_AUTO_TEST_CASE(TEST_OK_06)
     datetimefilterDT->run(NULL, dicomifier::FrameIndexGenerator({}), NULL);
     results = datetimefilterDT->get_array();
     BOOST_CHECK_EQUAL(results[0], "20150115140912");
+
+    datetimefilterDT = dicomifier::translator::
+        DateTimeFilter<EVR_DT>::New(dicomifier::translator::
+                                    ConstantField<EVR_DT>::New("14:09:12  6 Jan 2015"),
+                                                               "%Y%m%d%H%M%S");
+    datetimefilterDT->run(NULL, dicomifier::FrameIndexGenerator({}), NULL);
+    results = datetimefilterDT->get_array();
+    BOOST_CHECK_EQUAL(results[0], "20150106140912");
 }
 
 /*************************** TEST OK 07 *******************************/
@@ -361,5 +372,62 @@ BOOST_AUTO_TEST_CASE(TEST_KO_02)
                                     ConstantField<EVR_DT>::New("2015...01...15"),
                                     "%Y%m%d%");
     BOOST_REQUIRE_THROW(datetimefilterDT->run(NULL, dicomifier::FrameIndexGenerator({}), NULL),
+                        dicomifier::DicomifierException);
+}
+
+/*************************** TEST KO 03 *******************************/
+/**
+ * Error test case: VR not allowed
+ */
+BOOST_AUTO_TEST_CASE(TEST_KO_03)
+{
+    // Test VR = DS
+    auto datetimefilterDS = dicomifier::translator::
+            DateTimeFilter<EVR_DS>::New(NULL, "%Y%m%d%H%M%S");
+    BOOST_REQUIRE_THROW(datetimefilterDS->run(NULL, dicomifier::FrameIndexGenerator({}), NULL),
+                        dicomifier::DicomifierException);
+
+    // Test VR = FL
+    auto datetimefilterFL = dicomifier::translator::
+            DateTimeFilter<EVR_FL>::New(NULL, "%Y%m%d%H%M%S");
+    BOOST_REQUIRE_THROW(datetimefilterFL->run(NULL, dicomifier::FrameIndexGenerator({}), NULL),
+                        dicomifier::DicomifierException);
+
+    // Test VR = FD
+    auto datetimefilterFD = dicomifier::translator::
+            DateTimeFilter<EVR_FD>::New(NULL, "%Y%m%d%H%M%S");
+    BOOST_REQUIRE_THROW(datetimefilterFD->run(NULL, dicomifier::FrameIndexGenerator({}), NULL),
+                        dicomifier::DicomifierException);
+
+    // Test VR = IS
+    auto datetimefilterIS = dicomifier::translator::
+            DateTimeFilter<EVR_IS>::New(NULL, "%Y%m%d%H%M%S");
+    BOOST_REQUIRE_THROW(datetimefilterIS->run(NULL, dicomifier::FrameIndexGenerator({}), NULL),
+                        dicomifier::DicomifierException);
+
+    // Test VR = SL
+    auto datetimefilterSL = dicomifier::translator::
+            DateTimeFilter<EVR_SL>::New(NULL, "%Y%m%d%H%M%S");
+    BOOST_REQUIRE_THROW(datetimefilterSL->run(NULL, dicomifier::FrameIndexGenerator({}), NULL),
+                        dicomifier::DicomifierException);
+
+    // Test VR = SS
+    auto datetimefilterSS = dicomifier::translator::
+            DateTimeFilter<EVR_SS>::New(NULL, "%Y%m%d%H%M%S");
+    BOOST_REQUIRE_THROW(datetimefilterSS->run(NULL, dicomifier::FrameIndexGenerator({}), NULL),
+                        dicomifier::DicomifierException);
+
+    // Test VR = SQ => Not implemented
+
+    // Test VR = UL
+    auto datetimefilterUL = dicomifier::translator::
+            DateTimeFilter<EVR_UL>::New(NULL, "%Y%m%d%H%M%S");
+    BOOST_REQUIRE_THROW(datetimefilterUL->run(NULL, dicomifier::FrameIndexGenerator({}), NULL),
+                        dicomifier::DicomifierException);
+
+    // Test VR = US
+    auto datetimefilterUS = dicomifier::translator::
+            DateTimeFilter<EVR_US>::New(NULL, "%Y%m%d%H%M%S");
+    BOOST_REQUIRE_THROW(datetimefilterUS->run(NULL, dicomifier::FrameIndexGenerator({}), NULL),
                         dicomifier::DicomifierException);
 }

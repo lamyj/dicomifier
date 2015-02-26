@@ -171,10 +171,8 @@ std::string
 EnhanceBrukerDicom
 ::get_default_directory_name(const boost::filesystem::path &parentdirectory)
 {
-    std::cout << "DEBUG RLA parentdirectory = " << parentdirectory.string() << std::endl;
     if (! boost::filesystem::exists(parentdirectory))
     {
-        std::cout << "DEBUG RLA not exist" << std::endl;
         return "1";
     }
 

@@ -694,7 +694,7 @@ struct TestDataSQ
         boost::property_tree::ptree emptynode;
         emptynode.put("<xmlattr>.tag", "0010,1002.0010,0020");
         emptynode.put("<xmlattr>.value", "123");
-        emptynode.put("<xmlattr>.VR", "LO");
+        emptynode.put("<xmlattr>.VR", "SQ");
         emptynode.put("<xmlattr>.dataset", "#input");
         ptr.add_child("ElementMatch", emptynode);
         
@@ -714,12 +714,7 @@ BOOST_FIXTURE_TEST_CASE(CreationSQ, TestDataSQ)
     
     BOOST_FOREACH(boost::property_tree::ptree::value_type &v, ptr)
     {
-        dicomifier::Object::Pointer object = testmatch->Create(v);
-        
-        dicomifier::conditions::ElementMatch<EVR_LO>::Pointer cond = 
-                std::dynamic_pointer_cast<dicomifier::conditions::ElementMatch<EVR_LO>>(object);
-        
-        BOOST_CHECK_EQUAL(cond != NULL, true);
+        BOOST_REQUIRE_THROW(testmatch->Create(v), dicomifier::DicomifierException);
     }
 }
 

@@ -279,6 +279,66 @@ BOOST_FIXTURE_TEST_CASE(TEST_OK_03, TestDataOK03)
     BOOST_CHECK_EQUAL(testfieldus->get_array()[3], 0);
 }
 
+/*************************** TEST OK 04 *******************************/
+/**
+ * Nominal test case: Run (No VisuAcqImagePhaseEncDir)
+ */
+struct TestDataOK04
+{
+    std::string filename;
+    dicomifier::bruker::BrukerDataset* brukerdataset;
+
+    dicomifier::FrameIndexGenerator* generator;
+
+    TestDataOK04()
+    {
+        brukerdataset = new dicomifier::bruker::BrukerDataset();
+
+        filename = "./tmp_test_ModuleAcquisitionMatrixDcmField";
+
+        std::ofstream myfile;
+        myfile.open(filename);
+        myfile << "##TITLE=tmp_test_brukerfieldmodule\n";
+        myfile << "##$VisuAcqSize=( 2 )\n";
+        myfile << "128 256\n";
+        myfile << "##$VisuFGOrderDescDim=2\n";
+        myfile << "##$VisuFGOrderDesc=( 2 )\n";
+        myfile << "(5, <FG_SLICE>, <>, 0, 2) (15, <FG_MOVIE>, <Selective Inversion>, 2, 1)\n";
+        myfile << "##$VisuGroupDepVals=( 3 )\n";
+        myfile << "(<VisuCoreOrientation>, 0) (<VisuCorePosition>, 0) (<VisuAcqInversionTime>, 0)\n";
+        myfile << "##$VisuCoreFrameCount=75\n";
+        myfile << "##END=\n";
+        myfile.close();
+
+        brukerdataset->LoadFile(filename);
+
+        int coreFrameCount = 0;
+        std::vector<int> indexlists = brukerdataset->create_frameGroupLists(coreFrameCount);
+
+        generator = new dicomifier::FrameIndexGenerator(indexlists);
+    }
+
+    ~TestDataOK04()
+    {
+        remove(filename.c_str());
+        delete brukerdataset;
+        delete generator;
+    }
+};
+
+BOOST_FIXTURE_TEST_CASE(TEST_OK_04, TestDataOK04)
+{
+    // Test VR = US
+    auto testfieldus = dicomifier::translator::
+        AcquisitionMatrixDcmField<EVR_US>::New();
+    testfieldus->run(brukerdataset, *generator, NULL);
+    BOOST_CHECK_EQUAL(testfieldus->get_array().size(), 4);
+    BOOST_CHECK_EQUAL(testfieldus->get_array()[0], 0);
+    BOOST_CHECK_EQUAL(testfieldus->get_array()[1], 0);
+    BOOST_CHECK_EQUAL(testfieldus->get_array()[2], 0);
+    BOOST_CHECK_EQUAL(testfieldus->get_array()[3], 0);
+}
+
 /*************************** TEST KO 01 *******************************/
 /**
  * Error test case: Bad VR for Image Position Patient Tag

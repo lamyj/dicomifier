@@ -25,11 +25,13 @@ struct TestDataOK01
 {
     boost::property_tree::ptree ptr;
     std::shared_ptr<dicomifier::factory::CreatorBase::InOutPutType> inputs;
+    std::shared_ptr<dicomifier::factory::CreatorBase::InOutPutType> outputs;
+    DcmDataset* dataset;
  
     TestDataOK01()
     {
         // Create Test file
-        DcmDataset* dataset = new DcmDataset();
+        dataset = new DcmDataset();
         OFString name("John");
         dataset->putAndInsertOFStringArray(DCM_PatientName, name, true);
         
@@ -40,7 +42,7 @@ struct TestDataOK01
         emptynode.put("<xmlattr>.seriesnumber", "1");
         emptynode.put("<xmlattr>.reconumber", "1");
         emptynode.put("<xmlattr>.sopclassuid", "MR Image Storage");
-        emptynode.put("<xmlattr>.outputdirectory", ".");
+        emptynode.put("<xmlattr>.outputdirectory", "#outputdir");
         ptr.add_child("EnhanceBrukerDicom", emptynode);
         
         std::string text = "./temp";
@@ -48,10 +50,17 @@ struct TestDataOK01
         inputs = std::make_shared<dicomifier::factory::CreatorBase::InOutPutType>();
         inputs->insert(std::pair<std::string, boost::any>("input", boost::any(dataset)));
         inputs->insert(std::pair<std::string, boost::any>("inputdir", boost::any(text)));
+
+        outputs = std::make_shared<dicomifier::factory::CreatorBase::InOutPutType>();
+        outputs->insert(std::pair<std::string, boost::any>("outputdir", boost::any(text)));
     }
  
     ~TestDataOK01()
     {
+        if (dataset != NULL)
+        {
+            delete dataset;
+        }
     }
 };
 
@@ -59,6 +68,7 @@ BOOST_FIXTURE_TEST_CASE(TEST_OK_01, TestDataOK01)
 {
     auto test = dicomifier::factory::EnhanceBrukerDicomCreator::New();
     test->set_inputs(inputs);
+    test->set_outputs(outputs);
     
     BOOST_FOREACH(boost::property_tree::ptree::value_type &v, ptr)
     {
@@ -456,5 +466,64 @@ BOOST_FIXTURE_TEST_CASE(TEST_KO_08, TestDataKO08)
     {
         BOOST_REQUIRE_THROW(dicomifier::Object::Pointer object = test->Create(v), 
                             std::runtime_error);
+    }
+}
+
+/*************************** TEST KO 09 *******************************/
+/**
+ * Error test case: Bad dataset value
+ */
+struct TestDataKO09
+{
+    boost::property_tree::ptree ptr;
+    std::shared_ptr<dicomifier::factory::CreatorBase::InOutPutType> inputs;
+    std::shared_ptr<dicomifier::factory::CreatorBase::InOutPutType> outputs;
+    DcmDataset* dataset;
+
+    TestDataKO09()
+    {
+        // Create Test file
+        dataset = new DcmDataset();
+        OFString name("John");
+        dataset->putAndInsertOFStringArray(DCM_PatientName, name, true);
+
+        // Create XML tree
+        boost::property_tree::ptree emptynode;
+        emptynode.put("<xmlattr>.brukerdir", "#inputdir");
+        emptynode.put("<xmlattr>.dataset", "#input");
+        emptynode.put("<xmlattr>.seriesnumber", "1");
+        emptynode.put("<xmlattr>.reconumber", "1");
+        emptynode.put("<xmlattr>.sopclassuid", "MR Image Storage");
+        emptynode.put("<xmlattr>.outputdirectory", "#badvalue");
+        ptr.add_child("EnhanceBrukerDicom", emptynode);
+
+        std::string text = "./temp";
+
+        inputs = std::make_shared<dicomifier::factory::CreatorBase::InOutPutType>();
+        inputs->insert(std::pair<std::string, boost::any>("input", boost::any(dataset)));
+        inputs->insert(std::pair<std::string, boost::any>("inputdir", boost::any(text)));
+
+        outputs = std::make_shared<dicomifier::factory::CreatorBase::InOutPutType>();
+        outputs->insert(std::pair<std::string, boost::any>("outputdir", boost::any(text)));
+    }
+
+    ~TestDataKO09()
+    {
+        if (dataset != NULL)
+        {
+            delete dataset;
+        }
+    }
+};
+
+BOOST_FIXTURE_TEST_CASE(TEST_KO_09, TestDataKO09)
+{
+    auto test = dicomifier::factory::EnhanceBrukerDicomCreator::New();
+    test->set_inputs(inputs);
+    test->set_outputs(outputs);
+
+    BOOST_FOREACH(boost::property_tree::ptree::value_type &v, ptr)
+    {
+        BOOST_REQUIRE_THROW(dicomifier::Object::Pointer object = test->Create(v), dicomifier::DicomifierException);
     }
 }

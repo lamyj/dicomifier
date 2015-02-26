@@ -496,70 +496,69 @@ GenerationFrame
         {
             alreadyprocess.push_back(dir);
 
-        // Create DICOMDIR file (One per Subject)
-        if (createDICOMDIR)
-        {
-            // Update ProgressDialog label
-            std::stringstream progressLabel;
-            progressLabel << "Create DICOMDIR " << progressValue << " / " << nbdir
-                          << " (Directory = " << filename << ")";
-            progress.setLabelText(QString(progressLabel.str().c_str()));
-
-            std::string dicomdirfile = dir + VALID_FILE_SEPARATOR + "DICOMDIR";
-
-            if (boost::filesystem::exists(boost::filesystem::path(dicomdirfile.c_str())))
+            // Create DICOMDIR file (One per Subject)
+            if (createDICOMDIR)
             {
-                resultitem.set_dicomdirCreation(GenerationResultItem::Result::Fail);
-                resultitem.set_DicomdirErrorMsg("DICOMDIR already exist: " + dicomdirfile);
-            }
-            else
-            {
-                OFCondition ret = this->createDicomdirs(dir, dir, dicomdirfile);
+                // Update ProgressDialog label
+                std::stringstream progressLabel;
+                progressLabel << "Create DICOMDIR " << progressValue << " / " << nbdir
+                              << " (Directory = " << filename << ")";
+                progress.setLabelText(QString(progressLabel.str().c_str()));
 
-                if (ret.bad())
+                std::string dicomdirfile = dir + VALID_FILE_SEPARATOR + "DICOMDIR";
+
+                if (boost::filesystem::exists(boost::filesystem::path(dicomdirfile.c_str())))
                 {
                     resultitem.set_dicomdirCreation(GenerationResultItem::Result::Fail);
-                    resultitem.set_DicomdirErrorMsg(ret.text());
+                    resultitem.set_DicomdirErrorMsg("DICOMDIR already exist: " + dicomdirfile);
                 }
                 else
                 {
-                    resultitem.set_dicomdirCreation(GenerationResultItem::Result::OK);
+                    OFCondition ret = this->createDicomdirs(dir, dir, dicomdirfile);
+
+                    if (ret.bad())
+                    {
+                        resultitem.set_dicomdirCreation(GenerationResultItem::Result::Fail);
+                        resultitem.set_DicomdirErrorMsg(ret.text());
+                    }
+                    else
+                    {
+                        resultitem.set_dicomdirCreation(GenerationResultItem::Result::OK);
+                    }
                 }
             }
-        }
 
-        // Create ZIP Archive (One per Subject)
-        if (createZIP)
-        {
-            // Update ProgressDialog label
-            std::stringstream progressLabel;
-            progressLabel << "Create ZIP Archive " << progressValue << " / " << nbdir
-                          << " (Directory = " << filename << ")";
-            progress.setLabelText(QString(progressLabel.str().c_str()));
-
-            std::string zipfile = dir + VALID_FILE_SEPARATOR + filename;
-
-            if (boost::filesystem::exists(boost::filesystem::path(zipfile.c_str())))
+            // Create ZIP Archive (One per Subject)
+            if (createZIP)
             {
-                resultitem.set_zipCreation(GenerationResultItem::Result::Fail);
-                resultitem.set_ZipErrorMsg("ZIP already exist: " + zipfile);
-            }
-            else
-            {
-                std::string errormsg = this->createZipArchives(dir, it->second);
+                // Update ProgressDialog label
+                std::stringstream progressLabel;
+                progressLabel << "Create ZIP Archive " << progressValue << " / " << nbdir
+                              << " (Directory = " << filename << ")";
+                progress.setLabelText(QString(progressLabel.str().c_str()));
 
-                if (errormsg == "")
-                {
-                    resultitem.set_zipCreation(GenerationResultItem::Result::OK);
-                }
-                else
+                std::string zipfile = dir + VALID_FILE_SEPARATOR + filename;
+
+                if (boost::filesystem::exists(boost::filesystem::path(zipfile.c_str())))
                 {
                     resultitem.set_zipCreation(GenerationResultItem::Result::Fail);
-                    resultitem.set_ZipErrorMsg(errormsg);
+                    resultitem.set_ZipErrorMsg("ZIP already exist: " + zipfile);
+                }
+                else
+                {
+                    std::string errormsg = this->createZipArchives(dir, it->second);
+
+                    if (errormsg == "")
+                    {
+                        resultitem.set_zipCreation(GenerationResultItem::Result::OK);
+                    }
+                    else
+                    {
+                        resultitem.set_zipCreation(GenerationResultItem::Result::Fail);
+                        resultitem.set_ZipErrorMsg(errormsg);
+                    }
                 }
             }
-        }
-
         }
 
         // Update progressDialog
