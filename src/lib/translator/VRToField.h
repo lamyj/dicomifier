@@ -54,14 +54,12 @@ template<> struct VRToFieldType<EVR_UT> { typedef std::string Type; };
 template<typename TSource, typename TDestination>
 TDestination convert_field_item(TSource const & source)
 {
-    std::cout << "generic\n";
     return TDestination(source);
 }
 
 template<>
 OFString convert_field_item<std::string, OFString>(std::string const & source)
 {
-    std::cout << "string\n";
     return OFString(&source[0], source.size());
 }
 
