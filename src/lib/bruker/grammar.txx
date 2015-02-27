@@ -50,7 +50,7 @@ grammar<TIterator>
     field = identifier[at_c<0>(_val) = _1] >> "=" >> 
         (
             (shape[at_c<1>(_val) = _1] >> omit[*space] >> value[at_c<2>(_val) = _1]) | 
-            (numbers | unquoted_string)[at_c<2>(_val) = _1]
+            unquoted_string[at_c<2>(_val) = _1]
         );
     
     identifier %= "##" >> +(~char_("="));
