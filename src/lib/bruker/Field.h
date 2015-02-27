@@ -44,6 +44,9 @@ public:
     
     Shape::size_type get_size() const;
     
+    template<typename T>
+    T get(unsigned int index) const;
+    
     std::string const & get_string(unsigned int index) const;
     long get_int(unsigned int index) const;
     float get_float(unsigned int index) const;

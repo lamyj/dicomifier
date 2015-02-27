@@ -12,6 +12,8 @@
 #include <iterator>
 #include <vector>
 
+#include <boost/regex.hpp>
+
 #include "core/DicomifierException.h"
 #include "core/Logger.h"
 
@@ -34,10 +36,13 @@ Dataset
     {
         throw DicomifierException("Could not open file");
     }
-    std::string const data(
+    std::string data(
         (std::istreambuf_iterator<typename std::string::value_type>(stream)),
         (std::istreambuf_iterator<typename std::string::value_type>()));
     stream.close();
+    
+    // Join the lines
+    data = boost::regex_replace(data, boost::regex("\\R(?!##|\\$\\$)"), " ");
     
     // Parse the data
     std::string::const_iterator begin = data.begin();
@@ -54,7 +59,7 @@ Dataset
     
     if(begin != end)
     {
-        loggerWarning() << "File was parsed incompletely";
+        throw DicomifierException("File was parsed incompletely");
     }
     
     // Update the map

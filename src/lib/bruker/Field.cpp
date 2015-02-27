@@ -8,6 +8,7 @@
 
 #include "Field.h"
 
+#include <boost/lexical_cast.hpp>
 #include <boost/variant.hpp>
 
 namespace dicomifier
@@ -46,14 +47,61 @@ long
 Field
 ::get_int(unsigned int index) const
 {
-    return boost::get<long>(this->value[index]);
+    try
+    {
+        return boost::get<long>(this->value[index]);
+    }
+    catch(boost::bad_get const & e)
+    {
+        return boost::lexical_cast<long>(
+            boost::get<std::string>(this->value[index]));
+    }
 }
 
 float
 Field
 ::get_float(unsigned int index) const
 {
-    return boost::get<float>(this->value[index]);
+    try
+    {
+        return boost::get<float>(this->value[index]);
+    }
+    catch(boost::bad_get const & e)
+    {
+        try
+        {
+            return boost::get<long>(this->value[index]);
+        }
+        catch(boost::bad_get const & e)
+        {
+            return boost::lexical_cast<float>(
+                boost::get<std::string>(this->value[index]));
+        }
+    }
+}
+
+template<>
+std::string
+Field
+::get<std::string>(unsigned int index) const
+{
+    return this->get_string(index);
+}
+
+template<>
+long
+Field
+::get<long>(unsigned int index) const
+{
+    return this->get_int(index);
+}
+
+template<>
+float
+Field
+::get<float>(unsigned int index) const
+{
+    return this->get_float(index);
 }
 
 } // namespace bruker
