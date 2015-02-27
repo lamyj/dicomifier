@@ -27,10 +27,8 @@ BOOST_AUTO_TEST_CASE(TEST_OK_01)
     auto enhanceb2d = dicomifier::actions::EnhanceBrukerDicom::New();
     BOOST_CHECK_EQUAL(enhanceb2d != NULL, true);
     
-    enhanceb2d = dicomifier::actions::EnhanceBrukerDicom::New(NULL,
-                                                              "",
-                                                              "",
-                                                              "");
+    enhanceb2d = dicomifier::actions::EnhanceBrukerDicom::New(NULL, "",
+                                                              "", "", "");
     BOOST_CHECK_EQUAL(enhanceb2d != NULL, true);
 }
 
@@ -67,7 +65,6 @@ struct TestDataOK03
  
     std::string subjectfilepath;
     std::string visuparsfile;
-    std::string dictionaryfile;
     std::string binaryfile;
  
     TestDataOK03()
@@ -129,16 +126,6 @@ struct TestDataOK03
         myfile << "##END=\n";
         myfile.close();
         
-        /*dictionaryfile = "./test_dictionary.xml";
-        
-        myfile.open(dictionaryfile);
-        myfile << "<Dictionary>\n";
-        myfile << "<DicomField tag=\"0008,0060\" keyword=\"Modality\" vr=\"CS\">\n";
-        myfile << "<ConstantField values=\"MR\" />\n";
-        myfile << "</DicomField>\n";
-        myfile << "</Dictionary>\n";
-        myfile.close();*/
-        
         // Write 2dseq file
         char* buffer = new char[64];
         binaryfile = "./1/pdata/1/2dseq";
@@ -146,6 +133,8 @@ struct TestDataOK03
         outfile.write(buffer, 64);
         outfile.close();
         delete[] buffer;
+
+        dataset->putAndInsertOFStringArray(DCM_SeriesNumber, OFString("10001"));
     }
  
     ~TestDataOK03()
@@ -154,7 +143,6 @@ struct TestDataOK03
         
         remove(visuparsfile.c_str());
         remove(subjectfilepath.c_str());
-        //remove(dictionaryfile.c_str());
         remove(binaryfile.c_str());
         
         boost::filesystem::remove_all("./1");
@@ -163,17 +151,54 @@ struct TestDataOK03
 
 BOOST_FIXTURE_TEST_CASE(TEST_OK_03, TestDataOK03)
 {
-    dataset->putAndInsertOFStringArray(DCM_SeriesNumber, OFString("10001"));
-        
-    /*auto testenhance = 
-        dicomifier::actions::EnhanceBrukerDicom::New(dataset, ".", 
-                                                     "MRImageStorage");
-    
-    testenhance->run();
-        
-    // check DCM_Modality create
-    BOOST_CHECK_EQUAL(dataset->tagExists(DCM_Modality), true);*/
+    // TODO
 }
+
+/*************************** TEST OK 04 *******************************/
+/**
+ * Nominal test case: get_default_directory_name
+ */
+struct TestDataOK04
+{
+    TestDataOK04()
+    {
+        boost::filesystem::create_directory("./1");
+    }
+
+    ~TestDataOK04()
+    {
+        boost::filesystem::remove_all("./1");
+    }
+};
+
+BOOST_FIXTURE_TEST_CASE(TEST_OK_04, TestDataOK04)
+{
+    std::string defaultdir = dicomifier::actions::EnhanceBrukerDicom::
+            get_default_directory_name(boost::filesystem::path("./1"));
+
+    BOOST_CHECK_EQUAL(defaultdir, std::string("1"));
+
+    boost::filesystem::create_directory("./1/1_");
+    boost::filesystem::create_directory("./1/2_");
+
+    defaultdir = dicomifier::actions::EnhanceBrukerDicom::
+                get_default_directory_name(boost::filesystem::path("./1"));
+
+    BOOST_CHECK_EQUAL(defaultdir, std::string("3"));
+}
+
+/*************************** TEST OK 05 *******************************/
+/**
+ * Nominal test case: replace_unavailable_char
+ */
+BOOST_AUTO_TEST_CASE(TEST_OK_05)
+{
+    std::string stringtest = "1_5-a@b;C.D";
+    dicomifier::actions::EnhanceBrukerDicom::replace_unavailable_char(stringtest);
+
+    BOOST_CHECK_EQUAL(stringtest, std::string("1_5_A_B_C_D"));
+}
+
 
 /*************************** TEST KO 01 *******************************/
 /**
@@ -194,18 +219,37 @@ BOOST_AUTO_TEST_CASE(TEST_KO_01)
  */
 BOOST_FIXTURE_TEST_CASE(TEST_KO_02, TestDataOK03)
 {
+    dataset->findAndDeleteElement(DCM_SeriesNumber, true);
+
     auto testenhance = 
         dicomifier::actions::EnhanceBrukerDicom::New(dataset, ".", 
-                                                     "MRImageStorage", ".");
+                                                     "MRImageStorage", ".",
+                                                     "1");
         
     BOOST_REQUIRE_THROW(testenhance->run(), dicomifier::DicomifierException);
 }
 
 /*************************** TEST KO 03 *******************************/
 /**
+ * Error test case: Bad Series number
+ */
+BOOST_FIXTURE_TEST_CASE(TEST_KO_03, TestDataOK03)
+{
+    dataset->putAndInsertOFStringArray(DCM_SeriesNumber, OFString("90009"), true);
+
+    auto testenhance =
+        dicomifier::actions::EnhanceBrukerDicom::New(dataset, ".",
+                                                     "MRImageStorage", ".",
+                                                     "1");
+
+    BOOST_REQUIRE_THROW(testenhance->run(), dicomifier::DicomifierException);
+}
+
+/*************************** TEST KO 04 *******************************/
+/**
  * Error test case: Bad VisuCoreFrameCount
  */
-struct TestDataKO03
+struct TestDataKO04
 {
     DcmDataset * dataset;
 
@@ -214,7 +258,7 @@ struct TestDataKO03
     std::string dictionaryfile;
     std::string binaryfile;
 
-    TestDataKO03()
+    TestDataKO04()
     {
         dataset = new DcmDataset();
 
@@ -282,7 +326,7 @@ struct TestDataKO03
         delete[] buffer;
     }
 
-    ~TestDataKO03()
+    ~TestDataKO04()
     {
         delete dataset;
 
@@ -295,28 +339,30 @@ struct TestDataKO03
     }
 };
 
-BOOST_FIXTURE_TEST_CASE(TEST_KO_03, TestDataKO03)
+BOOST_FIXTURE_TEST_CASE(TEST_KO_04, TestDataKO04)
 {
     dataset->putAndInsertOFStringArray(DCM_SeriesNumber, OFString("10001"));
 
     auto testenhance =
         dicomifier::actions::EnhanceBrukerDicom::New(dataset, ".",
-                                                     "MRImageStorage", ".");
+                                                     "MRImageStorage", ".",
+                                                     "1");
 
     BOOST_REQUIRE_THROW(testenhance->run(), dicomifier::DicomifierException);
 }
 
-/*************************** TEST KO 04 *******************************/
+/*************************** TEST KO 05 *******************************/
 /**
  * Error test case: Bad SOP Class UID
  */
-BOOST_FIXTURE_TEST_CASE(TEST_KO_04, TestDataOK03)
+BOOST_FIXTURE_TEST_CASE(TEST_KO_05, TestDataOK03)
 {
     dataset->putAndInsertOFStringArray(DCM_SeriesNumber, OFString("10001"));
 
     auto testenhance =
         dicomifier::actions::EnhanceBrukerDicom::New(dataset, ".",
-                                                     "badvalue", ".");
+                                                     "badvalue", ".",
+                                                     "1");
 
     BOOST_REQUIRE_THROW(testenhance->run(), dicomifier::DicomifierException);
 }

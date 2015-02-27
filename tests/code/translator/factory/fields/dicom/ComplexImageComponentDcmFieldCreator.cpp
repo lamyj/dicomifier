@@ -24,6 +24,7 @@ struct TestDataOK01
     TestDataOK01()
     {
         boost::property_tree::ptree emptynode;
+        emptynode.put("<xmlattr>.perframe", "true");
         ptr.add_child("ComplexImageComponentDcmField", emptynode);
     }
 

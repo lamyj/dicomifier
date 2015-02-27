@@ -65,6 +65,14 @@ DateGenerator<VR>
       dicomifier::FrameIndexGenerator const & generator,
       DcmItem* dataset)
 {
+    // Unavailable VR
+    if (VR == EVR_DS || VR == EVR_FD || VR == EVR_FL ||
+        VR == EVR_IS || VR == EVR_SL || VR == EVR_SQ ||
+        VR == EVR_SS || VR == EVR_UL || VR == EVR_US)
+    {
+        throw DicomifierException("Bad VR for DateGenerator.");
+    }
+
     // Clean residual values
     this->_array.clear();
     

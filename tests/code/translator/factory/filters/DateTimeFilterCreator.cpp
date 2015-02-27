@@ -53,6 +53,12 @@ BOOST_FIXTURE_TEST_CASE(TEST_OK_01, TestDataOK01)
                 std::dynamic_pointer_cast<dicomifier::translator::DateTimeFilter<EVR_AS>>(objectAS);
         BOOST_CHECK_EQUAL(datetimefilterAS != NULL, true);
 
+        // Test VR = AT
+        dicomifier::translator::Tag::Pointer objectAT = datetimefiltercreator->Create(v, NULL, EVR_AT);
+        dicomifier::translator::DateTimeFilter<EVR_AT>::Pointer datetimefilterAT =
+                std::dynamic_pointer_cast<dicomifier::translator::DateTimeFilter<EVR_AT>>(objectAT);
+        BOOST_CHECK_EQUAL(datetimefilterAT != NULL, true);
+
         // Test VR = CS
         dicomifier::translator::Tag::Pointer objectCS = datetimefiltercreator->Create(v, NULL, EVR_CS);
         dicomifier::translator::DateTimeFilter<EVR_CS>::Pointer datetimefilterCS =
@@ -180,9 +186,11 @@ struct TestDataKO01
     TestDataKO01()
     {
         boost::property_tree::ptree datetimefilternode;
-        boost::property_tree::ptree constantfield;
-        constantfield.put("<xmlattr>.values", "1");
-        datetimefilternode.add_child("ConstantField", constantfield);
+        boost::property_tree::ptree dicomfield;
+        dicomfield.put("<xmlattr>.tag", "0018,9114");
+        dicomfield.put("<xmlattr>.keyword", "MREchoSequence");
+        dicomfield.put("<xmlattr>.vr", "SQ");
+        datetimefilternode.add_child("DicomField", dicomfield);
         datetimefilternode.put("<xmlattr>.outputformat", "%H%M%S");
         ptr.add_child("DateTimeFilter", datetimefilternode);
     }
