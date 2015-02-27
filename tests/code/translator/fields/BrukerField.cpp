@@ -141,11 +141,11 @@ BOOST_AUTO_TEST_CASE(TEST_OK_01)
 struct TestDataOK02
 {
     std::string filename;
-    dicomifier::bruker::BrukerDataset* brukerdataset;
+    dicomifier::bruker::Dataset* brukerdataset;
  
     TestDataOK02()
     {
-        brukerdataset = new dicomifier::bruker::BrukerDataset();
+        brukerdataset = new dicomifier::bruker::Dataset();
         
         filename = "./tmp_test_brukerfieldmodule";
         
@@ -176,7 +176,7 @@ struct TestDataOK02
         myfile << "##END=\n";
         myfile.close();
         
-        brukerdataset->LoadFile(filename);
+        brukerdataset->load(filename);
     }
  
     ~TestDataOK02()
@@ -307,7 +307,7 @@ BOOST_FIXTURE_TEST_CASE(TEST_OK_02, TestDataOK02)
 
 /*************************** TEST KO 01 *******************************/
 /**
- * Error test case: Empty BrukerDataset
+ * Error test case: Empty Dataset
  */
 BOOST_AUTO_TEST_CASE(TEST_KO_01)
 {

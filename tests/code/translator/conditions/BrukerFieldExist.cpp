@@ -18,11 +18,11 @@
 struct TestDataOK01
 {
     std::string filename;
-    dicomifier::bruker::BrukerDataset* brukerdataset;
+    dicomifier::bruker::Dataset* brukerdataset;
  
     TestDataOK01()
     {
-        brukerdataset = new dicomifier::bruker::BrukerDataset();
+        brukerdataset = new dicomifier::bruker::Dataset();
         
         filename = "./tmp_test_brukerfieldexistmodule";
         
@@ -33,7 +33,7 @@ struct TestDataOK01
         myfile << "##END=\n";
         myfile.close();
         
-        brukerdataset->LoadFile(filename);
+        brukerdataset->load(filename);
     }
  
     ~TestDataOK01()
