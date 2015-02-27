@@ -13,7 +13,7 @@
 #include <QList>
 #include <QVariant>
 
-#include "bruker/BrukerDataset.h"
+#include "bruker/Dataset.h"
 
 namespace dicomifier
 {
@@ -147,7 +147,7 @@ public:
      * @brief Initialize item with bruker dataset
      * @param brukerdataset: dataset containing item values
      */
-    void fill_data(dicomifier::bruker::BrukerDataset* const brukerdataset);
+    void fill_data(dicomifier::bruker::Dataset const &brukerdataset);
 
     bool operator ==(const TreeItem &other) const;
 

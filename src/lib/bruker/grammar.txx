@@ -50,7 +50,7 @@ grammar<TIterator>
     field = identifier[at_c<0>(_val) = _1] >> "=" >> 
         (
             (shape[at_c<1>(_val) = _1] >> omit[*space] >> value[at_c<2>(_val) = _1]) | 
-            unquoted_string[at_c<2>(_val) = _1]
+            unquoted_string[push_back(at_c<2>(_val), _1)]
         );
     
     identifier %= "##" >> +(~char_("="));
@@ -64,10 +64,11 @@ grammar<TIterator>
     numbers %= (real | long_) % +space;
     quoted_strings %= quoted_string % *space;
     atoms %= atom % +space;
-    structs %= struct_ % *space;
+    // Do not use implicit action, since std::vector<Field::Item> is convertible to Field::Item
+    structs = struct_[push_back(_val, _1)] % *space;
     
     // Assume lines have been joined beforehand.
-    unquoted_string %= as_string[*(~char_("\n"))][push_back(_val, _1)];
+    unquoted_string %= as_string[*(~char_("\n"))];
     
     // Array has no space after parenthesis to make a difference with shape
     struct_ %= "(" >> (real | long_ | quoted_string | struct_) % ("," >> *space) >> ")";

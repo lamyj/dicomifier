@@ -20,6 +20,7 @@
 
 #include "bruker/actions/EnhanceBrukerDicom.h"
 #include "components/PACSTreeItem.h"
+#include "core/DicomifierException.h"
 #include "core/Logger.h"
 #include "dicom/actions/StoreDataset.h"
 #include "GenerationFrame.h"

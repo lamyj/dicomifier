@@ -9,6 +9,8 @@
 #ifndef _094b008d_a5d4_4d54_ba6d_9109a3e5f611
 #define _094b008d_a5d4_4d54_ba6d_9109a3e5f611
 
+#include <boost/regex.hpp>
+
 #include "SubjectsTreeModel.h"
 #include "TreeView.h"
 
