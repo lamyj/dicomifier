@@ -56,7 +56,7 @@ AdditionOperator<VR>
 template<DcmEVR VR>
 void
 AdditionOperator<VR>
-::run(dicomifier::bruker::BrukerDataset* brukerdataset,
+::run(dicomifier::bruker::Dataset* brukerdataset,
       dicomifier::FrameIndexGenerator const & generator,
       DcmItem* dataset)
 {

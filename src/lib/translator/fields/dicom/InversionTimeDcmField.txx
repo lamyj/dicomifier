@@ -40,7 +40,7 @@ InversionTimeDcmField<VR>
 template<>
 void
 InversionTimeDcmField<EVR_DS>
-::run(dicomifier::bruker::BrukerDataset* brukerdataset,
+::run(dicomifier::bruker::Dataset* brukerdataset,
       dicomifier::FrameIndexGenerator const & generator,
       DcmItem* dataset)
 {
@@ -63,21 +63,18 @@ InversionTimeDcmField<EVR_DS>
         return; // no value
     }
     
-    auto brukerfield = brukerdataset->GetFieldData("VisuAcqInversionTime");
+    auto const & brukerfield = brukerdataset->get_field("VisuAcqInversionTime");
     
     startposition = generator.get_index()[indexposition] + 
                     startposition;
                     
-    this->_array.push_back
-    (
-        ElementTraits<EVR_DS>::fromString(brukerfield->get_string(startposition))
-    );
+    this->_array.push_back(brukerfield.get_float(startposition));
 }
 
 template<DcmEVR VR>
 void
 InversionTimeDcmField<VR>
-::run(dicomifier::bruker::BrukerDataset* brukerdataset,
+::run(dicomifier::bruker::Dataset* brukerdataset,
       dicomifier::FrameIndexGenerator const & generator,
       DcmItem* dataset)
 {

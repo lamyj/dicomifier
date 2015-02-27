@@ -56,7 +56,7 @@ PatientSexFilter<VR>
 template<>
 void
 PatientSexFilter<EVR_CS>
-::run(dicomifier::bruker::BrukerDataset* brukerdataset,
+::run(dicomifier::bruker::Dataset* brukerdataset,
       dicomifier::FrameIndexGenerator const & generator,
       DcmItem* dataset)
 {
@@ -96,7 +96,7 @@ PatientSexFilter<EVR_CS>
 template<DcmEVR VR>
 void
 PatientSexFilter<VR>
-::run(dicomifier::bruker::BrukerDataset* brukerdataset,
+::run(dicomifier::bruker::Dataset* brukerdataset,
       dicomifier::FrameIndexGenerator const & generator,
       DcmItem* dataset)
 {

@@ -40,7 +40,7 @@ ImagePositionPatientDcmField<VR>
 template<>
 void
 ImagePositionPatientDcmField<EVR_DS>
-::run(dicomifier::bruker::BrukerDataset* brukerdataset,
+::run(dicomifier::bruker::Dataset* brukerdataset,
       dicomifier::FrameIndexGenerator const & generator,
       DcmItem* dataset)
 {
@@ -58,7 +58,7 @@ ImagePositionPatientDcmField<EVR_DS>
     // Clean residual values
     this->_array.clear();
     
-    auto brukerfield = brukerdataset->GetFieldData("VisuCorePosition");
+    auto brukerfield = brukerdataset->get_field("VisuCorePosition");
     
     if (indexposition == -1)
     {
@@ -68,25 +68,22 @@ ImagePositionPatientDcmField<EVR_DS>
     else
     {
         startposition = generator.get_index()[indexposition] * 
-                        brukerfield->get_dimensionNumbers()[1] + 
+                        brukerfield.shape[1] + 
                         startposition;
     }
     
     
     // we assume that dimensionNumbers contains 2 elements
-    for (auto i = 0; i < brukerfield->get_dimensionNumbers()[1]; i++)
+    for (auto i = 0; i < brukerfield.shape[1]; i++)
     {
-        this->_array.push_back
-        (
-            ElementTraits<EVR_DS>::fromString(brukerfield->get_string(startposition + i))
-        );
+        this->_array.push_back(brukerfield.get_float(startposition + i));
     }
 }
 
 template<DcmEVR VR>
 void
 ImagePositionPatientDcmField<VR>
-::run(dicomifier::bruker::BrukerDataset* brukerdataset,
+::run(dicomifier::bruker::Dataset* brukerdataset,
       dicomifier::FrameIndexGenerator const & generator,
       DcmItem* dataset)
 {

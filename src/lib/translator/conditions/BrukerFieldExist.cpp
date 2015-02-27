@@ -36,14 +36,14 @@ BrukerFieldExist
 
 bool
 BrukerFieldExist
-::eval(DcmItem* dataset, dicomifier::bruker::BrukerDataset* brukerdataset)
+::eval(DcmItem* dataset, dicomifier::bruker::Dataset* brukerdataset)
 {
     if (brukerdataset == NULL)
     {
         throw DicomifierException("Empty Bruker Dataset");
     }
     
-    return brukerdataset->HasFieldData(this->_brukerFieldName);
+    return brukerdataset->has_field(this->_brukerFieldName);
 }
     
 } // namespace translator

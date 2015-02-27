@@ -40,7 +40,7 @@ SpacingBetweenSlicesDcmField<VR>
 template<>
 void
 SpacingBetweenSlicesDcmField<EVR_DS>
-::run(dicomifier::bruker::BrukerDataset* brukerdataset,
+::run(dicomifier::bruker::Dataset* brukerdataset,
       dicomifier::FrameIndexGenerator const & generator,
       DcmItem* dataset)
 {
@@ -49,21 +49,21 @@ SpacingBetweenSlicesDcmField<EVR_DS>
         throw DicomifierException("Bruker Dataset is NULL");
     }
     
-    auto brukerfield = brukerdataset->GetFieldData("VisuCorePosition");
+    auto brukerfield = brukerdataset->get_field("VisuCorePosition");
     
     // Clean residual values
     this->_array.clear();
     
     // we should have at least 2 points
-    if (brukerfield->get_dimensionNumbers()[0] > 1)
+    if (brukerfield.shape[0] > 1)
     {
-        double Ax = brukerfield->get_double(0);
-        double Ay = brukerfield->get_double(1);
-        double Az = brukerfield->get_double(2);
+        double Ax = brukerfield.get_float(0);
+        double Ay = brukerfield.get_float(1);
+        double Az = brukerfield.get_float(2);
         
-        double Bx = brukerfield->get_double(3);
-        double By = brukerfield->get_double(4);
-        double Bz = brukerfield->get_double(5);
+        double Bx = brukerfield.get_float(3);
+        double By = brukerfield.get_float(4);
+        double Bz = brukerfield.get_float(5);
         
         double result = (Ax - Bx)*(Ax - Bx) + (Ay - By)*(Ay - By) + (Az - Bz)*(Az - Bz);
         result = sqrt(result);
@@ -75,7 +75,7 @@ SpacingBetweenSlicesDcmField<EVR_DS>
 template<DcmEVR VR>
 void
 SpacingBetweenSlicesDcmField<VR>
-::run(dicomifier::bruker::BrukerDataset* brukerdataset,
+::run(dicomifier::bruker::Dataset* brukerdataset,
       dicomifier::FrameIndexGenerator const & generator,
       DcmItem* dataset)
 {

@@ -48,7 +48,7 @@ public:
      * @return true if field exists, false otherwise
      */
     virtual bool eval(DcmItem* dataset,
-                      dicomifier::bruker::BrukerDataset* brukerdataset);
+                      dicomifier::bruker::Dataset* brukerdataset);
 
 protected:
     /// Create an instance of BrukerFieldExist

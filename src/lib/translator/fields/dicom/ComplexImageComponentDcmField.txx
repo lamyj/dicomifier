@@ -40,7 +40,7 @@ ComplexImageComponentDcmField<VR>
 template<>
 void
 ComplexImageComponentDcmField<EVR_CS>
-::run(dicomifier::bruker::BrukerDataset* brukerdataset,
+::run(dicomifier::bruker::Dataset* brukerdataset,
       dicomifier::FrameIndexGenerator const & generator,
       DcmItem* dataset)
 {
@@ -54,7 +54,7 @@ ComplexImageComponentDcmField<EVR_CS>
     // Remark: this->_perFrame not used
     //         VisuCoreFrameType is the same for all images
 
-    std::string brukerfield = brukerdataset->GetFieldData("VisuCoreFrameType")->get_string(0);
+    std::string brukerfield = brukerdataset->get_field("VisuCoreFrameType").get_string(0);
 
     if (brukerfield == "MAGNITUDE_IMAGE")
     {
@@ -85,7 +85,7 @@ ComplexImageComponentDcmField<EVR_CS>
 template<DcmEVR VR>
 void
 ComplexImageComponentDcmField<VR>
-::run(dicomifier::bruker::BrukerDataset* brukerdataset,
+::run(dicomifier::bruker::Dataset* brukerdataset,
       dicomifier::FrameIndexGenerator const & generator,
       DcmItem* dataset)
 {

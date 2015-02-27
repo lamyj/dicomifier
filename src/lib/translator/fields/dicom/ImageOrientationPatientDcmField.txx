@@ -40,7 +40,7 @@ ImageOrientationPatientDcmField<VR>
 template<>
 void
 ImageOrientationPatientDcmField<EVR_DS>
-::run(dicomifier::bruker::BrukerDataset* brukerdataset,
+::run(dicomifier::bruker::Dataset* brukerdataset,
       dicomifier::FrameIndexGenerator const & generator,
       DcmItem* dataset)
 {
@@ -58,7 +58,7 @@ ImageOrientationPatientDcmField<EVR_DS>
     // Clean residual values
     this->_array.clear();
     
-    auto brukerfield = brukerdataset->GetFieldData("VisuCoreOrientation");
+    auto brukerfield = brukerdataset->get_field("VisuCoreOrientation");
     
     if (indexposition == -1)
     {
@@ -68,24 +68,21 @@ ImageOrientationPatientDcmField<EVR_DS>
     else
     {
         startposition = generator.get_index()[indexposition] *
-                        brukerfield->get_dimensionNumbers()[1] + 
+                        brukerfield.shape[1] + 
                         startposition;
     }
     
     // DICOM PS3.6 2013: 0020,0037 VM = 6
     for (auto i = 0; i < 6; i++)
     {
-        this->_array.push_back
-        (
-            ElementTraits<EVR_DS>::fromString(brukerfield->get_string(startposition + i))
-        );
+        this->_array.push_back(brukerfield.get_float(startposition + i));
     }
 }
 
 template<DcmEVR VR>
 void
 ImageOrientationPatientDcmField<VR>
-::run(dicomifier::bruker::BrukerDataset* brukerdataset,
+::run(dicomifier::bruker::Dataset* brukerdataset,
       dicomifier::FrameIndexGenerator const & generator,
       DcmItem* dataset)
 {

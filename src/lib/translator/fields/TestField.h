@@ -39,7 +39,7 @@ public:
      * @param generator: index generator
      * @param dataset: DICOM output dataset
      */
-    virtual void run(dicomifier::bruker::BrukerDataset* brukerdataset,
+    virtual void run(dicomifier::bruker::Dataset* brukerdataset,
                      dicomifier::FrameIndexGenerator const & generator,
                      DcmItem* dataset);
     

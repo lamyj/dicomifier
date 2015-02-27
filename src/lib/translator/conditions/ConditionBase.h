@@ -36,7 +36,7 @@ public:
      * @param generator: index generator
      * @param dataset: DICOM output dataset
      */
-    virtual void run(dicomifier::bruker::BrukerDataset* brukerdataset,
+    virtual void run(dicomifier::bruker::Dataset* brukerdataset,
                      dicomifier::FrameIndexGenerator const & generator,
                      DcmItem* dataset);
                      
@@ -47,7 +47,7 @@ public:
      * @return true if condition is met, false otherwise
      */
     virtual bool eval(DcmItem* dataset,
-                      dicomifier::bruker::BrukerDataset* brukerdataset) = 0;
+                      dicomifier::bruker::Dataset* brukerdataset) = 0;
 
 protected:
     /// Create an instance of ConditionBase

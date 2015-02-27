@@ -6,10 +6,9 @@
  * for details.
  ************************************************************************/
 
-#include <boost/lexical_cast.hpp>
-
-#include "bruker/BrukerFieldData.h"
 #include "BrukerField.h"
+#include "dicom/ElementTraits.h"
+#include "translator/VRToField.h"
 
 namespace dicomifier
 {
@@ -67,7 +66,7 @@ BrukerField<VR>
 template<DcmEVR VR>
 void
 BrukerField<VR>
-::run(dicomifier::bruker::BrukerDataset* brukerdataset,
+::run(dicomifier::bruker::Dataset* brukerdataset,
       dicomifier::FrameIndexGenerator const & generator,
       DcmItem* dataset)
 {
@@ -75,25 +74,22 @@ BrukerField<VR>
     {
         throw DicomifierException("Empty Bruker Dataset");
     }
-    
     // Clean residual values
     this->_array.clear();
     
-    if (brukerdataset->HasFieldData(this->_brukerFieldName))
+    if (brukerdataset->has_field(this->_brukerFieldName))
     {
-        dicomifier::bruker::BrukerFieldData::Pointer fielddata = 
-            brukerdataset->GetFieldData(this->_brukerFieldName);
+        auto const & fielddata = 
+            brukerdataset->get_field(this->_brukerFieldName);
         
-        if (fielddata->get_data_type() != "BrukerFieldData")
+        for(unsigned int i=0; i<fielddata.get_size(); ++i)
         {
-            for (auto count = this->_range._min; 
-                 count < std::min(fielddata->get_values_number(), this->_range._max); 
-                 count++)
-            {
-                // Warning: cannot lexical_cast String to OFString
-                this->_array.push_back(
-                        ElementTraits<VR>::fromString(fielddata->get_string(count)));
-            }
+            typedef typename VRToFieldType<VR>::Type FieldType;
+            typedef typename ElementTraits<VR>::ValueType VRType;
+            
+            this->_array.push_back(
+                convert_field_item<FieldType, VRType>(
+                    fielddata.template get<FieldType>(i)));
         }
     }
 }
