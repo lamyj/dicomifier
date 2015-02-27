@@ -468,7 +468,7 @@ EnhanceBrukerDicom
 
                 if (rule != NULL)
                 {
-                    rule->run(brukerdataset, generator, dataset);
+                    rule->run(const_cast<bruker::Dataset*>(&brukerdataset), generator, dataset);
                 }
                 else
                 {
@@ -586,7 +586,7 @@ EnhanceBrukerDicom
             
             if (rule != NULL)
             {
-                rule->run(brukerdataset, generator, dataset);
+                rule->run(const_cast<bruker::Dataset*>(&brukerdataset), generator, dataset);
             }
             else
             {
