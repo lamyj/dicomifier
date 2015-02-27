@@ -259,6 +259,64 @@ BOOST_FIXTURE_TEST_CASE(TEST_OK_03, TestDataOK03)
     BOOST_CHECK_EQUAL(testfieldcs->get_array()[0], "COL");
 }
 
+/*************************** TEST OK 04 *******************************/
+/**
+ * Nominal test case: Run (No VisuAcqImagePhaseEncDir)
+ */
+struct TestDataOK04
+{
+    std::string filename;
+    dicomifier::bruker::Dataset* brukerdataset;
+
+    dicomifier::FrameIndexGenerator* generator;
+
+    TestDataOK04()
+    {
+        brukerdataset = new dicomifier::bruker::Dataset();
+
+        filename = "./tmp_test_ModuleInPlanePhaseEncodingDirectionDcmField";
+
+        std::ofstream myfile;
+        myfile.open(filename);
+        myfile << "##TITLE=tmp_test_ModuleInPlanePhaseEncodingDirectionDcmField\n";
+        myfile << "##$VisuFGOrderDescDim=1\n";
+        myfile << "##$VisuFGOrderDesc=( 1 )\n";
+        myfile << "(3, <FG_SLICE>, <>, 0, 2)\n";
+        myfile << "##$VisuGroupDepVals=( 2 )\n";
+        myfile << "(<VisuCoreOrientation>, 0) (<VisuCorePosition>, 0)\n";
+        myfile << "##$VisuCoreFrameCount=3\n";
+        myfile << "##END=\n";
+        myfile.close();
+
+        brukerdataset->load(filename);
+
+        std::vector<int> indexlists;
+        for(auto const & frame_group: brukerdataset->get_frame_groups())
+        {
+            indexlists.push_back(frame_group.size);
+        }
+
+        generator = new dicomifier::FrameIndexGenerator(indexlists);
+    }
+
+    ~TestDataOK04()
+    {
+        remove(filename.c_str());
+        delete brukerdataset;
+        delete generator;
+    }
+};
+
+BOOST_FIXTURE_TEST_CASE(TEST_OK_04, TestDataOK04)
+{
+    // Test VR = CS
+    auto testfieldcs = dicomifier::translator::
+        InPlanePhaseEncodingDirectionDcmField<EVR_CS>::New();
+    testfieldcs->run(brukerdataset, *generator, NULL);
+    BOOST_CHECK_EQUAL(testfieldcs->get_array().size(), 1);
+    BOOST_CHECK_EQUAL(testfieldcs->get_array()[0], "");
+}
+
 /*************************** TEST KO 01 *******************************/
 /**
  * Error test case: Bad VR for Image Position Patient Tag

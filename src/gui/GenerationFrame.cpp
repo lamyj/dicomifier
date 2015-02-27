@@ -140,6 +140,8 @@ GenerationFrame
 
     std::map<std::string, std::string> mapHascodeToSubject;
 
+    std::map<std::string, std::string> mapOutputStudyNumber;
+
     int progressValue = 0;
     // Create DICOM files
     for (auto currentItem : selectedItems)
@@ -163,7 +165,8 @@ GenerationFrame
 
         if (mapHascodeToSubject.find(currentItem->get_destinationDirectory()) == mapHascodeToSubject.end())
         {
-            mapHascodeToSubject[currentItem->get_destinationDirectory()] = currentItem->get_name();
+            boost::filesystem::path dir(currentItem->get_directory());
+            mapHascodeToSubject[std::string(dir.filename().c_str())] = currentItem->get_name();
         }
 
         int seriesnum = atoi(currentItem->get_seriesDirectory().c_str());
@@ -202,11 +205,24 @@ GenerationFrame
             boost::filesystem::create_directories(boost::filesystem::path(outputdir.c_str()));
         }
 
+        std::string currentStudyNumber;
+        if (mapOutputStudyNumber.find(currentItem->get_subjectDirectory()) == mapOutputStudyNumber.end())
+        {
+            boost::filesystem::path const dest =
+                boost::filesystem::path(outputdir) / currentItem->get_name();
+            currentStudyNumber = dicomifier::actions::EnhanceBrukerDicom::get_default_directory_name(dest);
+            mapOutputStudyNumber[currentItem->get_subjectDirectory()] = currentStudyNumber;
+        }
+        else
+        {
+            currentStudyNumber = mapOutputStudyNumber[currentItem->get_subjectDirectory()];
+        }
+
         // create Rule
         auto rule = dicomifier::actions::EnhanceBrukerDicom::New(dataset,
                                                                  currentItem->get_directory(),
                                                                  this->get_selectedFormat_toString(),
-                                                                 outputdir);
+                                                                 outputdir, currentStudyNumber);
 
         if (rule == NULL)
         {
@@ -359,7 +375,7 @@ GenerationFrame
 
 OFCondition
 GenerationFrame
-::createDicomdirs(const std::string &directory,
+::createDicomdirs(const std::string &directory, const std::string &absdirectory,
                   const std::string &dicomdirfile)
 {
     // patient_extra_attributes
@@ -397,7 +413,7 @@ GenerationFrame
         generator.setSeriesExtraAttributes(series_extra_attributes_cpp);
 
         // Add files
-        ret = this->insertFilesForDicomdir(directory, &generator);
+        ret = this->insertFilesForDicomdir(directory, absdirectory, &generator);
     }
 
     if (ret.good())
@@ -438,7 +454,8 @@ GenerationFrame
 
 void
 GenerationFrame
-::createDicomdirsOrZipFiles(QProgressDialog &progress, std::map<std::string, std::string> &mapHascodeToSubject)
+::createDicomdirsOrZipFiles(QProgressDialog &progress,
+                            std::map<std::string, std::string> &mapHascodeToSubject)
 {
     bool createDICOMDIR = this->_ui->saveCheckBox->isChecked() &&
                           this->_ui->DicomdirCheckBox->isChecked();
@@ -456,6 +473,8 @@ GenerationFrame
     progress.setValue(progressValue);
     progress.setMaximum(nbdir);
 
+    std::list<std::string> alreadyprocess;
+
     for(auto it = mapHascodeToSubject.begin(); it != mapHascodeToSubject.end(); ++it)
     {
         // Canceled => force stop
@@ -472,7 +491,11 @@ GenerationFrame
 
         std::string dir = this->_ui->outputDirectory->text().toStdString() +
                           boost::filesystem::path("/").make_preferred().string() +
-                          filename;
+                          it->second;
+
+        if (std::find(alreadyprocess.begin(), alreadyprocess.end(), dir) == alreadyprocess.end())
+        {
+            alreadyprocess.push_back(dir);
 
         // Create DICOMDIR file (One per Subject)
         if (createDICOMDIR)
@@ -492,7 +515,7 @@ GenerationFrame
             }
             else
             {
-                OFCondition ret = this->createDicomdirs(dir, dicomdirfile);
+                    OFCondition ret = this->createDicomdirs(dir, dir, dicomdirfile);
 
                 if (ret.bad())
                 {
@@ -524,7 +547,7 @@ GenerationFrame
             }
             else
             {
-                std::string errormsg = this->createZipArchives(dir, filename);
+                    std::string errormsg = this->createZipArchives(dir, it->second);
 
                 if (errormsg == "")
                 {
@@ -536,6 +559,7 @@ GenerationFrame
                     resultitem.set_ZipErrorMsg(errormsg);
                 }
             }
+        }
         }
 
         // Update progressDialog
@@ -634,7 +658,7 @@ GenerationFrame
 
 OFCondition
 GenerationFrame
-::insertFilesForDicomdir(const std::string &directory, DicomDirGenerator *dcmdirgenerator)
+::insertFilesForDicomdir(const std::string &directory, std::string const & absdirectory, DicomDirGenerator *dcmdirgenerator)
 {
     boost::filesystem::directory_iterator it_end;
     for(boost::filesystem::directory_iterator it(directory); it != it_end; ++it)
@@ -646,7 +670,7 @@ GenerationFrame
                                        boost::filesystem::path("/").make_preferred().string() +
                                        std::string((*it).path().filename().c_str());
             // Recursive call
-            OFCondition ret = this->insertFilesForDicomdir(object, dcmdirgenerator);
+            OFCondition ret = this->insertFilesForDicomdir(object, absdirectory, dcmdirgenerator);
             if (ret.bad())
             {
                 return ret;
@@ -654,19 +678,15 @@ GenerationFrame
         }
         else
         {
-            // dirabs = absolute path of DICOMDIR directory
-            std::string dirabs =
-                directory.substr(0, this->_ui->outputDirectory->text().toStdString().length() + 9);
-
             // filename = relative path from DICOMDIR directory
             std::string filename =
-                directory.substr(this->_ui->outputDirectory->text().toStdString().length() + 10) +
+                directory.substr(absdirectory.length() + 1) +
                 boost::filesystem::path("/").make_preferred().string() +
                 std::string((*it).path().filename().c_str());
 
             // add file
             OFCondition ret = dcmdirgenerator->addDicomFile(filename.c_str(),
-                                                            dirabs.c_str());
+                                                            absdirectory.c_str());
 
             if (ret.bad())
             {

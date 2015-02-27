@@ -28,7 +28,10 @@ BOOST_AUTO_TEST_CASE(TEST_OK_01)
     // Pointer exists
     BOOST_CHECK_EQUAL(testfieldas != NULL, true);
     
-    // Test VR = AT => Not implemented
+    // Test VR = AT
+    auto testfieldat = dicomifier::translator::TimeGenerator<EVR_AT>::New();
+    // Pointer exists
+    BOOST_CHECK_EQUAL(testfieldat != NULL, true);
     
     // Test VR = CS
     auto testfieldcs = dicomifier::translator::TimeGenerator<EVR_CS>::New();
@@ -153,7 +156,11 @@ BOOST_AUTO_TEST_CASE(TEST_OK_02)
     auto resultsAS = timegeneratorAS->get_array();
     BOOST_CHECK_EQUAL(resultsAS[0] != "", true);
                         
-    // Test VR = AT => Not implemented
+    // Test VR = AT
+    auto timegeneratorAT = dicomifier::translator::TimeGenerator<EVR_AS>::New();
+    timegeneratorAT->run(NULL, dicomifier::FrameIndexGenerator({}), NULL);
+    auto resultsAT = timegeneratorAT->get_array();
+    BOOST_CHECK_EQUAL(resultsAT[0] != "", true);
     
     // Test VR = CS
     auto timegeneratorCS = dicomifier::translator::TimeGenerator<EVR_CS>::New();
@@ -167,7 +174,7 @@ BOOST_AUTO_TEST_CASE(TEST_OK_02)
     auto resultsDA = timegeneratorDA->get_array();
     BOOST_CHECK_EQUAL(resultsDA[0] != "", true);
                         
-    // Test VR = DS => Not tested
+    // Test VR = DS => See test error TEST_KO_01
                         
     // Test VR = DT
     auto timegeneratorDT = dicomifier::translator::TimeGenerator<EVR_DT>::New();
@@ -175,11 +182,11 @@ BOOST_AUTO_TEST_CASE(TEST_OK_02)
     auto resultsDT = timegeneratorDT->get_array();
     BOOST_CHECK_EQUAL(resultsDT[0] != "", true);
                         
-    // Test VR = FL => Not tested
+    // Test VR = FL => See test error TEST_KO_01
                         
-    // Test VR = FD => Not tested
+    // Test VR = FD => See test error TEST_KO_01
                         
-    // Test VR = IS => Not tested
+    // Test VR = IS => See test error TEST_KO_01
                         
     // Test VR = LO
     auto timegeneratorLO = dicomifier::translator::TimeGenerator<EVR_LO>::New();
@@ -210,11 +217,11 @@ BOOST_AUTO_TEST_CASE(TEST_OK_02)
     auto resultsSH = timegeneratorSH->get_array();
     BOOST_CHECK_EQUAL(resultsSH[0] != "", true);
                         
-    // Test VR = SL => Not tested
+    // Test VR = SL => See test error TEST_KO_01
                         
     // Test VR = SQ => Not implemented
                         
-    // Test VR = SS => Not tested
+    // Test VR = SS => See test error TEST_KO_01
                         
     // Test VR = ST
     auto timegeneratorST = dicomifier::translator::TimeGenerator<EVR_ST>::New();
@@ -234,13 +241,60 @@ BOOST_AUTO_TEST_CASE(TEST_OK_02)
     auto resultsUI = timegeneratorUI->get_array();
     BOOST_CHECK_EQUAL(resultsUI[0] != "", true);
                         
-    // Test VR = UL => Not tested
+    // Test VR = UL => See test error TEST_KO_01
                         
-    // Test VR = US => Not tested
+    // Test VR = US => See test error TEST_KO_01
                         
     // Test VR = UT
     auto timegeneratorUT = dicomifier::translator::TimeGenerator<EVR_UT>::New();
     timegeneratorUT->run(NULL, dicomifier::FrameIndexGenerator({}), NULL);
     auto resultsUT = timegeneratorUT->get_array();
     BOOST_CHECK_EQUAL(resultsUT[0] != "", true);
+}
+
+/*************************** TEST KO 01 *******************************/
+/**
+ * Error test case: Bad VR
+ */
+BOOST_AUTO_TEST_CASE(TEST_KO_01)
+{
+    // Test VR = DS
+    auto timegeneratorDS = dicomifier::translator::TimeGenerator<EVR_DS>::New();
+    BOOST_REQUIRE_THROW(timegeneratorDS->run(NULL, dicomifier::FrameIndexGenerator({}), NULL),
+                        dicomifier::DicomifierException);
+
+    // Test VR = FL
+    auto timegeneratorFL = dicomifier::translator::TimeGenerator<EVR_FL>::New();
+    BOOST_REQUIRE_THROW(timegeneratorFL->run(NULL, dicomifier::FrameIndexGenerator({}), NULL),
+                        dicomifier::DicomifierException);
+
+    // Test VR = FD
+    auto timegeneratorFD = dicomifier::translator::TimeGenerator<EVR_FD>::New();
+    BOOST_REQUIRE_THROW(timegeneratorFD->run(NULL, dicomifier::FrameIndexGenerator({}), NULL),
+                        dicomifier::DicomifierException);
+
+    // Test VR = IS
+    auto timegeneratorIS = dicomifier::translator::TimeGenerator<EVR_IS>::New();
+    BOOST_REQUIRE_THROW(timegeneratorIS->run(NULL, dicomifier::FrameIndexGenerator({}), NULL),
+                        dicomifier::DicomifierException);
+
+    // Test VR = SL
+    auto timegeneratorSL = dicomifier::translator::TimeGenerator<EVR_SL>::New();
+    BOOST_REQUIRE_THROW(timegeneratorSL->run(NULL, dicomifier::FrameIndexGenerator({}), NULL),
+                        dicomifier::DicomifierException);
+
+    // Test VR = SS
+    auto timegeneratorSS = dicomifier::translator::TimeGenerator<EVR_SS>::New();
+    BOOST_REQUIRE_THROW(timegeneratorSS->run(NULL, dicomifier::FrameIndexGenerator({}), NULL),
+                        dicomifier::DicomifierException);
+
+    // Test VR = UL
+    auto timegeneratorUL = dicomifier::translator::TimeGenerator<EVR_UL>::New();
+    BOOST_REQUIRE_THROW(timegeneratorUL->run(NULL, dicomifier::FrameIndexGenerator({}), NULL),
+                        dicomifier::DicomifierException);
+
+    // Test VR = US
+    auto timegeneratorUS = dicomifier::translator::TimeGenerator<EVR_US>::New();
+    BOOST_REQUIRE_THROW(timegeneratorUS->run(NULL, dicomifier::FrameIndexGenerator({}), NULL),
+                        dicomifier::DicomifierException);
 }

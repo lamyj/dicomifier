@@ -117,6 +117,22 @@ DateTimeFilter<VR>
             // Read a time into ldt
             ss >> ldt;
         }
+        // ParaVision 5: Day could be write with only 1 digit...
+        if (ldt == boost::local_time::local_date_time(boost::local_time::not_a_date_time) &&
+            test.length() == 20)
+        {
+            test[9] = '0';
+            boost::local_time::local_time_input_facet *input_facet
+                = new boost::local_time::local_time_input_facet("%H:%M:%S %d %b %Y");
+
+            // Set up the input datetime format.
+            std::stringstream ss;
+            ss.imbue(std::locale(ss.getloc(), input_facet));
+            ss.str(test);
+
+            // Read a time into ldt
+            ss >> ldt;
+        }
         // Format not recognized
         if (ldt == boost::local_time::local_date_time(boost::local_time::not_a_date_time))
         {
