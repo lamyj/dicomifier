@@ -471,7 +471,7 @@ GenerationFrame
         ++progressValue;
 
         std::string dir = this->_ui->outputDirectory->text().toStdString() +
-                          VALID_FILE_SEPARATOR +
+                          boost::filesystem::path("/").make_preferred().string() +
                           filename;
 
         // Create DICOMDIR file (One per Subject)
@@ -483,7 +483,7 @@ GenerationFrame
                           << " (Directory = " << filename << ")";
             progress.setLabelText(QString(progressLabel.str().c_str()));
 
-            std::string dicomdirfile = dir + VALID_FILE_SEPARATOR + "DICOMDIR";
+            std::string dicomdirfile = dir + boost::filesystem::path("/").make_preferred().string() + "DICOMDIR";
 
             if (boost::filesystem::exists(boost::filesystem::path(dicomdirfile.c_str())))
             {
@@ -515,7 +515,7 @@ GenerationFrame
                           << " (Directory = " << filename << ")";
             progress.setLabelText(QString(progressLabel.str().c_str()));
 
-            std::string zipfile = dir + VALID_FILE_SEPARATOR + filename;
+            std::string zipfile = dir + boost::filesystem::path("/").make_preferred().string() + filename;
 
             if (boost::filesystem::exists(boost::filesystem::path(zipfile.c_str())))
             {
@@ -610,7 +610,7 @@ GenerationFrame
         if( boost::filesystem::is_directory( (*it) ) )
         {
             std::string const object = directory +
-                                       VALID_FILE_SEPARATOR +
+                                       boost::filesystem::path("/").make_preferred().string() +
                                        std::string((*it).path().filename().c_str());
             // Recursive call
             this->storeFilesIntoPACS(object);
@@ -643,7 +643,7 @@ GenerationFrame
         if( boost::filesystem::is_directory( (*it) ) )
         {
             std::string const object = directory +
-                                       VALID_FILE_SEPARATOR +
+                                       boost::filesystem::path("/").make_preferred().string() +
                                        std::string((*it).path().filename().c_str());
             // Recursive call
             OFCondition ret = this->insertFilesForDicomdir(object, dcmdirgenerator);
@@ -661,7 +661,7 @@ GenerationFrame
             // filename = relative path from DICOMDIR directory
             std::string filename =
                 directory.substr(this->_ui->outputDirectory->text().toStdString().length() + 10) +
-                VALID_FILE_SEPARATOR +
+                boost::filesystem::path("/").make_preferred().string() +
                 std::string((*it).path().filename().c_str());
 
             // add file
