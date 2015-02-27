@@ -17,6 +17,15 @@
 
 #include "Dataset.h"
 
+// file separator
+#if defined(_WIN32)
+#define VALID_FILE_SEPARATOR "\\"
+#define INVALID_FILE_SEPARATOR "/"
+#else
+#define INVALID_FILE_SEPARATOR "\\"
+#define VALID_FILE_SEPARATOR "/"
+#endif
+
 namespace dicomifier
 {
 

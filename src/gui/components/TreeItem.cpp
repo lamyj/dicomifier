@@ -6,6 +6,8 @@
  * for details.
  ************************************************************************/
 
+#include <ctime>
+
 #include "core/Hashcode.h"
 #include "TreeItem.h"
 
@@ -442,35 +444,25 @@ TreeItem
 
 void
 TreeItem
-::fill_data(bruker::BrukerDataset * const brukerdataset)
+::fill_data(bruker::Dataset const &brukerdataset)
 {
-    if (brukerdataset->HasFieldData("SUBJECT_name_string"))
+    if (brukerdataset.has_field("SUBJECT_name_string"))
     {
-        this->_name = brukerdataset->GetFieldData("SUBJECT_name_string")->get_string(0);
+        this->_name = brukerdataset.get_field("SUBJECT_name_string").get_string(0);
     }
 
-    if (brukerdataset->HasFieldData("SUBJECT_study_name"))
+    if (brukerdataset.has_field("SUBJECT_study_name"))
     {
-        this->_study = brukerdataset->GetFieldData("SUBJECT_study_name")->get_string(0);
+        this->_study = brukerdataset.get_field("SUBJECT_study_name").get_string(0);
     }
 
-    if (brukerdataset->HasFieldData("SUBJECT_abs_date"))
+    if (brukerdataset.has_field("SUBJECT_abs_date"))
     {
-        double datestr = 0;
+        float datestr = 0;
         // Be carefull: Difference between PV5 et PV6
-        auto field = brukerdataset->GetFieldData("SUBJECT_abs_date");
-        if (field->get_data_type() == "double")
-        {
-            datestr = field->get_double(0);
-        }
-        else if (field->get_data_type() == "Int")
-        {
-            datestr = field->get_int(0);
-        }
-        else
-        {
-            datestr = field->get_struct(0)->get_double(0);
-        }
+        auto field = brukerdataset.get_field("SUBJECT_abs_date");
+
+        datestr = field.get_float(0);
 
         std::time_t now = datestr;
         tm *ltm = localtime(&now);
@@ -486,31 +478,31 @@ TreeItem
         this->SendDate(datestr);
     }
 
-    if (brukerdataset->HasFieldData("Method"))
+    if (brukerdataset.has_field("Method"))
     {
-        this->_series = brukerdataset->GetFieldData("Method")->get_string(0);
+        this->_series = brukerdataset.get_field("Method").get_string(0);
     }
 
-    if (brukerdataset->HasFieldData("RECO_mode"))
+    if (brukerdataset.has_field("RECO_mode"))
     {
-        this->_reconstruction = brukerdataset->GetFieldData("RECO_mode")->get_string(0);
+        this->_reconstruction = brukerdataset.get_field("RECO_mode").get_string(0);
     }
 
-    if (brukerdataset->HasFieldData("VisuAcquisitionProtocol"))
+    if (brukerdataset.has_field("VisuAcquisitionProtocol"))
     {
-        this->_protocolName = brukerdataset->GetFieldData("VisuAcquisitionProtocol")->get_string(0);
+        this->_protocolName = brukerdataset.get_field("VisuAcquisitionProtocol").get_string(0);
     }
 
-    if (brukerdataset->HasFieldData("VisuSubjectId"))
+    if (brukerdataset.has_field("VisuSubjectId"))
     {
-        this->_destinationDirectory = brukerdataset->GetFieldData("VisuSubjectId")->get_string(0);
+        this->_destinationDirectory = brukerdataset.get_field("VisuSubjectId").get_string(0);
         this->_destinationDirectory =
                 dicomifier::hashcode::hashToString(dicomifier::hashcode::hashCode(this->_destinationDirectory));
     }
 
-    if (brukerdataset->HasFieldData("VisuAcqDate"))
+    if (brukerdataset.has_field("VisuAcqDate"))
     {
-        std::string acqdate = brukerdataset->GetFieldData("VisuAcqDate")->get_string(0);
+        std::string acqdate = brukerdataset.get_field("VisuAcqDate").get_string(0);
 
         struct tm parts = {0};
         strptime(acqdate.c_str(), "%H:%M:%S %d %b %Y", &parts);

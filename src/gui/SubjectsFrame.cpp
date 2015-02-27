@@ -11,7 +11,7 @@
 #include <boost/algorithm/string.hpp>
 #include <boost/filesystem.hpp>
 
-#include "bruker/BrukerDirectory.h"
+#include "bruker/Directory.h"
 #include "SubjectsFrame.h"
 #include "ui_SubjectsFrame.h"
 
@@ -188,6 +188,7 @@ SubjectsFrame
 ::on_dataDirectory_editingFinished()
 {
     this->_datetimemin = QDateTime::currentDateTime();
+    this->_ui->dateFilterEnd->setDateTime(QDateTime::currentDateTime());
 
     std::string const directory =
             this->_ui->dataDirectory->text().toUtf8().constData();
@@ -220,10 +221,8 @@ SubjectsFrame
                 continue;
             }
 
-            dicomifier::bruker::BrukerDataset * dataset =
-                    new dicomifier::bruker::BrukerDataset();
-
-            dataset->LoadFile(file);
+            dicomifier::bruker::Dataset dataset;
+            dataset.load(file);
 
             TreeItem* treeitem = new TreeItem();
             connect(treeitem, SIGNAL(SendDate(double)), this, SLOT(ReceivedDate(double)));
@@ -233,8 +232,6 @@ SubjectsFrame
             disconnect(treeitem, SIGNAL(SendDate(double)), this, SLOT(ReceivedDate(double)));
 
             subjectsAndStudiesList.push_back(treeitem);
-
-            delete dataset;
         }
         // else ignore files
     }

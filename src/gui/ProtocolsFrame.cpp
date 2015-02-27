@@ -6,10 +6,12 @@
  * for details.
  ************************************************************************/
 
+#include <sstream>
+
 #include <boost/algorithm/string.hpp>
 #include <boost/filesystem.hpp>
 
-#include "bruker/BrukerDirectory.h"
+#include "bruker/Directory.h"
 #include "ProtocolsFrame.h"
 #include "ui_ProtocolsFrame.h"
 
@@ -115,14 +117,13 @@ ProtocolsFrame
                                                VALID_FILE_SEPARATOR +
                                                "visu_pars";
 
-                        dicomifier::bruker::BrukerDataset * dataset =
-                                new dicomifier::bruker::BrukerDataset();
+                        dicomifier::bruker::Dataset dataset;
 
-                        dataset->LoadFile(filemethod);
-                        dataset->LoadFile(filereco);
+                        dataset.load(filemethod);
+                        dataset.load(filereco);
                         if (boost::filesystem::exists(boost::filesystem::path(filevisu)))
                         {
-                            dataset->LoadFile(filevisu);
+                            dataset.load(filevisu);
                         }
 
                         // Force to look if Cancel is called
@@ -144,8 +145,6 @@ ProtocolsFrame
                         }
 
                         itemslist.push_back(item);
-
-                        delete dataset;
                     }
                     // else ignore files
 

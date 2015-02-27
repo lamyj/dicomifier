@@ -6,6 +6,8 @@
  * for details.
  ************************************************************************/
 
+#include <sstream>
+
 #include "ProtocolsTreeModel.h"
 
 namespace dicomifier

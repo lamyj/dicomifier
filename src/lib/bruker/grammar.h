@@ -53,7 +53,7 @@ private:
     boost::spirit::qi::rule<TIterator, std::vector<Field::Item>()> atoms;
     boost::spirit::qi::rule<TIterator, std::vector<Field::Item>()> structs;
     
-    boost::spirit::qi::rule<TIterator, std::vector<Field::Item>()> unquoted_string;
+    boost::spirit::qi::rule<TIterator, std::string()> unquoted_string;
     boost::spirit::qi::rule<TIterator, std::vector<Field::Item>()> struct_;
     
     boost::spirit::qi::rule<TIterator, std::string()> quoted_string;
