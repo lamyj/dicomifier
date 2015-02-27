@@ -14,7 +14,7 @@
 #include <dcmtk/config/osconfig.h>
 #include <dcmtk/dcmdata/dctk.h>
 
-#include "bruker/BrukerDataset.h"
+#include "bruker/Dataset.h"
 #include "core/FrameIndexGenerator.h"
 #include "dicom/ElementTraits.h"
 
@@ -43,7 +43,7 @@ public:
      * @param generator: index generator
      * @param dataset: DICOM output dataset
      */
-    virtual void run(dicomifier::bruker::BrukerDataset* brukerdataset,
+    virtual void run(dicomifier::bruker::Dataset* brukerdataset,
                      dicomifier::FrameIndexGenerator const & generator,
                      DcmItem* dataset) = 0;
 

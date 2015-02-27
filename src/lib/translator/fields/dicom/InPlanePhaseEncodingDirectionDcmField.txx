@@ -40,7 +40,7 @@ InPlanePhaseEncodingDirectionDcmField<VR>
 template<>
 void
 InPlanePhaseEncodingDirectionDcmField<EVR_CS>
-::run(dicomifier::bruker::BrukerDataset* brukerdataset,
+::run(dicomifier::bruker::Dataset* brukerdataset,
       dicomifier::FrameIndexGenerator const & generator,
       DcmItem* dataset)
 {
@@ -52,14 +52,14 @@ InPlanePhaseEncodingDirectionDcmField<EVR_CS>
     // Clean residual values
     this->_array.clear();
 
-    if (!brukerdataset->HasFieldData("VisuAcqImagePhaseEncDir"))
+    if (!brukerdataset->has_field("VisuAcqImagePhaseEncDir"))
     {
         this->_array.push_back("");
         return;
     }
 
     std::string const brukerfield =
-        brukerdataset->GetFieldData("VisuAcqImagePhaseEncDir")->
+        brukerdataset->get_field("VisuAcqImagePhaseEncDir").
             get_string(generator.get_step());
     
     if (brukerfield.find("col") != std::string::npos ||
@@ -83,7 +83,7 @@ InPlanePhaseEncodingDirectionDcmField<EVR_CS>
 template<DcmEVR VR>
 void
 InPlanePhaseEncodingDirectionDcmField<VR>
-::run(dicomifier::bruker::BrukerDataset* brukerdataset,
+::run(dicomifier::bruker::Dataset* brukerdataset,
       dicomifier::FrameIndexGenerator const & generator,
       DcmItem* dataset)
 {

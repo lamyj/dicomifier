@@ -40,7 +40,7 @@ public:
      * @return False
      */
     virtual bool eval(DcmItem* dataset,
-                      dicomifier::bruker::BrukerDataset* brukerdataset) 
+                      dicomifier::bruker::Dataset* brukerdataset) 
         { return false; }
 
 protected:

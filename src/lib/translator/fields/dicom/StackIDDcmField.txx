@@ -40,7 +40,7 @@ StackIDDcmField<VR>
 template<>
 void
 StackIDDcmField<EVR_SH>
-::run(dicomifier::bruker::BrukerDataset* brukerdataset,
+::run(dicomifier::bruker::Dataset* brukerdataset,
       dicomifier::FrameIndexGenerator const & generator,
       DcmItem* dataset)
 {
@@ -67,7 +67,7 @@ StackIDDcmField<EVR_SH>
 template<DcmEVR VR>
 void
 StackIDDcmField<VR>
-::run(dicomifier::bruker::BrukerDataset* brukerdataset,
+::run(dicomifier::bruker::Dataset* brukerdataset,
       dicomifier::FrameIndexGenerator const & generator,
       DcmItem* dataset)
 {

@@ -41,7 +41,7 @@ AcquisitionMatrixDcmField<VR>
 template<>
 void
 AcquisitionMatrixDcmField<EVR_US>
-::run(dicomifier::bruker::BrukerDataset* brukerdataset,
+::run(dicomifier::bruker::Dataset* brukerdataset,
       dicomifier::FrameIndexGenerator const & generator,
       DcmItem* dataset)
 {
@@ -53,7 +53,7 @@ AcquisitionMatrixDcmField<EVR_US>
     // Clean residual values
     this->_array.clear();
 
-    if (!brukerdataset->HasFieldData("VisuAcqImagePhaseEncDir"))
+    if (!brukerdataset->has_field("VisuAcqImagePhaseEncDir"))
     {
         this->_array.push_back(0);
         this->_array.push_back(0);
@@ -63,11 +63,11 @@ AcquisitionMatrixDcmField<EVR_US>
     }
     
     std::string const brukerfield = 
-        brukerdataset->GetFieldData("VisuAcqImagePhaseEncDir")->
+        brukerdataset->get_field("VisuAcqImagePhaseEncDir").
             get_string(generator.get_step());
 
-    Uint16 value1 = brukerdataset->GetFieldData("VisuAcqSize")->get_int(0);
-    Uint16 value2 = brukerdataset->GetFieldData("VisuAcqSize")->get_int(1);
+    Uint16 value1 = brukerdataset->get_field("VisuAcqSize").get_int(0);
+    Uint16 value2 = brukerdataset->get_field("VisuAcqSize").get_int(1);
     
     if (brukerfield.find("col") != std::string::npos ||
         brukerfield.find("COL") != std::string::npos)
@@ -96,7 +96,7 @@ AcquisitionMatrixDcmField<EVR_US>
 template<DcmEVR VR>
 void
 AcquisitionMatrixDcmField<VR>
-::run(dicomifier::bruker::BrukerDataset* brukerdataset,
+::run(dicomifier::bruker::Dataset* brukerdataset,
       dicomifier::FrameIndexGenerator const & generator,
       DcmItem* dataset)
 {

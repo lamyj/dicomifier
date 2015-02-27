@@ -40,7 +40,7 @@ DimensionIndexValuesDcmField<VR>
 template<>
 void
 DimensionIndexValuesDcmField<EVR_UL>
-::run(dicomifier::bruker::BrukerDataset* brukerdataset,
+::run(dicomifier::bruker::Dataset* brukerdataset,
       dicomifier::FrameIndexGenerator const & generator,
       DcmItem* dataset)
 {
@@ -66,7 +66,7 @@ DimensionIndexValuesDcmField<EVR_UL>
 template<DcmEVR VR>
 void
 DimensionIndexValuesDcmField<VR>
-::run(dicomifier::bruker::BrukerDataset* brukerdataset,
+::run(dicomifier::bruker::Dataset* brukerdataset,
       dicomifier::FrameIndexGenerator const & generator,
       DcmItem* dataset)
 {

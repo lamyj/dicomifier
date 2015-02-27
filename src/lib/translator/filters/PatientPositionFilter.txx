@@ -56,7 +56,7 @@ PatientPositionFilter<VR>
 template<>
 void
 PatientPositionFilter<EVR_CS>
-::run(dicomifier::bruker::BrukerDataset* brukerdataset,
+::run(dicomifier::bruker::Dataset* brukerdataset,
       dicomifier::FrameIndexGenerator const & generator,
       DcmItem* dataset)
 {
@@ -116,7 +116,7 @@ PatientPositionFilter<EVR_CS>
 template<DcmEVR VR>
 void
 PatientPositionFilter<VR>
-::run(dicomifier::bruker::BrukerDataset* brukerdataset,
+::run(dicomifier::bruker::Dataset* brukerdataset,
       dicomifier::FrameIndexGenerator const & generator,
       DcmItem* dataset)
 {

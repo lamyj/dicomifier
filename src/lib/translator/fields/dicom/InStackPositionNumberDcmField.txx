@@ -40,7 +40,7 @@ InStackPositionNumberDcmField<VR>
 template<>
 void
 InStackPositionNumberDcmField<EVR_UL>
-::run(dicomifier::bruker::BrukerDataset* brukerdataset,
+::run(dicomifier::bruker::Dataset* brukerdataset,
       dicomifier::FrameIndexGenerator const & generator,
       DcmItem* dataset)
 {
@@ -64,7 +64,7 @@ InStackPositionNumberDcmField<EVR_UL>
 template<DcmEVR VR>
 void
 InStackPositionNumberDcmField<VR>
-::run(dicomifier::bruker::BrukerDataset* brukerdataset,
+::run(dicomifier::bruker::Dataset* brukerdataset,
       dicomifier::FrameIndexGenerator const & generator,
       DcmItem* dataset)
 {

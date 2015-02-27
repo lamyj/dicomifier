@@ -40,7 +40,7 @@ EffectiveEchoTimeDcmField<VR>
 template<>
 void
 EffectiveEchoTimeDcmField<EVR_FD>
-::run(dicomifier::bruker::BrukerDataset* brukerdataset,
+::run(dicomifier::bruker::Dataset* brukerdataset,
       dicomifier::FrameIndexGenerator const & generator,
       DcmItem* dataset)
 {
@@ -58,7 +58,7 @@ EffectiveEchoTimeDcmField<EVR_FD>
                                      indexposition,
                                      startposition);
 
-    auto brukerfield = brukerdataset->GetFieldData("VisuAcqEchoTime");
+    auto brukerfield = brukerdataset->get_field("VisuAcqEchoTime");
 
     if (indexposition == -1)
     {
@@ -68,20 +68,17 @@ EffectiveEchoTimeDcmField<EVR_FD>
     else
     {
         startposition = generator.get_index()[indexposition] *
-                        brukerfield->get_dimensionNumbers()[1] +
+                        brukerfield.shape[1] +
                         startposition;
     }
 
-    this->_array.push_back
-    (
-        ElementTraits<EVR_FD>::fromString(brukerfield->get_string(startposition))
-    );
+    this->_array.push_back(brukerfield.get_float(startposition));
 }
 
 template<DcmEVR VR>
 void
 EffectiveEchoTimeDcmField<VR>
-::run(dicomifier::bruker::BrukerDataset* brukerdataset,
+::run(dicomifier::bruker::Dataset* brukerdataset,
       dicomifier::FrameIndexGenerator const & generator,
       DcmItem* dataset)
 {
