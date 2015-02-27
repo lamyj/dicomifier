@@ -12,7 +12,7 @@
 #define BOOST_TEST_MODULE ModuleBrukerDataset
 #include <boost/test/unit_test.hpp>
 
-#include "bruker/BrukerDataset.h"
+#include "bruker/Dataset.h"
 
 /*************************** TEST OK 01 *******************************/
 /**
@@ -28,7 +28,6 @@ struct TestDataOK01
         
         std::ofstream myfile;
         myfile.open(filepath);
-        myfile << "Writing this to a file.\n";
         myfile << "##TITLE=Parameter List, ParaVision 6.0\n";
         myfile << "##JCAMPDX=4.24\n";
         myfile << "##DATATYPE=Parameter Values\n";
@@ -47,10 +46,10 @@ struct TestDataOK01
 
 BOOST_FIXTURE_TEST_CASE(TEST_OK_01, TestDataOK01)
 {
-    dicomifier::bruker::BrukerDataset* dataset = 
-            new dicomifier::bruker::BrukerDataset();
-    dataset->LoadFile(filepath);
-    BOOST_CHECK_EQUAL(dataset->HasFieldData("SUBJECT_id"), true);
+    dicomifier::bruker::Dataset* dataset = 
+            new dicomifier::bruker::Dataset();
+    dataset->load(filepath);
+    BOOST_CHECK_EQUAL(dataset->has_field("SUBJECT_id"), true);
     
     delete dataset;
 }
@@ -69,7 +68,6 @@ struct TestDataOK02
         
         std::ofstream myfile;
         myfile.open(filepath);
-        myfile << "Writing this to a file.\n";
         myfile << "##$SUBJECT_id=( 60 )\n";
         myfile << "<Rat>\n";
         myfile << "##END=\n";
@@ -84,14 +82,16 @@ struct TestDataOK02
 
 BOOST_FIXTURE_TEST_CASE(TEST_OK_02, TestDataOK02)
 {
-    dicomifier::bruker::BrukerDataset* dataset = 
-            new dicomifier::bruker::BrukerDataset();
-    dataset->LoadFile(filepath);
+    dicomifier::bruker::Dataset* dataset = 
+            new dicomifier::bruker::Dataset();
+    dataset->load(filepath);
             
-    dataset->SetFieldData("SUBJECT_id", 
-                          dicomifier::bruker::BrukerFieldData::New("Mouse"));
+    dicomifier::bruker::Field field;
+    field.name = "SUBJECT_id";
+    field.value.push_back("Mouse");
+    dataset->set_field(field);
             
-    BOOST_CHECK_EQUAL(dataset->HasFieldData("SUBJECT_id"), true);
+    BOOST_CHECK_EQUAL(dataset->has_field("SUBJECT_id"), true);
     
     delete dataset;
 }

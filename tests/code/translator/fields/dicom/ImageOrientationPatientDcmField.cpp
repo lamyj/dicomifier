@@ -145,13 +145,13 @@ BOOST_AUTO_TEST_CASE(TEST_OK_01)
 struct TestDataOK02
 {
     std::string filename;
-    dicomifier::bruker::BrukerDataset* brukerdataset;
+    dicomifier::bruker::Dataset* brukerdataset;
     
     dicomifier::FrameIndexGenerator* generator;
  
     TestDataOK02()
     {
-        brukerdataset = new dicomifier::bruker::BrukerDataset();
+        brukerdataset = new dicomifier::bruker::Dataset();
         
         filename = "./tmp_test_ModuleImageOrientationPatientDcmField";
         
@@ -173,10 +173,13 @@ struct TestDataOK02
         myfile << "##END=\n";
         myfile.close();
         
-        brukerdataset->LoadFile(filename);
+        brukerdataset->load(filename);
         
-        int coreFrameCount = 0;
-        std::vector<int> indexlists = brukerdataset->create_frameGroupLists(coreFrameCount);
+        std::vector<int> indexlists;
+        for(auto const & frame_group: brukerdataset->get_frame_groups())
+        {
+            indexlists.push_back(frame_group.size);
+        }
         
         generator = new dicomifier::FrameIndexGenerator(indexlists);
     }
@@ -204,13 +207,13 @@ BOOST_FIXTURE_TEST_CASE(TEST_OK_02, TestDataOK02)
 struct TestDataOK03
 {
     std::string filename;
-    dicomifier::bruker::BrukerDataset* brukerdataset;
+    dicomifier::bruker::Dataset* brukerdataset;
 
     dicomifier::FrameIndexGenerator* generator;
 
     TestDataOK03()
     {
-        brukerdataset = new dicomifier::bruker::BrukerDataset();
+        brukerdataset = new dicomifier::bruker::Dataset();
 
         filename = "./tmp_test_ModuleImageOrientationPatientDcmField";
 
@@ -228,10 +231,13 @@ struct TestDataOK03
         myfile << "##END=\n";
         myfile.close();
 
-        brukerdataset->LoadFile(filename);
+        brukerdataset->load(filename);
 
-        int coreFrameCount = 0;
-        std::vector<int> indexlists = brukerdataset->create_frameGroupLists(coreFrameCount);
+        std::vector<int> indexlists;
+        for(auto const & frame_group: brukerdataset->get_frame_groups())
+        {
+            indexlists.push_back(frame_group.size);
+        }
 
         generator = new dicomifier::FrameIndexGenerator(indexlists);
     }
