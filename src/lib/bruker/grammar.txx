@@ -50,6 +50,7 @@ grammar<TIterator>
     field = identifier[at_c<0>(_val) = _1] >> "=" >> 
         (
             (shape[at_c<1>(_val) = _1] >> omit[*space] >> value[at_c<2>(_val) = _1]) | 
+            structs[at_c<2>(_val) = _1] |
             unquoted_string[push_back(at_c<2>(_val), _1)]
         );
     

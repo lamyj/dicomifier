@@ -40,10 +40,10 @@ Dataset
         (std::istreambuf_iterator<typename std::string::value_type>(stream)),
         (std::istreambuf_iterator<typename std::string::value_type>()));
     stream.close();
-    
+
     // Join the lines
-    data = boost::regex_replace(data, boost::regex("\\R(?!##|\\$\\$)"), " ");
-    
+    data = boost::regex_replace(data, boost::regex("\\R(?!##|\\$\\$)"), "");
+
     // Parse the data
     std::string::const_iterator begin = data.begin();
     std::string::const_iterator const end = data.end();
@@ -61,7 +61,7 @@ Dataset
     {
         throw DicomifierException("File was parsed incompletely");
     }
-    
+
     // Update the map
     for(auto field: fields)
     {

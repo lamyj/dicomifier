@@ -80,6 +80,13 @@ Field
     }
 }
 
+Field::Value
+Field
+::get_struct(unsigned int index) const
+{
+    return boost::get<Value>(this->value[index]);
+}
+
 template<>
 std::string
 Field
@@ -102,6 +109,14 @@ Field
 ::get<float>(unsigned int index) const
 {
     return this->get_float(index);
+}
+
+template<>
+Field::Value
+Field
+::get<Field::Value>(unsigned int index) const
+{
+    return this->get_struct(index);
 }
 
 } // namespace bruker
