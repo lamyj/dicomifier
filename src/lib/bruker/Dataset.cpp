@@ -157,33 +157,35 @@ Dataset
     {
         return;
     }
-    
+
     for(long fg_index=0; 
         fg_index < this->get_field("VisuFGOrderDescDim").get_int(0); ++fg_index)
     {
         auto const & fg_item = boost::get<std::vector<Field::Item> >(
             this->get_field("VisuFGOrderDesc").value[fg_index]);
-        
+
         FrameGroup fg;
         fg.size = boost::get<long>(fg_item[0]);
         fg.name = boost::get<std::string>(fg_item[1]);
         fg.comment = boost::get<std::string>(fg_item[2]);
-        
+
         long const start = boost::get<long>(fg_item[3]);
         long const parameters_count = boost::get<long>(fg_item[4]);
         for(long parameter_index=start; 
             parameter_index < start+parameters_count; ++parameter_index)
         {
-            auto const & parameter_item = boost::get<std::vector<Field::Item> >(
-                this->get_field("VisuGroupDepVals").value[parameter_index]);
-            
+            auto fieldvisu = this->get_field("VisuGroupDepVals");
+
+            bruker::Field::Value parameter_item;
+            parameter_item = fieldvisu.get_struct(parameter_index);
+
             FrameGroup::Parameter parameter;
             parameter.name = boost::get<std::string>(parameter_item[0]);
             parameter.start_index = boost::get<long>(parameter_item[1]);
             
             fg.parameters.push_back(parameter);
         }
-        
+
         this->_frame_groups.push_back(fg);
     }
 }
