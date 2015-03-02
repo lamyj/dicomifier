@@ -8,6 +8,8 @@
 
 #include <ctime>
 
+#include <boost/lexical_cast.hpp>
+
 #include "core/Hashcode.h"
 #include "TreeItem.h"
 
@@ -462,7 +464,15 @@ TreeItem
         // Be carefull: Difference between PV5 et PV6
         auto field = brukerdataset.get_field("SUBJECT_abs_date");
 
-        datestr = field.get_float(0);
+        try
+        {
+            datestr = field.get_float(0);
+        }
+        catch (boost::bad_get const & exc)
+        {
+            auto const & toto= field.get_struct(0);
+            datestr = boost::lexical_cast<float>(boost::get<long>((toto[0])));
+        }
 
         std::time_t now = datestr;
         tm *ltm = localtime(&now);

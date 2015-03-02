@@ -50,6 +50,7 @@ public:
     std::string const & get_string(unsigned int index) const;
     long get_int(unsigned int index) const;
     float get_float(unsigned int index) const;
+    Value get_struct(unsigned int index) const;
 };
 
 } // namespace bruker
