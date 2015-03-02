@@ -50,9 +50,12 @@ Directory
             Dataset dataset;
             for(auto const & file: files)
             {
-                dataset.load(file.string());
+                if (file.filename() != "visu_pars")
+                {// visu_pars should be in a sub-directory of pdata
+                    dataset.load(file.string());
+                }
             }
-            
+
             for(Iterator reco_it(it->path()); reco_it != Iterator(); ++reco_it)
             {
                 if(boost::filesystem::is_directory(it->path()))

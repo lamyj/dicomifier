@@ -87,6 +87,12 @@ DateTimeFilter<VR>
         std::string test = temp;
         boost::replace_all(test, ",", ".");
 
+        // Problem with grammar.txx
+        if (test[0] == '<' && test[test.length()-1] == '>')
+        {
+            test = test.substr(1, test.length()-1);
+        }
+
         boost::local_time::local_date_time ldt(boost::local_time::not_a_date_time);
 
         // Try with ISO 8601 format: YYYY-MM-DDTHH:MM:SS,mmm+XXZZ
