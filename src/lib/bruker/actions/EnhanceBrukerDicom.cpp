@@ -103,6 +103,13 @@ EnhanceBrukerDicom
     this->_outputDir = outputDir;
 }
 
+void
+EnhanceBrukerDicom
+::set_dictionary(const std::string &dictionary)
+{
+    this->_dictionary = dictionary;
+}
+
 void 
 EnhanceBrukerDicom
 ::run() const
@@ -157,7 +164,7 @@ EnhanceBrukerDicom
             throw DicomifierException("Corrupted Bruker Data");
         }
     }
-    
+
     // Create DICOM
     DicomCreator creator=NULL;
     std::string sopclassuid = dicomifier::get_SOPClassUID_from_name(this->_SOPClassUID);
@@ -233,6 +240,11 @@ read_pixel_data(bruker::Dataset const & dataset)
         throw DicomifierException(message.str());
     }
 
+    if (!dataset.has_field("VisuCoreSize"))
+    {
+        throw DicomifierException("Missing mandatory field VisuCoreSize");
+    }
+
     auto const & frame_size = dataset.get_field("VisuCoreSize");
     long const items_count = 
         frame_size.get_int(0) * frame_size.get_int(1) *
@@ -251,14 +263,14 @@ read_pixel_data(bruker::Dataset const & dataset)
     // Switch endianness if required
     std::string const endianness = 
         dataset.get_field("VisuCoreByteOrder").get_string(0);
-    if(endianness == "bigEndian")
-        {
+    if (endianness == "bigEndian")
+    {
         endian::from_big_endian(native.begin(), native.end());
-        }
-        else
-        {
+    }
+    else
+    {
         endian::from_little_endian(native.begin(), native.end());
-        }
+    }
 
     return native;
 }
@@ -281,8 +293,14 @@ void rescale(std::vector<T> const & native, std::vector<Uint16> & pixel_data,
 void 
 EnhanceBrukerDicom
 ::_get_pixel_data(bruker::Dataset const & dataset, std::vector<Uint16> & pixel_data, 
-    double & rescaleintercept, double & rescaleslope) const
+                  double & rescaleintercept, double & rescaleslope) const
+{
+    if (!dataset.has_field("VisuCoreWordType") ||
+        !dataset.has_field("VisuCoreByteOrder"))
     {
+        throw DicomifierException("Missing mandatory field VisuCoreWordType or VisuCoreByteOrder");
+    }
+
     std::string const wordtype = dataset.get_field("VisuCoreWordType").get_string(0);
     std::string const byteorder = dataset.get_field("VisuCoreByteOrder").get_string(0);
 
@@ -298,9 +316,9 @@ EnhanceBrukerDicom
         rescaleslope     = double(max-min) / exp2(16.0);
 
         rescale(native, pixel_data, rescaleslope, rescaleintercept);
-        }
+    }
     else if (wordtype == "_16BIT_SGN_INT")
-        {
+    {
         std::vector<Sint16> native = read_pixel_data<Sint16>(dataset);
 
         // Compute DICOM element 0028,1052 and 0028,1053
@@ -446,7 +464,12 @@ EnhanceBrukerDicom
                         std::vector<int> indexlists,
                         std::string const & seriesnumber) const
 {
-    std::string conffile = "../configuration/Dictionary_BrukerToDICOM/MRImageStorage.xml";
+    std::string conffile = this->_dictionary;
+    if (conffile == "" ||
+        ! boost::filesystem::exists(boost::filesystem::path(conffile.c_str())) )
+    {
+        conffile = "../configuration/Dictionary_BrukerToDICOM/MRImageStorage.xml";
+    }
     if ( ! boost::filesystem::exists(boost::filesystem::path(conffile.c_str())) )
     {
         conffile = "/etc/dicomifier/Dictionary_BrukerToDICOM/MRImageStorage.xml";
@@ -606,7 +629,12 @@ EnhanceBrukerDicom
                                 std::vector<int> indexlists,
                                 std::string const & seriesnumber) const
 {
-    std::string conffile = "../configuration/Dictionary_BrukerToDICOM/EnhancedMRImageStorage.xml";
+    std::string conffile = this->_dictionary;
+    if (conffile == "" ||
+        ! boost::filesystem::exists(boost::filesystem::path(conffile.c_str())) )
+    {
+        conffile = "../configuration/Dictionary_BrukerToDICOM/EnhancedMRImageStorage.xml";
+    }
     if ( ! boost::filesystem::exists(boost::filesystem::path(conffile.c_str())) )
     {
         conffile = "/etc/dicomifier/Dictionary_BrukerToDICOM/EnhancedMRImageStorage.xml";
