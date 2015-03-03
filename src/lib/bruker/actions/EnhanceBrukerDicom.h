@@ -110,6 +110,8 @@ public:
      */
     void set_outputDir(std::string const & outputDir);
 
+    void set_dictionary(std::string const & dictionary);
+
     /**
      * @brief run: Execute the conversion
      */
@@ -194,6 +196,8 @@ private:
     std::string _outputDir;
 
     std::string _studyNumber;
+
+    std::string _dictionary;
     
     EnhanceBrukerDicom(Self const & other);     // Purposely not implemented
     Self const & operator=(Self const & other); // Purposely not implemented
