@@ -10,6 +10,7 @@
 
 #include <boost/lexical_cast.hpp>
 
+#include "core/DateTime.h"
 #include "core/Hashcode.h"
 #include "TreeItem.h"
 
@@ -514,14 +515,9 @@ TreeItem
     {
         std::string acqdate = brukerdataset.get_field("VisuAcqDate").get_string(0);
 
-        struct tm parts = {0};
-        strptime(acqdate.c_str(), "%H:%M:%S %d %b %Y", &parts);
-
-        char format[64];
-        memset(&format[0], 0, 64);
-        strftime(format, 64, "%d / %m / %Y %H:%M:%S", &parts);
-
-        std::string value(&format[0]);
+        std::string unused = "";
+        auto ldt = dicomifier::string_to_local_date_time(acqdate, unused);
+        std::string value = dicomifier::local_date_time_to_string(ldt, "%d / %m / %Y %H:%M:%S");
 
         this->_acquisitionDate = value;
     }
