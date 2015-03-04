@@ -9,6 +9,7 @@
 #include <memory>
 #include <iostream>
 #include <stdlib.h>
+#include <string>
 
 #define BOOST_TEST_MODULE ModuleEnhanceBrukerDicom
 #include <boost/filesystem.hpp>
@@ -22,9 +23,9 @@
 
 struct TestEnvironment
 {
-    std::string const directorypath   = "./test_ModuleEnhanceBrukerDicom";
-    std::string const outputdirectory = "./test_ModuleEnhanceBrukerDicom_out";
-    std::string const dictionary      = "./test_ModuleEnhanceBrukerDicom_dictionary.xml";
+    std::string directorypath;
+    std::string outputdirectory;
+    std::string dictionary;
     std::vector<std::string> filestoremove;
     DcmDataset* dataset;
 
@@ -40,6 +41,10 @@ struct TestEnvironment
 
     TestEnvironment()
     {
+        directorypath   = "./test_ModuleEnhanceBrukerDicom";
+        outputdirectory = "./test_ModuleEnhanceBrukerDicom_out";
+        dictionary      = "./test_ModuleEnhanceBrukerDicom_dictionary.xml";
+
         boost::filesystem::create_directory(boost::filesystem::path(directorypath.c_str()));
         boost::filesystem::create_directory(boost::filesystem::path(outputdirectory.c_str()));
 
