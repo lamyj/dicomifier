@@ -82,7 +82,9 @@ BrukerField<VR>
         auto const & fielddata = 
             brukerdataset->get_field(this->_brukerFieldName);
         
-        for(unsigned int i=0; i<fielddata.get_size(); ++i)
+        for(unsigned int i = this->_range._min;
+            i < std::min((int)fielddata.get_size(), this->_range._max);
+            ++i)
         {
             typedef typename VRToFieldType<VR>::Type FieldType;
             typedef typename ElementTraits<VR>::ValueType VRType;

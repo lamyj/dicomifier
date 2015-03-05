@@ -42,7 +42,7 @@ Dataset
     stream.close();
 
     // Join the lines
-    data = boost::regex_replace(data, boost::regex("\\R(?!##|\\$\\$)"), "");
+    data = boost::regex_replace(data, boost::regex("\\\\?\\R(?!##|\\$\\$)"), "");
 
     // Parse the data
     std::string::const_iterator begin = data.begin();
