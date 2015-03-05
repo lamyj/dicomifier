@@ -88,7 +88,7 @@ MainFrame
     }
 
     // Display first Frame
-    this->ChangeStep(false);
+    this->ChangeStep(true);
 }
 
 void
@@ -115,7 +115,14 @@ MainFrame
     // Show or Hide SubjectsFrame
     if (this->_currentStep == DicomifierStep::SelectSubject)
     {
-        this->_subjectsframe->Initialize();
+        if (nextstep)
+        {
+            this->_subjectsframe->Initialize();
+        }
+        else
+        {
+            this->_subjectsframe->BaseFrame::Initialize();
+        }
     }
     else
     {

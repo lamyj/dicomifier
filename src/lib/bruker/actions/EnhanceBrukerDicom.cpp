@@ -358,7 +358,7 @@ EnhanceBrukerDicom
 
 boost::filesystem::path
 EnhanceBrukerDicom
-::get_destination_filename(DcmDataset *dataset) const
+::get_destination_filename(DcmDataset *dataset, bool usefileformat) const
 {
     // Subject Directory: Patient's name or Patient's ID or Default value
 
@@ -431,28 +431,34 @@ EnhanceBrukerDicom
                 << resultdcm.text();
         throw DicomifierException(stream.str());
     }
-    Sint32 image_in_acquistion;
-    resultdcm = dataset->findAndGetSint32(DCM_ImagesInAcquisition, image_in_acquistion);
-    if (resultdcm.bad())
+    std::string instance = "1";
+    if (usefileformat)
     {
-        std::stringstream stream;
-        stream << "EnhanceBrukerDicom cannot retrieve ImagesInAcquisition: "
-               << resultdcm.text();
-        throw DicomifierException(stream.str());
+        Sint32 image_in_acquistion;
+        resultdcm = dataset->findAndGetSint32(DCM_ImagesInAcquisition,
+                                              image_in_acquistion);
+        if (resultdcm.bad())
+        {
+            std::stringstream stream;
+            stream << "EnhanceBrukerDicom cannot retrieve ImagesInAcquisition: "
+                   << resultdcm.text();
+            throw DicomifierException(stream.str());
+        }
+
+        int nbdigit = 1 + floor(log10(image_in_acquistion));
+        std::stringstream format;
+        format << "%." << nbdigit << "i";
+        std::string instance_number_str(nbdigit, '0');
+        std::snprintf(&instance_number_str[0], instance_number_str.length()+1,
+                      format.str().c_str(), instance_number);
+
+        instance = instance_number_str;
     }
-
-    int nbdigit = 1 + floor(log10(image_in_acquistion));
-    std::stringstream format;
-    format << "%." << nbdigit << "i";
-    std::string instance_number_str(nbdigit, '0');
-    std::snprintf(&instance_number_str[0], instance_number_str.length()+1,
-                  format.str().c_str(), instance_number);
-
 
     // Destination: Subject/Study/Series/Instance
     boost::filesystem::path const destination =
         boost::filesystem::path(this->_outputDir)
-            /subject_name.c_str()/study/series/instance_number_str;
+            /subject_name.c_str()/study/series/instance;
     boost::filesystem::create_directories(destination.parent_path());
 
     return destination;
@@ -779,7 +785,8 @@ EnhanceBrukerDicom
     // TODO (maybe) delete[] binarydata;
 
     // Create path:        
-    boost::filesystem::path const destination = this->get_destination_filename(dataset);
+    boost::filesystem::path const destination =
+            this->get_destination_filename(dataset, false);
 
     // Write DICOM Dataset
     DcmFileFormat fileformat(dataset);

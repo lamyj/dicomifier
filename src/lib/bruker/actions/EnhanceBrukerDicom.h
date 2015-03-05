@@ -159,7 +159,8 @@ private:
      * @param dataset: dataset to write
      * @return output filepath
      */
-    boost::filesystem::path get_destination_filename(DcmDataset* dataset) const;
+    boost::filesystem::path get_destination_filename(DcmDataset* dataset,
+                                                     bool usefileformat = true) const;
                             
     /**
      * @brief create_MRImageStorage: Create DICOM files for SOP Class UID MRImageStorage
