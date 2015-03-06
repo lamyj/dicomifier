@@ -231,7 +231,7 @@ BOOST_AUTO_TEST_CASE(Accessors)
  * Nominal test case: Run (MRImageStorage)
  */
 
-BOOST_FIXTURE_TEST_CASE(TEST_OK_03, TestEnvironment)
+BOOST_FIXTURE_TEST_CASE(Run_MRImageStorage, TestEnvironment)
 {
     auto enhanceb2d = dicomifier::actions::EnhanceBrukerDicom::
             New(dataset, directorypath, UID_MRImageStorage, outputdirectory, "1");
@@ -898,3 +898,111 @@ BOOST_FIXTURE_TEST_CASE(Bad_VisuCoreWordType, TestEnvironment)
     BOOST_REQUIRE_THROW(enhanceb2d->run(), dicomifier::DicomifierException);
 }
 
+/*************************** TEST KO 11 *******************************/
+/**
+ * Error test case: Missing StudyDescription
+ */
+BOOST_FIXTURE_TEST_CASE(Missing_StudyDescription, TestEnvironment)
+{
+    auto enhanceb2d = dicomifier::actions::EnhanceBrukerDicom::
+            New(dataset, directorypath, UID_MRImageStorage, outputdirectory, "1");
+
+    // Use specific dictionary
+    enhanceb2d->set_dictionary(dictionary);
+
+    BOOST_REQUIRE_THROW(enhanceb2d->get_destination_filename(dataset),
+                        dicomifier::DicomifierException);
+}
+
+/*************************** TEST KO 12 *******************************/
+/**
+ * Error test case: Missing SeriesDescription
+ */
+BOOST_FIXTURE_TEST_CASE(Missing_SeriesDescription, TestEnvironment)
+{
+    auto enhanceb2d = dicomifier::actions::EnhanceBrukerDicom::
+            New(dataset, directorypath, UID_MRImageStorage, outputdirectory, "1");
+
+    // Use specific dictionary
+    enhanceb2d->set_dictionary(dictionary);
+
+    OFCondition cond = dataset->putAndInsertOFStringArray(DCM_StudyDescription,
+                                                          OFString("studydesc"));
+    BOOST_CHECK_EQUAL(cond == EC_Normal, true);
+
+    BOOST_REQUIRE_THROW(enhanceb2d->get_destination_filename(dataset),
+                        dicomifier::DicomifierException);
+}
+
+/*************************** TEST KO 13 *******************************/
+/**
+ * Error test case: Missing SeriesNumber
+ */
+BOOST_FIXTURE_TEST_CASE(Missing_SeriesNumber, TestEnvironment)
+{
+    auto enhanceb2d = dicomifier::actions::EnhanceBrukerDicom::
+            New(dataset, directorypath, UID_MRImageStorage, outputdirectory, "1");
+
+    // Use specific dictionary
+    enhanceb2d->set_dictionary(dictionary);
+
+    OFCondition cond = dataset->putAndInsertOFStringArray(DCM_StudyDescription,
+                                                          OFString("studydesc"));
+    BOOST_CHECK_EQUAL(cond == EC_Normal, true);
+    cond = dataset->putAndInsertOFStringArray(DCM_SeriesDescription,
+                                              OFString("seriesdesc"));
+    BOOST_CHECK_EQUAL(cond == EC_Normal, true);
+    cond = dataset->findAndDeleteElement(DCM_SeriesNumber, true);
+    BOOST_CHECK_EQUAL(cond == EC_Normal, true);
+
+    BOOST_REQUIRE_THROW(enhanceb2d->get_destination_filename(dataset),
+                        dicomifier::DicomifierException);
+}
+
+/*************************** TEST KO 14 *******************************/
+/**
+ * Error test case: Missing InstanceNumber
+ */
+BOOST_FIXTURE_TEST_CASE(Missing_InstanceNumber, TestEnvironment)
+{
+    auto enhanceb2d = dicomifier::actions::EnhanceBrukerDicom::
+            New(dataset, directorypath, UID_MRImageStorage, outputdirectory, "1");
+
+    // Use specific dictionary
+    enhanceb2d->set_dictionary(dictionary);
+
+    OFCondition cond = dataset->putAndInsertOFStringArray(DCM_StudyDescription,
+                                                          OFString("studydesc"));
+    BOOST_CHECK_EQUAL(cond == EC_Normal, true);
+    cond = dataset->putAndInsertOFStringArray(DCM_SeriesDescription,
+                                              OFString("seriesdesc"));
+    BOOST_CHECK_EQUAL(cond == EC_Normal, true);
+
+    BOOST_REQUIRE_THROW(enhanceb2d->get_destination_filename(dataset),
+                        dicomifier::DicomifierException);
+}
+
+/*************************** TEST KO 15 *******************************/
+/**
+ * Error test case: Missing ImagesInAcquisition
+ */
+BOOST_FIXTURE_TEST_CASE(Missing_ImagesInAcquisition, TestEnvironment)
+{
+    auto enhanceb2d = dicomifier::actions::EnhanceBrukerDicom::
+            New(dataset, directorypath, UID_MRImageStorage, outputdirectory, "1");
+
+    // Use specific dictionary
+    enhanceb2d->set_dictionary(dictionary);
+
+    OFCondition cond = dataset->putAndInsertOFStringArray(DCM_StudyDescription,
+                                                          OFString("studydesc"));
+    BOOST_CHECK_EQUAL(cond == EC_Normal, true);
+    cond = dataset->putAndInsertOFStringArray(DCM_SeriesDescription,
+                                              OFString("seriesdesc"));
+    BOOST_CHECK_EQUAL(cond == EC_Normal, true);
+    cond = dataset->putAndInsertOFStringArray(DCM_InstanceNumber, "1");
+    BOOST_CHECK_EQUAL(cond == EC_Normal, true);
+
+    BOOST_REQUIRE_THROW(enhanceb2d->get_destination_filename(dataset),
+                        dicomifier::DicomifierException);
+}

@@ -127,6 +127,14 @@ public:
 
     static void replace_unavailable_char(std::string &text);
 
+    /**
+     * @brief get_destination_filename: get formatted output filepath
+     * @param dataset: dataset to write
+     * @return output filepath
+     */
+    boost::filesystem::path get_destination_filename(DcmDataset* dataset,
+                                                     bool usefileformat = true) const;
+
 protected:
     /// Create an instance of EnhanceBrukerDicom
     EnhanceBrukerDicom();
@@ -153,14 +161,6 @@ private:
     void _get_pixel_data(bruker::Dataset const & dataset,
         std::vector<Uint16> & pixel_data, 
         double & rescaleintercept, double & rescaleslope) const;
-
-    /**
-     * @brief get_destination_filename: get formatted output filepath
-     * @param dataset: dataset to write
-     * @return output filepath
-     */
-    boost::filesystem::path get_destination_filename(DcmDataset* dataset,
-                                                     bool usefileformat = true) const;
                             
     /**
      * @brief create_MRImageStorage: Create DICOM files for SOP Class UID MRImageStorage

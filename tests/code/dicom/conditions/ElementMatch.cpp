@@ -15,7 +15,7 @@
 /**
  * Nominal test case: Constructor
  */
-BOOST_AUTO_TEST_CASE(TEST_OK_01)
+BOOST_AUTO_TEST_CASE(Constructor)
 {
     auto eltmatch = dicomifier::conditions::ElementMatch<EVR_AE>::New();
     BOOST_CHECK_EQUAL(eltmatch != NULL, true);
@@ -34,7 +34,7 @@ BOOST_AUTO_TEST_CASE(TEST_OK_01)
 /**
  * Nominal test case: Get/Set
  */
-BOOST_AUTO_TEST_CASE(TEST_OK_02)
+BOOST_AUTO_TEST_CASE(Accessors)
 {
     auto eltmatch = dicomifier::conditions::ElementMatch<EVR_AE>::New();
     
@@ -417,18 +417,36 @@ BOOST_FIXTURE_TEST_CASE(TEST_OK_07, TestDataOK03)
     BOOST_CHECK_EQUAL(testmatch->eval(), false);
 }
 
-/*************************** TEST KO 01 *******************************/
+/*************************** TEST OK 08 *******************************/
 /**
  * Error test case: Empty dataset
  */
-BOOST_AUTO_TEST_CASE(TEST_KO_01)
+BOOST_AUTO_TEST_CASE(Empty_Dataset_Eval)
 {
     std::vector<dicomifier::TagAndRange> vect;
-    vect.push_back(dicomifier::TagAndRange(DCM_Modality, dicomifier::Range(0,1)));
+    vect.push_back(dicomifier::TagAndRange(DCM_Modality,
+                                           dicomifier::Range(0,1)));
     
     auto testmatch = 
         dicomifier::conditions::ElementMatch<EVR_CS>::New(NULL, 
-                                                      vect, 
-                                                      "value1");
+                                                          vect,
+                                                          "value1");
     BOOST_CHECK_EQUAL(testmatch->eval(), false);
+}
+
+/*************************** TEST OK 09 *******************************/
+/**
+ * Error test case: Empty dataset (matchItem)
+ */
+BOOST_AUTO_TEST_CASE(Empty_Dataset_MatchItem)
+{
+    std::vector<dicomifier::TagAndRange> vect;
+    vect.push_back(dicomifier::TagAndRange(DCM_Modality,
+                                           dicomifier::Range(0,1)));
+
+    auto testmatch =
+        dicomifier::conditions::ElementMatch<EVR_CS>::New(NULL,
+                                                          vect,
+                                                          "value1");
+    BOOST_CHECK_EQUAL(testmatch->matchItem(0, NULL), false);
 }
