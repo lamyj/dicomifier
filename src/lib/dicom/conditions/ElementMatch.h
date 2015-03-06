@@ -112,6 +112,14 @@ public:
      * @return true if tested values match, false otherwise
      */
     virtual bool eval() const;
+
+    /**
+     * @brief matchItem: Search values in the dataset
+     * @param indice: current index in the tags vector
+     * @param dataset: current level in the dataset (dataset or sequence)
+     * @return
+     */
+    bool matchItem(int indice, DcmItem* dataset) const;
     
     /**
      * @brief get_class_name: Get this class name
@@ -140,14 +148,6 @@ protected:
      */
     ElementMatch(DcmDataset * dataset, std::vector<TagAndRange> tags, 
                  ArrayType const & array);
-               
-    /**
-     * @brief matchItem: Search values in the dataset
-     * @param indice: current index in the tags vector
-     * @param dataset: current level in the dataset (dataset or sequence)
-     * @return
-     */
-    bool matchItem(int indice, DcmItem* dataset) const;
 
 private:
     /// tested DICOM Dataset

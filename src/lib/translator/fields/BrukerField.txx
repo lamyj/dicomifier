@@ -29,7 +29,7 @@ typename BrukerField<VR>::Pointer
 BrukerField<VR>
 ::New(std::string const & brukerFieldName)
 {
-    return Pointer(new Self(brukerFieldName, Range()));
+    return Pointer(new Self(brukerFieldName, Range(0, std::numeric_limits<int>::max())));
 }
     
 template<DcmEVR VR>
@@ -81,7 +81,7 @@ BrukerField<VR>
     {
         auto const & fielddata = 
             brukerdataset->get_field(this->_brukerFieldName);
-        
+
         for(unsigned int i = this->_range._min;
             i < std::min((int)fielddata.get_size(), this->_range._max);
             ++i)
