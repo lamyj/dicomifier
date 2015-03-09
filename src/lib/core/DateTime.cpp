@@ -19,12 +19,6 @@ string_to_local_date_time(const std::string &datetime, std::string &format)
 
     boost::replace_all(localdatetime, ",", ".");
 
-    // Problem with grammar.txx
-    if (localdatetime[0] == '<' && localdatetime[localdatetime.length()-1] == '>')
-    {
-        localdatetime = localdatetime.substr(1, localdatetime.length()-1);
-    }
-
     boost::local_time::local_date_time ldt(boost::local_time::not_a_date_time);
 
     // Try with ISO 8601 format: YYYY-MM-DDTHH:MM:SS,mmm+XXZZ
