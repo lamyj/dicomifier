@@ -63,6 +63,7 @@ grammar<TIterator>
     
     // Numbers and tokens *must* be separated with spaces, strings and 
     // structures but need not since they have delimiters.
+    // Warning: number should be long_long for 32 bits architecture, else cannot parse number > 2^31
     numbers %= (real | long_) % +space;
     quoted_strings %= quoted_string % *space;
     atoms %= atom % +space;

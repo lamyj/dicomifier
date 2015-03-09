@@ -341,7 +341,8 @@ struct TestDataOK03
         myfile << "##$fieldST=( 3 )ABCD EFGH IJKL\n";
         myfile << "##$fieldTM=( 3, 64 )<124554> <112352> <102615>\n";
         myfile << "##$fieldUI=( 3, 64 )<1.2.3> <4.5.6> <7.8.9>\n";
-        myfile << "##$fieldUL=( 3 )1324657980 2315648970 3126459780\n";
+        //myfile << "##$fieldUL=( 3 )1324657980 2315648970 3126459780\n"; // Warning: for 32bits, cannot test value > 2^31
+        myfile << "##$fieldUL=( 3 )1324657980 1324655980 1324657780";
         myfile << "##$fieldUS=( 3 )123 456 789\n";
         myfile << "##$fieldUT=( 3 )ABCD EFGH IJKL\n";
         myfile << "##END=\n";
@@ -518,7 +519,7 @@ BOOST_FIXTURE_TEST_CASE(Run_Range, TestDataOK03)
                                                              dicomifier::Range(1,2));
     testfieldul->run(brukerdataset, dicomifier::FrameIndexGenerator({}), NULL);
     BOOST_CHECK_EQUAL(testfieldul->get_array().size(), 1);
-    BOOST_CHECK_EQUAL(testfieldul->get_array()[0], 2315648970);
+    BOOST_CHECK_EQUAL(testfieldul->get_array()[0], 1324655980);
 
     // Test VR = UN => Not implemented
 
