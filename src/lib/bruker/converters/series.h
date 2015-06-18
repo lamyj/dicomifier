@@ -35,7 +35,19 @@ std::map<dcmtkpp::Tag, converter_base::pointer> const general_series= {
     { dcmtkpp::registry::SeriesInstanceUID,
         std::make_shared<default_converter>("VisuUid", 1) },
     { dcmtkpp::registry::SeriesNumber,
-        std::make_shared<constant_value_converter>(dcmtkpp::Value()) },
+        std::make_shared<generic_converter>(
+            [](Dataset const & data_set, dcmtkpp::Value & value) {
+                int number;
+                if(data_set.has_field("VisuExperimentNumber"))
+                {
+                    number = data_set.get_field("VisuExperimentNumber").get_int(0);
+                }
+                else
+                {
+                    number = data_set.get_field("VisuSeriesNumber").get_int(0);
+                }
+                value.as_integers().push_back(number);
+            } ) },
     { dcmtkpp::registry::Laterality,
         std::make_shared<constant_value_converter>(dcmtkpp::Value()) },
     { dcmtkpp::registry::SeriesDate,
