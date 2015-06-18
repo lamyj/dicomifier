@@ -6,8 +6,16 @@
  * for details.
  ************************************************************************/
 
-#include "core/DicomifierException.h"
 #include "DateTime.h"
+
+#include <sstream>
+#include <string>
+
+#include <boost/date_time/local_time/local_date_time.hpp>
+#include <boost/date_time/posix_time/ptime.hpp>
+
+#include "core/DicomifierException.h"
+
 
 namespace dicomifier
 {
@@ -80,6 +88,17 @@ string_to_local_date_time(const std::string &datetime, std::string &format)
     }
 
     return ldt;
+}
+
+std::string posix_time_to_string(
+    boost::posix_time::ptime const & ptime, std::string const & format)
+{
+    auto * output_facet = new boost::posix_time::time_facet(format.c_str());
+    std::stringstream stream;
+    stream.imbue(std::locale(stream.getloc(), output_facet));
+    stream << ptime;
+
+    return stream.str();
 }
 
 std::string
