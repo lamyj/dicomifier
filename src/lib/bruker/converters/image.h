@@ -35,7 +35,10 @@ namespace converters
 
 std::map<dcmtkpp::Tag, converter_base::pointer> const general_image = {
     { dcmtkpp::registry::InstanceNumber,
-        std::make_shared<constant_value_converter>(dcmtkpp::Value()) },
+        std::make_shared<generic_converter>(
+            [](Dataset const & dataset, FrameIndexGenerator const & index, dcmtkpp::Value & value) {
+                value.as_integers().push_back(1+index.get_step());
+            })  },
     { dcmtkpp::registry::ImageType,
         std::make_shared<constant_value_converter>(dcmtkpp::Value({"ORIGINAL", "PRIMARY"})) },
     { dcmtkpp::registry::AcquisitionDate,

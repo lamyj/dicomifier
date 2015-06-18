@@ -51,7 +51,7 @@ default_converter
 void
 default_converter
 ::operator()(
-    Dataset const & bruker_data_set, FrameIndexGenerator::Index const & index,
+    Dataset const & bruker_data_set, FrameIndexGenerator const & index,
     dcmtkpp::Tag const & dicom_tag, dcmtkpp::VR const & vr,
     dcmtkpp::DataSet & dicom_data_set)
 {
@@ -108,7 +108,7 @@ default_converter
 
         if(frame_group_it != frame_groups.end())
         {
-            begin_item = index[std::distance(frame_groups.begin(), frame_group_it)];
+            begin_item = index.get_index()[std::distance(frame_groups.begin(), frame_group_it)];
             end_item = begin_item+1;
         }
         else

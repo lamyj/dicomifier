@@ -37,7 +37,7 @@ struct constant_value_converter: public converter_base
     virtual ~constant_value_converter();
 
     virtual void operator()(
-        Dataset const & , FrameIndexGenerator::Index const & ,
+        Dataset const & , FrameIndexGenerator const & ,
         dcmtkpp::Tag const & dicom_tag, dcmtkpp::VR const & vr,
         dcmtkpp::DataSet & dicom_data_set);
 };

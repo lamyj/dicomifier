@@ -43,7 +43,7 @@ constant_value_converter
 void
 constant_value_converter
 ::operator()(
-    Dataset const & , FrameIndexGenerator::Index const & ,
+    Dataset const & , FrameIndexGenerator const & ,
     dcmtkpp::Tag const & dicom_tag, dcmtkpp::VR const & vr,
     dcmtkpp::DataSet & dicom_data_set)
 {

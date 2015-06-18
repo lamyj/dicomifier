@@ -32,20 +32,33 @@ namespace converters
 struct generic_converter: public converter_base
 {
     typedef
-        std::function<void(Dataset const & dataset, dcmtkpp::Value & value)>
-        Converter;
+        std::function<void(Dataset const & dataset,dcmtkpp::Value & value)>
+        ConverterWithoutIndex;
 
-    Converter converter;
+    typedef
+        std::function<
+            void(
+                Dataset const & dataset,
+                dicomifier::FrameIndexGenerator const & index,
+                dcmtkpp::Value & value)>
+        ConverterWithIndex;
 
-    generic_converter(Converter converter);
+    generic_converter(ConverterWithIndex converter);
+    generic_converter(ConverterWithoutIndex converter);
 
     virtual ~generic_converter();
 
     virtual void operator()(
         Dataset const & bruker_data_set,
-        FrameIndexGenerator::Index const & index,
+        FrameIndexGenerator const & index,
         dcmtkpp::Tag const & dicom_tag, dcmtkpp::VR const & vr,
         dcmtkpp::DataSet & dicom_data_set);
+private:
+    enum class Mode { WITH_INDEX, WITHOUT_INDEX };
+
+    ConverterWithIndex _converter_with_index;
+    ConverterWithoutIndex _converter_without_index;
+    Mode _mode;
 };
 
 }

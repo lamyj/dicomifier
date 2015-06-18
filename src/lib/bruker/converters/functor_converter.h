@@ -57,7 +57,7 @@ struct functor_converter: public default_converter
 
     virtual void operator()(
         Dataset const & bruker_data_set,
-        FrameIndexGenerator::Index const & index,
+        FrameIndexGenerator const & index,
         dcmtkpp::Tag const & dicom_tag, dcmtkpp::VR const & vr,
         dcmtkpp::DataSet & dicom_data_set)
     {
