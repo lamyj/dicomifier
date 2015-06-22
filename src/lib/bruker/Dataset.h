@@ -49,6 +49,7 @@ public:
     /// @brief Add a field to the dataset or modify an existing field.
     void set_field(Field const & field);
     
+    /// @brief Return the frame groups, in outermost-to-innermost order.
     std::vector<FrameGroup> const & get_frame_groups() const;
     
     /// @brief Return the index of the frame group that contains the given parameter.

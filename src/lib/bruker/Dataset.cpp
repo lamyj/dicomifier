@@ -186,7 +186,10 @@ Dataset
             fg.parameters.push_back(parameter);
         }
 
-        this->_frame_groups.push_back(fg);
+        // CAUTION: the frame groups are listed in innermost-to-outermost
+        // order, while FrameIndexGenerator uses outermost-to-innermost order.
+        // Invert now, to match the order of FrameIndexGenerator.
+        this->_frame_groups.insert(this->_frame_groups.begin(), fg);
     }
 }
 
