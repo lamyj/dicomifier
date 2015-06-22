@@ -69,6 +69,14 @@ generic_converter
     {
         value = dcmtkpp::Value::Strings();
     }
+    else if(vr == dcmtkpp::VR::SQ)
+    {
+        value = dcmtkpp::Value::DataSets();
+    }
+    else if(dcmtkpp::is_binary(vr))
+    {
+        value = dcmtkpp::Value::Binary();
+    }
     else
     {
         throw DicomifierException("Cannot convert "+dcmtkpp::as_string(vr));

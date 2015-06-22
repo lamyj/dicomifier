@@ -98,6 +98,14 @@ default_converter
         {
             value = dcmtkpp::Value::Strings();
         }
+        else if(vr == dcmtkpp::VR::SQ)
+        {
+            value = dcmtkpp::Value::DataSets();
+        }
+        else if(dcmtkpp::is_binary(vr))
+        {
+            value = dcmtkpp::Value::Binary();
+        }
         else
         {
             throw DicomifierException("Cannot convert "+dcmtkpp::as_string(vr));
@@ -110,6 +118,7 @@ default_converter
         {
             begin_item = index.get_index()[std::distance(frame_groups.begin(), frame_group_it)];
             end_item = begin_item+1;
+            std::cout << this->bruker_tag << " " << begin_item << std::endl;
         }
         else
         {
