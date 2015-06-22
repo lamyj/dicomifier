@@ -118,7 +118,6 @@ default_converter
         {
             begin_item = index.get_index()[std::distance(frame_groups.begin(), frame_group_it)];
             end_item = begin_item+1;
-            std::cout << this->bruker_tag << " " << begin_item << std::endl;
         }
         else
         {
