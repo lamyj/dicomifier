@@ -22,6 +22,7 @@
 #include "bruker/converters/date_time_converter.h"
 #include "bruker/converters/default_converter.h"
 #include "bruker/converters/generic_converter.h"
+#include "bruker/converters/pixel_data_converter.h"
 #include "core/DateTime.h"
 
 namespace dicomifier
@@ -88,8 +89,7 @@ std::map<dcmtkpp::Tag, converter_base::pointer> const image_pixel = {
             dcmtkpp::Value({dicomifier::endian::is_big_endian() ? 0 : 15})) },
     { dcmtkpp::registry::PixelRepresentation,
         std::make_shared<constant_value_converter>(dcmtkpp::Value({0})) },
-
-    //{ dcmtkpp::registry::PixelData, { } },
+    { dcmtkpp::registry::PixelData, std::make_shared<pixel_data_converter>() },
 };
 
 std::map<dcmtkpp::Tag, converter_base::pointer> const sop_common = {
