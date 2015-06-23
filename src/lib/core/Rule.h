@@ -9,6 +9,8 @@
 #ifndef _de4665d1_8ae0_401b_8a64_ec821b387f5b
 #define _de4665d1_8ae0_401b_8a64_ec821b387f5b
 
+#include <vector>
+
 #include "core/actions/Action.h"
 #include "core/conditions/Condition.h"
 #include "Object.h"

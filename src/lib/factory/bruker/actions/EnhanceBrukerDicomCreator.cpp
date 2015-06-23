@@ -36,29 +36,6 @@ Object::Pointer
 EnhanceBrukerDicomCreator
 ::Create(boost::property_tree::ptree::value_type & value)
 {
-    // get 'dataset' attribut (optional)
-    auto filename_ = value.second.get_optional<std::string>("<xmlattr>.dataset");
-    std::string filename = filename_ ? filename_.get() : "NEW_DATASET";
-    
-    if (filename != "NEW_DATASET")
-    {
-        if (filename[0] != '#')
-        {
-            throw DicomifierException("Bad value for dataset attribut.");
-        }
-        filename = filename.replace(0,1,"");
-    }
-        
-    if (this->_inputs->find(filename) == this->_inputs->end())
-    {
-        throw DicomifierException("No input dataset '" + filename + "'.");
-    }
-    DcmDataset* dataset = boost::any_cast<DcmDataset*>(this->_inputs->find(filename)->second);
-    if (dataset == NULL)
-    {
-        throw DicomifierException("Unable to load dataset '" + filename + "'.");
-    }
-    
     // get 'reconumber' attribut (mandatory)
     int reconum = value.second.get<int>("<xmlattr>.reconumber"); // Warning: throw exception if attribut is missing
     
@@ -71,7 +48,7 @@ EnhanceBrukerDicomCreator
     std::string studynumber = studynumber_ ? studynumber_.get() : "1";
     
     // get 'brukerdir' attribut (mandatory)
-    filename = value.second.get<std::string>("<xmlattr>.brukerdir"); // Warning: throw exception if attribut is missing
+    std::string filename = value.second.get<std::string>("<xmlattr>.brukerdir"); // Warning: throw exception if attribut is missing
     if (filename[0] == '#')
     {
         filename = filename.replace(0,1,"");
@@ -113,11 +90,10 @@ EnhanceBrukerDicomCreator
     std::string seriesnumber(temp);
     
     // Insert SeriesNumber => use to find Bruker data
-    dataset->putAndInsertOFStringArray(DCM_SeriesNumber, OFString(seriesnumber.c_str()));
+    //dataset->putAndInsertOFStringArray(DCM_SeriesNumber, OFString(seriesnumber.c_str()));
 
-    return dicomifier::actions::EnhanceBrukerDicom::New(dataset, filename, 
-                                                        sopclassuid, outputdirectory,
-                                                        studynumber);
+    return dicomifier::actions::EnhanceBrukerDicom::New(
+        filename, sopclassuid, outputdirectory, studynumber, seriesnumber);
 }
     
 } // namespace factory

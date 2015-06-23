@@ -10,6 +10,8 @@
 #define _eed21ce4_7b03_4376_adb6_858e49c9bd12
 
 #include <boost/algorithm/string.hpp>
+#include <dcmtk/config/osconfig.h>
+#include <dcmtk/dcmdata/dcuid.h>
 
 namespace dicomifier
 {

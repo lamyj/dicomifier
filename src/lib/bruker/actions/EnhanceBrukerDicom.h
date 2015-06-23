@@ -15,8 +15,7 @@
 
 #include <boost/filesystem.hpp>
 
-#include <dcmtk/config/osconfig.h>
-#include <dcmtk/dcmdata/dctk.h>
+#include <dcmtkpp/DataSet.h>
 
 #include "bruker/Dataset.h"
 #include "core/actions/Action.h"
@@ -50,29 +49,18 @@ public:
      * @param outputDir: Directory to store DICOM files
      * @return
      */
-    static Pointer New(DcmDataset * dataset, 
-                       std::string const & brukerDir,
-                       std::string const & sopclassuid,
-                       std::string const & outputDir,
-                       std::string const & studyNumber)
-                { return Pointer(new Self(dataset, brukerDir, 
-                                          sopclassuid, outputDir,
-                                          studyNumber)); }
+    static Pointer New(
+        std::string const & brukerDir, std::string const & sopclassuid,
+        std::string const & outputDir, std::string const & studyNumber,
+        std::string const & seriesNumber)
+    {
+        return Pointer(
+            new Self(
+                brukerDir, sopclassuid, outputDir, studyNumber, seriesNumber));
+    }
     
     /// Destroy the instance of EnhanceBrukerDicom
     virtual ~EnhanceBrukerDicom();
-
-    /**
-     * @brief get_dataset: getter for dataset
-     * @return DICOM dataset
-     */
-    DcmDataset * get_dataset() const;
-
-    /**
-     * @brief set_dataset: setter for dataset
-     * @param dataset: new value
-     */
-    void set_dataset(DcmDataset * dataset);
     
     /**
      * @brief get_brukerDir: getter for brukerDir
@@ -110,8 +98,6 @@ public:
      */
     void set_outputDir(std::string const & outputDir);
 
-    void set_dictionary(std::string const & dictionary);
-
     /**
      * @brief run: Execute the conversion
      */
@@ -132,8 +118,8 @@ public:
      * @param dataset: dataset to write
      * @return output filepath
      */
-    boost::filesystem::path get_destination_filename(DcmDataset* dataset,
-                                                     bool usefileformat = true) const;
+    boost::filesystem::path get_destination_filename(
+        dcmtkpp::DataSet const & dataset, bool usefileformat = true) const;
 
 protected:
     /// Create an instance of EnhanceBrukerDicom
@@ -146,46 +132,16 @@ protected:
      * @param sopclassuid: Output SOP Class UID
      * @param outputDir: Directory to store DICOM files
      */
-    EnhanceBrukerDicom(DcmDataset * dataset,
-                       std::string const & brukerDir,
+    EnhanceBrukerDicom(std::string const & brukerDir,
                        std::string const & sopclassuid,
                        std::string const & outputDir,
-                       std::string const & studyNumber);
+                       std::string const & studyNumber,
+                       std::string const & seriesNumber);
 
 private:
-    typedef void (EnhanceBrukerDicom::*DicomCreator)(
-        bruker::Dataset const & brukerdataset, std::vector<int> indexlists,
-        std::string const & seriesnumber) const;
-
-    /// @brief Return the pixel data as Uint16 and its transformation.
-    void _get_pixel_data(bruker::Dataset const & dataset,
-        std::vector<Uint16> & pixel_data, 
-        double & rescaleintercept, double & rescaleslope) const;
-                            
-    /**
-     * @brief create_MRImageStorage: Create DICOM files for SOP Class UID MRImageStorage
-     * @param brukerdataset: Bruker Dataset to convert
-     * @param indexlists: current indexes
-     * @param seriesnumber: Series Number
-     */
-    void create_MRImageStorage(dicomifier::bruker::Dataset const & brukerdataset,
-                               std::vector<int> indexlists,
-                               std::string const & seriesnumber) const;
-                               
-    /**
-     * @brief create_EnhancedMRImageStorage: Create DICOM files for SOP Class UID EnhancedMRImageStorage
-     * @param brukerdataset: Bruker Dataset to convert
-     * @param indexlists: current indexes
-     * @param seriesnumber: Series Number
-     */
-    void create_EnhancedMRImageStorage(dicomifier::bruker::Dataset const & brukerdataset,
-                                       std::vector<int> indexlists,
-                                       std::string const & seriesnumber) const;
+    void _create_mr_image_storage(bruker::Dataset const & bruker_dataset) const;
 
     std::string create_directory_name(int sizemax, std::string const & prefix, std::string const & suffix) const;
-    
-    /// DICOM Dataset
-    DcmDataset * _dataset;
 
     /// Path of Bruker directory
     std::string _brukerDir;
@@ -198,7 +154,7 @@ private:
 
     std::string _studyNumber;
 
-    std::string _dictionary;
+    std::string _seriesNumber;
     
     EnhanceBrukerDicom(Self const & other);     // Purposely not implemented
     Self const & operator=(Self const & other); // Purposely not implemented
