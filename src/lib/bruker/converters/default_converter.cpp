@@ -10,6 +10,7 @@
 
 #include <algorithm>
 #include <iterator>
+#include <sstream>
 #include <string>
 
 #include <dcmtkpp/DataSet.h>
@@ -59,7 +60,9 @@ default_converter
     {
         if(this->type == 1)
         {
-            throw DicomifierException("Required field is missing");
+            std::ostringstream message;
+            message << "Required field \"" << bruker_tag << "\" is missing";
+            throw DicomifierException(message.str());
         }
         else if(this->type == 2)
         {
