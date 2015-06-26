@@ -34,14 +34,14 @@ generic_converter
 {
     // Nothing else.
 }
-
+/*
 generic_converter
 ::generic_converter(ConverterWithoutIndex converter)
 : converter_base(), _converter_without_index(converter), _mode(Mode::WITHOUT_INDEX)
 {
     // Nothing else.
 }
-
+*/
 generic_converter
 ::~generic_converter()
 {

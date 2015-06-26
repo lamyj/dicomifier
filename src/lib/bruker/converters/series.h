@@ -36,7 +36,7 @@ std::map<dcmtkpp::Tag, converter_base::pointer> const general_series= {
         std::make_shared<default_converter>("VisuUid", 1) },
     { dcmtkpp::registry::SeriesNumber,
         std::make_shared<generic_converter>(
-            [](Dataset const & data_set, dcmtkpp::Value & value) {
+            [](Dataset const & data_set, dicomifier::FrameIndexGenerator const & index, dcmtkpp::Value & value) {
                 int number;
                 if(data_set.has_field("VisuExperimentNumber"))
                 {

@@ -44,7 +44,7 @@ struct generic_converter: public converter_base
         ConverterWithIndex;
 
     generic_converter(ConverterWithIndex converter);
-    generic_converter(ConverterWithoutIndex converter);
+    //generic_converter(ConverterWithoutIndex converter);
 
     virtual ~generic_converter();
 

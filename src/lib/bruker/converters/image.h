@@ -55,7 +55,7 @@ std::map<dcmtkpp::Tag, converter_base::pointer> const general_image = {
 std::map<dcmtkpp::Tag, converter_base::pointer> const image_plane = {
     { dcmtkpp::registry::PixelSpacing,
         std::make_shared<generic_converter>(
-          [](Dataset const & dataset, dcmtkpp::Value & value) {
+          [](Dataset const & dataset, dicomifier::FrameIndexGenerator const & index, dcmtkpp::Value & value) {
               auto const & extent = dataset.get_field("VisuCoreExtent");
               auto const & size = dataset.get_field("VisuCoreSize");
               for(int i=0; i<extent.get_size(); ++i)
@@ -97,7 +97,7 @@ std::map<dcmtkpp::Tag, converter_base::pointer> const sop_common = {
         std::make_shared<constant_value_converter>(dcmtkpp::Value({"1.2.840.10008.5.1.4.1.1.4"})) },
     { dcmtkpp::registry::SOPInstanceUID,
         std::make_shared<generic_converter>(
-          [](Dataset const & , dcmtkpp::Value & value) {
+          [](Dataset const & , dicomifier::FrameIndexGenerator const & index, dcmtkpp::Value & value) {
             char buffer[128];
             dcmGenerateUniqueIdentifier(buffer, SITE_INSTANCE_UID_ROOT);
             std::string const uid(buffer);
@@ -106,13 +106,13 @@ std::map<dcmtkpp::Tag, converter_base::pointer> const sop_common = {
     // Specific Character Set
     { dcmtkpp::registry::InstanceCreationDate,
         std::make_shared<generic_converter>(
-            [](Dataset const & , dcmtkpp::Value & value) {
+            [](Dataset const & , dicomifier::FrameIndexGenerator const & index, dcmtkpp::Value & value) {
                 auto const now = boost::posix_time::second_clock::local_time();
                 value.as_strings().push_back(posix_time_to_string(now, "%Y%m%d"));
           }) },
     { dcmtkpp::registry::InstanceCreationTime,
           std::make_shared<generic_converter>(
-          [](Dataset const & , dcmtkpp::Value & value) {
+          [](Dataset const & , dicomifier::FrameIndexGenerator const & index,dcmtkpp::Value & value) {
                 auto const now = boost::posix_time::second_clock::local_time();
                 value.as_strings().push_back(posix_time_to_string(now, "%H%M%S"));
           }) },

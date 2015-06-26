@@ -66,7 +66,7 @@ std::map<dcmtkpp::Tag, converter_base::pointer> const mr_image = {
             &dcmtkpp::Element::as_real)) },
     { dcmtkpp::registry::SpacingBetweenSlices,
         std::make_shared<generic_converter>(
-            [](Dataset const & data_set, dcmtkpp::Value & value) {
+            [](Dataset const & data_set, dicomifier::FrameIndexGenerator const & index, dcmtkpp::Value & value) {
                 auto const field = data_set.get_field("VisuCorePosition");
                 // We need at least two points
                 if(field.shape[0]>1)
