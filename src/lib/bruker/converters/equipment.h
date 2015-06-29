@@ -35,16 +35,22 @@ std::map<dcmtkpp::Tag, converter_base::pointer> const general_equipment = {
         std::make_shared<default_converter>("VisuStation", 3) },
     { dcmtkpp::registry::SoftwareVersions,
         std::make_shared<generic_converter>(
-          [](Dataset const & dataset, dcmtkpp::Value & value) {
-              auto const & creator = dataset.get_field("VisuCreator");
-              auto const & version = dataset.get_field("VisuCreatorVersion");
-              for(int i=0; i<creator.get_size(); ++i)
+          [](Dataset const & dataset, dicomifier::FrameIndexGenerator const & , dcmtkpp::Value & value) {
+              if(dataset.has_field("VisuCreator"))
               {
-                  value.as_strings().push_back(creator.get_string(i));
+                auto const & creator = dataset.get_field("VisuCreator");
+                for(int i=0; i<creator.get_size(); ++i)
+                  {
+                      value.as_strings().push_back(creator.get_string(i));
+                  }
               }
-              for(int i=0; i<version.get_size(); ++i)
+              if(dataset.has_field("VisuCreatorVersion"))
               {
-                  value.as_strings().push_back(version.get_string(i));
+                  auto const & version = dataset.get_field("VisuCreatorVersion");
+                  for(int i=0; i<version.get_size(); ++i)
+                  {
+                      value.as_strings().push_back(version.get_string(i));
+                  }
               }
           }) },
 };

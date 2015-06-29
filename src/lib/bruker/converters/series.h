@@ -51,7 +51,7 @@ std::map<dcmtkpp::Tag, converter_base::pointer> const general_series= {
     { dcmtkpp::registry::Laterality,
         std::make_shared<constant_value_converter>(dcmtkpp::Value()) },
     { dcmtkpp::registry::SeriesDate,
-        std::make_shared<date_time_converter>("SeriesSeriesDate", 3, "%Y%m%d") },
+        std::make_shared<date_time_converter>("VisuSeriesDate", 3, "%Y%m%d") },
     { dcmtkpp::registry::SeriesTime,
         std::make_shared<date_time_converter>("VisuSeriesDate", 3, "%H%M%S") },
     { dcmtkpp::registry::PerformingPhysicianName,
