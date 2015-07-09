@@ -74,8 +74,6 @@ PatientPositionFilter<EVR_CS>
     {
         std::string temp = ElementTraits<EVR_CS>::toString(array[i]);
         
-        std::string result = "";
-        
         // See ParaVision 5.1 document: D13_PvParams.pdf (D13-71)
         // See DICOM PS3.3 2013: C.7.3.1.1.2
         if (temp == "Head_Supine")

@@ -56,10 +56,11 @@ Factory
 std::shared_ptr<Object> 
 Factory
 ::create(boost::property_tree::ptree::value_type & value,
-         std::shared_ptr<dicomifier::factory::CreatorBase::InOutPutType> const inputs,
-         std::shared_ptr<dicomifier::factory::CreatorBase::InOutPutType> const outputs) const
+         std::shared_ptr<factory::CreatorBase::InOutPutType> const & inputs,
+         std::shared_ptr<factory::CreatorBase::InOutPutType> const & outputs) const
 {
-    CreatorMap::const_iterator const creators_it = this->_creators.find(value.first.data());
+    CreatorMap::const_iterator const creators_it =
+            this->_creators.find(value.first.data());
     if(creators_it != this->_creators.end())
     {
         auto creator = creators_it->second();

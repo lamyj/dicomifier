@@ -42,20 +42,21 @@ public:
      * @brief set_inputs: setter for attribut inputs
      * @param inputs: new value
      */
-    void set_inputs(std::shared_ptr<InOutPutType> const inputs);
+    void set_inputs(std::shared_ptr<InOutPutType> const & inputs);
 
     /**
      * @brief set_outputs: setter for attribut outputs
      * @param outputs: new value
      */
-    void set_outputs(std::shared_ptr<InOutPutType> const outputs);
+    void set_outputs(std::shared_ptr<InOutPutType> const & outputs);
     
     /**
      * @brief Create: Override by inherit classes
      * @param value: XML node
      * @return Object pointer
      */
-    virtual Object::Pointer Create(boost::property_tree::ptree::value_type & value) = 0;
+    virtual Object::Pointer Create(
+            boost::property_tree::ptree::value_type & value) = 0;
 
 protected:
     /// Create an instance of CreatorBase
@@ -68,7 +69,8 @@ protected:
     std::shared_ptr<InOutPutType> _outputs;
     
     template<typename T>
-    T _get(boost::property_tree::ptree const & tree, std::string const & path) const;
+    T _get(boost::property_tree::ptree const & tree,
+           std::string const & path) const;
 
 private:
     CreatorBase(Self const & other); // Purposely not implemented

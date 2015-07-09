@@ -15,10 +15,11 @@ namespace factory
 {
     
 CreatorBase
-::CreatorBase()
+::CreatorBase() :
+    _inputs(std::make_shared<InOutPutType>()),
+    _outputs(std::make_shared<InOutPutType>())
 {
-    this->_inputs = std::make_shared<InOutPutType>();
-    this->_outputs = std::make_shared<InOutPutType>();
+    // Nothing to do
 }
 
 CreatorBase
@@ -29,14 +30,14 @@ CreatorBase
 
 void
 CreatorBase
-::set_inputs(std::shared_ptr<InOutPutType> const inputs)
+::set_inputs(std::shared_ptr<InOutPutType> const & inputs)
 {
     this->_inputs = inputs;
 }
 
 void
 CreatorBase
-::set_outputs(std::shared_ptr<InOutPutType> const outputs)
+::set_outputs(std::shared_ptr<InOutPutType> const & outputs)
 {
     this->_outputs = outputs;
 }

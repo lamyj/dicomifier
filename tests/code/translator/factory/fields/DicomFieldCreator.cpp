@@ -800,10 +800,9 @@ struct TestDataOK22
     std::string dictionaryfile;
     boost::property_tree::ptree ptr;
  
-    TestDataOK22()
+    TestDataOK22() :
+        dictionaryfile("./temp_deleteelementcreator_test_ok_10.xml")
     {
-        dictionaryfile = "./temp_deleteelementcreator_test_ok_10.xml";
-        
         // Create private dictionary
         std::ofstream myfile;
         myfile.open (dictionaryfile);

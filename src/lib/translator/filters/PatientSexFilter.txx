@@ -74,8 +74,6 @@ PatientSexFilter<EVR_CS>
     {
         std::string temp = ElementTraits<EVR_CS>::toString(array[i]);
         
-        std::string result = "";
-        
         // See ParaVision document: D13_PvParams.pdf (D13-70)
         // See DICOM PS3.3 2013: table C.7-1
         if (temp == "MALE")

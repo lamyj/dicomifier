@@ -154,7 +154,7 @@ Dictionaries
         // Look in the given dictionary
         entry = dico->GetEntryFromName(name);
     }
-    catch (DicomifierException exc)
+    catch (DicomifierException const & exc)
     {
         // not find, try in the public dictionary
         dico = this->_dictionaries["public"];
@@ -187,7 +187,7 @@ Dictionaries
         // Look in the given dictionary
         entry = dico->GetEntryFromKey(key);
     }
-    catch (DicomifierException exc)
+    catch (DicomifierException const & exc)
     {
         // not find, try in the public dictionary
         dico = this->_dictionaries["public"];

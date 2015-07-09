@@ -31,13 +31,14 @@ struct TestDataOK02
 {
     dicomifier::Dictionary::Pointer dictionary;
     
-    TestDataOK02()
+    TestDataOK02() : dictionary(dicomifier::Dictionary::New())
     {
-        dictionary = dicomifier::Dictionary::New();
+        // Nothing to do
     }
     
     ~TestDataOK02()
     {
+        // Nothing to do
     }
 };
 
@@ -56,7 +57,7 @@ BOOST_FIXTURE_TEST_CASE(TEST_OK_02, TestDataOK02)
     dictionary->AddDictEntry(dictentry);
                              
     BOOST_CHECK_EQUAL(dictionary->IsDictEntryFromName("PatientName"), true);
-    BOOST_CHECK_EQUAL(dictionary->GetEntryFromName("PatientName") != NULL, true);
+    BOOST_CHECK(dictionary->GetEntryFromName("PatientName") != NULL);
     
     BOOST_CHECK_EQUAL(dictionary->IsDictEntryFromKey("0010,0020"), false);
     

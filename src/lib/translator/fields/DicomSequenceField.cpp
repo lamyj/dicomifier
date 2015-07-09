@@ -27,7 +27,7 @@ DicomSequenceField
 ::DicomSequenceField(dicomifier::TagAndRange const & tagrange, 
                      std::vector<Tag::Pointer> tags,
                      bool perframe)
-    : Tag(), _dicomtags(tagrange), _tags(tags), _perFrame(perframe)
+    : Tag(), _tags(tags), _dicomtags(tagrange), _perFrame(perframe)
 {
     // Nothing to do
 }

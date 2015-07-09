@@ -71,7 +71,7 @@ EmptyElement
         DcmElement* dcmelement = NULL;
         OFCondition ret = dataset->findAndGetElement(tar._tag, dcmelement);
         
-        if (ret.good())
+        if (ret.good() && dcmelement != NULL)
         {
             ActionEmptyElement action;
             action.dataset =  dataset;
@@ -90,7 +90,7 @@ EmptyElement
         DcmSequenceOfItems* dcmseqitems = NULL;
         OFCondition ret = dataset->findAndGetSequence(tar._tag, dcmseqitems);
         
-        if (ret.good())
+        if (ret.good() && dcmseqitems != NULL)
         {
             for (unsigned long i = tar._range._min;
                  i < std::max(tar._range._max, (int)dcmseqitems->card());

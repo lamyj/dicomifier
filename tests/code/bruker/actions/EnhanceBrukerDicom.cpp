@@ -42,12 +42,11 @@ struct TestEnvironment
 
     std::string outputdicom;
 
-    TestEnvironment()
+    TestEnvironment() :
+        directorypath("./test_ModuleEnhanceBrukerDicom"),
+        outputdirectory("./test_ModuleEnhanceBrukerDicom_out"),
+        dictionary("./test_ModuleEnhanceBrukerDicom_dictionary.xml")
     {
-        directorypath   = "./test_ModuleEnhanceBrukerDicom";
-        outputdirectory = "./test_ModuleEnhanceBrukerDicom_out";
-        dictionary      = "./test_ModuleEnhanceBrukerDicom_dictionary.xml";
-
         boost::filesystem::create_directory(boost::filesystem::path(directorypath.c_str()));
         boost::filesystem::create_directory(boost::filesystem::path(outputdirectory.c_str()));
 

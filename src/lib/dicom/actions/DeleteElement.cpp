@@ -68,9 +68,9 @@ DeleteElement
     if (indice == this->_tags.size() - 1)
     {
         DcmElement* dcmelement = NULL;
-        OFCondition ret = dataset->findAndGetElement(tar._tag, dcmelement);
+        OFCondition const ret = dataset->findAndGetElement(tar._tag, dcmelement);
         
-        if (ret.good())
+        if (ret.good() && dcmelement != NULL)
         {
             ActionDeleteElement action;
             action.dataset =  dataset;
@@ -83,7 +83,7 @@ DeleteElement
     else
     {
         DcmStack dcmstack;
-        OFCondition ret = dataset->findAndGetElements(tar._tag, dcmstack);
+        OFCondition const ret = dataset->findAndGetElements(tar._tag, dcmstack);
         
         if (ret.good())
         {

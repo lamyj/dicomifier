@@ -736,12 +736,12 @@ static void addConceptModContentItems(DcmDirectoryRecord *record,
     if ((record != NULL) && (dataset != NULL))
     {
         OFString tmpString;
-        signed long i = 0;
         DcmItem *ditem = NULL;
         /* create new ContentSequence */
         DcmSequenceOfItems *newSeq = new DcmSequenceOfItems(DCM_ContentSequence);
         if (newSeq != NULL)
         {
+            signed long i = 0;
             do {
                 /* get sequence item (not very efficient, but it works) */
                 if (dataset->findAndGetSequenceItem(DCM_ContentSequence, ditem, i++).good())

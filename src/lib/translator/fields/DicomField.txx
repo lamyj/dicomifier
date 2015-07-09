@@ -79,47 +79,57 @@ DicomField<VR>
     }
     
     DcmElement * element = NULL;
-    OFCondition const element_ok =
+    OFCondition condition =
         dataset->findAndGetElement(this->_dicomtags._tag, element);
+    if (condition.bad())
+    {
+        throw DicomifierException(condition.text());
+    }
         
     this->_tag->run(brukerdataset, generator, dataset);
         
     if (VR != EVR_AT)
     {
-        std::vector<ValueType> values;
-
-        typename TestField::Pointer tagtest =
-            std::dynamic_pointer_cast<TestField>(this->_tag);
-        if (tagtest == NULL)
+        if (element != NULL)
         {
-            typename SubTag<VR>::Pointer subtag = 
-                std::dynamic_pointer_cast<SubTag<VR>>(this->_tag);
-            values = subtag->get_array();
+            std::vector<ValueType> values;
+
+            typename TestField::Pointer tagtest =
+                std::dynamic_pointer_cast<TestField>(this->_tag);
+            if (tagtest == NULL)
+            {
+                typename SubTag<VR>::Pointer subtag =
+                    std::dynamic_pointer_cast<SubTag<VR>>(this->_tag);
+                values = subtag->get_array();
+            }
+
+            condition = ElementTraits<VR>::array_setter(element, &values[0],
+                                                        values.size());
         }
-    
-        OFCondition const set_ok = ElementTraits<VR>::array_setter(element, 
-                                                                   &values[0], 
-                                                                   values.size());
-        if(set_ok.bad())
+
+        if(condition.bad() || element == NULL)
         {
             throw DicomifierException("DicomField::run(): Could not set array");
         }
     }
     else // VR == AT
     {
-        std::vector<Uint16> values;
-
-        typename SubTag<EVR_AT>::Pointer subtag =
-            std::dynamic_pointer_cast<SubTag<EVR_AT>>(this->_tag);
-
-        if (subtag != NULL)
+        if (element != NULL)
         {
-            values = subtag->get_array();
+            std::vector<Uint16> values;
+
+            typename SubTag<EVR_AT>::Pointer subtag =
+                std::dynamic_pointer_cast<SubTag<EVR_AT>>(this->_tag);
+
+            if (subtag != NULL)
+            {
+                values = subtag->get_array();
+            }
+
+            condition = element->putUint16Array(&values[0], values.size()/2);
         }
         
-        OFCondition const set_ok = element->putUint16Array(&values[0], values.size()/2);
-        
-        if(set_ok.bad())
+        if(condition.bad() || element == NULL)
         {
             throw DicomifierException("DicomField::run(): Could not set array");
         }

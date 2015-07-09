@@ -22,9 +22,10 @@ Not
 }
 
 Not
-::Not(Condition::ConstPointer condition)
+::Not(Condition::ConstPointer condition) :
+    _condition(condition)
 {
-    this->_condition = condition;
+    // Nothing to do
 }
 
 Not

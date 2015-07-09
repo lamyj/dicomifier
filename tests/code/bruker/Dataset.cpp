@@ -23,10 +23,8 @@ struct TestDataOK01
 {
     std::string filepath;
 
-    TestDataOK01()
+    TestDataOK01() : filepath("./test_ModuleDataset_loadfile.txt")
     {
-        filepath = "./test_ModuleDataset_loadfile.txt";
-
         std::ofstream myfile;
         myfile.open(filepath);
         myfile << "##TITLE=Parameter List, ParaVision 6.0\n";
@@ -182,10 +180,8 @@ struct TestDataOK05
 {
     std::string filepath;
 
-    TestDataOK05()
+    TestDataOK05() : filepath("./test_ModuleDataset_getindexforvalue.txt")
     {
-        filepath = "./test_ModuleDataset_getindexforvalue.txt";
-
         std::ofstream myfile;
         myfile.open(filepath);
         myfile << "##TITLE=Parameter List, ParaVision 6.0\n";
@@ -231,10 +227,8 @@ struct TestDataOK06
 {
     std::string filepath;
 
-    TestDataOK06()
+    TestDataOK06() : filepath("./test_ModuleDataset_loadfile.txt")
     {
-        filepath = "./test_ModuleDataset_loadfile.txt";
-
         std::ofstream myfile;
         myfile.open(filepath);
         /// HEADER
@@ -531,10 +525,8 @@ struct TestDataKO02
 {
     std::string filepath;
 
-    TestDataKO02()
+    TestDataKO02() : filepath("./test_ModuleDataset_parsingerror.txt")
     {
-        filepath = "./test_ModuleDataset_parsingerror.txt";
-
         std::ofstream myfile;
         myfile.open(filepath);
         myfile << "##TITLE=Parameter List, ParaVision 6.0\n";

@@ -455,11 +455,21 @@ BOOST_FIXTURE_TEST_CASE(TEST_OK_04, TestDataOK04)
     BOOST_CHECK_EQUAL(dataset->tagExists(DCM_Modality), true);
     
     DcmElement* dcmelement = NULL;
-    dataset->findAndGetElement(DCM_Modality, dcmelement);
-    BOOST_CHECK_EQUAL(dcmelement->getVM(), 4);
+    OFCondition condition = dataset->findAndGetElement(DCM_Modality,
+                                                       dcmelement);
+    BOOST_CHECK(condition.good());
+    if (dcmelement != NULL)
+    {
+        BOOST_CHECK_EQUAL(dcmelement->getVM(), 4);
+    }
+    else
+    {
+        BOOST_REQUIRE(dcmelement != NULL);
+    }
     
     std::vector<dicomifier::TagAndRange> vect;
-    vect.push_back(dicomifier::TagAndRange(DCM_Modality, dicomifier::Range(1,3)));
+    vect.push_back(dicomifier::TagAndRange(DCM_Modality,
+                                           dicomifier::Range(1,3)));
     
     auto testdelete = dicomifier::actions::DeleteElement::New(dataset, vect);
     
@@ -469,11 +479,21 @@ BOOST_FIXTURE_TEST_CASE(TEST_OK_04, TestDataOK04)
     BOOST_CHECK_EQUAL(dataset->tagExists(DCM_Modality), true);
     
     dcmelement = NULL;
-    dataset->findAndGetElement(DCM_Modality, dcmelement);
-    BOOST_CHECK_EQUAL(dcmelement->getVM(), 2);
-    auto const array = dicomifier::ElementTraits<EVR_CS>::array_getter(dcmelement);
-    BOOST_CHECK_EQUAL(array[0], OFString("value1"));
-    BOOST_CHECK_EQUAL(array[1], OFString("value4"));
+    condition = dataset->findAndGetElement(DCM_Modality, dcmelement);
+    BOOST_CHECK(condition.good());
+
+    if (dcmelement != NULL)
+    {
+        BOOST_CHECK_EQUAL(dcmelement->getVM(), 2);
+        auto const array =
+                dicomifier::ElementTraits<EVR_CS>::array_getter(dcmelement);
+        BOOST_CHECK_EQUAL(array[0], OFString("value1"));
+        BOOST_CHECK_EQUAL(array[1], OFString("value4"));
+    }
+    else
+    {
+        BOOST_REQUIRE(dcmelement != NULL);
+    }
 }
 
 /*************************** TEST OK 05 *******************************/
@@ -512,13 +532,24 @@ BOOST_FIXTURE_TEST_CASE(TEST_OK_06, TestDataOK04)
     BOOST_CHECK_EQUAL(dataset->tagExists(DCM_PatientID, OFTrue), true);
     
     DcmElement* dcmelement = NULL;
-    dataset->findAndGetElement(DCM_Modality, dcmelement);
-    BOOST_CHECK_EQUAL(dcmelement->getVM(), 4);
+    OFCondition condition = dataset->findAndGetElement(DCM_Modality,
+                                                       dcmelement);
+    BOOST_CHECK(condition.good());
+
+    if (dcmelement != NULL)
+    {
+        BOOST_CHECK_EQUAL(dcmelement->getVM(), 4);
+    }
+    else
+    {
+        BOOST_REQUIRE(dcmelement != NULL);
+    }
     
     std::vector<dicomifier::TagAndRange> vect;
     vect.push_back(dicomifier::TagAndRange(DCM_OtherPatientIDsSequence, 
                                             dicomifier::Range(0,1)));
-    vect.push_back(dicomifier::TagAndRange(DCM_PatientID, dicomifier::Range(0,2)));
+    vect.push_back(dicomifier::TagAndRange(DCM_PatientID,
+                                           dicomifier::Range(0,2)));
     
     auto testdelete = dicomifier::actions::DeleteElement::New(dataset, vect);
     
@@ -528,10 +559,20 @@ BOOST_FIXTURE_TEST_CASE(TEST_OK_06, TestDataOK04)
     BOOST_CHECK_EQUAL(dataset->tagExists(DCM_PatientID, OFTrue), true);
     
     dcmelement = NULL;
-    dataset->findAndGetElement(DCM_PatientID, dcmelement, OFTrue);
-    BOOST_CHECK_EQUAL(dcmelement->getVM(), 1);
-    auto const array = dicomifier::ElementTraits<EVR_LO>::array_getter(dcmelement);
-    BOOST_CHECK_EQUAL(array[0], OFString("789"));
+    condition = dataset->findAndGetElement(DCM_PatientID, dcmelement, OFTrue);
+    BOOST_CHECK(condition.good());
+
+    if (dcmelement != NULL)
+    {
+        BOOST_CHECK_EQUAL(dcmelement->getVM(), 1);
+        auto const array =
+                dicomifier::ElementTraits<EVR_LO>::array_getter(dcmelement);
+        BOOST_CHECK_EQUAL(array[0], OFString("789"));
+    }
+    else
+    {
+        BOOST_REQUIRE(dcmelement != NULL);
+    }
 }
 
 /*************************** TEST OK 07 *******************************/

@@ -180,6 +180,7 @@ BOOST_FIXTURE_TEST_CASE(TEST_OK_05, TestDataOK05)
 
     result = backdicomdirgenerator->createNewDicomDir(dicomifier::DicomDirGenerator::AP_GeneralPurpose,
                                                       "./DICOMDIR");
+    BOOST_CHECK_EQUAL(result == EC_Normal, true);
 
     result = backdicomdirgenerator->writeDicomDir();
     BOOST_CHECK_EQUAL(result == EC_Normal, true);
@@ -202,6 +203,7 @@ struct TestDataOK06
         OFCondition result = dicomdirgenerator->createNewDicomDir(
                     dicomifier::DicomDirGenerator::AP_GeneralPurpose,
                     "./DICOMDIR");
+        BOOST_CHECK_EQUAL(result == EC_Normal, true);
 
         DcmDataset * dataset = new DcmDataset();
         // generate unique SOP INSTANCE UID
@@ -223,6 +225,7 @@ struct TestDataOK06
 
         DcmFileFormat fileformat(dataset);
         result = fileformat.saveFile("./ABCD1234", EXS_LittleEndianExplicit);
+        BOOST_CHECK_EQUAL(result == EC_Normal, true);
 
         delete dataset;
     }

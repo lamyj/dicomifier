@@ -26,9 +26,10 @@ TreeItem
     _name(""), _subjectDirectory(""), _study(""), _series(""),
     _reconstruction(""), _date(""), _acquisitionDate(""), _directory(""),
     _seriesDirectory(""), _recoDirectory(""), _protocolName(""),
-    _qdatetime(QDateTime::currentDateTime()), _enabled(true),
+    _qdatetime(QDateTime::currentDateTime()),
     _DicomErrorMsg("Canceled"), _StoreErrorMsg(""),
-    _DicomdirErrorMsg(""), _ZipErrorMsg(""), _destinationDirectory("")
+    _DicomdirErrorMsg(""), _ZipErrorMsg(""), _destinationDirectory(""),
+    _enabled(true)
 {
     if (copy != NULL)
     {
@@ -105,7 +106,8 @@ TreeItem
 {
     if (this->_parentItem != NULL)
     {
-        return this->_parentItem->_childItems.indexOf(const_cast<TreeItem*>(this));
+        return this->_parentItem->_childItems.indexOf(
+                    const_cast<TreeItem*>(this));
     }
 
     return 0;
@@ -451,12 +453,14 @@ TreeItem
 {
     if (brukerdataset.has_field("SUBJECT_name_string"))
     {
-        this->_name = brukerdataset.get_field("SUBJECT_name_string").get_string(0);
+        this->_name =
+                brukerdataset.get_field("SUBJECT_name_string").get_string(0);
     }
 
     if (brukerdataset.has_field("SUBJECT_study_name"))
     {
-        this->_study = brukerdataset.get_field("SUBJECT_study_name").get_string(0);
+        this->_study =
+                brukerdataset.get_field("SUBJECT_study_name").get_string(0);
     }
 
     if (brukerdataset.has_field("SUBJECT_abs_date"))
@@ -483,8 +487,12 @@ TreeItem
         strftime(format, 64, "%d / %m / %Y %H:%M:%S", ltm);
 
         this->_date = std::string(&format[0]);
-        this->_qdatetime = QDateTime(QDate(ltm->tm_year + 1900, ltm->tm_mon + 1, ltm->tm_mday),
-                                     QTime(ltm->tm_hour, ltm->tm_min, ltm->tm_sec));
+        this->_qdatetime = QDateTime(QDate(ltm->tm_year + 1900,
+                                           ltm->tm_mon + 1,
+                                           ltm->tm_mday),
+                                     QTime(ltm->tm_hour,
+                                           ltm->tm_min,
+                                           ltm->tm_sec));
 
         this->SendDate(datestr);
     }
@@ -496,28 +504,35 @@ TreeItem
 
     if (brukerdataset.has_field("RECO_mode"))
     {
-        this->_reconstruction = brukerdataset.get_field("RECO_mode").get_string(0);
+        this->_reconstruction =
+                brukerdataset.get_field("RECO_mode").get_string(0);
     }
 
     if (brukerdataset.has_field("VisuAcquisitionProtocol"))
     {
-        this->_protocolName = brukerdataset.get_field("VisuAcquisitionProtocol").get_string(0);
+        this->_protocolName =
+                brukerdataset.get_field("VisuAcquisitionProtocol").get_string(0);
     }
 
     if (brukerdataset.has_field("VisuSubjectId"))
     {
-        this->_destinationDirectory = brukerdataset.get_field("VisuSubjectId").get_string(0);
         this->_destinationDirectory =
-                dicomifier::hashcode::hashToString(dicomifier::hashcode::hashCode(this->_destinationDirectory));
+                brukerdataset.get_field("VisuSubjectId").get_string(0);
+        this->_destinationDirectory =
+                dicomifier::hashcode::hashToString(
+                    dicomifier::hashcode::hashCode(this->_destinationDirectory));
     }
 
     if (brukerdataset.has_field("VisuAcqDate"))
     {
-        std::string acqdate = brukerdataset.get_field("VisuAcqDate").get_string(0);
+        std::string const acqdate =
+                brukerdataset.get_field("VisuAcqDate").get_string(0);
 
         std::string unused = "";
         auto ldt = dicomifier::string_to_local_date_time(acqdate, unused);
-        std::string value = dicomifier::local_date_time_to_string(ldt, "%d / %m / %Y %H:%M:%S");
+        std::string value =
+                dicomifier::local_date_time_to_string(ldt,
+                                                      "%d / %m / %Y %H:%M:%S");
 
         this->_acquisitionDate = value;
     }
@@ -525,7 +540,7 @@ TreeItem
 
 bool
 TreeItem
-::operator ==(const TreeItem &other) const
+::operator ==(TreeItem const & other) const
 {
     if (this->_name            == other.get_name() &&
         this->_subjectDirectory== other.get_subjectDirectory() &&

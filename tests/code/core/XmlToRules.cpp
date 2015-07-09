@@ -17,10 +17,9 @@ struct TestData
 {
     std::string filename;
      
-    TestData()
+    TestData() : filename("./testfile_xmltorule.xml")
     {
         boost::property_tree::ptree ptr;
-        filename = "./testfile_xmltorule.xml";
         boost::property_tree::ptree emptynode;
         ptr.add_child("True", emptynode);
         

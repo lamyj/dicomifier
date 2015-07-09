@@ -30,10 +30,8 @@ struct TestDataOK02
 {
     std::string filepath;
     
-    TestDataOK02()
+    TestDataOK02() : filepath("./temp_test_ModuleDictionaries.xml")
     {
-        filepath = "./temp_test_ModuleDictionaries.xml";
-        
         std::ofstream myfile;
         myfile.open(filepath);
         myfile << "<?xml version=\"1.0\" encoding=\"utf-8\" standalone=\"no\"?>\n";
