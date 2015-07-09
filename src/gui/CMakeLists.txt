@@ -30,12 +30,12 @@ target_link_libraries(libdicomifierihm libdicomifier oflog ofstd wrap pthread z
                                        ${Boost_LIBRARIES})
 
 install(TARGETS libdicomifierihm
-        LIBRARY DESTINATION /usr/lib
+        LIBRARY DESTINATION lib
         COMPONENT libraries)
 
 # copy all header files to the include directory
 install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
         FILE_PERMISSIONS OWNER_EXECUTE OWNER_WRITE OWNER_READ GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE
         DIRECTORY_PERMISSIONS OWNER_EXECUTE OWNER_WRITE OWNER_READ GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE
-        DESTINATION /usr/include/dicomifier/
+        DESTINATION include/dicomifier/
         FILES_MATCHING PATTERN "*.h")

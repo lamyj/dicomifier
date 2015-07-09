@@ -19,12 +19,12 @@ target_link_libraries(dicomifier_ihm libdicomifier
                                      ${Boost_LIBRARIES})
 
 install(TARGETS dicomifier dicomifier_ihm
-        RUNTIME DESTINATION /usr/bin/
+        RUNTIME DESTINATION bin/
         COMPONENT applications)
 
 # copy all header files to the include directory
 install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
         FILE_PERMISSIONS OWNER_EXECUTE OWNER_WRITE OWNER_READ GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE
         DIRECTORY_PERMISSIONS OWNER_EXECUTE OWNER_WRITE OWNER_READ GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE
-        DESTINATION /usr/include/dicomifier/
+        DESTINATION include/dicomifier/
         FILES_MATCHING PATTERN "*.h")
