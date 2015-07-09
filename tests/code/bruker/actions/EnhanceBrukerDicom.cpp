@@ -18,6 +18,9 @@
 #include <dcmtk/config/osconfig.h>
 #include <dcmtk/dcmdata/dctk.h>
 
+#include <dcmtkpp/DataSet.h>
+#include <dcmtkpp/registry.h>
+
 #include "bruker/actions/EnhanceBrukerDicom.h"
 #include "core/DicomifierException.h"
 
@@ -27,7 +30,7 @@ struct TestEnvironment
     std::string outputdirectory;
     std::string dictionary;
     std::vector<std::string> filestoremove;
-    DcmDataset* dataset;
+    dcmtkpp::DataSet dataset;
 
     std::string subjectfile;
     std::string seriespath;
@@ -116,6 +119,22 @@ struct TestEnvironment
         myfile << "##$VisuCoreByteOrder=littleEndian\n";
         myfile << "##$VisuCoreSize=( 2 )\n";
         myfile << "8 8\n";
+        myfile << "##$VisuStudyUid=( 65 )\n";
+        myfile << "<2.25.309509301719836607967426822084991797794>\n";
+        myfile << "##$VisuStudyId=( 65 )\n";
+        myfile << "<Dicomifier>\n";
+        myfile << "##$VisuAcquisitionProtocol=( 65 )\n";
+        myfile << "<Protocol>\n";
+        myfile << "##$VisuUid=( 65 )\n";
+        myfile << "<2.25.78137108291313894466257645742394761300>\n";
+        myfile << "##$VisuSeriesNumber=( 65 )\n";
+        myfile << "<10001>\n";
+        myfile << "##$VisuCoreOrientation=( 1, 9 )\n";
+        myfile << "1 0 0 0 1 0\n";
+        myfile << "##$VisuCorePosition=( 1, 3 )\n";
+        myfile << "0 0 0\n";
+        myfile << "##$VisuCoreExtent=( 2 )\n";
+        myfile << "0 0\n";
         myfile << "##END=\n";
         myfile.close();
         filestoremove.push_back(visuparsfile);
@@ -128,57 +147,15 @@ struct TestEnvironment
         outfile.close();
         delete[] buffer;
         filestoremove.push_back(binaryfile);
+        
+        dataset.add(dcmtkpp::registry::SeriesNumber, {10001});
 
-        dataset = new DcmDataset();
-        dataset->putAndInsertOFStringArray(DCM_SeriesNumber, OFString("10001"));
-
-        myfile.open(dictionary);
-        myfile << "<Dictionary>\n";
-        myfile << "    <DicomField tag=\"0008,0008\" keyword=\"ImageType\" vr=\"CS\">\n";
-        myfile << "        <ConstantField values=\"ORIGINAL\\PRIMARY\" />\n";
-        myfile << "    </DicomField>\n";
-        myfile << "    <DicomField tag=\"0008,0012\" keyword=\"InstanceCreationDate\" vr=\"DA\">\n";
-        myfile << "        <DateGenerator />\n";
-        myfile << "    </DicomField>\n";
-        myfile << "    <DicomField tag=\"0008,0013\" keyword=\"InstanceCreationTime\" vr=\"TM\">\n";
-        myfile << "        <TimeGenerator />\n";
-        myfile << "    </DicomField>\n";
-        myfile << "    <DicomField tag=\"0008,0016\" keyword=\"SOPClassUID\" vr=\"UI\">\n";
-        myfile << "        <ConstantField values=\"1.2.840.10008.5.1.4.1.1.4\" />\n";
-        myfile << "    </DicomField>\n";
-        myfile << "    <DicomField tag=\"0008,0018\" keyword=\"SOPInstanceUID\" vr=\"UI\">\n";
-        myfile << "        <UIDGenerator uidtype=\"SOPInstanceUID\" />\n";
-        myfile << "    </DicomField>\n";
-        myfile << "    <DicomField tag=\"0008,1030\" keyword=\"StudyDescription\" vr=\"LO\">\n";
-        myfile << "        <BrukerField name=\"VisuStudyDescription\" />\n";
-        myfile << "    </DicomField>\n";
-        myfile << "    <DicomField tag=\"0008,103e\" keyword=\"SeriesDescription\" vr=\"LO\">\n";
-        myfile << "        <BrukerField name=\"VisuAcquisitionProtocol\" />\n";
-        myfile << "    </DicomField>\n";
-        myfile << "    <DicomField tag=\"0010,0010\" keyword=\"PatientName\" vr=\"PN\">\n";
-        myfile << "        <BrukerField name=\"VisuSubjectName\" />\n";
-        myfile << "    </DicomField>\n";
-        myfile << "    <DicomField tag=\"0010,0020\" keyword=\"PatientID\" vr=\"LO\">\n";
-        myfile << "        <BrukerField name=\"VisuSubjectId\" />\n";
-        myfile << "    </DicomField>\n";
-        myfile << "    <DicomField tag=\"0020,0013\" keyword=\"InstanceNumber\" vr=\"IS\" >\n";
-        myfile << "        <InstanceNumberDcmField />\n";
-        myfile << "    </DicomField>\n";
-        myfile << "    <DicomField tag=\"0020,1002\" keyword=\"ImagesInAcquisition\" vr=\"IS\" >\n";
-        myfile << "        <BrukerField name=\"VisuCoreFrameCount\" />\n";
-        myfile << "    </DicomField>\n";
-        myfile << "</Dictionary>\n";
-        myfile.close();
-        filestoremove.push_back(dictionary);
-
-        outputdicom = outputdirectory + "/Mouse^Mickey/1_/1_/1";
+        outputdicom = outputdirectory + "/Mouse^Mickey/1_DICOMI/1_PROTOC/1";
         filestoremove.push_back(outputdicom);
     }
 
     ~TestEnvironment()
     {
-        delete dataset;
-
         for (auto file : filestoremove)
         {
             remove(file.c_str());
@@ -198,8 +175,7 @@ BOOST_AUTO_TEST_CASE(Constructor)
     auto enhanceb2d = dicomifier::actions::EnhanceBrukerDicom::New();
     BOOST_CHECK_EQUAL(enhanceb2d != NULL, true);
     
-    enhanceb2d = dicomifier::actions::EnhanceBrukerDicom::New(NULL, "",
-                                                              "", "", "");
+    enhanceb2d = dicomifier::actions::EnhanceBrukerDicom::New("", "", "", "", "");
     BOOST_CHECK_EQUAL(enhanceb2d != NULL, true);
 }
 
@@ -211,19 +187,13 @@ BOOST_AUTO_TEST_CASE(Accessors)
 {
     auto testenhance = dicomifier::actions::EnhanceBrukerDicom::New();
     
-    DcmDataset* dataset = new DcmDataset();
-
-    testenhance->set_dataset(dataset);
     testenhance->set_brukerDir("path");
     testenhance->set_outputDir("outputdir");
     testenhance->set_SOPClassUID("SOPClass");
         
-    BOOST_CHECK_EQUAL(testenhance->get_dataset() != NULL, true);
     BOOST_CHECK_EQUAL(testenhance->get_brukerDir() == "path", true);
     BOOST_CHECK_EQUAL(testenhance->get_outputDir() == "outputdir", true);
     BOOST_CHECK_EQUAL(testenhance->get_SOPClassUID() == "SOPClass", true);
-
-    delete dataset;
 }
 
 /*************************** TEST OK 03 *******************************/
@@ -234,10 +204,7 @@ BOOST_AUTO_TEST_CASE(Accessors)
 BOOST_FIXTURE_TEST_CASE(Run_MRImageStorage, TestEnvironment)
 {
     auto enhanceb2d = dicomifier::actions::EnhanceBrukerDicom::
-            New(dataset, directorypath, UID_MRImageStorage, outputdirectory, "1");
-
-    // Use specific dictionary
-    enhanceb2d->set_dictionary(dictionary);
+            New(directorypath, UID_MRImageStorage, outputdirectory, "1", "10001");
 
     // Process
     enhanceb2d->run();
@@ -268,7 +235,8 @@ BOOST_FIXTURE_TEST_CASE(Run_MRImageStorage, TestEnvironment)
 /**
  * Nominal test case: Run (EnhanceMRImageStorage)
  */
-BOOST_FIXTURE_TEST_CASE(Run_EnhanceMRImageStorage, TestEnvironment)
+/*
+BOOST_DO_NOT_RUN_FIXTURE_TEST_CASE(Run_EnhanceMRImageStorage, TestEnvironment)
 {
     auto enhanceb2d = dicomifier::actions::EnhanceBrukerDicom::
             New(dataset, directorypath, UID_EnhancedMRImageStorage, outputdirectory, "1");
@@ -300,6 +268,7 @@ BOOST_FIXTURE_TEST_CASE(Run_EnhanceMRImageStorage, TestEnvironment)
 
     delete datasetout;
 }
+*/
 
 /*************************** TEST OK 05 *******************************/
 /**
@@ -336,253 +305,6 @@ BOOST_AUTO_TEST_CASE(Replace_Unavailable_Char)
     BOOST_CHECK_EQUAL(stringtest, std::string("1_5_A_B_C_D"));
 }
 
-/*************************** TEST OK 07 *******************************/
-/**
- * Nominal test case: Run (Get_Default_Directory)
- */
-BOOST_FIXTURE_TEST_CASE(Run_No_PatientName, TestEnvironment)
-{
-    auto enhanceb2d = dicomifier::actions::EnhanceBrukerDicom::
-            New(dataset, directorypath, UID_MRImageStorage, outputdirectory, "1");
-
-    std::ofstream myfile;
-    myfile.open(dictionary);
-    myfile << "<Dictionary>\n";
-    myfile << "    <DicomField tag=\"0008,0008\" keyword=\"ImageType\" vr=\"CS\">\n";
-    myfile << "        <ConstantField values=\"ORIGINAL\\PRIMARY\" />\n";
-    myfile << "    </DicomField>\n";
-    myfile << "    <DicomField tag=\"0008,0012\" keyword=\"InstanceCreationDate\" vr=\"DA\">\n";
-    myfile << "        <DateGenerator />\n";
-    myfile << "    </DicomField>\n";
-    myfile << "    <DicomField tag=\"0008,0013\" keyword=\"InstanceCreationTime\" vr=\"TM\">\n";
-    myfile << "        <TimeGenerator />\n";
-    myfile << "    </DicomField>\n";
-    myfile << "    <DicomField tag=\"0008,0016\" keyword=\"SOPClassUID\" vr=\"UI\">\n";
-    myfile << "        <ConstantField values=\"1.2.840.10008.5.1.4.1.1.4\" />\n";
-    myfile << "    </DicomField>\n";
-    myfile << "    <DicomField tag=\"0008,0018\" keyword=\"SOPInstanceUID\" vr=\"UI\">\n";
-    myfile << "        <UIDGenerator uidtype=\"SOPInstanceUID\" />\n";
-    myfile << "    </DicomField>\n";
-    myfile << "    <DicomField tag=\"0008,1030\" keyword=\"StudyDescription\" vr=\"LO\">\n";
-    myfile << "        <BrukerField name=\"VisuStudyDescription\" />\n";
-    myfile << "    </DicomField>\n";
-    myfile << "    <DicomField tag=\"0008,103e\" keyword=\"SeriesDescription\" vr=\"LO\">\n";
-    myfile << "        <BrukerField name=\"VisuAcquisitionProtocol\" />\n";
-    myfile << "    </DicomField>\n";
-    myfile << "    <DicomField tag=\"0020,0013\" keyword=\"InstanceNumber\" vr=\"IS\" >\n";
-    myfile << "        <InstanceNumberDcmField />\n";
-    myfile << "    </DicomField>\n";
-    myfile << "    <DicomField tag=\"0020,1002\" keyword=\"ImagesInAcquisition\" vr=\"IS\" >\n";
-    myfile << "        <BrukerField name=\"VisuCoreFrameCount\" />\n";
-    myfile << "    </DicomField>\n";
-    myfile << "</Dictionary>\n";
-    myfile.close();
-
-    // Use specific dictionary
-    enhanceb2d->set_dictionary(dictionary);
-
-    // Process
-    enhanceb2d->run();
-
-    outputdicom = outputdirectory + "/1/1_/1_/1";
-
-    // Try to open Created Dataset
-    DcmFileFormat fileformat;
-    OFCondition cond = fileformat.loadFile(outputdicom.c_str());
-    BOOST_CHECK_EQUAL(cond == EC_Normal, true);
-
-    DcmDataset * datasetout = fileformat.getAndRemoveDataset();
-    BOOST_CHECK_EQUAL(datasetout != NULL, true);
-
-    delete datasetout;
-}
-
-/*************************** TEST OK 08 *******************************/
-/**
- * Nominal test case: Run (_32BIT_SGN_INT)
- */
-BOOST_FIXTURE_TEST_CASE(Run_32_BIT_SIGN, TestEnvironment)
-{
-    // Replace visu_pars file
-    std::ofstream myfile;
-    myfile.open(visuparsfile);
-    myfile << "##TITLE=Parameter List, ParaVision 6.0\n";
-    myfile << "##JCAMPDX=4.24\n";
-    myfile << "##DATATYPE=Parameter Values\n";
-    myfile << "##ORIGIN=Bruker BioSpin MRI GmbH\n";
-    myfile << "##$SUBJECT_id=( 60 )\n";
-    myfile << "<Rat>\n";
-    myfile << "##$VisuSubjectName=( 65 )\n";
-    myfile << "<Mouse^Mickey>\n";
-    myfile << "##$VisuSubjectId=( 65 )\n";
-    myfile << "<subject_01>\n";
-    myfile << "##$ACQ_scan_name=( 64 )\n";
-    myfile << "<1_Localizer>\n";
-    myfile << "##$ACQ_method=( 40 )\n";
-    myfile << "<Bruker:FLASH>\n";
-    myfile << "##$SUBJECT_study_name=( 64 )\n";
-    myfile << "<rat 3>\n";
-    myfile << "##$PVM_SPackArrSliceDistance=( 3 )\n";
-    myfile << "2 2 2\n";
-    myfile << "##$VisuAcqImagePhaseEncDir=( 1 )\n";
-    myfile << "col_dir\n";
-    myfile << "##$VisuFGOrderDescDim=1\n";
-    myfile << "##$VisuFGOrderDesc=( 1 )\n";
-    myfile << "(1, <FG_SLICE>, <>, 0, 2)\n";
-    myfile << "##$VisuGroupDepVals=( 2 )\n";
-    myfile << "(<VisuCoreOrientation>, 0) (<VisuCorePosition>, 0)\n";
-    myfile << "##$VisuCoreFrameCount=1\n";
-    myfile << "##$VisuCoreWordType=_32BIT_SGN_INT\n";
-    myfile << "##$VisuCoreByteOrder=bigEndian\n";
-    myfile << "##$VisuCoreSize=( 2 )\n";
-    myfile << "8 8\n";
-    myfile << "##END=\n";
-    myfile.close();
-
-    auto enhanceb2d = dicomifier::actions::EnhanceBrukerDicom::
-            New(dataset, directorypath, UID_MRImageStorage, outputdirectory, "1");
-
-    // Use specific dictionary
-    enhanceb2d->set_dictionary(dictionary);
-
-    // Process
-    enhanceb2d->run();
-
-    // Try to open Created Dataset
-    DcmFileFormat fileformat;
-    OFCondition cond = fileformat.loadFile(outputdicom.c_str());
-    BOOST_CHECK_EQUAL(cond == EC_Normal, true);
-
-    DcmDataset * datasetout = fileformat.getAndRemoveDataset();
-    BOOST_CHECK_EQUAL(datasetout != NULL, true);
-
-    delete datasetout;
-}
-
-/*************************** TEST OK 09 *******************************/
-/**
- * Nominal test case: Run (_8BIT_UNSGN_INT)
- */
-BOOST_FIXTURE_TEST_CASE(Run_8BIT_UNSGN_INT, TestEnvironment)
-{
-    // Replace visu_pars file
-    std::ofstream myfile;
-    myfile.open(visuparsfile);
-    myfile << "##TITLE=Parameter List, ParaVision 6.0\n";
-    myfile << "##JCAMPDX=4.24\n";
-    myfile << "##DATATYPE=Parameter Values\n";
-    myfile << "##ORIGIN=Bruker BioSpin MRI GmbH\n";
-    myfile << "##$SUBJECT_id=( 60 )\n";
-    myfile << "<Rat>\n";
-    myfile << "##$VisuSubjectName=( 65 )\n";
-    myfile << "<Mouse^Mickey>\n";
-    myfile << "##$VisuSubjectId=( 65 )\n";
-    myfile << "<subject_01>\n";
-    myfile << "##$ACQ_scan_name=( 64 )\n";
-    myfile << "<1_Localizer>\n";
-    myfile << "##$ACQ_method=( 40 )\n";
-    myfile << "<Bruker:FLASH>\n";
-    myfile << "##$SUBJECT_study_name=( 64 )\n";
-    myfile << "<rat 3>\n";
-    myfile << "##$PVM_SPackArrSliceDistance=( 3 )\n";
-    myfile << "2 2 2\n";
-    myfile << "##$VisuAcqImagePhaseEncDir=( 1 )\n";
-    myfile << "col_dir\n";
-    myfile << "##$VisuFGOrderDescDim=1\n";
-    myfile << "##$VisuFGOrderDesc=( 1 )\n";
-    myfile << "(1, <FG_SLICE>, <>, 0, 2)\n";
-    myfile << "##$VisuGroupDepVals=( 2 )\n";
-    myfile << "(<VisuCoreOrientation>, 0) (<VisuCorePosition>, 0)\n";
-    myfile << "##$VisuCoreFrameCount=1\n";
-    myfile << "##$VisuCoreWordType=_8BIT_UNSGN_INT\n";
-    myfile << "##$VisuCoreByteOrder=bigEndian\n";
-    myfile << "##$VisuCoreSize=( 2 )\n";
-    myfile << "8 8\n";
-    myfile << "##END=\n";
-    myfile.close();
-
-    auto enhanceb2d = dicomifier::actions::EnhanceBrukerDicom::
-            New(dataset, directorypath, UID_MRImageStorage, outputdirectory, "1");
-
-    // Use specific dictionary
-    enhanceb2d->set_dictionary(dictionary);
-
-    // Process
-    enhanceb2d->run();
-
-    // Try to open Created Dataset
-    DcmFileFormat fileformat;
-    OFCondition cond = fileformat.loadFile(outputdicom.c_str());
-    BOOST_CHECK_EQUAL(cond == EC_Normal, true);
-
-    DcmDataset * datasetout = fileformat.getAndRemoveDataset();
-    BOOST_CHECK_EQUAL(datasetout != NULL, true);
-
-    delete datasetout;
-}
-
-/*************************** TEST OK 10 *******************************/
-/**
- * Nominal test case: Run (_32BIT_FLOAT)
- */
-BOOST_FIXTURE_TEST_CASE(Run_32BIT_FLOAT, TestEnvironment)
-{
-    // Replace visu_pars file
-    std::ofstream myfile;
-    myfile.open(visuparsfile);
-    myfile << "##TITLE=Parameter List, ParaVision 6.0\n";
-    myfile << "##JCAMPDX=4.24\n";
-    myfile << "##DATATYPE=Parameter Values\n";
-    myfile << "##ORIGIN=Bruker BioSpin MRI GmbH\n";
-    myfile << "##$SUBJECT_id=( 60 )\n";
-    myfile << "<Rat>\n";
-    myfile << "##$VisuSubjectName=( 65 )\n";
-    myfile << "<Mouse^Mickey>\n";
-    myfile << "##$VisuSubjectId=( 65 )\n";
-    myfile << "<subject_01>\n";
-    myfile << "##$ACQ_scan_name=( 64 )\n";
-    myfile << "<1_Localizer>\n";
-    myfile << "##$ACQ_method=( 40 )\n";
-    myfile << "<Bruker:FLASH>\n";
-    myfile << "##$SUBJECT_study_name=( 64 )\n";
-    myfile << "<rat 3>\n";
-    myfile << "##$PVM_SPackArrSliceDistance=( 3 )\n";
-    myfile << "2 2 2\n";
-    myfile << "##$VisuAcqImagePhaseEncDir=( 1 )\n";
-    myfile << "col_dir\n";
-    myfile << "##$VisuFGOrderDescDim=1\n";
-    myfile << "##$VisuFGOrderDesc=( 1 )\n";
-    myfile << "(1, <FG_SLICE>, <>, 0, 2)\n";
-    myfile << "##$VisuGroupDepVals=( 2 )\n";
-    myfile << "(<VisuCoreOrientation>, 0) (<VisuCorePosition>, 0)\n";
-    myfile << "##$VisuCoreFrameCount=1\n";
-    myfile << "##$VisuCoreWordType=_32BIT_FLOAT\n";
-    myfile << "##$VisuCoreByteOrder=bigEndian\n";
-    myfile << "##$VisuCoreSize=( 2 )\n";
-    myfile << "8 8\n";
-    myfile << "##END=\n";
-    myfile.close();
-
-    auto enhanceb2d = dicomifier::actions::EnhanceBrukerDicom::
-            New(dataset, directorypath, UID_MRImageStorage, outputdirectory, "1");
-
-    // Use specific dictionary
-    enhanceb2d->set_dictionary(dictionary);
-
-    // Process
-    enhanceb2d->run();
-
-    // Try to open Created Dataset
-    DcmFileFormat fileformat;
-    OFCondition cond = fileformat.loadFile(outputdicom.c_str());
-    BOOST_CHECK_EQUAL(cond == EC_Normal, true);
-
-    DcmDataset * datasetout = fileformat.getAndRemoveDataset();
-    BOOST_CHECK_EQUAL(datasetout != NULL, true);
-
-    delete datasetout;
-}
-
 /*************************** TEST KO 01 *******************************/
 /**
  * Error test case: Unknown bruker Directory
@@ -596,36 +318,14 @@ BOOST_AUTO_TEST_CASE(TEST_KO_01)
     BOOST_REQUIRE_THROW(testenhance->run(), dicomifier::DicomifierException);
 }
 
-/*************************** TEST KO 02 *******************************/
-/**
- * Error test case: No Series number
- */
-BOOST_FIXTURE_TEST_CASE(No_SeriesNumber, TestEnvironment)
-{
-    dataset->findAndDeleteElement(DCM_SeriesNumber, true);
-
-    auto enhanceb2d = dicomifier::actions::EnhanceBrukerDicom::
-            New(dataset, directorypath, UID_MRImageStorage, outputdirectory, "1");
-
-    // Use specific dictionary
-    enhanceb2d->set_dictionary(dictionary);
-        
-    BOOST_REQUIRE_THROW(enhanceb2d->run(), dicomifier::DicomifierException);
-}
-
 /*************************** TEST KO 03 *******************************/
 /**
  * Error test case: Bad Series number
  */
 BOOST_FIXTURE_TEST_CASE(Bad_SeriesNumber, TestEnvironment)
 {
-    dataset->putAndInsertOFStringArray(DCM_SeriesNumber, OFString("90009"), true);
-
     auto enhanceb2d = dicomifier::actions::EnhanceBrukerDicom::
-            New(dataset, directorypath, UID_MRImageStorage, outputdirectory, "1");
-
-    // Use specific dictionary
-    enhanceb2d->set_dictionary(dictionary);
+            New(directorypath, UID_MRImageStorage, outputdirectory, "1", "90009");
 
     BOOST_REQUIRE_THROW(enhanceb2d->run(), dicomifier::DicomifierException);
 }
@@ -673,10 +373,7 @@ BOOST_FIXTURE_TEST_CASE(Corrupted_Data, TestEnvironment)
     myfile.close();
 
     auto enhanceb2d = dicomifier::actions::EnhanceBrukerDicom::
-            New(dataset, directorypath, UID_MRImageStorage, outputdirectory, "1");
-
-    // Use specific dictionary
-    enhanceb2d->set_dictionary(dictionary);
+            New(directorypath, UID_MRImageStorage, outputdirectory, "1", "1");
 
     BOOST_REQUIRE_THROW(enhanceb2d->run(), dicomifier::DicomifierException);
 }
@@ -688,10 +385,7 @@ BOOST_FIXTURE_TEST_CASE(Corrupted_Data, TestEnvironment)
 BOOST_FIXTURE_TEST_CASE(Bad_SOPClassUID, TestEnvironment)
 {
     auto enhanceb2d = dicomifier::actions::EnhanceBrukerDicom::
-            New(dataset, directorypath, "BadValue", outputdirectory, "1");
-
-    // Use specific dictionary
-    enhanceb2d->set_dictionary(dictionary);
+            New(directorypath, "BadValue", outputdirectory, "1", "1");
 
     BOOST_REQUIRE_THROW(enhanceb2d->run(), dicomifier::DicomifierException);
 }
@@ -715,10 +409,7 @@ BOOST_AUTO_TEST_CASE(Get_Default_Directory_Name)
 BOOST_FIXTURE_TEST_CASE(No_PixelData_File, TestEnvironment)
 {
     auto enhanceb2d = dicomifier::actions::EnhanceBrukerDicom::
-            New(dataset, directorypath, UID_MRImageStorage, outputdirectory, "1");
-
-    // Use specific dictionary
-    enhanceb2d->set_dictionary(dictionary);
+            New(directorypath, UID_MRImageStorage, outputdirectory, "1", "1");
 
     // Remove Pixel Data file and replace by a directory
     remove(binaryfile.c_str());
@@ -734,10 +425,7 @@ BOOST_FIXTURE_TEST_CASE(No_PixelData_File, TestEnvironment)
 BOOST_FIXTURE_TEST_CASE(Cant_Read_PixelData_File, TestEnvironment)
 {
     auto enhanceb2d = dicomifier::actions::EnhanceBrukerDicom::
-            New(dataset, directorypath, UID_MRImageStorage, outputdirectory, "1");
-
-    // Use specific dictionary
-    enhanceb2d->set_dictionary(dictionary);
+            New(directorypath, UID_MRImageStorage, outputdirectory, "1", "1");
 
     // Change right of file
     std::string pixelfile = "chmod 000 " + binaryfile;
@@ -790,10 +478,7 @@ BOOST_FIXTURE_TEST_CASE(Missing_VisuCoreSize, TestEnvironment)
     myfile.close();
 
     auto enhanceb2d = dicomifier::actions::EnhanceBrukerDicom::
-            New(dataset, directorypath, UID_MRImageStorage, outputdirectory, "1");
-
-    // Use specific dictionary
-    enhanceb2d->set_dictionary(dictionary);
+            New(directorypath, UID_MRImageStorage, outputdirectory, "1", "1");
 
     BOOST_REQUIRE_THROW(enhanceb2d->run(), dicomifier::DicomifierException);
 }
@@ -839,10 +524,7 @@ BOOST_FIXTURE_TEST_CASE(Missing_VisuCoreWordType, TestEnvironment)
     myfile.close();
 
     auto enhanceb2d = dicomifier::actions::EnhanceBrukerDicom::
-            New(dataset, directorypath, UID_MRImageStorage, outputdirectory, "1");
-
-    // Use specific dictionary
-    enhanceb2d->set_dictionary(dictionary);
+            New(directorypath, UID_MRImageStorage, outputdirectory, "1", "1");
 
     BOOST_REQUIRE_THROW(enhanceb2d->run(), dicomifier::DicomifierException);
 }
@@ -890,10 +572,7 @@ BOOST_FIXTURE_TEST_CASE(Bad_VisuCoreWordType, TestEnvironment)
     myfile.close();
 
     auto enhanceb2d = dicomifier::actions::EnhanceBrukerDicom::
-            New(dataset, directorypath, UID_MRImageStorage, outputdirectory, "1");
-
-    // Use specific dictionary
-    enhanceb2d->set_dictionary(dictionary);
+            New(directorypath, UID_MRImageStorage, outputdirectory, "1", "1");
 
     BOOST_REQUIRE_THROW(enhanceb2d->run(), dicomifier::DicomifierException);
 }
@@ -905,13 +584,10 @@ BOOST_FIXTURE_TEST_CASE(Bad_VisuCoreWordType, TestEnvironment)
 BOOST_FIXTURE_TEST_CASE(Missing_StudyDescription, TestEnvironment)
 {
     auto enhanceb2d = dicomifier::actions::EnhanceBrukerDicom::
-            New(dataset, directorypath, UID_MRImageStorage, outputdirectory, "1");
-
-    // Use specific dictionary
-    enhanceb2d->set_dictionary(dictionary);
+            New(directorypath, UID_MRImageStorage, outputdirectory, "1", "1");
 
     BOOST_REQUIRE_THROW(enhanceb2d->get_destination_filename(dataset),
-                        dicomifier::DicomifierException);
+                        dcmtkpp::Exception);
 }
 
 /*************************** TEST KO 12 *******************************/
@@ -921,17 +597,12 @@ BOOST_FIXTURE_TEST_CASE(Missing_StudyDescription, TestEnvironment)
 BOOST_FIXTURE_TEST_CASE(Missing_SeriesDescription, TestEnvironment)
 {
     auto enhanceb2d = dicomifier::actions::EnhanceBrukerDicom::
-            New(dataset, directorypath, UID_MRImageStorage, outputdirectory, "1");
+            New(directorypath, UID_MRImageStorage, outputdirectory, "1", "1");
 
-    // Use specific dictionary
-    enhanceb2d->set_dictionary(dictionary);
-
-    OFCondition cond = dataset->putAndInsertOFStringArray(DCM_StudyDescription,
-                                                          OFString("studydesc"));
-    BOOST_CHECK_EQUAL(cond == EC_Normal, true);
+    dataset.add(dcmtkpp::registry::StudyDescription, {"studydesc"});
 
     BOOST_REQUIRE_THROW(enhanceb2d->get_destination_filename(dataset),
-                        dicomifier::DicomifierException);
+                        dcmtkpp::Exception);
 }
 
 /*************************** TEST KO 13 *******************************/
@@ -941,22 +612,14 @@ BOOST_FIXTURE_TEST_CASE(Missing_SeriesDescription, TestEnvironment)
 BOOST_FIXTURE_TEST_CASE(Missing_SeriesNumber, TestEnvironment)
 {
     auto enhanceb2d = dicomifier::actions::EnhanceBrukerDicom::
-            New(dataset, directorypath, UID_MRImageStorage, outputdirectory, "1");
+            New(directorypath, UID_MRImageStorage, outputdirectory, "1", "1");
 
-    // Use specific dictionary
-    enhanceb2d->set_dictionary(dictionary);
-
-    OFCondition cond = dataset->putAndInsertOFStringArray(DCM_StudyDescription,
-                                                          OFString("studydesc"));
-    BOOST_CHECK_EQUAL(cond == EC_Normal, true);
-    cond = dataset->putAndInsertOFStringArray(DCM_SeriesDescription,
-                                              OFString("seriesdesc"));
-    BOOST_CHECK_EQUAL(cond == EC_Normal, true);
-    cond = dataset->findAndDeleteElement(DCM_SeriesNumber, true);
-    BOOST_CHECK_EQUAL(cond == EC_Normal, true);
+    dataset.add(dcmtkpp::registry::StudyDescription, {"studydesc"});
+    dataset.add(dcmtkpp::registry::SeriesDescription, {"seriesdesc"});
+    dataset.remove(dcmtkpp::registry::SeriesNumber);
 
     BOOST_REQUIRE_THROW(enhanceb2d->get_destination_filename(dataset),
-                        dicomifier::DicomifierException);
+                        dcmtkpp::Exception);
 }
 
 /*************************** TEST KO 14 *******************************/
@@ -966,20 +629,13 @@ BOOST_FIXTURE_TEST_CASE(Missing_SeriesNumber, TestEnvironment)
 BOOST_FIXTURE_TEST_CASE(Missing_InstanceNumber, TestEnvironment)
 {
     auto enhanceb2d = dicomifier::actions::EnhanceBrukerDicom::
-            New(dataset, directorypath, UID_MRImageStorage, outputdirectory, "1");
+            New(directorypath, UID_MRImageStorage, outputdirectory, "1", "1");
 
-    // Use specific dictionary
-    enhanceb2d->set_dictionary(dictionary);
-
-    OFCondition cond = dataset->putAndInsertOFStringArray(DCM_StudyDescription,
-                                                          OFString("studydesc"));
-    BOOST_CHECK_EQUAL(cond == EC_Normal, true);
-    cond = dataset->putAndInsertOFStringArray(DCM_SeriesDescription,
-                                              OFString("seriesdesc"));
-    BOOST_CHECK_EQUAL(cond == EC_Normal, true);
-
+    dataset.add(dcmtkpp::registry::StudyDescription, {"studydesc"});
+    dataset.add(dcmtkpp::registry::SeriesDescription, {"seriesdesc"});
+    
     BOOST_REQUIRE_THROW(enhanceb2d->get_destination_filename(dataset),
-                        dicomifier::DicomifierException);
+                        dcmtkpp::Exception);
 }
 
 /*************************** TEST KO 15 *******************************/
@@ -989,20 +645,12 @@ BOOST_FIXTURE_TEST_CASE(Missing_InstanceNumber, TestEnvironment)
 BOOST_FIXTURE_TEST_CASE(Missing_ImagesInAcquisition, TestEnvironment)
 {
     auto enhanceb2d = dicomifier::actions::EnhanceBrukerDicom::
-            New(dataset, directorypath, UID_MRImageStorage, outputdirectory, "1");
+            New(directorypath, UID_MRImageStorage, outputdirectory, "1", "1");
 
-    // Use specific dictionary
-    enhanceb2d->set_dictionary(dictionary);
-
-    OFCondition cond = dataset->putAndInsertOFStringArray(DCM_StudyDescription,
-                                                          OFString("studydesc"));
-    BOOST_CHECK_EQUAL(cond == EC_Normal, true);
-    cond = dataset->putAndInsertOFStringArray(DCM_SeriesDescription,
-                                              OFString("seriesdesc"));
-    BOOST_CHECK_EQUAL(cond == EC_Normal, true);
-    cond = dataset->putAndInsertOFStringArray(DCM_InstanceNumber, "1");
-    BOOST_CHECK_EQUAL(cond == EC_Normal, true);
+    dataset.add(dcmtkpp::registry::StudyDescription, {"studydesc"});
+    dataset.add(dcmtkpp::registry::SeriesDescription, {"seriesdesc"});
+    dataset.add(dcmtkpp::registry::InstanceNumber, {1});
 
     BOOST_REQUIRE_THROW(enhanceb2d->get_destination_filename(dataset),
-                        dicomifier::DicomifierException);
+                        dcmtkpp::Exception);
 }

@@ -61,6 +61,7 @@ GenerationFrame
     QString selectitem = settings.value(CONF_GROUP_OUTPUT + "/" +
                                     CONF_KEY_FORMAT,
                                     QString("")).toString();
+    /*
     if (selectitem.toStdString() == UID_MRImageStorage)
     {
         this->_ui->formatMRIMultiple->setChecked(true);
@@ -69,6 +70,9 @@ GenerationFrame
     {
         this->_ui->formatMRISingle->setChecked(true);
     }
+    */
+    this->_ui->formatMRIMultiple->setChecked(true);
+    this->_ui->formatMRISingle->setEnabled(false);
 
     // Set DICOMDIR Creation
     Qt::CheckState checkstate =
@@ -181,19 +185,6 @@ GenerationFrame
         snprintf(&temp[0], 7, mask.c_str(), seriesnum, reconum);
         std::string seriesnumber(temp);
 
-        // Create dataset
-        DcmDataset* dataset = new DcmDataset();
-
-        // Insert SeriesNumber => use to find Bruker data
-        OFCondition ret = dataset->putAndInsertOFStringArray(DCM_SeriesNumber,
-                                                            OFString(seriesnumber.c_str()));
-        if (ret.bad())
-        {
-            delete dataset;
-            currentItem->set_DicomErrorMsg(ret.text());
-            continue;
-        }
-
         std::string outputdir = this->_ui->outputDirectory->text().toStdString();
         if (this->_ui->saveCheckBox->isChecked() == false)
         {
@@ -220,14 +211,12 @@ GenerationFrame
         }
 
         // create Rule
-        auto rule = dicomifier::actions::EnhanceBrukerDicom::New(dataset,
-                                                                 currentItem->get_directory(),
-                                                                 this->get_selectedFormat_toString(),
-                                                                 outputdir, currentStudyNumber);
+        auto rule = dicomifier::actions::EnhanceBrukerDicom::New(
+            currentItem->get_directory(), this->get_selectedFormat_toString(),
+            outputdir, currentStudyNumber, seriesnumber);
 
         if (rule == NULL)
         {
-            delete dataset;
             currentItem->set_DicomErrorMsg("Cannot create conversion rule");
             continue;
         }
@@ -283,8 +272,6 @@ GenerationFrame
             // Remove temporary directory
             boost::filesystem::remove_all(boost::filesystem::path(outputdir.c_str()));
         }
-
-        delete dataset;
     }
 
     // Initialize Result items

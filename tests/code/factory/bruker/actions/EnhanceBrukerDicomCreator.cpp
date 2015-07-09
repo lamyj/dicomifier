@@ -26,19 +26,12 @@ struct TestDataOK01
     boost::property_tree::ptree ptr;
     std::shared_ptr<dicomifier::factory::CreatorBase::InOutPutType> inputs;
     std::shared_ptr<dicomifier::factory::CreatorBase::InOutPutType> outputs;
-    DcmDataset* dataset;
  
     TestDataOK01()
     {
-        // Create Test file
-        dataset = new DcmDataset();
-        OFString name("John");
-        dataset->putAndInsertOFStringArray(DCM_PatientName, name, true);
-        
         // Create XML tree
         boost::property_tree::ptree emptynode;
         emptynode.put("<xmlattr>.brukerdir", "#inputdir");
-        emptynode.put("<xmlattr>.dataset", "#input");
         emptynode.put("<xmlattr>.seriesnumber", "1");
         emptynode.put("<xmlattr>.reconumber", "1");
         emptynode.put("<xmlattr>.sopclassuid", "MR Image Storage");
@@ -48,7 +41,6 @@ struct TestDataOK01
         std::string text = "./temp";
         
         inputs = std::make_shared<dicomifier::factory::CreatorBase::InOutPutType>();
-        inputs->insert(std::pair<std::string, boost::any>("input", boost::any(dataset)));
         inputs->insert(std::pair<std::string, boost::any>("inputdir", boost::any(text)));
 
         outputs = std::make_shared<dicomifier::factory::CreatorBase::InOutPutType>();
@@ -57,10 +49,6 @@ struct TestDataOK01
  
     ~TestDataOK01()
     {
-        if (dataset != NULL)
-        {
-            delete dataset;
-        }
     }
 };
 
@@ -81,198 +69,6 @@ BOOST_FIXTURE_TEST_CASE(TEST_OK_01, TestDataOK01)
     }
 }
 
-/*************************** TEST KO 01 *******************************/
-/**
- * Error test case: Bad dataset value
- */
-struct TestDataKO01
-{
-    boost::property_tree::ptree ptr;
-    std::shared_ptr<dicomifier::factory::CreatorBase::InOutPutType> inputs;
- 
-    TestDataKO01()
-    {
-        // Create Test file
-        DcmDataset* dataset = new DcmDataset();
-        OFString name("John");
-        dataset->putAndInsertOFStringArray(DCM_PatientName, name, true);
-        
-        // Create XML tree
-        boost::property_tree::ptree emptynode;
-        emptynode.put("<xmlattr>.brukerdir", "#inputdir");
-        emptynode.put("<xmlattr>.dataset", "#badvalue");
-        emptynode.put("<xmlattr>.seriesnumber", "1");
-        emptynode.put("<xmlattr>.reconumber", "1");
-        emptynode.put("<xmlattr>.sopclassuid", "MR Image Storage");
-        emptynode.put("<xmlattr>.outputdirectory", ".");
-        ptr.add_child("EnhanceBrukerDicom", emptynode);
-        
-        std::string text = "./temp";
-        
-        inputs = std::make_shared<dicomifier::factory::CreatorBase::InOutPutType>();
-        inputs->insert(std::pair<std::string, boost::any>("input", boost::any(dataset)));
-        inputs->insert(std::pair<std::string, boost::any>("inputdir", boost::any(text)));
-    }
- 
-    ~TestDataKO01()
-    {
-    }
-};
-
-BOOST_FIXTURE_TEST_CASE(TEST_KO_01, TestDataKO01)
-{
-    auto test = dicomifier::factory::EnhanceBrukerDicomCreator::New();
-    test->set_inputs(inputs);
-    
-    BOOST_FOREACH(boost::property_tree::ptree::value_type &v, ptr)
-    {
-        BOOST_REQUIRE_THROW(dicomifier::Object::Pointer object = test->Create(v), dicomifier::DicomifierException);
-    }
-}
-
-/*************************** TEST KO 02 *******************************/
-/**
- * Error test case: Dataset not a reference
- */
-struct TestDataKO02
-{
-    boost::property_tree::ptree ptr;
-    std::shared_ptr<dicomifier::factory::CreatorBase::InOutPutType> inputs;
- 
-    TestDataKO02()
-    {
-        // Create Test file
-        DcmDataset* dataset = new DcmDataset();
-        OFString name("John");
-        dataset->putAndInsertOFStringArray(DCM_PatientName, name, true);
-        
-        // Create XML tree
-        boost::property_tree::ptree emptynode;
-        emptynode.put("<xmlattr>.brukerdir", "#inputdir");
-        emptynode.put("<xmlattr>.dataset", "input");
-        emptynode.put("<xmlattr>.seriesnumber", "1");
-        emptynode.put("<xmlattr>.reconumber", "1");
-        emptynode.put("<xmlattr>.sopclassuid", "MR Image Storage");
-        emptynode.put("<xmlattr>.outputdirectory", ".");
-        ptr.add_child("EnhanceBrukerDicom", emptynode);
-        
-        std::string text = "./temp";
-        
-        inputs = std::make_shared<dicomifier::factory::CreatorBase::InOutPutType>();
-        inputs->insert(std::pair<std::string, boost::any>("input", boost::any(dataset)));
-        inputs->insert(std::pair<std::string, boost::any>("inputdir", boost::any(text)));
-    }
- 
-    ~TestDataKO02()
-    {
-    }
-};
-
-BOOST_FIXTURE_TEST_CASE(TEST_KO_02, TestDataKO02)
-{
-    auto test = dicomifier::factory::EnhanceBrukerDicomCreator::New();
-    test->set_inputs(inputs);
-    
-    BOOST_FOREACH(boost::property_tree::ptree::value_type &v, ptr)
-    {
-        BOOST_REQUIRE_THROW(dicomifier::Object::Pointer object = test->Create(v), dicomifier::DicomifierException);
-    }
-}
-
-/*************************** TEST KO 03 *******************************/
-/**
- * Error test case: Empty dataset
- */
-struct TestDataKO03
-{
-    boost::property_tree::ptree ptr;
-    std::shared_ptr<dicomifier::factory::CreatorBase::InOutPutType> inputs;
- 
-    TestDataKO03()
-    {        
-        // Create XML tree
-        boost::property_tree::ptree emptynode;
-        emptynode.put("<xmlattr>.brukerdir", "#inputdir");
-        emptynode.put("<xmlattr>.dataset", "#input");
-        emptynode.put("<xmlattr>.seriesnumber", "1");
-        emptynode.put("<xmlattr>.reconumber", "1");
-        emptynode.put("<xmlattr>.sopclassuid", "MR Image Storage");
-        emptynode.put("<xmlattr>.outputdirectory", ".");
-        ptr.add_child("EnhanceBrukerDicom", emptynode);
-        
-        std::string text = "./temp";
-        
-        DcmDataset* dataset = NULL;
-        inputs = std::make_shared<dicomifier::factory::CreatorBase::InOutPutType>();
-        inputs->insert(std::pair<std::string, boost::any>("input", boost::any(dataset)));
-        inputs->insert(std::pair<std::string, boost::any>("inputdir", boost::any(text)));
-    }
- 
-    ~TestDataKO03()
-    {
-    }
-};
-
-BOOST_FIXTURE_TEST_CASE(TEST_KO_03, TestDataKO03)
-{
-    auto test = dicomifier::factory::EnhanceBrukerDicomCreator::New();
-    test->set_inputs(inputs);
-    
-    BOOST_FOREACH(boost::property_tree::ptree::value_type &v, ptr)
-    {
-        BOOST_REQUIRE_THROW(dicomifier::Object::Pointer object = test->Create(v), dicomifier::DicomifierException);
-    }
-}
-
-/*************************** TEST KO 04 *******************************/
-/**
- * Error test case: Missing dataset mandatory attribut
- */
-struct TestDataKO04
-{
-    boost::property_tree::ptree ptr;
-    std::shared_ptr<dicomifier::factory::CreatorBase::InOutPutType> inputs;
- 
-    TestDataKO04()
-    {
-        // Create Test file
-        DcmDataset* dataset = new DcmDataset();
-        OFString name("John");
-        dataset->putAndInsertOFStringArray(DCM_PatientName, name, true);
-        
-        // Create XML tree
-        boost::property_tree::ptree emptynode;
-        emptynode.put("<xmlattr>.brukerdir", "#inputdir");
-        emptynode.put("<xmlattr>.seriesnumber", "1");
-        emptynode.put("<xmlattr>.reconumber", "1");
-        emptynode.put("<xmlattr>.sopclassuid", "MR Image Storage");
-        emptynode.put("<xmlattr>.outputdirectory", ".");
-        ptr.add_child("EnhanceBrukerDicom", emptynode);
-        
-        std::string text = "./temp";
-        
-        inputs = std::make_shared<dicomifier::factory::CreatorBase::InOutPutType>();
-        inputs->insert(std::pair<std::string, boost::any>("input", boost::any(dataset)));
-        inputs->insert(std::pair<std::string, boost::any>("inputdir", boost::any(text)));
-    }
- 
-    ~TestDataKO04()
-    {
-    }
-};
-
-BOOST_FIXTURE_TEST_CASE(TEST_KO_04, TestDataKO04)
-{
-    auto test = dicomifier::factory::EnhanceBrukerDicomCreator::New();
-    test->set_inputs(inputs);
-    
-    BOOST_FOREACH(boost::property_tree::ptree::value_type &v, ptr)
-    {
-        BOOST_REQUIRE_THROW(dicomifier::Object::Pointer object = test->Create(v), 
-                            dicomifier::DicomifierException);
-    }
-}
-
 /*************************** TEST KO 05 *******************************/
 /**
  * Error test case: Bad brukerdir value
@@ -284,15 +80,9 @@ struct TestDataKO05
  
     TestDataKO05()
     {
-        // Create Test file
-        DcmDataset* dataset = new DcmDataset();
-        OFString name("John");
-        dataset->putAndInsertOFStringArray(DCM_PatientName, name, true);
-        
         // Create XML tree
         boost::property_tree::ptree emptynode;
         emptynode.put("<xmlattr>.brukerdir", "#badvalue");
-        emptynode.put("<xmlattr>.dataset", "#input");
         emptynode.put("<xmlattr>.seriesnumber", "1");
         emptynode.put("<xmlattr>.reconumber", "1");
         emptynode.put("<xmlattr>.sopclassuid", "MR Image Storage");
@@ -302,7 +92,6 @@ struct TestDataKO05
         std::string text = "./temp";
         
         inputs = std::make_shared<dicomifier::factory::CreatorBase::InOutPutType>();
-        inputs->insert(std::pair<std::string, boost::any>("input", boost::any(dataset)));
         inputs->insert(std::pair<std::string, boost::any>("inputdir", boost::any(text)));
     }
  
@@ -333,14 +122,8 @@ struct TestDataKO06
  
     TestDataKO06()
     {
-        // Create Test file
-        DcmDataset* dataset = new DcmDataset();
-        OFString name("John");
-        dataset->putAndInsertOFStringArray(DCM_PatientName, name, true);
-        
         // Create XML tree
         boost::property_tree::ptree emptynode;
-        emptynode.put("<xmlattr>.dataset", "#input");
         emptynode.put("<xmlattr>.seriesnumber", "1");
         emptynode.put("<xmlattr>.reconumber", "1");
         emptynode.put("<xmlattr>.sopclassuid", "MR Image Storage");
@@ -350,7 +133,6 @@ struct TestDataKO06
         std::string text = "./temp";
         
         inputs = std::make_shared<dicomifier::factory::CreatorBase::InOutPutType>();
-        inputs->insert(std::pair<std::string, boost::any>("input", boost::any(dataset)));
         inputs->insert(std::pair<std::string, boost::any>("inputdir", boost::any(text)));
     }
  
@@ -381,15 +163,9 @@ struct TestDataKO07
  
     TestDataKO07()
     {
-        // Create Test file
-        DcmDataset* dataset = new DcmDataset();
-        OFString name("John");
-        dataset->putAndInsertOFStringArray(DCM_PatientName, name, true);
-        
         // Create XML tree
         boost::property_tree::ptree emptynode;
         emptynode.put("<xmlattr>.brukerdir", "#inputdir");
-        emptynode.put("<xmlattr>.dataset", "#input");
         emptynode.put("<xmlattr>.seriesnunmber", "1");
         emptynode.put("<xmlattr>.sopclassuid", "MR Image Storage");
         emptynode.put("<xmlattr>.outputdirectory", ".");
@@ -398,7 +174,6 @@ struct TestDataKO07
         std::string text = "./temp";
         
         inputs = std::make_shared<dicomifier::factory::CreatorBase::InOutPutType>();
-        inputs->insert(std::pair<std::string, boost::any>("input", boost::any(dataset)));
         inputs->insert(std::pair<std::string, boost::any>("inputdir", boost::any(text)));
     }
  
@@ -430,15 +205,9 @@ struct TestDataKO08
  
     TestDataKO08()
     {
-        // Create Test file
-        DcmDataset* dataset = new DcmDataset();
-        OFString name("John");
-        dataset->putAndInsertOFStringArray(DCM_PatientName, name, true);
-        
         // Create XML tree
         boost::property_tree::ptree emptynode;
         emptynode.put("<xmlattr>.brukerdir", "#inputdir");
-        emptynode.put("<xmlattr>.dataset", "#input");
         emptynode.put("<xmlattr>.reconumber", "ABCD");
         emptynode.put("<xmlattr>.seriesnumber", "1");
         emptynode.put("<xmlattr>.sopclassuid", "MR Image Storage");
@@ -448,7 +217,6 @@ struct TestDataKO08
         std::string text = "./temp";
         
         inputs = std::make_shared<dicomifier::factory::CreatorBase::InOutPutType>();
-        inputs->insert(std::pair<std::string, boost::any>("input", boost::any(dataset)));
         inputs->insert(std::pair<std::string, boost::any>("inputdir", boost::any(text)));
     }
  
@@ -478,19 +246,12 @@ struct TestDataKO09
     boost::property_tree::ptree ptr;
     std::shared_ptr<dicomifier::factory::CreatorBase::InOutPutType> inputs;
     std::shared_ptr<dicomifier::factory::CreatorBase::InOutPutType> outputs;
-    DcmDataset* dataset;
 
     TestDataKO09()
     {
-        // Create Test file
-        dataset = new DcmDataset();
-        OFString name("John");
-        dataset->putAndInsertOFStringArray(DCM_PatientName, name, true);
-
         // Create XML tree
         boost::property_tree::ptree emptynode;
         emptynode.put("<xmlattr>.brukerdir", "#inputdir");
-        emptynode.put("<xmlattr>.dataset", "#input");
         emptynode.put("<xmlattr>.seriesnumber", "1");
         emptynode.put("<xmlattr>.reconumber", "1");
         emptynode.put("<xmlattr>.sopclassuid", "MR Image Storage");
@@ -500,7 +261,6 @@ struct TestDataKO09
         std::string text = "./temp";
 
         inputs = std::make_shared<dicomifier::factory::CreatorBase::InOutPutType>();
-        inputs->insert(std::pair<std::string, boost::any>("input", boost::any(dataset)));
         inputs->insert(std::pair<std::string, boost::any>("inputdir", boost::any(text)));
 
         outputs = std::make_shared<dicomifier::factory::CreatorBase::InOutPutType>();
@@ -509,10 +269,6 @@ struct TestDataKO09
 
     ~TestDataKO09()
     {
-        if (dataset != NULL)
-        {
-            delete dataset;
-        }
     }
 };
 
