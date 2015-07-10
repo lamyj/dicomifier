@@ -13,10 +13,9 @@ namespace dicomifier
     
 FrameIndexGenerator
 ::FrameIndexGenerator(std::vector<int> indexmax, int countmax)
-    :_indexMax(indexmax), _currentIndex({}), 
-     _countMax(countmax), _currentStep(0)
+    :_indexMax(indexmax), _currentIndex({}), _countMax(countmax), _currentStep(0)
 {
-    if (indexmax.size() > 0)
+    if (!indexmax.empty())
     {
         this->_currentIndex = std::vector<int>(indexmax.size(), 0);
     }

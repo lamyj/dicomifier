@@ -777,12 +777,12 @@ static void addBlendingSequence(DcmDirectoryRecord *record,
         /* make sure that the sequence is really present in the original dataset */
         if (dataset->tagExistsWithValue(DCM_BlendingSequence))
         {
-            signed long i = 0;
             DcmItem *ditem = NULL;
             /* create new BlendingSequence */
             DcmSequenceOfItems *newSeq = new DcmSequenceOfItems(DCM_BlendingSequence);
             if (newSeq != NULL)
             {
+                signed long i = 0;
                 do {
                     /* get sequence item (not very efficient, but it works) */
                     if (dataset->findAndGetSequenceItem(DCM_BlendingSequence, ditem, i++).good())
@@ -819,7 +819,6 @@ static OFCondition insertWithISCriterion(DcmDirectoryRecord *parent,
     {
         OFBool found = OFFalse;
         Sint32 childNumber = 0;
-        Sint32 parentNumber = 0;
         /* retrieve numeric value */
         result = child->findAndGetSint32(criterionKey, childNumber);
         /* if available search for proper position */
@@ -829,6 +828,7 @@ static OFCondition insertWithISCriterion(DcmDirectoryRecord *parent,
             /* iterate over all records in the parent list */
             while (!found && ((record = parent->nextSub(record)) != NULL))
             {
+                Sint32 parentNumber = 0;
                 /* check for proper position */
                 if (record->findAndGetSint32(criterionKey, parentNumber).good() && (parentNumber > childNumber))
                     found = OFTrue;
