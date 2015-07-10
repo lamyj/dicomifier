@@ -12,148 +12,94 @@
 #include "translator/fields/DicomSequenceField.h"
 #include "translator/fields/TestField.h"
 
-/*************************** TEST OK 01 *******************************/
+/****************************** TEST Nominal *********************************/
 /**
  * Nominal test case: Constructor
  */
-BOOST_AUTO_TEST_CASE(TEST_OK_01)
+BOOST_AUTO_TEST_CASE(Constructor)
 {
     // Test VR = SQ
     auto testfieldae = dicomifier::translator::DicomSequenceField::New();
     // Pointer exists
-    BOOST_CHECK_EQUAL(testfieldae != NULL, true);
+    BOOST_REQUIRE(testfieldae != NULL);
 }
 
-/*************************** TEST OK 02 *******************************/
+/****************************** TEST Nominal *********************************/
 /**
  * Nominal test case: Run (per frame)
  */
-struct TestDataOK02
+BOOST_AUTO_TEST_CASE(TEST_OK_02)
 {
     dicomifier::TagAndRange tagandrange;
-    DcmDataset* dataset;
- 
-    TestDataOK02()
-    {
-        dataset = new DcmDataset();
-    }
- 
-    ~TestDataOK02()
-    {
-        delete dataset;
-    }
-};
-
-BOOST_FIXTURE_TEST_CASE(TEST_OK_02, TestDataOK02)
-{
+    DcmDataset dataset;
     // Test VR = SQ
     tagandrange._tag = DCM_SharedFunctionalGroupsSequence;
     auto testfieldSQ = dicomifier::translator::
             DicomSequenceField::New(tagandrange, {}, true);
-    testfieldSQ->run(NULL, dicomifier::FrameIndexGenerator({}), dataset);
-    BOOST_CHECK_EQUAL(dataset->tagExists(tagandrange._tag), true);
+    testfieldSQ->run(NULL, dicomifier::FrameIndexGenerator({}), &dataset);
+    BOOST_CHECK(dataset.tagExists(tagandrange._tag));
 }
 
-/*************************** TEST OK 03 *******************************/
+/****************************** TEST Nominal *********************************/
 /**
  * Nominal test case: Run Sequence with subtag (per frame)
  */
-struct TestDataOK03
+BOOST_AUTO_TEST_CASE(TEST_OK_03)
 {
     dicomifier::TagAndRange tagandrange;
-    DcmDataset* dataset;
-
-    TestDataOK03()
-    {
-        dataset = new DcmDataset();
-    }
-
-    ~TestDataOK03()
-    {
-        delete dataset;
-    }
-};
-
-BOOST_FIXTURE_TEST_CASE(TEST_OK_03, TestDataOK03)
-{
+    DcmDataset dataset;
     // Test VR = SQ
     tagandrange._tag = DCM_SharedFunctionalGroupsSequence;
-    auto testfieldSQ = dicomifier::translator::
-            DicomSequenceField::New(tagandrange, {dicomifier::translator::TestField::New()}, true);
-    testfieldSQ->run(NULL, dicomifier::FrameIndexGenerator({}), dataset);
-    BOOST_CHECK_EQUAL(dataset->tagExists(tagandrange._tag), true);
+    auto testfieldSQ = dicomifier::translator::DicomSequenceField::
+            New(tagandrange, {dicomifier::translator::TestField::New()}, true);
+    testfieldSQ->run(NULL, dicomifier::FrameIndexGenerator({}), &dataset);
+    BOOST_CHECK(dataset.tagExists(tagandrange._tag));
 }
 
-/*************************** TEST OK 04 *******************************/
+/****************************** TEST Nominal *********************************/
 /**
  * Nominal test case: Run (One Frame)
  */
-struct TestDataOK04
+BOOST_AUTO_TEST_CASE(TEST_OK_04)
 {
     dicomifier::TagAndRange tagandrange;
-    DcmDataset* dataset;
-
-    TestDataOK04()
-    {
-        dataset = new DcmDataset();
-    }
-
-    ~TestDataOK04()
-    {
-        delete dataset;
-    }
-};
-
-BOOST_FIXTURE_TEST_CASE(TEST_OK_04, TestDataOK04)
-{
+    DcmDataset dataset;
     // Test VR = SQ
     tagandrange._tag = DCM_SharedFunctionalGroupsSequence;
     auto testfieldSQ = dicomifier::translator::
             DicomSequenceField::New(tagandrange, {}, false);
-    testfieldSQ->run(NULL, dicomifier::FrameIndexGenerator({}), dataset);
-    BOOST_CHECK_EQUAL(dataset->tagExists(tagandrange._tag), true);
+    testfieldSQ->run(NULL, dicomifier::FrameIndexGenerator({}), &dataset);
+    BOOST_CHECK(dataset.tagExists(tagandrange._tag));
 }
 
-/*************************** TEST OK 05 *******************************/
+/****************************** TEST Nominal *********************************/
 /**
  * Nominal test case: Run Sequence with subtag (per frame)
  */
-struct TestDataOK05
+BOOST_AUTO_TEST_CASE(TEST_OK_05)
 {
     dicomifier::TagAndRange tagandrange;
-    DcmDataset* dataset;
-
-    TestDataOK05()
-    {
-        dataset = new DcmDataset();
-    }
-
-    ~TestDataOK05()
-    {
-        delete dataset;
-    }
-};
-
-BOOST_FIXTURE_TEST_CASE(TEST_OK_05, TestDataOK05)
-{
+    DcmDataset dataset;
     // Test VR = SQ
     tagandrange._tag = DCM_SharedFunctionalGroupsSequence;
-    auto testfieldSQ = dicomifier::translator::
-            DicomSequenceField::New(tagandrange, {dicomifier::translator::TestField::New()}, false);
-    testfieldSQ->run(NULL, dicomifier::FrameIndexGenerator({}), dataset);
-    BOOST_CHECK_EQUAL(dataset->tagExists(tagandrange._tag), true);
+    auto testfieldSQ = dicomifier::translator::DicomSequenceField::
+            New(tagandrange, {dicomifier::translator::TestField::New()}, false);
+    testfieldSQ->run(NULL, dicomifier::FrameIndexGenerator({}), &dataset);
+    BOOST_CHECK(dataset.tagExists(tagandrange._tag));
 }
 
-/*************************** TEST KO 01 *******************************/
+/****************************** TEST Error ***********************************/
 /**
  * Error test case: Empty Dataset
  */
-BOOST_AUTO_TEST_CASE(TEST_KO_01)
+BOOST_AUTO_TEST_CASE(EmptyDataset)
 {
     dicomifier::TagAndRange tagandrange;
     tagandrange._tag = DCM_SharedFunctionalGroupsSequence;
     auto testfieldSQ = dicomifier::translator::
             DicomSequenceField::New(tagandrange, {}, false);
-    BOOST_REQUIRE_THROW(testfieldSQ->run(NULL, dicomifier::FrameIndexGenerator({}), NULL), 
+    BOOST_REQUIRE_THROW(testfieldSQ->run(NULL,
+                                         dicomifier::FrameIndexGenerator({}),
+                                         NULL),
                         dicomifier::DicomifierException);
 }

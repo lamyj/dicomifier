@@ -21,36 +21,35 @@
 /**
  * Nominal test case: Constructor
  */
-BOOST_AUTO_TEST_CASE(TEST_OK_01)
+BOOST_AUTO_TEST_CASE(Constructor)
 {
     auto deleteelt = dicomifier::actions::DeleteElement::New();
-    BOOST_CHECK_EQUAL(deleteelt != NULL, true);
+    BOOST_REQUIRE(deleteelt != NULL);
     
     deleteelt = dicomifier::actions::DeleteElement::New(NULL, {});
-    BOOST_CHECK_EQUAL(deleteelt != NULL, true);
+    BOOST_REQUIRE(deleteelt != NULL);
 }
 
 /*************************** TEST OK 02 *******************************/
 /**
  * Nominal test case: Get/Set
  */
-BOOST_AUTO_TEST_CASE(TEST_OK_02)
+BOOST_AUTO_TEST_CASE(Accessors)
 {
     auto deleteelt = dicomifier::actions::DeleteElement::New();
     
-    DcmDataset * dataset = new DcmDataset();
-    deleteelt->set_dataset(dataset);
-    BOOST_CHECK_EQUAL(deleteelt->get_dataset() != NULL, true);
+    DcmDataset dataset;
+    deleteelt->set_dataset(&dataset);
+    BOOST_REQUIRE(deleteelt->get_dataset() != NULL);
     
     deleteelt->set_tags({dicomifier::TagAndRange()});
     BOOST_CHECK_EQUAL(deleteelt->get_tags().size(), 1);
     
-    deleteelt = dicomifier::actions::DeleteElement::New(dataset, 
-                                                       {dicomifier::TagAndRange()});
-    BOOST_CHECK_EQUAL(deleteelt->get_dataset() != NULL, true);
+    deleteelt =
+            dicomifier::actions::DeleteElement::New(&dataset,
+                                                    {dicomifier::TagAndRange()});
+    BOOST_REQUIRE(deleteelt->get_dataset() != NULL);
     BOOST_CHECK_EQUAL(deleteelt->get_tags().size(), 1);
-    
-    delete dataset;
 }
 
 /*************************** TEST OK 03 *******************************/
@@ -59,55 +58,69 @@ BOOST_AUTO_TEST_CASE(TEST_OK_02)
  */
 struct TestDataOK03
 {
-    DcmDataset * dataset;
+    DcmDataset dataset;
     std::vector<dicomifier::TagAndRange> vect;
  
     TestDataOK03()
     {
-        dataset = new DcmDataset();
-        
         // Test VR = AE
-        dataset->putAndInsertOFStringArray(DCM_PerformedStationAETitle, 
-                                           OFString("ABCD"), true);
+        OFCondition condition =
+                dataset.putAndInsertOFStringArray(DCM_PerformedStationAETitle,
+                                                  OFString("ABCD"), true);
+        BOOST_REQUIRE(condition.good());
         
         // Test VR = AS
-        dataset->putAndInsertOFStringArray(DCM_PatientAge, 
-                                           OFString("20Y"), true);
+        condition = dataset.putAndInsertOFStringArray(DCM_PatientAge,
+                                                      OFString("20Y"), true);
+        BOOST_REQUIRE(condition.good());
         
         // Test VR = AT => Not implemented
         
         // Test VR = CS
-        dataset->putAndInsertOFStringArray(DCM_PatientSex, 
-                                           OFString("M"), true);
+        condition = dataset.putAndInsertOFStringArray(DCM_PatientSex,
+                                                      OFString("M"), true);
+        BOOST_REQUIRE(condition.good());
         
         // Test VR = DA
-        dataset->putAndInsertOFStringArray(DCM_StudyDate, 
-                                           OFString("02052014"), true);
+        condition = dataset.putAndInsertOFStringArray(DCM_StudyDate,
+                                                      OFString("02052014"),
+                                                      true);
+        BOOST_REQUIRE(condition.good());
         
         // Test VR = DS
-        dataset->putAndInsertOFStringArray(DCM_PatientWeight, "60.5", true);
+        condition = dataset.putAndInsertOFStringArray(DCM_PatientWeight,
+                                                      "60.5", true);
+        BOOST_REQUIRE(condition.good());
         
         // Test VR = DT
-        dataset->putAndInsertOFStringArray(DCM_AcquisitionDateTime, 
-                                           OFString("02153202062013"), 
+        condition = dataset.putAndInsertOFStringArray(DCM_AcquisitionDateTime,
+                                           OFString("02153202062013"),
                                            true);
+        BOOST_REQUIRE(condition.good());
         
         // Test VR = FL
-        dataset->putAndInsertFloat32(DCM_StimulusArea, (Float32)15.2);
+        condition = dataset.putAndInsertFloat32(DCM_StimulusArea, (Float32)15.2);
+        BOOST_REQUIRE(condition.good());
         
         // Test VR = FD
-        dataset->putAndInsertFloat64(DCM_PupilSize, 42.5);
+        condition = dataset.putAndInsertFloat64(DCM_PupilSize, 42.5);
+        BOOST_REQUIRE(condition.good());
         
         // Test VR = IS
-        dataset->putAndInsertOFStringArray(DCM_StageNumber, "12", true);
+        condition = dataset.putAndInsertOFStringArray(DCM_StageNumber,
+                                                      "12", true);
+        BOOST_REQUIRE(condition.good());
         
         // Test VR = LO
-        dataset->putAndInsertOFStringArray(DCM_Manufacturer, 
+        condition = dataset.putAndInsertOFStringArray(DCM_Manufacturer,
                                            OFString("Machine1"), true);
+        BOOST_REQUIRE(condition.good());
         
         // Test VR = LT
-        dataset->putAndInsertOFStringArray(DCM_AdditionalPatientHistory, 
-                                           OFString("abc"), true);
+        condition =
+                dataset.putAndInsertOFStringArray(DCM_AdditionalPatientHistory,
+                                                  OFString("abc"), true);
+        BOOST_REQUIRE(condition.good());
         
         // Test VR = OB => Not implemented
         // Test VR = OD => Not implemented
@@ -115,58 +128,72 @@ struct TestDataOK03
         // Test VR = OW => Not implemented
         
         // Test VR = PN
-        dataset->putAndInsertOFStringArray(DCM_PatientName, 
-                                           OFString("John"), true);
+        condition = dataset.putAndInsertOFStringArray(DCM_PatientName,
+                                                      OFString("John"), true);
+        BOOST_REQUIRE(condition.good());
         
         // Test VR = SH
-        dataset->putAndInsertOFStringArray(DCM_AccessionNumber, 
-                                           OFString("1234"), true);
+        condition = dataset.putAndInsertOFStringArray(DCM_AccessionNumber,
+                                                      OFString("1234"), true);
+        BOOST_REQUIRE(condition.good());
         
         // Test VR = SL
-        dataset->putAndInsertSint32(DCM_ReferencePixelX0, 123);
+        condition = dataset.putAndInsertSint32(DCM_ReferencePixelX0, 123);
+        BOOST_REQUIRE(condition.good());
         
         // Test VR = SQ
         DcmItem* item = new DcmItem(DCM_OtherPatientIDsSequence);
         item->putAndInsertOFStringArray(DCM_PatientID, "123");
-        dataset->insertSequenceItem(DCM_OtherPatientIDsSequence, item);
+        condition = dataset.insertSequenceItem(DCM_OtherPatientIDsSequence,
+                                               item);
+        BOOST_REQUIRE(condition.good());
         
         // Test VR = SS
-        dataset->putAndInsertSint16(DCM_TagAngleSecondAxis, 123);
+        condition = dataset.putAndInsertSint16(DCM_TagAngleSecondAxis, 123);
+        BOOST_REQUIRE(condition.good());
         
         // Test VR = ST
-        dataset->putAndInsertOFStringArray(DCM_InstitutionAddress, 
-                                           OFString("ABC"), true);
+        condition = dataset.putAndInsertOFStringArray(DCM_InstitutionAddress,
+                                                      OFString("ABC"), true);
+        BOOST_REQUIRE(condition.good());
         
         // Test VR = TM
-        dataset->putAndInsertOFStringArray(DCM_StudyTime, 
+        condition = dataset.putAndInsertOFStringArray(DCM_StudyTime,
                                            OFString("012345"), true);
+        BOOST_REQUIRE(condition.good());
         
         // Test VR = UI
-        dataset->putAndInsertOFStringArray(DCM_SOPClassUID, 
-                                           OFString("12345678"), true);
+        condition = dataset.putAndInsertOFStringArray(DCM_SOPClassUID,
+                                                      OFString("12345678"),
+                                                      true);
+        BOOST_REQUIRE(condition.good());
         
         // Test VR = UL
-        dataset->putAndInsertUint32(DCM_RegionFlags, 123);
+        condition = dataset.putAndInsertUint32(DCM_RegionFlags, 123);
+        BOOST_REQUIRE(condition.good());
         
         // Test VR = UN => Not implemented
         
         // Test VR = US
-        dataset->putAndInsertUint16(DCM_FailureReason, 123);
+        condition = dataset.putAndInsertUint16(DCM_FailureReason, 123);
+        BOOST_REQUIRE(condition.good());
         
         // Test VR = UT
         OFString name("myUnlimitedText");
-        dataset->putAndInsertOFStringArray(DCM_PixelDataProviderURL, 
-                                           name, true);
+        condition = dataset.putAndInsertOFStringArray(DCM_PixelDataProviderURL,
+                                                      name, true);
+        BOOST_REQUIRE(condition.good());
         
         
         // Insert testing value
-        dataset->putAndInsertOFStringArray(DCM_Modality, 
-                                           "value1\\value2\\value3\\value4");
+        condition = dataset.putAndInsertOFStringArray(
+                        DCM_Modality, "value1\\value2\\value3\\value4");
+        BOOST_REQUIRE(condition.good());
     }
  
     ~TestDataOK03()
     {
-        delete dataset;
+        // Nothing to do
     }
 };
 
@@ -175,126 +202,105 @@ BOOST_FIXTURE_TEST_CASE(TEST_OK_03, TestDataOK03)
     dicomifier::actions::DeleteElement::Pointer testdelete = NULL;
     
     // Test VR = AE
-    BOOST_CHECK_EQUAL(dataset->tagExists(DCM_PerformedStationAETitle), 
-                      true);
+    BOOST_CHECK(dataset.tagExists(DCM_PerformedStationAETitle));
     vect.clear();
     vect.push_back(dicomifier::TagAndRange(DCM_PerformedStationAETitle, 
                    dicomifier::Range(0,std::numeric_limits<int>::max())));
-    testdelete = dicomifier::actions::DeleteElement::New(dataset, vect);
+    testdelete = dicomifier::actions::DeleteElement::New(&dataset, vect);
     testdelete->run();
-    BOOST_CHECK_EQUAL(dataset->tagExists(DCM_PerformedStationAETitle), 
-                      false);
+    BOOST_CHECK(!dataset.tagExists(DCM_PerformedStationAETitle));
     
     // Test VR = AS
-    BOOST_CHECK_EQUAL(dataset->tagExists(DCM_PatientAge), 
-                      true);
+    BOOST_CHECK(dataset.tagExists(DCM_PatientAge));
     vect.clear();
     vect.push_back(dicomifier::TagAndRange(DCM_PatientAge, 
                    dicomifier::Range(0,std::numeric_limits<int>::max())));
-    testdelete = dicomifier::actions::DeleteElement::New(dataset, vect);
+    testdelete = dicomifier::actions::DeleteElement::New(&dataset, vect);
     testdelete->run();
-    BOOST_CHECK_EQUAL(dataset->tagExists(DCM_PatientAge), 
-                      false);
+    BOOST_CHECK(!dataset.tagExists(DCM_PatientAge));
     
     // Test VR = AT => Not implemented
     
     // Test VR = CS
-    BOOST_CHECK_EQUAL(dataset->tagExists(DCM_PatientSex), 
-                      true);
+    BOOST_CHECK(dataset.tagExists(DCM_PatientSex));
     vect.clear();
     vect.push_back(dicomifier::TagAndRange(DCM_PatientSex, 
                    dicomifier::Range(0,std::numeric_limits<int>::max())));
-    testdelete = dicomifier::actions::DeleteElement::New(dataset, vect);
+    testdelete = dicomifier::actions::DeleteElement::New(&dataset, vect);
     testdelete->run();
-    BOOST_CHECK_EQUAL(dataset->tagExists(DCM_PatientSex), 
-                      false);
+    BOOST_CHECK(!dataset.tagExists(DCM_PatientSex));
     
     // Test VR = DA
-    BOOST_CHECK_EQUAL(dataset->tagExists(DCM_StudyDate), 
-                      true);
+    BOOST_CHECK(dataset.tagExists(DCM_StudyDate));
     vect.clear();
     vect.push_back(dicomifier::TagAndRange(DCM_StudyDate, 
                    dicomifier::Range(0,std::numeric_limits<int>::max())));
-    testdelete = dicomifier::actions::DeleteElement::New(dataset, vect);
+    testdelete = dicomifier::actions::DeleteElement::New(&dataset, vect);
     testdelete->run();
-    BOOST_CHECK_EQUAL(dataset->tagExists(DCM_StudyDate), 
-                      false);
+    BOOST_CHECK(!dataset.tagExists(DCM_StudyDate));
     
     // Test VR = DS
-    BOOST_CHECK_EQUAL(dataset->tagExists(DCM_PatientWeight), 
-                      true);
+    BOOST_CHECK(dataset.tagExists(DCM_PatientWeight));
     vect.clear();
     vect.push_back(dicomifier::TagAndRange(DCM_PatientWeight, 
                    dicomifier::Range(0,std::numeric_limits<int>::max())));
-    testdelete = dicomifier::actions::DeleteElement::New(dataset, vect);
+    testdelete = dicomifier::actions::DeleteElement::New(&dataset, vect);
     testdelete->run();
-    BOOST_CHECK_EQUAL(dataset->tagExists(DCM_PatientWeight), 
-                      false);
+    BOOST_CHECK(!dataset.tagExists(DCM_PatientWeight));
     
     // Test VR = DT
-    BOOST_CHECK_EQUAL(dataset->tagExists(DCM_AcquisitionDateTime), 
-                      true);
+    BOOST_CHECK(dataset.tagExists(DCM_AcquisitionDateTime));
     vect.clear();
     vect.push_back(dicomifier::TagAndRange(DCM_AcquisitionDateTime, 
                    dicomifier::Range(0,std::numeric_limits<int>::max())));
-    testdelete = dicomifier::actions::DeleteElement::New(dataset, vect);
+    testdelete = dicomifier::actions::DeleteElement::New(&dataset, vect);
     testdelete->run();
-    BOOST_CHECK_EQUAL(dataset->tagExists(DCM_AcquisitionDateTime), 
-                      false);
+    BOOST_CHECK(!dataset.tagExists(DCM_AcquisitionDateTime));
     
     // Test VR = FL
-    BOOST_CHECK_EQUAL(dataset->tagExists(DCM_StimulusArea), true);
+    BOOST_CHECK(dataset.tagExists(DCM_StimulusArea));
     vect.clear();
     vect.push_back(dicomifier::TagAndRange(DCM_StimulusArea, 
                    dicomifier::Range(0,std::numeric_limits<int>::max())));
-    testdelete = dicomifier::actions::DeleteElement::New(dataset, vect);
+    testdelete = dicomifier::actions::DeleteElement::New(&dataset, vect);
     testdelete->run();
-    BOOST_CHECK_EQUAL(dataset->tagExists(DCM_StimulusArea), 
-                      false);
+    BOOST_CHECK(!dataset.tagExists(DCM_StimulusArea));
     
     // Test VR = FD
-    BOOST_CHECK_EQUAL(dataset->tagExists(DCM_PupilSize), 
-                      true);
+    BOOST_CHECK(dataset.tagExists(DCM_PupilSize));
     vect.clear();
     vect.push_back(dicomifier::TagAndRange(DCM_PupilSize, 
                    dicomifier::Range(0,std::numeric_limits<int>::max())));
-    testdelete = dicomifier::actions::DeleteElement::New(dataset, vect);
+    testdelete = dicomifier::actions::DeleteElement::New(&dataset, vect);
     testdelete->run();
-    BOOST_CHECK_EQUAL(dataset->tagExists(DCM_PupilSize), 
-                      false);
+    BOOST_CHECK(!dataset.tagExists(DCM_PupilSize));
     
     // Test VR = IS
-    BOOST_CHECK_EQUAL(dataset->tagExists(DCM_StageNumber), 
-                      true);
+    BOOST_CHECK(dataset.tagExists(DCM_StageNumber));
     vect.clear();
     vect.push_back(dicomifier::TagAndRange(DCM_StageNumber, 
                    dicomifier::Range(0,std::numeric_limits<int>::max())));
-    testdelete = dicomifier::actions::DeleteElement::New(dataset, vect);
+    testdelete = dicomifier::actions::DeleteElement::New(&dataset, vect);
     testdelete->run();
-    BOOST_CHECK_EQUAL(dataset->tagExists(DCM_StageNumber), 
-                      false);
+    BOOST_CHECK(!dataset.tagExists(DCM_StageNumber));
     
     // Test VR = LO
-    BOOST_CHECK_EQUAL(dataset->tagExists(DCM_Manufacturer), 
-                      true);
+    BOOST_CHECK(dataset.tagExists(DCM_Manufacturer));
     vect.clear();
     vect.push_back(dicomifier::TagAndRange(DCM_Manufacturer, 
                    dicomifier::Range(0,std::numeric_limits<int>::max())));
-    testdelete = dicomifier::actions::DeleteElement::New(dataset, vect);
+    testdelete = dicomifier::actions::DeleteElement::New(&dataset, vect);
     testdelete->run();
-    BOOST_CHECK_EQUAL(dataset->tagExists(DCM_Manufacturer), 
-                      false);
+    BOOST_CHECK(!dataset.tagExists(DCM_Manufacturer));
     
     // Test VR = LT
-    BOOST_CHECK_EQUAL(dataset->tagExists(DCM_AdditionalPatientHistory), 
-                      true);
+    BOOST_CHECK(dataset.tagExists(DCM_AdditionalPatientHistory));
     vect.clear();
     vect.push_back(dicomifier::TagAndRange(DCM_AdditionalPatientHistory, 
                    dicomifier::Range(0,std::numeric_limits<int>::max())));
-    testdelete = dicomifier::actions::DeleteElement::New(dataset, vect);
+    testdelete = dicomifier::actions::DeleteElement::New(&dataset, vect);
     testdelete->run();
-    BOOST_CHECK_EQUAL(dataset->tagExists(DCM_AdditionalPatientHistory), 
-                      false);
+    BOOST_CHECK(!dataset.tagExists(DCM_AdditionalPatientHistory));
     
     // Test VR = OB => Not implemented
     // Test VR = OD => Not implemented
@@ -302,127 +308,105 @@ BOOST_FIXTURE_TEST_CASE(TEST_OK_03, TestDataOK03)
     // Test VR = OW => Not implemented
     
     // Test VR = PN
-    BOOST_CHECK_EQUAL(dataset->tagExists(DCM_PatientName), 
-                      true);
+    BOOST_CHECK(dataset.tagExists(DCM_PatientName));
     vect.clear();
     vect.push_back(dicomifier::TagAndRange(DCM_PatientName, 
                    dicomifier::Range(0,std::numeric_limits<int>::max())));
-    testdelete = dicomifier::actions::DeleteElement::New(dataset, vect);
+    testdelete = dicomifier::actions::DeleteElement::New(&dataset, vect);
     testdelete->run();
-    BOOST_CHECK_EQUAL(dataset->tagExists(DCM_PatientName), 
-                      false);
+    BOOST_CHECK(!dataset.tagExists(DCM_PatientName));
     
     // Test VR = SH
-    BOOST_CHECK_EQUAL(dataset->tagExists(DCM_AccessionNumber), 
-                      true);
+    BOOST_CHECK(dataset.tagExists(DCM_AccessionNumber));
     vect.clear();
     vect.push_back(dicomifier::TagAndRange(DCM_AccessionNumber, 
                    dicomifier::Range(0,std::numeric_limits<int>::max())));
-    testdelete = dicomifier::actions::DeleteElement::New(dataset, vect);
+    testdelete = dicomifier::actions::DeleteElement::New(&dataset, vect);
     testdelete->run();
-    BOOST_CHECK_EQUAL(dataset->tagExists(DCM_AccessionNumber), 
-                      false);
+    BOOST_CHECK(!dataset.tagExists(DCM_AccessionNumber));
     
     // Test VR = SL
-    BOOST_CHECK_EQUAL(dataset->tagExists(DCM_ReferencePixelX0), 
-                      true);
+    BOOST_CHECK(dataset.tagExists(DCM_ReferencePixelX0));
     vect.clear();
     vect.push_back(dicomifier::TagAndRange(DCM_ReferencePixelX0, 
                    dicomifier::Range(0,std::numeric_limits<int>::max())));
-    testdelete = dicomifier::actions::DeleteElement::New(dataset, vect);
+    testdelete = dicomifier::actions::DeleteElement::New(&dataset, vect);
     testdelete->run();
-    BOOST_CHECK_EQUAL(dataset->tagExists(DCM_ReferencePixelX0), 
-                      false);
+    BOOST_CHECK(!dataset.tagExists(DCM_ReferencePixelX0));
     
     // Test VR = SQ
-    BOOST_CHECK_EQUAL(dataset->tagExists(DCM_OtherPatientIDsSequence), 
-                      true);
+    BOOST_CHECK(dataset.tagExists(DCM_OtherPatientIDsSequence));
     vect.clear();
     vect.push_back(dicomifier::TagAndRange(DCM_OtherPatientIDsSequence, 
                    dicomifier::Range(0,std::numeric_limits<int>::max())));
-    testdelete = dicomifier::actions::DeleteElement::New(dataset, vect);
+    testdelete = dicomifier::actions::DeleteElement::New(&dataset, vect);
     testdelete->run();
-    BOOST_CHECK_EQUAL(dataset->tagExists(DCM_OtherPatientIDsSequence), 
-                      false);
+    BOOST_CHECK(!dataset.tagExists(DCM_OtherPatientIDsSequence));
     
     // Test VR = SS
-    BOOST_CHECK_EQUAL(dataset->tagExists(DCM_TagAngleSecondAxis), 
-                      true);
+    BOOST_CHECK(dataset.tagExists(DCM_TagAngleSecondAxis));
     vect.clear();
     vect.push_back(dicomifier::TagAndRange(DCM_TagAngleSecondAxis, 
                    dicomifier::Range(0,std::numeric_limits<int>::max())));
-    testdelete = dicomifier::actions::DeleteElement::New(dataset, vect);
+    testdelete = dicomifier::actions::DeleteElement::New(&dataset, vect);
     testdelete->run();
-    BOOST_CHECK_EQUAL(dataset->tagExists(DCM_TagAngleSecondAxis), 
-                      false);
+    BOOST_CHECK(!dataset.tagExists(DCM_TagAngleSecondAxis));
     
     // Test VR = ST
-    BOOST_CHECK_EQUAL(dataset->tagExists(DCM_InstitutionAddress), 
-                      true);
+    BOOST_CHECK(dataset.tagExists(DCM_InstitutionAddress));
     vect.clear();
     vect.push_back(dicomifier::TagAndRange(DCM_InstitutionAddress, 
                    dicomifier::Range(0,std::numeric_limits<int>::max())));
-    testdelete = dicomifier::actions::DeleteElement::New(dataset, vect);
+    testdelete = dicomifier::actions::DeleteElement::New(&dataset, vect);
     testdelete->run();
-    BOOST_CHECK_EQUAL(dataset->tagExists(DCM_InstitutionAddress), 
-                      false);
+    BOOST_CHECK(!dataset.tagExists(DCM_InstitutionAddress));
     
     // Test VR = TM
-    BOOST_CHECK_EQUAL(dataset->tagExists(DCM_StudyTime), 
-                      true);
+    BOOST_CHECK(dataset.tagExists(DCM_StudyTime));
     vect.clear();
     vect.push_back(dicomifier::TagAndRange(DCM_StudyTime, 
                    dicomifier::Range(0,std::numeric_limits<int>::max())));
-    testdelete = dicomifier::actions::DeleteElement::New(dataset, vect);
+    testdelete = dicomifier::actions::DeleteElement::New(&dataset, vect);
     testdelete->run();
-    BOOST_CHECK_EQUAL(dataset->tagExists(DCM_StudyTime), 
-                      false);
+    BOOST_CHECK(!dataset.tagExists(DCM_StudyTime));
     
     // Test VR = UI
-    BOOST_CHECK_EQUAL(dataset->tagExists(DCM_SOPClassUID), 
-                      true);
+    BOOST_CHECK(dataset.tagExists(DCM_SOPClassUID));
     vect.clear();
     vect.push_back(dicomifier::TagAndRange(DCM_SOPClassUID, 
                    dicomifier::Range(0,std::numeric_limits<int>::max())));
-    testdelete = dicomifier::actions::DeleteElement::New(dataset, vect);
+    testdelete = dicomifier::actions::DeleteElement::New(&dataset, vect);
     testdelete->run();
-    BOOST_CHECK_EQUAL(dataset->tagExists(DCM_SOPClassUID), 
-                      false);
+    BOOST_CHECK(!dataset.tagExists(DCM_SOPClassUID));
     
     // Test VR = UL
-    BOOST_CHECK_EQUAL(dataset->tagExists(DCM_RegionFlags), 
-                      true);
+    BOOST_CHECK(dataset.tagExists(DCM_RegionFlags));
     vect.clear();
     vect.push_back(dicomifier::TagAndRange(DCM_RegionFlags, 
                    dicomifier::Range(0,std::numeric_limits<int>::max())));
-    testdelete = dicomifier::actions::DeleteElement::New(dataset, vect);
+    testdelete = dicomifier::actions::DeleteElement::New(&dataset, vect);
     testdelete->run();
-    BOOST_CHECK_EQUAL(dataset->tagExists(DCM_RegionFlags), 
-                      false);
+    BOOST_CHECK(!dataset.tagExists(DCM_RegionFlags));
     
     // Test VR = UN => Not implemented
     
     // Test VR = US
-    BOOST_CHECK_EQUAL(dataset->tagExists(DCM_FailureReason), 
-                      true);
+    BOOST_CHECK(dataset.tagExists(DCM_FailureReason));
     vect.clear();
     vect.push_back(dicomifier::TagAndRange(DCM_FailureReason, 
                    dicomifier::Range(0,std::numeric_limits<int>::max())));
-    testdelete = dicomifier::actions::DeleteElement::New(dataset, vect);
+    testdelete = dicomifier::actions::DeleteElement::New(&dataset, vect);
     testdelete->run();
-    BOOST_CHECK_EQUAL(dataset->tagExists(DCM_FailureReason), 
-                      false);
+    BOOST_CHECK(!dataset.tagExists(DCM_FailureReason));
     
     // Test VR = UT
-    BOOST_CHECK_EQUAL(dataset->tagExists(DCM_PixelDataProviderURL), 
-                      true);
+    BOOST_CHECK(dataset.tagExists(DCM_PixelDataProviderURL));
     vect.clear();
     vect.push_back(dicomifier::TagAndRange(DCM_PixelDataProviderURL, 
                    dicomifier::Range(0,std::numeric_limits<int>::max())));
-    testdelete = dicomifier::actions::DeleteElement::New(dataset, vect);
+    testdelete = dicomifier::actions::DeleteElement::New(&dataset, vect);
     testdelete->run();
-    BOOST_CHECK_EQUAL(dataset->tagExists(DCM_PixelDataProviderURL), 
-                      false);
+    BOOST_CHECK(!dataset.tagExists(DCM_PixelDataProviderURL));
 }
 
 /*************************** TEST OK 04 *******************************/
@@ -431,32 +415,32 @@ BOOST_FIXTURE_TEST_CASE(TEST_OK_03, TestDataOK03)
  */
 struct TestDataOK04
 {
-    DcmDataset * dataset;
+    DcmDataset dataset;
  
     TestDataOK04()
     {
-        dataset = new DcmDataset();
         // Insert testing value
-        dataset->putAndInsertOFStringArray(DCM_Modality, "value1\\value2\\value3\\value4");
+        dataset.putAndInsertOFStringArray(DCM_Modality,
+                                          "value1\\value2\\value3\\value4");
         DcmItem* item = new DcmItem(DCM_OtherPatientIDsSequence);
         item->putAndInsertOFStringArray(DCM_PatientID, "123\\456\\789");
-        dataset->insertSequenceItem(DCM_OtherPatientIDsSequence, item);
+        dataset.insertSequenceItem(DCM_OtherPatientIDsSequence, item);
     }
  
     ~TestDataOK04()
     {
-        delete dataset;
+        // Nothing to do
     }
 };
 
 BOOST_FIXTURE_TEST_CASE(TEST_OK_04, TestDataOK04)
 {
     // check DCM_Modality in dataset
-    BOOST_CHECK_EQUAL(dataset->tagExists(DCM_Modality), true);
+    BOOST_CHECK(dataset.tagExists(DCM_Modality));
     
     DcmElement* dcmelement = NULL;
-    OFCondition condition = dataset->findAndGetElement(DCM_Modality,
-                                                       dcmelement);
+    OFCondition condition = dataset.findAndGetElement(DCM_Modality,
+                                                      dcmelement);
     BOOST_CHECK(condition.good());
     if (dcmelement != NULL)
     {
@@ -471,15 +455,15 @@ BOOST_FIXTURE_TEST_CASE(TEST_OK_04, TestDataOK04)
     vect.push_back(dicomifier::TagAndRange(DCM_Modality,
                                            dicomifier::Range(1,3)));
     
-    auto testdelete = dicomifier::actions::DeleteElement::New(dataset, vect);
+    auto testdelete = dicomifier::actions::DeleteElement::New(&dataset, vect);
     
     testdelete->run();
         
     // check DCM_Modality still present
-    BOOST_CHECK_EQUAL(dataset->tagExists(DCM_Modality), true);
+    BOOST_CHECK(dataset.tagExists(DCM_Modality));
     
     dcmelement = NULL;
-    condition = dataset->findAndGetElement(DCM_Modality, dcmelement);
+    condition = dataset.findAndGetElement(DCM_Modality, dcmelement);
     BOOST_CHECK(condition.good());
 
     if (dcmelement != NULL)
@@ -503,7 +487,7 @@ BOOST_FIXTURE_TEST_CASE(TEST_OK_04, TestDataOK04)
 BOOST_FIXTURE_TEST_CASE(TEST_OK_05, TestDataOK04)
 {
     // check DCM_Modality in dataset
-    BOOST_CHECK_EQUAL(dataset->tagExists(DCM_PatientID, OFTrue), true);
+    BOOST_CHECK(dataset.tagExists(DCM_PatientID, OFTrue));
     
     std::vector<dicomifier::TagAndRange> vect;
     vect.push_back(dicomifier::TagAndRange(DCM_OtherPatientIDsSequence, 
@@ -511,15 +495,15 @@ BOOST_FIXTURE_TEST_CASE(TEST_OK_05, TestDataOK04)
     vect.push_back(dicomifier::TagAndRange(DCM_PatientID, 
                         dicomifier::Range(0,std::numeric_limits<int>::max())));
     
-    auto testdelete = dicomifier::actions::DeleteElement::New(dataset, vect);
+    auto testdelete = dicomifier::actions::DeleteElement::New(&dataset, vect);
     
     testdelete->run();
         
     // check DCM_Modality delete
-    BOOST_CHECK_EQUAL(dataset->tagExists(DCM_PatientID, OFTrue), false);
+    BOOST_CHECK(!dataset.tagExists(DCM_PatientID, OFTrue));
     
     // check Other tag already exist
-    BOOST_CHECK_EQUAL(dataset->tagExists(DCM_OtherPatientIDsSequence), true);
+    BOOST_CHECK(dataset.tagExists(DCM_OtherPatientIDsSequence));
 }
 
 /*************************** TEST OK 06 *******************************/
@@ -529,11 +513,11 @@ BOOST_FIXTURE_TEST_CASE(TEST_OK_05, TestDataOK04)
 BOOST_FIXTURE_TEST_CASE(TEST_OK_06, TestDataOK04)
 {
     // check DCM_Modality in dataset
-    BOOST_CHECK_EQUAL(dataset->tagExists(DCM_PatientID, OFTrue), true);
+    BOOST_CHECK(dataset.tagExists(DCM_PatientID, OFTrue));
     
     DcmElement* dcmelement = NULL;
-    OFCondition condition = dataset->findAndGetElement(DCM_Modality,
-                                                       dcmelement);
+    OFCondition condition = dataset.findAndGetElement(DCM_Modality,
+                                                      dcmelement);
     BOOST_CHECK(condition.good());
 
     if (dcmelement != NULL)
@@ -547,19 +531,19 @@ BOOST_FIXTURE_TEST_CASE(TEST_OK_06, TestDataOK04)
     
     std::vector<dicomifier::TagAndRange> vect;
     vect.push_back(dicomifier::TagAndRange(DCM_OtherPatientIDsSequence, 
-                                            dicomifier::Range(0,1)));
+                                           dicomifier::Range(0,1)));
     vect.push_back(dicomifier::TagAndRange(DCM_PatientID,
                                            dicomifier::Range(0,2)));
     
-    auto testdelete = dicomifier::actions::DeleteElement::New(dataset, vect);
+    auto testdelete = dicomifier::actions::DeleteElement::New(&dataset, vect);
     
     testdelete->run();
         
     // check DCM_Modality still present
-    BOOST_CHECK_EQUAL(dataset->tagExists(DCM_PatientID, OFTrue), true);
+    BOOST_CHECK(dataset.tagExists(DCM_PatientID, OFTrue));
     
     dcmelement = NULL;
-    condition = dataset->findAndGetElement(DCM_PatientID, dcmelement, OFTrue);
+    condition = dataset.findAndGetElement(DCM_PatientID, dcmelement, OFTrue);
     BOOST_CHECK(condition.good());
 
     if (dcmelement != NULL)
@@ -582,17 +566,17 @@ BOOST_FIXTURE_TEST_CASE(TEST_OK_06, TestDataOK04)
 BOOST_FIXTURE_TEST_CASE(TEST_OK_07, TestDataOK04)
 {
     // check DCM_PatientSex not in dataset
-    BOOST_CHECK_EQUAL(dataset->tagExists(DCM_PatientSex), false);
+    BOOST_CHECK(!dataset.tagExists(DCM_PatientSex));
     
     std::vector<dicomifier::TagAndRange> vect;
     vect.push_back(dicomifier::TagAndRange(DCM_PatientSex, 
                         dicomifier::Range(0,std::numeric_limits<int>::max())));
     
-    auto testdelete = dicomifier::actions::DeleteElement::New(dataset, vect);
+    auto testdelete = dicomifier::actions::DeleteElement::New(&dataset, vect);
     testdelete->run();
         
     // check DCM_PatientSex not in dataset
-    BOOST_CHECK_EQUAL(dataset->tagExists(DCM_PatientSex), false);
+    BOOST_CHECK(!dataset.tagExists(DCM_PatientSex));
 }
 
 /*************************** TEST KO 01 *******************************/

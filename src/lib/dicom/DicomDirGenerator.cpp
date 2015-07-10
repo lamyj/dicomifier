@@ -736,18 +736,19 @@ static void addConceptModContentItems(DcmDirectoryRecord *record,
     if ((record != NULL) && (dataset != NULL))
     {
         OFString tmpString;
-        DcmItem *ditem = NULL;
         /* create new ContentSequence */
         DcmSequenceOfItems *newSeq = new DcmSequenceOfItems(DCM_ContentSequence);
         if (newSeq != NULL)
         {
             signed long i = 0;
+            DcmItem *ditem = NULL;
             do {
                 /* get sequence item (not very efficient, but it works) */
                 if (dataset->findAndGetSequenceItem(DCM_ContentSequence, ditem, i++).good())
                 {
                     /* check RelationshipType */
-                    if (ditem->findAndGetOFString(DCM_RelationshipType, tmpString).good() &&
+                    if (ditem != NULL &&
+                        ditem->findAndGetOFString(DCM_RelationshipType, tmpString).good() &&
                         (tmpString.compare("HAS CONCEPT MOD") == 0))
                     {
                          /* copy content item */
@@ -777,12 +778,12 @@ static void addBlendingSequence(DcmDirectoryRecord *record,
         /* make sure that the sequence is really present in the original dataset */
         if (dataset->tagExistsWithValue(DCM_BlendingSequence))
         {
-            DcmItem *ditem = NULL;
             /* create new BlendingSequence */
             DcmSequenceOfItems *newSeq = new DcmSequenceOfItems(DCM_BlendingSequence);
             if (newSeq != NULL)
             {
                 signed long i = 0;
+                DcmItem *ditem = NULL;
                 do {
                     /* get sequence item (not very efficient, but it works) */
                     if (dataset->findAndGetSequenceItem(DCM_BlendingSequence, ditem, i++).good())
@@ -792,8 +793,11 @@ static void addBlendingSequence(DcmDirectoryRecord *record,
                         {
                             if (newSeq->append(newItem).good())
                             {
-                                ditem->findAndInsertCopyOfElement(DCM_StudyInstanceUID, newItem);
-                                ditem->findAndInsertCopyOfElement(DCM_ReferencedSeriesSequence, newItem);
+                                if (ditem != NULL)
+                                {
+                                    ditem->findAndInsertCopyOfElement(DCM_StudyInstanceUID, newItem);
+                                    ditem->findAndInsertCopyOfElement(DCM_ReferencedSeriesSequence, newItem);
+                                }
                             } else
                                 delete newItem;
                         }
@@ -3928,7 +3932,7 @@ OFCondition DicomDirGenerator::addIconImage(DcmDirectoryRecord *record,
         DcmItem *ditem = NULL;
         /* create icon image sequence with one item */
         result = record->findOrCreateSequenceItem(DCM_IconImageSequence, ditem);
-        if (result.good())
+        if (result.good() && ditem != NULL)
         {
             const unsigned int width = size;
             const unsigned int height = size;
@@ -5121,7 +5125,7 @@ void DicomDirGenerator::copyElement(DcmItem *dataset,
             {
                 /* ... and insert it into the destination dataset (record) */
                 status = record->insert(delem, OFTrue /*replaceOld*/);
-                if (status.good())
+                if (status.good() && delem != NULL)
                 {
                     DcmTag tag(key);
                     /* check for correct VR in the dataset */

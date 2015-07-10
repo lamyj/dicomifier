@@ -18,35 +18,33 @@
 /**
  * Nominal test case: Constructor
  */
-BOOST_AUTO_TEST_CASE(TEST_OK_01)
+BOOST_AUTO_TEST_CASE(Constructor)
 {
     auto printds = dicomifier::actions::PrintDataset::New();
-    BOOST_CHECK_EQUAL(printds != NULL, true);
+    BOOST_REQUIRE(printds != NULL);
     
     printds = dicomifier::actions::PrintDataset::New(NULL, "");
-    BOOST_CHECK_EQUAL(printds != NULL, true);
+    BOOST_REQUIRE(printds != NULL);
 }
 
 /*************************** TEST OK 02 *******************************/
 /**
  * Nominal test case: Get/Set
  */
-BOOST_AUTO_TEST_CASE(TEST_OK_02)
+BOOST_AUTO_TEST_CASE(Accessors)
 {
     auto printds = dicomifier::actions::PrintDataset::New();
     
-    DcmDataset * dataset = new DcmDataset();
-    printds->set_dataset(dataset);
-    BOOST_CHECK_EQUAL(printds->get_dataset() != NULL, true);
+    DcmDataset dataset;
+    printds->set_dataset(&dataset);
+    BOOST_CHECK(printds->get_dataset() != NULL);
     
     printds->set_outputfile("test");
     BOOST_CHECK_EQUAL(printds->get_outputfile(), "test");
     
-    printds = dicomifier::actions::PrintDataset::New(dataset, "test");
-    BOOST_CHECK_EQUAL(printds->get_dataset() != NULL, true);
+    printds = dicomifier::actions::PrintDataset::New(&dataset, "test");
+    BOOST_CHECK(printds->get_dataset() != NULL);
     BOOST_CHECK_EQUAL(printds->get_outputfile(), "test");
-    
-    delete dataset;
 }
 
 /*************************** TEST OK 03 *******************************/
@@ -55,42 +53,39 @@ BOOST_AUTO_TEST_CASE(TEST_OK_02)
  */
 struct TestDataOK03
 {
-    DcmDataset * dataset;
+    DcmDataset dataset;
     std::string filename;
  
-    TestDataOK03()
+    TestDataOK03() : filename("./test_PrintDataset_tempfile.dcm")
     {
-        dataset = new DcmDataset();
-        dataset->putAndInsertOFStringArray(DCM_Modality, "value1");
-        dataset->putAndInsertOFStringArray(DCM_PatientWeight, "60.5");
-        
-        filename = "./test_PrintDataset_tempfile.dcm";
+        dataset.putAndInsertOFStringArray(DCM_Modality, "value1");
+        dataset.putAndInsertOFStringArray(DCM_PatientWeight, "60.5");
+
     }
  
     ~TestDataOK03()
     {
-        delete dataset;
         remove(filename.c_str());
     }
 };
 
 BOOST_FIXTURE_TEST_CASE(TEST_OK_03, TestDataOK03)
 {
-    BOOST_CHECK_EQUAL(boost::filesystem::exists(filename), false);
+    BOOST_REQUIRE(!boost::filesystem::exists(filename));
     
     auto testprint = dicomifier::actions::PrintDataset::New();
-    testprint->set_dataset(dataset);
+    testprint->set_dataset(&dataset);
     testprint->set_outputfile(filename);
     testprint->run();
     
-    BOOST_CHECK_EQUAL(boost::filesystem::exists(filename), true);
+    BOOST_CHECK(boost::filesystem::exists(filename));
 }
 
 /*************************** TEST KO 01 *******************************/
 /**
  * Error test case: Empty dataset
  */
-BOOST_AUTO_TEST_CASE(TEST_KO_01)
+BOOST_AUTO_TEST_CASE(EmptyDataset)
 {
     dicomifier::actions::PrintDataset::Pointer printds = 
         dicomifier::actions::PrintDataset::New();

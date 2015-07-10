@@ -12,6 +12,31 @@
 
 #include "dicom/DicomDirGenerator.h"
 
+struct TestDataDicomDirGenerator
+{
+    dicomifier::DicomDirGenerator dicomdirgenerator;
+    dicomifier::DicomDirGenerator backdicomdirgenerator;
+
+    TestDataDicomDirGenerator()
+    {
+        dicomdirgenerator.enableMapFilenamesMode();
+
+        OFCondition result =
+            dicomdirgenerator.createNewDicomDir(dicomifier::DicomDirGenerator::AP_GeneralPurpose,
+                                                 "./DICOMDIR");
+
+        BOOST_REQUIRE(result.good());
+
+        backdicomdirgenerator.enableMapFilenamesMode();
+        backdicomdirgenerator.disableBackupMode(true);
+    }
+
+    ~TestDataDicomDirGenerator()
+    {
+        // Nothing to do
+    }
+};
+
 /*************************** TEST OK 01 *******************************/
 /**
  * Nominal test case: Constructor / Destructor
@@ -20,7 +45,7 @@ BOOST_AUTO_TEST_CASE(TEST_OK_01)
 {
     auto dicomdirgenerator = new dicomifier::DicomDirGenerator();
 
-    BOOST_CHECK_EQUAL(dicomdirgenerator != NULL, true);
+    BOOST_CHECK(dicomdirgenerator != NULL);
 
     delete dicomdirgenerator;
 }
@@ -29,30 +54,16 @@ BOOST_AUTO_TEST_CASE(TEST_OK_01)
 /**
  * Nominal test case: Create DICOMDIR
  */
-struct TestDataOK02
+BOOST_AUTO_TEST_CASE(TEST_OK_02)
 {
-    dicomifier::DicomDirGenerator* dicomdirgenerator;
-
-    TestDataOK02()
-    {
-        dicomdirgenerator = new dicomifier::DicomDirGenerator();
-    }
-
-    ~TestDataOK02()
-    {
-        delete dicomdirgenerator;
-    }
-};
-
-BOOST_FIXTURE_TEST_CASE(TEST_OK_02, TestDataOK02)
-{
-    dicomdirgenerator->enableMapFilenamesMode();
+    dicomifier::DicomDirGenerator dicomdirgenerator;
+    dicomdirgenerator.enableMapFilenamesMode();
 
     OFCondition result =
-        dicomdirgenerator->createNewDicomDir(dicomifier::DicomDirGenerator::AP_GeneralPurpose,
+        dicomdirgenerator.createNewDicomDir(dicomifier::DicomDirGenerator::AP_GeneralPurpose,
                                              "./DICOMDIR");
-    BOOST_CHECK_EQUAL(result == EC_Normal, true);
-    BOOST_CHECK_EQUAL(dicomdirgenerator->isDicomDirValid(), true);
+    BOOST_REQUIRE(result == EC_Normal);
+    BOOST_CHECK(dicomdirgenerator.isDicomDirValid());
 }
 
 
@@ -60,27 +71,7 @@ BOOST_FIXTURE_TEST_CASE(TEST_OK_02, TestDataOK02)
 /**
  * Nominal test case: Add extra attributs
  */
-struct TestDataOK03
-{
-    dicomifier::DicomDirGenerator* dicomdirgenerator;
-
-    TestDataOK03()
-    {
-        dicomdirgenerator = new dicomifier::DicomDirGenerator();
-        dicomdirgenerator->enableMapFilenamesMode();
-
-        OFCondition result =
-            dicomdirgenerator->createNewDicomDir(dicomifier::DicomDirGenerator::AP_GeneralPurpose,
-                                                 "./DICOMDIR");
-    }
-
-    ~TestDataOK03()
-    {
-        delete dicomdirgenerator;
-    }
-};
-
-BOOST_FIXTURE_TEST_CASE(TEST_OK_03, TestDataOK03)
+BOOST_FIXTURE_TEST_CASE(TEST_OK_03, TestDataDicomDirGenerator)
 {
     // patient_extra_attributes
     std::vector<DcmTagKey> patient_extra_attributes_cpp =
@@ -100,152 +91,107 @@ BOOST_FIXTURE_TEST_CASE(TEST_OK_03, TestDataOK03)
         DCM_SeriesDescription
     };
 
-    dicomdirgenerator->setPatientExtraAttributes(patient_extra_attributes_cpp);
-    dicomdirgenerator->setStudyExtraAttributes(study_extra_attributes_cpp);
-    dicomdirgenerator->setSeriesExtraAttributes(series_extra_attributes_cpp);
+    dicomdirgenerator.setPatientExtraAttributes(patient_extra_attributes_cpp);
+    dicomdirgenerator.setStudyExtraAttributes(study_extra_attributes_cpp);
+    dicomdirgenerator.setSeriesExtraAttributes(series_extra_attributes_cpp);
 
-    BOOST_CHECK_EQUAL(dicomdirgenerator->getPatientExtraAttributes().size(), 1);
-    BOOST_CHECK_EQUAL(dicomdirgenerator->getStudyExtraAttributes().size(), 1);
-    BOOST_CHECK_EQUAL(dicomdirgenerator->getSeriesExtraAttributes().size(), 1);
+    BOOST_CHECK_EQUAL(dicomdirgenerator.getPatientExtraAttributes().size(), 1);
+    BOOST_CHECK_EQUAL(dicomdirgenerator.getStudyExtraAttributes().size(), 1);
+    BOOST_CHECK_EQUAL(dicomdirgenerator.getSeriesExtraAttributes().size(), 1);
 }
 
 /*************************** TEST OK 04 *******************************/
 /**
  * Nominal test case: Write DICOMDIR
  */
-struct TestDataOK04
+struct TestDataOK04 : public TestDataDicomDirGenerator
 {
-    dicomifier::DicomDirGenerator* dicomdirgenerator;
-
-    TestDataOK04()
+    TestDataOK04() : TestDataDicomDirGenerator()
     {
-        dicomdirgenerator = new dicomifier::DicomDirGenerator();
-        dicomdirgenerator->enableMapFilenamesMode();
-
-        OFCondition result =
-            dicomdirgenerator->createNewDicomDir(dicomifier::DicomDirGenerator::AP_GeneralPurpose,
-                                                 "./DICOMDIR");
+        // Nothing to do
     }
 
     ~TestDataOK04()
     {
-        delete dicomdirgenerator;
         remove("./DICOMDIR");
     }
 };
 
 BOOST_FIXTURE_TEST_CASE(TEST_OK_04, TestDataOK04)
 {
-    OFCondition result = dicomdirgenerator->writeDicomDir();
-    BOOST_CHECK_EQUAL(result == EC_Normal, true);
-    BOOST_CHECK_EQUAL(boost::filesystem::exists("./DICOMDIR"), true);
+    BOOST_REQUIRE(!boost::filesystem::exists("./DICOMDIR"));
+    OFCondition result = dicomdirgenerator.writeDicomDir();
+    BOOST_REQUIRE(result == EC_Normal);
+    BOOST_REQUIRE(boost::filesystem::exists("./DICOMDIR"));
 }
 
 /*************************** TEST OK 05 *******************************/
 /**
  * Nominal test case: BackUp DICOMDIR
  */
-struct TestDataOK05
+BOOST_FIXTURE_TEST_CASE(TEST_OK_05, TestDataOK04)
 {
-    dicomifier::DicomDirGenerator* dicomdirgenerator;
-    dicomifier::DicomDirGenerator* backdicomdirgenerator;
+    OFCondition result = dicomdirgenerator.writeDicomDir();
+    BOOST_CHECK(result == EC_Normal);
+    BOOST_CHECK(boost::filesystem::exists("./DICOMDIR"));
 
-    TestDataOK05()
-    {
-        dicomdirgenerator = new dicomifier::DicomDirGenerator();
-        dicomdirgenerator->enableMapFilenamesMode();
+    result = backdicomdirgenerator.createNewDicomDir(
+                dicomifier::DicomDirGenerator::AP_GeneralPurpose, "./DICOMDIR");
+    BOOST_CHECK(result == EC_Normal);
 
-        backdicomdirgenerator = new dicomifier::DicomDirGenerator();
-        backdicomdirgenerator->enableMapFilenamesMode();
-        backdicomdirgenerator->disableBackupMode(true);
-
-        OFCondition result =
-            dicomdirgenerator->createNewDicomDir(dicomifier::DicomDirGenerator::AP_GeneralPurpose,
-                                                 "./DICOMDIR");
-    }
-
-    ~TestDataOK05()
-    {
-        delete dicomdirgenerator;
-        delete backdicomdirgenerator;
-        remove("./DICOMDIR");
-    }
-};
-
-BOOST_FIXTURE_TEST_CASE(TEST_OK_05, TestDataOK05)
-{
-    OFCondition result = dicomdirgenerator->writeDicomDir();
-    BOOST_CHECK_EQUAL(result == EC_Normal, true);
-    BOOST_CHECK_EQUAL(boost::filesystem::exists("./DICOMDIR"), true);
-
-    result = backdicomdirgenerator->createNewDicomDir(dicomifier::DicomDirGenerator::AP_GeneralPurpose,
-                                                      "./DICOMDIR");
-    BOOST_CHECK_EQUAL(result == EC_Normal, true);
-
-    result = backdicomdirgenerator->writeDicomDir();
-    BOOST_CHECK_EQUAL(result == EC_Normal, true);
-    BOOST_CHECK_EQUAL(boost::filesystem::exists("./DICOMDIR"), true);
+    result = backdicomdirgenerator.writeDicomDir();
+    BOOST_CHECK(result == EC_Normal);
+    BOOST_CHECK(boost::filesystem::exists("./DICOMDIR"));
 }
 
 /*************************** TEST OK 06 *******************************/
 /**
  * Nominal test case: Add files
  */
-struct TestDataOK06
+struct TestDataOK06 : public TestDataDicomDirGenerator
 {
-    dicomifier::DicomDirGenerator* dicomdirgenerator;
-
     TestDataOK06()
     {
-        dicomdirgenerator = new dicomifier::DicomDirGenerator();
-        dicomdirgenerator->enableMapFilenamesMode();
-
-        OFCondition result = dicomdirgenerator->createNewDicomDir(
-                    dicomifier::DicomDirGenerator::AP_GeneralPurpose,
-                    "./DICOMDIR");
-        BOOST_CHECK_EQUAL(result == EC_Normal, true);
-
-        DcmDataset * dataset = new DcmDataset();
+        DcmDataset dataset;
         // generate unique SOP INSTANCE UID
         char uid_sop_instance[128];
         dcmGenerateUniqueIdentifier(uid_sop_instance, SITE_INSTANCE_UID_ROOT);
 
-        dataset->putAndInsertOFStringArray(DCM_SOPInstanceUID, OFString(uid_sop_instance));
-        dataset->putAndInsertOFStringArray(DCM_SOPClassUID, UID_MRImageStorage);
-        dataset->putAndInsertOFStringArray(DCM_Modality, "MR");
-        dataset->putAndInsertOFStringArray(DCM_PatientID, "patient_id");
-        dataset->putAndInsertOFStringArray(DCM_PatientName, "patient^name");
-        dataset->putAndInsertOFStringArray(DCM_StudyDate, "20150101");
-        dataset->putAndInsertOFStringArray(DCM_StudyTime, "121212");
-        dataset->putAndInsertOFStringArray(DCM_StudyInstanceUID, "1.2.3.4.5");
-        dataset->putAndInsertOFStringArray(DCM_StudyID, "study_id");
-        dataset->putAndInsertOFStringArray(DCM_SeriesInstanceUID, "1.2.3.4.5.6");
-        dataset->putAndInsertOFStringArray(DCM_SeriesNumber, "1");
-        dataset->putAndInsertOFStringArray(DCM_InstanceNumber, "1");
+        dataset.putAndInsertOFStringArray(DCM_SOPInstanceUID,
+                                          OFString(uid_sop_instance));
+        dataset.putAndInsertOFStringArray(DCM_SOPClassUID, UID_MRImageStorage);
+        dataset.putAndInsertOFStringArray(DCM_Modality, "MR");
+        dataset.putAndInsertOFStringArray(DCM_PatientID, "patient_id");
+        dataset.putAndInsertOFStringArray(DCM_PatientName, "patient^name");
+        dataset.putAndInsertOFStringArray(DCM_StudyDate, "20150101");
+        dataset.putAndInsertOFStringArray(DCM_StudyTime, "121212");
+        dataset.putAndInsertOFStringArray(DCM_StudyInstanceUID, "1.2.3.4.5");
+        dataset.putAndInsertOFStringArray(DCM_StudyID, "study_id");
+        dataset.putAndInsertOFStringArray(DCM_SeriesInstanceUID, "1.2.3.4.5.6");
+        dataset.putAndInsertOFStringArray(DCM_SeriesNumber, "1");
+        dataset.putAndInsertOFStringArray(DCM_InstanceNumber, "1");
 
-        DcmFileFormat fileformat(dataset);
-        result = fileformat.saveFile("./ABCD1234", EXS_LittleEndianExplicit);
-        BOOST_CHECK_EQUAL(result == EC_Normal, true);
-
-        delete dataset;
+        DcmFileFormat fileformat(&dataset);
+        OFCondition condition = fileformat.saveFile("./ABCD1234",
+                                                    EXS_LittleEndianExplicit);
+        BOOST_REQUIRE(condition == EC_Normal);
     }
 
     ~TestDataOK06()
     {
-        delete dicomdirgenerator;
         remove("./DICOMDIR");
     }
 };
 
 BOOST_FIXTURE_TEST_CASE(TEST_OK_06, TestDataOK06)
 {
-    BOOST_CHECK_EQUAL(boost::filesystem::exists("./ABCD1234"), true);
-    OFCondition result = dicomdirgenerator->addDicomFile("ABCD1234");
-    BOOST_CHECK_EQUAL(result == EC_Normal, true);
+    BOOST_REQUIRE(boost::filesystem::exists("./ABCD1234"));
+    OFCondition result = dicomdirgenerator.addDicomFile("ABCD1234");
+    BOOST_CHECK(result == EC_Normal);
 
-    result = dicomdirgenerator->writeDicomDir();
-    BOOST_CHECK_EQUAL(result == EC_Normal, true);
-    BOOST_CHECK_EQUAL(boost::filesystem::exists("./DICOMDIR"), true);
+    result = dicomdirgenerator.writeDicomDir();
+    BOOST_CHECK(result == EC_Normal);
+    BOOST_REQUIRE(boost::filesystem::exists("./DICOMDIR"));
 }
 
 /*************************** TEST OK 07 *******************************/
@@ -254,18 +200,18 @@ BOOST_FIXTURE_TEST_CASE(TEST_OK_06, TestDataOK06)
  */
 BOOST_FIXTURE_TEST_CASE(TEST_OK_07, TestDataOK06)
 {
-    BOOST_CHECK_EQUAL(boost::filesystem::exists("./ABCD1234"), true);
-    OFCondition result = dicomdirgenerator->addDicomFile("ABCD1234");
-    BOOST_CHECK_EQUAL(result == EC_Normal, true);
+    BOOST_REQUIRE(boost::filesystem::exists("./ABCD1234"));
+    OFCondition result = dicomdirgenerator.addDicomFile("ABCD1234");
+    BOOST_CHECK(result == EC_Normal);
 
-    result = dicomdirgenerator->writeDicomDir();
-    BOOST_CHECK_EQUAL(result == EC_Normal, true);
-    BOOST_CHECK_EQUAL(boost::filesystem::exists("./DICOMDIR"), true);
+    result = dicomdirgenerator.writeDicomDir();
+    BOOST_CHECK(result == EC_Normal);
+    BOOST_REQUIRE(boost::filesystem::exists("./DICOMDIR"));
 
-    result = dicomdirgenerator->updateDicomDir(
+    result = dicomdirgenerator.updateDicomDir(
                 dicomifier::DicomDirGenerator::AP_GeneralPurpose,
                 "./DICOMDIR");
-    BOOST_CHECK_EQUAL(result == EC_Normal, true);
+    BOOST_CHECK(result == EC_Normal);
 }
 
 /*************************** TEST OK 08 *******************************/
@@ -274,16 +220,16 @@ BOOST_FIXTURE_TEST_CASE(TEST_OK_07, TestDataOK06)
  */
 BOOST_FIXTURE_TEST_CASE(TEST_OK_08, TestDataOK06)
 {
-    BOOST_CHECK_EQUAL(boost::filesystem::exists("./ABCD1234"), true);
-    OFCondition result = dicomdirgenerator->addDicomFile("ABCD1234");
-    BOOST_CHECK_EQUAL(result == EC_Normal, true);
+    BOOST_REQUIRE(boost::filesystem::exists("./ABCD1234"));
+    OFCondition result = dicomdirgenerator.addDicomFile("ABCD1234");
+    BOOST_CHECK(result == EC_Normal);
 
-    result = dicomdirgenerator->writeDicomDir();
-    BOOST_CHECK_EQUAL(result == EC_Normal, true);
-    BOOST_CHECK_EQUAL(boost::filesystem::exists("./DICOMDIR"), true);
+    result = dicomdirgenerator.writeDicomDir();
+    BOOST_CHECK(result == EC_Normal);
+    BOOST_REQUIRE(boost::filesystem::exists("./DICOMDIR"));
 
-    result = dicomdirgenerator->appendToDicomDir(
+    result = dicomdirgenerator.appendToDicomDir(
                 dicomifier::DicomDirGenerator::AP_GeneralPurpose,
                 "./DICOMDIR");
-    BOOST_CHECK_EQUAL(result == EC_Normal, true);
+    BOOST_CHECK(result == EC_Normal);
 }

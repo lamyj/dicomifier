@@ -11,17 +11,17 @@
 
 #include "translator/fields/TestField.h"
 
-/*************************** TEST OK 01 *******************************/
+/****************************** TEST Nominal *********************************/
 /**
- * Nominal test case: Constructor + get_class_type + run
+ * Nominal test case: Constructor and Run
  */
-BOOST_AUTO_TEST_CASE(TEST_OK_01)
+BOOST_AUTO_TEST_CASE(Constructor)
 {
     // creation: no error expected
     auto testfield = dicomifier::translator::TestField::New();
     
     // Pointer exists
-    BOOST_CHECK_EQUAL(testfield != NULL, true);
+    BOOST_CHECK(testfield != NULL);
     
     // no error expected
     testfield->run(NULL, dicomifier::FrameIndexGenerator({}), NULL);

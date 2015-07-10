@@ -18,26 +18,26 @@
 /**
  * Nominal test case: Constructor
  */
-BOOST_AUTO_TEST_CASE(TEST_OK_01)
+BOOST_AUTO_TEST_CASE(Constructor)
 {
     auto storeds = dicomifier::actions::StoreDataset::New();
-    BOOST_CHECK_EQUAL(storeds != NULL, true);
+    BOOST_REQUIRE(storeds != NULL);
     
     storeds = dicomifier::actions::StoreDataset::New(NULL, "", 0, "", "");
-    BOOST_CHECK_EQUAL(storeds != NULL, true);
+    BOOST_REQUIRE(storeds != NULL);
 }
 
 /*************************** TEST OK 02 *******************************/
 /**
  * Nominal test case: Get/Set
  */
-BOOST_AUTO_TEST_CASE(TEST_OK_02)
+BOOST_AUTO_TEST_CASE(Accessors)
 {
-    DcmDataset * dataset = new DcmDataset();
     auto storeds = dicomifier::actions::StoreDataset::New();
-    
-    storeds->set_dataset(dataset);
-    BOOST_CHECK_EQUAL(storeds->get_dataset() != NULL, true);
+
+    DcmDataset dataset;
+    storeds->set_dataset(&dataset);
+    BOOST_CHECK(storeds->get_dataset() != NULL);
     
     storeds->set_address("MyAdress");
     BOOST_CHECK_EQUAL(storeds->get_address(), "MyAdress");
@@ -51,27 +51,28 @@ BOOST_AUTO_TEST_CASE(TEST_OK_02)
     storeds->set_AElocal("LOCAL");
     BOOST_CHECK_EQUAL(storeds->get_AElocal(), "LOCAL");
     
-    storeds->set_user_identity_type(dicomifier::UserIdentityType::UsernameAndPassword);
-    BOOST_CHECK_EQUAL(storeds->get_user_identity_type() == dicomifier::UserIdentityType::UsernameAndPassword, true);
+    storeds->set_user_identity_type(
+                dicomifier::UserIdentityType::UsernameAndPassword);
+    BOOST_CHECK(storeds->get_user_identity_type() ==
+                dicomifier::UserIdentityType::UsernameAndPassword);
     
     storeds->set_user_identity_primary_field("user");
     BOOST_CHECK_EQUAL(storeds->get_user_identity_primary_field(), "user");
     
     storeds->set_user_identity_secondary_field("password");
-    BOOST_CHECK_EQUAL(storeds->get_user_identity_secondary_field(), "password");
+    BOOST_CHECK_EQUAL(storeds->get_user_identity_secondary_field(),
+                      "password");
     
-    storeds = dicomifier::actions::StoreDataset::New(dataset, 
+    storeds = dicomifier::actions::StoreDataset::New(&dataset,
                                                      "MyAdress",
                                                      11112,
                                                      "REMOTE",
                                                      "LOCAL");
-    BOOST_CHECK_EQUAL(storeds->get_dataset() != NULL, true);
+    BOOST_CHECK(storeds->get_dataset() != NULL);
     BOOST_CHECK_EQUAL(storeds->get_address(), "MyAdress");
     BOOST_CHECK_EQUAL(storeds->get_port(), 11112);
     BOOST_CHECK_EQUAL(storeds->get_AEremote(), "REMOTE");
     BOOST_CHECK_EQUAL(storeds->get_AElocal(), "LOCAL");
-    
-    delete dataset;
 }
 
 /*************************** TEST OK 03 *******************************/
@@ -92,13 +93,13 @@ BOOST_FIXTURE_TEST_CASE(TEST_OK_03, DcmQrSCP)
             BOOST_FAIL("Could not read " + filename.str());
         }
         dataset = file.getAndRemoveDataset();
-        
-        
+
         // generate unique SOP INSTANCE UID
         char uid_sop_instance[128];
         dcmGenerateUniqueIdentifier(uid_sop_instance, SITE_INSTANCE_UID_ROOT);
         
-        dataset->putAndInsertOFStringArray(DCM_SOPInstanceUID, OFString(uid_sop_instance));
+        dataset->putAndInsertOFStringArray(DCM_SOPInstanceUID,
+                                           OFString(uid_sop_instance));
     }
     
     auto teststore = dicomifier::actions::StoreDataset::New();
@@ -108,18 +109,21 @@ BOOST_FIXTURE_TEST_CASE(TEST_OK_03, DcmQrSCP)
     teststore->set_AElocal(calling_aet);
     teststore->set_AEremote(peer_aet);
     
-    teststore->set_user_identity_type(dicomifier::UserIdentityType::UsernameAndPassword);
+    teststore->set_user_identity_type(
+                dicomifier::UserIdentityType::UsernameAndPassword);
     teststore->set_user_identity_primary_field("user");
     teststore->set_user_identity_secondary_field("password");
     
     teststore->run();
+
+    if (dataset != NULL) delete dataset;
 }
 
 /*************************** TEST KO 01 *******************************/
 /**
  * Error test case: Empty dataset
  */
-BOOST_AUTO_TEST_CASE(TEST_KO_01)
+BOOST_AUTO_TEST_CASE(EmptyDataset)
 {
     auto teststore = dicomifier::actions::StoreDataset::New();
         
@@ -130,26 +134,15 @@ BOOST_AUTO_TEST_CASE(TEST_KO_01)
 /**
  * Error test case: Missing SOPClassUID attribut
  */
-struct TestDataKO02
+BOOST_AUTO_TEST_CASE(TEST_KO_02)
 {
-    DcmDataset * dataset;
- 
-    TestDataKO02()
-    {
-        dataset = new DcmDataset();
-        dataset->putAndInsertOFStringArray(DCM_Modality, "value1");
-    }
- 
-    ~TestDataKO02()
-    {
-        delete dataset;
-    }
-};
+    DcmDataset dataset;
+    OFCondition condition =
+            dataset.putAndInsertOFStringArray(DCM_Modality, "value1");
+    BOOST_REQUIRE(condition.good());
 
-BOOST_FIXTURE_TEST_CASE(TEST_KO_02, TestDataKO02)
-{
     auto teststore = dicomifier::actions::StoreDataset::New();
-    teststore->set_dataset(dataset);
+    teststore->set_dataset(&dataset);
     
     BOOST_REQUIRE_THROW(teststore->run(), dicomifier::DicomifierException);
 }
@@ -158,27 +151,18 @@ BOOST_FIXTURE_TEST_CASE(TEST_KO_02, TestDataKO02)
 /**
  * Error test case: Bad Network address or port
  */
-struct TestDataKO03
+BOOST_AUTO_TEST_CASE(TEST_KO_03)
 {
-    DcmDataset * dataset;
- 
-    TestDataKO03()
-    {
-        dataset = new DcmDataset();
-        dataset->putAndInsertOFStringArray(DCM_SOPClassUID, "1.2.840.10008.5.1.4.1.1.4"); // MRImageStorage
-        dataset->putAndInsertOFStringArray(DCM_Modality, "value1");
-    }
- 
-    ~TestDataKO03()
-    {
-        delete dataset;
-    }
-};
+    DcmDataset dataset;
+    OFCondition condition =
+            dataset.putAndInsertOFStringArray(DCM_SOPClassUID,
+                                              UID_MRImageStorage);
+    BOOST_REQUIRE(condition.good());
+    condition = dataset.putAndInsertOFStringArray(DCM_Modality, "value1");
+    BOOST_REQUIRE(condition.good());
 
-BOOST_FIXTURE_TEST_CASE(TEST_KO_03, TestDataKO03)
-{
     auto teststore = dicomifier::actions::StoreDataset::New();
-    teststore->set_dataset(dataset);
+    teststore->set_dataset(&dataset);
     teststore->set_address("unknown");
     teststore->set_port(11112);
 
@@ -203,13 +187,13 @@ BOOST_FIXTURE_TEST_CASE(TEST_KO_04, DcmQrSCP)
             BOOST_FAIL("Could not read " + filename.str());
         }
         dataset = file.getAndRemoveDataset();
-        
-        
+
         // generate unique SOP INSTANCE UID
         char uid_sop_instance[128];
         dcmGenerateUniqueIdentifier(uid_sop_instance, SITE_INSTANCE_UID_ROOT);
         
-        dataset->putAndInsertOFStringArray(DCM_SOPInstanceUID, OFString(uid_sop_instance));
+        dataset->putAndInsertOFStringArray(DCM_SOPInstanceUID,
+                                           OFString(uid_sop_instance));
     }
     
     auto teststore = dicomifier::actions::StoreDataset::New();
@@ -219,11 +203,14 @@ BOOST_FIXTURE_TEST_CASE(TEST_KO_04, DcmQrSCP)
     teststore->set_AElocal("BADVALUE");
     teststore->set_AEremote(peer_aet);
     
-    teststore->set_user_identity_type(dicomifier::UserIdentityType::UsernameAndPassword);
+    teststore->set_user_identity_type(
+                dicomifier::UserIdentityType::UsernameAndPassword);
     teststore->set_user_identity_primary_field("user");
     teststore->set_user_identity_secondary_field("password");
     
     BOOST_REQUIRE_THROW(teststore->run(), dicomifier::DicomifierException);
+
+    if (dataset != NULL) delete dataset;
 }
 
 /*************************** TEST KO 05 *******************************/
@@ -244,13 +231,13 @@ BOOST_FIXTURE_TEST_CASE(TEST_KO_05, DcmQrSCP)
             BOOST_FAIL("Could not read " + filename.str());
         }
         dataset = file.getAndRemoveDataset();
-        
-        
+
         // generate unique SOP INSTANCE UID
         char uid_sop_instance[128];
         dcmGenerateUniqueIdentifier(uid_sop_instance, SITE_INSTANCE_UID_ROOT);
         
-        dataset->putAndInsertOFStringArray(DCM_SOPInstanceUID, OFString(uid_sop_instance));
+        dataset->putAndInsertOFStringArray(DCM_SOPInstanceUID,
+                                           OFString(uid_sop_instance));
     }
     
     auto teststore = dicomifier::actions::StoreDataset::New();
@@ -260,9 +247,12 @@ BOOST_FIXTURE_TEST_CASE(TEST_KO_05, DcmQrSCP)
     teststore->set_AElocal(calling_aet);
     teststore->set_AEremote("BADVALUE");
     
-    teststore->set_user_identity_type(dicomifier::UserIdentityType::UsernameAndPassword);
+    teststore->set_user_identity_type(
+                dicomifier::UserIdentityType::UsernameAndPassword);
     teststore->set_user_identity_primary_field("user");
     teststore->set_user_identity_secondary_field("password");
     
     BOOST_REQUIRE_THROW(teststore->run(), dicomifier::DicomifierException);
+
+    if (dataset != NULL) delete dataset;
 }

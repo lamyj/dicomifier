@@ -11,21 +11,28 @@
 
 #include "translator/conditions/BrukerFieldExist.h"
 
-/*************************** TEST OK 01 *******************************/
+/****************************** TEST Nominal *********************************/
 /**
- * Nominal test case: Constructor and eval
+ * Nominal test case: eval
+ */
+BOOST_AUTO_TEST_CASE(Constructor)
+{
+    auto brukerfieldexist =
+            dicomifier::translator::BrukerFieldExist::New("MyBrukerField");
+    BOOST_REQUIRE(brukerfieldexist != NULL);
+}
+
+/****************************** TEST Nominal *********************************/
+/**
+ * Nominal test case: Eval
  */
 struct TestDataOK01
 {
     std::string filename;
-    dicomifier::bruker::Dataset* brukerdataset;
+    dicomifier::bruker::Dataset brukerdataset;
  
-    TestDataOK01()
+    TestDataOK01() : filename("./tmp_test_brukerfieldexistmodule")
     {
-        brukerdataset = new dicomifier::bruker::Dataset();
-        
-        filename = "./tmp_test_brukerfieldexistmodule";
-        
         std::ofstream myfile;
         myfile.open(filename);
         myfile << "##TITLE=tmp_test_brukerfieldexistmodule\n";
@@ -33,30 +40,31 @@ struct TestDataOK01
         myfile << "##END=\n";
         myfile.close();
         
-        brukerdataset->load(filename);
+        brukerdataset.load(filename);
     }
  
     ~TestDataOK01()
     {
         remove(filename.c_str());
-        delete brukerdataset;
     }
 };
 
-BOOST_FIXTURE_TEST_CASE(TEST_OK_01, TestDataOK01)
+BOOST_FIXTURE_TEST_CASE(Eval, TestDataOK01)
 {
-    auto fieldexist = dicomifier::translator::BrukerFieldExist::New("MyBrukerField");
-    BOOST_CHECK_EQUAL(fieldexist->eval(NULL, brukerdataset), true);
+    auto fieldexist =
+            dicomifier::translator::BrukerFieldExist::New("MyBrukerField");
+    BOOST_REQUIRE(fieldexist->eval(NULL, &brukerdataset));
     
-    auto fieldnotexist = dicomifier::translator::BrukerFieldExist::New("UnknownField");
-    BOOST_CHECK_EQUAL(fieldnotexist->eval(NULL, brukerdataset), false);
+    auto fieldnotexist =
+            dicomifier::translator::BrukerFieldExist::New("UnknownField");
+    BOOST_REQUIRE(!fieldnotexist->eval(NULL, &brukerdataset));
 }
- 
-/*************************** TEST KO 01 *******************************/
+
+/****************************** TEST Error ***********************************/
 /**
  * Error test case: Missing mandatory attribut 'name'
  */
-BOOST_AUTO_TEST_CASE(TEST_KO_01)
+BOOST_AUTO_TEST_CASE(MissingAttributeName)
 {
     auto fieldexist = dicomifier::translator::BrukerFieldExist::New();
     
