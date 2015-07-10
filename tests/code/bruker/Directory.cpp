@@ -23,10 +23,10 @@ struct TestDataOK01
     std::string directorypath;
     std::vector<std::string> filestoremove;
 
-    TestDataOK01()
+    TestDataOK01() : directorypath("./test_ModuleDirectory_load_dir")
     {
-        directorypath = "./test_ModuleDirectory_load_dir";
-        boost::filesystem::create_directory(boost::filesystem::path(directorypath.c_str()));
+        boost::filesystem::create_directory(
+                    boost::filesystem::path(directorypath.c_str()));
 
         std::string file = directorypath + "/subject";
         std::ofstream myfile;
@@ -42,7 +42,8 @@ struct TestDataOK01
         filestoremove.push_back(file);
 
         std::string seriespath = directorypath + "/1";
-        boost::filesystem::create_directory(boost::filesystem::path(seriespath.c_str()));
+        boost::filesystem::create_directory(
+                    boost::filesystem::path(seriespath.c_str()));
 
         file = seriespath + "/acqp";
         myfile.open(file);
@@ -53,9 +54,11 @@ struct TestDataOK01
         filestoremove.push_back(file);
 
         std::string pdatapath = seriespath + "/pdata";
-        boost::filesystem::create_directory(boost::filesystem::path(pdatapath.c_str()));
+        boost::filesystem::create_directory(
+                    boost::filesystem::path(pdatapath.c_str()));
         std::string recopath = pdatapath + "/1";
-        boost::filesystem::create_directory(boost::filesystem::path(recopath.c_str()));
+        boost::filesystem::create_directory(
+                    boost::filesystem::path(recopath.c_str()));
 
         file = recopath + "/visu_pars";
         myfile.open(file);
@@ -84,7 +87,8 @@ struct TestDataOK01
             remove(file.c_str());
         }
 
-        boost::filesystem::remove_all(boost::filesystem::path(directorypath.c_str()));
+        boost::filesystem::remove_all(
+                    boost::filesystem::path(directorypath.c_str()));
     }
 };
 

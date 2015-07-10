@@ -12,7 +12,7 @@
 #include "translator/fields/dicom/InversionTimeDcmField.h"
 #include "core/FrameIndexGenerator.h"
 
-/*************************** TEST OK 01 *******************************/
+/****************************** TEST Nominal *********************************/
 /**
  * Nominal test case: Constructor
  */
@@ -21,62 +21,62 @@ BOOST_AUTO_TEST_CASE(TEST_OK_01)
     // Test VR = AE
     auto testfieldae = dicomifier::translator::InversionTimeDcmField<EVR_AE>::New();
     // Pointer exists
-    BOOST_CHECK_EQUAL(testfieldae != NULL, true);
+    BOOST_CHECK(testfieldae != NULL);
     
     // Test VR = AS
     auto testfieldas = dicomifier::translator::InversionTimeDcmField<EVR_AS>::New();
     // Pointer exists
-    BOOST_CHECK_EQUAL(testfieldas != NULL, true);
+    BOOST_CHECK(testfieldas != NULL);
     
     // Test VR = AT
     auto testfieldat = dicomifier::translator::InversionTimeDcmField<EVR_AT>::New();
     // Pointer exists
-    BOOST_CHECK_EQUAL(testfieldat != NULL, true);
+    BOOST_CHECK(testfieldat != NULL);
     
     // Test VR = CS
     auto testfieldcs = dicomifier::translator::InversionTimeDcmField<EVR_CS>::New();
     // Pointer exists
-    BOOST_CHECK_EQUAL(testfieldcs != NULL, true);
+    BOOST_CHECK(testfieldcs != NULL);
     
     // Test VR = DA
     auto testfieldda = dicomifier::translator::InversionTimeDcmField<EVR_DA>::New();
     // Pointer exists
-    BOOST_CHECK_EQUAL(testfieldda != NULL, true);
+    BOOST_CHECK(testfieldda != NULL);
     
     // Test VR = DS
     auto testfieldds = dicomifier::translator::InversionTimeDcmField<EVR_DS>::New();
     // Pointer exists
-    BOOST_CHECK_EQUAL(testfieldds != NULL, true);
+    BOOST_CHECK(testfieldds != NULL);
     
     // Test VR = DT
     auto testfielddt = dicomifier::translator::InversionTimeDcmField<EVR_DT>::New();
     // Pointer exists
-    BOOST_CHECK_EQUAL(testfielddt != NULL, true);
+    BOOST_CHECK(testfielddt != NULL);
     
     // Test VR = FL
     auto testfieldfl = dicomifier::translator::InversionTimeDcmField<EVR_FL>::New();
     // Pointer exists
-    BOOST_CHECK_EQUAL(testfieldfl != NULL, true);
+    BOOST_CHECK(testfieldfl != NULL);
     
     // Test VR = FD
     auto testfieldfd = dicomifier::translator::InversionTimeDcmField<EVR_FD>::New();
     // Pointer exists
-    BOOST_CHECK_EQUAL(testfieldfd != NULL, true);
+    BOOST_CHECK(testfieldfd != NULL);
     
     // Test VR = IS
     auto testfieldis = dicomifier::translator::InversionTimeDcmField<EVR_IS>::New();
     // Pointer exists
-    BOOST_CHECK_EQUAL(testfieldis != NULL, true);
+    BOOST_CHECK(testfieldis != NULL);
     
     // Test VR = LO
     auto testfieldlo = dicomifier::translator::InversionTimeDcmField<EVR_LO>::New();
     // Pointer exists
-    BOOST_CHECK_EQUAL(testfieldlo != NULL, true);
+    BOOST_CHECK(testfieldlo != NULL);
     
     // Test VR = LT
     auto testfieldlt = dicomifier::translator::InversionTimeDcmField<EVR_LT>::New();
     // Pointer exists
-    BOOST_CHECK_EQUAL(testfieldlt != NULL, true);
+    BOOST_CHECK(testfieldlt != NULL);
     
     // Test VR = OB => Not implemented
     // Test VR = OD => Not implemented
@@ -86,75 +86,69 @@ BOOST_AUTO_TEST_CASE(TEST_OK_01)
     // Test VR = PN
     auto testfieldpn = dicomifier::translator::InversionTimeDcmField<EVR_PN>::New();
     // Pointer exists
-    BOOST_CHECK_EQUAL(testfieldpn != NULL, true);
+    BOOST_CHECK(testfieldpn != NULL);
     
     // Test VR = SH
     auto testfieldsh = dicomifier::translator::InversionTimeDcmField<EVR_SH>::New();
     // Pointer exists
-    BOOST_CHECK_EQUAL(testfieldsh != NULL, true);
+    BOOST_CHECK(testfieldsh != NULL);
     
     // Test VR = SL
     auto testfieldsl = dicomifier::translator::InversionTimeDcmField<EVR_SL>::New();
     // Pointer exists
-    BOOST_CHECK_EQUAL(testfieldsl != NULL, true);
+    BOOST_CHECK(testfieldsl != NULL);
     
     // Test VR = SQ => Not implemented
     
     // Test VR = SS
     auto testfieldss = dicomifier::translator::InversionTimeDcmField<EVR_SS>::New();
     // Pointer exists
-    BOOST_CHECK_EQUAL(testfieldss != NULL, true);
+    BOOST_CHECK(testfieldss != NULL);
     
     // Test VR = ST
     auto testfieldst = dicomifier::translator::InversionTimeDcmField<EVR_ST>::New();
     // Pointer exists
-    BOOST_CHECK_EQUAL(testfieldst != NULL, true);
+    BOOST_CHECK(testfieldst != NULL);
     
     // Test VR = TM
     auto testfieldtm = dicomifier::translator::InversionTimeDcmField<EVR_TM>::New();
     // Pointer exists
-    BOOST_CHECK_EQUAL(testfieldtm != NULL, true);
+    BOOST_CHECK(testfieldtm != NULL);
     
     // Test VR = UI
     auto testfieldui = dicomifier::translator::InversionTimeDcmField<EVR_UI>::New();
     // Pointer exists
-    BOOST_CHECK_EQUAL(testfieldui != NULL, true);
+    BOOST_CHECK(testfieldui != NULL);
     
     // Test VR = UL
     auto testfieldul = dicomifier::translator::InversionTimeDcmField<EVR_UL>::New();
     // Pointer exists
-    BOOST_CHECK_EQUAL(testfieldul != NULL, true);
+    BOOST_CHECK(testfieldul != NULL);
     
     // Test VR = UN => Not implemented
     
     // Test VR = US
     auto testfieldus = dicomifier::translator::InversionTimeDcmField<EVR_US>::New();
     // Pointer exists
-    BOOST_CHECK_EQUAL(testfieldus != NULL, true);
+    BOOST_CHECK(testfieldus != NULL);
     
     // Test VR = UT
     auto testfieldut = dicomifier::translator::InversionTimeDcmField<EVR_UT>::New();
     // Pointer exists
-    BOOST_CHECK_EQUAL(testfieldut != NULL, true);
+    BOOST_CHECK(testfieldut != NULL);
 }
 
-/*************************** TEST OK 02 *******************************/
+/****************************** TEST Nominal *********************************/
 /**
  * Nominal test case: Run
  */
 struct TestDataOK02
 {
     std::string filename;
-    dicomifier::bruker::Dataset* brukerdataset;
-    
-    dicomifier::FrameIndexGenerator* generator;
+    dicomifier::bruker::Dataset brukerdataset;
  
-    TestDataOK02()
+    TestDataOK02() : filename("./tmp_test_ModuleInversionTimeDcmField")
     {
-        brukerdataset = new dicomifier::bruker::Dataset();
-        
-        filename = "./tmp_test_ModuleInversionTimeDcmField";
-        
         std::ofstream myfile;
         myfile.open(filename);
         myfile << "##TITLE=tmp_test_ModuleInversionTimeDcmField\n";
@@ -170,93 +164,109 @@ struct TestDataOK02
         myfile << "##END=\n";
         myfile.close();
         
-        brukerdataset->load(filename);
-        
-        std::vector<int> indexlists;
-        for(auto const & frame_group: brukerdataset->get_frame_groups())
-        {
-            indexlists.push_back(frame_group.size);
-        }
-        
-        generator = new dicomifier::FrameIndexGenerator(indexlists);
+        brukerdataset.load(filename);
     }
  
     ~TestDataOK02()
     {
         remove(filename.c_str());
-        delete brukerdataset;
-        delete generator;
     }
 };
 
 BOOST_FIXTURE_TEST_CASE(TEST_OK_02, TestDataOK02)
 {
+    std::vector<int> indexlists;
+    for(auto const & frame_group: brukerdataset.get_frame_groups())
+    {
+        indexlists.push_back(frame_group.size);
+    }
+    dicomifier::FrameIndexGenerator generator(indexlists);
+
     // Test VR = DS
-    auto testfieldds = dicomifier::translator::InversionTimeDcmField<EVR_DS>::New();
-    testfieldds->run(brukerdataset, *generator, NULL);
+    auto testfieldds = dicomifier::translator::
+            InversionTimeDcmField<EVR_DS>::New();
+    testfieldds->run(&brukerdataset, generator, NULL);
     BOOST_CHECK_EQUAL(testfieldds->get_array().size(), 1);
 }
 
-/*************************** TEST KO 01 *******************************/
+/****************************** TEST Error ***********************************/
 /**
  * Error test case: Bad VR for Inversion Time Tag
  */
 
 BOOST_FIXTURE_TEST_CASE(TEST_KO_01, TestDataOK02)
 {
+    std::vector<int> indexlists;
+    for(auto const & frame_group: brukerdataset.get_frame_groups())
+    {
+        indexlists.push_back(frame_group.size);
+    }
+    dicomifier::FrameIndexGenerator generator(indexlists);
+
     // Test VR = AE
-    auto testfieldae = dicomifier::translator::InversionTimeDcmField<EVR_AE>::New();
-    BOOST_REQUIRE_THROW(testfieldae->run(brukerdataset, *generator, NULL),
+    auto testfieldae = dicomifier::translator::
+            InversionTimeDcmField<EVR_AE>::New();
+    BOOST_REQUIRE_THROW(testfieldae->run(&brukerdataset, generator, NULL),
                         dicomifier::DicomifierException);
     
     // Test VR = AS
-    auto testfieldas = dicomifier::translator::InversionTimeDcmField<EVR_AS>::New();
-    BOOST_REQUIRE_THROW(testfieldas->run(brukerdataset, *generator, NULL),
+    auto testfieldas = dicomifier::translator::
+            InversionTimeDcmField<EVR_AS>::New();
+    BOOST_REQUIRE_THROW(testfieldas->run(&brukerdataset, generator, NULL),
                         dicomifier::DicomifierException);
     
     // Test VR = AT
-    auto testfieldat = dicomifier::translator::InversionTimeDcmField<EVR_AT>::New();
-    BOOST_REQUIRE_THROW(testfieldat->run(brukerdataset, *generator, NULL),
+    auto testfieldat = dicomifier::translator::
+            InversionTimeDcmField<EVR_AT>::New();
+    BOOST_REQUIRE_THROW(testfieldat->run(&brukerdataset, generator, NULL),
                         dicomifier::DicomifierException);
     
     // Test VR = CS
-    auto testfieldcs = dicomifier::translator::InversionTimeDcmField<EVR_CS>::New();
-    BOOST_REQUIRE_THROW(testfieldcs->run(brukerdataset, *generator, NULL),
+    auto testfieldcs = dicomifier::translator::
+            InversionTimeDcmField<EVR_CS>::New();
+    BOOST_REQUIRE_THROW(testfieldcs->run(&brukerdataset, generator, NULL),
                         dicomifier::DicomifierException);
     
     // Test VR = DA
-    auto testfieldda = dicomifier::translator::InversionTimeDcmField<EVR_DA>::New();
-    BOOST_REQUIRE_THROW(testfieldda->run(brukerdataset, *generator, NULL),
+    auto testfieldda = dicomifier::translator::
+            InversionTimeDcmField<EVR_DA>::New();
+    BOOST_REQUIRE_THROW(testfieldda->run(&brukerdataset, generator, NULL),
                         dicomifier::DicomifierException);
                         
     // Test VR = DT
-    auto testfielddt = dicomifier::translator::InversionTimeDcmField<EVR_DT>::New();
-    BOOST_REQUIRE_THROW(testfielddt->run(brukerdataset, *generator, NULL),
+    auto testfielddt = dicomifier::translator::
+            InversionTimeDcmField<EVR_DT>::New();
+    BOOST_REQUIRE_THROW(testfielddt->run(&brukerdataset, generator, NULL),
                         dicomifier::DicomifierException);
     
     // Test VR = FL
-    auto testfieldfl = dicomifier::translator::InversionTimeDcmField<EVR_FL>::New();
-    BOOST_REQUIRE_THROW(testfieldfl->run(brukerdataset, *generator, NULL),
+    auto testfieldfl = dicomifier::translator::
+            InversionTimeDcmField<EVR_FL>::New();
+    BOOST_REQUIRE_THROW(testfieldfl->run(&brukerdataset, generator, NULL),
                         dicomifier::DicomifierException);
     
     // Test VR = FD
-    auto testfieldfd = dicomifier::translator::InversionTimeDcmField<EVR_FD>::New();
-    BOOST_REQUIRE_THROW(testfieldfd->run(brukerdataset, *generator, NULL),
+    auto testfieldfd = dicomifier::translator::
+            InversionTimeDcmField<EVR_FD>::New();
+    BOOST_REQUIRE_THROW(testfieldfd->run(&brukerdataset, generator, NULL),
                         dicomifier::DicomifierException);
     
     // Test VR = IS
-    auto testfieldis = dicomifier::translator::InversionTimeDcmField<EVR_IS>::New();
-    BOOST_REQUIRE_THROW(testfieldis->run(brukerdataset, *generator, NULL),
+    auto testfieldis = dicomifier::translator::
+            InversionTimeDcmField<EVR_IS>::New();
+    BOOST_REQUIRE_THROW(testfieldis->run(&brukerdataset, generator, NULL),
                         dicomifier::DicomifierException);
     
     // Test VR = LO
-    auto testfieldlo = dicomifier::translator::InversionTimeDcmField<EVR_LO>::New();
-    BOOST_REQUIRE_THROW(testfieldlo->run(brukerdataset, *generator, NULL),
+    auto testfieldlo = dicomifier::translator::
+            InversionTimeDcmField<EVR_LO>::New();
+    BOOST_REQUIRE_THROW(testfieldlo->run(&brukerdataset, generator, NULL),
                         dicomifier::DicomifierException);
     
     // Test VR = LT
-    auto testfieldlt = dicomifier::translator::InversionTimeDcmField<EVR_LT>::New();
-    BOOST_REQUIRE_THROW(testfieldlt->run(brukerdataset, *generator, NULL),
+    auto testfieldlt = dicomifier::translator::
+            InversionTimeDcmField<EVR_LT>::New();
+    BOOST_REQUIRE_THROW(testfieldlt->run(&brukerdataset, generator, NULL),
                         dicomifier::DicomifierException);
     
     // Test VR = OB => Not implemented
@@ -265,68 +275,79 @@ BOOST_FIXTURE_TEST_CASE(TEST_KO_01, TestDataOK02)
     // Test VR = OW => Not implemented
     
     // Test VR = PN
-    auto testfieldpn = dicomifier::translator::InversionTimeDcmField<EVR_PN>::New();
-    BOOST_REQUIRE_THROW(testfieldpn->run(brukerdataset, *generator, NULL),
+    auto testfieldpn = dicomifier::translator::
+            InversionTimeDcmField<EVR_PN>::New();
+    BOOST_REQUIRE_THROW(testfieldpn->run(&brukerdataset, generator, NULL),
                         dicomifier::DicomifierException);
     
     // Test VR = SH
-    auto testfieldsh = dicomifier::translator::InversionTimeDcmField<EVR_SH>::New();
-    BOOST_REQUIRE_THROW(testfieldsh->run(brukerdataset, *generator, NULL),
+    auto testfieldsh = dicomifier::translator::
+            InversionTimeDcmField<EVR_SH>::New();
+    BOOST_REQUIRE_THROW(testfieldsh->run(&brukerdataset, generator, NULL),
                         dicomifier::DicomifierException);
     
     // Test VR = SL
-    auto testfieldsl = dicomifier::translator::InversionTimeDcmField<EVR_SL>::New();
-    BOOST_REQUIRE_THROW(testfieldsl->run(brukerdataset, *generator, NULL),
+    auto testfieldsl = dicomifier::translator::
+            InversionTimeDcmField<EVR_SL>::New();
+    BOOST_REQUIRE_THROW(testfieldsl->run(&brukerdataset, generator, NULL),
                         dicomifier::DicomifierException);
     
     // Test VR = SQ => Not implemented
     
     // Test VR = SS
-    auto testfieldss = dicomifier::translator::InversionTimeDcmField<EVR_SS>::New();
-    BOOST_REQUIRE_THROW(testfieldss->run(brukerdataset, *generator, NULL),
+    auto testfieldss = dicomifier::translator::
+            InversionTimeDcmField<EVR_SS>::New();
+    BOOST_REQUIRE_THROW(testfieldss->run(&brukerdataset, generator, NULL),
                         dicomifier::DicomifierException);
     
     // Test VR = ST
-    auto testfieldst = dicomifier::translator::InversionTimeDcmField<EVR_ST>::New();
-    BOOST_REQUIRE_THROW(testfieldst->run(brukerdataset, *generator, NULL),
+    auto testfieldst = dicomifier::translator::
+            InversionTimeDcmField<EVR_ST>::New();
+    BOOST_REQUIRE_THROW(testfieldst->run(&brukerdataset, generator, NULL),
                         dicomifier::DicomifierException);
     
     // Test VR = TM
-    auto testfieldtm = dicomifier::translator::InversionTimeDcmField<EVR_TM>::New();
-    BOOST_REQUIRE_THROW(testfieldtm->run(brukerdataset, *generator, NULL),
+    auto testfieldtm = dicomifier::translator::
+            InversionTimeDcmField<EVR_TM>::New();
+    BOOST_REQUIRE_THROW(testfieldtm->run(&brukerdataset, generator, NULL),
                         dicomifier::DicomifierException);
     
     // Test VR = UI
-    auto testfieldui = dicomifier::translator::InversionTimeDcmField<EVR_UI>::New();
-    BOOST_REQUIRE_THROW(testfieldui->run(brukerdataset, *generator, NULL),
+    auto testfieldui = dicomifier::translator::
+            InversionTimeDcmField<EVR_UI>::New();
+    BOOST_REQUIRE_THROW(testfieldui->run(&brukerdataset, generator, NULL),
                         dicomifier::DicomifierException);
     
     // Test VR = UL
-    auto testfieldul = dicomifier::translator::InversionTimeDcmField<EVR_UL>::New();
-    BOOST_REQUIRE_THROW(testfieldul->run(brukerdataset, *generator, NULL),
+    auto testfieldul = dicomifier::translator::
+            InversionTimeDcmField<EVR_UL>::New();
+    BOOST_REQUIRE_THROW(testfieldul->run(&brukerdataset, generator, NULL),
                         dicomifier::DicomifierException);
     
     // Test VR = UN => Not implemented
     
     // Test VR = US
-    auto testfieldus = dicomifier::translator::InversionTimeDcmField<EVR_US>::New();
-    BOOST_REQUIRE_THROW(testfieldus->run(brukerdataset, *generator, NULL),
+    auto testfieldus = dicomifier::translator::
+            InversionTimeDcmField<EVR_US>::New();
+    BOOST_REQUIRE_THROW(testfieldus->run(&brukerdataset, generator, NULL),
                         dicomifier::DicomifierException);
     
     // Test VR = UT
-    auto testfieldut = dicomifier::translator::InversionTimeDcmField<EVR_UT>::New();
-    BOOST_REQUIRE_THROW(testfieldut->run(brukerdataset, *generator, NULL),
+    auto testfieldut = dicomifier::translator::
+            InversionTimeDcmField<EVR_UT>::New();
+    BOOST_REQUIRE_THROW(testfieldut->run(&brukerdataset, generator, NULL),
                         dicomifier::DicomifierException);
 }
- 
-/*************************** TEST KO 02 *******************************/
+
+/****************************** TEST Error ***********************************/
 /**
  * Error test case: Empty Bruker Dataset
  */
-BOOST_AUTO_TEST_CASE(TEST_KO_02)
+BOOST_AUTO_TEST_CASE(EmptyBrukerDataset)
 {
     // Test VR = DS
-    auto testfieldds = dicomifier::translator::InversionTimeDcmField<EVR_DS>::New();
+    auto testfieldds = dicomifier::translator::
+            InversionTimeDcmField<EVR_DS>::New();
     BOOST_REQUIRE_THROW(testfieldds->run(NULL, 
                                          dicomifier::FrameIndexGenerator({2}), 
                                          NULL), 
