@@ -4,7 +4,11 @@ cmake_minimum_required(VERSION 2.6.0)
 include(CTest)
 
 add_subdirectory(src)
-add_subdirectory(tests)
+
+if(BUILD_TESTING)
+    add_subdirectory(tests)
+endif()
+
 add_subdirectory(configuration)
 
 # Get release name
@@ -34,7 +38,7 @@ set(CPACK_PACKAGE_NAME "dicomifier")
 set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "Dicomifier")
 set(CPACK_PACKAGE_VERSION_MAJOR "0")
 set(CPACK_PACKAGE_VERSION_MINOR "4")
-set(CPACK_PACKAGE_VERSION_PATCH "1")
+set(CPACK_PACKAGE_VERSION_PATCH "2")
 set(CPACK_PACKAGE_VERSION 
     "${CPACK_PACKAGE_VERSION_MAJOR}.${CPACK_PACKAGE_VERSION_MINOR}.${CPACK_PACKAGE_VERSION_PATCH}~${release}")
 
