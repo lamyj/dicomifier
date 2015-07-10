@@ -1,0 +1,5 @@
+dopamine (0.3.0-1) unstable; urgency=low
+
+  * Initial release (Closes: #nnnn)  <nnnn is the bug number of your ITP>
+
+ -- Romain Lahaxe <lahaxe@unistra.fr>  Wed, 01 Jul 2015 13:23:14 +0200
