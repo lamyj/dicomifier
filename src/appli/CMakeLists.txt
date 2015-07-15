@@ -10,11 +10,10 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../lib
                     ${QT_INCLUDES})
 
 add_executable(dicomifier "main.cpp")
-target_link_libraries(dicomifier libdcmtkpp libdicomifier ${Boost_LIBRARIES})
+target_link_libraries(dicomifier libdicomifier ${Boost_LIBRARIES})
 
 add_executable(dicomifier_ihm "main_ihm.cpp")
-target_link_libraries(dicomifier_ihm libdcmtkpp
-                                     libdicomifier
+target_link_libraries(dicomifier_ihm libdicomifier
                                      libdicomifierihm
                                      ${QT_LIBRARIES}
                                      ${Boost_LIBRARIES})

@@ -10,7 +10,7 @@ Homepage: https://github.com/lamyj/dicomifier
 
 Package: dicomifier
 Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends}
+Depends: ${shlibs:Depends}, ${misc:Depends}, libdcmtkpp
 Description: Tools to manipulate DICOM files
  <insert long description, indented with spaces>
 
