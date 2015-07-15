@@ -1,12 +1,12 @@
-Source: dopamine
+Source: dicomifier
 Section: science
 Priority: optional
 Maintainer: Romain Lahaxe <lahaxe@unistra.fr>
 Build-Depends: debhelper (>= 8.0.0), swig2.0, libdcmtk2-dev, libqt4-dev, liblog4cpp5-dev, libldap2-dev, libssl-dev, libwrap0-dev, libboost-date-time-dev, libboost-filesystem-dev, libboost-system-dev, libboost-regex-dev, libboost-random-dev, libboost-thread-dev, libboost-test-dev, python-dev, libdcmtkpp-dev
 Standards-Version: 3.9.4
 Homepage: https://github.com/lamyj/dicomifier
-#Vcs-Git: git://git.debian.org/collab-maint/dopamine.git
-#Vcs-Browser: http://git.debian.org/?p=collab-maint/dopamine.git;a=summary
+#Vcs-Git: git://git.debian.org/collab-maint/dicomifier.git
+#Vcs-Browser: http://git.debian.org/?p=collab-maint/dicomifier.git;a=summary
 
 Package: dicomifier
 Architecture: any

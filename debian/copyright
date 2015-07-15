@@ -1,6 +1,6 @@
 Format: http://dep.debian.net/deps/dep5
-Upstream-Name: dcmtkpp
-Source: https://github.com/lamyj/dcmtkpp
+Upstream-Name: dicomifier
+Source: https://github.com/lamyj/dicomifier
 
 Files: *
 Copyright: 2015 Julien Lamy <lamy@unistra.fr>
