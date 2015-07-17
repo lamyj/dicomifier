@@ -174,13 +174,13 @@ EnhanceBrukerDicom
     {
         subject_name = dataset.as_string(dcmtkpp::registry::PatientName, 0);
     }
-    catch(dcmtkpp::Exception )
+    catch(dcmtkpp::Exception)
     {
         try
         {
             subject_name = dataset.as_string(dcmtkpp::registry::PatientID, 0);
         }
-        catch(dcmtkpp::Exception )
+        catch(dcmtkpp::Exception)
         {
             subject_name = EnhanceBrukerDicom::get_default_directory_name(
                 this->_outputDir);
@@ -193,8 +193,13 @@ EnhanceBrukerDicom
             dataset.as_string(dcmtkpp::registry::StudyDescription, 0));
 
     // Series Directory: Bruker Series directory + Series Description
-    auto const & series_description = dataset.as_string(
-        dcmtkpp::registry::SeriesDescription, 0);
+    std::string series_description = "";
+    // Series description is optional
+    if (dataset.has(dcmtkpp::registry::SeriesDescription))
+    {
+        series_description = dataset.as_string(
+            dcmtkpp::registry::SeriesDescription, 0);
+    }
     auto series_number = boost::lexical_cast<std::string>(
         dataset.as_int(dcmtkpp::registry::SeriesNumber, 0));
     series_number = series_number.substr(0, series_number.size() == 6 ? 2 : 1);
