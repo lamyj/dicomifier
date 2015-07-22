@@ -9,6 +9,8 @@
 #ifndef _c84c4c8e_6474_429c_8ffb_4c93c75df0f3
 #define _c84c4c8e_6474_429c_8ffb_4c93c75df0f3
 
+#include <string>
+
 #include <v8.h>
 
 namespace dicomifier

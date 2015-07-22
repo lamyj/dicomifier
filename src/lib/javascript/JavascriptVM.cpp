@@ -6,6 +6,8 @@
  * for details.
  ************************************************************************/
 
+#include <sstream>
+
 #include "core/DicomifierException.h"
 #include "JavascriptVM.h"
 #include "LoggerJS.h"
@@ -74,6 +76,7 @@ JavascriptVM
 {
     // fix error: Cannot create a handle without a HandleScope
     v8::HandleScope handle_scope;
+    v8::TryCatch trycatch;
 
     // Load the context
     v8::Context::Scope context_scope(context);
@@ -89,7 +92,16 @@ JavascriptVM
     }
 
     // Execute
-    return scriptJS->Run();
+    auto return_ = scriptJS->Run();
+    if (return_.IsEmpty())
+    {
+        std::stringstream streamerror;
+        streamerror << "JavaScript error: "
+                    << *v8::String::AsciiValue(trycatch.Exception());
+        throw DicomifierException(streamerror.str());
+    }
+
+    return return_;
 }
 
 } // namespace javascript

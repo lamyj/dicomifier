@@ -26,7 +26,9 @@ int main()
 
     // Create input
     std::stringstream streambruker;
-    streambruker << "{ \"VisuStudyId\" : [ \"FLIIAM^19022015\" ], "
+    streambruker << "{ "
+                 << "\"VisuSubjectName\" : [ \"S15-01\" ], "
+                 << "\"VisuSubjectId\" : [ \"FLIIAM^S15-01\" ], "
                  << "\"VisuSubjectBirthDate\" : [ \"20150219\" ], "
                  << "\"VisuAcqRepetitionTime\" : [ 100 ], "
                  << "\"VisuCoreSize\" : [ 256, 256 ] }";
@@ -42,15 +44,17 @@ int main()
     // Create and execute script
     std::stringstream streamscript;
     streamscript << "var dataset = {}; "
-                 << "dataset[\"00100020\"] = { \"vr\" : \"LO\", \"Value\" : inputs[0].VisuStudyId };"
+                 << "dataset[\"00100010\"] = { \"vr\" : \"PN\", \"Value\" : [ { \"Alphabetic\" : inputs[0].VisuSubjectName[0] } ] };"
+                 << "dataset[\"00100020\"] = { \"vr\" : \"LO\", \"Value\" : inputs[0].VisuSubjectId };"
                  << "dataset[\"00100030\"] = { \"vr\" : \"DA\", \"Value\" : inputs[0].VisuSubjectBirthDate };"
                  << "dataset[\"00180080\"] = { \"vr\" : \"DS\", \"Value\" : inputs[0].VisuAcqRepetitionTime };"
-                 << "dataset[\"00280010\"] = { \"vr\" : \"US\", \"Value\" : [inputs[0].VisuCoreSize[0]] };"
-                 << "dataset[\"00280011\"] = { \"vr\" : \"US\", \"Value\" : [inputs[0].VisuCoreSize[1]] };"
+                 << "dataset[\"00280010\"] = { \"vr\" : \"US\", \"Value\" : [ inputs[0].VisuCoreSize[0] ] };"
+                 << "dataset[\"00280011\"] = { \"vr\" : \"US\", \"Value\" : [ inputs[0].VisuCoreSize[1] ] };"
                  << "outputs[0] = dataset;"
                  << "log(JSON.stringify(dataset));";
     auto result2 = vm.run(streamscript.str());
 
+    // Retrieve output
     auto dicom_json = vm.run("JSON.stringify(outputs[0])");
     v8::String::Utf8Value utf8(dicom_json);
 
@@ -58,7 +62,7 @@ int main()
     datasetstream << *utf8;
     Json::Value jsondataset;
     datasetstream >> jsondataset;
-    std::cout << "json = " << jsondataset.toStyledString() << std::endl;
+    std::cout << "jsondataset = " << jsondataset.toStyledString() << std::endl;
     dcmtkpp::DataSet const dataset = dcmtkpp::as_dataset(jsondataset);
 
     return EXIT_SUCCESS;
