@@ -240,4 +240,41 @@ Dictionaries
     return firstfree;
 }
 
+std::string
+Dictionaries
+::to_string()
+{
+    Dictionary::Pointer const publicdic = this->_dictionaries["public"];
+
+    std::stringstream stream;
+
+    stream << "{";
+
+    bool first = true;
+    for(auto it = publicdic->begin(); it != publicdic->end(); ++it)
+    {
+        auto const & keyword = it->first;
+        DcmDictEntry* const dictentry = it->second;
+
+        if (!first)
+        {
+            stream << ",";
+        }
+        first = false;
+
+        std::string tag(dictentry->getKey().toString().c_str());
+        boost::replace_all(tag, "(", "");
+        boost::replace_all(tag, ")", "");
+        boost::replace_all(tag, ",", "");
+
+        stream << "\"" << keyword
+               << "\": [\"" << dictentry->getVR().getValidVRName()
+               << "\",\"" << tag << "\"]";
+    }
+
+    stream << "}";
+
+    return stream.str();
+}
+
 } // namespace dicomifier

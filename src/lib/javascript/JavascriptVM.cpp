@@ -9,6 +9,7 @@
 #include <sstream>
 
 #include "core/DicomifierException.h"
+#include "dicom/Dictionaries.h"
 #include "JavascriptVM.h"
 #include "LoggerJS.h"
 
@@ -60,6 +61,11 @@ JavascriptVM
         v8::String::New("outputs"),
         v8::Array::New());
     }
+
+    std::stringstream streamdictionary;
+    streamdictionary << "var dictionary = "
+                     << Dictionaries::get_instance().to_string() << ";";
+    this->run(streamdictionary.str());
 }
 
 JavascriptVM
