@@ -128,7 +128,12 @@ Dictionaries
     
     for (DcmHashDictIterator iter = dict.normalBegin(); iter != dict.normalEnd(); iter++)
     {
-        publicdict->AddDictEntry(*iter);
+        const DcmDictEntry * entry = *iter;
+        // Only add Public Entry
+        if (entry->getPrivateCreator() == NULL || std::string(entry->getPrivateCreator()) == "")
+        {
+            publicdict->AddDictEntry(*iter);
+        }
     }
 
     dcmDataDict.unlock();

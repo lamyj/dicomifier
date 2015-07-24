@@ -53,17 +53,17 @@ JavascriptVM
         v8::String::New("log"),
         v8::FunctionTemplate::New(log)->GetFunction());
 
-    context->Global()->Set(
-        v8::String::New("inputs"),
-        v8::Array::New());
+    auto myobject = v8::Object::New();
+    myobject->Set(v8::String::New("inputs"), v8::Array::New());
+    myobject->Set(v8::String::New("outputs"), v8::Array::New());
 
     context->Global()->Set(
-        v8::String::New("outputs"),
-        v8::Array::New());
+        v8::String::New("dicomifier"),
+        myobject);
     }
 
     std::stringstream streamdictionary;
-    streamdictionary << "var dictionary = "
+    streamdictionary << "dicomifier[\"dictionary\"] = "
                      << Dictionaries::get_instance().to_string() << ";";
     this->run(streamdictionary.str());
 }
