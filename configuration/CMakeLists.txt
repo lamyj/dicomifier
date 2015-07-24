@@ -7,3 +7,13 @@ foreach(HEADER ${conffile})
             DESTINATION etc/dicomifier/${DIR}
             COMPONENT headers)
 endforeach(HEADER ${conffile})
+
+# install converter scripts
+file(GLOB_RECURSE scriptfile RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}" "*.js")
+foreach(SCRIPT ${scriptfile})
+    string(REGEX MATCH "(.*)[/\\]" DIR ${SCRIPT})
+    install(FILES ${SCRIPT}
+            PERMISSIONS OWNER_EXECUTE OWNER_WRITE OWNER_READ GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE
+            DESTINATION etc/dicomifier/${DIR}
+            COMPONENT headers)
+endforeach(SCRIPT ${scriptfile})
