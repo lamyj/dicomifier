@@ -9,6 +9,7 @@
 #include <sstream>
 
 #include "core/DicomifierException.h"
+#include "core/Endian.h"
 #include "dicom/Dictionaries.h"
 #include "JavascriptVM.h"
 #include "LoggerJS.h"
@@ -18,6 +19,24 @@ namespace dicomifier
 
 namespace javascript
 {
+
+/***********************************
+ *  Exposed functions              *
+ **********************************/
+v8::Handle<v8::Value> is_big_endian(v8::Arguments const & args)
+{
+    return v8::Boolean::New(endian::is_big_endian());
+}
+
+v8::Handle<v8::Value> generate_uid(v8::Arguments const & args)
+{
+    char buffer[128];
+    dcmGenerateUniqueIdentifier(buffer, SITE_INSTANCE_UID_ROOT);
+    std::string const uid(buffer);
+    return v8::String::New(uid.c_str());
+}
+/***********************************
+ **********************************/
 
 JavascriptVM
 ::JavascriptVM()
@@ -52,6 +71,14 @@ JavascriptVM
     context->Global()->Set(
         v8::String::New("log"),
         v8::FunctionTemplate::New(log)->GetFunction());
+
+    context->Global()->Set(
+        v8::String::New("bigEndian"),
+        v8::FunctionTemplate::New(is_big_endian)->GetFunction());
+
+    context->Global()->Set(
+        v8::String::New("dcmGenerateUniqueIdentifier"),
+        v8::FunctionTemplate::New(generate_uid)->GetFunction());
 
     auto myobject = v8::Object::New();
     myobject->Set(v8::String::New("inputs"), v8::Array::New());
