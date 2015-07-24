@@ -38,6 +38,8 @@ public:
      */
     v8::Local<v8::Value> run(std::string const & script);
 
+    v8::Local<v8::Value> run_file(std::string const & scriptpath);
+
 protected:
 
 private:

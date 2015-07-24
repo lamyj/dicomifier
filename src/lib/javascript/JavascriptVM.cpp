@@ -8,6 +8,8 @@
 
 #include <sstream>
 
+#include <boost/filesystem.hpp>
+
 #include "core/DicomifierException.h"
 #include "core/Endian.h"
 #include "dicom/Dictionaries.h"
@@ -93,6 +95,28 @@ JavascriptVM
     streamdictionary << "dicomifier[\"dictionary\"] = "
                      << Dictionaries::get_instance().to_string() << ";";
     this->run(streamdictionary.str());
+
+    // if file exist locally
+    if (boost::filesystem::exists(boost::filesystem::path("../configuration/script_bruker2dicom/functions.js")))
+    {
+        this->run_file("../configuration/script_bruker2dicom/functions.js");
+    }
+    // else use default file
+    else
+    {
+        this->run_file("/etc/dicomifier/script_bruker2dicom/functions.js");
+    }
+
+    // if file exist locally
+    if (boost::filesystem::exists(boost::filesystem::path("../configuration/script_bruker2dicom/frameIndexGenerator.js")))
+    {
+        this->run_file("../configuration/script_bruker2dicom/frameIndexGenerator.js");
+    }
+    // else use default file
+    else
+    {
+        this->run_file("/etc/dicomifier/script_bruker2dicom/frameIndexGenerator.js");
+    }
 }
 
 JavascriptVM
@@ -135,6 +159,30 @@ JavascriptVM
     }
 
     return return_;
+}
+
+v8::Local<v8::Value>
+JavascriptVM
+::run_file(std::string const & scriptpath)
+{
+    // Open file
+    std::ifstream streamfile(scriptpath.c_str(), std::ifstream::binary);
+
+    // Get file size
+    streamfile.seekg(0, streamfile.end);
+    auto const size = streamfile.tellg();
+    streamfile.seekg(0, streamfile.beg);
+
+    // Read file
+    std::string buffer;
+    buffer.resize(size);
+    streamfile.read((char*)(&buffer[0]), size);
+
+    // Close file
+    streamfile.close();
+
+    // Execute script
+    return this->run(buffer);
 }
 
 } // namespace javascript
