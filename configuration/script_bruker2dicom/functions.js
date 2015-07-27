@@ -1,9 +1,18 @@
 
+/**
+ * @brief Exception class
+ */
 dicomifier.Exception = function(message) {
     this.message = message;
 }
 dicomifier.Exception.prototype = new Error;
 
+/**
+ * @brief Make a division between 2 arrays
+ * @param array1
+ * @param array2
+ * @return array = [ array1[0] / array2[0], ..., array1[n] / array2[n] ]
+ */
 function divideArray(array1, array2) {
     var array = new Array();
     for (var index = 0; index < array1.length; ++index) {
@@ -12,6 +21,11 @@ function divideArray(array1, array2) {
     return array;
 }
 
+/**
+ * @brief use a dictionary to convert Bruker field into DICOM field
+ * @param dictionary: dictionary to used
+ * @return DICOM value
+ */
 function dictionaryMapper(dictionary) {
     return function(x) {
         var mapped = dictionary[x];
@@ -23,6 +37,11 @@ function dictionaryMapper(dictionary) {
     };
 }
 
+/**
+ * @brief Convert Bruker Date-Time format into DICOM format
+ * @param format: output format ('date' or 'time')
+ * @return date or time into DICOM Format
+ */
 function dateTimeMapper(format) {
     return function(x) {
         var datetime = new Date(x.replace(',', '.'));
@@ -44,14 +63,45 @@ function dateTimeMapper(format) {
     }
 }
 
-function toDicom(dataset, element, value, type, action) {
+/**
+ * @brief Convert Bruker field into DICOM field
+ * @param indexGenerator: Generate current index for frame Groups
+ * @param dataset: DICOM dataset
+ * @param element: Keyword of the DICOM element to add
+ * @param brukerDataset: JSON representation of the BrukerDataset
+ * @param brukerElement: Name of the Bruker field
+ * @param type: type of the DICOM element (1 = mandatory and not empty, 
+ *                                         2 = mandatory, 3 = optional)
+ * @param setter: action apply to write values into DICOM Dataset
+ * @param getter: action apply to read values from BrukerDataset
+ */
+function toDicom(indexGenerator, dataset, element, brukerDataset, 
+                 brukerElement, type, setter, getter) {
     var vrAndTag = dicomifier.dictionary[element];
 
     if (vrAndTag === undefined) {
         throw new dicomifier.Exception('Unknown DICOM element: "' +
                                       element + '"');
     }
+    
+    // Get Bruker Value
+    var value = null;
+    if (getter !== undefined) {
+        value = getter(brukerDataset);
+    }
+    else if (brukerElement !== null) {
+        value = brukerDataset[brukerElement];
+    }
 
+    // Check frame groups
+    var frameGroupIndex = dicomifier.getFrameGroupIndex(brukerDataset, 
+                                                        brukerElement);
+    if (frameGroupIndex !== null) {
+        value = value[indexGenerator.currentIndex[frameGroupIndex[0]] + 
+                      frameGroupIndex[1]];
+    }
+
+    // Set value into DICOM
     if (value === undefined) {
         if (type === 1) {
             // Must be present, may not be empty
@@ -73,8 +123,8 @@ function toDicom(dataset, element, value, type, action) {
     else {
         dicomDataset[vrAndTag[1]] = { 'vr': vrAndTag[0] };
         if (value !== null) {
-            if (action !== undefined) {
-                value = value.map(action);
+            if (setter !== undefined) {
+                value = value.map(setter);
             }
 
             if(vrAndTag[0] === 'PN') {
@@ -82,6 +132,12 @@ function toDicom(dataset, element, value, type, action) {
                                     { return { "Alphabetic" : x }; });
             }
     
+            if (type === 1 && value.length === 0) {
+                // Must be present, may not be empty
+                throw new dicomifier.Exception(
+                    'DICOM element "' + element + '" must not be empty');
+            }
+        
             dicomDataset[vrAndTag[1]]['Value'] = value;
         }
     }
