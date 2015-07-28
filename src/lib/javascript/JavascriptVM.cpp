@@ -43,9 +43,6 @@ v8::Handle<v8::Value> generate_uid(v8::Arguments const & args)
 JavascriptVM
 ::JavascriptVM()
 {
-    // Initialize V8.
-    v8::V8::Initialize();
-
     // Create a new Isolate and make it the current one.
     this->_isolate = v8::Isolate::New();
     {
@@ -123,8 +120,6 @@ JavascriptVM
 ::~JavascriptVM()
 {
     this->_isolate->Dispose();
-
-    v8::V8::Dispose();
 }
 
 v8::Local<v8::Value>

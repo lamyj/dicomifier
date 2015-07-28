@@ -66,7 +66,7 @@ function dateTimeMapper(format) {
 /**
  * @brief Convert Bruker field into DICOM field
  * @param indexGenerator: Generate current index for frame Groups
- * @param dataset: DICOM dataset
+ * @param dicomDataset: DICOM dataset
  * @param element: Keyword of the DICOM element to add
  * @param brukerDataset: JSON representation of the BrukerDataset
  * @param brukerElement: Name of the Bruker field
@@ -75,7 +75,7 @@ function dateTimeMapper(format) {
  * @param setter: action apply to write values into DICOM Dataset
  * @param getter: action apply to read values from BrukerDataset
  */
-function toDicom(indexGenerator, dataset, element, brukerDataset, 
+function toDicom(indexGenerator, dicomDataset, element, brukerDataset, 
                  brukerElement, type, setter, getter) {
     var vrAndTag = dicomifier.dictionary[element];
 
@@ -85,7 +85,7 @@ function toDicom(indexGenerator, dataset, element, brukerDataset,
     }
     
     // Get Bruker Value
-    var value = null;
+    var value = undefined;
     if (getter !== undefined) {
         value = getter(brukerDataset);
     }
@@ -110,7 +110,7 @@ function toDicom(indexGenerator, dataset, element, brukerDataset,
         }
         else if (type === 2) {
             // Must be present, may be empty
-            dataset[vrAndTag[1]] = { 'vr' : vrAndTag[0] };
+            dicomDataset[vrAndTag[1]] = { 'vr' : vrAndTag[0] };
         }
         else if (type === 3) {
             // May be absent
@@ -139,6 +139,13 @@ function toDicom(indexGenerator, dataset, element, brukerDataset,
             }
         
             dicomDataset[vrAndTag[1]]['Value'] = value;
+        }
+        else {
+            if (type === 1) {
+                // Must be present, may not be empty
+                throw new dicomifier.Exception(
+                    'DICOM element "' + element + '" must not be empty');
+            }
         }
     }
 }
