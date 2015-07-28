@@ -269,6 +269,6 @@ while (indexGenerator.done() == false) {
     
     indexGenerator.next();
 }
-log(JSON.stringify(dicomifier.outputs[0])); // TODO remove
+
 // Return number of outputs
 String(dicomifier.outputs.length);
