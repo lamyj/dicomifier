@@ -494,9 +494,10 @@ BOOST_FIXTURE_TEST_CASE(Functions_toDicom_UnknownDicomTag, TestDataToDicom)
     BOOST_REQUIRE_THROW(vm.run(stream.str()), dicomifier::DicomifierException);
 }
 
-/*************************** TEST Nominal *******************************/
+/*************************** TEST Error *********************************/
 /**
- * Nominal test case: Test function toDicom descibes into function.js
+ * Error test case: Test function toDicom descibes into function.js
+ *                  Null value and type 1
  */
 BOOST_FIXTURE_TEST_CASE(Functions_toDicom_NullValueType1, TestDataToDicom)
 {
@@ -510,9 +511,10 @@ BOOST_FIXTURE_TEST_CASE(Functions_toDicom_NullValueType1, TestDataToDicom)
     BOOST_REQUIRE_THROW(vm.run(stream.str()), dicomifier::DicomifierException);
 }
 
-/*************************** TEST Nominal *******************************/
+/*************************** TEST Error *********************************/
 /**
- * Nominal test case: Test function toDicom descibes into function.js
+ * Error test case: Test function toDicom descibes into function.js
+ *                  Empty value and type 1
  */
 BOOST_FIXTURE_TEST_CASE(Functions_toDicom_EmptyValueType1, TestDataToDicom)
 {
