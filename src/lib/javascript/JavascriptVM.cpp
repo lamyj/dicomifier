@@ -93,10 +93,24 @@ JavascriptVM
                      << Dictionaries::get_instance().to_string() << ";";
     this->run(streamdictionary.str());
 
-    // if file exist locally
-    if (boost::filesystem::exists(boost::filesystem::path("../configuration/script_bruker2dicom/functions.js")))
+    std::string configuration_path("../configuration");
+    char* value = getenv("DICOMIFIER_CONFIGURATION_DIR");
+    if(value != NULL)
     {
-        this->run_file("../configuration/script_bruker2dicom/functions.js");
+        configuration_path = std::string(value);
+    }
+
+    std::stringstream functionfile;
+    functionfile << configuration_path
+                 << "/script_bruker2dicom/functions.js";
+    std::stringstream frameindexgenerator;
+    frameindexgenerator << configuration_path
+                        << "/script_bruker2dicom/frameIndexGenerator.js";
+
+    // if file exist locally
+    if (boost::filesystem::exists(boost::filesystem::path(functionfile.str())))
+    {
+        this->run_file(functionfile.str());
     }
     // else use default file
     else
@@ -105,9 +119,9 @@ JavascriptVM
     }
 
     // if file exist locally
-    if (boost::filesystem::exists(boost::filesystem::path("../configuration/script_bruker2dicom/frameIndexGenerator.js")))
+    if (boost::filesystem::exists(boost::filesystem::path(frameindexgenerator.str())))
     {
-        this->run_file("../configuration/script_bruker2dicom/frameIndexGenerator.js");
+        this->run_file(frameindexgenerator.str());
     }
     // else use default file
     else
