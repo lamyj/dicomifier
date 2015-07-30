@@ -14,11 +14,9 @@
 
 #include "bruker/converters/pixel_data_converter.h"
 #include "core/DicomifierException.h"
-#include "core/Endian.h"
 #include "dicom/Dictionaries.h"
 #include "JavascriptVM.h"
 #include "LoggerJS.h"
-#include "core/Logger.h"
 
 namespace dicomifier
 {

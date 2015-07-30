@@ -10,6 +10,9 @@
 
 #include <iomanip>
 
+#include <boost/filesystem.hpp>
+#include <boost/lexical_cast.hpp>
+
 #include <dcmtkpp/DataSet.h>
 #include <dcmtkpp/Element.h>
 #include <dcmtkpp/conversion.h>
@@ -19,10 +22,7 @@
 #include "bruker/Directory.h"
 #include "bruker/json_converter.h"
 #include "core/DicomifierException.h"
-#include "core/Logger.h"
 #include "javascript/JavascriptVM.h"
-
-#include "bruker/converters/mr_image_storage.h"
 
 namespace dicomifier
 {

@@ -12,11 +12,7 @@
 #include <string>
 
 #include <dcmtkpp/DataSet.h>
-#include <dcmtkpp/Tag.h>
-#include <dcmtkpp/Value.h>
-#include <dcmtkpp/VR.h>
 
-#include "bruker/converters/converter_base.h"
 #include "bruker/Dataset.h"
 #include "core/FrameIndexGenerator.h"
 
@@ -29,18 +25,12 @@ namespace bruker
 namespace converters
 {
 
-class pixel_data_converter: public converter_base
+class pixel_data_converter
 {
 public:
     pixel_data_converter();
 
     virtual ~pixel_data_converter();
-
-    virtual void operator()(
-        Dataset const & bruker_data_set,
-        FrameIndexGenerator const & index,
-        dcmtkpp::Tag const & dicom_tag, dcmtkpp::VR const & vr,
-        dcmtkpp::DataSet & dicom_data_set);
 
     void operator()(unsigned int frame_size, unsigned int frame_index,
                     std::string const & filename, std::string const & word_type,

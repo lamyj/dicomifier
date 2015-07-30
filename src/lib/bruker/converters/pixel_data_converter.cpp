@@ -13,14 +13,10 @@
 
 #include <dcmtkpp/DataSet.h>
 #include <dcmtkpp/registry.h>
-#include <dcmtkpp/Tag.h>
-#include <dcmtkpp/VR.h>
 
-#include "bruker/converters/converter_base.h"
 #include "bruker/Dataset.h"
 #include "core/Endian.h"
 #include "core/FrameIndexGenerator.h"
-#include "core/Logger.h"
 
 namespace dicomifier
 {
@@ -33,7 +29,7 @@ namespace converters
 
 pixel_data_converter
 ::pixel_data_converter()
-: converter_base(), _filename("")
+: _filename("")
 {
     // Nothing else
 }
@@ -42,28 +38,6 @@ pixel_data_converter
 ::~pixel_data_converter()
 {
     // Nothing to do.
-}
-
-void
-pixel_data_converter
-::operator()(
-    Dataset const & bruker_data_set,
-    FrameIndexGenerator const & index,
-    dcmtkpp::Tag const & dicom_tag, dcmtkpp::VR const & vr,
-    dcmtkpp::DataSet & dicom_data_set)
-{
-    auto const filename = bruker_data_set.get_field("PIXELDATA").get_string(0);
-    auto const word_type =
-            bruker_data_set.get_field("VisuCoreWordType").get_string(0);
-    auto const file_byte_order =
-        bruker_data_set.get_field("VisuCoreByteOrder").get_string(0);
-
-    auto const frame_size =
-        bruker_data_set.get_field("VisuCoreSize").get_int(0) *
-        bruker_data_set.get_field("VisuCoreSize").get_int(1);
-
-    this->operator ()(frame_size, index.get_step(), filename, word_type,
-                      file_byte_order, dicom_data_set);
 }
 
 void

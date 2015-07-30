@@ -15,7 +15,6 @@
 #include <boost/regex.hpp>
 
 #include "core/DicomifierException.h"
-#include "core/Logger.h"
 
 #include "Field.h"
 #include "grammar.h"

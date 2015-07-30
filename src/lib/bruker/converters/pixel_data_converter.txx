@@ -9,22 +9,12 @@
 #ifndef _dd05e8c5_1691_4fc4_9525_6518ae932117
 #define _dd05e8c5_1691_4fc4_9525_6518ae932117
 
-#include "bruker/converters/pixel_data_converter.h"
-
 #include <algorithm>
 #include <cstdint>
 #include <limits>
 #include <string>
 
-#include <dcmtkpp/DataSet.h>
-#include <dcmtkpp/Tag.h>
-#include <dcmtkpp/Value.h>
-#include <dcmtkpp/VR.h>
-
-#include "bruker/converters/converter_base.h"
-#include "bruker/Dataset.h"
 #include "core/Endian.h"
-#include "core/FrameIndexGenerator.h"
 
 namespace dicomifier
 {
