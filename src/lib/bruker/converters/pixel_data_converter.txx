@@ -38,19 +38,15 @@ namespace converters
 template<typename TPixelType>
 dcmtkpp::Value::Binary
 pixel_data_converter
-::_read_pixel_data(Dataset const & data_set, FrameIndexGenerator const & index) const
+::_read_pixel_data(unsigned int frame_size, unsigned int index) const
 {
-    auto const frame_size =
-        data_set.get_field("VisuCoreSize").get_int(0) *
-        data_set.get_field("VisuCoreSize").get_int(1);
-
     dcmtkpp::Value::Binary pixel_data;
     pixel_data.resize(
         sizeof(OutputPixelType)/sizeof(dcmtkpp::Value::Binary::value_type)*frame_size);
 
     TPixelType const * const source_begin =
         reinterpret_cast<TPixelType const *>(&this->_pixel_data[0]) +
-        + frame_size*index.get_step();
+        + frame_size*index;
     //TPixelType const * const source_end = source_begin+frame_size ;
 
     OutputPixelType * const destination_begin =

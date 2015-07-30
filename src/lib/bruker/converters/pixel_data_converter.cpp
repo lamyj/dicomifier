@@ -20,6 +20,7 @@
 #include "bruker/Dataset.h"
 #include "core/Endian.h"
 #include "core/FrameIndexGenerator.h"
+#include "core/Logger.h"
 
 namespace dicomifier
 {
@@ -51,26 +52,45 @@ pixel_data_converter
     dcmtkpp::Tag const & dicom_tag, dcmtkpp::VR const & vr,
     dcmtkpp::DataSet & dicom_data_set)
 {
-    this->_set_data_set(bruker_data_set);
+    auto const filename = bruker_data_set.get_field("PIXELDATA").get_string(0);
+    auto const word_type = bruker_data_set.get_field("VisuCoreWordType").get_string(0);
+    auto const file_byte_order =
+        bruker_data_set.get_field("VisuCoreByteOrder").get_string(0);
+
+    auto const frame_size =
+        bruker_data_set.get_field("VisuCoreSize").get_int(0) *
+        bruker_data_set.get_field("VisuCoreSize").get_int(1);
+
+    this->operator ()(frame_size, index.get_step(), filename, word_type, file_byte_order, dicom_data_set);
+}
+
+void
+pixel_data_converter
+::operator()(unsigned int frame_size,unsigned int frame_index,
+             std::string const & filename,
+             std::string const & word_type,
+             std::string const & file_byte_order,
+             dcmtkpp::DataSet & dicom_data_set)
+{
+    this->_set_data_set(filename, word_type, file_byte_order);
 
     dcmtkpp::Value::Binary pixel_data;
 
-    auto const word_type = bruker_data_set.get_field("VisuCoreWordType").get_string(0);
     if (word_type == "_32BIT_SGN_INT")
     {
-        pixel_data = this->_read_pixel_data<int32_t>(bruker_data_set, index);
+        pixel_data = this->_read_pixel_data<int32_t>(frame_size, frame_index);
     }
     else if (word_type == "_16BIT_SGN_INT")
     {
-        pixel_data = this->_read_pixel_data<int16_t>(bruker_data_set, index);
+        pixel_data = this->_read_pixel_data<int16_t>(frame_size, frame_index);
     }
     else if (word_type == "_8BIT_UNSGN_INT")
     {
-        pixel_data = this->_read_pixel_data<uint8_t>(bruker_data_set, index);
+        pixel_data = this->_read_pixel_data<uint8_t>(frame_size, frame_index);
     }
     else if (word_type == "_32BIT_FLOAT")
     {
-        pixel_data = this->_read_pixel_data<float>(bruker_data_set, index);
+        pixel_data = this->_read_pixel_data<float>(frame_size, frame_index);
     }
 
     dicom_data_set.add(dcmtkpp::registry::PixelData, pixel_data, dcmtkpp::VR::OW);
@@ -78,9 +98,10 @@ pixel_data_converter
 
 void
 pixel_data_converter
-::_set_data_set(Dataset const & data_set)
+::_set_data_set(std::string const & filename,
+                std::string const & word_type,
+                std::string const & file_byte_order)
 {
-    auto const filename = data_set.get_field("PIXELDATA").get_string(0);
     if(filename != this->_filename)
     {
         // read pixel data
@@ -92,10 +113,6 @@ pixel_data_converter
         this->_pixel_data.resize(size);
         stream.read((char*)(&this->_pixel_data[0]), size);
 
-        auto const word_type = data_set.get_field("VisuCoreWordType").get_string(0);
-
-        auto const file_byte_order =
-            data_set.get_field("VisuCoreByteOrder").get_string(0);
         auto const file_is_big_endian = (file_byte_order == "bigEndian");
         auto const system_is_big_endian = dicomifier::endian::is_big_endian();
         if(system_is_big_endian != file_is_big_endian)

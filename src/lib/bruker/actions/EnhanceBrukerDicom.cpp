@@ -14,10 +14,13 @@
 #include <dcmtkpp/Element.h>
 #include <dcmtkpp/conversion.h>
 #include <dcmtkpp/registry.h>
+#include <dcmtkpp/json_converter.h>
 
 #include "bruker/Directory.h"
+#include "bruker/json_converter.h"
 #include "core/DicomifierException.h"
 #include "core/Logger.h"
+#include "javascript/JavascriptVM.h"
 
 #include "bruker/converters/mr_image_storage.h"
 
@@ -236,43 +239,60 @@ void
 EnhanceBrukerDicom
 ::_create_mr_image_storage(bruker::Dataset const & bruker_dataset) const
 {
-    std::vector<int> index_lists;
-    for(auto const & frame_group: bruker_dataset.get_frame_groups())
+    javascript::JavascriptVM jsvm;
+
+    auto const json_bruker_dataset = bruker::as_json(bruker_dataset);
+
+    std::stringstream stream;
+    stream << "dicomifier.inputs[0] = "
+           << json_bruker_dataset.toStyledString() << ";";
+    jsvm.run(stream.str());
+
+    // use default file
+    std::string script("/etc/dicomifier/script_bruker2dicom/frameIndexGenerator.js");
+
+    std::string configuration_path("../configuration");
+    char* value = getenv("DICOMIFIER_CONFIGURATION_DIR");
+    if(value != NULL)
     {
-        index_lists.push_back(frame_group.size);
+        configuration_path = std::string(value);
     }
 
-    FrameIndexGenerator frame_index_generator(index_lists);
+    std::stringstream mrimagestoragefile;
+    mrimagestoragefile << configuration_path
+                       << "/script_bruker2dicom/MRImageStorage.js";
 
-    std::vector<
-        std::map<dcmtkpp::Tag, bruker::converters::converter_base::pointer>
-    > const mr_image_storage = {
-        bruker::converters::patient,
-        bruker::converters::general_study, bruker::converters::patient_study,
-        bruker::converters::general_series,
-        bruker::converters::frame_of_reference,
-        bruker::converters::general_equipment,
-        bruker::converters::general_image, bruker::converters::image_plane,
-            bruker::converters::image_pixel, bruker::converters::mr_image,
-        bruker::converters::sop_common,
-    };
-
-    while(!frame_index_generator.done())
+    // if file exist locally
+    if (boost::filesystem::exists(boost::filesystem::path(
+            mrimagestoragefile.str())))
     {
-        dcmtkpp::DataSet dicom_data_set;
+        script = mrimagestoragefile.str();
+    }
 
-        for(auto const module: mr_image_storage)
-        {
-            for(auto const & module_it: module)
-            {
-                auto const & tag = module_it.first;
-                auto const & converter = module_it.second;
+    // Execute script
+    v8::Local<v8::Value> result = jsvm.run_file(script);
+    v8::String::Utf8Value result2utf8(result);
 
-                (*converter)(
-                        bruker_dataset, frame_index_generator,
-                        tag, dcmtkpp::as_vr(tag), dicom_data_set);
-            }
-        }
+    std::stringstream streamresult;
+    streamresult << *result2utf8;
+
+    auto number = boost::lexical_cast<unsigned int>(streamresult.str());
+    for (unsigned int ds = 0; ds < number; ++ds)
+    {
+        std::stringstream streamscript;
+        streamscript << "JSON.stringify(dicomifier.outputs[" << ds << "]);";
+        auto dicom_json = jsvm.run(streamscript.str());
+        v8::String::Utf8Value utf8(dicom_json);
+
+        std::stringstream datasetstream;
+        datasetstream << *utf8;
+        Json::Value jsondataset;
+        Json::Reader reader;
+        std::string old_locale = std::setlocale(LC_ALL, "C");
+        reader.parse(datasetstream, jsondataset);
+        std::setlocale(LC_ALL, old_locale.c_str());
+
+        dcmtkpp::DataSet const dicom_data_set = dcmtkpp::as_dataset(jsondataset);
 
         auto const destination = this->get_destination_filename(dicom_data_set);
 
@@ -287,10 +307,7 @@ EnhanceBrukerDicom
             throw DicomifierException(
                 "Unable to save dataset: " + std::string(result.text()));
         }
-
-        frame_index_generator.next();
     }
-
 }
 
 void

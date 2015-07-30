@@ -124,7 +124,7 @@ while (indexGenerator.done() == false) {
             function(brukerDS) { return [
                     (brukerDS.VisuCreator !== undefined &&
                      brukerDS.VisuCreator.length > 0 ?
-                        brukerDS.VisuCreator[0] : '') +
+                        brukerDS.VisuCreator[0] + ' ' : '') +
                     (brukerDS.VisuCreatorVersion !== undefined &&
                      brukerDS.VisuCreatorVersion.length > 0 ?
                         brukerDS.VisuCreatorVersion[0] : '') ]; } );
@@ -205,12 +205,13 @@ while (indexGenerator.done() == false) {
     dicomDataset[dicomifier.dictionary['PixelRepresentation'][1]] =
             { 'vr': dicomifier.dictionary['PixelRepresentation'][0], 
               'Value' : [ 0 ] };
-    // PixelData => todo
+    pixelDataToDicom(indexGenerator, dicomDataset, 'PixelData', 
+                     brukerDataset, 1);
 
     // MR Image Module
     dicomDataset[dicomifier.dictionary['ScanningSequence'][1]] =
             { 'vr': dicomifier.dictionary['ScanningSequence'][0], 
-              'Value' : [ 'MR' ] };
+              'Value' : [ 'RM' ] };
     dicomDataset[dicomifier.dictionary['SequenceVariant'][1]] =
             { 'vr': dicomifier.dictionary['SequenceVariant'][0], 
               'Value' : [ 'NONE' ] };

@@ -42,6 +42,13 @@ public:
         dcmtkpp::Tag const & dicom_tag, dcmtkpp::VR const & vr,
         dcmtkpp::DataSet & dicom_data_set);
 
+    void operator()(unsigned int frame_size,
+                    unsigned int frame_index,
+                    std::string const & filename,
+                    std::string const & word_type,
+                    std::string const & file_byte_order,
+                    dcmtkpp::DataSet & dicom_data_set);
+
 private:
     typedef uint16_t OutputPixelType;
 
@@ -50,17 +57,20 @@ private:
     double _min;
     double _max;
 
-    void _set_data_set(Dataset const & data_set);
+    void _set_data_set(std::string const & filename,
+                       std::string const & word_type,
+                       std::string const & file_byte_order);
 
     template<typename TPixelType>
     dcmtkpp::Value::Binary _read_pixel_data(
-        Dataset const & data_set, FrameIndexGenerator const & index) const;
+        unsigned int frame_size, unsigned int index) const;
 
     template<typename TPixelType>
     void _flip();
 
     template<typename TPixelType>
     void _update_min_max();
+
 };
 
 }

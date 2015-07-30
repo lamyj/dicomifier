@@ -10,11 +10,15 @@
 
 #include <boost/filesystem.hpp>
 
+#include <dcmtkpp/json_converter.h>
+
+#include "bruker/converters/pixel_data_converter.h"
 #include "core/DicomifierException.h"
 #include "core/Endian.h"
 #include "dicom/Dictionaries.h"
 #include "JavascriptVM.h"
 #include "LoggerJS.h"
+#include "core/Logger.h"
 
 namespace dicomifier
 {
@@ -37,6 +41,82 @@ v8::Handle<v8::Value> generate_uid(v8::Arguments const & args)
     std::string const uid(buffer);
     return v8::String::New(uid.c_str());
 }
+
+v8::Handle<v8::Value> load_pixel_data(v8::Arguments const & args)
+{
+    if(args.Length() < 1)
+    {
+        throw DicomifierException("Missing BrukerDataset");
+    }
+    if(args.Length() < 2)
+    {
+        throw DicomifierException("Missing frame number");
+    }
+
+    v8::Local<v8::Value> const arg = args[0];
+
+    // Get PIXELDATA
+    if (!arg->ToObject()->Has(v8::String::New("PIXELDATA")))
+    {
+        throw DicomifierException("Missing pixel data path");
+    }
+    v8::Local<v8::Array> pixeldata =
+            arg->ToObject()->Get(v8::String::New("PIXELDATA")).As<v8::Array>();
+    v8::String::Utf8Value utf8pixeldata(pixeldata->Get(0)->ToString());
+    std::stringstream pixel_data;
+    pixel_data << *utf8pixeldata;
+
+    // Get VisuCoreWordType
+    if (!arg->ToObject()->Has(v8::String::New("VisuCoreWordType")))
+    {
+        throw DicomifierException(
+                    "Missing mandatory Bruker field VisuCoreWordType");
+    }
+    v8::Local<v8::Array> wordtype =
+            arg->ToObject()->Get(
+                v8::String::New("VisuCoreWordType")).As<v8::Array>();
+    v8::String::Utf8Value utf8wordtype(wordtype->Get(0)->ToString());
+    std::stringstream word_type;
+    word_type << *utf8wordtype;
+
+    // Get VisuCoreByteOrder
+    if (!arg->ToObject()->Has(v8::String::New("VisuCoreByteOrder")))
+    {
+        throw DicomifierException(
+                    "Missing mandatory Bruker field VisuCoreByteOrder");
+    }
+    v8::Local<v8::Array> byteorder =
+            arg->ToObject()->Get(
+                v8::String::New("VisuCoreByteOrder")).As<v8::Array>();
+    v8::String::Utf8Value utf8byteorder(byteorder->Get(0)->ToString());
+    std::stringstream byte_order;
+    byte_order << *utf8byteorder;
+
+    // Get VisuCoreSize
+    if (!arg->ToObject()->Has(v8::String::New("VisuCoreSize")))
+    {
+        throw DicomifierException(
+                    "Missing mandatory Bruker field VisuCoreSize");
+    }
+    v8::Local<v8::Array> coresize =
+            arg->ToObject()->Get(
+                v8::String::New("VisuCoreSize")).As<v8::Array>();
+    int framesize = coresize->Get(0)->ToInt32()->Int32Value() *
+                    coresize->Get(1)->ToInt32()->Int32Value();
+
+    v8::Local<v8::Value> const argindex = args[1];
+    auto index = argindex->ToInt32()->Int32Value();
+
+    bruker::converters::pixel_data_converter converter;
+    dcmtkpp::DataSet dataset;
+    converter(framesize, index, pixel_data.str(), word_type.str(),
+              byte_order.str(), dataset);
+
+    Json::Value json_dset = dcmtkpp::as_json(dataset);
+
+    return v8::String::New(json_dset["7fe00010"]["InlineBinary"].asCString());
+}
+
 /***********************************
  **********************************/
 
@@ -74,6 +154,10 @@ JavascriptVM
     context->Global()->Set(
         v8::String::New("bigEndian"),
         v8::FunctionTemplate::New(is_big_endian)->GetFunction());
+
+    context->Global()->Set(
+        v8::String::New("loadPixelData"),
+        v8::FunctionTemplate::New(load_pixel_data)->GetFunction());
 
     context->Global()->Set(
         v8::String::New("dcmGenerateUniqueIdentifier"),
@@ -119,14 +203,16 @@ JavascriptVM
     }
 
     // if file exist locally
-    if (boost::filesystem::exists(boost::filesystem::path(frameindexgenerator.str())))
+    if (boost::filesystem::exists(
+                boost::filesystem::path(frameindexgenerator.str())))
     {
         this->run_file(frameindexgenerator.str());
     }
     // else use default file
     else
     {
-        this->run_file("/etc/dicomifier/script_bruker2dicom/frameIndexGenerator.js");
+        this->run_file(
+            "/etc/dicomifier/script_bruker2dicom/frameIndexGenerator.js");
     }
 }
 

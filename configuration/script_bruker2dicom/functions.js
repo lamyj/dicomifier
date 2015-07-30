@@ -16,7 +16,8 @@ dicomifier.Exception.prototype = new Error;
 function divideArray(array1, array2) {
     var array = new Array();
     for (var index = 0; index < array1.length; ++index) {
-        array[index] = array1[index] / array2[index];
+        array[index] = 
+            parseFloat(array1[index]) / parseFloat(array2[index]);
     }
     return array;
 }
@@ -148,4 +149,26 @@ function toDicom(indexGenerator, dicomDataset, element, brukerDataset,
             }
         }
     }
+}
+
+function pixelDataToDicom(indexGenerator, dicomDataset, element, 
+                          brukerDataset, type) {
+    var vrAndTag = dicomifier.dictionary[element];
+
+    if (vrAndTag === undefined) {
+        throw new dicomifier.Exception('Unknown DICOM element: "' +
+                                      element + '"');
+    }
+    
+    var value = loadPixelData(brukerDataset, indexGenerator.currentStep);
+
+    if (type === 1 && value.length === 0) {
+        // Must be present, may not be empty
+        throw new dicomifier.Exception(
+            'DICOM element "' + element + '" must not be empty');
+    }
+    
+    // Force VR to OW (and not vrAndTag[0] = OB)
+    dicomDataset[vrAndTag[1]] = { 'vr': 'OW' };
+    dicomDataset[vrAndTag[1]]['InlineBinary'] = value;
 }
