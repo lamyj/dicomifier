@@ -104,17 +104,31 @@ v8::Handle<v8::Value> load_pixel_data(v8::Arguments const & args)
     int framesize = coresize->Get(0)->ToInt32()->Int32Value() *
                     coresize->Get(1)->ToInt32()->Int32Value();
 
+    // Get the frame number
     v8::Local<v8::Value> const argindex = args[1];
-    auto index = argindex->ToInt32()->Int32Value();
+    auto numberOfFrame = argindex->ToInt32()->Int32Value();
 
+    // Create the array to return
+    v8::Local<v8::Array> array = v8::Array::New(numberOfFrame);
+
+    // Convert each frame in base64 String
     bruker::converters::pixel_data_converter converter;
-    dcmtkpp::DataSet dataset;
-    converter(framesize, index, pixel_data.str(), word_type.str(),
-              byte_order.str(), dataset);
+    for (unsigned int i = 0; i < numberOfFrame; ++i)
+    {
+        // Read pixel data file and get the Frame i
+        dcmtkpp::DataSet dataset;
+        converter(framesize, i, pixel_data.str(), word_type.str(),
+                  byte_order.str(), dataset);
 
-    Json::Value json_dset = dcmtkpp::as_json(dataset);
+        // Convert to JSON
+        Json::Value const json_dset = dcmtkpp::as_json(dataset);
 
-    return v8::String::New(json_dset["7fe00010"]["InlineBinary"].asCString());
+        // Store into the array
+        array->Set(i, v8::String::New(
+                       json_dset["7fe00010"]["InlineBinary"].asCString()));
+    }
+
+    return array;
 }
 
 /***********************************

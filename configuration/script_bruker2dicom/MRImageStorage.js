@@ -21,6 +21,9 @@ if (brukerDataset === undefined ) {
 var frameGroups = dicomifier.getFrameGroups(brukerDataset);
 var indexGenerator = new dicomifier.frameIndexGenerator(frameGroups);
 
+// Get Pixel Data as Array[ 'base64String', ... ]
+var pixelData = loadPixelData(brukerDataset, indexGenerator.countMax);
+
 while (indexGenerator.done() == false) {
     var dicomDataset = {};
 
@@ -205,8 +208,11 @@ while (indexGenerator.done() == false) {
     dicomDataset[dicomifier.dictionary['PixelRepresentation'][1]] =
             { 'vr': dicomifier.dictionary['PixelRepresentation'][0], 
               'Value' : [ 0 ] };
-    pixelDataToDicom(indexGenerator, dicomDataset, 'PixelData', 
-                     brukerDataset, 1);
+    // PIXELDATA
+    // Force VR to OW (and not vrAndTag[0] = OB)
+    dicomDataset[dicomifier.dictionary['PixelData'][1]] =
+            { 'vr': 'OW', 
+              'InlineBinary' : pixelData[indexGenerator.currentStep] };
 
     // MR Image Module
     dicomDataset[dicomifier.dictionary['ScanningSequence'][1]] =
