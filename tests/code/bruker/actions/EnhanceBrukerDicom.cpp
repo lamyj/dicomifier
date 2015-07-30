@@ -199,7 +199,6 @@ BOOST_AUTO_TEST_CASE(Accessors)
 /**
  * Nominal test case: Run (MRImageStorage)
  */
-
 BOOST_FIXTURE_TEST_CASE(Run_MRImageStorage, TestEnvironment)
 {
     auto enhanceb2d = dicomifier::actions::EnhanceBrukerDicom::

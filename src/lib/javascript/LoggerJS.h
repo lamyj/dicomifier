@@ -17,6 +17,13 @@ namespace dicomifier
 namespace javascript
 {
 
+/**
+ * @brief Send String to the logger
+ * @param args: 2 arguments:
+ *              - data to log
+ *              - level as String (DEBUG, INFO (default), WARNING, ERROR)
+ * @return null
+ */
 v8::Handle<v8::Value> log(v8::Arguments const & args);
 
 } // namespace javascript

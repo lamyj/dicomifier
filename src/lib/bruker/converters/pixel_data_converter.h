@@ -42,10 +42,8 @@ public:
         dcmtkpp::Tag const & dicom_tag, dcmtkpp::VR const & vr,
         dcmtkpp::DataSet & dicom_data_set);
 
-    void operator()(unsigned int frame_size,
-                    unsigned int frame_index,
-                    std::string const & filename,
-                    std::string const & word_type,
+    void operator()(unsigned int frame_size, unsigned int frame_index,
+                    std::string const & filename, std::string const & word_type,
                     std::string const & file_byte_order,
                     dcmtkpp::DataSet & dicom_data_set);
 

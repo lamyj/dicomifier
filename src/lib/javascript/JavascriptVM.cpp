@@ -42,6 +42,14 @@ v8::Handle<v8::Value> generate_uid(v8::Arguments const & args)
     return v8::String::New(uid.c_str());
 }
 
+/**
+ * @brief Get pixel data as base64 String
+ * @param args: 3 arguments:
+ *              - BrukerDataset (JSON bruker dataset,
+ *              - Number of Frame (int),
+ *              - All_data (bool)
+ * @return array of base64 String
+ */
 v8::Handle<v8::Value> load_pixel_data(v8::Arguments const & args)
 {
     if(args.Length() < 1)
@@ -107,6 +115,19 @@ v8::Handle<v8::Value> load_pixel_data(v8::Arguments const & args)
     // Get the frame number
     v8::Local<v8::Value> const argindex = args[1];
     auto numberOfFrame = argindex->ToInt32()->Int32Value();
+
+    if (args.Length() == 3)
+    {
+        // Get a flag to return all pixel data or a string for each frame
+        v8::Local<v8::Value> const argflag = args[2];
+        bool flag_all_data = argflag->ToBoolean()->BooleanValue();
+
+        if (flag_all_data)
+        {
+            framesize *= numberOfFrame;
+            numberOfFrame = 1;
+        }
+    }
 
     // Create the array to return
     v8::Local<v8::Array> array = v8::Array::New(numberOfFrame);

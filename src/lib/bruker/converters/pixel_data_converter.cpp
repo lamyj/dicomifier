@@ -53,7 +53,8 @@ pixel_data_converter
     dcmtkpp::DataSet & dicom_data_set)
 {
     auto const filename = bruker_data_set.get_field("PIXELDATA").get_string(0);
-    auto const word_type = bruker_data_set.get_field("VisuCoreWordType").get_string(0);
+    auto const word_type =
+            bruker_data_set.get_field("VisuCoreWordType").get_string(0);
     auto const file_byte_order =
         bruker_data_set.get_field("VisuCoreByteOrder").get_string(0);
 
@@ -61,14 +62,14 @@ pixel_data_converter
         bruker_data_set.get_field("VisuCoreSize").get_int(0) *
         bruker_data_set.get_field("VisuCoreSize").get_int(1);
 
-    this->operator ()(frame_size, index.get_step(), filename, word_type, file_byte_order, dicom_data_set);
+    this->operator ()(frame_size, index.get_step(), filename, word_type,
+                      file_byte_order, dicom_data_set);
 }
 
 void
 pixel_data_converter
-::operator()(unsigned int frame_size,unsigned int frame_index,
-             std::string const & filename,
-             std::string const & word_type,
+::operator()(unsigned int frame_size, unsigned int frame_index,
+             std::string const & filename, std::string const & word_type,
              std::string const & file_byte_order,
              dcmtkpp::DataSet & dicom_data_set)
 {
@@ -93,7 +94,8 @@ pixel_data_converter
         pixel_data = this->_read_pixel_data<float>(frame_size, frame_index);
     }
 
-    dicom_data_set.add(dcmtkpp::registry::PixelData, pixel_data, dcmtkpp::VR::OW);
+    dicom_data_set.add(dcmtkpp::registry::PixelData,
+                       pixel_data, dcmtkpp::VR::OW);
 }
 
 void

@@ -25,19 +25,24 @@ namespace javascript
 class JavascriptVM
 {
 public:
-    ///
+    /// Create an instance of JavascriptVM
     JavascriptVM();
 
-    ///
+    /// Destroy the instance of JavascriptVM
     ~JavascriptVM();
 
     /**
-     * @brief run
-     * @param script
-     * @return
+     * @brief Execute a JS Script
+     * @param script: script JS to execute
+     * @return script result
      */
     v8::Local<v8::Value> run(std::string const & script);
 
+    /**
+     * @brief Load and execute a JavaScript file
+     * @param scriptpath: path to a JS file
+     * @return script result
+     */
     v8::Local<v8::Value> run_file(std::string const & scriptpath);
 
 protected:
