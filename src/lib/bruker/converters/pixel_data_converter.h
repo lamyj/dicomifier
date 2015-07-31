@@ -22,9 +22,6 @@ namespace dicomifier
 namespace bruker
 {
 
-namespace converters
-{
-
 class pixel_data_converter
 {
 public:
@@ -61,11 +58,9 @@ private:
 
 };
 
-}
+} // namespace bruker
 
-}
-
-}
+} // namespace dicomifier
 
 #include "pixel_data_converter.txx"
 

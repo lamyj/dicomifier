@@ -22,9 +22,6 @@ namespace dicomifier
 namespace bruker
 {
 
-namespace converters
-{
-
 template<typename TPixelType>
 dcmtkpp::Value::Binary
 pixel_data_converter
@@ -91,10 +88,8 @@ pixel_data_converter
     this->_max = *std::max_element(begin, end);
 }
 
-}
+} // namespace bruker
 
-}
-
-}
+} // namespace dicomifier
 
 #endif // _dd05e8c5_1691_4fc4_9525_6518ae932117

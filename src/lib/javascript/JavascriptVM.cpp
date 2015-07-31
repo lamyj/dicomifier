@@ -131,7 +131,7 @@ v8::Handle<v8::Value> load_pixel_data(v8::Arguments const & args)
     v8::Local<v8::Array> array = v8::Array::New(numberOfFrame);
 
     // Convert each frame in base64 String
-    bruker::converters::pixel_data_converter converter;
+    bruker::pixel_data_converter converter;
     for (unsigned int i = 0; i < numberOfFrame; ++i)
     {
         // Read pixel data file and get the Frame i

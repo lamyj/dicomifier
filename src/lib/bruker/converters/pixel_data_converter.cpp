@@ -24,9 +24,6 @@ namespace dicomifier
 namespace bruker
 {
 
-namespace converters
-{
-
 pixel_data_converter
 ::pixel_data_converter()
 : _filename("")
@@ -133,8 +130,6 @@ pixel_data_converter
     }
 }
 
-}
+} // namespace bruker
 
-}
-
-}
+} // namespace dicomifier
