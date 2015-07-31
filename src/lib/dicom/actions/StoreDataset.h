@@ -9,10 +9,11 @@
 #ifndef _7cbea3af_b521_4280_ae80_aff1fbcd8fca
 #define _7cbea3af_b521_4280_ae80_aff1fbcd8fca
 
+#include <memory>
+
 #include <dcmtk/config/osconfig.h>  /* make sure OS specific configuration is included first */
 #include <dcmtk/dcmdata/dctk.h>     /* Covers most common dcmdata classes */
 
-#include "core/actions/Action.h"
 #include "dicom/SCU.h"
 
 namespace dicomifier
@@ -24,7 +25,7 @@ namespace actions
 /**
  * @brief The StoreDataset class: Call specific PACS with Store Action
  */
-class StoreDataset : public Action
+class StoreDataset
 {
 public:
     typedef StoreDataset Self;
@@ -140,13 +141,7 @@ public:
     /**
      * @brief run: Execute the action Store
      */
-    virtual void run() const;
-    
-    /**
-     * @brief get_class_name: return this class name
-     * @return StoreDataset
-     */
-    static std::string get_class_name() { return "StoreDataset"; }
+    void run() const;
     
 protected:
     /// Create an instance of StoreDataset

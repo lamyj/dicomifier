@@ -20,7 +20,7 @@ namespace actions
 
 StoreDataset
 ::StoreDataset()
-    : Action(), _dataset(NULL), _address(""), _port(0),
+    : _dataset(NULL), _address(""), _port(0),
       _AEremote(""), _AElocal(""),
       _user_identity_type(UserIdentityType::None),
       _user_identity_primary_field(""), _user_identity_secondary_field("")
@@ -35,7 +35,7 @@ StoreDataset
                UserIdentityType const & user_identity_type,
                std::string const & user_identity_primary_field,
                std::string const & user_identity_secondary_field)
-    : Action(), _dataset(dataset), _address(address), _port(port),
+    : _dataset(dataset), _address(address), _port(port),
       _AEremote(aeremote), _AElocal(aelocal),
       _user_identity_type(user_identity_type),
       _user_identity_primary_field(user_identity_primary_field),

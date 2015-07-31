@@ -18,7 +18,6 @@
 #include <dcmtkpp/DataSet.h>
 
 #include "bruker/Dataset.h"
-#include "core/actions/Action.h"
 #include "core/FrameIndexGenerator.h"
 #include "dicom/SOPClass.h"
 
@@ -31,7 +30,7 @@ namespace actions
 /**
  * @brief The EnhanceBrukerDicom class: Convert Bruker directory into Dicom Datasets
  */
-class EnhanceBrukerDicom : public Action
+class EnhanceBrukerDicom
 {
 public:
     typedef EnhanceBrukerDicom Self;
@@ -101,13 +100,7 @@ public:
     /**
      * @brief run: Execute the conversion
      */
-    virtual void run() const;
-    
-    /**
-     * @brief get_class_name: return this class name
-     * @return EnhanceBrukerDicom
-     */
-    static std::string get_class_name() { return "EnhanceBrukerDicom"; }
+    void run() const;
 
     static std::string get_default_directory_name(boost::filesystem::path const &parentdirectory);
 
