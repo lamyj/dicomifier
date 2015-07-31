@@ -19,17 +19,17 @@ QT4_WRAP_CPP(files_HEADERS_MOC ${files_HEADERS})
 QT4_WRAP_UI(files_FORMS_HEADERS ${files_FORMS})
 QT4_ADD_RESOURCES(files_RESOURCES_RCC ${files_RESOURCES})
 
-add_library(libdicomifierihm SHARED ${files}
+add_library(libdicomifiergui SHARED ${files}
                                     ${files_HEADERS_MOC}
                                     ${files_FORMS_HEADERS}
                                     ${files_RESOURCES_RCC})
-set_target_properties(libdicomifierihm PROPERTIES OUTPUT_NAME dicomifierihm)
+set_target_properties(libdicomifiergui PROPERTIES OUTPUT_NAME dicomifiergui)
 
-target_link_libraries(libdicomifierihm libdicomifier oflog ofstd wrap pthread z
+target_link_libraries(libdicomifiergui libdicomifier oflog ofstd wrap pthread z
                                        ${QT_LIBRARIES}
                                        ${Boost_LIBRARIES})
 
-install(TARGETS libdicomifierihm
+install(TARGETS libdicomifiergui
         LIBRARY DESTINATION lib
         COMPONENT libraries)
 

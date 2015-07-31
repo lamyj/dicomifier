@@ -1,5 +1,5 @@
 find_package(DCMTK REQUIRED)
-find_package(Boost COMPONENTS filesystem system regex REQUIRED)
+find_package(Boost COMPONENTS filesystem program_options system regex REQUIRED)
 find_package(Qt4 REQUIRED QtGui)
 include(${QT_USE_FILE})
 
@@ -9,16 +9,16 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../lib
                     ${CMAKE_CURRENT_SOURCE_DIR}/../gui
                     ${QT_INCLUDES})
 
-add_executable(dicomifier "main.cpp")
-target_link_libraries(dicomifier libdicomifier ${Boost_LIBRARIES})
+add_executable(bruker2dicom "main_bruker2dicom.cpp")
+target_link_libraries(bruker2dicom libdicomifier ${Boost_LIBRARIES})
 
-add_executable(dicomifier_ihm "main_ihm.cpp")
-target_link_libraries(dicomifier_ihm libdicomifier
-                                     libdicomifierihm
-                                     ${QT_LIBRARIES}
-                                     ${Boost_LIBRARIES})
+add_executable(dicomifier "main_dicomifier.cpp")
+target_link_libraries(dicomifier libdicomifier
+                                 libdicomifiergui
+                                 ${QT_LIBRARIES}
+                                 ${Boost_LIBRARIES})
 
-install(TARGETS dicomifier dicomifier_ihm
+install(TARGETS bruker2dicom dicomifier
         RUNTIME DESTINATION bin/
         COMPONENT applications)
 
