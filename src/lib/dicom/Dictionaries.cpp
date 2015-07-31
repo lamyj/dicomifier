@@ -122,11 +122,12 @@ Dictionaries
 {
     // Create pointer
     auto publicdict = Dictionary::New();
-    
+
     // Copy all dcmDataDictionary
-    DcmDataDictionary &dict = dcmDataDict.wrlock();
-    
-    for (DcmHashDictIterator iter = dict.normalBegin(); iter != dict.normalEnd(); iter++)
+    // ATTENTION: DCMTK is not const correct
+    DcmDataDictionary & dict = const_cast<DcmDataDictionary&>(dcmDataDict.rdlock());
+
+    for (DcmHashDictIterator iter = dict.normalBegin(); iter != dict.normalEnd(); ++iter)
     {
         const DcmDictEntry * entry = *iter;
         // Only add Public Entry
@@ -137,7 +138,7 @@ Dictionaries
     }
 
     dcmDataDict.unlock();
-    
+
     // Add into map
     this->_dictionaries.insert(std::pair<std::string, Dictionary::Pointer>("public", publicdict));
 }
