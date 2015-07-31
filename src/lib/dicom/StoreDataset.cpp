@@ -12,9 +12,6 @@
 
 namespace dicomifier
 {
-    
-namespace actions
-{
 
 /****************************** Constructor *****************************/
 
@@ -142,7 +139,5 @@ StoreDataset
     // Release association
     myscu.release();
 }
-
-} // namespace actions
     
 } // namespace dicomifier

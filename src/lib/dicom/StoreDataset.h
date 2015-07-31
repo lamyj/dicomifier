@@ -19,9 +19,6 @@
 namespace dicomifier
 {
     
-namespace actions
-{
-    
 /**
  * @brief The StoreDataset class: Call specific PACS with Store Action
  */
@@ -194,8 +191,6 @@ private:
     Self const & operator=(Self const & other); // Purposely not implemented
     
 };
-    
-} // namespace actions
     
 } // namespace dicomifier
 

@@ -22,6 +22,7 @@
 #include "bruker/Directory.h"
 #include "bruker/json_converter.h"
 #include "core/DicomifierException.h"
+#include "dicom/SOPClass.h"
 #include "javascript/JavascriptVM.h"
 
 namespace dicomifier

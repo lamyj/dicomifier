@@ -18,8 +18,6 @@
 #include <dcmtkpp/DataSet.h>
 
 #include "bruker/Dataset.h"
-#include "core/FrameIndexGenerator.h"
-#include "dicom/SOPClass.h"
 
 namespace dicomifier
 {
@@ -28,7 +26,8 @@ namespace bruker
 {
 
 /**
- * @brief The EnhanceBrukerDicom class: Convert Bruker directory into Dicom Datasets
+ * @brief The EnhanceBrukerDicom class: Convert Bruker directory
+ *                                      into Dicom Datasets
  */
 class EnhanceBrukerDicom
 {
@@ -102,7 +101,8 @@ public:
      */
     void run() const;
 
-    static std::string get_default_directory_name(boost::filesystem::path const &parentdirectory);
+    static std::string get_default_directory_name(
+            boost::filesystem::path const &parentdirectory);
 
     static void replace_unavailable_char(std::string &text);
 
@@ -134,7 +134,9 @@ protected:
 private:
     void _create_mr_image_storage(bruker::Dataset const & bruker_dataset) const;
 
-    std::string create_directory_name(int sizemax, std::string const & prefix, std::string const & suffix) const;
+    std::string create_directory_name(int sizemax,
+                                      std::string const & prefix,
+                                      std::string const & suffix) const;
 
     /// Path of Bruker directory
     std::string _brukerDir;
