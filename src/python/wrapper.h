@@ -10,4 +10,8 @@
 
 #include "core/DicomifierException.h"
 
-void execute(std::string xmlfile, std::string privatedictionary = "") throw (dicomifier::DicomifierException);
+void execute(std::string const & bruker_directory,
+             std::string const & dicom_directory,
+             std::string const & study_number,
+             std::string const & series_number,
+             std::string privatedictionary = "") throw (dicomifier::DicomifierException);
