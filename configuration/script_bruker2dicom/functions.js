@@ -100,6 +100,11 @@ function toDicom(indexGenerator, dicomDataset, element, brukerDataset,
     if (frameGroupIndex !== null) {
         value = value[indexGenerator.currentIndex[frameGroupIndex[0]] + 
                       frameGroupIndex[1]];
+        // Value should be an array
+        if ((value instanceof Array) == false)
+        {
+            value = [ value ];
+        }
     }
 
     // Set value into DICOM

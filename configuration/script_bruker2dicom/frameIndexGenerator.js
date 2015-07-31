@@ -80,11 +80,12 @@ dicomifier.getFrameGroups = function(brukerDataset) {
     
     for (var i = 0; i < brukerDataset.VisuFGOrderDesc.length; ++i) {
         var subarray = [];
-        subarray[0] = brukerDataset.VisuFGOrderDesc[0][0];
-        subarray[1] = brukerDataset.VisuFGOrderDesc[0][1];
+        subarray[0] = brukerDataset.VisuFGOrderDesc[i][0];
+        subarray[1] = brukerDataset.VisuFGOrderDesc[i][1];
         var parameters = [];
-        for (var j = parseInt(brukerDataset.VisuFGOrderDesc[0][3]); 
-             j < brukerDataset.VisuFGOrderDesc[0][4]; ++j) {
+        for (var j = parseInt(brukerDataset.VisuFGOrderDesc[i][3]); 
+             j < brukerDataset.VisuFGOrderDesc[i][3] +
+                 brukerDataset.VisuFGOrderDesc[i][4]; ++j) {
             parameters.push(brukerDataset.VisuGroupDepVals[j]);
         }
         
