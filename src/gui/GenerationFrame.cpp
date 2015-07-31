@@ -18,7 +18,7 @@
 
 #include <zlib.h>
 
-#include "bruker/actions/EnhanceBrukerDicom.h"
+#include "bruker/converters/EnhanceBrukerDicom.h"
 #include "components/PACSTreeItem.h"
 #include "core/DicomifierException.h"
 #include "core/Logger.h"
@@ -202,7 +202,7 @@ GenerationFrame
         {
             boost::filesystem::path const dest =
                 boost::filesystem::path(outputdir) / currentItem->get_name();
-            currentStudyNumber = dicomifier::actions::EnhanceBrukerDicom::get_default_directory_name(dest);
+            currentStudyNumber = dicomifier::bruker::EnhanceBrukerDicom::get_default_directory_name(dest);
             mapOutputStudyNumber[currentItem->get_subjectDirectory()] = currentStudyNumber;
         }
         else
@@ -211,7 +211,7 @@ GenerationFrame
         }
 
         // create Rule
-        auto rule = dicomifier::actions::EnhanceBrukerDicom::New(
+        auto rule = dicomifier::bruker::EnhanceBrukerDicom::New(
             currentItem->get_directory(), this->get_selectedFormat_toString(),
             outputdir, currentStudyNumber, seriesnumber);
 

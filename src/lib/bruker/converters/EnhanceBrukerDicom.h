@@ -24,7 +24,7 @@
 namespace dicomifier
 {
     
-namespace actions
+namespace bruker
 {
 
 /**
@@ -154,7 +154,7 @@ private:
     
 };
     
-} // namespace actions
+} // namespace bruker
     
 } // namespace dicomifier
 

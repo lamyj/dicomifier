@@ -21,7 +21,7 @@
 #include <dcmtkpp/DataSet.h>
 #include <dcmtkpp/registry.h>
 
-#include "bruker/actions/EnhanceBrukerDicom.h"
+#include "bruker/converters/EnhanceBrukerDicom.h"
 #include "core/DicomifierException.h"
 
 struct TestEnvironment
@@ -171,10 +171,10 @@ struct TestEnvironment
  */
 BOOST_AUTO_TEST_CASE(Constructor)
 {
-    auto enhanceb2d = dicomifier::actions::EnhanceBrukerDicom::New();
+    auto enhanceb2d = dicomifier::bruker::EnhanceBrukerDicom::New();
     BOOST_CHECK_EQUAL(enhanceb2d != NULL, true);
     
-    enhanceb2d = dicomifier::actions::EnhanceBrukerDicom::New("", "", "", "", "");
+    enhanceb2d = dicomifier::bruker::EnhanceBrukerDicom::New("", "", "", "", "");
     BOOST_CHECK_EQUAL(enhanceb2d != NULL, true);
 }
 
@@ -184,7 +184,7 @@ BOOST_AUTO_TEST_CASE(Constructor)
  */
 BOOST_AUTO_TEST_CASE(Accessors)
 {
-    auto testenhance = dicomifier::actions::EnhanceBrukerDicom::New();
+    auto testenhance = dicomifier::bruker::EnhanceBrukerDicom::New();
     
     testenhance->set_brukerDir("path");
     testenhance->set_outputDir("outputdir");
@@ -201,7 +201,7 @@ BOOST_AUTO_TEST_CASE(Accessors)
  */
 BOOST_FIXTURE_TEST_CASE(Run_MRImageStorage, TestEnvironment)
 {
-    auto enhanceb2d = dicomifier::actions::EnhanceBrukerDicom::
+    auto enhanceb2d = dicomifier::bruker::EnhanceBrukerDicom::
             New(directorypath, UID_MRImageStorage, outputdirectory, "1", "10001");
 
     // Process
@@ -236,7 +236,7 @@ BOOST_FIXTURE_TEST_CASE(Run_MRImageStorage, TestEnvironment)
 /*
 BOOST_DO_NOT_RUN_FIXTURE_TEST_CASE(Run_EnhanceMRImageStorage, TestEnvironment)
 {
-    auto enhanceb2d = dicomifier::actions::EnhanceBrukerDicom::
+    auto enhanceb2d = dicomifier::bruker::EnhanceBrukerDicom::
             New(dataset, directorypath, UID_EnhancedMRImageStorage, outputdirectory, "1");
 
     // Use specific dictionary
@@ -275,7 +275,7 @@ BOOST_DO_NOT_RUN_FIXTURE_TEST_CASE(Run_EnhanceMRImageStorage, TestEnvironment)
 BOOST_AUTO_TEST_CASE(Get_Default_Directory)
 {
     boost::filesystem::create_directory("./1");
-    std::string defaultdir = dicomifier::actions::EnhanceBrukerDicom::
+    std::string defaultdir = dicomifier::bruker::EnhanceBrukerDicom::
             get_default_directory_name(boost::filesystem::path("./1"));
 
     BOOST_CHECK_EQUAL(defaultdir, std::string("1"));
@@ -283,7 +283,7 @@ BOOST_AUTO_TEST_CASE(Get_Default_Directory)
     boost::filesystem::create_directory("./1/1_");
     boost::filesystem::create_directory("./1/2_");
 
-    defaultdir = dicomifier::actions::EnhanceBrukerDicom::
+    defaultdir = dicomifier::bruker::EnhanceBrukerDicom::
                 get_default_directory_name(boost::filesystem::path("./1"));
 
     BOOST_CHECK_EQUAL(defaultdir, std::string("3"));
@@ -298,7 +298,7 @@ BOOST_AUTO_TEST_CASE(Get_Default_Directory)
 BOOST_AUTO_TEST_CASE(Replace_Unavailable_Char)
 {
     std::string stringtest = "1_5-a@b;C.D";
-    dicomifier::actions::EnhanceBrukerDicom::replace_unavailable_char(stringtest);
+    dicomifier::bruker::EnhanceBrukerDicom::replace_unavailable_char(stringtest);
 
     BOOST_CHECK_EQUAL(stringtest, std::string("1_5_A_B_C_D"));
 }
@@ -309,7 +309,7 @@ BOOST_AUTO_TEST_CASE(Replace_Unavailable_Char)
  */
 BOOST_AUTO_TEST_CASE(TEST_KO_01)
 {
-    auto testenhance = dicomifier::actions::EnhanceBrukerDicom::New();
+    auto testenhance = dicomifier::bruker::EnhanceBrukerDicom::New();
     
     testenhance->set_brukerDir("unknown path");
         
@@ -322,7 +322,7 @@ BOOST_AUTO_TEST_CASE(TEST_KO_01)
  */
 BOOST_FIXTURE_TEST_CASE(Bad_SeriesNumber, TestEnvironment)
 {
-    auto enhanceb2d = dicomifier::actions::EnhanceBrukerDicom::
+    auto enhanceb2d = dicomifier::bruker::EnhanceBrukerDicom::
             New(directorypath, UID_MRImageStorage, outputdirectory, "1", "90009");
 
     BOOST_REQUIRE_THROW(enhanceb2d->run(), dicomifier::DicomifierException);
@@ -370,7 +370,7 @@ BOOST_FIXTURE_TEST_CASE(Corrupted_Data, TestEnvironment)
     myfile << "##END=\n";
     myfile.close();
 
-    auto enhanceb2d = dicomifier::actions::EnhanceBrukerDicom::
+    auto enhanceb2d = dicomifier::bruker::EnhanceBrukerDicom::
             New(directorypath, UID_MRImageStorage, outputdirectory, "1", "1");
 
     BOOST_REQUIRE_THROW(enhanceb2d->run(), dicomifier::DicomifierException);
@@ -382,7 +382,7 @@ BOOST_FIXTURE_TEST_CASE(Corrupted_Data, TestEnvironment)
  */
 BOOST_FIXTURE_TEST_CASE(Bad_SOPClassUID, TestEnvironment)
 {
-    auto enhanceb2d = dicomifier::actions::EnhanceBrukerDicom::
+    auto enhanceb2d = dicomifier::bruker::EnhanceBrukerDicom::
             New(directorypath, "BadValue", outputdirectory, "1", "1");
 
     BOOST_REQUIRE_THROW(enhanceb2d->run(), dicomifier::DicomifierException);
@@ -394,7 +394,7 @@ BOOST_FIXTURE_TEST_CASE(Bad_SOPClassUID, TestEnvironment)
  */
 BOOST_AUTO_TEST_CASE(Get_Default_Directory_Name)
 {
-    auto enhanceb2d = dicomifier::actions::EnhanceBrukerDicom::New();
+    auto enhanceb2d = dicomifier::bruker::EnhanceBrukerDicom::New();
     std::string default_dir =
             enhanceb2d->get_default_directory_name("./unknown_path");
     BOOST_CHECK_EQUAL(default_dir == "1", true);
@@ -406,7 +406,7 @@ BOOST_AUTO_TEST_CASE(Get_Default_Directory_Name)
  */
 BOOST_FIXTURE_TEST_CASE(No_PixelData_File, TestEnvironment)
 {
-    auto enhanceb2d = dicomifier::actions::EnhanceBrukerDicom::
+    auto enhanceb2d = dicomifier::bruker::EnhanceBrukerDicom::
             New(directorypath, UID_MRImageStorage, outputdirectory, "1", "1");
 
     // Remove Pixel Data file and replace by a directory
@@ -422,7 +422,7 @@ BOOST_FIXTURE_TEST_CASE(No_PixelData_File, TestEnvironment)
  */
 BOOST_FIXTURE_TEST_CASE(Cant_Read_PixelData_File, TestEnvironment)
 {
-    auto enhanceb2d = dicomifier::actions::EnhanceBrukerDicom::
+    auto enhanceb2d = dicomifier::bruker::EnhanceBrukerDicom::
             New(directorypath, UID_MRImageStorage, outputdirectory, "1", "1");
 
     // Change right of file
@@ -475,7 +475,7 @@ BOOST_FIXTURE_TEST_CASE(Missing_VisuCoreSize, TestEnvironment)
     myfile << "##END=\n";
     myfile.close();
 
-    auto enhanceb2d = dicomifier::actions::EnhanceBrukerDicom::
+    auto enhanceb2d = dicomifier::bruker::EnhanceBrukerDicom::
             New(directorypath, UID_MRImageStorage, outputdirectory, "1", "1");
 
     BOOST_REQUIRE_THROW(enhanceb2d->run(), dicomifier::DicomifierException);
@@ -521,7 +521,7 @@ BOOST_FIXTURE_TEST_CASE(Missing_VisuCoreWordType, TestEnvironment)
     myfile << "##END=\n";
     myfile.close();
 
-    auto enhanceb2d = dicomifier::actions::EnhanceBrukerDicom::
+    auto enhanceb2d = dicomifier::bruker::EnhanceBrukerDicom::
             New(directorypath, UID_MRImageStorage, outputdirectory, "1", "1");
 
     BOOST_REQUIRE_THROW(enhanceb2d->run(), dicomifier::DicomifierException);
@@ -569,7 +569,7 @@ BOOST_FIXTURE_TEST_CASE(Bad_VisuCoreWordType, TestEnvironment)
     myfile << "##END=\n";
     myfile.close();
 
-    auto enhanceb2d = dicomifier::actions::EnhanceBrukerDicom::
+    auto enhanceb2d = dicomifier::bruker::EnhanceBrukerDicom::
             New(directorypath, UID_MRImageStorage, outputdirectory, "1", "1");
 
     BOOST_REQUIRE_THROW(enhanceb2d->run(), dicomifier::DicomifierException);
@@ -581,7 +581,7 @@ BOOST_FIXTURE_TEST_CASE(Bad_VisuCoreWordType, TestEnvironment)
  */
 BOOST_FIXTURE_TEST_CASE(Missing_StudyDescription, TestEnvironment)
 {
-    auto enhanceb2d = dicomifier::actions::EnhanceBrukerDicom::
+    auto enhanceb2d = dicomifier::bruker::EnhanceBrukerDicom::
             New(directorypath, UID_MRImageStorage, outputdirectory, "1", "1");
 
     BOOST_REQUIRE_THROW(enhanceb2d->get_destination_filename(dataset),
@@ -594,7 +594,7 @@ BOOST_FIXTURE_TEST_CASE(Missing_StudyDescription, TestEnvironment)
  */
 BOOST_FIXTURE_TEST_CASE(Missing_SeriesDescription, TestEnvironment)
 {
-    auto enhanceb2d = dicomifier::actions::EnhanceBrukerDicom::
+    auto enhanceb2d = dicomifier::bruker::EnhanceBrukerDicom::
             New(directorypath, UID_MRImageStorage, outputdirectory, "1", "1");
 
     dataset.add(dcmtkpp::registry::StudyDescription, {"studydesc"});
@@ -609,7 +609,7 @@ BOOST_FIXTURE_TEST_CASE(Missing_SeriesDescription, TestEnvironment)
  */
 BOOST_FIXTURE_TEST_CASE(Missing_SeriesNumber, TestEnvironment)
 {
-    auto enhanceb2d = dicomifier::actions::EnhanceBrukerDicom::
+    auto enhanceb2d = dicomifier::bruker::EnhanceBrukerDicom::
             New(directorypath, UID_MRImageStorage, outputdirectory, "1", "1");
 
     dataset.add(dcmtkpp::registry::StudyDescription, {"studydesc"});
@@ -626,7 +626,7 @@ BOOST_FIXTURE_TEST_CASE(Missing_SeriesNumber, TestEnvironment)
  */
 BOOST_FIXTURE_TEST_CASE(Missing_InstanceNumber, TestEnvironment)
 {
-    auto enhanceb2d = dicomifier::actions::EnhanceBrukerDicom::
+    auto enhanceb2d = dicomifier::bruker::EnhanceBrukerDicom::
             New(directorypath, UID_MRImageStorage, outputdirectory, "1", "1");
 
     dataset.add(dcmtkpp::registry::StudyDescription, {"studydesc"});
@@ -642,7 +642,7 @@ BOOST_FIXTURE_TEST_CASE(Missing_InstanceNumber, TestEnvironment)
  */
 BOOST_FIXTURE_TEST_CASE(Missing_ImagesInAcquisition, TestEnvironment)
 {
-    auto enhanceb2d = dicomifier::actions::EnhanceBrukerDicom::
+    auto enhanceb2d = dicomifier::bruker::EnhanceBrukerDicom::
             New(directorypath, UID_MRImageStorage, outputdirectory, "1", "1");
 
     dataset.add(dcmtkpp::registry::StudyDescription, {"studydesc"});

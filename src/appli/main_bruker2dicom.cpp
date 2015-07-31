@@ -13,7 +13,7 @@
 #include <boost/algorithm/string/split.hpp>
 #include <boost/program_options.hpp>
 
-#include "bruker/actions/EnhanceBrukerDicom.h"
+#include "bruker/converters/EnhanceBrukerDicom.h"
 #include "bruker/Dataset.h"
 #include "bruker/Directory.h"
 #include "core/Logger.h"
@@ -117,7 +117,7 @@ int main(int argc, char *argv[])
         }
         else
         {
-            subject_name = dicomifier::actions::
+            subject_name = dicomifier::bruker::
                     EnhanceBrukerDicom::get_default_directory_name(
                         dicom_directory);
         }
@@ -126,7 +126,7 @@ int main(int argc, char *argv[])
     // Get the study number
     boost::filesystem::path const dest =
         boost::filesystem::path(dicom_directory) / subject_name;
-    std::string const study_number = dicomifier::actions::
+    std::string const study_number = dicomifier::bruker::
             EnhanceBrukerDicom::get_default_directory_name(dest);
 
     std::map<std::string, std::vector<std::string> > available_item =
@@ -186,7 +186,7 @@ int main(int argc, char *argv[])
         dicomifier::loggerInfo() << "Process seriesNumber: "
                                  << series_number << "...";
 
-        auto rule = dicomifier::actions::EnhanceBrukerDicom::New(
+        auto rule = dicomifier::bruker::EnhanceBrukerDicom::New(
             bruker_directory, UID_MRImageStorage,
             dicom_directory, study_number, series_number);
 

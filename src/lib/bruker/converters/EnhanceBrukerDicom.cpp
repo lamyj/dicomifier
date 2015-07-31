@@ -27,7 +27,7 @@
 namespace dicomifier
 {
 
-namespace actions
+namespace bruker
 {
 
 EnhanceBrukerDicom::EnhanceBrukerDicom()
@@ -348,6 +348,6 @@ EnhanceBrukerDicom
     return streamout.str();
 }
 
-} // namespace actions
+} // namespace bruker
 
 } // namespace dicomifier
