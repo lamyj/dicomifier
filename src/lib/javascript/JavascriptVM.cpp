@@ -7,6 +7,7 @@
  ************************************************************************/
 
 #include <sstream>
+#include <string>
 
 #include <boost/filesystem.hpp>
 
@@ -27,6 +28,7 @@ namespace javascript
 /***********************************
  *  Exposed functions              *
  **********************************/
+
 v8::Handle<v8::Value> is_big_endian(v8::Arguments const & args)
 {
     return v8::Boolean::New(endian::is_big_endian());
@@ -150,6 +152,40 @@ v8::Handle<v8::Value> load_pixel_data(v8::Arguments const & args)
     return array;
 }
 
+v8::Handle<v8::Value> namespace_(v8::Arguments const & args)
+{
+    auto const path_js = args[0]->ToString();
+    std::string path_utf8(path_js->Utf8Length(), '\0');
+    path_js->WriteUtf8(&path_utf8[0]);
+
+    v8::HandleScope scope;
+    v8::Handle<v8::Object> ns = v8::Context::GetCurrent()->Global();
+
+    std::istringstream stream(path_utf8);
+    std::string item;
+
+    while(std::getline(stream, item, '.'))
+    {
+        v8::Local<v8::String> item_js = v8::String::New(item.c_str());
+
+        v8::Local<v8::Object> child;
+        if(!ns->Has(item_js))
+        {
+            child = v8::Object::New();
+            ns->Set(item_js, child);
+        }
+        else
+        {
+            child = ns->Get(item_js)->ToObject();
+        }
+
+        ns = child;
+    }
+
+
+    return scope.Close(ns);
+}
+
 /***********************************
  **********************************/
 
@@ -173,34 +209,31 @@ JavascriptVM
     // Context must be ready before creating an array
     // cf. https://stackoverflow.com/questions/7015068/why-does-creating-new-v8array-before-v8scope-cause-segmentation-fault-but-v
 
-    context = v8::Context::New(NULL, global);
-    v8::Context::Scope context_scope(context);
+    this->_context = v8::Context::New(NULL, global);
+    v8::Context::Scope context_scope(this->_context);
 
     /**************************
      * Fill the global object *
      **************************/
 
-    context->Global()->Set(
-        v8::String::New("log"),
-        v8::FunctionTemplate::New(log)->GetFunction());
+#define DICOMIFIER_EXPOSE_FUNCTION(cpp_name, js_name) \
+    this->_context->Global()->Set(\
+        v8::String::New(js_name), \
+        v8::FunctionTemplate::New(cpp_name)->GetFunction());
 
-    context->Global()->Set(
-        v8::String::New("bigEndian"),
-        v8::FunctionTemplate::New(is_big_endian)->GetFunction());
+    DICOMIFIER_EXPOSE_FUNCTION(log, "log");
+    DICOMIFIER_EXPOSE_FUNCTION(is_big_endian, "bigEndian");
+    DICOMIFIER_EXPOSE_FUNCTION(load_pixel_data, "loadPixelData");
+    DICOMIFIER_EXPOSE_FUNCTION(generate_uid, "dcmGenerateUniqueIdentifier");
+    DICOMIFIER_EXPOSE_FUNCTION(namespace_, "namespace");
 
-    context->Global()->Set(
-        v8::String::New("loadPixelData"),
-        v8::FunctionTemplate::New(load_pixel_data)->GetFunction());
-
-    context->Global()->Set(
-        v8::String::New("dcmGenerateUniqueIdentifier"),
-        v8::FunctionTemplate::New(generate_uid)->GetFunction());
+#undef DICOMIFIER_EXPOSE_FUNCTION
 
     auto myobject = v8::Object::New();
     myobject->Set(v8::String::New("inputs"), v8::Array::New());
     myobject->Set(v8::String::New("outputs"), v8::Array::New());
 
-    context->Global()->Set(
+    this->_context->Global()->Set(
         v8::String::New("dicomifier"),
         myobject);
     }
@@ -223,30 +256,6 @@ JavascriptVM
     std::stringstream frameindexgenerator;
     frameindexgenerator << configuration_path
                         << "/script_bruker2dicom/frameIndexGenerator.js";
-
-    // if file exist locally
-    if (boost::filesystem::exists(boost::filesystem::path(functionfile.str())))
-    {
-        this->run_file(functionfile.str());
-    }
-    // else use default file
-    else
-    {
-        this->run_file("/etc/dicomifier/script_bruker2dicom/functions.js");
-    }
-
-    // if file exist locally
-    if (boost::filesystem::exists(
-                boost::filesystem::path(frameindexgenerator.str())))
-    {
-        this->run_file(frameindexgenerator.str());
-    }
-    // else use default file
-    else
-    {
-        this->run_file(
-            "/etc/dicomifier/script_bruker2dicom/frameIndexGenerator.js");
-    }
 }
 
 JavascriptVM
@@ -264,7 +273,7 @@ JavascriptVM
     v8::TryCatch trycatch;
 
     // Load the context
-    v8::Context::Scope context_scope(context);
+    v8::Context::Scope context_scope(this->_context);
 
     // Get the script
     auto source = v8::String::New(script.c_str());

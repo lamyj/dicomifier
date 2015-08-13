@@ -52,7 +52,7 @@ private:
     v8::Isolate* _isolate;
 
     ///
-    v8::Persistent<v8::Context> context;
+    v8::Persistent<v8::Context> _context;
 
 };
 
