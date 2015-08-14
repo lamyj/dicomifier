@@ -31,19 +31,17 @@ public:
     /// Destroy the instance of JavascriptVM
     ~JavascriptVM();
 
-    /**
-     * @brief Execute a JS Script
-     * @param script: script JS to execute
-     * @return script result
-     */
-    v8::Local<v8::Value> run(std::string const & script);
+    v8::Handle<v8::Context> get_context() const;
+
+    /// @brief Execute Javascript code.
+    static v8::Local<v8::Value> run(std::string const & source, v8::Handle<v8::Context> const & context);
 
     /**
      * @brief Load and execute a JavaScript file
      * @param scriptpath: path to a JS file
      * @return script result
      */
-    v8::Local<v8::Value> run_file(std::string const & scriptpath);
+    static v8::Local<v8::Value> run_file(std::string const & scriptpath, v8::Handle<v8::Context> const & context);
 
 protected:
 

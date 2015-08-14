@@ -186,6 +186,52 @@ v8::Handle<v8::Value> namespace_(v8::Arguments const & args)
     return scope.Close(ns);
 }
 
+v8::Handle<v8::Value> require(v8::Arguments const & args)
+{
+    auto const path_js = args[0]->ToString();
+    std::string path_utf8(path_js->Utf8Length(), '\0');
+    path_js->WriteUtf8(&path_utf8[0]);
+
+    boost::filesystem::path absolute_path;
+    // 1. The directory containing the current file
+    if(boost::filesystem::is_regular(boost::filesystem::current_path()/path_utf8))
+    {
+        absolute_path = boost::filesystem::current_path()/path_utf8;
+    }
+    // 2. The paths listed in DICOMIFIER_JS_PATH (environment variable)
+    else if(absolute_path.empty() && getenv("DICOMIFIER_JS_PATH") != NULL)
+    {
+        boost::filesystem::path const root(getenv("DICOMIFIER_JS_PATH"));
+        if(boost::filesystem::is_regular(root/path_utf8))
+        {
+            absolute_path = root/path_utf8;
+        }
+    }
+    // 3. The path listed in DICOMIFIER_DEFAULT_JS_PATH (compiler symbol)
+#ifdef DICOMIFIER_DEFAULT_JS_PATH
+    else if(absolute_path.empty())
+    {
+        boost::filesystem::path const root(#DICOMIFIER_DEFAULT_JS_PATH);
+        if(boost::filesystem::is_regular(root/path_utf8)
+        {
+            absolute_path = boost::filesystem::current_path()/path_utf8;
+        }
+    }
+#endif
+
+    if(absolute_path.empty())
+    {
+        throw DicomifierException("No such file: "+path_utf8);
+    }
+
+    auto const context = v8::Context::GetCurrent();
+    if(context.IsEmpty())
+    {
+        throw DicomifierException("No context");
+    }
+    return JavascriptVM::run_file(absolute_path.generic_string(), context);
+}
+
 /***********************************
  **********************************/
 
@@ -225,6 +271,7 @@ JavascriptVM
     DICOMIFIER_EXPOSE_FUNCTION(is_big_endian, "bigEndian");
     DICOMIFIER_EXPOSE_FUNCTION(load_pixel_data, "loadPixelData");
     DICOMIFIER_EXPOSE_FUNCTION(generate_uid, "dcmGenerateUniqueIdentifier");
+    DICOMIFIER_EXPOSE_FUNCTION(require, "require");
     DICOMIFIER_EXPOSE_FUNCTION(namespace_, "namespace");
 
 #undef DICOMIFIER_EXPOSE_FUNCTION
@@ -241,7 +288,7 @@ JavascriptVM
     std::stringstream streamdictionary;
     streamdictionary << "dicomifier[\"dictionary\"] = "
                      << Dictionaries::get_instance().to_string() << ";";
-    this->run(streamdictionary.str());
+    //JavascriptVM::run(streamdictionary.str());
 
     std::string configuration_path("../configuration");
     char* value = getenv("DICOMIFIER_CONFIGURATION_DIR");
@@ -264,43 +311,47 @@ JavascriptVM
     this->_isolate->Dispose();
 }
 
-v8::Local<v8::Value>
+v8::Handle<v8::Context>
 JavascriptVM
-::run(const std::string &script)
+::get_context() const
 {
-    // fix error: Cannot create a handle without a HandleScope
-    v8::HandleScope handle_scope;
-    v8::TryCatch trycatch;
-
-    // Load the context
-    v8::Context::Scope context_scope(this->_context);
-
-    // Get the script
-    auto source = v8::String::New(script.c_str());
-
-    // Compile
-    auto scriptJS = v8::Script::Compile(source);
-    if(scriptJS.IsEmpty())
-    {
-        throw dicomifier::DicomifierException("Cannot compile JavaScript");
-    }
-
-    // Execute
-    auto return_ = scriptJS->Run();
-    if (return_.IsEmpty())
-    {
-        std::stringstream streamerror;
-        streamerror << "JavaScript error: "
-                    << *v8::String::AsciiValue(trycatch.Exception());
-        throw DicomifierException(streamerror.str());
-    }
-
-    return return_;
+    return this->_context;
 }
 
 v8::Local<v8::Value>
 JavascriptVM
-::run_file(std::string const & scriptpath)
+::run(std::string const & source, v8::Handle<v8::Context> const & context)
+{
+    v8::Context::Scope context_scope(context);
+
+    v8::HandleScope handle_scope;
+    v8::TryCatch try_catch;
+
+    auto const source_js = v8::String::New(source.c_str());
+    auto const script = v8::Script::Compile(source_js);
+    if(script.IsEmpty())
+    {
+        std::ostringstream message;
+        message << "Line " << try_catch.Message()->GetLineNumber() << ": "
+            << *v8::String::AsciiValue(try_catch.Exception());
+        throw dicomifier::DicomifierException(message.str());
+    }
+
+    auto const result = script->Run();
+    if(result.IsEmpty())
+    {
+        std::ostringstream message;
+        message << "Line " << try_catch.Message()->GetLineNumber() << ": "
+            << *v8::String::AsciiValue(try_catch.Exception());
+        throw dicomifier::DicomifierException(message.str());
+    }
+
+    return result;
+}
+
+v8::Local<v8::Value>
+JavascriptVM
+::run_file(std::string const & scriptpath, v8::Handle<v8::Context> const & context)
 {
     // Open file
     std::ifstream streamfile(scriptpath.c_str(), std::ifstream::binary);
@@ -319,7 +370,7 @@ JavascriptVM
     streamfile.close();
 
     // Execute script
-    return this->run(buffer);
+    return JavascriptVM::run(buffer, context);
 }
 
 } // namespace javascript
