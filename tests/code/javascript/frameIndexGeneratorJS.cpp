@@ -57,8 +57,13 @@ BOOST_FIXTURE_TEST_CASE(Constructor, TestDataFrameIndexGenerator)
     outputstream << *utf8;
 
     BOOST_REQUIRE_EQUAL(
-     outputstream.str(),
-     "{\"indexMax\":[3],\"currentIndex\":[0],\"countMax\":3,\"currentStep\":0}");
+        outputstream.str(), "{"
+            "\"frameGroups\":[["
+                "3,\"FG_SLICE\",["
+                    "[\"VisuCoreOrientation\",0],"
+                    "[\"VisuCorePosition\",0]]]],"
+            "\"indexMax\":[3],\"currentIndex\":[0],"
+            "\"countMax\":3,\"currentStep\":0}");
 }
 
 /*************************** TEST Nominal *******************************/
@@ -99,8 +104,15 @@ BOOST_FIXTURE_TEST_CASE(Next, TestDataFrameIndexGenerator)
         outputstream << *utf8;
 
         std::stringstream expectedresult;
-        expectedresult << "{\"indexMax\":[3],\"currentIndex\":[" << i
-                       << "],\"countMax\":3,\"currentStep\":" << i << "}";
+        expectedresult << "{"
+            "\"frameGroups\":[["
+                "3,\"FG_SLICE\",["
+                    "[\"VisuCoreOrientation\",0],"
+                    "[\"VisuCorePosition\",0]]]],"
+            "\"indexMax\":[3],";
+        expectedresult << "\"currentIndex\":[" << i << "],";
+        expectedresult << "\"countMax\":3,";
+        expectedresult << "\"currentStep\":" << i << "}";
         BOOST_REQUIRE_EQUAL(outputstream.str(), expectedresult.str());
 
         vm.run("indexGenerator.next();", vm.get_context());
