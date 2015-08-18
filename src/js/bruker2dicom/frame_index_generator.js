@@ -2,6 +2,7 @@ var _module = namespace('dicomifier.bruker2dicom');
 
 /// @brief Constructor of class FrameIndexGenerator
 _module.FrameIndexGenerator = function(frameGroups, countMax) {
+    this.frameGroups = frameGroups;
     this.indexMax = [];
     this.currentIndex = [];
     this.countMax = countMax || -1;
@@ -67,6 +68,10 @@ _module.getFrameGroups = function(brukerDataset) {
     }
 
     var array = [];
+
+    if(brukerDataset.VisuFGOrderDesc === undefined) {
+        return array;
+    }
 
     for (var i = 0; i < brukerDataset.VisuFGOrderDesc.length; ++i) {
         var description = brukerDataset.VisuFGOrderDesc[i];

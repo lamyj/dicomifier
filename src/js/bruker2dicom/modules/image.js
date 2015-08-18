@@ -49,6 +49,17 @@ _module.ImagePlane = function(indexGenerator, dicomDataset, brukerDataset) {
             for(var index = 0; index < orientation.length; index += 9) {
                 array.push(orientation.slice(index, index + 6));
             }
+
+            var isInFrameGroups = indexGenerator.frameGroups.some(function(x) {
+                return x[2].some(function(y) {
+                    return (y[0] === 'VisuCoreOrientation');
+                });
+            });
+            if(!isInFrameGroups) {
+                // Avoid nested arrays.
+                array = array[0];
+            }
+
             return array;
         });
 
@@ -61,6 +72,17 @@ _module.ImagePlane = function(indexGenerator, dicomDataset, brukerDataset) {
             for(var index = 0; index < position.length; index += 3) {
                 array.push(position.slice(index, index + 3));
             }
+
+            var isInFrameGroups = indexGenerator.frameGroups.some(function(x) {
+                return x[2].some(function(y) {
+                    return (y[0] === 'VisuCoreOrientation');
+                });
+            });
+            if(!isInFrameGroups) {
+                // Avoid nested arrays.
+                array = array[0];
+            }
+
             return array;
         });
 
