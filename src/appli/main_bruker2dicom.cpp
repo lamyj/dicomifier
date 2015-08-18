@@ -9,6 +9,8 @@
 #include <iostream>
 #include <memory>
 
+#include <cxxabi.h>
+
 #include <boost/algorithm/string.hpp>
 #include <boost/algorithm/string/split.hpp>
 #include <boost/program_options.hpp>
@@ -34,6 +36,29 @@ std::string to_series_number(std::string const & series,
     std::string series_number(temp);
 
     return series_number;
+}
+
+std::string demangle(std::string const & name)
+{
+    std::string result;
+
+#ifdef __GNUC__
+    int status;
+    auto data = abi::__cxa_demangle(name.c_str(), 0, 0, &status);
+    if(status == 0)
+    {
+        result = data;
+        free(data);
+    }
+    else
+    {
+        result = name;
+    }
+#else
+    result = name;
+#endif
+
+    return result;
 }
 
 int main(int argc, char *argv[])
@@ -204,12 +229,8 @@ int main(int argc, char *argv[])
         }
         catch (dicomifier::DicomifierException const & exc)
         {
-            dicomifier::loggerError() << exc.what();
-        }
-        catch (std::exception const & unknown_exc)
-        {
-            dicomifier::loggerError() << "Unknown exception: "
-                                      << unknown_exc.what();
+            dicomifier::loggerError() << exc.what()
+                                      << " (" << demangle(typeid(exc).name()) << ")";
         }
     }
             

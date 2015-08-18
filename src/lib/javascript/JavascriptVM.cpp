@@ -54,11 +54,11 @@ v8::Handle<v8::Value> load_pixel_data(v8::Arguments const & args)
 {
     if(args.Length() < 1)
     {
-        throw DicomifierException("Missing BrukerDataset");
+        return v8::ThrowException(v8::String::New("Missing BrukerDataset"));
     }
     if(args.Length() < 2)
     {
-        throw DicomifierException("Missing frame number");
+        return v8::ThrowException(v8::String::New("Missing frame number"));
     }
 
     v8::Local<v8::Value> const arg = args[0];
@@ -66,7 +66,7 @@ v8::Handle<v8::Value> load_pixel_data(v8::Arguments const & args)
     // Get PIXELDATA
     if (!arg->ToObject()->Has(v8::String::New("PIXELDATA")))
     {
-        throw DicomifierException("Missing pixel data path");
+        return v8::ThrowException(v8::String::New("Missing pixel data path"));
     }
     v8::Local<v8::Array> pixeldata =
             arg->ToObject()->Get(v8::String::New("PIXELDATA")).As<v8::Array>();
@@ -77,8 +77,8 @@ v8::Handle<v8::Value> load_pixel_data(v8::Arguments const & args)
     // Get VisuCoreWordType
     if (!arg->ToObject()->Has(v8::String::New("VisuCoreWordType")))
     {
-        throw DicomifierException(
-                    "Missing mandatory Bruker field VisuCoreWordType");
+        return v8::ThrowException(v8::String::New(
+            "Missing mandatory Bruker field VisuCoreWordType"));
     }
     v8::Local<v8::Array> wordtype =
             arg->ToObject()->Get(
@@ -90,8 +90,8 @@ v8::Handle<v8::Value> load_pixel_data(v8::Arguments const & args)
     // Get VisuCoreByteOrder
     if (!arg->ToObject()->Has(v8::String::New("VisuCoreByteOrder")))
     {
-        throw DicomifierException(
-                    "Missing mandatory Bruker field VisuCoreByteOrder");
+        return v8::ThrowException(v8::String::New(
+            "Missing mandatory Bruker field VisuCoreByteOrder"));
     }
     v8::Local<v8::Array> byteorder =
             arg->ToObject()->Get(
@@ -103,8 +103,8 @@ v8::Handle<v8::Value> load_pixel_data(v8::Arguments const & args)
     // Get VisuCoreSize
     if (!arg->ToObject()->Has(v8::String::New("VisuCoreSize")))
     {
-        throw DicomifierException(
-                    "Missing mandatory Bruker field VisuCoreSize");
+        return v8::ThrowException(v8::String::New(
+                    "Missing mandatory Bruker field VisuCoreSize"));
     }
     v8::Local<v8::Array> coresize =
             arg->ToObject()->Get(
@@ -221,14 +221,10 @@ v8::Handle<v8::Value> require(v8::Arguments const & args)
 
     if(absolute_path.empty())
     {
-        throw DicomifierException("No such file: "+path_utf8);
+        return v8::ThrowException(v8::String::New(("No such file: "+path_utf8).c_str()));
     }
 
     auto const context = v8::Context::GetCurrent();
-    if(context.IsEmpty())
-    {
-        throw DicomifierException("No context");
-    }
     return JavascriptVM::run_file(absolute_path.generic_string(), context);
 }
 
