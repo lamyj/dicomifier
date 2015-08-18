@@ -35,27 +35,27 @@ int main()
 
     Json::Value jsonbruker;
     streambruker >> jsonbruker;
-    std::cout << "jsonbruker = " << jsonbruker.toStyledString() << std::endl;
+    std::cout << "var jsonbruker = " << jsonbruker.toStyledString() << std::endl;
 
     std::stringstream stream;
-    stream << "inputs[0] = " << jsonbruker.toStyledString() << ";";
-    auto result = vm.run(stream.str());
+    stream << "var inputs = [" << jsonbruker.toStyledString() << "];";
+    auto result = vm.run(stream.str(), vm.get_context());
 
     // Create and execute script
     std::stringstream streamscript;
-    streamscript << "var dataset = {}; "
+    streamscript << "var dataset = { }; "
                  << "dataset[\"00100010\"] = { \"vr\" : \"PN\", \"Value\" : [ { \"Alphabetic\" : inputs[0].VisuSubjectName[0] } ] };"
                  << "dataset[\"00100020\"] = { \"vr\" : \"LO\", \"Value\" : inputs[0].VisuSubjectId };"
                  << "dataset[\"00100030\"] = { \"vr\" : \"DA\", \"Value\" : inputs[0].VisuSubjectBirthDate };"
                  << "dataset[\"00180080\"] = { \"vr\" : \"DS\", \"Value\" : inputs[0].VisuAcqRepetitionTime };"
                  << "dataset[\"00280010\"] = { \"vr\" : \"US\", \"Value\" : [ inputs[0].VisuCoreSize[0] ] };"
                  << "dataset[\"00280011\"] = { \"vr\" : \"US\", \"Value\" : [ inputs[0].VisuCoreSize[1] ] };"
-                 << "outputs[0] = dataset;"
+                 << "var outputs = [dataset];"
                  << "log(JSON.stringify(dataset));";
-    auto result2 = vm.run(streamscript.str());
+    auto result2 = vm.run(streamscript.str(), vm.get_context());
 
     // Retrieve output
-    auto dicom_json = vm.run("JSON.stringify(outputs[0])");
+    auto dicom_json = vm.run("JSON.stringify(outputs[0])", vm.get_context());
     v8::String::Utf8Value utf8(dicom_json);
 
     std::stringstream datasetstream;

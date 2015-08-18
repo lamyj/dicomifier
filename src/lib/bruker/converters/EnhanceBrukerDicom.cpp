@@ -242,64 +242,52 @@ EnhanceBrukerDicom
 {
     javascript::JavascriptVM jsvm;
 
+    // Create inputs
     auto const json_bruker_dataset = bruker::as_json(bruker_dataset);
-
-    std::stringstream stream;
+    std::ostringstream stream;
     stream << "dicomifier.inputs[0] = "
            << json_bruker_dataset.toStyledString() << ";";
-    jsvm.run(stream.str());
-
-    // use default file
-    std::string script("/etc/dicomifier/script_bruker2dicom/frameIndexGenerator.js");
-
-    std::string configuration_path("../configuration");
-    char* value = getenv("DICOMIFIER_CONFIGURATION_DIR");
-    if(value != NULL)
-    {
-        configuration_path = std::string(value);
-    }
-
-    std::stringstream mrimagestoragefile;
-    mrimagestoragefile << configuration_path
-                       << "/script_bruker2dicom/MRImageStorage.js";
-
-    // if file exist locally
-    if (boost::filesystem::exists(boost::filesystem::path(
-            mrimagestoragefile.str())))
-    {
-        script = mrimagestoragefile.str();
-    }
+    jsvm.run(stream.str(), jsvm.get_context());
 
     // Execute script
-    v8::Local<v8::Value> result = jsvm.run_file(script);
-    v8::String::Utf8Value result2utf8(result);
+    std::string const script(
+        "require('bruker2dicom/mr_image_storage.js');\n"
+        "dicomifier.outputs = dicomifier.bruker2dicom.MRImageStorage(dicomifier.inputs[0]);");
+    jsvm.run(script, jsvm.get_context());
 
-    std::stringstream streamresult;
-    streamresult << *result2utf8;
+    v8::HandleScope handle_scope;
+    v8::Context::Scope context_scope(jsvm.get_context());
 
-    auto number = boost::lexical_cast<unsigned int>(streamresult.str());
-    for (unsigned int ds = 0; ds < number; ++ds)
+    auto const length_value = jsvm.run(
+        "dicomifier.outputs.length;", jsvm.get_context());
+    auto const length = length_value->ToInteger()->Value();
+    for(int i=0; i<length; ++i)
     {
-        std::stringstream streamscript;
-        streamscript << "JSON.stringify(dicomifier.outputs[" << ds << "]);";
-        auto dicom_json = jsvm.run(streamscript.str());
-        v8::String::Utf8Value utf8(dicom_json);
+        // Get the JSON representation of the V8 data set.
+        std::string json;
+        {
+            std::stringstream stream;
+            stream << "JSON.stringify(dicomifier.outputs[" << i << "]);";
+            auto const value = jsvm.run(stream.str(), jsvm.get_context());
+            json = *v8::String::Utf8Value(value);
+        }
 
-        std::stringstream datasetstream;
-        datasetstream << *utf8;
-        Json::Value jsondataset;
-        Json::Reader reader;
-        std::string old_locale = std::setlocale(LC_ALL, "C");
-        reader.parse(datasetstream, jsondataset);
-        std::setlocale(LC_ALL, old_locale.c_str());
+        // Parse it into a data set.
+        dcmtkpp::DataSet data_set;
+        {
+            Json::Value value;
+            Json::Reader reader;
+            std::string old_locale = std::setlocale(LC_ALL, "C");
+            reader.parse(json, value);
+            std::setlocale(LC_ALL, old_locale.c_str());
 
-        dcmtkpp::DataSet const dicom_data_set = dcmtkpp::as_dataset(jsondataset);
+            data_set = dcmtkpp::as_dataset(value);
+        }
 
-        auto const destination = this->get_destination_filename(dicom_data_set);
-
-        // write file
+        // Write the data set to a file.
+        auto const destination = this->get_destination_filename(data_set);
         auto * dcmtk_dataset = dynamic_cast<DcmDataset*>(
-            dcmtkpp::convert(dicom_data_set));
+            dcmtkpp::convert(data_set));
         DcmFileFormat fileformat(dcmtk_dataset);
         OFCondition result = fileformat.saveFile(
             destination.c_str(), EXS_LittleEndianExplicit);

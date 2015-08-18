@@ -46,7 +46,7 @@ BOOST_FIXTURE_TEST_CASE(Logger_Error, TestDataLoggerJS)
 {
     dicomifier::javascript::JavascriptVM vm;
 
-    vm.run("log('My message');");
+    vm.run("log('My message');", vm.get_context());
 
     BOOST_REQUIRE_NE(streamlog.str(), "");
     BOOST_CHECK(streamlog.str().find("INFO") != std::string::npos);

@@ -22,15 +22,16 @@ struct TestDataFrameIndexGenerator
 
     TestDataFrameIndexGenerator()
     {
-        streamscript << "var brukerDataset = { "
+        streamscript << "require('bruker2dicom/frame_index_generator.js');"
+                     << "var brukerDataset = { "
                      <<         "\"VisuFGOrderDesc\":[[3,\"FG_SLICE\",\"\",0,2]], "
                      <<         "\"VisuFGOrderDescDim\":[\"1\"], "
                      <<         "\"VisuGroupDepVals\":[[\"VisuCoreOrientation\",0], "
                      <<                               "[\"VisuCorePosition\",0]] };"
                      << "var frameGroups = "
-                     <<     "dicomifier.getFrameGroups(brukerDataset); "
+                     <<     "dicomifier.bruker2dicom.getFrameGroups(brukerDataset); "
                      << "var indexGenerator = "
-                     <<     "new dicomifier.frameIndexGenerator(frameGroups); ";
+                     <<     "new dicomifier.bruker2dicom.FrameIndexGenerator(frameGroups); ";
     }
 
     ~TestDataFrameIndexGenerator()
@@ -49,7 +50,7 @@ BOOST_FIXTURE_TEST_CASE(Constructor, TestDataFrameIndexGenerator)
     stream << streamscript.str()
            << "JSON.stringify(indexGenerator);";
 
-    auto result = vm.run(stream.str());
+    auto result = vm.run(stream.str(), vm.get_context());
     v8::String::Utf8Value utf8(result);
 
     std::stringstream outputstream;
@@ -70,7 +71,7 @@ BOOST_FIXTURE_TEST_CASE(Done, TestDataFrameIndexGenerator)
     stream << streamscript.str()
            << "String(indexGenerator.done());";
 
-    auto result = vm.run(stream.str());
+    auto result = vm.run(stream.str(), vm.get_context());
     v8::String::Utf8Value utf8(result);
 
     std::stringstream outputstream;
@@ -86,12 +87,12 @@ BOOST_FIXTURE_TEST_CASE(Done, TestDataFrameIndexGenerator)
 BOOST_FIXTURE_TEST_CASE(Next, TestDataFrameIndexGenerator)
 {
     // initial State
-    vm.run(streamscript.str());
+    vm.run(streamscript.str(), vm.get_context());
 
     // increase
     for (unsigned int i = 0; i < 3; ++i)
     {
-        auto result = vm.run("JSON.stringify(indexGenerator);");
+        auto result = vm.run("JSON.stringify(indexGenerator);", vm.get_context());
         v8::String::Utf8Value utf8(result);
 
         std::stringstream outputstream;
@@ -102,12 +103,12 @@ BOOST_FIXTURE_TEST_CASE(Next, TestDataFrameIndexGenerator)
                        << "],\"countMax\":3,\"currentStep\":" << i << "}";
         BOOST_REQUIRE_EQUAL(outputstream.str(), expectedresult.str());
 
-        vm.run("indexGenerator.next();");
+        vm.run("indexGenerator.next();", vm.get_context());
     }
 
     // Done == true
     {
-        auto result = vm.run("String(indexGenerator.done());");
+        auto result = vm.run("String(indexGenerator.done());", vm.get_context());
         v8::String::Utf8Value utf8(result);
 
         std::stringstream outputstream;
@@ -127,7 +128,7 @@ BOOST_FIXTURE_TEST_CASE(GetFrameGroups, TestDataFrameIndexGenerator)
     stream << streamscript.str()
            << "JSON.stringify(frameGroups);";
 
-    auto result = vm.run(stream.str());
+    auto result = vm.run(stream.str(), vm.get_context());
     v8::String::Utf8Value utf8(result);
 
     std::stringstream outputstream;
@@ -147,10 +148,10 @@ BOOST_FIXTURE_TEST_CASE(getFrameGroupIndex, TestDataFrameIndexGenerator)
 {
     std::stringstream stream;
     stream << streamscript.str()
-           << "JSON.stringify(dicomifier.getFrameGroupIndex(brukerDataset, "
+           << "JSON.stringify(dicomifier.bruker2dicom.getFrameGroupIndex(brukerDataset, "
            << "'VisuCoreOrientation'));";
 
-    auto result = vm.run(stream.str());
+    auto result = vm.run(stream.str(), vm.get_context());
     v8::String::Utf8Value utf8(result);
 
     std::stringstream outputstream;
@@ -169,10 +170,10 @@ BOOST_FIXTURE_TEST_CASE(getFrameGroupIndex_EmptyBrukerField,
 {
     std::stringstream stream;
     stream << streamscript.str()
-           << "JSON.stringify(dicomifier.getFrameGroupIndex(brukerDataset, "
+           << "JSON.stringify(dicomifier.bruker2dicom.getFrameGroupIndex(brukerDataset, "
            << "null));";
 
-    auto result = vm.run(stream.str());
+    auto result = vm.run(stream.str(), vm.get_context());
     v8::String::Utf8Value utf8(result);
 
     std::stringstream outputstream;
@@ -191,10 +192,10 @@ BOOST_FIXTURE_TEST_CASE(getFrameGroupIndex_BrukerFieldNotFound,
 {
     std::stringstream stream;
     stream << streamscript.str()
-           << "JSON.stringify(dicomifier.getFrameGroupIndex(brukerDataset, "
+           << "JSON.stringify(dicomifier.bruker2dicom.getFrameGroupIndex(brukerDataset, "
            << "'NotAGoodField'));";
 
-    auto result = vm.run(stream.str());
+    auto result = vm.run(stream.str(), vm.get_context());
     v8::String::Utf8Value utf8(result);
 
     std::stringstream outputstream;
@@ -211,8 +212,10 @@ BOOST_FIXTURE_TEST_CASE(getFrameGroupIndex_BrukerFieldNotFound,
 BOOST_FIXTURE_TEST_CASE(GetFrameGroups_NoBrukerDataset,
                         TestDataFrameIndexGenerator)
 {
-    std::string script("var frameGroups = dicomifier.getFrameGroups(null);");
-    BOOST_REQUIRE_THROW(vm.run(script), dicomifier::DicomifierException);
+    std::string script("var frameGroups = dicomifier.bruker2dicom.getFrameGroups(null);");
+    BOOST_REQUIRE_THROW(
+        vm.run(script, vm.get_context()),
+        dicomifier::DicomifierException);
 }
 
 /*************************** TEST Error *********************************/
@@ -223,6 +226,8 @@ BOOST_FIXTURE_TEST_CASE(GetFrameGroups_NoBrukerDataset,
 BOOST_FIXTURE_TEST_CASE(getFrameGroupIndex_NoBrukerDataset,
                         TestDataFrameIndexGenerator)
 {
-    std::string script("dicomifier.getFrameGroupIndex(null);");
-    BOOST_REQUIRE_THROW(vm.run(script), dicomifier::DicomifierException);
+    std::string script("dicomifier.bruker2dicom.getFrameGroupIndex(null);");
+    BOOST_REQUIRE_THROW(
+        vm.run(script, vm.get_context()),
+        dicomifier::DicomifierException);
 }

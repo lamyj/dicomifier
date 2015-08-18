@@ -288,7 +288,7 @@ JavascriptVM
     std::stringstream streamdictionary;
     streamdictionary << "dicomifier[\"dictionary\"] = "
                      << Dictionaries::get_instance().to_string() << ";";
-    //JavascriptVM::run(streamdictionary.str());
+    JavascriptVM::run(streamdictionary.str(), this->get_context());
 
     std::string configuration_path("../configuration");
     char* value = getenv("DICOMIFIER_CONFIGURATION_DIR");

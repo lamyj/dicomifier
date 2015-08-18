@@ -1,6 +1,6 @@
-var _module = namespace('dicomifier.bruker2dicom');
-
 require("bruker2dicom/frame_index_generator.js");
+
+var _module = namespace('dicomifier.bruker2dicom');
 
 /// @brief Exception class
 dicomifier.Exception = function(message) {

@@ -41,7 +41,8 @@ BOOST_AUTO_TEST_CASE(Run)
 {
     dicomifier::javascript::JavascriptVM vm;
 
-    v8::Local<v8::Value> result = vm.run("JSON.stringify({ 'hello' : 'world' });");
+    v8::Local<v8::Value> result = vm.run(
+        "JSON.stringify({ 'hello' : 'world' });", vm.get_context());
     v8::String::Utf8Value utf8(result);
 
     std::stringstream stream;
@@ -77,35 +78,13 @@ BOOST_FIXTURE_TEST_CASE(RunFile, TestDataRunFile)
 {
     dicomifier::javascript::JavascriptVM vm;
 
-    v8::Local<v8::Value> result = vm.run_file(filename);
+    v8::Local<v8::Value> result = vm.run_file(filename, vm.get_context());
     v8::String::Utf8Value utf8(result);
 
     std::stringstream stream;
     stream << *utf8;
 
     BOOST_CHECK_EQUAL("{\"hello\":\"world\"}", stream.str());
-}
-
-/*************************** TEST Nominal *******************************/
-/**
- * Nominal test case: Test function divideArray descibes into function.js
- */
-BOOST_AUTO_TEST_CASE(Functions_divideArray)
-{
-    dicomifier::javascript::JavascriptVM vm;
-
-    std::stringstream streaminput;
-    streaminput << "var array1 = [ 8, 27, 64 ];"
-                << "var array2 = [ 2, 3, 4 ];"
-                << "String(divideArray(array1, array2));";
-
-    v8::Local<v8::Value> result = vm.run(streaminput.str());
-    v8::String::Utf8Value utf8(result);
-
-    std::stringstream stream;
-    stream << *utf8;
-
-    BOOST_CHECK_EQUAL("4,9,16", stream.str());
 }
 
 /*************************** TEST Nominal *******************************/
@@ -127,10 +106,11 @@ BOOST_AUTO_TEST_CASE(Functions_dictionaryMapper)
          it != testedvalues.end(); ++it)
     {
         std::stringstream streaminput;
+        streaminput << "require('bruker2dicom/common.js');\n";
         streaminput << dict << "String(['" << it->first
-                    << "'].map(dictionaryMapper(dictionary)));";
+                    << "'].map(dicomifier.bruker2dicom.dictionaryMapper(dictionary)));";
 
-        v8::Local<v8::Value> result = vm.run(streaminput.str());
+        v8::Local<v8::Value> result = vm.run(streaminput.str(), vm.get_context());
         v8::String::Utf8Value utf8(result);
 
         std::stringstream stream;
@@ -156,11 +136,12 @@ BOOST_AUTO_TEST_CASE(Functions_dateTimeMapper)
          it != testedvalues.end(); ++it)
     {
         std::stringstream streaminput;
+        streaminput << "require('bruker2dicom/common.js');\n";
         streaminput << "var array = [ '2015-02-19T09:59:40,234+0100' ];"
-                    << "String(array.map(dateTimeMapper('"
+                    << "String(array.map(dicomifier.bruker2dicom.dateTimeMapper('"
                     << it->first << "')));";
 
-        v8::Local<v8::Value> result = vm.run(streaminput.str());
+        v8::Local<v8::Value> result = vm.run(streaminput.str(), vm.get_context());
         v8::String::Utf8Value utf8(result);
 
         std::stringstream stream;
@@ -203,14 +184,16 @@ struct TestDataToDicom
         stream << "dicomifier.inputs[0] = "
                << jsonbruker.toStyledString() << ";";
 
-        vm.run(stream.str());
+        vm.run(stream.str(), vm.get_context());
 
-        streamscript << "var dataset = {}; "
+        streamscript << "require('bruker2dicom/common.js');\n"
+                     << "require('bruker2dicom/frame_index_generator.js');\n"
+                     << "var dataset = {}; "
                      << "var brukerDataset = dicomifier.inputs[0]; "
                      << "var frameGroups = "
-                     <<     "dicomifier.getFrameGroups(brukerDataset); "
+                     <<     "dicomifier.bruker2dicom.getFrameGroups(brukerDataset); "
                      << "var indexGenerator = "
-                     <<     "new dicomifier.frameIndexGenerator(frameGroups); ";
+                     <<     "new dicomifier.bruker2dicom.FrameIndexGenerator(frameGroups); ";
     }
 
     ~TestDataToDicom()
@@ -225,11 +208,12 @@ BOOST_FIXTURE_TEST_CASE(Functions_toDicom, TestDataToDicom)
     {
         std::stringstream stream;
         stream << streamscript.str()
-               << "toDicom(indexGenerator, dataset, 'PatientID', "
+               << "require('bruker2dicom/common.js');\n"
+               << "dicomifier.bruker2dicom.toDicom(indexGenerator, dataset, 'PatientID', "
                <<         "brukerDataset, 'VisuSubjectId', " << i << "); "
                << "JSON.stringify(dataset);";
 
-        auto result = vm.run(stream.str());
+        auto result = vm.run(stream.str(), vm.get_context());
         v8::String::Utf8Value utf8(result);
 
         std::stringstream datasetstream;
@@ -252,11 +236,11 @@ BOOST_FIXTURE_TEST_CASE(Functions_toDicom_NoValue, TestDataToDicom)
     {
         std::stringstream stream;
         stream << streamscript.str()
-               << "toDicom(indexGenerator, dataset, 'PatientID', "
+               << "dicomifier.bruker2dicom.toDicom(indexGenerator, dataset, 'PatientID', "
                <<         "brukerDataset, null, 2); "
                << "JSON.stringify(dataset);";
 
-        auto result = vm.run(stream.str());
+        auto result = vm.run(stream.str(), vm.get_context());
         v8::String::Utf8Value utf8(result);
 
         std::stringstream datasetstream;
@@ -268,11 +252,11 @@ BOOST_FIXTURE_TEST_CASE(Functions_toDicom_NoValue, TestDataToDicom)
     {
         std::stringstream stream;
         stream << streamscript.str()
-               << "toDicom(indexGenerator, dataset, 'PatientID', "
+               << "dicomifier.bruker2dicom.toDicom(indexGenerator, dataset, 'PatientID', "
                <<         "brukerDataset, null, 3); "
                << "JSON.stringify(dataset);";
 
-        auto result = vm.run(stream.str());
+        auto result = vm.run(stream.str(), vm.get_context());
         v8::String::Utf8Value utf8(result);
 
         std::stringstream datasetstream;
@@ -290,11 +274,11 @@ BOOST_FIXTURE_TEST_CASE(Functions_toDicom_PN, TestDataToDicom)
 {
     std::stringstream stream;
     stream << streamscript.str()
-           << "toDicom(indexGenerator, dataset, 'PatientName', "
+           << "dicomifier.bruker2dicom.toDicom(indexGenerator, dataset, 'PatientName', "
            <<         "brukerDataset, 'VisuSubjectName', 2); "
            << "JSON.stringify(dataset);";
 
-    auto result = vm.run(stream.str());
+    auto result = vm.run(stream.str(), vm.get_context());
     v8::String::Utf8Value utf8(result);
 
     std::stringstream datasetstream;
@@ -312,13 +296,13 @@ BOOST_FIXTURE_TEST_CASE(Functions_toDicom_Setter, TestDataToDicom)
 {
     std::stringstream stream;
     stream << streamscript.str()
-           << "toDicom(indexGenerator, dataset, 'PatientSex', "
+           << "dicomifier.bruker2dicom.toDicom(indexGenerator, dataset, 'PatientSex', "
            <<         "brukerDataset, 'VisuSubjectSex', 2, "
-           <<         "dictionaryMapper({'MALE': 'M', 'FEMALE': 'F',"
+           <<         "dicomifier.bruker2dicom.dictionaryMapper({'MALE': 'M', 'FEMALE': 'F',"
            <<                           "'UNDEFINED': 'O', 'UNKNOWN': 'O' })); "
            << "JSON.stringify(dataset);";
 
-    auto result = vm.run(stream.str());
+    auto result = vm.run(stream.str(), vm.get_context());
     v8::String::Utf8Value utf8(result);
 
     std::stringstream datasetstream;
@@ -337,12 +321,12 @@ BOOST_FIXTURE_TEST_CASE(Functions_toDicom_Getter, TestDataToDicom)
 {
     std::stringstream stream;
     stream << streamscript.str()
-           << "toDicom(indexGenerator, dataset, 'PatientSex', "
+           << "dicomifier.bruker2dicom.toDicom(indexGenerator, dataset, 'PatientSex', "
            <<         "brukerDataset, 'VisuSubjectSex', 2, undefined, "
            <<         "function(brukerDS) { return ['F']; }); "
            << "JSON.stringify(dataset);";
 
-    auto result = vm.run(stream.str());
+    auto result = vm.run(stream.str(), vm.get_context());
     v8::String::Utf8Value utf8(result);
 
     std::stringstream datasetstream;
@@ -364,12 +348,12 @@ BOOST_FIXTURE_TEST_CASE(Functions_toDicom_NullValue, TestDataToDicom)
     {
     std::stringstream stream;
     stream << streamscript.str()
-           << "toDicom(indexGenerator, dataset, 'PatientSex', "
+           << "dicomifier.bruker2dicom.toDicom(indexGenerator, dataset, 'PatientSex', "
            <<         "brukerDataset, 'VisuSubjectSex', 2, undefined, "
            <<         "function(brukerDS) { return null; }); "
            << "JSON.stringify(dataset);";
 
-    auto result = vm.run(stream.str());
+    auto result = vm.run(stream.str(), vm.get_context());
     v8::String::Utf8Value utf8(result);
 
     std::stringstream datasetstream;
@@ -383,12 +367,12 @@ BOOST_FIXTURE_TEST_CASE(Functions_toDicom_NullValue, TestDataToDicom)
     {
     std::stringstream stream;
     stream << streamscript.str()
-           << "toDicom(indexGenerator, dataset, 'PatientSex', "
+           << "dicomifier.bruker2dicom.toDicom(indexGenerator, dataset, 'PatientSex', "
            <<         "brukerDataset, 'VisuSubjectSex', 3, undefined, "
            <<         "function(brukerDS) { return null; }); "
            << "JSON.stringify(dataset);";
 
-    auto result = vm.run(stream.str());
+    auto result = vm.run(stream.str(), vm.get_context());
     v8::String::Utf8Value utf8(result);
 
     std::stringstream datasetstream;
@@ -408,8 +392,9 @@ BOOST_AUTO_TEST_CASE(Exception)
 {
     dicomifier::javascript::JavascriptVM vm;
 
-    BOOST_REQUIRE_THROW(vm.run("throw new dicomifier.Exception('my fault');"),
-                        dicomifier::DicomifierException);
+    BOOST_REQUIRE_THROW(
+        vm.run("throw new dicomifier.Exception('my fault');", vm.get_context()),
+        dicomifier::DicomifierException);
 }
 
 /*************************** TEST Error *********************************/
@@ -425,7 +410,7 @@ BOOST_AUTO_TEST_CASE(Functions_dictionaryMapper_UnknownValue)
     streaminput << "var dictionary = { 'first': 'hello', 'second': 'world' };"
                 << "String(['UnknownValue'].map(dictionaryMapper(dictionary)));";
 
-    BOOST_REQUIRE_THROW(vm.run(streaminput.str()),
+    BOOST_REQUIRE_THROW(vm.run(streaminput.str(), vm.get_context()),
                         dicomifier::DicomifierException);
 }
 
@@ -442,7 +427,7 @@ BOOST_AUTO_TEST_CASE(Functions_dateTimeMapper_UnknownFormat)
     streaminput << "var array = [ '2015-02-19T09:59:40,234+0100' ];"
                 << "String(array.map(dateTimeMapper('Unknown')));";
 
-    BOOST_REQUIRE_THROW(vm.run(streaminput.str()),
+    BOOST_REQUIRE_THROW(vm.run(streaminput.str(), vm.get_context()),
                         dicomifier::DicomifierException);
 }
 
@@ -455,11 +440,13 @@ BOOST_FIXTURE_TEST_CASE(Functions_toDicom_NoValue_type1, TestDataToDicom)
 {
     std::stringstream stream;
     stream << streamscript.str()
-           << "toDicom(indexGenerator, dataset, 'PatientID', "
+           << "dicomifier.bruker2dicom.toDicom(indexGenerator, dataset, 'PatientID', "
            <<         "brukerDataset, null, 1); "
            << "JSON.stringify(dataset);";
 
-    BOOST_REQUIRE_THROW(vm.run(stream.str()), dicomifier::DicomifierException);
+    BOOST_REQUIRE_THROW(
+        vm.run(stream.str(), vm.get_context()),
+        dicomifier::DicomifierException);
 }
 
 /*************************** TEST Error *********************************/
@@ -471,11 +458,13 @@ BOOST_FIXTURE_TEST_CASE(Functions_toDicom_UnknownType, TestDataToDicom)
 {
     std::stringstream stream;
     stream << streamscript.str()
-           << "toDicom(indexGenerator, dataset, 'PatientID', "
+           << "dicomifier.bruker2dicom.toDicom(indexGenerator, dataset, 'PatientID', "
            <<         "brukerDataset, null, 9); "
            << "JSON.stringify(dataset);";
 
-    BOOST_REQUIRE_THROW(vm.run(stream.str()), dicomifier::DicomifierException);
+    BOOST_REQUIRE_THROW(
+        vm.run(stream.str(), vm.get_context()),
+        dicomifier::DicomifierException);
 }
 
 /*************************** TEST Error *********************************/
@@ -487,11 +476,13 @@ BOOST_FIXTURE_TEST_CASE(Functions_toDicom_UnknownDicomTag, TestDataToDicom)
 {
     std::stringstream stream;
     stream << streamscript.str()
-           << "toDicom(indexGenerator, dataset, 'UnknownTag', "
+           << "dicomifier.bruker2dicom.toDicom(indexGenerator, dataset, 'UnknownTag', "
            <<         "brukerDataset, null, 1); "
            << "JSON.stringify(dataset);";
 
-    BOOST_REQUIRE_THROW(vm.run(stream.str()), dicomifier::DicomifierException);
+    BOOST_REQUIRE_THROW(
+        vm.run(stream.str(), vm.get_context()),
+        dicomifier::DicomifierException);
 }
 
 /*************************** TEST Error *********************************/
@@ -503,12 +494,14 @@ BOOST_FIXTURE_TEST_CASE(Functions_toDicom_NullValueType1, TestDataToDicom)
 {
     std::stringstream stream;
     stream << streamscript.str()
-           << "toDicom(indexGenerator, dataset, 'PatientSex', "
+           << "dicomifier.bruker2dicom.toDicom(indexGenerator, dataset, 'PatientSex', "
            <<         "brukerDataset, 'VisuSubjectSex', 1, undefined, "
            <<         "function(brukerDS) { return null; }); "
            << "JSON.stringify(dataset);";
 
-    BOOST_REQUIRE_THROW(vm.run(stream.str()), dicomifier::DicomifierException);
+    BOOST_REQUIRE_THROW(
+        vm.run(stream.str(), vm.get_context()),
+        dicomifier::DicomifierException);
 }
 
 /*************************** TEST Error *********************************/
@@ -520,10 +513,12 @@ BOOST_FIXTURE_TEST_CASE(Functions_toDicom_EmptyValueType1, TestDataToDicom)
 {
     std::stringstream stream;
     stream << streamscript.str()
-           << "toDicom(indexGenerator, dataset, 'PatientSex', "
+           << "dicomifier.bruker2dicom.toDicom(indexGenerator, dataset, 'PatientSex', "
            <<         "brukerDataset, 'VisuSubjectSex', 1, undefined, "
            <<         "function(brukerDS) { return []; }); "
            << "JSON.stringify(dataset);";
 
-    BOOST_REQUIRE_THROW(vm.run(stream.str()), dicomifier::DicomifierException);
+    BOOST_REQUIRE_THROW(
+        vm.run(stream.str(), vm.get_context()),
+        dicomifier::DicomifierException);
 }
