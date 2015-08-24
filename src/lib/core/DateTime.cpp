@@ -16,7 +16,6 @@
 
 #include "core/DicomifierException.h"
 
-
 namespace dicomifier
 {
 

@@ -2,12 +2,6 @@ require("bruker2dicom/frame_index_generator.js");
 
 var _module = namespace('dicomifier.bruker2dicom');
 
-/// @brief Exception class
-dicomifier.Exception = function(message) {
-    this.message = message;
-}
-dicomifier.Exception.prototype = new Error;
-
 /**
  * @brief Map a source value using a dictionary, throw an exception if the value
  * is not in the dictionary.
