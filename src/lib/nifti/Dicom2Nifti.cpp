@@ -15,7 +15,7 @@
 #include <dcmtk/config/osconfig.h>
 #include <dcmtk/ofstd/ofstd.h>
 
-#include "dcmtkpp/DataSet.h"
+#include <dcmtkpp/DataSet.h>
 #include <dcmtkpp/json_converter.h>
 #include <dcmtkpp/Reader.h>
 

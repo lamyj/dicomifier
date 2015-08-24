@@ -7,18 +7,22 @@ add_definitions(-DHAVE_CONFIG_H)
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../lib
                     ${CMAKE_CURRENT_SOURCE_DIR}/../gui
-                    ${QT_INCLUDES})
+                    ${QT_INCLUDES}
+                    /usr/include/nifti)
 
-add_executable(bruker2dicom "main_bruker2dicom.cpp")
+add_executable(bruker2dicom "bruker2dicom.cpp")
 target_link_libraries(bruker2dicom libdicomifier ${Boost_LIBRARIES})
 
-add_executable(dicomifier "main_dicomifier.cpp")
+add_executable(dicom2nifti "dicom2nifti.cpp")
+target_link_libraries(dicom2nifti libdicomifier ${Boost_LIBRARIES})
+
+add_executable(dicomifier "dicomifier.cpp")
 target_link_libraries(dicomifier libdicomifier
                                  libdicomifiergui
                                  ${QT_LIBRARIES}
                                  ${Boost_LIBRARIES})
 
-install(TARGETS bruker2dicom dicomifier
+install(TARGETS bruker2dicom dicom2nifti dicomifier
         RUNTIME DESTINATION bin/
         COMPONENT applications)
 
