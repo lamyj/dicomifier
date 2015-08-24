@@ -18,6 +18,7 @@
 #include <dcmtkpp/DataSet.h>
 #include <dcmtkpp/json_converter.h>
 #include <dcmtkpp/Reader.h>
+#include <dcmtkpp/registry.h>
 
 #include "core/DicomifierException.h"
 #include "core/Logger.h"
@@ -124,6 +125,12 @@ Dicom2Nifti
             {
                 std::cout << "Could not read " << *it << ": "
                           << e.what() << "\n";
+            }
+
+            if (!file.second.has(dcmtkpp::registry::PixelData))
+            {
+                // ignore file
+                continue;
             }
 
             auto const json_dicom_dataset = dcmtkpp::as_json(file.second);
