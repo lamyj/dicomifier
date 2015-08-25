@@ -7,8 +7,8 @@
  ************************************************************************/
 
 #define BOOST_TEST_MODULE ModuleDicom2Nifti
-#include <boost/test/unit_test.hpp>
 #include <boost/filesystem.hpp>
+#include <boost/test/unit_test.hpp>
 
 #include <dcmtkpp/DataSet.h>
 #include <dcmtkpp/json_converter.h>
