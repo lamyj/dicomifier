@@ -10,19 +10,14 @@
 #include <boost/test/unit_test.hpp>
 
 #include <sstream>
-#include <string>
-
-#include <jsoncpp/json/json.h>
 
 #include "core/DicomifierException.h"
-#include "core/Logger.h"
-#include "javascript/JavascriptVM.h"
+#include "../TestDataJS.h"
 
-struct TestData
+class TestData : public TestDataJS
 {
-    dicomifier::javascript::JavascriptVM jsvm;
-
-    TestData()
+public:
+    TestData(): TestDataJS()
     {
         // include files
         std::string const include_("require(\"common.js\");\n"
@@ -30,26 +25,9 @@ struct TestData
         jsvm.run(include_, jsvm.get_context());
     }
 
-    ~TestData()
+    virtual ~TestData()
     {
         // nothing to do
-    }
-
-    Json::Value const get_json_result(std::string const & script)
-    {
-        auto const result = jsvm.run(script, jsvm.get_context());
-
-        std::string json = *v8::String::Utf8Value(result);
-
-        // Parse it into a data set.
-        Json::Value jsondataset;
-
-        Json::Reader reader;
-        std::string old_locale = std::setlocale(LC_ALL, "C");
-        reader.parse(json, jsondataset);
-        std::setlocale(LC_ALL, old_locale.c_str());
-
-        return jsondataset;
     }
 };
 
