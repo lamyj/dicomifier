@@ -285,20 +285,6 @@ JavascriptVM
     streamdictionary << "dicomifier[\"dictionary\"] = "
                      << Dictionaries::get_instance().to_string() << ";";
     JavascriptVM::run(streamdictionary.str(), this->get_context());
-
-    std::string configuration_path("../configuration");
-    char* value = getenv("DICOMIFIER_CONFIGURATION_DIR");
-    if(value != NULL)
-    {
-        configuration_path = std::string(value);
-    }
-
-    std::stringstream functionfile;
-    functionfile << configuration_path
-                 << "/script_bruker2dicom/functions.js";
-    std::stringstream frameindexgenerator;
-    frameindexgenerator << configuration_path
-                        << "/script_bruker2dicom/frameIndexGenerator.js";
 }
 
 JavascriptVM

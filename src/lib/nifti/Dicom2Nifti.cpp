@@ -211,10 +211,12 @@ Dicom2Nifti
     // fill out the image header.
     nifti_image * nim = nifti_simple_init_nim();
 
+    auto const seriesdesc = dataset.get("SeriesDescription", Json::Value());
+
     std::stringstream filename;
-    filename << prefix << "_"
-             << dataset.get("ProtocolName", Json::Value())[0].asString()
-             << ".nii";
+    filename << prefix << "_";
+    if (!seriesdesc.isNull()) filename << seriesdesc[0].asString();
+    filename << ".nii";
 
     // Get file name
     boost::filesystem::path const destination =
@@ -304,6 +306,7 @@ Dicom2Nifti
     // Fill in origin.
     Json::Value const image_position_patient =
             dataset.get("ImagePositionPatient", Json::Value());
+
     matrix.m[0][3] = static_cast<float>(-image_position_patient[0][0].asDouble());
     matrix.m[1][3] = static_cast<float>(-image_position_patient[0][1].asDouble());
     //NOTE:  The final dimension is not negated!

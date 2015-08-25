@@ -170,11 +170,16 @@ _module.mergeStack = function(datasets, dictionaryTagToName) {
             continue;
         }
         
+        // ImagePositionPatient: don't merge (error if only one dataset)
+        if (key === 'ImagePositionPatient') {
+            continue;
+        }
+        
         if (finalDataset[key].every(function(element, indice, array) { if (array[0] instanceof Array) { return array[0].equals(element); } else { return array[0] === element; } })) {
             finalDataset[key] = finalDataset[key][0];
         }
         else {
-            //log('Cannot not merge element ' + key + ' = ' + JSON.stringify(finalDataset[key]));
+            log('Cannot not merge element ' + key + ' = ' + JSON.stringify(finalDataset[key]));
         }
     }
     
