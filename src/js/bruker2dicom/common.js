@@ -23,6 +23,11 @@ _module.dictionaryMapper = function(dictionary) {
 _module.dateTimeMapper = function(type) {
     return function(x) {
         var datetime = new Date(x.replace(',', '.'));
+        
+        if (datetime.toString() === 'Invalid Date') {
+            throw new dicomifier.Exception(
+                'Invalid Date: "' + x + '"');
+        }
 
         var format = 123;
         if(type === 'date') {
