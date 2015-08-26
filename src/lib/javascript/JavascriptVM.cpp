@@ -211,8 +211,8 @@ v8::Handle<v8::Value> require(v8::Arguments const & args)
 #ifdef DICOMIFIER_DEFAULT_JS_PATH
     else if(absolute_path.empty())
     {
-        boost::filesystem::path const root(#DICOMIFIER_DEFAULT_JS_PATH);
-        if(boost::filesystem::is_regular(root/path_utf8)
+        boost::filesystem::path const root(DICOMIFIER_DEFAULT_JS_PATH);
+        if(boost::filesystem::is_regular(root/path_utf8))
         {
             absolute_path = boost::filesystem::current_path()/path_utf8;
         }
