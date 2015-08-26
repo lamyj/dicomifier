@@ -7,7 +7,8 @@ add_definitions(-DHAVE_CONFIG_H)
 # add include
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}
                     ${Boost_INCLUDE_DIRS}
-                    ${Nifti_INCLUDE_DIRS})
+                    ${Nifti_INCLUDE_DIRS}
+                    /usr/include/nifti)
 
 # create the library
 file(GLOB_RECURSE files "*.cpp")
