@@ -17,7 +17,7 @@ override_dh_auto_configure:
 	dh_auto_configure -- -DBUILD_TESTING:BOOL=OFF
 
 override_dh_auto_test:
-	cd build && ../tests/run.sh
+	cd build && ../tests/run_tests.sh
 
 override_dh_install:
 	dh_install
