@@ -315,10 +315,25 @@ Dicom2Nifti
     directions.push_back(directions[0] * directions[4] -
                          directions[1] * directions[3]);
 
-    mat44 matrix =
+    /*mat44 matrix =
         nifti_make_orthog_mat44(directions[0],directions[3],directions[6],
                                 directions[1],directions[4],directions[7],
-                                directions[2],directions[5],directions[8]);
+                                -directions[2],-directions[5],-directions[8]);*/
+
+    mat44 matrix2 =
+        nifti_make_orthog_mat44(-directions[0],-directions[1],directions[2],
+                                -directions[3],-directions[4],directions[5],
+                                -directions[6],-directions[7],directions[8]);
+
+    mat44 matrix;
+
+    for ( unsigned int i = 0; i < 4; i++ )
+      {
+      for ( unsigned int j = 0; j < 4; j++ )
+        {
+        matrix.m[i][j] = matrix2.m[j][i];
+        }
+      }
 
     // Fill in origin.
     Json::Value const image_position_patient =
@@ -336,9 +351,9 @@ Dicom2Nifti
                            &(nim->qoffset_x),
                            &(nim->qoffset_y),
                            &(nim->qoffset_z),
-                           0,
-                           0,
-                           0,
+                           NULL,
+                           NULL,
+                           NULL,
                            &(nim->qfac));
     // copy q matrix to s matrix
     nim->qto_xyz =  matrix;
@@ -390,7 +405,7 @@ Dicom2Nifti
             dataset.get("ImagePositionPatient", Json::Value());
     if (image_position_patient.size() < 2)
     {
-        return 0;
+        return 1; // default
     }
 
     std::vector<double> diff;
