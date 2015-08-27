@@ -122,17 +122,23 @@ Dictionaries
 {
     // Create pointer
     auto publicdict = Dictionary::New();
-    
+
     // Copy all dcmDataDictionary
-    DcmDataDictionary &dict = dcmDataDict.wrlock();
-    
-    for (DcmHashDictIterator iter = dict.normalBegin(); iter != dict.normalEnd(); iter++)
+    // ATTENTION: DCMTK is not const correct
+    DcmDataDictionary & dict = const_cast<DcmDataDictionary&>(dcmDataDict.rdlock());
+
+    for (DcmHashDictIterator iter = dict.normalBegin(); iter != dict.normalEnd(); ++iter)
     {
-        publicdict->AddDictEntry(*iter);
+        const DcmDictEntry * entry = *iter;
+        // Only add Public Entry
+        if (entry->getPrivateCreator() == NULL || std::string(entry->getPrivateCreator()) == "")
+        {
+            publicdict->AddDictEntry(*iter);
+        }
     }
 
     dcmDataDict.unlock();
-    
+
     // Add into map
     this->_dictionaries.insert(std::pair<std::string, Dictionary::Pointer>("public", publicdict));
 }
@@ -238,6 +244,43 @@ Dictionaries
     dataset->putAndInsertString(DcmTag(group, firstfree), privatecreator.c_str());
     
     return firstfree;
+}
+
+std::string
+Dictionaries
+::to_string()
+{
+    Dictionary::Pointer const publicdic = this->_dictionaries["public"];
+
+    std::stringstream stream;
+
+    stream << "{";
+
+    bool first = true;
+    for(auto it = publicdic->begin(); it != publicdic->end(); ++it)
+    {
+        auto const & keyword = it->first;
+        DcmDictEntry* const dictentry = it->second;
+
+        if (!first)
+        {
+            stream << ",";
+        }
+        first = false;
+
+        std::string tag(dictentry->getKey().toString().c_str());
+        boost::replace_all(tag, "(", "");
+        boost::replace_all(tag, ")", "");
+        boost::replace_all(tag, ",", "");
+
+        stream << "\"" << keyword
+               << "\": [\"" << dictentry->getVR().getValidVRName()
+               << "\",\"" << tag << "\"]";
+    }
+
+    stream << "}";
+
+    return stream.str();
 }
 
 } // namespace dicomifier

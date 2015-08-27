@@ -1,5 +1,5 @@
 find_package(DCMTK REQUIRED)
-find_package(Boost COMPONENTS filesystem system regex REQUIRED)
+find_package(Boost COMPONENTS filesystem program_options system regex REQUIRED)
 find_package(Qt4 REQUIRED QtGui)
 include(${QT_USE_FILE})
 
@@ -7,18 +7,22 @@ add_definitions(-DHAVE_CONFIG_H)
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../lib
                     ${CMAKE_CURRENT_SOURCE_DIR}/../gui
-                    ${QT_INCLUDES})
+                    ${QT_INCLUDES}
+                    /usr/include/nifti)
 
-add_executable(dicomifier "main.cpp")
-target_link_libraries(dicomifier libdicomifier ${Boost_LIBRARIES})
+add_executable(bruker2dicom "bruker2dicom.cpp")
+target_link_libraries(bruker2dicom libdicomifier ${Boost_LIBRARIES})
 
-add_executable(dicomifier_ihm "main_ihm.cpp")
-target_link_libraries(dicomifier_ihm libdicomifier
-                                     libdicomifierihm
-                                     ${QT_LIBRARIES}
-                                     ${Boost_LIBRARIES})
+add_executable(dicom2nifti "dicom2nifti.cpp")
+target_link_libraries(dicom2nifti libdicomifier ${Boost_LIBRARIES})
 
-install(TARGETS dicomifier dicomifier_ihm
+add_executable(dicomifier "dicomifier.cpp")
+target_link_libraries(dicomifier libdicomifier
+                                 libdicomifiergui
+                                 ${QT_LIBRARIES}
+                                 ${Boost_LIBRARIES})
+
+install(TARGETS bruker2dicom dicom2nifti dicomifier
         RUNTIME DESTINATION bin/
         COMPONENT applications)
 

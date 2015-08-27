@@ -91,6 +91,10 @@ public:
      */
     void set_privateGroup(Uint16 const & group) { this->_privateGroup = group; }
 
+    typedef std::map<std::string, DcmDictEntry*>::const_iterator const_iterator;
+    const_iterator begin() const { return this->_mapKeyword.begin(); }
+    const_iterator end() const { return this->_mapKeyword.end(); }
+
 protected:
     /// Create a new instance of Dictionary
     Dictionary();

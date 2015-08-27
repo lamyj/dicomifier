@@ -114,6 +114,8 @@ export DICOMIFIER_PEER_HOST=localhost
 export DICOMIFIER_PEER_PORT=11112
 export DICOMIFIER_PEER_AET=REMOTE
 
+export DICOMIFIER_CONFIGURATION_DIR="../../configuration"
+
 ctest --no-compress-output -T Test || true
 
 kill ${PID}

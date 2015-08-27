@@ -67,6 +67,8 @@ public:
     Uint16 FindCreatorElementNumber(std::string const & privatecreator, 
                                     DcmDataset* dataset = NULL);
 
+    std::string to_string();
+
 protected:
     /**
      * @brief AddPublicDictionary: add the DCMTK public Dictionary

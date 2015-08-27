@@ -92,6 +92,42 @@ Directory
     return dataset_it->second;
 }
 
+std::map<std::string, std::vector<std::string> >
+Directory
+::get_series_and_reco(const std::string &path)
+{
+    std::map<std::string, std::vector<std::string> > map;
+
+    typedef boost::filesystem::directory_iterator Iterator;
+    typedef boost::filesystem::recursive_directory_iterator RecursiveIterator;
+
+    for(RecursiveIterator it(path); it != RecursiveIterator(); ++it)
+    {
+        if(it->path().filename() == "pdata")
+        {
+            for(Iterator reco_it(it->path()); reco_it != Iterator(); ++reco_it)
+            {
+                if(boost::filesystem::is_directory(it->path()))
+                {
+                    std::string const reconstruction = ((Path)*reco_it).filename().string();
+                    std::string const series = ((Path)*reco_it).parent_path().parent_path().filename().string();
+
+                    if (map.find(series) == map.end())
+                    {// create new entry
+                        map[series] = {};
+                    }
+                    map[series].push_back(reconstruction);
+                }
+            }
+
+            // Don't descend reconstructions have been processed.
+            it.no_push();
+        }
+    }
+
+    return map;
+}
+
 void
 Directory
 ::_add_reconstruction(Path const & root, Dataset const & template_)

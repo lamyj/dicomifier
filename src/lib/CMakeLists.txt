@@ -6,13 +6,19 @@ add_definitions(-DHAVE_CONFIG_H)
 
 # add include
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}
-                    ${Boost_INCLUDE_DIRS})
+                    ${Boost_INCLUDE_DIRS}
+                    ${Nifti_INCLUDE_DIRS}
+                    /usr/include/nifti)
 
 # create the library
 file(GLOB_RECURSE files "*.cpp")
 add_library(libdicomifier SHARED ${files})
+set_property(
+   SOURCE ${CMAKE_CURRENT_SOURCE_DIR}/javascript/JavascriptVM.cpp
+   PROPERTY COMPILE_DEFINITIONS DICOMIFIER_DEFAULT_JS_PATH="/usr/share/dicomifier"
+   )
 set_target_properties(libdicomifier PROPERTIES OUTPUT_NAME dicomifier)
-target_link_libraries(libdicomifier dcmtkpp dcmtls ssl dcmdata dcmnet log4cpp oflog ofstd wrap pthread z ${Boost_LIBRARIES})
+target_link_libraries(libdicomifier dcmtkpp dcmtls ssl dcmdata dcmnet jsoncpp log4cpp niftiio oflog ofstd v8 wrap pthread z ${Boost_LIBRARIES})
 
 # deploy the library
 install(TARGETS libdicomifier

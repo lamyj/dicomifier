@@ -18,11 +18,11 @@
 
 #include <zlib.h>
 
-#include "bruker/actions/EnhanceBrukerDicom.h"
+#include "bruker/converters/EnhanceBrukerDicom.h"
 #include "components/PACSTreeItem.h"
 #include "core/DicomifierException.h"
 #include "core/Logger.h"
-#include "dicom/actions/StoreDataset.h"
+#include "dicom/StoreDataset.h"
 #include "GenerationFrame.h"
 #include "ui_GenerationFrame.h"
 
@@ -202,7 +202,7 @@ GenerationFrame
         {
             boost::filesystem::path const dest =
                 boost::filesystem::path(outputdir) / currentItem->get_name();
-            currentStudyNumber = dicomifier::actions::EnhanceBrukerDicom::get_default_directory_name(dest);
+            currentStudyNumber = dicomifier::bruker::EnhanceBrukerDicom::get_default_directory_name(dest);
             mapOutputStudyNumber[currentItem->get_subjectDirectory()] = currentStudyNumber;
         }
         else
@@ -211,7 +211,7 @@ GenerationFrame
         }
 
         // create Rule
-        auto rule = dicomifier::actions::EnhanceBrukerDicom::New(
+        auto rule = dicomifier::bruker::EnhanceBrukerDicom::New(
             currentItem->get_directory(), this->get_selectedFormat_toString(),
             outputdir, currentStudyNumber, seriesnumber);
 
@@ -634,7 +634,7 @@ GenerationFrame
             DcmDataset * dataset = fileformat.getAndRemoveDataset();
 
             // Create Store Rule
-            auto storerule = dicomifier::actions::StoreDataset::New(
+            auto storerule = dicomifier::StoreDataset::New(
                         dataset, address, std::stoi(port), called, caller,
                         idType, first, second);
 
@@ -646,7 +646,9 @@ GenerationFrame
 
 OFCondition
 GenerationFrame
-::insertFilesForDicomdir(const std::string &directory, std::string const & absdirectory, DicomDirGenerator *dcmdirgenerator)
+::insertFilesForDicomdir(std::string const & directory,
+                         std::string const & absdirectory,
+                         DicomDirGenerator *dcmdirgenerator)
 {
     boost::filesystem::directory_iterator it_end;
     for(boost::filesystem::directory_iterator it(directory); it != it_end; ++it)

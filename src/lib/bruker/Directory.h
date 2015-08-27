@@ -45,6 +45,9 @@ public:
      * if field is missing.
      */
     Dataset const & get_dataset(std::string const & series_number) const;
+
+    static std::map<std::string, std::vector<std::string> >
+            get_series_and_reco(std::string const & path);
     
 private:
     typedef boost::filesystem::path Path;

@@ -56,7 +56,11 @@ public:
     void get_indexForValue(
         std::string const & valuename, int & indexposition, 
         int & startposition) const;
-    
+
+    typedef std::map<std::string, Field>::const_iterator const_iterator;
+    const_iterator begin() const { return this->_fields.begin(); }
+    const_iterator end() const { return this->_fields.end(); }
+
 private:
     std::map<std::string, Field> _fields;
     std::vector<FrameGroup> _frame_groups;

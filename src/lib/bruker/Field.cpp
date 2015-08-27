@@ -87,6 +87,34 @@ Field
     return boost::get<Value>(this->value[index]);
 }
 
+bool
+Field
+::is_int(unsigned int index) const
+{
+    return this->value[index].type() == typeid(long);
+}
+
+bool
+Field
+::is_float(unsigned int index) const
+{
+    return this->value[index].type() == typeid(float);
+}
+
+bool
+Field
+::is_string(unsigned int index) const
+{
+    return this->value[index].type() == typeid(std::string);
+}
+
+bool
+Field
+::is_struct(unsigned int index) const
+{
+    return this->value[index].type() == typeid(Field::Value);
+}
+
 template<>
 std::string
 Field
