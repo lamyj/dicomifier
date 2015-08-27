@@ -1,18 +1,44 @@
 Source: dicomifier
-Priority: extra
-Section: science
 Maintainer: Romain Lahaxe <lahaxe@unistra.fr>
-Build-Depends: debhelper (>= 8.0.0), swig2.0, libdcmtk2-dev, libnifti-dev, libqt4-dev, liblog4cpp5-dev, libldap2-dev, libssl-dev, libwrap0-dev, libv8-dev, libboost-date-time-dev, libboost-filesystem-dev, libboost-program-options-dev, libboost-system-dev, libboost-regex-dev, libboost-random-dev, libboost-thread-dev, libboost-test-dev, python-dev, libdcmtkpp-dev
-Standards-Version: 3.9.4
+Uploaders: Romain Lahaxe <lahaxe@unistra.fr>
+Section: science
+Priority: optional
+Build-Depends: debhelper (>= 8.0.0), 
+               swig2.0, 
+               libdcmtk2-dev, 
+               libnifti-dev, 
+               libqt4-dev, 
+               liblog4cpp5-dev, 
+               libldap2-dev, 
+               libssl-dev, 
+               libwrap0-dev, 
+               libv8-dev, 
+               libboost-date-time-dev, 
+               libboost-filesystem-dev, 
+               libboost-program-options-dev, 
+               libboost-system-dev, 
+               libboost-regex-dev, 
+               libboost-random-dev, 
+               libboost-thread-dev, 
+               libboost-test-dev, 
+               python-dev, 
+               libdcmtkpp-dev
+Standards-Version: 3.9.6
 Homepage: https://github.com/lamyj/dicomifier
 
 Package: dicomifier
 Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends}, libdcmtkpp
+Depends: ${shlibs:Depends}, 
+         ${misc:Depends}
 Description: Tools to manipulate DICOM files
  <insert long description, indented with spaces>
+ This package contains the development files.
 
 Package: dicomifier-doc
 Architecture: all
-Description: documentation for dicomifier
+Section: doc
+Depends: libjs-jquery,
+         ${misc:Depends}
+Description: Tools to manipulate DICOM files (documentation)
  <insert long description, indented with spaces>
+ This package contains the documentation files.

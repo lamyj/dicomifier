@@ -1,18 +1,32 @@
 #!/usr/bin/make -f
-# -*- makefile -*-
 
-# Uncomment this to turn on verbose mode.
-#export DH_VERBOSE=1
+export DEB_CXXFLAGS_MAINT_APPEND  = -std=c++0x
 
-# This has to be exported to make some magic below work.
-export DH_OPTIONS
-
-export CXXFLAGS=-std=c++0x
+CPPFLAGS:=$(shell dpkg-buildflags --get CPPFLAGS)
+CFLAGS:=$(shell dpkg-buildflags --get CFLAGS)
+CXXFLAGS:=$(shell dpkg-buildflags --get CXXFLAGS)
+LDFLAGS:=$(shell dpkg-buildflags --get LDFLAGS)
 
 %:
-	dh $@ --buildsystem=cmake
+	dh $@ --builddirectory=build --parallel
 
-override_dh_auto_test:
+override_dh_auto_build:
+	dh_auto_build
 
 override_dh_auto_configure:
 	dh_auto_configure -- -DBUILD_TESTING:BOOL=OFF
+
+override_dh_auto_test:
+	cd build && ../tests/run.sh
+
+override_dh_install:
+	dh_install
+	d-shlibmove \
+		--commit --multiarch --exclude-a --exclude-la \
+		--movedev debian/tmp/usr/include/* usr/include \
+		--override s/libjsoncpp.-dev/libjsoncpp-dev/ \
+		--override s/libdcm.*-dev/libdcmtk-dev/ \
+		--override s/libof.*-dev/libdcmtk-dev/ \
+		--override s/libicuuc.*-dev/libicu-dev/ \
+		debian/tmp/usr/lib/*.so
+		
