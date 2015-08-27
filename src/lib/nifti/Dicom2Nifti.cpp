@@ -315,25 +315,20 @@ Dicom2Nifti
     directions.push_back(directions[0] * directions[4] -
                          directions[1] * directions[3]);
 
-    /*mat44 matrix =
-        nifti_make_orthog_mat44(directions[0],directions[3],directions[6],
-                                directions[1],directions[4],directions[7],
-                                -directions[2],-directions[5],-directions[8]);*/
-
     mat44 matrix2 =
         nifti_make_orthog_mat44(-directions[0],-directions[1],directions[2],
                                 -directions[3],-directions[4],directions[5],
                                 -directions[6],-directions[7],directions[8]);
 
+    // transpose
     mat44 matrix;
-
     for ( unsigned int i = 0; i < 4; i++ )
-      {
-      for ( unsigned int j = 0; j < 4; j++ )
+    {
+        for ( unsigned int j = 0; j < 4; j++ )
         {
-        matrix.m[i][j] = matrix2.m[j][i];
+            matrix.m[i][j] = matrix2.m[j][i];
         }
-      }
+    }
 
     // Fill in origin.
     Json::Value const image_position_patient =
