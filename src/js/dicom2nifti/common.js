@@ -146,6 +146,11 @@ _module.mergeStack = function(datasets, dictionaryTagToName) {
                 continue; 
             }
             
+            // ignore unknown keys
+            if (dictionaryTagToName[key] === undefined) {
+                continue;
+            }
+            
             if (finalDataset[dictionaryTagToName[key]] === undefined) {
                 finalDataset[dictionaryTagToName[key]] = [];
             }
