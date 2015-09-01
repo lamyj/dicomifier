@@ -42,23 +42,27 @@ Dicom2Nifti
 
 Dicom2Nifti::Pointer
 Dicom2Nifti
-::New(const std::string &dicomDir, const std::string &outputDir)
+::New(std::string const & dicomDir, std::string const & outputDir,
+      NIfTI_Dimension outputDimension)
 {
-    return Pointer(new Self(dicomDir, outputDir));
+    return Pointer(new Self(dicomDir, outputDir, outputDimension));
 }
 
 Dicom2Nifti
 ::Dicom2Nifti():
-    _dicomDir(""), _outputDir("")
+    _dicomDir(""), _outputDir(""),
+    _outputDimension(NIfTI_Dimension::Dimension4)
 {
     // Nothing to do
 }
 
 Dicom2Nifti
-::Dicom2Nifti(std::string const & dicomDir, std::string const & outputDir):
-    _dicomDir(dicomDir), _outputDir(outputDir)
+::Dicom2Nifti(std::string const & dicomDir, std::string const & outputDir,
+              NIfTI_Dimension outputDimension):
+    _dicomDir(dicomDir), _outputDir(outputDir),
+    _outputDimension(outputDimension)
 {
-
+    // Nothing to do
 }
 
 Dicom2Nifti
@@ -93,6 +97,20 @@ Dicom2Nifti
 ::set_outputDir(std::string const & outputDir)
 {
     this->_outputDir = outputDir;
+}
+
+NIfTI_Dimension
+Dicom2Nifti
+::get_outputDimension() const
+{
+    return this->_outputDimension;
+}
+
+void
+Dicom2Nifti
+::set_outputDimension(NIfTI_Dimension outputDimension)
+{
+    this->_outputDimension = outputDimension;
 }
 
 void
@@ -163,11 +181,28 @@ Dicom2Nifti
 
     loggerDebug() << "Processing " << count << " DICOM files...";
 
+    std::stringstream script;
+    script << "require('dicom2nifti/converter.js');\n";
+    switch (this->_outputDimension)
+    {
+    case NIfTI_Dimension::Dimension3:
+    {
+        script << "dicomifier.outputs = dicomifier.dicom2nifti.convert(dicomifier.inputs, 3);";
+        break;
+    }
+    case NIfTI_Dimension::Dimension4:
+    {
+        script << "dicomifier.outputs = dicomifier.dicom2nifti.convert(dicomifier.inputs, 4);";
+        break;
+    }
+    default:
+    {
+        throw DicomifierException("Unknown dimension");
+    }
+    }
+
     // Execute script
-    std::string const script(
-        "require('dicom2nifti/mr_image_storage.js');\n"
-        "dicomifier.outputs = dicomifier.dicom2nifti.MRImageStorage(dicomifier.inputs);");
-    jsvm.run(script, jsvm.get_context());
+    jsvm.run(script.str(), jsvm.get_context());
 
     // For each stack
     auto const length_value = jsvm.run(
@@ -210,6 +245,8 @@ Dicom2Nifti
         // Write Metadata file
         boost::replace_all(filename, ".nii", ".json");
         jsondataset.removeMember("PixelData");
+        jsondataset.removeMember("DICOMIFIER_STACKS_NUMBER");
+        jsondataset.removeMember("DICOMIFIER_DATASET_PERSTACK_NUMBER");
         std::ofstream myfile;
         myfile.open(filename);
         myfile << jsondataset.toStyledString();
@@ -253,7 +290,7 @@ Dicom2Nifti
     // Initialize fields
     nim->nvox = 1;
 
-    nim->xyz_units= static_cast< int >( NIFTI_UNITS_MM | NIFTI_UNITS_SEC );
+    nim->xyz_units= static_cast< int >( NIFTI_UNITS_MM | NIFTI_UNITS_UNKNOWN );
     nim->dim[7] = nim->nw=1;
     nim->dim[6] = nim->nv=1;
     nim->dim[5] = nim->nu=1;
@@ -263,12 +300,27 @@ Dicom2Nifti
     nim->dim[1] = nim->nx=1;
 
     // One stack = 3 dimensions
-    nim->ndim = 3;
-    nim->dim[0] = 3;
+    // Multi stack = 4 dimensions
+    nim->ndim = (int)this->_outputDimension;
+    nim->dim[0] = (int)this->_outputDimension;
 
-    // Get number of dataset in the stack
-    unsigned int dsnumber = dataset.get("PixelData", Json::Value()).size();
-    nim->dim[3] = nim->nz = dsnumber;
+    if (this->_outputDimension == NIfTI_Dimension::Dimension4)
+    {
+        nim->dim[4] = nim->nt = dataset.get("DICOMIFIER_STACKS_NUMBER", Json::Value()).asInt();
+        nim->pixdim[4] = nim->dt = 1;
+        nim->nvox *= nim->dim[4];
+
+        // Get number of dataset in the stack
+        // we suppose each stack contains the same number of datasets
+        unsigned int dsnumber = dataset.get("DICOMIFIER_DATASET_PERSTACK_NUMBER", Json::Value())[0].asInt();
+        nim->dim[3] = nim->nz = dsnumber;
+    }
+    else
+    {
+        // Get number of dataset in the stack
+        unsigned int dsnumber = dataset.get("PixelData", Json::Value()).size();
+        nim->dim[3] = nim->nz = dsnumber;
+    }
     nim->pixdim[3] = nim->dz = static_cast<float>( get_distance_between_slice(dataset) );
     nim->nvox *= nim->dim[3];
 

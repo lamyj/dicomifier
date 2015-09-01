@@ -3,7 +3,7 @@ require("dicom2nifti/common.js");
 
 var _module = namespace('dicomifier.dicom2nifti');
 
-_module.MRImageStorage = function(datasetlist) {
+_module.convert = function(datasetlist, dimension) {
     var count = 0;
 
     var currentDataset = datasetlist[count];
@@ -18,7 +18,6 @@ _module.MRImageStorage = function(datasetlist) {
     }
 
     var dictionary = new Array();
-    var output = [];
     // Create the stacks
     while (currentDataset !== undefined) {
         // Get stack keys
@@ -42,11 +41,19 @@ _module.MRImageStorage = function(datasetlist) {
     }
 
     // Sort Dataset in each Stack
+    var output = [];
     for (var stackIndex = 0; stackIndex < dictionary.length; ++stackIndex) {
         dictionary[stackIndex][1] = dicomifier.dicom2nifti.sortStack(dictionary[stackIndex][1]);
         
-        // fusion stack
+        // Fusion image in stack
         output[stackIndex] = dicomifier.dicom2nifti.mergeStack(dictionary[stackIndex][1], dictionaryTagToName);
+    }
+    
+    // Fusion stack
+    if (dimension === 4) {
+        if (dicomifier.dicom2nifti.is_synchronized(output)) {
+            return dicomifier.dicom2nifti.mergeAllStacks(output);
+        }
     }
 
     // Return output
