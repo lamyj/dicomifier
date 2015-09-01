@@ -48,6 +48,7 @@ Json::Value as_json_value(Field::Item const & item)
         return json;
     }
 
+    // Never happen
     throw DicomifierException("Unknown type");
 }
 

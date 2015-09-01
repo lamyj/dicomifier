@@ -14,7 +14,7 @@
 #include "bruker/Directory.h"
 #include "core/DicomifierException.h"
 
-/*************************** TEST OK 01 *******************************/
+/*************************** TEST Nominal *******************************/
 /**
  * Nominal test case: Constructor and load directory
  */
@@ -105,7 +105,7 @@ BOOST_FIXTURE_TEST_CASE(Load, TestDataOK01)
     delete directory;
 }
 
-/*************************** TEST OK 02 *******************************/
+/*************************** TEST Nominal *******************************/
 /**
  * Nominal test case: Get dataset
  */
@@ -120,7 +120,26 @@ BOOST_FIXTURE_TEST_CASE(GetDataset, TestDataOK01)
     BOOST_CHECK_EQUAL(dataset.has_field("VISU_param"), true);
 }
 
-/*************************** TEST KO 01 *******************************/
+/*************************** TEST Nominal *******************************/
+/**
+ * Nominal test case: get_series_and_reco
+ */
+BOOST_FIXTURE_TEST_CASE(GetSeriesAndReco, TestDataOK01)
+{
+    std::map<std::string, std::vector<std::string> > available_item =
+            dicomifier::bruker::Directory::get_series_and_reco(directorypath);
+
+    BOOST_REQUIRE_EQUAL(available_item.size(), 1);
+
+    for (auto it = available_item.begin(); it != available_item.end(); ++it)
+    {
+        BOOST_CHECK_EQUAL(it->first, "1");
+        BOOST_REQUIRE_EQUAL(available_item["1"].size(), 1);
+        BOOST_CHECK_EQUAL(available_item["1"][0], "1");
+    }
+}
+
+/*************************** TEST Error *********************************/
 /**
  * Error test case: No dataset
  */

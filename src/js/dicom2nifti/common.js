@@ -252,7 +252,6 @@ _module.is_synchronized = function(stacks) {
         if (!origin.equals(stacks[stackIndex]['ImagePositionPatient'][0]) ||
             !direction.equals(stacks[stackIndex]['ImageOrientationPatient']) ||
             !spacing.equals(stacks[stackIndex]['PixelSpacing'])) {
-            log(stacks[stackIndex]['ImagePositionPatient'][0]);
             return false;
         }
     }

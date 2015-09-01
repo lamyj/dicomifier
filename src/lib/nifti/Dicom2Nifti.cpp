@@ -306,13 +306,16 @@ Dicom2Nifti
 
     if (this->_outputDimension == NIfTI_Dimension::Dimension4)
     {
-        nim->dim[4] = nim->nt = dataset.get("DICOMIFIER_STACKS_NUMBER", Json::Value()).asInt();
+        nim->dim[4] = nim->nt = dataset.get("DICOMIFIER_STACKS_NUMBER",
+                                            Json::Value()).asInt();
         nim->pixdim[4] = nim->dt = 1;
         nim->nvox *= nim->dim[4];
 
         // Get number of dataset in the stack
         // we suppose each stack contains the same number of datasets
-        unsigned int dsnumber = dataset.get("DICOMIFIER_DATASET_PERSTACK_NUMBER", Json::Value())[0].asInt();
+        unsigned int dsnumber =
+                dataset.get("DICOMIFIER_DATASET_PERSTACK_NUMBER",
+                            Json::Value())[0].asInt();
         nim->dim[3] = nim->nz = dsnumber;
     }
     else
@@ -321,15 +324,20 @@ Dicom2Nifti
         unsigned int dsnumber = dataset.get("PixelData", Json::Value()).size();
         nim->dim[3] = nim->nz = dsnumber;
     }
-    nim->pixdim[3] = nim->dz = static_cast<float>( get_distance_between_slice(dataset) );
+    nim->pixdim[3] = nim->dz =
+            static_cast<float>( get_distance_between_slice(dataset) );
     nim->nvox *= nim->dim[3];
 
     nim->dim[2] = nim->ny = dataset.get("Columns", Json::Value())[0].asInt();
-    nim->pixdim[2] = nim->dy = static_cast<float>( dataset.get("PixelSpacing", Json::Value())[1].asDouble() );
+    nim->pixdim[2] = nim->dy =
+            static_cast<float>( dataset.get("PixelSpacing",
+                                            Json::Value())[1].asDouble() );
     nim->nvox *= nim->dim[2];
 
     nim->dim[1] = nim->nx = dataset.get("Rows", Json::Value())[0].asInt();
-    nim->pixdim[1] = nim->dx = static_cast<float>( dataset.get("PixelSpacing", Json::Value())[0].asDouble() );
+    nim->pixdim[1] = nim->dx =
+            static_cast<float>( dataset.get("PixelSpacing",
+                                            Json::Value())[0].asDouble() );
     nim->nvox *= nim->dim[1];
 
     // Datatype
@@ -386,10 +394,13 @@ Dicom2Nifti
     Json::Value const image_position_patient =
             dataset.get("ImagePositionPatient", Json::Value());
 
-    matrix.m[0][3] = static_cast<float>(-image_position_patient[0][0].asDouble());
-    matrix.m[1][3] = static_cast<float>(-image_position_patient[0][1].asDouble());
+    matrix.m[0][3] =
+            static_cast<float>(-image_position_patient[0][0].asDouble());
+    matrix.m[1][3] =
+            static_cast<float>(-image_position_patient[0][1].asDouble());
     //NOTE:  The final dimension is not negated!
-    matrix.m[2][3] = static_cast<float>( image_position_patient[0][2].asDouble());
+    matrix.m[2][3] =
+            static_cast<float>( image_position_patient[0][2].asDouble());
 
     nifti_mat44_to_quatern(matrix,
                            &(nim->quatern_b),
