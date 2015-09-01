@@ -45,12 +45,15 @@ int main(int argc, char *argv[])
     std::string dicom_directory = "";
     std::string nifti_directory = "";
     std::string level = "ERROR";
+    int dimension = 4;
 
     boost::program_options::options_description description("Options");
     description.add_options()
         ("help,h", "Print help messages")
         ("level,l", boost::program_options::value<std::string>(&level),
          "Log Level [DEBUG, INFO, WARNING, ERROR (default)]")
+        ("dimension,d", boost::program_options::value<int>(&dimension),
+         "Convert to NIfTI 3D or 4D (default)")
         ("input", boost::program_options::
             value<std::string>(&dicom_directory)->required(),
          "Input directory containing DICOM files")
@@ -91,8 +94,9 @@ int main(int argc, char *argv[])
 
     dicomifier::InitializeLogger(level);
 
-    auto rule = dicomifier::nifti::Dicom2Nifti::New(dicom_directory,
-                                                    nifti_directory);
+    auto rule = dicomifier::nifti::Dicom2Nifti::New(
+                    dicom_directory, nifti_directory,
+                    (dicomifier::nifti::NIfTI_Dimension)dimension);
 
     if (rule == NULL)
     {
