@@ -22,6 +22,9 @@ namespace bruker
 /// @brief Convert a Bruker data set to its JSON representation.
 Json::Value as_json(Dataset const & data_set);
 
+/// @brief Convert JSON data set as string representation
+std::string as_string(Json::Value const & data_set);
+
 } // namespace bruker
 
 } // namespace dicomifier
