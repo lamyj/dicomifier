@@ -129,7 +129,7 @@ struct TestEnvironment
         myfile << "##$VisuSeriesNumber=( 65 )\n";
         myfile << "<10001>\n";
         myfile << "##$VisuCoreOrientation=( 1, 9 )\n";
-        myfile << "1 0 0 0 1 0\n";
+        myfile << "1 6.12303176911189e-17 0 0 1 0\n";
         myfile << "##$VisuCorePosition=( 1, 3 )\n";
         myfile << "0 0 0\n";
         myfile << "##$VisuCoreExtent=( 2 )\n";
@@ -165,7 +165,7 @@ struct TestEnvironment
     }
 };
 
-/*************************** TEST OK 01 *******************************/
+/*************************** TEST Nominal *******************************/
 /**
  * Nominal test case: Constructor
  */
@@ -178,7 +178,7 @@ BOOST_AUTO_TEST_CASE(Constructor)
     BOOST_CHECK_EQUAL(enhanceb2d != NULL, true);
 }
 
-/*************************** TEST OK 02 *******************************/
+/*************************** TEST Nominal *******************************/
 /**
  * Nominal test case: Get/Set
  */
@@ -195,7 +195,7 @@ BOOST_AUTO_TEST_CASE(Accessors)
     BOOST_CHECK_EQUAL(testenhance->get_SOPClassUID() == "SOPClass", true);
 }
 
-/*************************** TEST OK 03 *******************************/
+/*************************** TEST Nominal *******************************/
 /**
  * Nominal test case: Run (MRImageStorage)
  */
@@ -215,7 +215,7 @@ BOOST_FIXTURE_TEST_CASE(Run_MRImageStorage, TestEnvironment)
     DcmDataset * datasetout = fileformat.getAndRemoveDataset();
     BOOST_CHECK_EQUAL(datasetout != NULL, true);
 
-    // Just looking for 2 informations
+    // Just looking for 3 informations
     OFString patient_name;
     cond = datasetout->findAndGetOFStringArray(DCM_PatientName, patient_name);
     BOOST_CHECK_EQUAL(cond == EC_Normal, true);
@@ -226,10 +226,21 @@ BOOST_FIXTURE_TEST_CASE(Run_MRImageStorage, TestEnvironment)
     BOOST_CHECK_EQUAL(cond == EC_Normal, true);
     BOOST_CHECK_EQUAL(patient_id.compare(OFString("subject_01")), 0);
 
+    Float64 orientation_patient;
+    cond = datasetout->findAndGetFloat64(DCM_ImageOrientationPatient, orientation_patient, 0);
+    BOOST_CHECK_EQUAL(cond == EC_Normal, true);
+    BOOST_CHECK_EQUAL(orientation_patient, 1);
+    cond = datasetout->findAndGetFloat64(DCM_ImageOrientationPatient, orientation_patient, 1);
+    BOOST_CHECK_EQUAL(cond == EC_Normal, true);
+    BOOST_CHECK_CLOSE(orientation_patient, 6.12303176911189e-17, 0.0001);
+    cond = datasetout->findAndGetFloat64(DCM_ImageOrientationPatient, orientation_patient, 2);
+    BOOST_CHECK_EQUAL(cond == EC_Normal, true);
+    BOOST_CHECK_EQUAL(orientation_patient, 0);
+
     delete datasetout;
 }
 
-/*************************** TEST OK 04 *******************************/
+/*************************** TEST Nominal *******************************/
 /**
  * Nominal test case: Run (EnhanceMRImageStorage)
  */
@@ -268,7 +279,7 @@ BOOST_DO_NOT_RUN_FIXTURE_TEST_CASE(Run_EnhanceMRImageStorage, TestEnvironment)
 }
 */
 
-/*************************** TEST OK 05 *******************************/
+/*************************** TEST Nominal *******************************/
 /**
  * Nominal test case: get_default_directory_name
  */
@@ -291,7 +302,7 @@ BOOST_AUTO_TEST_CASE(Get_Default_Directory)
     boost::filesystem::remove_all("./1");
 }
 
-/*************************** TEST OK 06 *******************************/
+/*************************** TEST Nominal *******************************/
 /**
  * Nominal test case: replace_unavailable_char
  */
@@ -303,7 +314,7 @@ BOOST_AUTO_TEST_CASE(Replace_Unavailable_Char)
     BOOST_CHECK_EQUAL(stringtest, std::string("1_5_A_B_C_D"));
 }
 
-/*************************** TEST KO 01 *******************************/
+/*************************** TEST Error *********************************/
 /**
  * Error test case: Unknown bruker Directory
  */
@@ -316,7 +327,7 @@ BOOST_AUTO_TEST_CASE(TEST_KO_01)
     BOOST_REQUIRE_THROW(testenhance->run(), dicomifier::DicomifierException);
 }
 
-/*************************** TEST KO 03 *******************************/
+/*************************** TEST Error *********************************/
 /**
  * Error test case: Bad Series number
  */
@@ -328,7 +339,7 @@ BOOST_FIXTURE_TEST_CASE(Bad_SeriesNumber, TestEnvironment)
     BOOST_REQUIRE_THROW(enhanceb2d->run(), dicomifier::DicomifierException);
 }
 
-/*************************** TEST KO 04 *******************************/
+/*************************** TEST Error *********************************/
 /**
  * Error test case: Bad VisuCoreFrameCount
  */
@@ -376,7 +387,7 @@ BOOST_FIXTURE_TEST_CASE(Corrupted_Data, TestEnvironment)
     BOOST_REQUIRE_THROW(enhanceb2d->run(), dicomifier::DicomifierException);
 }
 
-/*************************** TEST KO 05 *******************************/
+/*************************** TEST Error *********************************/
 /**
  * Error test case: Bad SOP Class UID
  */
@@ -388,7 +399,7 @@ BOOST_FIXTURE_TEST_CASE(Bad_SOPClassUID, TestEnvironment)
     BOOST_REQUIRE_THROW(enhanceb2d->run(), dicomifier::DicomifierException);
 }
 
-/*************************** TEST KO 06 *******************************/
+/*************************** TEST Error *********************************/
 /**
  * Error test case: Unknown bruker Directory
  */
@@ -400,7 +411,7 @@ BOOST_AUTO_TEST_CASE(Get_Default_Directory_Name)
     BOOST_CHECK_EQUAL(default_dir == "1", true);
 }
 
-/*************************** TEST KO 07 *******************************/
+/*************************** TEST Error *********************************/
 /**
  * Error test case: Error while reading PixelData file
  */
@@ -416,7 +427,7 @@ BOOST_FIXTURE_TEST_CASE(No_PixelData_File, TestEnvironment)
     BOOST_REQUIRE_THROW(enhanceb2d->run(), dicomifier::DicomifierException);
 }
 
-/*************************** TEST KO 08 *******************************/
+/*************************** TEST Error *********************************/
 /**
  * Error test case: Error while reading PixelData file
  */
@@ -435,7 +446,7 @@ BOOST_FIXTURE_TEST_CASE(Cant_Read_PixelData_File, TestEnvironment)
     std::system(pixelfile.c_str());
 }
 
-/*************************** TEST KO 09 *******************************/
+/*************************** TEST Error *********************************/
 /**
  * Error test case: Missing mandatory field VisuCoreSize
  */
@@ -481,7 +492,7 @@ BOOST_FIXTURE_TEST_CASE(Missing_VisuCoreSize, TestEnvironment)
     BOOST_REQUIRE_THROW(enhanceb2d->run(), dicomifier::DicomifierException);
 }
 
-/*************************** TEST KO 10 *******************************/
+/*************************** TEST Error *********************************/
 /**
  * Error test case: Missing mandatory field VisuCoreSize
  */
@@ -527,7 +538,7 @@ BOOST_FIXTURE_TEST_CASE(Missing_VisuCoreWordType, TestEnvironment)
     BOOST_REQUIRE_THROW(enhanceb2d->run(), dicomifier::DicomifierException);
 }
 
-/*************************** TEST KO 10 *******************************/
+/*************************** TEST Error *********************************/
 /**
  * Error test case: Bad value for field VisuCoreWordType
  */
@@ -575,7 +586,7 @@ BOOST_FIXTURE_TEST_CASE(Bad_VisuCoreWordType, TestEnvironment)
     BOOST_REQUIRE_THROW(enhanceb2d->run(), dicomifier::DicomifierException);
 }
 
-/*************************** TEST KO 11 *******************************/
+/*************************** TEST Error *********************************/
 /**
  * Error test case: Missing StudyDescription
  */
@@ -588,7 +599,7 @@ BOOST_FIXTURE_TEST_CASE(Missing_StudyDescription, TestEnvironment)
                         dcmtkpp::Exception);
 }
 
-/*************************** TEST KO 12 *******************************/
+/*************************** TEST Error *********************************/
 /**
  * Error test case: Missing SeriesDescription
  */
@@ -603,7 +614,7 @@ BOOST_FIXTURE_TEST_CASE(Missing_SeriesDescription, TestEnvironment)
                         dcmtkpp::Exception);
 }
 
-/*************************** TEST KO 13 *******************************/
+/*************************** TEST Error *********************************/
 /**
  * Error test case: Missing SeriesNumber
  */
@@ -620,7 +631,7 @@ BOOST_FIXTURE_TEST_CASE(Missing_SeriesNumber, TestEnvironment)
                         dcmtkpp::Exception);
 }
 
-/*************************** TEST KO 14 *******************************/
+/*************************** TEST Error *********************************/
 /**
  * Error test case: Missing InstanceNumber
  */
@@ -636,7 +647,7 @@ BOOST_FIXTURE_TEST_CASE(Missing_InstanceNumber, TestEnvironment)
                         dcmtkpp::Exception);
 }
 
-/*************************** TEST KO 15 *******************************/
+/*************************** TEST Error *********************************/
 /**
  * Error test case: Missing ImagesInAcquisition
  */

@@ -279,3 +279,44 @@ BOOST_FIXTURE_TEST_CASE(StructValue, TestDataStructValue)
                                                     Json::Value()).asInt(),
                         2);
 }
+
+/*************************** TEST Nominal *******************************/
+/**
+ * Nominal test case: Convert as string
+ */
+BOOST_AUTO_TEST_CASE(AsString)
+{
+    Json::Value jsonobject;
+    jsonobject["first"] = Json::Value("firstvalue");
+
+    Json::Value jsonarray;
+    jsonarray.append(Json::Value(12));
+    jsonarray.append(Json::Value(13));
+    jsonarray.append(Json::Value(14));
+
+    Json::Value json;
+    json["Array"] = jsonarray;
+    json["NULL"] = Json::Value();
+    json["Object"] = jsonobject;
+    json["String"] = Json::Value("stringvalue");
+    json["Int"] = Json::Value(42);
+    json["Float"] = Json::Value(1.56);
+    json["Bool"] = Json::Value(true);
+
+    std::string const result = dicomifier::bruker::as_string(json);
+
+    std::stringstream expectedresult;
+    expectedresult << "{\n";
+    expectedresult << "\"Array\" : [12, 13, 14],\n";
+    expectedresult << "\"Bool\" : 1,\n";
+    expectedresult << "\"Float\" : 1.55999994,\n";
+    expectedresult << "\"Int\" : 42,\n";
+    expectedresult << "\"NULL\" : null,\n";
+    expectedresult << "\"Object\" : {\n";
+    expectedresult << "\"first\" : \"firstvalue\"\n";
+    expectedresult << "},\n";
+    expectedresult << "\"String\" : \"stringvalue\"\n";
+    expectedresult << "}";
+
+    BOOST_CHECK_EQUAL(result, expectedresult.str());
+}
