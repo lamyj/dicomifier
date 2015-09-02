@@ -272,10 +272,13 @@ Dicom2Nifti
     if (!seriesdesc.isNull()) filename << seriesdesc[0].asString();
     filename << ".nii";
 
+    std::string filenamestr = filename.str();
+    boost::replace_all(filenamestr, " ", "_");
+
     // Get file name
     boost::filesystem::path const destination =
         boost::filesystem::path(this->_outputDir)
-            /filename.str();
+            /filenamestr;
     boost::filesystem::create_directories(destination.parent_path());
 
     char * tempbasename = nifti_makebasename(destination.c_str());
