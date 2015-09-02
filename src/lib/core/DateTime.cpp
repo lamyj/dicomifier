@@ -20,7 +20,7 @@ namespace dicomifier
 {
 
 boost::local_time::local_date_time
-string_to_local_date_time(const std::string &datetime, std::string &format)
+string_to_local_date_time(std::string const & datetime, std::string & format)
 {
     std::string localdatetime = datetime;
 
@@ -101,8 +101,8 @@ std::string posix_time_to_string(
 }
 
 std::string
-local_date_time_to_string(const boost::local_time::local_date_time &ldt,
-                          const std::string &outputformat)
+local_date_time_to_string(boost::local_time::local_date_time const & ldt,
+                          std::string const & outputformat)
 {
     boost::local_time::local_time_facet* output_facet =
             new boost::local_time::local_time_facet(outputformat.c_str());
