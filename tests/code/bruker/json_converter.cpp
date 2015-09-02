@@ -300,6 +300,7 @@ BOOST_AUTO_TEST_CASE(AsString)
     json["Object"] = jsonobject;
     json["String"] = Json::Value("stringvalue");
     json["Int"] = Json::Value(42);
+    json["UInt"] = Json::Value((Json::Value::UInt)34);
     json["Float"] = Json::Value(1.56);
     json["Bool"] = Json::Value(true);
 
@@ -315,7 +316,8 @@ BOOST_AUTO_TEST_CASE(AsString)
     expectedresult << "\"Object\" : {\n";
     expectedresult << "\"first\" : \"firstvalue\"\n";
     expectedresult << "},\n";
-    expectedresult << "\"String\" : \"stringvalue\"\n";
+    expectedresult << "\"String\" : \"stringvalue\",\n";
+    expectedresult << "\"UInt\" : 34\n";
     expectedresult << "}";
 
     BOOST_CHECK_EQUAL(result, expectedresult.str());
