@@ -14,9 +14,11 @@
 #include <dcmtkpp/DataSet.h>
 #include <dcmtkpp/registry.h>
 
+#include <boost/filesystem.hpp>
+
 #include "bruker/Dataset.h"
+#include "core/DicomifierException.h"
 #include "core/Endian.h"
-#include "core/FrameIndexGenerator.h"
 
 namespace dicomifier
 {
@@ -64,6 +66,10 @@ pixel_data_converter
     {
         pixel_data = this->_read_pixel_data<float>(frame_size, frame_index);
     }
+    else
+    {
+        throw DicomifierException("Unknown value for field VisuCoreWordType");
+    }
 
     dicom_data_set.add(dcmtkpp::registry::PixelData,
                        pixel_data, dcmtkpp::VR::OW);
@@ -77,6 +83,13 @@ pixel_data_converter
 {
     if(filename != this->_filename)
     {
+        if (!boost::filesystem::is_regular_file(filename))
+        {
+            std::stringstream error;
+            error << "Could not open file: " << filename;
+            throw DicomifierException(error.str());
+        }
+
         // read pixel data
         std::ifstream stream(filename, std::ifstream::binary);
         stream.seekg(0, stream.end);

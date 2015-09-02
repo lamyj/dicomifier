@@ -22,6 +22,12 @@ namespace dicomifier
 namespace nifti
 {
 
+enum NIfTI_Dimension
+{
+    Dimension3 = 3,
+    Dimension4 = 4
+};
+
 class Dicom2Nifti
 {
 public:
@@ -39,7 +45,8 @@ public:
      * @return
      */
     static Pointer New(
-        std::string const & dicomDir, std::string const & outputDir);
+        std::string const & dicomDir, std::string const & outputDir,
+        NIfTI_Dimension outputDimension = NIfTI_Dimension::Dimension4);
 
     /// Destroy the instance of Dicom2Nifti
     virtual ~Dicom2Nifti();
@@ -68,6 +75,10 @@ public:
      */
     void set_outputDir(std::string const & outputDir);
 
+    NIfTI_Dimension get_outputDimension() const;
+
+    void set_outputDimension(NIfTI_Dimension outputDimension);
+
     /**
      * @brief run: Execute the conversion
      */
@@ -82,7 +93,8 @@ protected:
      * @param dicomDir: input directory containing DICOM files
      * @param outputDir: Directory to store NIfTI files
      */
-    Dicom2Nifti(std::string const & dicomDir, std::string const & outputDir);
+    Dicom2Nifti(std::string const & dicomDir, std::string const & outputDir,
+                NIfTI_Dimension outputDimension = NIfTI_Dimension::Dimension4);
 
 private:
     /// Path of DICOM directory
@@ -90,6 +102,8 @@ private:
 
     /// Path to write NIfTI Datasets
     std::string _outputDir;
+
+    NIfTI_Dimension _outputDimension;
 
     Dicom2Nifti(Self const & other);     // Purposely not implemented
     Self const & operator=(Self const & other); // Purposely not implemented

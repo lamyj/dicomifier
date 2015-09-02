@@ -190,3 +190,71 @@ _module.mergeStack = function(datasets, dictionaryTagToName) {
     
     return finalDataset;
 }
+
+_module.mergeAllStacks = function(stacks) {
+    var finalDataset = {};
+    finalDataset['DICOMIFIER_STACKS_NUMBER'] = [ stacks.length ];
+    finalDataset['DICOMIFIER_DATASET_PERSTACK_NUMBER'] = [];
+    for (var stackIndex = 0; stackIndex < stacks.length; ++stackIndex) {
+        for (var key in stacks[stackIndex]) {
+            if (stacks[stackIndex][key] instanceof Function) { 
+                continue; 
+            }
+            
+            if (finalDataset[key] === undefined) {
+                finalDataset[key] = [];
+            }
+            
+            if (key === 'PixelData') {
+                finalDataset['DICOMIFIER_DATASET_PERSTACK_NUMBER'].push([ stacks[stackIndex][key].length ]);
+                for (var i = 0; i < stacks[stackIndex][key].length; ++i) {
+                    finalDataset[key].push(stacks[stackIndex][key][i]);
+                }
+            }
+            else {
+                finalDataset[key].push(stacks[stackIndex][key]);
+            }
+        }
+    }
+    
+    for (var key in finalDataset) {
+        if (finalDataset[key] instanceof Function) { 
+            continue; 
+        }
+        
+        // PixelData: nothing to do
+        if (key === 'PixelData') {
+            continue;
+        }
+        
+        if (finalDataset[key].every(function(element, indice, array) { if (array[0] instanceof Array) { return array[0].equals(element); } else { return array[0] === element; } })) {
+            finalDataset[key] = finalDataset[key][0];
+        }
+        else {
+            log('Cannot not merge element ' + key + ' = ' + JSON.stringify(finalDataset[key]));
+        }
+    }
+    
+    return [ finalDataset ];
+}
+
+_module.is_synchronized = function(stacks) {
+    if (stacks.length < 2) {
+        // Only one stack: 3 dimensions
+        return false;
+    }
+    
+    var origin = stacks[0]['ImagePositionPatient'][0];
+    var direction = stacks[0]['ImageOrientationPatient'];
+    var spacing = stacks[0]['PixelSpacing'];
+    
+    for (var stackIndex = 1; stackIndex < stacks.length; ++stackIndex) {
+        if (!origin.equals(stacks[stackIndex]['ImagePositionPatient'][0]) ||
+            !direction.equals(stacks[stackIndex]['ImageOrientationPatient']) ||
+            !spacing.equals(stacks[stackIndex]['PixelSpacing'])) {
+            return false;
+        }
+    }
+    
+    return true;
+}

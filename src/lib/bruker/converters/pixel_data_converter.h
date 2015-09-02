@@ -14,7 +14,6 @@
 #include <dcmtkpp/DataSet.h>
 
 #include "bruker/Dataset.h"
-#include "core/FrameIndexGenerator.h"
 
 namespace dicomifier
 {

@@ -132,21 +132,32 @@ v8::Handle<v8::Value> load_pixel_data(v8::Arguments const & args)
     // Create the array to return
     v8::Local<v8::Array> array = v8::Array::New(numberOfFrame);
 
-    // Convert each frame in base64 String
-    bruker::pixel_data_converter converter;
-    for (unsigned int i = 0; i < numberOfFrame; ++i)
+    try
     {
-        // Read pixel data file and get the Frame i
-        dcmtkpp::DataSet dataset;
-        converter(framesize, i, pixel_data.str(), word_type.str(),
-                  byte_order.str(), dataset);
+        // Convert each frame in base64 String
+        bruker::pixel_data_converter converter;
+        for (unsigned int i = 0; i < numberOfFrame; ++i)
+        {
+            // Read pixel data file and get the Frame i
+            dcmtkpp::DataSet dataset;
+            converter(framesize, i, pixel_data.str(), word_type.str(),
+                      byte_order.str(), dataset);
 
-        // Convert to JSON
-        Json::Value const json_dset = dcmtkpp::as_json(dataset);
+            // Convert to JSON
+            Json::Value const json_dset = dcmtkpp::as_json(dataset);
 
-        // Store into the array
-        array->Set(i, v8::String::New(
-                       json_dset["7fe00010"]["InlineBinary"].asCString()));
+            // Store into the array
+            array->Set(i, v8::String::New(
+                           json_dset["7fe00010"]["InlineBinary"].asCString()));
+        }
+    }
+    catch (DicomifierException const & exc)
+    {
+        return v8::ThrowException(v8::String::New(exc.what()));
+    }
+    catch (std::exception const & otherexc)
+    {
+        return v8::ThrowException(v8::String::New(otherexc.what()));
     }
 
     return array;

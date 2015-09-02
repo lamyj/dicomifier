@@ -31,7 +31,8 @@ BOOST_AUTO_TEST_CASE(Constructor)
     auto d2n = dicomifier::nifti::Dicom2Nifti::New();
     BOOST_CHECK(d2n != NULL);
 
-    d2n = dicomifier::nifti::Dicom2Nifti::New("", "");
+    d2n = dicomifier::nifti::Dicom2Nifti::New(
+                "", "", dicomifier::nifti::NIfTI_Dimension::Dimension4);
     BOOST_CHECK(d2n != NULL);
 }
 
@@ -45,12 +46,18 @@ BOOST_AUTO_TEST_CASE(Accessors)
 
     BOOST_CHECK_EQUAL(testdicom2nifti->get_dicomDir(), "");
     BOOST_CHECK_EQUAL(testdicom2nifti->get_outputDir(), "");
+    BOOST_CHECK_EQUAL(testdicom2nifti->get_outputDimension(),
+                      dicomifier::nifti::NIfTI_Dimension::Dimension4);
 
     testdicom2nifti->set_dicomDir("inputDir");
     testdicom2nifti->set_outputDir("outputdir");
+    testdicom2nifti->set_outputDimension(
+                dicomifier::nifti::NIfTI_Dimension::Dimension3);
 
     BOOST_CHECK_EQUAL(testdicom2nifti->get_dicomDir(), "inputDir");
     BOOST_CHECK_EQUAL(testdicom2nifti->get_outputDir(), "outputdir");
+    BOOST_CHECK_EQUAL(testdicom2nifti->get_outputDimension(),
+                      dicomifier::nifti::NIfTI_Dimension::Dimension3);
 }
 
 /*************************** TEST Nominal *******************************/
@@ -69,7 +76,10 @@ struct TestRun
         {
             BOOST_FAIL("DICOMIFIER_TEST_DATA is not defined");
         }
-        directory = value;
+        else
+        {
+            directory = value;
+        }
         datasetfile = directory + "/AAAAAAAA";
 
         // Create Dataset
@@ -422,7 +432,25 @@ struct TestRun
     }
 };
 
-BOOST_FIXTURE_TEST_CASE(Run, TestRun)
+BOOST_FIXTURE_TEST_CASE(Run_3D, TestRun)
+{
+    std::string results = directory + "/results";
+    auto d2n = dicomifier::nifti::Dicom2Nifti::New(
+                directory, results,
+                dicomifier::nifti::NIfTI_Dimension::Dimension3);
+    d2n->run();
+
+    BOOST_REQUIRE(boost::filesystem::is_regular_file(
+                      boost::filesystem::path(results + "/1_1_Localizer.json")));
+    BOOST_REQUIRE(boost::filesystem::is_regular_file(
+                      boost::filesystem::path(results + "/1_1_Localizer.nii")));
+}
+
+/*************************** TEST Nominal *******************************/
+/**
+ * Nominal test case: Function Run
+ */
+BOOST_FIXTURE_TEST_CASE(Run_4D, TestRun)
 {
     std::string results = directory + "/results";
     auto d2n = dicomifier::nifti::Dicom2Nifti::New(directory, results);
@@ -441,5 +469,17 @@ BOOST_FIXTURE_TEST_CASE(Run, TestRun)
 BOOST_AUTO_TEST_CASE(Missing_InputDirectory)
 {
     auto d2n = dicomifier::nifti::Dicom2Nifti::New();
+    BOOST_REQUIRE_THROW(d2n->run(), dicomifier::DicomifierException);
+}
+
+/*************************** TEST Error *********************************/
+/**
+ * Error test case: Unknown dimension
+ */
+BOOST_FIXTURE_TEST_CASE(Unknown_Dimension, TestRun)
+{
+    std::string results = directory + "/results";
+    auto d2n = dicomifier::nifti::Dicom2Nifti::New(
+                directory, results, (dicomifier::nifti::NIfTI_Dimension)5);
     BOOST_REQUIRE_THROW(d2n->run(), dicomifier::DicomifierException);
 }

@@ -12,7 +12,32 @@
 #include "bruker/Field.h"
 #include "core/DicomifierException.h"
 
-/*************************** TEST OK 01 *******************************/
+struct TestData
+{
+    dicomifier::bruker::Field field;
+
+    TestData()
+    {
+        field.name = "myname";
+
+        dicomifier::bruker::Field::Value value;
+        value.push_back("myvalue2");
+        value.push_back((long)12);
+        value.push_back((float)3.14);
+
+        field.value.push_back("myvalue");
+        field.value.push_back((long)42);
+        field.value.push_back((float)37.1);
+        field.value.push_back(value);
+    }
+
+    ~TestData()
+    {
+        // Nothing to do
+    }
+};
+
+/*************************** TEST Nominal *******************************/
 /**
  * Nominal test case: Constructor
  */
@@ -29,23 +54,12 @@ BOOST_AUTO_TEST_CASE(Constructor)
     BOOST_CHECK_EQUAL(field2.value.size(), 0);
 }
 
-/*************************** TEST OK 02 *******************************/
+/*************************** TEST Nominal *******************************/
 /**
  * Nominal test case: Get values
  */
-BOOST_AUTO_TEST_CASE(GetValues)
+BOOST_FIXTURE_TEST_CASE(GetValues, TestData)
 {
-    dicomifier::bruker::Field::Value value;
-    value.push_back("myvalue2");
-    value.push_back((long)12);
-    value.push_back((float)3.14);
-
-    dicomifier::bruker::Field field("myname", {}, {});
-    field.value.push_back("myvalue");
-    field.value.push_back((long)42);
-    field.value.push_back((float)37.1);
-    field.value.push_back(value);
-
     BOOST_CHECK_EQUAL(field.get_string(0) == "myvalue", true);
     BOOST_CHECK_EQUAL(field.get_int(1), (long)42);
     BOOST_CHECK_EQUAL(field.get_float(2), (float)37.1);
@@ -59,4 +73,16 @@ BOOST_AUTO_TEST_CASE(GetValues)
     BOOST_CHECK_EQUAL(field.get<long>(1), (long)42);
     BOOST_CHECK_EQUAL(field.get<float>(2), (float)37.1);
     BOOST_CHECK_EQUAL(field.get<dicomifier::bruker::Field::Value>(3).size(), 3);
+}
+
+/*************************** TEST Nominal *******************************/
+/**
+ * Nominal test case: Is_valuetype
+ */
+BOOST_FIXTURE_TEST_CASE(IsValueType, TestData)
+{
+    BOOST_CHECK(field.is_string(0));
+    BOOST_CHECK(field.is_int(1));
+    BOOST_CHECK(field.is_float(2));
+    BOOST_CHECK(field.is_struct(3));
 }

@@ -246,7 +246,7 @@ EnhanceBrukerDicom
     auto const json_bruker_dataset = bruker::as_json(bruker_dataset);
     std::ostringstream stream;
     stream << "dicomifier.inputs[0] = "
-           << json_bruker_dataset.toStyledString() << ";";
+           << bruker::as_string(json_bruker_dataset) << ";";
     jsvm.run(stream.str(), jsvm.get_context());
 
     // Execute script
