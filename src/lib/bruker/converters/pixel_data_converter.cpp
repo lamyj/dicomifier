@@ -19,7 +19,6 @@
 #include "bruker/Dataset.h"
 #include "core/DicomifierException.h"
 #include "core/Endian.h"
-#include "core/FrameIndexGenerator.h"
 
 namespace dicomifier
 {
