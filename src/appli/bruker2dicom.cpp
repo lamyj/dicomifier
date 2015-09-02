@@ -159,7 +159,7 @@ int main(int argc, char *argv[])
 
     std::vector<std::string> items_to_process;
 
-    if (series_and_reco.size() == 0)
+    if (series_and_reco.empty())
     {
         // process all
         for (auto it = available_item.begin(); it != available_item.end(); ++it)
@@ -177,7 +177,7 @@ int main(int argc, char *argv[])
 
         std::string series = "";
         std::string reconstruction = "";
-        if (series_reco.size() > 0)
+        if (!series_reco.empty())
         {
             series = series_reco[0];
         }

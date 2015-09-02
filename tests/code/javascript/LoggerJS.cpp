@@ -46,6 +46,21 @@ BOOST_FIXTURE_TEST_CASE(Logger_Error, TestDataLoggerJS)
 {
     dicomifier::javascript::JavascriptVM vm;
 
+    vm.run("log('My message', 'ERROR');", vm.get_context());
+
+    BOOST_REQUIRE_NE(streamlog.str(), "");
+    BOOST_CHECK(streamlog.str().find("ERROR") != std::string::npos);
+    BOOST_CHECK(streamlog.str().find("My message") != std::string::npos);
+}
+
+/*************************** TEST Nominal *******************************/
+/**
+ * Nominal test case: Log error message from JavaScript code
+ */
+BOOST_FIXTURE_TEST_CASE(Logger_Info, TestDataLoggerJS)
+{
+    dicomifier::javascript::JavascriptVM vm;
+
     vm.run("log('My message');", vm.get_context());
 
     BOOST_REQUIRE_NE(streamlog.str(), "");

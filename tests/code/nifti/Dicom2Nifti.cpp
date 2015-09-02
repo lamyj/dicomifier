@@ -76,7 +76,10 @@ struct TestRun
         {
             BOOST_FAIL("DICOMIFIER_TEST_DATA is not defined");
         }
-        directory = value;
+        else
+        {
+            directory = value;
+        }
         datasetfile = directory + "/AAAAAAAA";
 
         // Create Dataset
