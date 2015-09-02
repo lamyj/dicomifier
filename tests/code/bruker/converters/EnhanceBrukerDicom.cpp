@@ -382,7 +382,8 @@ BOOST_FIXTURE_TEST_CASE(Corrupted_Data, TestEnvironment)
     myfile.close();
 
     auto enhanceb2d = dicomifier::bruker::EnhanceBrukerDicom::
-            New(directorypath, UID_MRImageStorage, outputdirectory, "1", "1");
+            New(directorypath, UID_MRImageStorage,
+                outputdirectory, "1", "10001");
 
     BOOST_REQUIRE_THROW(enhanceb2d->run(), dicomifier::DicomifierException);
 }
@@ -394,7 +395,7 @@ BOOST_FIXTURE_TEST_CASE(Corrupted_Data, TestEnvironment)
 BOOST_FIXTURE_TEST_CASE(Bad_SOPClassUID, TestEnvironment)
 {
     auto enhanceb2d = dicomifier::bruker::EnhanceBrukerDicom::
-            New(directorypath, "BadValue", outputdirectory, "1", "1");
+            New(directorypath, "BadValue", outputdirectory, "1", "10001");
 
     BOOST_REQUIRE_THROW(enhanceb2d->run(), dicomifier::DicomifierException);
 }
@@ -418,13 +419,17 @@ BOOST_AUTO_TEST_CASE(Get_Default_Directory_Name)
 BOOST_FIXTURE_TEST_CASE(No_PixelData_File, TestEnvironment)
 {
     auto enhanceb2d = dicomifier::bruker::EnhanceBrukerDicom::
-            New(directorypath, UID_MRImageStorage, outputdirectory, "1", "1");
+            New(directorypath, UID_MRImageStorage,
+                outputdirectory, "1", "10001");
 
     // Remove Pixel Data file and replace by a directory
     remove(binaryfile.c_str());
-    boost::filesystem::create_directory(boost::filesystem::path(binaryfile.c_str()));
+    boost::filesystem::create_directory(
+                boost::filesystem::path(binaryfile.c_str()));
 
     BOOST_REQUIRE_THROW(enhanceb2d->run(), dicomifier::DicomifierException);
+
+    boost::filesystem::remove_all(boost::filesystem::path(binaryfile.c_str()));
 }
 
 /*************************** TEST Error *********************************/
@@ -434,7 +439,8 @@ BOOST_FIXTURE_TEST_CASE(No_PixelData_File, TestEnvironment)
 BOOST_FIXTURE_TEST_CASE(Cant_Read_PixelData_File, TestEnvironment)
 {
     auto enhanceb2d = dicomifier::bruker::EnhanceBrukerDicom::
-            New(directorypath, UID_MRImageStorage, outputdirectory, "1", "1");
+            New(directorypath, UID_MRImageStorage,
+                outputdirectory, "1", "10001");
 
     // Change right of file
     std::string pixelfile = "chmod 000 " + binaryfile;
@@ -487,7 +493,8 @@ BOOST_FIXTURE_TEST_CASE(Missing_VisuCoreSize, TestEnvironment)
     myfile.close();
 
     auto enhanceb2d = dicomifier::bruker::EnhanceBrukerDicom::
-            New(directorypath, UID_MRImageStorage, outputdirectory, "1", "1");
+            New(directorypath, UID_MRImageStorage,
+                outputdirectory, "1", "10001");
 
     BOOST_REQUIRE_THROW(enhanceb2d->run(), dicomifier::DicomifierException);
 }
@@ -533,7 +540,8 @@ BOOST_FIXTURE_TEST_CASE(Missing_VisuCoreWordType, TestEnvironment)
     myfile.close();
 
     auto enhanceb2d = dicomifier::bruker::EnhanceBrukerDicom::
-            New(directorypath, UID_MRImageStorage, outputdirectory, "1", "1");
+            New(directorypath, UID_MRImageStorage,
+                outputdirectory, "1", "10001");
 
     BOOST_REQUIRE_THROW(enhanceb2d->run(), dicomifier::DicomifierException);
 }
@@ -581,7 +589,8 @@ BOOST_FIXTURE_TEST_CASE(Bad_VisuCoreWordType, TestEnvironment)
     myfile.close();
 
     auto enhanceb2d = dicomifier::bruker::EnhanceBrukerDicom::
-            New(directorypath, UID_MRImageStorage, outputdirectory, "1", "1");
+            New(directorypath, UID_MRImageStorage,
+                outputdirectory, "1", "10001");
 
     BOOST_REQUIRE_THROW(enhanceb2d->run(), dicomifier::DicomifierException);
 }
@@ -593,7 +602,8 @@ BOOST_FIXTURE_TEST_CASE(Bad_VisuCoreWordType, TestEnvironment)
 BOOST_FIXTURE_TEST_CASE(Missing_StudyDescription, TestEnvironment)
 {
     auto enhanceb2d = dicomifier::bruker::EnhanceBrukerDicom::
-            New(directorypath, UID_MRImageStorage, outputdirectory, "1", "1");
+            New(directorypath, UID_MRImageStorage,
+                outputdirectory, "1", "10001");
 
     BOOST_REQUIRE_THROW(enhanceb2d->get_destination_filename(dataset),
                         dcmtkpp::Exception);
@@ -606,7 +616,8 @@ BOOST_FIXTURE_TEST_CASE(Missing_StudyDescription, TestEnvironment)
 BOOST_FIXTURE_TEST_CASE(Missing_SeriesDescription, TestEnvironment)
 {
     auto enhanceb2d = dicomifier::bruker::EnhanceBrukerDicom::
-            New(directorypath, UID_MRImageStorage, outputdirectory, "1", "1");
+            New(directorypath, UID_MRImageStorage,
+                outputdirectory, "1", "10001");
 
     dataset.add(dcmtkpp::registry::StudyDescription, {"studydesc"});
 
@@ -621,7 +632,8 @@ BOOST_FIXTURE_TEST_CASE(Missing_SeriesDescription, TestEnvironment)
 BOOST_FIXTURE_TEST_CASE(Missing_SeriesNumber, TestEnvironment)
 {
     auto enhanceb2d = dicomifier::bruker::EnhanceBrukerDicom::
-            New(directorypath, UID_MRImageStorage, outputdirectory, "1", "1");
+            New(directorypath, UID_MRImageStorage,
+                outputdirectory, "1", "10001");
 
     dataset.add(dcmtkpp::registry::StudyDescription, {"studydesc"});
     dataset.add(dcmtkpp::registry::SeriesDescription, {"seriesdesc"});
@@ -638,7 +650,8 @@ BOOST_FIXTURE_TEST_CASE(Missing_SeriesNumber, TestEnvironment)
 BOOST_FIXTURE_TEST_CASE(Missing_InstanceNumber, TestEnvironment)
 {
     auto enhanceb2d = dicomifier::bruker::EnhanceBrukerDicom::
-            New(directorypath, UID_MRImageStorage, outputdirectory, "1", "1");
+            New(directorypath, UID_MRImageStorage,
+                outputdirectory, "1", "10001");
 
     dataset.add(dcmtkpp::registry::StudyDescription, {"studydesc"});
     dataset.add(dcmtkpp::registry::SeriesDescription, {"seriesdesc"});
@@ -654,7 +667,8 @@ BOOST_FIXTURE_TEST_CASE(Missing_InstanceNumber, TestEnvironment)
 BOOST_FIXTURE_TEST_CASE(Missing_ImagesInAcquisition, TestEnvironment)
 {
     auto enhanceb2d = dicomifier::bruker::EnhanceBrukerDicom::
-            New(directorypath, UID_MRImageStorage, outputdirectory, "1", "1");
+            New(directorypath, UID_MRImageStorage,
+                outputdirectory, "1", "10001");
 
     dataset.add(dcmtkpp::registry::StudyDescription, {"studydesc"});
     dataset.add(dcmtkpp::registry::SeriesDescription, {"seriesdesc"});
