@@ -125,6 +125,7 @@ as_string(Json::Value const & data_set)
     {
         std::string value = data_set.asString();
         boost::replace_all(value, "\"", "\\\"");
+        boost::replace_all(value, "\r", "");
         result << "\"" << value << "\"";
         break;
     }
