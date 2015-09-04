@@ -1,3 +1,4 @@
+require("common.js");
 require("bruker2dicom/frame_index_generator.js");
 
 var _module = namespace('dicomifier.bruker2dicom');
@@ -40,6 +41,14 @@ _module.dateTimeMapper = function(type) {
                 ('0' + datetime.getUTCMinutes().toString()).slice(-2) +
                 ('0' + datetime.getUTCSeconds().toString()).slice(-2);
         }
+        else if(type === 'datetime') {
+            format = datetime.getUTCFullYear().toString() +
+                ('0' + (datetime.getUTCMonth()+1).toString()).slice(-2) +
+                ('0' + datetime.getUTCDate().toString()).slice(-2) +
+                ('0' + datetime.getUTCHours().toString()).slice(-2) +
+                ('0' + datetime.getUTCMinutes().toString()).slice(-2) +
+                ('0' + datetime.getUTCSeconds().toString()).slice(-2);
+        }
         else {
             throw new dicomifier.Exception(
                 'Unknown DateTime format: "' + format + '"');
@@ -71,7 +80,7 @@ _module.toDicom = function(
         throw new dicomifier.Exception(
             'Unknown DICOM element: "' + element + '"');
     }
-
+    
     // Get Bruker Value
     var value = getter;
     if (getter !== undefined) {

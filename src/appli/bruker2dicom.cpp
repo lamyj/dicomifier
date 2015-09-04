@@ -66,6 +66,7 @@ int main(int argc, char *argv[])
     std::string bruker_directory = "";
     std::string dicom_directory = "";
     std::string level = "ERROR";
+    std::string sopclassuid = UID_MRImageStorage;
     std::vector<std::string> series_and_reco;
 
     boost::program_options::options_description description("Options");
@@ -73,6 +74,8 @@ int main(int argc, char *argv[])
         ("help,h", "Print help messages")
         ("level,l", boost::program_options::value<std::string>(&level),
          "Log Level [DEBUG, INFO, WARNING, ERROR (default)]")
+        ("SOPClassUID,s", boost::program_options::value<std::string>(&sopclassuid),
+         "SOPClassUID [MRImageStorage (default), EnhancedMRImageStorage]")
         ("reconstruction,r", boost::program_options::
             value<std::vector<std::string> >(&series_and_reco),
          "Series:Reconstruction to convert")
@@ -212,7 +215,7 @@ int main(int argc, char *argv[])
                                  << series_number << "...";
 
         auto rule = dicomifier::bruker::EnhanceBrukerDicom::New(
-            bruker_directory, UID_MRImageStorage,
+            bruker_directory, sopclassuid,
             dicom_directory, study_number, series_number);
 
         if (rule == NULL)

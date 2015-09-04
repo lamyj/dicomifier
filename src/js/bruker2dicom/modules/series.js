@@ -56,3 +56,25 @@ _module.GeneralSeries = function(indexGenerator, dicomDataset, brukerDataset) {
         indexGenerator, dicomDataset, 'AnatomicalOrientationType',
         brukerDataset, 'VisuSubjectType', 3);
 };
+
+_module.MRSeries = function(indexGenerator, dicomDataset, brukerDataset) {
+
+    dicomDataset[dicomifier.dictionary['Modality'][1]] = {
+        'vr': dicomifier.dictionary['Modality'][0], 'Value' : ['MR'] };
+    
+    // add field ReferencedPerformedProcedureStepSequence
+    // Required if a Performed Procedure Step SOP Class was
+    // involved in the creation of this Series.
+    /*
+    // Only one item
+    var item = {};
+    item[dicomifier.dictionary['ReferencedSOPClassUID'][1]] = {
+        'vr': dicomifier.dictionary['ReferencedSOPClassUID'][0], 'Value' : ['to_defined']};
+    item[dicomifier.dictionary['ReferencedSOPInstanceUID'][1]] = {
+        'vr': dicomifier.dictionary['ReferencedSOPInstanceUID'][0], 'Value' : ['to_defined']};
+        
+    dicomDataset[dicomifier.dictionary['ReferencedPerformedProcedureStepSequence'][1]] = {
+        'vr': dicomifier.dictionary['ReferencedPerformedProcedureStepSequence'][0], 'Value' : [ item ] };
+    */
+    
+};

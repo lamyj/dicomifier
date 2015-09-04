@@ -56,6 +56,30 @@ _module.FrameIndexGenerator.prototype.next = function() {
     }
 };
 
+/// @brief generate next index
+_module.FrameIndexGenerator.prototype.computeIndex = function(withoutIndex) {
+    var vect = [];
+    for (var i = 0; i < this.currentIndex.length; i++)
+    {
+        if (withoutIndex.indexOf(i) == -1)
+        {
+            for (var j = 0; j < vect.length; j++)
+            {
+                vect[j] = vect[j] * this.indexMax[i];
+            }
+            vect.push(this.currentIndex[i]);
+        }
+    }
+    
+    var ret = 0;
+    for (var j = 0; j < vect.length; j++)
+    {
+        ret += vect[j];
+    }
+    return ret;
+};
+
+
 
 /**
  * @brief Parsing frame group from a given Bruker Dataset

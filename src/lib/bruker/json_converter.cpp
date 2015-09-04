@@ -123,7 +123,9 @@ as_string(Json::Value const & data_set)
     }
     case Json::ValueType::stringValue:
     {
-        result << "\"" << data_set.asString() << "\"";
+        std::string value = data_set.asString();
+        boost::replace_all(value, "\"", "\\\"");
+        result << "\"" << value << "\"";
         break;
     }
     case Json::ValueType::booleanValue:

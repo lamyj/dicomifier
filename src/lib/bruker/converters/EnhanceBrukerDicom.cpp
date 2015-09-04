@@ -122,6 +122,10 @@ EnhanceBrukerDicom
     {
         this->_create_mr_image_storage(brukerdataset);
     }
+    else if (sopclassuid == UID_EnhancedMRImageStorage)
+    {
+        this->_create_enhanced_mr_image_storage(brukerdataset);
+    }
     else
     {
         throw DicomifierException("Unkown SOP Class UID '" + this->_SOPClassUID + "'");
@@ -286,6 +290,69 @@ EnhanceBrukerDicom
 
         // Write the data set to a file.
         auto const destination = this->get_destination_filename(data_set);
+        auto * dcmtk_dataset = dynamic_cast<DcmDataset*>(
+            dcmtkpp::convert(data_set));
+        DcmFileFormat fileformat(dcmtk_dataset);
+        OFCondition result = fileformat.saveFile(
+            destination.c_str(), EXS_LittleEndianExplicit);
+        if(result.bad())
+        {
+            throw DicomifierException(
+                "Unable to save dataset: " + std::string(result.text()));
+        }
+    }
+}
+
+void
+EnhanceBrukerDicom
+::_create_enhanced_mr_image_storage(Dataset const & bruker_dataset) const
+{
+    javascript::JavascriptVM jsvm;
+
+    // Create inputs
+    auto const json_bruker_dataset = bruker::as_json(bruker_dataset);
+    std::ostringstream stream;
+    stream << "dicomifier.inputs[0] = "
+           << bruker::as_string(json_bruker_dataset) << ";";
+    jsvm.run(stream.str(), jsvm.get_context());
+
+    // Execute script
+    std::string const script(
+        "require('bruker2dicom/enhanced_mr_image_storage.js');\n"
+        "dicomifier.outputs = dicomifier.bruker2dicom.EnhancedMRImageStorage(dicomifier.inputs[0]);");
+    jsvm.run(script, jsvm.get_context());
+
+    v8::HandleScope handle_scope;
+    v8::Context::Scope context_scope(jsvm.get_context());
+
+    auto const length_value = jsvm.run(
+        "dicomifier.outputs.length;", jsvm.get_context());
+    auto const length = length_value->ToInteger()->Value();
+    for(int i=0; i<length; ++i)
+    {
+        // Get the JSON representation of the V8 data set.
+        std::string json;
+        {
+            std::stringstream stream;
+            stream << "JSON.stringify(dicomifier.outputs[" << i << "]);";
+            auto const value = jsvm.run(stream.str(), jsvm.get_context());
+            json = *v8::String::Utf8Value(value);
+        }
+
+        // Parse it into a data set.
+        dcmtkpp::DataSet data_set;
+        {
+            Json::Value value;
+            Json::Reader reader;
+            std::string old_locale = std::setlocale(LC_ALL, "C");
+            reader.parse(json, value);
+            std::setlocale(LC_ALL, old_locale.c_str());
+
+            data_set = dcmtkpp::as_dataset(value);
+        }
+
+        // Write the data set to a file.
+        auto const destination = this->get_destination_filename(data_set, false);
         auto * dcmtk_dataset = dynamic_cast<DcmDataset*>(
             dcmtkpp::convert(data_set));
         DcmFileFormat fileformat(dcmtk_dataset);

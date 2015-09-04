@@ -28,7 +28,7 @@ namespace bruker
 
 pixel_data_converter
 ::pixel_data_converter()
-: _filename("")
+: _filename(""), _rescaleintercept(0), _rescaleslope(1)
 {
     // Nothing else
 }
@@ -73,6 +73,20 @@ pixel_data_converter
 
     dicom_data_set.add(dcmtkpp::registry::PixelData,
                        pixel_data, dcmtkpp::VR::OW);
+}
+
+double
+pixel_data_converter
+::get_rescaleintercept() const
+{
+    return this->_rescaleintercept;
+}
+
+double
+pixel_data_converter
+::get_rescaleslope() const
+{
+    return this->_rescaleslope;
 }
 
 void
@@ -125,18 +139,30 @@ pixel_data_converter
         if (word_type == "_32BIT_SGN_INT")
         {
             this->_update_min_max<int32_t>();
+
+            this->_rescaleintercept = this->_min;
+            this->_rescaleslope = double(this->_max-this->_min) / exp2(16.0);
         }
         else if (word_type == "_16BIT_SGN_INT")
         {
             this->_update_min_max<int16_t>();
+
+            this->_rescaleintercept = -exp2(15);
+            this->_rescaleslope     = 1;
         }
         else if (word_type == "_8BIT_UNSGN_INT")
         {
             this->_update_min_max<uint8_t>();
+
+            this->_rescaleintercept = 0;
+            this->_rescaleslope     = 1;
         }
         else if (word_type == "_32BIT_FLOAT")
         {
             this->_update_min_max<float>();
+
+            this->_rescaleintercept = (double)this->_min;
+            this->_rescaleslope     = (this->_max-this->_min) / exp2(16.0);
         }
 
         this->_filename = filename;

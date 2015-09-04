@@ -130,7 +130,8 @@ v8::Handle<v8::Value> load_pixel_data(v8::Arguments const & args)
     }
 
     // Create the array to return
-    v8::Local<v8::Array> array = v8::Array::New(numberOfFrame);
+    v8::Local<v8::Array> array = v8::Array::New(3);
+    v8::Local<v8::Array> arrayimage = v8::Array::New(numberOfFrame);
 
     try
     {
@@ -147,9 +148,13 @@ v8::Handle<v8::Value> load_pixel_data(v8::Arguments const & args)
             Json::Value const json_dset = dcmtkpp::as_json(dataset);
 
             // Store into the array
-            array->Set(i, v8::String::New(
+            arrayimage->Set(i, v8::String::New(
                            json_dset["7fe00010"]["InlineBinary"].asCString()));
         }
+
+        array->Set(0, arrayimage);
+        array->Set(1, v8::Number::New(converter.get_rescaleintercept()));
+        array->Set(2, v8::Number::New(converter.get_rescaleslope()));
     }
     catch (DicomifierException const & exc)
     {

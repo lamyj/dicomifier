@@ -134,6 +134,8 @@ protected:
 private:
     void _create_mr_image_storage(bruker::Dataset const & bruker_dataset) const;
 
+    void _create_enhanced_mr_image_storage(bruker::Dataset const & bruker_dataset) const;
+
     std::string create_directory_name(int sizemax,
                                       std::string const & prefix,
                                       std::string const & suffix) const;

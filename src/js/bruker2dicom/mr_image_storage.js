@@ -11,7 +11,7 @@ var _module = namespace('dicomifier.bruker2dicom');
 _module.MRImageStorage = function(brukerDataset) {
     var frameGroups = dicomifier.bruker2dicom.getFrameGroups(brukerDataset);
     var indexGenerator = new dicomifier.bruker2dicom.FrameIndexGenerator(frameGroups);
-    var pixelData = loadPixelData(brukerDataset, indexGenerator.countMax);
+    var pixelData = loadPixelData(brukerDataset, indexGenerator.countMax, false);
 
     var modules = dicomifier.bruker2dicom.modules;
 
@@ -32,7 +32,7 @@ _module.MRImageStorage = function(brukerDataset) {
 
         modules.GeneralImage(indexGenerator, dicomDataset, brukerDataset);
         modules.ImagePlane(indexGenerator, dicomDataset, brukerDataset);
-        modules.ImagePixel(indexGenerator, dicomDataset, brukerDataset, pixelData);
+        modules.ImagePixel(indexGenerator, dicomDataset, brukerDataset, pixelData[0]);
         modules.MRImage(indexGenerator, dicomDataset, brukerDataset);
         modules.SOPCommon(indexGenerator, dicomDataset, brukerDataset);
 
