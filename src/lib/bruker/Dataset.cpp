@@ -33,7 +33,9 @@ Dataset
     std::ifstream stream(path);
     if(stream.fail())
     {
-        throw DicomifierException("Could not open file");
+        std::stringstream error;
+        error << "Could not open file: " << path;
+        throw DicomifierException(error.str());
     }
     std::string data(
         (std::istreambuf_iterator<typename std::string::value_type>(stream)),
