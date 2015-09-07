@@ -61,7 +61,7 @@ GenerationFrame
     QString selectitem = settings.value(CONF_GROUP_OUTPUT + "/" +
                                     CONF_KEY_FORMAT,
                                     QString("")).toString();
-    /*
+
     if (selectitem.toStdString() == UID_MRImageStorage)
     {
         this->_ui->formatMRIMultiple->setChecked(true);
@@ -70,9 +70,10 @@ GenerationFrame
     {
         this->_ui->formatMRISingle->setChecked(true);
     }
-    */
-    this->_ui->formatMRIMultiple->setChecked(true);
-    this->_ui->formatMRISingle->setEnabled(false);
+    else
+    {// default
+        this->_ui->formatMRIMultiple->setChecked(true);
+    }
 
     // Set DICOMDIR Creation
     Qt::CheckState checkstate =
