@@ -127,6 +127,9 @@ Dicom2Nifti
 
     typedef boost::filesystem::directory_iterator Iterator;
 
+    // Use a map to sort DICOM by file name
+    std::map<std::string, dcmtkpp::DataSet> datasetlist;
+
     unsigned int count = 0;
     for(Iterator it(boost::filesystem::path(this->_dicomDir));
         it != Iterator(); ++it)
@@ -168,15 +171,21 @@ Dicom2Nifti
                 continue;
             }
 
-            auto const json_dicom_dataset = dcmtkpp::as_json(dataset);
-
-            std::stringstream streamstr;
-            streamstr << "dicomifier.inputs[" << count << "] = "
-                   << json_dicom_dataset.toStyledString() << ";";
-            jsvm.run(streamstr.str(), jsvm.get_context());
-
-            ++count;
+            datasetlist.insert(std::pair<std::string, dcmtkpp::DataSet>(
+                           boost::filesystem::path(*it).c_str(), dataset));
         }
+    }
+
+    for (auto it = datasetlist.begin(); it != datasetlist.end(); ++it)
+    {
+        auto const json_dicom_dataset = dcmtkpp::as_json(it->second);
+
+        std::stringstream streamstr;
+        streamstr << "dicomifier.inputs[" << count << "] = "
+               << json_dicom_dataset.toStyledString() << ";";
+        jsvm.run(streamstr.str(), jsvm.get_context());
+
+        ++count;
     }
 
     loggerDebug() << "Processing " << count << " DICOM files...";
