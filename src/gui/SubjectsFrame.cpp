@@ -211,10 +211,12 @@ SubjectsFrame
         {
             std::string subject_directory((*it).path().filename().c_str());
 
-            std::string dir = directory + VALID_FILE_SEPARATOR +
-                              subject_directory;
+            std::string const dir = directory + VALID_FILE_SEPARATOR +
+                                    subject_directory;
             std::string file = dir + VALID_FILE_SEPARATOR +
                                "subject";
+
+            std::string subject_path = dir;
 
             if (!boost::filesystem::exists(boost::filesystem::path(file)))
             {
@@ -226,9 +228,9 @@ SubjectsFrame
                     // If we find a directory ( = subject )
                     if( boost::filesystem::is_directory( (*itpv6) ) )
                     {
-                        dir = dir + VALID_FILE_SEPARATOR +
-                              std::string((*itpv6).path().filename().c_str());
-                        file = dir + VALID_FILE_SEPARATOR + "subject";
+                        std::string const dirpv6 = dir + VALID_FILE_SEPARATOR +
+                                                   std::string((*itpv6).path().filename().c_str());
+                        file = dirpv6 + VALID_FILE_SEPARATOR + "subject";
 
                         if (!boost::filesystem::exists(boost::filesystem::path(file)))
                         {
@@ -237,6 +239,7 @@ SubjectsFrame
 
                         is_pv6 = true;
                         subject_directory = std::string((*itpv6).path().filename().c_str());
+                        subject_path = dirpv6;
                     }
                 }
 
@@ -251,7 +254,7 @@ SubjectsFrame
 
             TreeItem* treeitem = new TreeItem();
             connect(treeitem, SIGNAL(SendDate(double)), this, SLOT(ReceivedDate(double)));
-            treeitem->set_directory(dir);
+            treeitem->set_directory(subject_path);
             treeitem->fill_data(dataset);
             treeitem->set_subjectDirectory(subject_directory);
             disconnect(treeitem, SIGNAL(SendDate(double)), this, SLOT(ReceivedDate(double)));
