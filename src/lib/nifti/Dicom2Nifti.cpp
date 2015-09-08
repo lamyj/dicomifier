@@ -311,31 +311,8 @@ Dicom2Nifti
     nim->dim[2] = nim->ny=1;
     nim->dim[1] = nim->nx=1;
 
-    // One stack = 3 dimensions
-    // Multi stack = 4 dimensions
-    nim->ndim = (int)this->_outputDimension;
-    nim->dim[0] = (int)this->_outputDimension;
+    this->extract_stack_number(dataset, nim);
 
-    if (this->_outputDimension == NIfTI_Dimension::Dimension4)
-    {
-        nim->dim[4] = nim->nt = dataset.get("DICOMIFIER_STACKS_NUMBER",
-                                            Json::Value()).asInt();
-        nim->pixdim[4] = nim->dt = 1;
-        nim->nvox *= nim->dim[4];
-
-        // Get number of dataset in the stack
-        // we suppose each stack contains the same number of datasets
-        unsigned int dsnumber =
-                dataset.get("DICOMIFIER_DATASET_PERSTACK_NUMBER",
-                            Json::Value())[0].asInt();
-        nim->dim[3] = nim->nz = dsnumber;
-    }
-    else
-    {
-        // Get number of dataset in the stack
-        unsigned int dsnumber = dataset.get("PixelData", Json::Value()).size();
-        nim->dim[3] = nim->nz = dsnumber;
-    }
     nim->pixdim[3] = nim->dz =
             static_cast<float>( get_distance_between_slice(dataset) );
     nim->nvox *= nim->dim[3];
@@ -366,12 +343,7 @@ Dicom2Nifti
 
     // Get 3 vectors for directions
     Json::Value const image_orientation_patient =
-            dataset.get("ImageOrientationPatient", Json::Value());
-
-    if (image_orientation_patient.isNull())
-    {
-        throw new DicomifierException("Missing ImageOrientationPatient");
-    }
+            this->extract_orientation(dataset);
 
     std::vector<double> directions;
     // Get dir x and y
@@ -403,8 +375,7 @@ Dicom2Nifti
     }
 
     // Fill in origin.
-    Json::Value const image_position_patient =
-            dataset.get("ImagePositionPatient", Json::Value());
+    Json::Value const image_position_patient = this->extract_position(dataset);
 
     matrix.m[0][3] =
             static_cast<float>(-image_position_patient[0][0].asDouble());
@@ -465,6 +436,151 @@ Dicom2Nifti
     nim->data = reinterpret_cast<void*>(data);
 
     return nim;
+}
+
+void
+Dicom2Nifti
+::extract_stack_number(const Json::Value &dataset, nifti_image *nim) const
+{
+    std::string const sopclassuid = dataset.get("SOPClassUID",
+                                                Json::Value())[0].asString();
+
+    if (sopclassuid == UID_MRImageStorage)
+    {
+        // One stack = 3 dimensions
+        // Multi stack = 4 dimensions
+        nim->ndim = (int)this->_outputDimension;
+        nim->dim[0] = (int)this->_outputDimension;
+
+        if (this->_outputDimension == NIfTI_Dimension::Dimension4)
+        {
+            nim->dim[4] = nim->nt = dataset.get("DICOMIFIER_STACKS_NUMBER",
+                                                Json::Value()).asInt();
+            nim->pixdim[4] = nim->dt = 1;
+            nim->nvox *= nim->dim[4];
+
+            // Get number of dataset in the stack
+            // we suppose each stack contains the same number of datasets
+            unsigned int dsnumber =
+                    dataset.get("DICOMIFIER_DATASET_PERSTACK_NUMBER",
+                                Json::Value())[0].asInt();
+            nim->dim[3] = nim->nz = dsnumber;
+        }
+        else
+        {
+            // Get number of dataset in the stack
+            unsigned int dsnumber = dataset.get("PixelData", Json::Value()).size();
+            nim->dim[3] = nim->nz = dsnumber;
+        }
+    }
+    else if (sopclassuid == UID_EnhancedMRImageStorage)
+    {
+        if (this->_outputDimension == NIfTI_Dimension::Dimension3)
+        {
+            loggerWarning() << "force NIfTI 4 dimension.";
+        }
+
+        int stack_number = 0;
+        int ds_perstack_number = 0;
+        // Get number of Stack:
+        for (auto value : dataset.get("PerFrameFunctionalGroupsSequence",
+                                      Json::Value()))
+        {
+            auto const strstackid =
+                    value.get("FrameContentSequence", Json::Value())[0].
+                          get("StackID", Json::Value())[0].asString();
+            int const instackpos =
+                    value.get("FrameContentSequence", Json::Value())[0].
+                          get("InStackPositionNumber", Json::Value())[0].asInt();
+
+            if (instackpos > ds_perstack_number)
+            {
+                ds_perstack_number = instackpos;
+            }
+
+            int stackid = boost::lexical_cast<int>(strstackid);
+            if (stackid > stack_number)
+            {
+                stack_number = stackid;
+            }
+        }
+
+        nim->dim[4] = nim->nt = stack_number;
+        nim->pixdim[4] = nim->dt = 1;
+        nim->nvox *= nim->dim[4];
+
+        // we suppose each stack contains the same number of datasets
+        nim->dim[3] = nim->nz = ds_perstack_number;
+    }
+}
+
+Json::Value
+Dicom2Nifti
+::extract_orientation(const Json::Value &dataset) const
+{
+    std::string const sopclassuid = dataset.get("SOPClassUID",
+                                                Json::Value())[0].asString();
+
+    Json::Value image_orientation_patient;
+
+    if (sopclassuid == UID_MRImageStorage)
+    {
+        // Get 3 vectors for directions
+        image_orientation_patient =
+                dataset.get("ImageOrientationPatient", Json::Value());
+    }
+    else if (sopclassuid == UID_EnhancedMRImageStorage)
+    {
+        // Get ImageOrientationPatient for the first frame
+        image_orientation_patient =
+                dataset.get("PerFrameFunctionalGroupsSequence",
+                            Json::Value())[0].
+                        get("PlaneOrientationSequence", Json::Value())[0].
+                        get("ImageOrientationPatient", Json::Value());
+    }
+
+    if (image_orientation_patient.isNull())
+    {
+        throw new DicomifierException("Missing ImageOrientationPatient");
+    }
+
+    return image_orientation_patient;
+}
+
+Json::Value
+Dicom2Nifti
+::extract_position(const Json::Value &dataset) const
+{
+    std::string const sopclassuid = dataset.get("SOPClassUID",
+                                                Json::Value())[0].asString();
+
+    Json::Value image_position_patient;
+
+    if (sopclassuid == UID_MRImageStorage)
+    {
+        // Get 3 vectors for directions
+        image_position_patient =
+                dataset.get("ImagePositionPatient", Json::Value());
+    }
+    else if (sopclassuid == UID_EnhancedMRImageStorage)
+    {
+        // Get ImageOrientationPatient for the first frame
+        Json::Value array(Json::ValueType::arrayValue);
+        array.append(
+                dataset.get("PerFrameFunctionalGroupsSequence",
+                            Json::Value())[0].
+                        get("PlanePositionSequence", Json::Value())[0].
+                        get("ImagePositionPatient", Json::Value()));
+
+        image_position_patient = array;
+    }
+
+    if (image_position_patient.isNull())
+    {
+        throw new DicomifierException("Missing ImagePositionPatient");
+    }
+
+    return image_position_patient;
 }
 
 double

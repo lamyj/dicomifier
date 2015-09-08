@@ -159,6 +159,12 @@ _module.mergeStack = function(datasets, dictionaryTagToName) {
             if (key === '7fe00010') {
                 finalDataset[dictionaryTagToName[key]].push(datasets[dsIndex][key]['InlineBinary']); 
             }
+            // Convert SQ items
+            else if (datasets[dsIndex][key]['vr'] === 'SQ') {
+                finalDataset[dictionaryTagToName[key]].push(
+                    _module.convertSQ(datasets[dsIndex][key]['Value'], 
+                                      dictionaryTagToName));
+            }
             else {
                 finalDataset[dictionaryTagToName[key]].push(datasets[dsIndex][key]['Value']);
             }
@@ -257,4 +263,51 @@ _module.is_synchronized = function(stacks) {
     }
     
     return true;
+}
+
+_module.convertSQ = function(sequence, dictionaryTagToName) {
+    if (sequence === null || sequence === undefined) {
+        return null;
+    }
+    
+    var convertObject = function(object) {
+        var finalDataset = {};
+        
+        for (var key in object) {
+            if (object[key] instanceof Function) { 
+                continue; 
+            }
+            
+            // ignore unknown keys
+            if (dictionaryTagToName[key] === undefined) {
+                continue;
+            }
+            
+            if (finalDataset[dictionaryTagToName[key]] === undefined) {
+                finalDataset[dictionaryTagToName[key]] = [];
+            }
+            
+            // Store each PixelData
+            if (key === '7fe00010') {
+                finalDataset[dictionaryTagToName[key]].push(object[key]['InlineBinary']); 
+            }
+            // Convert SQ items
+            else if (object[key]['vr'] === 'SQ') {
+                finalDataset[dictionaryTagToName[key]] = (
+                    _module.convertSQ(object[key]['Value'], dictionaryTagToName));
+            }
+            else {
+                finalDataset[dictionaryTagToName[key]] = (object[key]['Value']);
+            }
+        }
+        
+        return finalDataset;
+    };
+    
+    var output = new Array();
+    for (var i = 0; i < sequence.length; ++i) {
+        output.push(convertObject(sequence[i]));
+    }
+    
+    return output;
 }

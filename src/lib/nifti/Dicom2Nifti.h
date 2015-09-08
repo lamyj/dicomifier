@@ -111,6 +111,12 @@ private:
     nifti_image * extract_information_from_dataset(
             Json::Value const & dataset, std::string const & prefix) const;
 
+    void extract_stack_number(Json::Value const & dataset, nifti_image * nim) const;
+
+    Json::Value extract_orientation(Json::Value const & dataset) const;
+
+    Json::Value extract_position(Json::Value const & dataset) const;
+
     double get_distance_between_slice(Json::Value const & dataset) const;
 
 };

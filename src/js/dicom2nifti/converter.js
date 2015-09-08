@@ -47,10 +47,11 @@ _module.convert = function(datasetlist, dimension) {
     }
     
     // Process EnhancedMRImageStorage
-    for (var i = 0; i < listEnhancedMRImageStorage.length; ++i) {
-        output = _module.processEnhancedMRImageStorage(listEnhancedMRImageStorage[i], 
-                                                       dimension, 
-                                                       dictionaryTagToName);
+    //for (var i = 0; i < listEnhancedMRImageStorage.length; ++i) {
+    if (listEnhancedMRImageStorage.length > 0) {
+        output = _module.processMRImageStorage(listEnhancedMRImageStorage, 
+                                               dimension, 
+                                               dictionaryTagToName);
     }
     
     // Fusion stack
@@ -110,13 +111,4 @@ _module.processMRImageStorage = function(datasetlist, dimension,
 _module.processEnhancedMRImageStorage = function(dataset, dimension, 
                                                  dictionaryTagToName) {
     throw new dicomifier.Exception("Not implemented yet");
-                                                     
-    var fieldPerFrame = dataset[dicomifier.dictionary['PerFrameFunctionalGroupsSequence'][1]];
-    if (fieldPerFrame === undefined) {
-        throw new dicomifier.Exception("Missing PerFrameFunctionalGroupsSequence fiedl");
-    }
-                                                     
-    for (var frame = 0; frame < fieldPerFrame['Value'].length; ++frame) {
-        // TODO
-    }
 }
