@@ -227,13 +227,13 @@ _module.MRImage = function(indexGenerator, dicomDataset, brukerDataset) {
         'VisuAcqFlipAngle', 3, parseFloat);
 };
 
-_module.SOPCommon = function(indexGenerator, dicomDataset, brukerDataset) {
+_module.SOPCommon = function(indexGenerator, dicomDataset, brukerDataset, SOPClassUID) {
     var toDicom = dicomifier.bruker2dicom.toDicom;
     var dateTimeMapper = dicomifier.bruker2dicom.dateTimeMapper;
 
     dicomDataset[dicomifier.dictionary['SOPClassUID'][1]] = {
         'vr': dicomifier.dictionary['SOPClassUID'][0],
-        'Value': [ '1.2.840.10008.5.1.4.1.1.4' ] };
+        'Value': [ SOPClassUID ] };
 
     dicomDataset[dicomifier.dictionary['SOPInstanceUID'][1]] = {
         'vr': dicomifier.dictionary['SOPInstanceUID'][0],

@@ -34,7 +34,7 @@ _module.MRImageStorage = function(brukerDataset) {
         modules.ImagePlane(indexGenerator, dicomDataset, brukerDataset);
         modules.ImagePixel(indexGenerator, dicomDataset, brukerDataset, pixelData[0]);
         modules.MRImage(indexGenerator, dicomDataset, brukerDataset);
-        modules.SOPCommon(indexGenerator, dicomDataset, brukerDataset);
+        modules.SOPCommon(indexGenerator, dicomDataset, brukerDataset, '1.2.840.10008.5.1.4.1.1.4');
 
         output[indexGenerator.currentStep] = dicomDataset;
 

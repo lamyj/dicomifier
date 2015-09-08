@@ -38,7 +38,7 @@ _module.EnhancedMRImageStorage = function(brukerDataset) {
     modules.AcquisitionContext(indexGenerator, dicomDataset, brukerDataset);
     modules.EnhancedMRImage(indexGenerator, dicomDataset, brukerDataset);
     modules.MRPulseSequence(indexGenerator, dicomDataset, brukerDataset);
-    modules.SOPCommon(indexGenerator, dicomDataset, brukerDataset);
+    modules.SOPCommon(indexGenerator, dicomDataset, brukerDataset, '1.2.840.10008.5.1.4.1.1.4.1');
     modules.MultiFrameFunctionalGroups(indexGenerator, dicomDataset, 
                                        brukerDataset, pixelData[1], 
                                        pixelData[2]);
