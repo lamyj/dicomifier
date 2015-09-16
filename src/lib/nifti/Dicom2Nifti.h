@@ -111,7 +111,8 @@ private:
     nifti_image * extract_information_from_dataset(
             Json::Value const & dataset, std::string const & prefix) const;
 
-    void extract_stack_number(Json::Value const & dataset, nifti_image * nim) const;
+    void extract_stack_number(Json::Value const & dataset,
+                              nifti_image * nim) const;
 
     Json::Value extract_orientation(Json::Value const & dataset) const;
 

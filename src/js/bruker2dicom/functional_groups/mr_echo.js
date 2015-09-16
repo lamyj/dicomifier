@@ -6,12 +6,19 @@ _module.MREcho = function(indexGenerator, dicomSequenceItem,
                            brukerDataset) {
     var item = {};
     
-    var indexEchoTime = dicomifier.bruker2dicom.getFrameGroupIndex(brukerDataset, 'VisuAcqEchoTime');
+    var indexEchoTime = 
+        dicomifier.bruker2dicom.getFrameGroupIndex(brukerDataset, 
+                                                   'VisuAcqEchoTime');
     var beginIndex = 0;
     if (indexEchoTime !== null) {
-        beginIndex = indexEchoTime[1] + indexGenerator.currentIndex[indexEchoTime[0]];
+        beginIndex = indexEchoTime[1] + 
+                     indexGenerator.currentIndex[indexEchoTime[0]];
     }
-    var value = brukerDataset['VisuAcqEchoTime'].slice(beginIndex, beginIndex + 1);
+    var value = 0; // TODO: default value
+    if (brukerDataset['VisuAcqEchoTime'] !== undefined) {
+        value = brukerDataset['VisuAcqEchoTime'].slice(beginIndex, 
+                                                       beginIndex + 1);
+    }
     item[dicomifier.dictionary['EffectiveEchoTime'][1]] = {
         'vr': dicomifier.dictionary['EffectiveEchoTime'][0], 
         'Value' : value };

@@ -2,7 +2,8 @@ require('bruker2dicom/common.js');
 
 var _module = namespace('dicomifier.bruker2dicom.modules');
 
-_module.GeneralSeries = function(indexGenerator, dicomDataset, brukerDataset) {
+_module.GeneralSeries = function(indexGenerator, dicomDataset, 
+                                 brukerDataset) {
     var toDicom = dicomifier.bruker2dicom.toDicom;
     var dateTimeMapper = dicomifier.bruker2dicom.dateTimeMapper;
     var dictionaryMapper = dicomifier.bruker2dicom.dictionaryMapper;
@@ -18,7 +19,8 @@ _module.GeneralSeries = function(indexGenerator, dicomDataset, brukerDataset) {
         indexGenerator, dicomDataset, 'SeriesNumber',
         brukerDataset, null, 2, parseInt,
         function(brukerDataset) { return [
-            brukerDataset.VisuExperimentNumber || brukerDataset.VisuSeriesNumber ]; } );
+            brukerDataset.VisuExperimentNumber || 
+            brukerDataset.VisuSeriesNumber ]; } );
 
     dicomDataset[dicomifier.dictionary['Laterality'][1]] = {
         'vr': dicomifier.dictionary['Laterality'][0] };

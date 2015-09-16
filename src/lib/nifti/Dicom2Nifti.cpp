@@ -440,7 +440,7 @@ Dicom2Nifti
 
 void
 Dicom2Nifti
-::extract_stack_number(const Json::Value &dataset, nifti_image *nim) const
+::extract_stack_number(Json::Value const & dataset, nifti_image *nim) const
 {
     std::string const sopclassuid = dataset.get("SOPClassUID",
                                                 Json::Value())[0].asString();
@@ -516,7 +516,7 @@ Dicom2Nifti
 
 Json::Value
 Dicom2Nifti
-::extract_orientation(const Json::Value &dataset) const
+::extract_orientation(Json::Value const & dataset) const
 {
     std::string const sopclassuid = dataset.get("SOPClassUID",
                                                 Json::Value())[0].asString();
@@ -549,7 +549,7 @@ Dicom2Nifti
 
 Json::Value
 Dicom2Nifti
-::extract_position(const Json::Value &dataset) const
+::extract_position(Json::Value const & dataset) const
 {
     std::string const sopclassuid = dataset.get("SOPClassUID",
                                                 Json::Value())[0].asString();
@@ -585,7 +585,7 @@ Dicom2Nifti
 
 double
 Dicom2Nifti
-::get_distance_between_slice(const Json::Value &dataset) const
+::get_distance_between_slice(Json::Value const & dataset) const
 {
     Json::Value const image_position_patient =
             dataset.get("ImagePositionPatient", Json::Value());

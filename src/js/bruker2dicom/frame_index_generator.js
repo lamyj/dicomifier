@@ -104,7 +104,8 @@ _module.getFrameGroups = function(brukerDataset) {
         subarray[0] = description[0];
         subarray[1] = description[1];
         var parameters = [];
-        for(var j = parseInt(description[3]); j < description[3]+description[4]; ++j) {
+        for(var j = parseInt(description[3]); 
+            j < description[3]+description[4]; ++j) {
             parameters.push(brukerDataset.VisuGroupDepVals[j]);
         }
 
@@ -139,7 +140,8 @@ _module.getFrameGroupIndex = function(brukerDataset, brukerElement) {
     for (var index = 0; index < frameGroups.length; ++index) {
         var parameters = frameGroups[index][2];
 
-        for(var indexParam = 0; indexParam < parameters.length; ++indexParam) {
+        for(var indexParam = 0; 
+            indexParam < parameters.length; ++indexParam) {
             if (brukerElement === parameters[indexParam][0]) {
                 return [index, parameters[indexParam][1]];
             }

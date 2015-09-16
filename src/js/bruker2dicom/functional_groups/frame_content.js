@@ -22,16 +22,25 @@ _module.FrameContent = function(indexGenerator, dicomSequenceItem,
         brukerDataset, 'VisuAcqDate', 1, dateTimeMapper('datetime'));
         
     var frameAcqDuration = function(brukerDataset) {
-        return [(brukerDataset['VisuAcqScanTime'] / brukerDataset['VisuCoreFrameCount'])];
+        return [(brukerDataset['VisuAcqScanTime'] / 
+                 brukerDataset['VisuCoreFrameCount'])];
     };
     toDicom(
         indexGenerator, item, 'FrameAcquisitionDuration',
         brukerDataset, null, 1, parseFloat, frameAcqDuration );
     
-    var indexOrentation = dicomifier.bruker2dicom.getFrameGroupIndex(brukerDataset, 'VisuCoreOrientation');
+    var indexOrentation = 
+        dicomifier.bruker2dicom.getFrameGroupIndex(brukerDataset, 
+                                                   'VisuCoreOrientation');
     var value = [];
-    value.push(indexGenerator.computeIndex([indexOrentation[0]]) + 1);
-    value.push(indexGenerator.currentIndex[indexOrentation[0]] + 1);
+    if (indexOrentation === null) {
+        value.push(indexGenerator.computeIndex([]) + 1);
+        value.push(1);
+    }
+    else {
+        value.push(indexGenerator.computeIndex([indexOrentation[0]]) + 1);
+        value.push(indexGenerator.currentIndex[indexOrentation[0]] + 1);
+    }
     item[dicomifier.dictionary['DimensionIndexValues'][1]] = {
         'vr': dicomifier.dictionary['DimensionIndexValues'][0], 
         'Value' : value };
