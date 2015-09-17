@@ -67,7 +67,7 @@ public:
     Uint16 FindCreatorElementNumber(std::string const & privatecreator, 
                                     DcmDataset* dataset = NULL);
 
-    std::string to_string();
+    std::string public_dictionary_as_json();
 
 protected:
     /**
