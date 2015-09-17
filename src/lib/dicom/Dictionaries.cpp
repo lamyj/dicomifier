@@ -12,7 +12,7 @@
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/xml_parser.hpp>
 
-#include "dcmtkpp/registry.h"
+#include <dcmtkpp/registry.h>
 
 #include "Dictionaries.h"
 

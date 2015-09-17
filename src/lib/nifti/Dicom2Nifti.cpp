@@ -12,14 +12,10 @@
 #include <boost/filesystem.hpp>
 #include <boost/lexical_cast.hpp>
 
-#include <dcmtk/config/osconfig.h>
-#include <dcmtk/dcmdata/dctk.h>     /* Covers most common dcmdata classes */
-#include <dcmtk/ofstd/ofstd.h>
-
 #include <dcmtkpp/conversion.h>
 #include <dcmtkpp/DataSet.h>
 #include <dcmtkpp/json_converter.h>
-//#include <dcmtkpp/Reader.h>
+#include <dcmtkpp/Reader.h>
 #include <dcmtkpp/registry.h>
 
 #include "core/DicomifierException.h"
@@ -136,28 +132,13 @@ Dicom2Nifti
     {
         if(boost::filesystem::is_regular_file(*it))
         {
-            // Next version of dcmtkpp
-            //std::ifstream stream(boost::filesystem::path(*it).c_str(),
-            //                     std::ios::in | std::ios::binary);
-            //
-            //std::pair<dcmtkpp::DataSet, dcmtkpp::DataSet> file;
-            dcmtkpp::DataSet dataset;
+            std::ifstream stream(boost::filesystem::path(*it).c_str(),
+                                 std::ios::in | std::ios::binary);
+
+            std::pair<dcmtkpp::DataSet, dcmtkpp::DataSet> file;
             try
             {
-                // Next version of dcmtkpp
-                //file = dcmtkpp::Reader::read_file(stream);
-
-                DcmFileFormat file;
-                OFCondition const condition = file.loadFile(boost::filesystem::path(*it).c_str());
-
-                if(condition.bad())
-                {
-                    std::stringstream streamerror;
-                    streamerror << "Cannot read dataset: " << condition.text();
-                    throw DicomifierException(streamerror.str());
-                }
-
-                dataset = dcmtkpp::convert(file.getAndRemoveDataset());
+                file = dcmtkpp::Reader::read_file(stream);
             }
             catch(std::exception const & e)
             {
@@ -165,14 +146,14 @@ Dicom2Nifti
                           << e.what() << "\n";
             }
 
-            if (!dataset.has(dcmtkpp::registry::PixelData))
+            if (!file.second.has(dcmtkpp::registry::PixelData))
             {
                 // ignore file
                 continue;
             }
 
             datasetlist.insert(std::pair<std::string, dcmtkpp::DataSet>(
-                           boost::filesystem::path(*it).c_str(), dataset));
+                           boost::filesystem::path(*it).c_str(), file.second));
         }
     }
 

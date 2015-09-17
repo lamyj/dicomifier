@@ -10,14 +10,11 @@
 #include <boost/filesystem.hpp>
 #include <boost/test/unit_test.hpp>
 
-#include <dcmtk/config/osconfig.h>
-#include <dcmtk/dcmdata/dcdatset.h>
-
 #include <dcmtkpp/conversion.h>
 #include <dcmtkpp/DataSet.h>
 #include <dcmtkpp/json_converter.h>
 #include <dcmtkpp/registry.h>
-//#include <dcmtkpp/Writer.h>
+#include <dcmtkpp/Writer.h>
 
 #include "core/DicomifierException.h"
 #include "nifti/Dicom2Nifti.h"
@@ -403,27 +400,17 @@ struct TestRun
 
         dcmtkpp::DataSet const data_set = dcmtkpp::as_dataset(json);
 
-        // Next version of dcmtkpp
         // Write input data set
-        //std::stringstream stream2;
-        //dcmtkpp::Writer::write_file(
-        //            data_set, stream2,
-        //            dcmtkpp::registry::ExplicitVRLittleEndian,
-        //            dcmtkpp::Writer::ItemEncoding::UndefinedLength, false);
-        //
-        //std::ofstream streamrla(datasetfile.c_str(),
-        //                        std::ios::out | std::ios::binary);
-        //streamrla << stream2.str();
-        //streamrla.close();
+        std::stringstream stream2;
+        dcmtkpp::Writer::write_file(
+                    data_set, stream2,
+                    dcmtkpp::registry::ExplicitVRLittleEndian,
+                    dcmtkpp::Writer::ItemEncoding::UndefinedLength, false);
 
-        DcmFileFormat fileformat((DcmDataset*)dcmtkpp::convert(data_set));
-        OFCondition result = fileformat.saveFile(datasetfile.c_str(),
-                                                 EXS_LittleEndianExplicit);
-
-        if (result.bad())
-        {
-            BOOST_FAIL("Unable to save dataset");
-        }
+        std::ofstream outputstream(datasetfile.c_str(),
+                                   std::ios::out | std::ios::binary);
+        outputstream << stream2.str();
+        outputstream.close();
     }
 
     ~TestRun()
