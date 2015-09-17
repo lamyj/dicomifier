@@ -22,8 +22,13 @@ _module.FrameContent = function(indexGenerator, dicomSequenceItem,
         brukerDataset, 'VisuAcqDate', 1, dateTimeMapper('datetime'));
         
     var frameAcqDuration = function(brukerDataset) {
-        return [(brukerDataset['VisuAcqScanTime'] / 
-                 brukerDataset['VisuCoreFrameCount'])];
+        var sliceNumber = brukerDataset['VisuCoreFrameCount'];
+        if (brukerDataset.VisuCoreDim !== undefined &&
+            brukerDataset.VisuCoreDim[0] === "3") {
+            sliceNumber = parseInt(brukerDataset.VisuCoreFrameCount) * 
+                          brukerDataset.VisuCoreSize[2]; 
+        }
+        return [(brukerDataset['VisuAcqScanTime'] / sliceNumber)];
     };
     toDicom(
         indexGenerator, item, 'FrameAcquisitionDuration',

@@ -38,7 +38,16 @@ _module.GeneralImage = function(indexGenerator, dicomDataset, brukerDataset) {
 
     toDicom(
         indexGenerator, dicomDataset, 'ImagesInAcquisition',
-        brukerDataset, 'VisuCoreFrameCount', 3, parseInt);
+        brukerDataset, 'VisuCoreFrameCount', 3, parseInt, 
+        function(brukerDataset) { 
+            if (brukerDataset.VisuCoreDim !== undefined &&
+                brukerDataset.VisuCoreDim[0] === "3") {
+                return [ parseInt(brukerDataset.VisuCoreFrameCount) * 
+                         brukerDataset.VisuCoreSize[2] ]; 
+            }
+            else { 
+                return [ brukerDataset.VisuCoreFrameCount ]; 
+            }});
 
     dicomDataset[dicomifier.dictionary['ImageComments'][1]] = {
         'vr': dicomifier.dictionary['ImageComments'][0] };
@@ -105,7 +114,8 @@ _module.ImagePlane = function(indexGenerator, dicomDataset, brukerDataset) {
         brukerDataset, 'VisuCoreFrameThickness', 2);
 };
 
-_module.ImagePixel = function(indexGenerator, dicomDataset, brukerDataset, pixelData) {
+_module.ImagePixel = function(indexGenerator, dicomDataset, brukerDataset, 
+                              pixelData) {
     var toDicom = dicomifier.bruker2dicom.toDicom;
 
     dicomDataset[dicomifier.dictionary['SamplesPerPixel'][1]] = {
@@ -457,5 +467,14 @@ _module.MultiFrameFunctionalGroups = function(indexGenerator, dicomDataset,
         
     toDicom(
         indexGenerator, dicomDataset, 'NumberOfFrames',
-        brukerDataset, 'VisuCoreFrameCount', 1, parseInt);
+        brukerDataset, 'VisuCoreFrameCount', 1, parseInt, 
+        function(brukerDataset) { 
+            if (brukerDataset.VisuCoreDim !== undefined &&
+                brukerDataset.VisuCoreDim[0] === "3") {
+                return [ parseInt(brukerDataset.VisuCoreFrameCount) * 
+                         brukerDataset.VisuCoreSize[2] ]; 
+            }
+            else {
+                return [ brukerDataset.VisuCoreFrameCount ]; 
+            }});
 };
