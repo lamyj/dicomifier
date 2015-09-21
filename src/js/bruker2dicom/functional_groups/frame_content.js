@@ -34,17 +34,17 @@ _module.FrameContent = function(indexGenerator, dicomSequenceItem,
         indexGenerator, item, 'FrameAcquisitionDuration',
         brukerDataset, null, 1, parseFloat, frameAcqDuration );
     
-    var indexOrentation = 
+    var indexOrientation = 
         dicomifier.bruker2dicom.getFrameGroupIndex(brukerDataset, 
                                                    'VisuCoreOrientation');
     var value = [];
-    if (indexOrentation === null) {
+    if (indexOrientation === null) {
         value.push(indexGenerator.computeIndex([]) + 1);
         value.push(1);
     }
     else {
-        value.push(indexGenerator.computeIndex([indexOrentation[0]]) + 1);
-        value.push(indexGenerator.currentIndex[indexOrentation[0]] + 1);
+        value.push(indexGenerator.computeIndex([indexOrientation[0]]) + 1);
+        value.push(indexGenerator.currentIndex[indexOrientation[0]] + 1);
     }
     item[dicomifier.dictionary['DimensionIndexValues'][1]] = {
         'vr': dicomifier.dictionary['DimensionIndexValues'][0], 

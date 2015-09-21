@@ -12,6 +12,7 @@
 #include <boost/filesystem.hpp>
 
 #include <dcmtkpp/json_converter.h>
+#include <dcmtkpp/registry.h>
 
 #include "bruker/converters/pixel_data_converter.h"
 #include "core/DicomifierException.h"
@@ -24,6 +25,67 @@ namespace dicomifier
 
 namespace javascript
 {
+
+void get_pixeldata_information(v8::Local<v8::Value> const & arg,
+                               std::string & pixel_data,
+                               std::string & word_type,
+                               std::string & byte_order,
+                               int & frame_size)
+{
+    // Get PIXELDATA
+    if (!arg->ToObject()->Has(v8::String::New("PIXELDATA")))
+    {
+        throw DicomifierException("Missing pixel data path");
+    }
+    v8::Local<v8::Array> pixeldata =
+            arg->ToObject()->Get(v8::String::New("PIXELDATA")).As<v8::Array>();
+    v8::String::Utf8Value utf8pixeldata(pixeldata->Get(0)->ToString());
+    std::stringstream pixel_data_stream;
+    pixel_data_stream << *utf8pixeldata;
+
+    pixel_data = pixel_data_stream.str();
+
+    // Get VisuCoreWordType
+    if (!arg->ToObject()->Has(v8::String::New("VisuCoreWordType")))
+    {
+        throw DicomifierException(
+                    "Missing mandatory Bruker field VisuCoreWordType");
+    }
+    v8::Local<v8::Array> wordtype =
+            arg->ToObject()->Get(
+                v8::String::New("VisuCoreWordType")).As<v8::Array>();
+    v8::String::Utf8Value utf8wordtype(wordtype->Get(0)->ToString());
+    std::stringstream word_type_stream;
+    word_type_stream << *utf8wordtype;
+
+    word_type = word_type_stream.str();
+
+    // Get VisuCoreByteOrder
+    if (!arg->ToObject()->Has(v8::String::New("VisuCoreByteOrder")))
+    {
+        throw DicomifierException(
+                    "Missing mandatory Bruker field VisuCoreByteOrder");
+    }
+    v8::Local<v8::Array> byteorder =
+            arg->ToObject()->Get(
+                v8::String::New("VisuCoreByteOrder")).As<v8::Array>();
+    v8::String::Utf8Value utf8byteorder(byteorder->Get(0)->ToString());
+    std::stringstream byte_order_stream;
+    byte_order_stream << *utf8byteorder;
+
+    byte_order = byte_order_stream.str();
+
+    // Get VisuCoreSize
+    if (!arg->ToObject()->Has(v8::String::New("VisuCoreSize")))
+    {
+        throw DicomifierException("Missing mandatory Bruker field VisuCoreSize");
+    }
+    v8::Local<v8::Array> coresize =
+            arg->ToObject()->Get(
+                v8::String::New("VisuCoreSize")).As<v8::Array>();
+    frame_size = coresize->Get(0)->ToInt32()->Int32Value() *
+                 coresize->Get(1)->ToInt32()->Int32Value();
+}
 
 /***********************************
  *  Exposed functions              *
@@ -63,54 +125,20 @@ v8::Handle<v8::Value> load_pixel_data(v8::Arguments const & args)
 
     v8::Local<v8::Value> const arg = args[0];
 
-    // Get PIXELDATA
-    if (!arg->ToObject()->Has(v8::String::New("PIXELDATA")))
-    {
-        return v8::ThrowException(v8::String::New("Missing pixel data path"));
-    }
-    v8::Local<v8::Array> pixeldata =
-            arg->ToObject()->Get(v8::String::New("PIXELDATA")).As<v8::Array>();
-    v8::String::Utf8Value utf8pixeldata(pixeldata->Get(0)->ToString());
-    std::stringstream pixel_data;
-    pixel_data << *utf8pixeldata;
+    std::string pixel_data;
+    std::string word_type;
+    std::string byte_order;
+    int framesize;
 
-    // Get VisuCoreWordType
-    if (!arg->ToObject()->Has(v8::String::New("VisuCoreWordType")))
+    try
     {
-        return v8::ThrowException(v8::String::New(
-            "Missing mandatory Bruker field VisuCoreWordType"));
+        get_pixeldata_information(args[0], pixel_data, word_type, byte_order,
+                                  framesize);
     }
-    v8::Local<v8::Array> wordtype =
-            arg->ToObject()->Get(
-                v8::String::New("VisuCoreWordType")).As<v8::Array>();
-    v8::String::Utf8Value utf8wordtype(wordtype->Get(0)->ToString());
-    std::stringstream word_type;
-    word_type << *utf8wordtype;
-
-    // Get VisuCoreByteOrder
-    if (!arg->ToObject()->Has(v8::String::New("VisuCoreByteOrder")))
+    catch (DicomifierException const & exc)
     {
-        return v8::ThrowException(v8::String::New(
-            "Missing mandatory Bruker field VisuCoreByteOrder"));
+        return v8::ThrowException(v8::String::New(exc.what()));
     }
-    v8::Local<v8::Array> byteorder =
-            arg->ToObject()->Get(
-                v8::String::New("VisuCoreByteOrder")).As<v8::Array>();
-    v8::String::Utf8Value utf8byteorder(byteorder->Get(0)->ToString());
-    std::stringstream byte_order;
-    byte_order << *utf8byteorder;
-
-    // Get VisuCoreSize
-    if (!arg->ToObject()->Has(v8::String::New("VisuCoreSize")))
-    {
-        return v8::ThrowException(v8::String::New(
-                    "Missing mandatory Bruker field VisuCoreSize"));
-    }
-    v8::Local<v8::Array> coresize =
-            arg->ToObject()->Get(
-                v8::String::New("VisuCoreSize")).As<v8::Array>();
-    int framesize = coresize->Get(0)->ToInt32()->Int32Value() *
-                    coresize->Get(1)->ToInt32()->Int32Value();
 
     // Get the frame number
     v8::Local<v8::Value> const argindex = args[1];
@@ -141,8 +169,7 @@ v8::Handle<v8::Value> load_pixel_data(v8::Arguments const & args)
         {
             // Read pixel data file and get the Frame i
             dcmtkpp::DataSet dataset;
-            converter(framesize, i, pixel_data.str(), word_type.str(),
-                      byte_order.str(), dataset);
+            converter(framesize, i, pixel_data, word_type, byte_order, dataset);
 
             // Convert to JSON
             Json::Value const json_dset = dcmtkpp::as_json(dataset);
@@ -166,6 +193,60 @@ v8::Handle<v8::Value> load_pixel_data(v8::Arguments const & args)
     }
 
     return array;
+}
+
+v8::Handle<v8::Value> sort_pixel_data(v8::Arguments const & args)
+{
+    if(args.Length() < 2)
+    {
+        return v8::ThrowException(v8::String::New("Missing input"));
+    }
+
+    try
+    {
+        std::string pixel_data;
+        std::string word_type;
+        std::string byte_order;
+        int framesize;
+        get_pixeldata_information(args[0], pixel_data, word_type, byte_order,
+                                  framesize);
+
+        v8::Local<v8::Array> array = args[1].As<v8::Array>();
+
+        dcmtkpp::Element element = dcmtkpp::Element(dcmtkpp::Value::Binary(),
+                                                    dcmtkpp::VR::OW);
+        bruker::pixel_data_converter converter;
+        for (unsigned int i = 0; i < array->Length(); ++i)
+        {
+            int index = array->Get(i)->ToInt32()->Int32Value();
+            dcmtkpp::DataSet dataset;
+            converter(framesize, index, pixel_data, word_type,
+                      byte_order, dataset);
+
+            auto temp = dataset.as_binary(dcmtkpp::registry::PixelData);
+            element.as_binary().insert(element.as_binary().end(),
+                                       temp.begin(), temp.end());
+        }
+
+        dcmtkpp::DataSet dataset;
+        dataset.add(dcmtkpp::registry::PixelData, element);
+
+        // Convert to JSON
+        Json::Value const json_dtset = dcmtkpp::as_json(dataset);
+
+        return v8::String::New(
+                    json_dtset["7fe00010"]["InlineBinary"].asCString());
+
+    }
+    catch (DicomifierException const & exc)
+    {
+        return v8::ThrowException(v8::String::New(exc.what()));
+    }
+    catch (std::exception const & otherexc)
+    {
+        return v8::ThrowException(v8::String::New(otherexc.what()));
+    }
+    return v8::Null();
 }
 
 v8::Handle<v8::Value> namespace_(v8::Arguments const & args)
@@ -282,6 +363,7 @@ JavascriptVM
     DICOMIFIER_EXPOSE_FUNCTION(log, "log");
     DICOMIFIER_EXPOSE_FUNCTION(is_big_endian, "bigEndian");
     DICOMIFIER_EXPOSE_FUNCTION(load_pixel_data, "loadPixelData");
+    DICOMIFIER_EXPOSE_FUNCTION(sort_pixel_data, "sortPixelData");
     DICOMIFIER_EXPOSE_FUNCTION(generate_uid, "dcmGenerateUniqueIdentifier");
     DICOMIFIER_EXPOSE_FUNCTION(require, "require");
     DICOMIFIER_EXPOSE_FUNCTION(namespace_, "namespace");

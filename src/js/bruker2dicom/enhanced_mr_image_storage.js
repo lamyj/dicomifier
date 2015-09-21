@@ -12,6 +12,7 @@ _module.EnhancedMRImageStorage = function(brukerDataset) {
     var frameGroups = dicomifier.bruker2dicom.getFrameGroups(brukerDataset);
     var indexGenerator = 
             new dicomifier.bruker2dicom.FrameIndexGenerator(frameGroups);
+
     var pixelData = loadPixelData(brukerDataset, 
                                   indexGenerator.countMax, true);
 
@@ -43,6 +44,41 @@ _module.EnhancedMRImageStorage = function(brukerDataset) {
     modules.MultiFrameFunctionalGroups(indexGenerator, dicomDataset, 
                                        brukerDataset, pixelData[1], 
                                        pixelData[2]);
+                                       
+    // Sort PixelData by stacks
+    var sliceNumbers = [];
+    for (var index = 0; 
+         index < dicomDataset[dicomifier.
+            dictionary['PerFrameFunctionalGroupsSequence'][1]].Value.length; 
+         ++index) {
+        var item = dicomDataset[dicomifier.
+            dictionary['PerFrameFunctionalGroupsSequence'][1]].
+                Value[index][dicomifier.dictionary['FrameContentSequence'][1]].
+                    Value[0];
+        
+        sliceNumbers.push(
+            item[dicomifier.dictionary['DimensionIndexValues'][1]].Value);
+    }
+    var sortedSliceNumbers = {};
+    for (var index = 0; index < sliceNumbers.length; ++index) {
+        if (sortedSliceNumbers[String(sliceNumbers[index][0])] === undefined) {
+            sortedSliceNumbers[String(sliceNumbers[index][0])] = [];
+        }
+        sortedSliceNumbers[String(sliceNumbers[index][0])].push(
+            [sliceNumbers[index][1], index]);
+    }
+    
+    var keys = Object.keys(sortedSliceNumbers);
+    
+    var sortedSlice = [];
+    for (var index = 0; index < keys.length; ++index) {
+        for (var i = 0; i < sortedSliceNumbers[keys[index]].length; ++i) {
+            sortedSlice.push(sortedSliceNumbers[keys[index]][i][1]);
+        }
+    }
+    
+    dicomDataset[dicomifier.dictionary['PixelData'][1]].InlineBinary = 
+        sortPixelData(brukerDataset, sortedSlice);
     
     var output = [];
     output[0] = dicomDataset;

@@ -4,6 +4,8 @@ var _module = namespace('dicomifier.bruker2dicom.functionalGroups');
 
 _module.MRModifier = function(indexGenerator, dicomSequenceItem, 
                               brukerDataset) {
+    var toDicom = dicomifier.bruker2dicom.toDicom;
+    
     var item = {};
     
     item[dicomifier.dictionary['InversionRecovery'][1]] = {
@@ -11,9 +13,9 @@ _module.MRModifier = function(indexGenerator, dicomSequenceItem,
         'Value' : [ 'NO' ] }; // TODO
         
     if (item[dicomifier.dictionary['InversionRecovery'][1]]['Value'][0] === 'NO') {
-        item[dicomifier.dictionary['InversionTimes'][1]] = {
-            'vr': dicomifier.dictionary['InversionTimes'][0], 
-            'Value' : [ 0 ] }; // TODO
+        toDicom(
+            indexGenerator, item, 'InversionTimes',
+            brukerDataset, 'VisuAcqInversionTime', 2);
     }
     
     item[dicomifier.dictionary['FlowCompensation'][1]] = {
