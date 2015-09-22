@@ -84,6 +84,20 @@ public:
      */
     void run() const;
 
+    static nifti_image * extract_information_from_dataset(
+            Json::Value const & dataset, std::string const & filename,
+            NIfTI_Dimension dimension);
+
+    static void extract_stack_number(Json::Value const & dataset,
+                                     NIfTI_Dimension dimension,
+                                     nifti_image * nim);
+
+    static double get_distance_between_slice(Json::Value const & dataset);
+
+    static Json::Value extract_orientation(Json::Value const & dataset);
+
+    static Json::Value extract_position(Json::Value const & dataset);
+
 protected:
     /// Create an instance of Dicom2Nifti
     Dicom2Nifti();
@@ -107,18 +121,6 @@ private:
 
     Dicom2Nifti(Self const & other);     // Purposely not implemented
     Self const & operator=(Self const & other); // Purposely not implemented
-
-    nifti_image * extract_information_from_dataset(
-            Json::Value const & dataset, std::string const & prefix) const;
-
-    void extract_stack_number(Json::Value const & dataset,
-                              nifti_image * nim) const;
-
-    Json::Value extract_orientation(Json::Value const & dataset) const;
-
-    Json::Value extract_position(Json::Value const & dataset) const;
-
-    double get_distance_between_slice(Json::Value const & dataset) const;
 
 };
 

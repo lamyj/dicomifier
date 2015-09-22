@@ -3,33 +3,51 @@ require("dicom2nifti/common.js");
 
 var _module = namespace('dicomifier.dicom2nifti');
 
-_module.convert = function(datasetlist, dimension) {
+_module.convert = function(datasetlist, dimension, outputdir) {
     if (datasetlist.length === 0) {
         throw new dicomifier.Exception("Missing input");
     }
     
     var listMRImageStorage = new Array();
     var listEnhancedMRImageStorage = new Array();
+    var ignoredFiles = 0;
     for (var index = 0; index < datasetlist.length; ++index) {
+        var dicomDataset = readDICOM(datasetlist[index]);
+         
+        if (dicomDataset === null) {
+            log("Ignore file: " + datasetlist[index]);
+            ++ignoredFiles;
+            continue;
+        }
+
         var sopClassUID = '';
-        if (datasetlist[index]['00080016'] !== undefined && 
-            datasetlist[index]['00080016']['Value'] !== undefined &&
-            datasetlist[index]['00080016']['Value'].length > 0) {
-            sopClassUID = datasetlist[index]['00080016']['Value'][0];
+        if (dicomDataset['00080016'] !== undefined && 
+            dicomDataset['00080016']['Value'] !== undefined &&
+            dicomDataset['00080016']['Value'].length > 0) {
+            sopClassUID = dicomDataset['00080016']['Value'][0];
         }
         
         if (sopClassUID === '1.2.840.10008.5.1.4.1.1.4' ) {
             // MRImageStorage
-            listMRImageStorage.push(datasetlist[index]);
+            listMRImageStorage.push(dicomDataset);
         }
         else if (sopClassUID === '1.2.840.10008.5.1.4.1.1.4.1' ) {
             // EnhancedMRImageStorage
-            listEnhancedMRImageStorage.push(datasetlist[index]);
+            listEnhancedMRImageStorage.push(dicomDataset);
         }
         else {
             log('Unknown SOPClassUID. Ignore Dataset', 'ERROR');
+            ++ignoredFiles;
         }
     }
+    
+    log("Find " + String(listMRImageStorage.length) + " MR Image Storage", 
+        'DEBUG');
+    log("Find " + String(listEnhancedMRImageStorage.length) 
+                + " Enhanced MR Image Storage", 
+        'DEBUG');
+    log("Find " + String(ignoredFiles) + " other files (ignored)", 
+        'DEBUG');
 
     // convert dicomifier.dictionary
     var dictionaryTagToName = {};
@@ -57,12 +75,25 @@ _module.convert = function(datasetlist, dimension) {
     // Fusion stack
     if (dimension === 4) {
         if (dicomifier.dicom2nifti.is_synchronized(output)) {
-            return dicomifier.dicom2nifti.mergeAllStacks(output);
+            output = dicomifier.dicom2nifti.mergeAllStacks(output);
         }
     }
-
-    // Return output
-    return output;
+    
+    var nbdigit = 1 + Math.floor(Math.log(output.length));
+    for (var i = 0; i < output.length; ++i) {
+        // Get output file name
+        var filename = String(i+1);
+        while (filename.length != nbdigit) {
+            filename = "0" + filename;
+        }
+        filename = outputdir + "/" + filename + "_" 
+                 + output[i].SeriesDescription[0];
+        dicomifier.outputs[i] = filename.replace(" ", "_");
+        
+        writeNIfTI(JSON.stringify(output[i]), dimension,
+                   dicomifier.outputs[i] + ".nii", 
+                   dicomifier.outputs[i] + ".json");
+    }
 }
 
 _module.processMRImageStorage = function(datasetlist, dimension, 

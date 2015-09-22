@@ -12,13 +12,17 @@
 #include <boost/filesystem.hpp>
 
 #include <dcmtkpp/json_converter.h>
+#include <dcmtkpp/Reader.h>
 #include <dcmtkpp/registry.h>
+
+#include <nifti/nifti1_io.h>
 
 #include "bruker/converters/pixel_data_converter.h"
 #include "core/DicomifierException.h"
 #include "dicom/Dictionaries.h"
 #include "JavascriptVM.h"
 #include "LoggerJS.h"
+#include "nifti/Dicom2Nifti.h"
 
 namespace dicomifier
 {
@@ -249,6 +253,120 @@ v8::Handle<v8::Value> sort_pixel_data(v8::Arguments const & args)
     return v8::Null();
 }
 
+v8::Handle<v8::Value> read_dicom(v8::Arguments const & args)
+{
+    if(args.Length() < 1)
+    {
+        return v8::ThrowException(
+                v8::String::New("Missing input DICOM file path"));
+    }
+
+    auto const filename = args[0]->ToString();
+    std::string filename_utf8(filename->Utf8Length(), '\0');
+    filename->WriteUtf8(&filename_utf8[0]);
+
+    std::ifstream stream(boost::filesystem::path(filename_utf8).c_str(),
+                         std::ios::in | std::ios::binary);
+
+    std::pair<dcmtkpp::DataSet, dcmtkpp::DataSet> file;
+    try
+    {
+        file = dcmtkpp::Reader::read_file(stream);
+    }
+    catch(std::exception const & e)
+    {
+        std::stringstream error;
+        error << "Could not read '" << filename_utf8 << "': "
+              << e.what() << "\n";
+        return v8::ThrowException(v8::String::New(error.str().c_str()));
+    }
+
+    if (!file.second.has(dcmtkpp::registry::PixelData))
+    {
+        // ignore file
+        return v8::Null();
+    }
+
+    try
+    {
+        auto const json_dicom_dataset = dcmtkpp::as_json(file.second);
+
+        std::stringstream script;
+        script << "var dicom = "
+               << json_dicom_dataset.toStyledString() << ";\n" << "dicom;";
+        return JavascriptVM::run(script.str(), v8::Context::New());
+    }
+    catch (dicomifier::DicomifierException const & dcexc)
+    {
+        return v8::ThrowException(v8::String::New(dcexc.what()));
+    }
+    catch (dcmtkpp::Exception const & exc)
+    {
+        return v8::ThrowException(v8::String::New(exc.what()));
+    }
+    catch(std::exception const & e)
+    {
+        return v8::ThrowException(v8::String::New(e.what()));
+    }
+
+    return v8::Null();
+}
+
+v8::Handle<v8::Value> write_nifti(v8::Arguments const & args)
+{
+    // Get the JSON representation of the V8 data set.
+    std::string json = *v8::String::Utf8Value(args[0]);
+
+    // Parse it into a data set.
+    Json::Value jsondataset;
+    {
+        Json::Reader reader;
+        std::string old_locale = std::setlocale(LC_ALL, "C");
+        reader.parse(json, jsondataset);
+        std::setlocale(LC_ALL, old_locale.c_str());
+    }
+
+    nifti::NIfTI_Dimension dimension =
+            (nifti::NIfTI_Dimension)args[1]->ToInt32()->Int32Value();
+
+    // Write Nifti image file
+    auto const path_nii_js = args[2]->ToString();
+    std::string path_nii_utf8(path_nii_js->Utf8Length(), '\0');
+    path_nii_js->WriteUtf8(&path_nii_utf8[0]);
+
+    boost::filesystem::path const destination =
+        boost::filesystem::path(path_nii_utf8);
+    boost::filesystem::create_directories(destination.parent_path());
+
+    nifti_image * nim = nifti::Dicom2Nifti::
+            extract_information_from_dataset(jsondataset,
+                                             path_nii_utf8, dimension);
+    nifti_image_write(nim);
+    delete[] reinterpret_cast<uint8_t*>(nim->data);
+    nim->data = 0; // if left pointing to data buffer
+    // nifti_image_free will try and free this memory
+    nifti_image_free(nim);
+
+    // Write Metadata file
+    auto const path_json_js = args[3]->ToString();
+    std::string path_json_utf8(path_json_js->Utf8Length(), '\0');
+    path_json_js->WriteUtf8(&path_json_utf8[0]);
+
+    boost::filesystem::path const destinationjson =
+        boost::filesystem::path(path_json_utf8);
+    boost::filesystem::create_directories(destinationjson.parent_path());
+
+    jsondataset.removeMember("PixelData");
+    jsondataset.removeMember("DICOMIFIER_STACKS_NUMBER");
+    jsondataset.removeMember("DICOMIFIER_DATASET_PERSTACK_NUMBER");
+    std::ofstream myfile;
+    myfile.open(path_json_utf8);
+    myfile << jsondataset.toStyledString();
+    myfile.close();
+
+    return v8::Null();
+}
+
 v8::Handle<v8::Value> namespace_(v8::Arguments const & args)
 {
     auto const path_js = args[0]->ToString();
@@ -318,7 +436,8 @@ v8::Handle<v8::Value> require(v8::Arguments const & args)
 
     if(absolute_path.empty())
     {
-        return v8::ThrowException(v8::String::New(("No such file: "+path_utf8).c_str()));
+        return v8::ThrowException(
+                    v8::String::New(("No such file: "+path_utf8).c_str()));
     }
 
     auto const context = v8::Context::GetCurrent();
@@ -364,6 +483,8 @@ JavascriptVM
     DICOMIFIER_EXPOSE_FUNCTION(is_big_endian, "bigEndian");
     DICOMIFIER_EXPOSE_FUNCTION(load_pixel_data, "loadPixelData");
     DICOMIFIER_EXPOSE_FUNCTION(sort_pixel_data, "sortPixelData");
+    DICOMIFIER_EXPOSE_FUNCTION(read_dicom, "readDICOM");
+    DICOMIFIER_EXPOSE_FUNCTION(write_nifti, "writeNIfTI");
     DICOMIFIER_EXPOSE_FUNCTION(generate_uid, "dcmGenerateUniqueIdentifier");
     DICOMIFIER_EXPOSE_FUNCTION(require, "require");
     DICOMIFIER_EXPOSE_FUNCTION(namespace_, "namespace");

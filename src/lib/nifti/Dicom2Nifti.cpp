@@ -123,66 +123,33 @@ Dicom2Nifti
 
     typedef boost::filesystem::directory_iterator Iterator;
 
-    // Use a map to sort DICOM by file name
-    std::map<std::string, dcmtkpp::DataSet> datasetlist;
+    std::vector<std::string> list_dataset;
 
-    unsigned int count = 0;
     for(Iterator it(boost::filesystem::path(this->_dicomDir));
         it != Iterator(); ++it)
     {
         if(boost::filesystem::is_regular_file(*it))
         {
-            std::ifstream stream(boost::filesystem::path(*it).c_str(),
-                                 std::ios::in | std::ios::binary);
-
-            std::pair<dcmtkpp::DataSet, dcmtkpp::DataSet> file;
-            try
-            {
-                file = dcmtkpp::Reader::read_file(stream);
-            }
-            catch(std::exception const & e)
-            {
-                std::cout << "Could not read " << *it << ": "
-                          << e.what() << "\n";
-            }
-
-            if (!file.second.has(dcmtkpp::registry::PixelData))
-            {
-                // ignore file
-                continue;
-            }
-
-            datasetlist.insert(std::pair<std::string, dcmtkpp::DataSet>(
-                           boost::filesystem::path(*it).c_str(), file.second));
+            list_dataset.push_back(boost::filesystem::path(*it).c_str());
         }
     }
 
-    for (auto it = datasetlist.begin(); it != datasetlist.end(); ++it)
+    std::sort(list_dataset.begin(), list_dataset.end());
+    loggerDebug() << "Processing " << list_dataset.size() << " files...";
+
+    std::stringstream streamstr;
+    streamstr << "require('dicom2nifti/converter.js');\n";
+    for (unsigned int i = 0; i < list_dataset.size(); ++i)
     {
-        auto const json_dicom_dataset = dcmtkpp::as_json(it->second);
-
-        std::stringstream streamstr;
-        streamstr << "dicomifier.inputs[" << count << "] = "
-               << json_dicom_dataset.toStyledString() << ";";
-        jsvm.run(streamstr.str(), jsvm.get_context());
-
-        ++count;
+        streamstr << "dicomifier.inputs[" << i << "] = \""
+                  << list_dataset[i] << "\";\n";
     }
 
-    loggerDebug() << "Processing " << count << " DICOM files...";
-
-    std::stringstream script;
-    script << "require('dicom2nifti/converter.js');\n";
     switch (this->_outputDimension)
     {
     case NIfTI_Dimension::Dimension3:
-    {
-        script << "dicomifier.outputs = dicomifier.dicom2nifti.convert(dicomifier.inputs, 3);";
-        break;
-    }
     case NIfTI_Dimension::Dimension4:
     {
-        script << "dicomifier.outputs = dicomifier.dicom2nifti.convert(dicomifier.inputs, 4);";
         break;
     }
     default:
@@ -190,59 +157,9 @@ Dicom2Nifti
         throw DicomifierException("Unknown dimension");
     }
     }
-
-    // Execute script
-    jsvm.run(script.str(), jsvm.get_context());
-
-    // For each stack
-    auto const length_value = jsvm.run(
-        "dicomifier.outputs.length;", jsvm.get_context());
-    auto const stack_number = length_value->ToInteger()->Value();
-    int const nbdigit = 1 + floor(log10(stack_number));
-    for (unsigned int stack_index = 0; stack_index < stack_number; ++stack_index)
-    {
-        // Get the JSON representation of the V8 data set.
-        std::string json;
-        {
-            std::stringstream stream;
-            stream << "JSON.stringify(dicomifier.outputs[" << stack_index << "]);";
-            auto const value = jsvm.run(stream.str(), jsvm.get_context());
-            json = *v8::String::Utf8Value(value);
-        }
-
-        // Parse it into a data set.
-        Json::Value jsondataset;
-        {
-            Json::Reader reader;
-            std::string old_locale = std::setlocale(LC_ALL, "C");
-            reader.parse(json, jsondataset);
-            std::setlocale(LC_ALL, old_locale.c_str());
-        }
-
-        // Write Nifti image file
-        std::ostringstream prefix;
-        prefix << std::setw(nbdigit) << std::setfill('0') << (stack_index+1);
-
-        nifti_image * nim = extract_information_from_dataset(jsondataset,
-                                                             prefix.str());
-        nifti_image_write(nim);
-        std::string filename(nim->iname);
-        delete[] reinterpret_cast<uint8_t*>(nim->data);
-        nim->data = 0; // if left pointing to data buffer
-        // nifti_image_free will try and free this memory
-        nifti_image_free(nim);
-
-        // Write Metadata file
-        boost::replace_all(filename, ".nii", ".json");
-        jsondataset.removeMember("PixelData");
-        jsondataset.removeMember("DICOMIFIER_STACKS_NUMBER");
-        jsondataset.removeMember("DICOMIFIER_DATASET_PERSTACK_NUMBER");
-        std::ofstream myfile;
-        myfile.open(filename);
-        myfile << jsondataset.toStyledString();
-        myfile.close();
-
-    }
+    streamstr << "dicomifier.dicom2nifti.convert(dicomifier.inputs, "
+              << this->_outputDimension << ", '" << this->_outputDir << "');";
+    jsvm.run(streamstr.str(), jsvm.get_context());
 
     loggerDebug() << "Done.";
 }
@@ -250,28 +167,13 @@ Dicom2Nifti
 nifti_image *
 Dicom2Nifti
 ::extract_information_from_dataset(Json::Value const & dataset,
-                                   std::string const & prefix) const
+                                   std::string const & filename,
+                                   NIfTI_Dimension dimension)
 {
     // fill out the image header.
     nifti_image * nim = nifti_simple_init_nim();
 
-    auto const seriesdesc = dataset.get("SeriesDescription", Json::Value());
-
-    std::stringstream filename;
-    filename << prefix << "_";
-    if (!seriesdesc.isNull()) filename << seriesdesc[0].asString();
-    filename << ".nii";
-
-    std::string filenamestr = filename.str();
-    boost::replace_all(filenamestr, " ", "_");
-
-    // Get file name
-    boost::filesystem::path const destination =
-        boost::filesystem::path(this->_outputDir)
-            /filenamestr;
-    boost::filesystem::create_directories(destination.parent_path());
-
-    char * tempbasename = nifti_makebasename(destination.c_str());
+    char * tempbasename = nifti_makebasename(filename.c_str());
     std::string const BaseName(tempbasename);
     free(tempbasename);
 
@@ -292,10 +194,10 @@ Dicom2Nifti
     nim->dim[2] = nim->ny=1;
     nim->dim[1] = nim->nx=1;
 
-    this->extract_stack_number(dataset, nim);
+    Dicom2Nifti::extract_stack_number(dataset, dimension, nim);
 
     nim->pixdim[3] = nim->dz =
-            static_cast<float>( get_distance_between_slice(dataset) );
+            static_cast<float>( Dicom2Nifti::get_distance_between_slice(dataset) );
     nim->nvox *= nim->dim[3];
 
     nim->dim[2] = nim->ny = dataset.get("Columns", Json::Value())[0].asInt();
@@ -324,7 +226,7 @@ Dicom2Nifti
 
     // Get 3 vectors for directions
     Json::Value const image_orientation_patient =
-            this->extract_orientation(dataset);
+            Dicom2Nifti::extract_orientation(dataset);
 
     std::vector<double> directions;
     // Get dir x and y
@@ -356,7 +258,7 @@ Dicom2Nifti
     }
 
     // Fill in origin.
-    Json::Value const image_position_patient = this->extract_position(dataset);
+    Json::Value const image_position_patient = Dicom2Nifti::extract_position(dataset);
 
     matrix.m[0][3] =
             static_cast<float>(-image_position_patient[0][0].asDouble());
@@ -421,7 +323,7 @@ Dicom2Nifti
 
 void
 Dicom2Nifti
-::extract_stack_number(Json::Value const & dataset, nifti_image *nim) const
+::extract_stack_number(Json::Value const & dataset, NIfTI_Dimension dimension, nifti_image *nim)
 {
     std::string const sopclassuid = dataset.get("SOPClassUID",
                                                 Json::Value())[0].asString();
@@ -430,10 +332,10 @@ Dicom2Nifti
     {
         // One stack = 3 dimensions
         // Multi stack = 4 dimensions
-        nim->ndim = (int)this->_outputDimension;
-        nim->dim[0] = (int)this->_outputDimension;
+        nim->ndim = (int)dimension;
+        nim->dim[0] = (int)dimension;
 
-        if (this->_outputDimension == NIfTI_Dimension::Dimension4)
+        if (dimension == NIfTI_Dimension::Dimension4)
         {
             nim->dim[4] = nim->nt = dataset.get("DICOMIFIER_STACKS_NUMBER",
                                                 Json::Value()).asInt();
@@ -456,7 +358,7 @@ Dicom2Nifti
     }
     else if (sopclassuid == UID_EnhancedMRImageStorage)
     {
-        if (this->_outputDimension == NIfTI_Dimension::Dimension3)
+        if (dimension == NIfTI_Dimension::Dimension3)
         {
             loggerWarning() << "force NIfTI 4 dimension.";
         }
@@ -497,7 +399,7 @@ Dicom2Nifti
 
 Json::Value
 Dicom2Nifti
-::extract_orientation(Json::Value const & dataset) const
+::extract_orientation(Json::Value const & dataset)
 {
     std::string const sopclassuid = dataset.get("SOPClassUID",
                                                 Json::Value())[0].asString();
@@ -530,7 +432,7 @@ Dicom2Nifti
 
 Json::Value
 Dicom2Nifti
-::extract_position(Json::Value const & dataset) const
+::extract_position(Json::Value const & dataset)
 {
     std::string const sopclassuid = dataset.get("SOPClassUID",
                                                 Json::Value())[0].asString();
@@ -566,7 +468,7 @@ Dicom2Nifti
 
 double
 Dicom2Nifti
-::get_distance_between_slice(Json::Value const & dataset) const
+::get_distance_between_slice(Json::Value const & dataset)
 {
     Json::Value const image_position_patient =
             dataset.get("ImagePositionPatient", Json::Value());
