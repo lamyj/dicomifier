@@ -19,6 +19,7 @@
 
 #include "bruker/converters/pixel_data_converter.h"
 #include "core/DicomifierException.h"
+#include "core/Logger.h"
 #include "dicom/Dictionaries.h"
 #include "JavascriptVM.h"
 #include "LoggerJS.h"
@@ -275,10 +276,9 @@ v8::Handle<v8::Value> read_dicom(v8::Arguments const & args)
     }
     catch(std::exception const & e)
     {
-        std::stringstream error;
-        error << "Could not read '" << filename_utf8 << "': "
-              << e.what() << "\n";
-        return v8::ThrowException(v8::String::New(error.str().c_str()));
+        dicomifier::loggerError() << "Could not read '" << filename_utf8
+                                  << "': " << e.what() << "\n";
+        return v8::Null();
     }
 
     if (!file.second.has(dcmtkpp::registry::PixelData))
@@ -314,6 +314,14 @@ v8::Handle<v8::Value> read_dicom(v8::Arguments const & args)
 
 v8::Handle<v8::Value> write_nifti(v8::Arguments const & args)
 {
+    if(args.Length() < 4)
+    {
+        return v8::ThrowException(
+                v8::String::New("Missing Arguments for writeNIfTI"));
+    }
+
+    try
+    {
     // Get the JSON representation of the V8 data set.
     std::string json = *v8::String::Utf8Value(args[0]);
 
@@ -363,6 +371,15 @@ v8::Handle<v8::Value> write_nifti(v8::Arguments const & args)
     myfile.open(path_json_utf8);
     myfile << jsondataset.toStyledString();
     myfile.close();
+    }
+    catch (DicomifierException const & exc)
+    {
+        return v8::ThrowException(v8::String::New(exc.what()));
+    }
+    catch (std::exception const & otherexc)
+    {
+        return v8::ThrowException(v8::String::New(otherexc.what()));
+    }
 
     return v8::Null();
 }

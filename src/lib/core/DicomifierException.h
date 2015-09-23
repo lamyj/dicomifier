@@ -26,7 +26,8 @@ public:
      * Create an instance of DicomifierException
      * @param message: details about this exception
      */
-    DicomifierException(const std::string& message):
+    DicomifierException(std::string const & message):
+        std::exception(),
         m_message(message) {}
 
     /// Destroy the exception
