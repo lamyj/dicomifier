@@ -1,3 +1,4 @@
+require("common.js");
 
 var _module = namespace('dicomifier.dicom2nifti');
 

@@ -110,3 +110,20 @@ BOOST_FIXTURE_TEST_CASE(Callback, DcmQrSCP)
     BOOST_CHECK_EQUAL(callback.end_count, 1);
     BOOST_CHECK(callback.progressing_count > 0);
 }
+
+BOOST_FIXTURE_TEST_CASE(Missing_SOPClassUID, DcmQrSCP)
+{
+    dicomifier::StoreSCU scu;
+    DcmDataset dataset;
+    BOOST_REQUIRE_THROW(scu.set_affected_sop_class(&dataset),
+                        dicomifier::DicomifierException)
+}
+
+BOOST_FIXTURE_TEST_CASE(Bad_SOPClassUID, DcmQrSCP)
+{
+    dicomifier::StoreSCU scu;
+    DcmDataset dataset;
+    dataset.putAndInsertOFStringArray(DCM_SOPClassUID, OFString("error"));
+    BOOST_REQUIRE_THROW(scu.set_affected_sop_class(&dataset),
+                        dicomifier::DicomifierException)
+}
