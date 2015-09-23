@@ -14,7 +14,7 @@
 #include "bruker/Directory.h"
 #include "core/DicomifierException.h"
 
-/*************************** TEST Nominal *******************************/
+/******************************* TEST Nominal **********************************/
 /**
  * Nominal test case: Constructor and load directory
  */
@@ -105,7 +105,7 @@ BOOST_FIXTURE_TEST_CASE(Load, TestDataOK01)
     delete directory;
 }
 
-/*************************** TEST Nominal *******************************/
+/******************************* TEST Nominal **********************************/
 /**
  * Nominal test case: Get dataset
  */
@@ -120,7 +120,7 @@ BOOST_FIXTURE_TEST_CASE(GetDataset, TestDataOK01)
     BOOST_CHECK_EQUAL(dataset.has_field("VISU_param"), true);
 }
 
-/*************************** TEST Nominal *******************************/
+/******************************* TEST Nominal **********************************/
 /**
  * Nominal test case: get_series_and_reco
  */
@@ -139,7 +139,7 @@ BOOST_FIXTURE_TEST_CASE(GetSeriesAndReco, TestDataOK01)
     }
 }
 
-/*************************** TEST Error *********************************/
+/******************************* TEST Error ************************************/
 /**
  * Error test case: No dataset
  */

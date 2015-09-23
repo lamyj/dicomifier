@@ -37,7 +37,7 @@ struct TestData
     }
 };
 
-/*************************** TEST Nominal *******************************/
+/******************************* TEST Nominal **********************************/
 /**
  * Nominal test case: Constructor
  */
@@ -47,14 +47,16 @@ BOOST_AUTO_TEST_CASE(Constructor)
     BOOST_CHECK_EQUAL(field.name == "", true);
     BOOST_CHECK_EQUAL(field.shape.size(), 0);
     BOOST_CHECK_EQUAL(field.value.size(), 0);
+    BOOST_CHECK_EQUAL(field.get_size(), 0);
 
     dicomifier::bruker::Field field2("myname", {}, {});
     BOOST_CHECK_EQUAL(field2.name == "myname", true);
     BOOST_CHECK_EQUAL(field2.shape.size(), 0);
     BOOST_CHECK_EQUAL(field2.value.size(), 0);
+    BOOST_CHECK_EQUAL(field2.get_size(), 0);
 }
 
-/*************************** TEST Nominal *******************************/
+/******************************* TEST Nominal **********************************/
 /**
  * Nominal test case: Get values
  */
@@ -75,7 +77,7 @@ BOOST_FIXTURE_TEST_CASE(GetValues, TestData)
     BOOST_CHECK_EQUAL(field.get<dicomifier::bruker::Field::Value>(3).size(), 3);
 }
 
-/*************************** TEST Nominal *******************************/
+/******************************* TEST Nominal **********************************/
 /**
  * Nominal test case: Is_valuetype
  */

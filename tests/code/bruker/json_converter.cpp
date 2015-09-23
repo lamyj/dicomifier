@@ -33,7 +33,7 @@ public:
     }
 };
 
-/*************************** TEST Nominal *******************************/
+/******************************* TEST Nominal **********************************/
 /**
  * Nominal test case: Empty Dataset
  */
@@ -44,7 +44,7 @@ BOOST_AUTO_TEST_CASE(AsJSONEmpty)
     BOOST_REQUIRE(json.empty());
 }
 
-/*************************** TEST Nominal *******************************/
+/******************************* TEST Nominal **********************************/
 /**
  * Nominal test case: Convert a String field
  */
@@ -76,7 +76,7 @@ BOOST_FIXTURE_TEST_CASE(StringValue, TestDataStringValue)
                         "string value");
 }
 
-/*************************** TEST Nominal *******************************/
+/******************************* TEST Nominal **********************************/
 /**
  * Nominal test case: Convert a Int field
  */
@@ -109,7 +109,7 @@ BOOST_FIXTURE_TEST_CASE(IntValue, TestDataIntValue)
                         12);
 }
 
-/*************************** TEST Nominal *******************************/
+/******************************* TEST Nominal **********************************/
 /**
  * Nominal test case: Convert a Float field
  */
@@ -142,7 +142,7 @@ BOOST_FIXTURE_TEST_CASE(FloatValue, TestDataFloatValue)
                         12.56, 0.0001);
 }
 
-/*************************** TEST Nominal *******************************/
+/******************************* TEST Nominal **********************************/
 /**
  * Nominal test case: Convert a multi-values field
  */
@@ -224,7 +224,7 @@ BOOST_FIXTURE_TEST_CASE(MultiValue, TestDataMultiValue)
                         "string3");
 }
 
-/*************************** TEST Nominal *******************************/
+/******************************* TEST Nominal **********************************/
 /**
  * Nominal test case: Convert a struct field
  */
@@ -280,7 +280,7 @@ BOOST_FIXTURE_TEST_CASE(StructValue, TestDataStructValue)
                         2);
 }
 
-/*************************** TEST Nominal *******************************/
+/******************************* TEST Nominal **********************************/
 /**
  * Nominal test case: Convert as string
  */
