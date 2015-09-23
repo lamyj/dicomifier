@@ -16,9 +16,10 @@
 #include <boost/test/unit_test.hpp>
 
 #include <dcmtk/config/osconfig.h>
-#include <dcmtk/dcmdata/dctk.h>
+#include <dcmtk/dcmdata/dcuid.h>
 
 #include <dcmtkpp/DataSet.h>
+#include <dcmtkpp/Reader.h>
 #include <dcmtkpp/registry.h>
 
 #include "bruker/converters/EnhanceBrukerDicom.h"
@@ -28,7 +29,6 @@ struct TestEnvironment
 {
     std::string directorypath;
     std::string outputdirectory;
-    std::string dictionary;
     std::vector<std::string> filestoremove;
     dcmtkpp::DataSet dataset;
 
@@ -44,11 +44,12 @@ struct TestEnvironment
 
     TestEnvironment() :
         directorypath("./test_ModuleEnhanceBrukerDicom"),
-        outputdirectory("./test_ModuleEnhanceBrukerDicom_out"),
-        dictionary("./test_ModuleEnhanceBrukerDicom_dictionary.xml")
+        outputdirectory("./test_ModuleEnhanceBrukerDicom_out")
     {
-        boost::filesystem::create_directory(boost::filesystem::path(directorypath.c_str()));
-        boost::filesystem::create_directory(boost::filesystem::path(outputdirectory.c_str()));
+        boost::filesystem::create_directory(
+                    boost::filesystem::path(directorypath.c_str()));
+        boost::filesystem::create_directory(
+                    boost::filesystem::path(outputdirectory.c_str()));
 
         subjectfile = directorypath + "/subject";
         std::ofstream myfile;
@@ -71,7 +72,8 @@ struct TestEnvironment
         filestoremove.push_back(subjectfile);
 
         seriespath = directorypath + "/1";
-        boost::filesystem::create_directory(boost::filesystem::path(seriespath.c_str()));
+        boost::filesystem::create_directory(
+                    boost::filesystem::path(seriespath.c_str()));
 
         acqpfile = seriespath + "/acqp";
         myfile.open(acqpfile);
@@ -82,59 +84,74 @@ struct TestEnvironment
         filestoremove.push_back(acqpfile);
 
         pdatapath = seriespath + "/pdata";
-        boost::filesystem::create_directory(boost::filesystem::path(pdatapath.c_str()));
+        boost::filesystem::create_directory(
+                    boost::filesystem::path(pdatapath.c_str()));
         recopath = pdatapath + "/1";
-        boost::filesystem::create_directory(boost::filesystem::path(recopath.c_str()));
+        boost::filesystem::create_directory
+                (boost::filesystem::path(recopath.c_str()));
 
         visuparsfile = recopath + "/visu_pars";
         myfile.open(visuparsfile);
-        myfile << "##TITLE=Parameter List, ParaVision 6.0\n";
-        myfile << "##JCAMPDX=4.24\n";
-        myfile << "##DATATYPE=Parameter Values\n";
-        myfile << "##ORIGIN=Bruker BioSpin MRI GmbH\n";
-        myfile << "##$SUBJECT_id=( 60 )\n";
-        myfile << "<Rat>\n";
-        myfile << "##$VisuSubjectName=( 65 )\n";
-        myfile << "<Mouse^Mickey>\n";
-        myfile << "##$VisuSubjectId=( 65 )\n";
-        myfile << "<subject_01>\n";
-        myfile << "##$ACQ_scan_name=( 64 )\n";
-        myfile << "<1_Localizer>\n";
-        myfile << "##$ACQ_method=( 40 )\n";
-        myfile << "<Bruker:FLASH>\n";
-        myfile << "##$SUBJECT_study_name=( 64 )\n";
-        myfile << "<rat 3>\n";
-        myfile << "##$PVM_SPackArrSliceDistance=( 3 )\n";
-        myfile << "2 2 2\n";
-        myfile << "##$VisuAcqImagePhaseEncDir=( 1 )\n";
-        myfile << "col_dir\n";
-        myfile << "##$VisuFGOrderDescDim=1\n";
-        myfile << "##$VisuFGOrderDesc=( 1 )\n";
-        myfile << "(1, <FG_SLICE>, <>, 0, 2)\n";
-        myfile << "##$VisuGroupDepVals=( 2 )\n";
-        myfile << "(<VisuCoreOrientation>, 0) (<VisuCorePosition>, 0)\n";
-        myfile << "##$VisuCoreFrameCount=1\n";
-        myfile << "##$VisuCoreWordType=_16BIT_SGN_INT\n";
-        myfile << "##$VisuCoreByteOrder=littleEndian\n";
-        myfile << "##$VisuCoreSize=( 2 )\n";
-        myfile << "8 8\n";
-        myfile << "##$VisuStudyUid=( 65 )\n";
-        myfile << "<2.25.309509301719836607967426822084991797794>\n";
-        myfile << "##$VisuStudyId=( 65 )\n";
-        myfile << "<Dicomifier>\n";
-        myfile << "##$VisuAcquisitionProtocol=( 65 )\n";
-        myfile << "<Protocol>\n";
-        myfile << "##$VisuUid=( 65 )\n";
-        myfile << "<2.25.78137108291313894466257645742394761300>\n";
-        myfile << "##$VisuSeriesNumber=( 65 )\n";
-        myfile << "<10001>\n";
-        myfile << "##$VisuCoreOrientation=( 1, 9 )\n";
-        myfile << "1 6.12303176911189e-17 0 0 1 0\n";
-        myfile << "##$VisuCorePosition=( 1, 3 )\n";
-        myfile << "0 0 0\n";
-        myfile << "##$VisuCoreExtent=( 2 )\n";
-        myfile << "0 0\n";
-        myfile << "##END=\n";
+        myfile << "##TITLE=Parameter List, ParaVision 6.0\n"
+               << "##JCAMPDX=4.24\n"
+               << "##DATATYPE=Parameter Values\n"
+               << "##ORIGIN=Bruker BioSpin MRI GmbH\n"
+               << "##$SUBJECT_id=( 60 )\n"
+               << "<Rat>\n"
+               << "##$VisuSubjectName=( 65 )\n"
+               << "<Mouse^Mickey>\n"
+               << "##$VisuSubjectId=( 65 )\n"
+               << "<subject_01>\n"
+               << "##$ACQ_scan_name=( 64 )\n"
+               << "<1_Localizer>\n"
+               << "##$ACQ_method=( 40 )\n"
+               << "<Bruker:FLASH>\n"
+               << "##$SUBJECT_study_name=( 64 )\n"
+               << "<rat 3>\n"
+               << "##$PVM_SPackArrSliceDistance=( 3 )\n"
+               << "2 2 2\n"
+               << "##$VisuAcqImagePhaseEncDir=( 1 )\n"
+               << "col_dir\n"
+               << "##$VisuFGOrderDescDim=1\n"
+               << "##$VisuFGOrderDesc=( 1 )\n"
+               << "(1, <FG_SLICE>, <>, 0, 2)\n"
+               << "##$VisuGroupDepVals=( 2 )\n"
+               << "(<VisuCoreOrientation>, 0) (<VisuCorePosition>, 0)\n"
+               << "##$VisuCoreFrameCount=1\n"
+               << "##$VisuCoreWordType=_16BIT_SGN_INT\n"
+               << "##$VisuCoreByteOrder=littleEndian\n"
+               << "##$VisuCoreSize=( 2 )\n"
+               << "8 8\n"
+               << "##$VisuStudyUid=( 65 )\n"
+               << "<2.25.309509301719836607967426822084991797794>\n"
+               << "##$VisuStudyId=( 65 )\n"
+               << "<Dicomifier>\n"
+               << "##$VisuAcquisitionProtocol=( 65 )\n"
+               << "<Protocol>\n"
+               << "##$VisuUid=( 65 )\n"
+               << "<2.25.78137108291313894466257645742394761300>\n"
+               << "##$VisuSeriesNumber=( 65 )\n"
+               << "<10001>\n"
+               << "##$VisuCoreOrientation=( 1, 9 )\n"
+               << "1 6.12303176911189e-17 0 0 1 0\n"
+               << "##$VisuCorePosition=( 1, 3 )\n"
+               << "0 0 0\n"
+               << "##$VisuCoreExtent=( 2 )\n"
+               << "0 0\n"
+               << "##$VisuAcqDate=<2015-02-19T09:59:21,271+0100>\n"
+               << "##$VisuAcqScanTime=12800\n"
+               << "##$VisuAcqImagedNucleus=( 8 )\n"
+               << "<1H>\n"
+               << "##$VisuCoreFrameType=( 1 )\n"
+               << "MAGNITUDE_IMAGE\n"
+               << "##$VisuCoreDim=2\n"
+               << "##$VisuCoreFrameThickness=( 1 )\n"
+               << "1\n"
+               << "##$VisuAcqRepetitionTime=( 1 )\n"
+               << "100\n"
+               << "##$VisuAcqFlipAngle=30\n"
+               << "##$VisuAcqEchoTrainLength=1\n"
+               << "##END=\n";
         myfile.close();
         filestoremove.push_back(visuparsfile);
 
@@ -160,12 +177,14 @@ struct TestEnvironment
             remove(file.c_str());
         }
 
-        boost::filesystem::remove_all(boost::filesystem::path(directorypath.c_str()));
-        boost::filesystem::remove_all(boost::filesystem::path(outputdirectory.c_str()));
+        boost::filesystem::remove_all(
+                    boost::filesystem::path(directorypath.c_str()));
+        boost::filesystem::remove_all(
+                    boost::filesystem::path(outputdirectory.c_str()));
     }
 };
 
-/*************************** TEST Nominal *******************************/
+/******************************* TEST Nominal **********************************/
 /**
  * Nominal test case: Constructor
  */
@@ -178,7 +197,7 @@ BOOST_AUTO_TEST_CASE(Constructor)
     BOOST_CHECK_EQUAL(enhanceb2d != NULL, true);
 }
 
-/*************************** TEST Nominal *******************************/
+/******************************* TEST Nominal **********************************/
 /**
  * Nominal test case: Get/Set
  */
@@ -195,91 +214,79 @@ BOOST_AUTO_TEST_CASE(Accessors)
     BOOST_CHECK_EQUAL(testenhance->get_SOPClassUID() == "SOPClass", true);
 }
 
-/*************************** TEST Nominal *******************************/
+/******************************* TEST Nominal **********************************/
 /**
  * Nominal test case: Run (MRImageStorage)
  */
 BOOST_FIXTURE_TEST_CASE(Run_MRImageStorage, TestEnvironment)
 {
     auto enhanceb2d = dicomifier::bruker::EnhanceBrukerDicom::
-            New(directorypath, UID_MRImageStorage, outputdirectory, "1", "10001");
+            New(directorypath, UID_MRImageStorage,
+                outputdirectory, "1", "10001");
 
     // Process
     enhanceb2d->run();
 
-    // Try to open Created Dataset
-    DcmFileFormat fileformat;
-    OFCondition cond = fileformat.loadFile(outputdicom.c_str());
-    BOOST_CHECK_EQUAL(cond == EC_Normal, true);
+    std::ifstream stream(boost::filesystem::path(outputdicom).c_str(),
+                         std::ios::in | std::ios::binary);
 
-    DcmDataset * datasetout = fileformat.getAndRemoveDataset();
-    BOOST_CHECK_EQUAL(datasetout != NULL, true);
+    std::pair<dcmtkpp::DataSet, dcmtkpp::DataSet> file =
+            dcmtkpp::Reader::read_file(stream);
 
-    // Just looking for 3 informations
-    OFString patient_name;
-    cond = datasetout->findAndGetOFStringArray(DCM_PatientName, patient_name);
-    BOOST_CHECK_EQUAL(cond == EC_Normal, true);
-    BOOST_CHECK_EQUAL(patient_name.compare(OFString("Mouse^Mickey")), 0);
+    BOOST_REQUIRE(!file.second.empty());
+    BOOST_REQUIRE_EQUAL(file.second.as_string(dcmtkpp::registry::SOPClassUID)[0],
+                        UID_MRImageStorage);
 
-    OFString patient_id;
-    cond = datasetout->findAndGetOFStringArray(DCM_PatientID, patient_id);
-    BOOST_CHECK_EQUAL(cond == EC_Normal, true);
-    BOOST_CHECK_EQUAL(patient_id.compare(OFString("subject_01")), 0);
+    BOOST_REQUIRE_EQUAL(file.second.as_string(dcmtkpp::registry::PatientName)[0],
+                        "Mouse^Mickey");
+    BOOST_REQUIRE_EQUAL(file.second.as_string(dcmtkpp::registry::PatientID)[0],
+                        "subject_01");
 
-    Float64 orientation_patient;
-    cond = datasetout->findAndGetFloat64(DCM_ImageOrientationPatient, orientation_patient, 0);
-    BOOST_CHECK_EQUAL(cond == EC_Normal, true);
-    BOOST_CHECK_EQUAL(orientation_patient, 1);
-    cond = datasetout->findAndGetFloat64(DCM_ImageOrientationPatient, orientation_patient, 1);
-    BOOST_CHECK_EQUAL(cond == EC_Normal, true);
-    BOOST_CHECK_CLOSE(orientation_patient, 6.12303176911189e-17, 0.0001);
-    cond = datasetout->findAndGetFloat64(DCM_ImageOrientationPatient, orientation_patient, 2);
-    BOOST_CHECK_EQUAL(cond == EC_Normal, true);
-    BOOST_CHECK_EQUAL(orientation_patient, 0);
-
-    delete datasetout;
+    dcmtkpp::Value::Reals expectedResult({1, 6.12303176911189e-17, 0});
+    for (unsigned int i = 0; i < expectedResult.size(); ++i)
+    {
+        BOOST_CHECK_CLOSE(expectedResult[i],
+                          file.second.as_real(
+                              dcmtkpp::registry::ImageOrientationPatient)[i],
+                          0.0001);
+    }
 }
 
-/*************************** TEST Nominal *******************************/
+/******************************* TEST Nominal **********************************/
 /**
  * Nominal test case: Run (EnhanceMRImageStorage)
  */
-/*
-BOOST_DO_NOT_RUN_FIXTURE_TEST_CASE(Run_EnhanceMRImageStorage, TestEnvironment)
+BOOST_FIXTURE_TEST_CASE(Run_EnhanceMRImageStorage, TestEnvironment)
 {
     auto enhanceb2d = dicomifier::bruker::EnhanceBrukerDicom::
-            New(dataset, directorypath, UID_EnhancedMRImageStorage, outputdirectory, "1");
-
-    // Use specific dictionary
-    enhanceb2d->set_dictionary(dictionary);
+            New(directorypath, UID_EnhancedMRImageStorage,
+                outputdirectory, "1", "10001");
 
     // Process
     enhanceb2d->run();
 
-    // Try to open Created Dataset
-    DcmFileFormat fileformat;
-    OFCondition cond = fileformat.loadFile(outputdicom.c_str());
-    BOOST_CHECK_EQUAL(cond == EC_Normal, true);
+    std::ifstream stream(boost::filesystem::path(outputdicom).c_str(),
+                         std::ios::in | std::ios::binary);
 
-    DcmDataset * datasetout = fileformat.getAndRemoveDataset();
-    BOOST_CHECK_EQUAL(datasetout != NULL, true);
+    std::pair<dcmtkpp::DataSet, dcmtkpp::DataSet> file =
+            dcmtkpp::Reader::read_file(stream);
 
-    // Just looking for 2 informations
-    OFString patient_name;
-    cond = datasetout->findAndGetOFStringArray(DCM_PatientName, patient_name);
-    BOOST_CHECK_EQUAL(cond == EC_Normal, true);
-    BOOST_CHECK_EQUAL(patient_name.compare(OFString("Mouse^Mickey")), 0);
+    BOOST_REQUIRE(!file.second.empty());
+    BOOST_REQUIRE_EQUAL(file.second.as_string(dcmtkpp::registry::SOPClassUID)[0],
+                        UID_EnhancedMRImageStorage);
 
-    OFString patient_id;
-    cond = datasetout->findAndGetOFStringArray(DCM_PatientID, patient_id);
-    BOOST_CHECK_EQUAL(cond == EC_Normal, true);
-    BOOST_CHECK_EQUAL(patient_id.compare(OFString("subject_01")), 0);
+    BOOST_REQUIRE_EQUAL(file.second.as_string(dcmtkpp::registry::PatientName)[0],
+                        "Mouse^Mickey");
+    BOOST_REQUIRE_EQUAL(file.second.as_string(dcmtkpp::registry::PatientID)[0],
+                        "subject_01");
 
-    delete datasetout;
+    BOOST_REQUIRE(file.second.has(
+                      dcmtkpp::registry::SharedFunctionalGroupsSequence));
+    BOOST_REQUIRE(file.second.has(
+                      dcmtkpp::registry::PerFrameFunctionalGroupsSequence));
 }
-*/
 
-/*************************** TEST Nominal *******************************/
+/******************************* TEST Nominal **********************************/
 /**
  * Nominal test case: get_default_directory_name
  */
@@ -302,7 +309,7 @@ BOOST_AUTO_TEST_CASE(Get_Default_Directory)
     boost::filesystem::remove_all("./1");
 }
 
-/*************************** TEST Nominal *******************************/
+/******************************* TEST Nominal **********************************/
 /**
  * Nominal test case: replace_unavailable_char
  */
@@ -314,7 +321,7 @@ BOOST_AUTO_TEST_CASE(Replace_Unavailable_Char)
     BOOST_CHECK_EQUAL(stringtest, std::string("1_5_A_B_C_D"));
 }
 
-/*************************** TEST Error *********************************/
+/******************************* TEST Error ************************************/
 /**
  * Error test case: Unknown bruker Directory
  */
@@ -327,19 +334,20 @@ BOOST_AUTO_TEST_CASE(TEST_KO_01)
     BOOST_REQUIRE_THROW(testenhance->run(), dicomifier::DicomifierException);
 }
 
-/*************************** TEST Error *********************************/
+/******************************* TEST Error ************************************/
 /**
  * Error test case: Bad Series number
  */
 BOOST_FIXTURE_TEST_CASE(Bad_SeriesNumber, TestEnvironment)
 {
     auto enhanceb2d = dicomifier::bruker::EnhanceBrukerDicom::
-            New(directorypath, UID_MRImageStorage, outputdirectory, "1", "90009");
+            New(directorypath, UID_MRImageStorage,
+                outputdirectory, "1", "90009");
 
     BOOST_REQUIRE_THROW(enhanceb2d->run(), dicomifier::DicomifierException);
 }
 
-/*************************** TEST Error *********************************/
+/******************************* TEST Error ************************************/
 /**
  * Error test case: Bad VisuCoreFrameCount
  */
@@ -388,7 +396,7 @@ BOOST_FIXTURE_TEST_CASE(Corrupted_Data, TestEnvironment)
     BOOST_REQUIRE_THROW(enhanceb2d->run(), dicomifier::DicomifierException);
 }
 
-/*************************** TEST Error *********************************/
+/******************************* TEST Error ************************************/
 /**
  * Error test case: Bad SOP Class UID
  */
@@ -400,7 +408,7 @@ BOOST_FIXTURE_TEST_CASE(Bad_SOPClassUID, TestEnvironment)
     BOOST_REQUIRE_THROW(enhanceb2d->run(), dicomifier::DicomifierException);
 }
 
-/*************************** TEST Error *********************************/
+/******************************* TEST Error ************************************/
 /**
  * Error test case: Unknown bruker Directory
  */
@@ -412,7 +420,7 @@ BOOST_AUTO_TEST_CASE(Get_Default_Directory_Name)
     BOOST_CHECK_EQUAL(default_dir == "1", true);
 }
 
-/*************************** TEST Error *********************************/
+/******************************* TEST Error ************************************/
 /**
  * Error test case: Error while reading PixelData file
  */
@@ -432,7 +440,7 @@ BOOST_FIXTURE_TEST_CASE(No_PixelData_File, TestEnvironment)
     boost::filesystem::remove_all(boost::filesystem::path(binaryfile.c_str()));
 }
 
-/*************************** TEST Error *********************************/
+/******************************* TEST Error ************************************/
 /**
  * Error test case: Error while reading PixelData file
  */
@@ -452,7 +460,7 @@ BOOST_FIXTURE_TEST_CASE(Cant_Read_PixelData_File, TestEnvironment)
     std::system(pixelfile.c_str());
 }
 
-/*************************** TEST Error *********************************/
+/******************************* TEST Error ************************************/
 /**
  * Error test case: Missing mandatory field VisuCoreSize
  */
@@ -499,7 +507,7 @@ BOOST_FIXTURE_TEST_CASE(Missing_VisuCoreSize, TestEnvironment)
     BOOST_REQUIRE_THROW(enhanceb2d->run(), dicomifier::DicomifierException);
 }
 
-/*************************** TEST Error *********************************/
+/******************************* TEST Error ************************************/
 /**
  * Error test case: Missing mandatory field VisuCoreSize
  */
@@ -546,7 +554,7 @@ BOOST_FIXTURE_TEST_CASE(Missing_VisuCoreWordType, TestEnvironment)
     BOOST_REQUIRE_THROW(enhanceb2d->run(), dicomifier::DicomifierException);
 }
 
-/*************************** TEST Error *********************************/
+/******************************* TEST Error ************************************/
 /**
  * Error test case: Bad value for field VisuCoreWordType
  */
@@ -595,7 +603,7 @@ BOOST_FIXTURE_TEST_CASE(Bad_VisuCoreWordType, TestEnvironment)
     BOOST_REQUIRE_THROW(enhanceb2d->run(), dicomifier::DicomifierException);
 }
 
-/*************************** TEST Error *********************************/
+/******************************* TEST Error ************************************/
 /**
  * Error test case: Missing StudyDescription
  */
@@ -609,7 +617,7 @@ BOOST_FIXTURE_TEST_CASE(Missing_StudyDescription, TestEnvironment)
                         dcmtkpp::Exception);
 }
 
-/*************************** TEST Error *********************************/
+/******************************* TEST Error ************************************/
 /**
  * Error test case: Missing SeriesDescription
  */
@@ -625,7 +633,7 @@ BOOST_FIXTURE_TEST_CASE(Missing_SeriesDescription, TestEnvironment)
                         dcmtkpp::Exception);
 }
 
-/*************************** TEST Error *********************************/
+/******************************* TEST Error ************************************/
 /**
  * Error test case: Missing SeriesNumber
  */
@@ -643,7 +651,7 @@ BOOST_FIXTURE_TEST_CASE(Missing_SeriesNumber, TestEnvironment)
                         dcmtkpp::Exception);
 }
 
-/*************************** TEST Error *********************************/
+/******************************* TEST Error ************************************/
 /**
  * Error test case: Missing InstanceNumber
  */
@@ -660,7 +668,7 @@ BOOST_FIXTURE_TEST_CASE(Missing_InstanceNumber, TestEnvironment)
                         dcmtkpp::Exception);
 }
 
-/*************************** TEST Error *********************************/
+/******************************* TEST Error ************************************/
 /**
  * Error test case: Missing ImagesInAcquisition
  */
