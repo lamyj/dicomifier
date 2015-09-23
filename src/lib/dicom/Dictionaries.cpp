@@ -126,24 +126,35 @@ Dictionaries
     // Create pointer
     auto publicdict = Dictionary::New();
 
-    // Copy all dcmDataDictionary
-    // ATTENTION: DCMTK is not const correct
-    DcmDataDictionary & dict =
-            const_cast<DcmDataDictionary&>(dcmDataDict.rdlock());
-
-    for (DcmHashDictIterator iter = dict.normalBegin();
-         iter != dict.normalEnd(); ++iter)
+    for(auto it = dcmtkpp::registry::public_dictionary.begin();
+        it != dcmtkpp::registry::public_dictionary.end(); ++it)
     {
-        const DcmDictEntry * entry = *iter;
-        // Only add Public Entry
-        if (entry->getPrivateCreator() == NULL ||
-            std::string(entry->getPrivateCreator()) == "")
-        {
-            publicdict->AddDictEntry(*iter);
-        }
-    }
+        std::vector<std::string> splitvalues;
+        boost::split(splitvalues, it->second.vm, boost::is_any_of("-"));
 
-    dcmDataDict.unlock();
+        int vmMin = std::atoi(splitvalues[0].c_str());
+
+        int vmMax = vmMin;
+        if (splitvalues.size() == 2)
+        {
+            if (splitvalues[1] == "n")
+                vmMax = DcmVariableVM;
+            else
+            {
+                vmMax = std::atoi(splitvalues[1].c_str());
+            }
+        }
+
+        DcmDictEntry * entry = new DcmDictEntry(it->first.group,
+                                                it->first.element,
+                                                DcmVR(it->second.vr.c_str()),
+                                                it->second.keyword.c_str(),
+                                                vmMin, vmMax,
+                                                NULL, OFTrue,
+                                                NULL);
+
+        publicdict->AddDictEntry(entry);
+    }
 
     // Add into map
     this->_dictionaries.insert(
