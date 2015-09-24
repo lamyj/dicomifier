@@ -179,8 +179,10 @@ Dicom2Nifti
 
     nim->nifti_type = NIFTI_FTYPE_NIFTI1_1;
 
-    nim->fname = nifti_makehdrname(BaseName.c_str(), nim->nifti_type, false, false);
-    nim->iname = nifti_makeimgname(BaseName.c_str(), nim->nifti_type, false, false);
+    nim->fname = nifti_makehdrname(BaseName.c_str(),
+                                   nim->nifti_type, false, false);
+    nim->iname = nifti_makeimgname(BaseName.c_str(),
+                                   nim->nifti_type, false, false);
 
     // Initialize fields
     nim->nvox = 1;
@@ -197,7 +199,7 @@ Dicom2Nifti
     Dicom2Nifti::extract_stack_number(dataset, dimension, nim);
 
     nim->pixdim[3] = nim->dz =
-            static_cast<float>( Dicom2Nifti::get_distance_between_slice(dataset) );
+            static_cast<float>(Dicom2Nifti::get_distance_between_slice(dataset));
     nim->nvox *= nim->dim[3];
 
     nim->dim[2] = nim->ny = dataset.get("Columns", Json::Value())[0].asInt();
@@ -258,7 +260,8 @@ Dicom2Nifti
     }
 
     // Fill in origin.
-    Json::Value const image_position_patient = Dicom2Nifti::extract_position(dataset);
+    Json::Value const image_position_patient =
+            Dicom2Nifti::extract_position(dataset);
 
     matrix.m[0][3] =
             static_cast<float>(-image_position_patient[0][0].asDouble());
@@ -323,7 +326,8 @@ Dicom2Nifti
 
 void
 Dicom2Nifti
-::extract_stack_number(Json::Value const & dataset, NIfTI_Dimension dimension, nifti_image *nim)
+::extract_stack_number(Json::Value const & dataset,
+                       NIfTI_Dimension dimension, nifti_image *nim)
 {
     std::string const sopclassuid = dataset.get("SOPClassUID",
                                                 Json::Value())[0].asString();
@@ -352,7 +356,8 @@ Dicom2Nifti
         else
         {
             // Get number of dataset in the stack
-            unsigned int dsnumber = dataset.get("PixelData", Json::Value()).size();
+            unsigned int dsnumber =
+                    dataset.get("PixelData", Json::Value()).size();
             nim->dim[3] = nim->nz = dsnumber;
         }
     }

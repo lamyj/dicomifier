@@ -38,7 +38,8 @@ struct TestRun
         datasetfile = directory + "/AAAAAAAA";
     }
 
-    void create_dataset(std::stringstream & dataset, std::string const & filename = "")
+    void create_dataset(std::stringstream & dataset,
+                        std::string const & filename = "")
     {
         Json::Value json;
         dataset >> json;
@@ -63,7 +64,8 @@ struct TestRun
         outputstream.close();
     }
 
-    void create_dataset_2D(int number, int numbermax, std::string const & filename)
+    void create_dataset_2D(int number, int numbermax,
+                           std::string const & filename)
     {
         // Create Dataset
         std::stringstream data;

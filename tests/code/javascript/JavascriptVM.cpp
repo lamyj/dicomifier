@@ -90,6 +90,27 @@ BOOST_FIXTURE_TEST_CASE(RunFile, TestDataRunFile)
 
 /******************************* TEST Nominal **********************************/
 /**
+ * Nominal test case: Require local JS file
+ */
+BOOST_FIXTURE_TEST_CASE(Require, TestDataRunFile)
+{
+    dicomifier::javascript::JavascriptVM vm;
+
+    std::stringstream script;
+    script << "require(\"" << filename << "\");";
+
+    // Require no error
+    v8::Local<v8::Value> result = vm.run(script.str(), vm.get_context());
+    v8::String::Utf8Value utf8(result);
+
+    std::stringstream stream;
+    stream << *utf8;
+
+    BOOST_CHECK_EQUAL("{\"hello\":\"world\"}", stream.str());
+}
+
+/******************************* TEST Nominal **********************************/
+/**
  * Nominal test case: is_big_endian
  */
 BOOST_AUTO_TEST_CASE(Function_isBigEndian)
@@ -102,6 +123,8 @@ BOOST_AUTO_TEST_CASE(Function_isBigEndian)
     v8::Local<v8::Value> result = vm.run(streaminput.str(), vm.get_context());
     BOOST_REQUIRE_EQUAL(result->ToBoolean()->BooleanValue(),
                         dicomifier::endian::is_big_endian());
+    BOOST_REQUIRE_EQUAL(result->ToBoolean()->BooleanValue(),
+                        !dicomifier::endian::is_little_endian());
 }
 
 /******************************* TEST Nominal **********************************/
@@ -444,6 +467,19 @@ BOOST_AUTO_TEST_CASE(run_empty_script)
 
     BOOST_REQUIRE_THROW(
         vm.run("my error", vm.get_context()),
+        dicomifier::DicomifierException);
+}
+
+/******************************* TEST Error ************************************/
+/**
+ * Error test case: No such file
+ */
+BOOST_AUTO_TEST_CASE(no_such_js_file)
+{
+    dicomifier::javascript::JavascriptVM vm;
+
+    BOOST_REQUIRE_THROW(
+        vm.run("require('unknown_file.js');", vm.get_context()),
         dicomifier::DicomifierException);
 }
 
