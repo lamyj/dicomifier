@@ -294,7 +294,8 @@ v8::Handle<v8::Value> read_dicom(v8::Arguments const & args)
         std::stringstream script;
         script << "var dicom = "
                << json_dicom_dataset.toStyledString() << ";\n" << "dicom;";
-        return JavascriptVM::run(script.str(), v8::Context::New());
+
+        return JavascriptVM::run(script.str(), v8::Context::GetCurrent());
     }
     catch (dicomifier::DicomifierException const & dcexc)
     {
