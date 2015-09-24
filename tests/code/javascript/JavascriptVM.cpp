@@ -22,7 +22,7 @@
 #include "core/Endian.h"
 #include "javascript/JavascriptVM.h"
 
-/*************************** TEST Nominal *******************************/
+/******************************* TEST Nominal **********************************/
 /**
  * Nominal test case: Constructor / Destructor
  */
@@ -34,7 +34,7 @@ BOOST_AUTO_TEST_CASE(Constructor)
     BOOST_REQUIRE(vm != NULL);
 }
 
-/*************************** TEST Nominal *******************************/
+/******************************* TEST Nominal **********************************/
 /**
  * Nominal test case: Run script
  */
@@ -52,7 +52,7 @@ BOOST_AUTO_TEST_CASE(Run)
     BOOST_CHECK_EQUAL("{\"hello\":\"world\"}", stream.str());
 }
 
-/*************************** TEST Nominal *******************************/
+/******************************* TEST Nominal **********************************/
 /**
  * Nominal test case: Run script file
  */
@@ -88,7 +88,7 @@ BOOST_FIXTURE_TEST_CASE(RunFile, TestDataRunFile)
     BOOST_CHECK_EQUAL("{\"hello\":\"world\"}", stream.str());
 }
 
-/*************************** TEST Nominal *******************************/
+/******************************* TEST Nominal **********************************/
 /**
  * Nominal test case: is_big_endian
  */
@@ -104,7 +104,7 @@ BOOST_AUTO_TEST_CASE(Function_isBigEndian)
                         dicomifier::endian::is_big_endian());
 }
 
-/*************************** TEST Nominal *******************************/
+/******************************* TEST Nominal **********************************/
 /**
  * Nominal test case: generate_uid
  */
@@ -124,7 +124,7 @@ BOOST_AUTO_TEST_CASE(Function_generateUID)
     BOOST_REQUIRE_NE(uid_utf8, "");
 }
 
-/*************************** TEST Nominal *******************************/
+/******************************* TEST Nominal **********************************/
 /**
  * Nominal test case: Test function dictionaryMapper descibes into function.js
  */
@@ -157,7 +157,7 @@ BOOST_AUTO_TEST_CASE(Functions_dictionaryMapper)
     }
 }
 
-/*************************** TEST Nominal *******************************/
+/******************************* TEST Nominal **********************************/
 /**
  * Nominal test case: Test function dateTimeMapper descibes into function.js
  */
@@ -188,7 +188,7 @@ BOOST_AUTO_TEST_CASE(Functions_dateTimeMapper)
     }
 }
 
-/*************************** TEST Nominal *******************************/
+/******************************* TEST Nominal **********************************/
 /**
  * Nominal test case: Test function toDicom descibes into function.js
  */
@@ -262,7 +262,7 @@ BOOST_FIXTURE_TEST_CASE(Functions_toDicom, TestDataToDicom)
     }
 }
 
-/*************************** TEST Nominal *******************************/
+/******************************* TEST Nominal **********************************/
 /**
  * Nominal test case: Test function toDicom descibes into function.js
  */
@@ -303,7 +303,7 @@ BOOST_FIXTURE_TEST_CASE(Functions_toDicom_NoValue, TestDataToDicom)
     }
 }
 
-/*************************** TEST Nominal *******************************/
+/******************************* TEST Nominal **********************************/
 /**
  * Nominal test case: Test function toDicom descibes into function.js
  */
@@ -325,7 +325,7 @@ BOOST_FIXTURE_TEST_CASE(Functions_toDicom_PN, TestDataToDicom)
       "{\"00100010\":{\"vr\":\"PN\",\"Value\":[{\"Alphabetic\":\"MyName\"}]}}");
 }
 
-/*************************** TEST Nominal *******************************/
+/******************************* TEST Nominal **********************************/
 /**
  * Nominal test case: Test function toDicom descibes into function.js
  */
@@ -350,7 +350,7 @@ BOOST_FIXTURE_TEST_CASE(Functions_toDicom_Setter, TestDataToDicom)
                 "{\"00100040\":{\"vr\":\"CS\",\"Value\":[\"M\"]}}");
 }
 
-/*************************** TEST Nominal *******************************/
+/******************************* TEST Nominal **********************************/
 /**
  * Nominal test case: Test function toDicom descibes into function.js
  */
@@ -374,7 +374,7 @@ BOOST_FIXTURE_TEST_CASE(Functions_toDicom_Getter, TestDataToDicom)
                 "{\"00100040\":{\"vr\":\"CS\",\"Value\":[\"F\"]}}");
 }
 
-/*************************** TEST Nominal *******************************/
+/******************************* TEST Nominal **********************************/
 /**
  * Nominal test case: Test function toDicom descibes into function.js
  */
@@ -421,7 +421,7 @@ BOOST_FIXTURE_TEST_CASE(Functions_toDicom_NullValue, TestDataToDicom)
     }
 }
 
-/*************************** TEST Error *********************************/
+/******************************* TEST Error ************************************/
 /**
  * Error test case: Generate an exception
  */
@@ -434,7 +434,7 @@ BOOST_AUTO_TEST_CASE(Exception)
         dicomifier::DicomifierException);
 }
 
-/*************************** TEST Error *********************************/
+/******************************* TEST Error ************************************/
 /**
  * Error test case: Generate an exception
  */
@@ -447,7 +447,7 @@ BOOST_AUTO_TEST_CASE(run_empty_script)
         dicomifier::DicomifierException);
 }
 
-/*************************** TEST Error *********************************/
+/******************************* TEST Error ************************************/
 /**
  * Error test case: Test function dictionaryMapper descibes into function.js
  *                  Unknown value
@@ -464,7 +464,7 @@ BOOST_AUTO_TEST_CASE(Functions_dictionaryMapper_UnknownValue)
                         dicomifier::DicomifierException);
 }
 
-/*************************** TEST Error *********************************/
+/******************************* TEST Error ************************************/
 /**
  * Error test case: Test function dateTimeMapper descibes into function.js
  *                  Unknown format
@@ -481,7 +481,7 @@ BOOST_AUTO_TEST_CASE(Functions_dateTimeMapper_UnknownFormat)
                         dicomifier::DicomifierException);
 }
 
-/*************************** TEST Error *********************************/
+/******************************* TEST Error ************************************/
 /**
  * Error test case: Test function toDicom descibes into function.js
  *                  No value for Type 1
@@ -499,7 +499,7 @@ BOOST_FIXTURE_TEST_CASE(Functions_toDicom_NoValue_type1, TestDataToDicom)
         dicomifier::DicomifierException);
 }
 
-/*************************** TEST Error *********************************/
+/******************************* TEST Error ************************************/
 /**
  * Error test case: Test function toDicom descibes into function.js
  *                  Unknown type
@@ -517,7 +517,7 @@ BOOST_FIXTURE_TEST_CASE(Functions_toDicom_UnknownType, TestDataToDicom)
         dicomifier::DicomifierException);
 }
 
-/*************************** TEST Error *********************************/
+/******************************* TEST Error ************************************/
 /**
  * Error test case: Test function toDicom descibes into function.js
  *                  Unknown DICOM tag
@@ -535,7 +535,7 @@ BOOST_FIXTURE_TEST_CASE(Functions_toDicom_UnknownDicomTag, TestDataToDicom)
         dicomifier::DicomifierException);
 }
 
-/*************************** TEST Error *********************************/
+/******************************* TEST Error ************************************/
 /**
  * Error test case: Test function toDicom descibes into function.js
  *                  Null value and type 1
@@ -554,7 +554,7 @@ BOOST_FIXTURE_TEST_CASE(Functions_toDicom_NullValueType1, TestDataToDicom)
         dicomifier::DicomifierException);
 }
 
-/*************************** TEST Error *********************************/
+/******************************* TEST Error ************************************/
 /**
  * Error test case: Test function toDicom descibes into function.js
  *                  Empty value and type 1
@@ -573,7 +573,7 @@ BOOST_FIXTURE_TEST_CASE(Functions_toDicom_EmptyValueType1, TestDataToDicom)
         dicomifier::DicomifierException);
 }
 
-/*************************** TEST Error *********************************/
+/******************************* TEST Error ************************************/
 /**
  * Error test case: Test function load_pixel_data
  *                  Bruker DataSet missing
@@ -589,7 +589,7 @@ BOOST_AUTO_TEST_CASE(Function_loadPixelData_no_dataset)
                         dicomifier::DicomifierException);
 }
 
-/*************************** TEST Error *********************************/
+/******************************* TEST Error ************************************/
 /**
  * Error test case: Test function load_pixel_data
  *                  Frame number missing
@@ -605,7 +605,7 @@ BOOST_AUTO_TEST_CASE(Function_loadPixelData_no_frameNumber)
                         dicomifier::DicomifierException);
 }
 
-/*************************** TEST Error *********************************/
+/******************************* TEST Error ************************************/
 /**
  * Error test case: Test function load_pixel_data
  *                  PixelData missing
@@ -621,7 +621,7 @@ BOOST_AUTO_TEST_CASE(Function_loadPixelData_no_pixelData)
                         dicomifier::DicomifierException);
 }
 
-/*************************** TEST Error *********************************/
+/******************************* TEST Error ************************************/
 /**
  * Error test case: Test function load_pixel_data
  *                  VisuCoreByteOrder missing
@@ -638,7 +638,7 @@ BOOST_AUTO_TEST_CASE(Function_loadPixelData_no_VisuCoreByteOrder)
                         dicomifier::DicomifierException);
 }
 
-/*************************** TEST Error *********************************/
+/******************************* TEST Error ************************************/
 /**
  * Error test case: Test function sort_pixel_data
  *                  Input missing
@@ -654,7 +654,7 @@ BOOST_AUTO_TEST_CASE(Function_sortPixelData_no_Input)
                         dicomifier::DicomifierException);
 }
 
-/*************************** TEST Error *********************************/
+/******************************* TEST Error ************************************/
 /**
  * Error test case: Test function read_dicom
  *                  DICOM file missing
@@ -670,7 +670,7 @@ BOOST_AUTO_TEST_CASE(Function_readDicom_no_DICOMFile)
                         dicomifier::DicomifierException);
 }
 
-/*************************** TEST Error *********************************/
+/******************************* TEST Error ************************************/
 /**
  * Error test case: Test function write_nifti
  *                  arguments missing
