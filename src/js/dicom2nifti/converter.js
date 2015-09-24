@@ -74,7 +74,8 @@ _module.convert = function(datasetlist, dimension, outputdir) {
     
     // Fusion stack
     if (dimension === 4) {
-        if (dicomifier.dicom2nifti.is_synchronized(output)) {
+        if (output.length === 1 || 
+            dicomifier.dicom2nifti.is_synchronized(output)) {
             output = dicomifier.dicom2nifti.mergeAllStacks(output);
         }
     }

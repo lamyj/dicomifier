@@ -348,10 +348,19 @@ Dicom2Nifti
 
             // Get number of dataset in the stack
             // we suppose each stack contains the same number of datasets
-            unsigned int dsnumber =
+            Json::Value dsnumber_json =
                     dataset.get("DICOMIFIER_DATASET_PERSTACK_NUMBER",
-                                Json::Value())[0].asInt();
-            nim->dim[3] = nim->nz = dsnumber;
+                                Json::Value());
+            if (dsnumber_json.empty())
+            {
+                nim->dim[3] = nim->nz = 1;
+            }
+            else
+            {
+                unsigned int dsnumber = dsnumber_json[0].asInt();
+
+                nim->dim[3] = nim->nz = dsnumber;
+            }
         }
         else
         {
