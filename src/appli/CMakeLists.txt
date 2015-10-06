@@ -11,7 +11,7 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../lib
                     /usr/include/nifti)
 
 add_executable(bruker2dicom "bruker2dicom.cpp")
-target_link_libraries(bruker2dicom libdicomifier ${Boost_LIBRARIES})
+target_link_libraries(bruker2dicom dcmtkpp libdicomifier ${Boost_LIBRARIES})
 
 add_executable(dicom2nifti "dicom2nifti.cpp")
 target_link_libraries(dicom2nifti libdicomifier ${Boost_LIBRARIES})

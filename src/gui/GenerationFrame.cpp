@@ -425,7 +425,7 @@ GenerationFrame
     QString command = "zip";
     QStringList args;
     args << "-r" << QString(filename.c_str());
-    args << qdirectory.entryList();
+    args << qdirectory.entryList(QDir::AllEntries | QDir::NoDotAndDotDot);
 
     QProcess *myProcess = new QProcess(this);
     myProcess->setWorkingDirectory(QString(directory.c_str()));
