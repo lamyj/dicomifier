@@ -229,12 +229,7 @@ BOOST_FIXTURE_TEST_CASE(GetTagFromKey, TestDataOK02)
  */
 BOOST_AUTO_TEST_CASE(PublicDictionaryAsJSON)
 {
-    dicomifier::Dictionaries& dictionaries =
-            dicomifier::Dictionaries::get_instance();
-
-    BOOST_REQUIRE(dictionaries.public_dictionary_as_json() != "");
-
-    dicomifier::Dictionaries::delete_instance();
+    BOOST_REQUIRE(dicomifier::Dictionaries::public_dictionary_as_json() != "");
 }
 
 /******************************* TEST Error ************************************/

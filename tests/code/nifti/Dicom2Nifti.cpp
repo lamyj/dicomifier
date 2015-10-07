@@ -39,7 +39,7 @@ struct TestRun
     }
 
     void create_dataset(std::stringstream & dataset,
-                        std::string const & filename = "")
+                        std::string const & filename = "") const
     {
         Json::Value json;
         dataset >> json;

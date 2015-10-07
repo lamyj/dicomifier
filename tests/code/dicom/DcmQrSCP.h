@@ -30,11 +30,11 @@ public:
     std::string const peer_aet;
     
     DcmQrSCP()
-    : data_directory(this->_get_environment_variable("DICOMIFIER_TEST_DATA")),
-      calling_aet(this->_get_environment_variable("DICOMIFIER_CALLING_AET")),
-      peer_host(this->_get_environment_variable("DICOMIFIER_PEER_HOST")),
-      peer_port(this->_get_environment_variable<uint16_t>("DICOMIFIER_PEER_PORT")),
-      peer_aet(this->_get_environment_variable("DICOMIFIER_PEER_AET"))
+    : data_directory(DcmQrSCP::_get_environment_variable("DICOMIFIER_TEST_DATA")),
+      calling_aet(DcmQrSCP::_get_environment_variable("DICOMIFIER_CALLING_AET")),
+      peer_host(DcmQrSCP::_get_environment_variable("DICOMIFIER_PEER_HOST")),
+      peer_port(DcmQrSCP::_get_environment_variable<uint16_t>("DICOMIFIER_PEER_PORT")),
+      peer_aet(DcmQrSCP::_get_environment_variable("DICOMIFIER_PEER_AET"))
     {
         // Nothing else
     }
@@ -43,10 +43,8 @@ public:
     {
         // Nothing to do.
     }
-    
-private:
-    
-    std::string _get_environment_variable(std::string const & name) const
+
+    static std::string _get_environment_variable(std::string const & name)
     {
         char* value = getenv(name.c_str());
         if(value == NULL)
@@ -56,10 +54,12 @@ private:
         return value;
     }
     
+private:
+    
     template<typename T>
     T _get_environment_variable(std::string const & name) const
     {
-        return boost::lexical_cast<T>(this->_get_environment_variable(name));
+        return boost::lexical_cast<T>(DcmQrSCP::_get_environment_variable(name));
     }
     
     

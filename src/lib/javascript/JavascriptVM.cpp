@@ -592,7 +592,7 @@ JavascriptVM
 
     std::stringstream streamdictionary;
     streamdictionary << "dicomifier[\"dictionary\"] = "
-                     << Dictionaries::get_instance().public_dictionary_as_json()
+                     << Dictionaries::public_dictionary_as_json()
                      << ";";
     JavascriptVM::run(streamdictionary.str(), this->get_context());
 }

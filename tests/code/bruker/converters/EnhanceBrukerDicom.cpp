@@ -194,7 +194,7 @@ struct TestEnvironment
         filestoremove.push_back(binaryfile);
     }
 
-    std::string create_visupars_file()
+    std::string create_visupars_file() const
     {
         std::string const recopath = pdatapath + "/1";
         boost::filesystem::create_directory

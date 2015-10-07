@@ -32,7 +32,7 @@ GenerationResultItem
 
 std::string
 GenerationResultItem
-::resultToString(const GenerationResultItem::Result result) const
+::resultToString(const GenerationResultItem::Result result)
 {
     if (result == GenerationResultItem::Result::None)
         return "";
@@ -50,14 +50,14 @@ std::string
 GenerationResultItem
 ::get_dicomdirCreationToString() const
 {
-    return this->resultToString(this->_dicomdirCreation);
+    return GenerationResultItem::resultToString(this->_dicomdirCreation);
 }
 
 std::string
 GenerationResultItem
 ::get_zipCreationToString() const
 {
-    return this->resultToString(this->_zipCreation);
+    return GenerationResultItem::resultToString(this->_zipCreation);
 }
 
 } // namespace gui
