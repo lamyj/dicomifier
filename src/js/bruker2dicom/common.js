@@ -150,3 +150,47 @@ _module.toDicom = function(
         }
     }
 };
+
+_module.getFileName = function(dataset, studyNumber, 
+                               seriesNumber, outputDir, useFileFormat) {
+    var tab = {};
+    tab['studyNumber'] = studyNumber;
+    tab['seriesNumber'] = seriesNumber;
+    tab['outputDir'] = outputDir;
+    tab['useFileFormat'] = useFileFormat;
+    
+    var vrAndTagPatientName = dicomifier.dictionary['PatientName'];
+    var vrAndTagPatientID = dicomifier.dictionary['PatientID'];
+    
+    // Subject Directory: Patient's name or Patient's ID or Default value
+    if (dataset[vrAndTagPatientName[1]] !== undefined || 
+        dataset[vrAndTagPatientName[1]] !== null) {
+        tab['SubjectName'] = 
+            dataset[vrAndTagPatientName[1]].Value[0]['Alphabetic'];
+    }
+    else if (dataset[vrAndTagPatientID[1]] !== undefined || 
+             dataset[vrAndTagPatientID[1]] !== null) {
+        tab['SubjectName'] = dataset[vrAndTagPatientID[1]].Value[0];
+    }
+    else {
+        tab['SubjectName'] = null;
+    }
+    
+    tab['StudyDescription'] = 
+        dataset[dicomifier.dictionary['StudyDescription'][1]].Value[0];
+        
+    if (dataset[dicomifier.dictionary['SeriesDescription'][1]] !== undefined &&
+        dataset[dicomifier.dictionary['SeriesDescription'][1]].Value !== undefined) {
+        tab['SeriesDescription'] = 
+            dataset[dicomifier.dictionary['SeriesDescription'][1]].Value[0];
+    }
+    else {
+        tab['SeriesDescription'] = "";
+    }
+    tab['InstanceNumber'] = 
+        dataset[dicomifier.dictionary['InstanceNumber'][1]].Value[0];
+    tab['ImagesInAcquisition'] = 
+        dataset[dicomifier.dictionary['ImagesInAcquisition'][1]].Value[0];
+    
+    return generateDICOMFileName(tab);
+};

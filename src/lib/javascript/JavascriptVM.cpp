@@ -18,7 +18,11 @@
 
 #include <nifti/nifti1_io.h>
 
+
+#include "bruker/Directory.h"
+#include "bruker/converters/EnhanceBrukerDicom.h"
 #include "bruker/converters/pixel_data_converter.h"
+#include "bruker/json_converter.h"
 #include "core/DicomifierException.h"
 #include "core/Logger.h"
 #include "dicom/Dictionaries.h"
@@ -255,6 +259,160 @@ v8::Handle<v8::Value> sort_pixel_data(v8::Arguments const & args)
     return v8::Null();
 }
 
+/**
+ * @brief generate_dicom_filename
+ * @param args
+ * @return
+ */
+v8::Handle<v8::Value> generate_dicom_filename(v8::Arguments const & args)
+{
+    if(args.Length() < 1)
+    {
+        return v8::ThrowException(v8::String::New("Missing input"));
+    }
+
+    v8::Local<v8::Object> object = args[0].As<v8::Object>();
+
+    auto const outputdir_js = object->Get(v8::String::New("outputDir"))->ToString();
+    std::string outputdir(outputdir_js->Utf8Length(), '\0');
+    outputdir_js->WriteUtf8(&outputdir[0]);
+
+    auto const studyNumber_js = object->Get(v8::String::New("studyNumber"))->ToString();
+    std::string studyNumber(studyNumber_js->Utf8Length(), '\0');
+    studyNumber_js->WriteUtf8(&studyNumber[0]);
+
+    auto const seriesNumber_js = object->Get(v8::String::New("seriesNumber"))->ToString();
+    std::string seriesNumber(seriesNumber_js->Utf8Length(), '\0');
+    seriesNumber_js->WriteUtf8(&seriesNumber[0]);
+
+    std::string subject_name;
+    if (object->Get(v8::String::New("SubjectName")).IsEmpty())
+    {
+        subject_name = bruker::EnhanceBrukerDicom::get_default_directory_name(outputdir);
+    }
+    else
+    {
+        auto const subjectname_js = object->Get(v8::String::New("SubjectName"))->ToString();
+        std::string subjectname(subjectname_js->Utf8Length(), '\0');
+        subjectname_js->WriteUtf8(&subjectname[0]);
+
+        subject_name = subjectname;
+    }
+
+    auto const StudyDescription_js = object->Get(v8::String::New("StudyDescription"))->ToString();
+    std::string StudyDescription(StudyDescription_js->Utf8Length(), '\0');
+    StudyDescription_js->WriteUtf8(&StudyDescription[0]);
+
+    auto const SeriesDescription_js = object->Get(v8::String::New("SeriesDescription"))->ToString();
+    std::string SeriesDescription(SeriesDescription_js->Utf8Length(), '\0');
+    SeriesDescription_js->WriteUtf8(&SeriesDescription[0]);
+
+    // Study Directory: Counter + Study Description
+    auto const study = bruker::EnhanceBrukerDicom::create_directory_name(
+            8, studyNumber, StudyDescription);
+
+    // Series Directory: Bruker Series directory + Series Description
+    auto series_number = seriesNumber.substr(0, seriesNumber.size() == 6 ? 2 : 1);
+    auto const series = bruker::EnhanceBrukerDicom::create_directory_name(
+        8, series_number, SeriesDescription);
+
+    // Instance file: Instance Number
+    std::string instance = "1";
+    if (object->Get(v8::String::New("useFileFormat"))->ToBoolean()->BooleanValue())
+    {
+        auto const instance_number = object->Get(v8::String::New("InstanceNumber"))->ToInt32()->Int32Value();
+
+        auto const images_in_acquistion = object->Get(v8::String::New("ImagesInAcquisition"))->ToInt32()->Int32Value();
+
+        int const nbdigit = 1 + floor(log10(images_in_acquistion));
+
+        std::ostringstream stream;
+        stream << std::setw(nbdigit) << std::setfill('0') << instance_number;
+        instance = stream.str();
+    }
+
+    // Destination: Subject/Study/Series/Instance
+    boost::filesystem::path const destination =
+        boost::filesystem::path(outputdir)
+            /subject_name.c_str()/study/series/instance;
+    boost::filesystem::create_directories(destination.parent_path());
+
+    return v8::String::New(destination.c_str());
+}
+
+/**
+ * @brief read_bruker_directory
+ * @param args[0]: bruker directory path
+ * @param args[1]: Series Number
+ * @return Bruker Dataset as JSON representation
+ */
+v8::Handle<v8::Value> read_bruker_directory(v8::Arguments const & args)
+{
+    if(args.Length() < 2)
+    {
+        return v8::ThrowException(
+                v8::String::New("Missing Arguments for readBrukerDirectory"));
+    }
+
+    auto const bruker_path_js = args[0]->ToString();
+    std::string bruker_path(bruker_path_js->Utf8Length(), '\0');
+    bruker_path_js->WriteUtf8(&bruker_path[0]);
+
+    // ----- Check input directory name -----
+    if ( ! boost::filesystem::is_directory(bruker_path) )
+    {
+        std::stringstream error;
+        error << "Input not a Directory: " << bruker_path;
+        return v8::ThrowException(v8::String::New(error.str().c_str()));
+    }
+
+    try
+    {
+        // Parse input bruker directory
+        bruker::Directory bruker_directory;
+        bruker_directory.load(bruker_path);
+
+        auto const series_number_js = args[1]->ToString();
+        std::string series_number(series_number_js->Utf8Length(), '\0');
+        series_number_js->WriteUtf8(&series_number[0]);
+
+        // Search corresponding Bruker Dataset
+        if(!bruker_directory.has_dataset(series_number))
+        {
+            return v8::ThrowException(v8::String::New("No such series"));
+        }
+
+        auto const & brukerdataset = bruker_directory.get_dataset(series_number);
+
+        auto const json_bruker_dataset = dicomifier::bruker::as_json(brukerdataset);
+
+        std::stringstream script;
+        script << "var bruker = "
+               << bruker::as_string(json_bruker_dataset) << ";\n" << "bruker;";
+
+        return JavascriptVM::run(script.str(), v8::Context::GetCurrent());
+    }
+    catch (dicomifier::DicomifierException const & dcexc)
+    {
+        return v8::ThrowException(v8::String::New(dcexc.what()));
+    }
+    catch (dcmtkpp::Exception const & exc)
+    {
+        return v8::ThrowException(v8::String::New(exc.what()));
+    }
+    catch(std::exception const & e)
+    {
+        return v8::ThrowException(v8::String::New(e.what()));
+    }
+
+    return v8::Null();
+}
+
+/**
+ * @brief read_dicom
+ * @param args[0]: DICOM file path
+ * @return DICOM dataset as JSON representation
+ */
 v8::Handle<v8::Value> read_dicom(v8::Arguments const & args)
 {
     if(args.Length() < 1)
@@ -314,6 +472,14 @@ v8::Handle<v8::Value> read_dicom(v8::Arguments const & args)
     return v8::Null();
 }
 
+/**
+ * @brief write_nifti
+ * @param args[0]: DICOM dataset as JSON representation
+ * @param args[1]: dimension of output NIfTI (3D or 4D)
+ * @param args[2]: NIfTI file name (image)
+ * @param args[3]: JSON file name (metadata)
+ * @return NULL if no error occured
+ */
 v8::Handle<v8::Value> write_nifti(v8::Arguments const & args)
 {
     if(args.Length() < 4)
@@ -386,6 +552,13 @@ v8::Handle<v8::Value> write_nifti(v8::Arguments const & args)
     return v8::Null();
 }
 
+/**
+ * @brief write_dicom
+ * @param args[0]: DICOM dataset as JSON representation
+ * @param args[1]: DICOM file path
+ * @param args[2]: Transfer Syntax
+ * @return NULL if no error occured
+ */
 v8::Handle<v8::Value> write_dicom(v8::Arguments const & args)
 {
     if(args.Length() < 2)
@@ -572,6 +745,8 @@ JavascriptVM
     DICOMIFIER_EXPOSE_FUNCTION(is_big_endian, "bigEndian");
     DICOMIFIER_EXPOSE_FUNCTION(load_pixel_data, "loadPixelData");
     DICOMIFIER_EXPOSE_FUNCTION(sort_pixel_data, "sortPixelData");
+    DICOMIFIER_EXPOSE_FUNCTION(generate_dicom_filename, "generateDICOMFileName");
+    DICOMIFIER_EXPOSE_FUNCTION(read_bruker_directory, "readBrukerDirectory");
     DICOMIFIER_EXPOSE_FUNCTION(read_dicom, "readDICOM");
     DICOMIFIER_EXPOSE_FUNCTION(write_nifti, "writeNIfTI");
     DICOMIFIER_EXPOSE_FUNCTION(write_dicom, "writeDICOM");

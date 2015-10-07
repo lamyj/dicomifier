@@ -98,43 +98,21 @@ void
 EnhanceBrukerDicom
 ::run() const
 {
-    // ----- Check input directory name -----
-    if ( ! boost::filesystem::is_directory(this->_brukerDir) )
-    {
-        throw DicomifierException("Input not a Directory: " + this->_brukerDir);
-    }
+    std::stringstream streamstr;
+    streamstr << "require('bruker2dicom/converter.js');\n"
+              << "dicomifier.bruker2dicom.convert('" << this->_brukerDir
+              << "', '" << this->_studyNumber
+              << "', '" << this->_seriesNumber
+              << "', '" << this->_SOPClassUID
+              << "', '" << this->_outputDir << "');";
 
-    // Parse input bruker directory
-    bruker::Directory brukerdirectory;
-    brukerdirectory.load(this->_brukerDir);
-
-    // Search corresponding Bruker Dataset
-    if(!brukerdirectory.has_dataset(this->_seriesNumber))
-    {
-        throw DicomifierException("No such series");
-    }
-
-    auto const & brukerdataset = brukerdirectory.get_dataset(this->_seriesNumber);
-
-    auto const sopclassuid = dicomifier::get_SOPClassUID_from_name(
-        this->_SOPClassUID);
-    if(sopclassuid == UID_MRImageStorage)
-    {
-        this->_create_mr_image_storage(brukerdataset);
-    }
-    else if (sopclassuid == UID_EnhancedMRImageStorage)
-    {
-        this->_create_enhanced_mr_image_storage(brukerdataset);
-    }
-    else
-    {
-        throw DicomifierException("Unkown SOP Class UID '" + this->_SOPClassUID + "'");
-    }
+    javascript::JavascriptVM jsvm;
+    jsvm.run(streamstr.str(), jsvm.get_context());
 }
 
 std::string
 EnhanceBrukerDicom
-::get_default_directory_name(const boost::filesystem::path &parentdirectory)
+::get_default_directory_name(boost::filesystem::path const & parentdirectory)
 {
     if (! boost::filesystem::exists(parentdirectory))
     {
@@ -172,200 +150,6 @@ EnhanceBrukerDicom
     throw DicomifierException("Cannot find default directory name.");
 }
 
-boost::filesystem::path
-EnhanceBrukerDicom
-::get_destination_filename(dcmtkpp::DataSet const & dataset, bool usefileformat) const
-{
-    // Subject Directory: Patient's name or Patient's ID or Default value
-    std::string subject_name;
-    try
-    {
-        subject_name = dataset.as_string(dcmtkpp::registry::PatientName, 0);
-    }
-    catch(dcmtkpp::Exception)
-    {
-        try
-        {
-            subject_name = dataset.as_string(dcmtkpp::registry::PatientID, 0);
-        }
-        catch(dcmtkpp::Exception)
-        {
-            subject_name = EnhanceBrukerDicom::get_default_directory_name(
-                this->_outputDir);
-        }
-    }
-
-    // Study Directory: Counter + Study Description
-    auto const study = this->create_directory_name(
-            8, this->_studyNumber,
-            dataset.as_string(dcmtkpp::registry::StudyDescription, 0));
-
-    // Series Directory: Bruker Series directory + Series Description
-    std::string series_description = "";
-    // Series description is optional
-    if (dataset.has(dcmtkpp::registry::SeriesDescription))
-    {
-        series_description = dataset.as_string(
-            dcmtkpp::registry::SeriesDescription, 0);
-    }
-    auto series_number = boost::lexical_cast<std::string>(
-        dataset.as_int(dcmtkpp::registry::SeriesNumber, 0));
-    series_number = series_number.substr(0, series_number.size() == 6 ? 2 : 1);
-    auto const series = this->create_directory_name(
-        8, series_number, series_description);
-
-    // Instance file: Instance Number
-    std::string instance = "1";
-    if (usefileformat)
-    {
-        auto const & instance_number = dataset.as_int(
-            dcmtkpp::registry::InstanceNumber, 0);
-
-        auto const images_in_acquistion = dataset.as_int(
-            dcmtkpp::registry::ImagesInAcquisition, 0);
-
-        int const nbdigit = 1 + floor(log10(images_in_acquistion));
-
-        std::ostringstream stream;
-        stream << std::setw(nbdigit) << std::setfill('0') << instance_number;
-        instance = stream.str();
-    }
-
-    // Destination: Subject/Study/Series/Instance
-    boost::filesystem::path const destination =
-        boost::filesystem::path(this->_outputDir)
-            /subject_name.c_str()/study/series/instance;
-    boost::filesystem::create_directories(destination.parent_path());
-
-    return destination;
-}
-
-void
-EnhanceBrukerDicom
-::_create_mr_image_storage(bruker::Dataset const & bruker_dataset) const
-{
-    javascript::JavascriptVM jsvm;
-
-    // Create inputs
-    auto const json_bruker_dataset = bruker::as_json(bruker_dataset);
-    std::ostringstream stream;
-    stream << "dicomifier.inputs[0] = "
-           << bruker::as_string(json_bruker_dataset) << ";";
-    jsvm.run(stream.str(), jsvm.get_context());
-
-    // Execute script
-    std::string const script(
-        "require('bruker2dicom/mr_image_storage.js');\n"
-        "dicomifier.outputs = dicomifier.bruker2dicom.MRImageStorage(dicomifier.inputs[0]);");
-    jsvm.run(script, jsvm.get_context());
-
-    v8::HandleScope handle_scope;
-    v8::Context::Scope context_scope(jsvm.get_context());
-
-    auto const length_value = jsvm.run(
-        "dicomifier.outputs.length;", jsvm.get_context());
-    auto const length = length_value->ToInteger()->Value();
-    for(int i=0; i<length; ++i)
-    {
-        // Get the JSON representation of the V8 data set.
-        std::string json;
-        {
-            std::stringstream stream;
-            stream << "JSON.stringify(dicomifier.outputs[" << i << "]);";
-            auto const value = jsvm.run(stream.str(), jsvm.get_context());
-            json = *v8::String::Utf8Value(value);
-        }
-
-        // Parse it into a data set.
-        dcmtkpp::DataSet data_set;
-        {
-            Json::Value value;
-            Json::Reader reader;
-            std::string old_locale = std::setlocale(LC_ALL, "C");
-            reader.parse(json, value);
-            std::setlocale(LC_ALL, old_locale.c_str());
-
-            data_set = dcmtkpp::as_dataset(value);
-        }
-
-        // Write the data set to a file.
-        auto const destination = this->get_destination_filename(data_set);
-        std::stringstream stream;
-        dcmtkpp::Writer::write_file(
-                    data_set, stream,
-                    dcmtkpp::registry::ExplicitVRLittleEndian,
-                    dcmtkpp::Writer::ItemEncoding::UndefinedLength, false);
-
-        std::ofstream outputstream(destination.c_str(),
-                                   std::ios::out | std::ios::binary);
-        outputstream << stream.str();
-        outputstream.close();
-    }
-}
-
-void
-EnhanceBrukerDicom
-::_create_enhanced_mr_image_storage(Dataset const & bruker_dataset) const
-{
-    javascript::JavascriptVM jsvm;
-
-    // Create inputs
-    auto const json_bruker_dataset = bruker::as_json(bruker_dataset);
-    std::ostringstream stream;
-    stream << "dicomifier.inputs[0] = "
-           << bruker::as_string(json_bruker_dataset) << ";";
-    jsvm.run(stream.str(), jsvm.get_context());
-
-    // Execute script
-    std::string const script(
-        "require('bruker2dicom/enhanced_mr_image_storage.js');\n"
-        "dicomifier.outputs = dicomifier.bruker2dicom.EnhancedMRImageStorage(dicomifier.inputs[0]);");
-    jsvm.run(script, jsvm.get_context());
-
-    v8::HandleScope handle_scope;
-    v8::Context::Scope context_scope(jsvm.get_context());
-
-    auto const length_value = jsvm.run(
-        "dicomifier.outputs.length;", jsvm.get_context());
-    auto const length = length_value->ToInteger()->Value();
-    for(int i=0; i<length; ++i)
-    {
-        // Get the JSON representation of the V8 data set.
-        std::string json;
-        {
-            std::stringstream stream;
-            stream << "JSON.stringify(dicomifier.outputs[" << i << "]);";
-            auto const value = jsvm.run(stream.str(), jsvm.get_context());
-            json = *v8::String::Utf8Value(value);
-        }
-
-        // Parse it into a data set.
-        dcmtkpp::DataSet data_set;
-        {
-            Json::Value value;
-            Json::Reader reader;
-            std::string old_locale = std::setlocale(LC_ALL, "C");
-            reader.parse(json, value);
-            std::setlocale(LC_ALL, old_locale.c_str());
-
-            data_set = dcmtkpp::as_dataset(value);
-        }
-
-        // Write the data set to a file.
-        auto const destination = this->get_destination_filename(data_set, false);
-        std::stringstream stream;
-        dcmtkpp::Writer::write_file(
-                    data_set, stream,
-                    dcmtkpp::registry::ExplicitVRLittleEndian,
-                    dcmtkpp::Writer::ItemEncoding::UndefinedLength, false);
-
-        std::ofstream outputstream(destination.c_str(),
-                                   std::ios::out | std::ios::binary);
-        outputstream << stream.str();
-        outputstream.close();
-    }
-}
-
 void
 EnhanceBrukerDicom
 ::replace_unavailable_char(std::string &text)
@@ -392,7 +176,7 @@ EnhanceBrukerDicom
 std::string
 EnhanceBrukerDicom
 ::create_directory_name(int sizemax, const std::string &prefix,
-                        const std::string &suffix) const
+                        const std::string &suffix)
 {
     int size = sizemax - prefix.length() - 1; // 1 is for '_'
     std::string suffixmodif = suffix.substr(0, size);
