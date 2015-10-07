@@ -14,6 +14,7 @@
 #include <dcmtkpp/json_converter.h>
 #include <dcmtkpp/Reader.h>
 #include <dcmtkpp/registry.h>
+#include <dcmtkpp/Writer.h>
 
 #include <nifti/nifti1_io.h>
 
@@ -385,6 +386,76 @@ v8::Handle<v8::Value> write_nifti(v8::Arguments const & args)
     return v8::Null();
 }
 
+v8::Handle<v8::Value> write_dicom(v8::Arguments const & args)
+{
+    if(args.Length() < 2)
+    {
+        return v8::ThrowException(
+                v8::String::New("Missing Arguments for writeDICOM"));
+    }
+
+    try
+    {
+        // Get the JSON representation of the V8 data set.
+        std::string json = *v8::String::Utf8Value(args[0]);
+
+        // Parse it into a data set.
+        Json::Value jsondataset;
+        {
+            Json::Reader reader;
+            std::string old_locale = std::setlocale(LC_ALL, "C");
+            reader.parse(json, jsondataset);
+            std::setlocale(LC_ALL, old_locale.c_str());
+        }
+
+        auto const dataset = dcmtkpp::as_dataset(jsondataset);
+
+        // Get output file name
+        auto const path_dcm_js = args[1]->ToString();
+        std::string path_dcm_utf8(path_dcm_js->Utf8Length(), '\0');
+        path_dcm_js->WriteUtf8(&path_dcm_utf8[0]);
+
+        // Create directory if not exist
+        boost::filesystem::path const destination =
+            boost::filesystem::path(path_dcm_utf8);
+        boost::filesystem::create_directories(destination.parent_path());
+
+        std::string transfer_syntax = dcmtkpp::registry::ExplicitVRLittleEndian;
+        if(args.Length() == 3)
+        {
+            auto const tsyntax_js = args[2]->ToString();
+            std::string tsyntax_utf8(tsyntax_js->Utf8Length(), '\0');
+            tsyntax_js->WriteUtf8(&tsyntax_utf8[0]);
+
+            transfer_syntax = tsyntax_utf8;
+        }
+
+        std::stringstream stream;
+        dcmtkpp::Writer::write_file(
+                    dataset, stream, transfer_syntax,
+                    dcmtkpp::Writer::ItemEncoding::UndefinedLength, false);
+
+        std::ofstream outputstream(destination.c_str(),
+                                   std::ios::out | std::ios::binary);
+        outputstream << stream.str();
+        outputstream.close();
+    }
+    catch (DicomifierException const & exc)
+    {
+        return v8::ThrowException(v8::String::New(exc.what()));
+    }
+    catch (dcmtkpp::Exception const & dcmtkppexc)
+    {
+        return v8::ThrowException(v8::String::New(dcmtkppexc.what()));
+    }
+    catch (std::exception const & otherexc)
+    {
+        return v8::ThrowException(v8::String::New(otherexc.what()));
+    }
+
+    return v8::Null();
+}
+
 v8::Handle<v8::Value> namespace_(v8::Arguments const & args)
 {
     auto const path_js = args[0]->ToString();
@@ -503,6 +574,7 @@ JavascriptVM
     DICOMIFIER_EXPOSE_FUNCTION(sort_pixel_data, "sortPixelData");
     DICOMIFIER_EXPOSE_FUNCTION(read_dicom, "readDICOM");
     DICOMIFIER_EXPOSE_FUNCTION(write_nifti, "writeNIfTI");
+    DICOMIFIER_EXPOSE_FUNCTION(write_dicom, "writeDICOM");
     DICOMIFIER_EXPOSE_FUNCTION(generate_uid, "dcmGenerateUniqueIdentifier");
     DICOMIFIER_EXPOSE_FUNCTION(require, "require");
     DICOMIFIER_EXPOSE_FUNCTION(namespace_, "namespace");
