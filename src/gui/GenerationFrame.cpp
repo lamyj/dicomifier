@@ -14,9 +14,11 @@
 #include <boost/filesystem.hpp>
 
 #include <dcmtk/config/osconfig.h>
-#include <dcmtk/dcmdata/dctk.h>
+#include <dcmtk/dcmdata/dcdatset.h>
 
 #include <dcmtkpp/BasicDirectoryCreator.h>
+#include <dcmtkpp/conversion.h>
+#include <dcmtkpp/Reader.h>
 #include <dcmtkpp/registry.h>
 
 #include <zlib.h>
@@ -613,10 +615,15 @@ GenerationFrame
         }
         else
         {
-            // TODO change
-            DcmFileFormat fileformat;
-            fileformat.loadFile(boost::filesystem::absolute(*it).string().c_str());
-            DcmDataset * dataset = fileformat.getAndRemoveDataset();
+            std::ifstream stream(
+                        boost::filesystem::absolute(*it).string().c_str(),
+                        std::ios::in | std::ios::binary);
+
+            std::pair<dcmtkpp::DataSet, dcmtkpp::DataSet> file =
+                    dcmtkpp::Reader::read_file(stream);
+
+            auto dataset =
+                    dynamic_cast<DcmDataset*>(dcmtkpp::convert(file.second));
 
             // Create Store Rule
             auto storerule = dicomifier::StoreDataset::New(

@@ -13,11 +13,11 @@
 #include <boost/filesystem.hpp>
 #include <boost/lexical_cast.hpp>
 
-#include <dcmtkpp/DataSet.h>
-#include <dcmtkpp/Element.h>
 #include <dcmtkpp/conversion.h>
-#include <dcmtkpp/registry.h>
+#include <dcmtkpp/Element.h>
 #include <dcmtkpp/json_converter.h>
+#include <dcmtkpp/registry.h>
+#include <dcmtkpp/Writer.h>
 
 #include "bruker/Directory.h"
 #include "bruker/json_converter.h"
@@ -290,16 +290,16 @@ EnhanceBrukerDicom
 
         // Write the data set to a file.
         auto const destination = this->get_destination_filename(data_set);
-        auto * dcmtk_dataset = dynamic_cast<DcmDataset*>(
-            dcmtkpp::convert(data_set));
-        DcmFileFormat fileformat(dcmtk_dataset);
-        OFCondition result = fileformat.saveFile(
-            destination.c_str(), EXS_LittleEndianExplicit);
-        if(result.bad())
-        {
-            throw DicomifierException(
-                "Unable to save dataset: " + std::string(result.text()));
-        }
+        std::stringstream stream;
+        dcmtkpp::Writer::write_file(
+                    data_set, stream,
+                    dcmtkpp::registry::ExplicitVRLittleEndian,
+                    dcmtkpp::Writer::ItemEncoding::UndefinedLength, false);
+
+        std::ofstream outputstream(destination.c_str(),
+                                   std::ios::out | std::ios::binary);
+        outputstream << stream.str();
+        outputstream.close();
     }
 }
 
@@ -353,16 +353,16 @@ EnhanceBrukerDicom
 
         // Write the data set to a file.
         auto const destination = this->get_destination_filename(data_set, false);
-        auto * dcmtk_dataset = dynamic_cast<DcmDataset*>(
-            dcmtkpp::convert(data_set));
-        DcmFileFormat fileformat(dcmtk_dataset);
-        OFCondition result = fileformat.saveFile(
-            destination.c_str(), EXS_LittleEndianExplicit);
-        if(result.bad())
-        {
-            throw DicomifierException(
-                "Unable to save dataset: " + std::string(result.text()));
-        }
+        std::stringstream stream;
+        dcmtkpp::Writer::write_file(
+                    data_set, stream,
+                    dcmtkpp::registry::ExplicitVRLittleEndian,
+                    dcmtkpp::Writer::ItemEncoding::UndefinedLength, false);
+
+        std::ofstream outputstream(destination.c_str(),
+                                   std::ios::out | std::ios::binary);
+        outputstream << stream.str();
+        outputstream.close();
     }
 }
 
