@@ -187,10 +187,13 @@ _module.getFileName = function(dataset, studyNumber,
     else {
         tab['SeriesDescription'] = "";
     }
-    tab['InstanceNumber'] = 
-        dataset[dicomifier.dictionary['InstanceNumber'][1]].Value[0];
-    tab['ImagesInAcquisition'] = 
-        dataset[dicomifier.dictionary['ImagesInAcquisition'][1]].Value[0];
+    
+    if (useFileFormat) {
+        tab['InstanceNumber'] = 
+            dataset[dicomifier.dictionary['InstanceNumber'][1]].Value[0];
+        tab['ImagesInAcquisition'] = 
+            dataset[dicomifier.dictionary['ImagesInAcquisition'][1]].Value[0];
+    }
     
     return generateDICOMFileName(tab);
 };
