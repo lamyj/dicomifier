@@ -40,9 +40,11 @@ EnhanceBrukerDicom::EnhanceBrukerDicom()
 EnhanceBrukerDicom::EnhanceBrukerDicom(
     std::string const & brukerDir, std::string const & sopclassuid,
     std::string const & outputDir, std::string const & studyNumber,
-    std::string const & seriesNumber)
-: _brukerDir(brukerDir), _SOPClassUID(sopclassuid), _outputDir(outputDir),
-  _studyNumber(studyNumber), _seriesNumber(seriesNumber)
+    std::string const & seriesNumber):
+    _brukerDir(brukerDir),
+    _SOPClassUID(dicomifier::get_SOPClassUID_from_name(sopclassuid)),
+    _outputDir(outputDir), _studyNumber(studyNumber),
+    _seriesNumber(seriesNumber)
 {
     // Nothing to do
 }

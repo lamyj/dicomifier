@@ -692,6 +692,22 @@ BOOST_AUTO_TEST_CASE(Function_sortPixelData_no_Input)
 
 /******************************* TEST Error ************************************/
 /**
+ * Error test case: Test function sort_pixel_data
+ *                  Pixel data missing
+ */
+BOOST_AUTO_TEST_CASE(Function_sortPixelData_MissingPixelData)
+{
+    dicomifier::javascript::JavascriptVM vm;
+
+    std::stringstream streaminput;
+    streaminput << "sortPixelData({}, []);";
+
+    BOOST_REQUIRE_THROW(vm.run(streaminput.str(), vm.get_context()),
+                        dicomifier::DicomifierException);
+}
+
+/******************************* TEST Error ************************************/
+/**
  * Error test case: Test function read_dicom
  *                  DICOM file missing
  */
@@ -717,6 +733,54 @@ BOOST_AUTO_TEST_CASE(Function_writeNIfTI_missingArgs)
 
     std::stringstream streaminput;
     streaminput << "writeNIfTI();";
+
+    BOOST_REQUIRE_THROW(vm.run(streaminput.str(), vm.get_context()),
+                        dicomifier::DicomifierException);
+}
+
+/******************************* TEST Error ************************************/
+/**
+ * Error test case: Test function generate_dicom_filename
+ *                  arguments missing
+ */
+BOOST_AUTO_TEST_CASE(Function_generateDICOMFileName_missingArgs)
+{
+    dicomifier::javascript::JavascriptVM vm;
+
+    std::stringstream streaminput;
+    streaminput << "generateDICOMFileName();";
+
+    BOOST_REQUIRE_THROW(vm.run(streaminput.str(), vm.get_context()),
+                        dicomifier::DicomifierException);
+}
+
+/******************************* TEST Error ************************************/
+/**
+ * Error test case: Test function read_bruker_directory
+ *                  arguments missing
+ */
+BOOST_AUTO_TEST_CASE(Function_readBrukerDirectory_missingArgs)
+{
+    dicomifier::javascript::JavascriptVM vm;
+
+    std::stringstream streaminput;
+    streaminput << "readBrukerDirectory();";
+
+    BOOST_REQUIRE_THROW(vm.run(streaminput.str(), vm.get_context()),
+                        dicomifier::DicomifierException);
+}
+
+/******************************* TEST Error ************************************/
+/**
+ * Error test case: Test function write_dicom
+ *                  arguments missing
+ */
+BOOST_AUTO_TEST_CASE(Function_writeDICOM_missingArgs)
+{
+    dicomifier::javascript::JavascriptVM vm;
+
+    std::stringstream streaminput;
+    streaminput << "writeDICOM();";
 
     BOOST_REQUIRE_THROW(vm.run(streaminput.str(), vm.get_context()),
                         dicomifier::DicomifierException);
