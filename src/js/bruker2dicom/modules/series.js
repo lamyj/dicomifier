@@ -2,7 +2,8 @@ require('bruker2dicom/common.js');
 
 var _module = namespace('dicomifier.bruker2dicom.modules');
 
-_module.GeneralSeries = function(indexGenerator, dicomDataset, brukerDataset) {
+_module.GeneralSeries = function(indexGenerator, dicomDataset, 
+                                 brukerDataset) {
     var toDicom = dicomifier.bruker2dicom.toDicom;
     var dateTimeMapper = dicomifier.bruker2dicom.dateTimeMapper;
     var dictionaryMapper = dicomifier.bruker2dicom.dictionaryMapper;
@@ -18,7 +19,8 @@ _module.GeneralSeries = function(indexGenerator, dicomDataset, brukerDataset) {
         indexGenerator, dicomDataset, 'SeriesNumber',
         brukerDataset, null, 2, parseInt,
         function(brukerDataset) { return [
-            brukerDataset.VisuExperimentNumber || brukerDataset.VisuSeriesNumber ]; } );
+            brukerDataset.VisuExperimentNumber || 
+            brukerDataset.VisuSeriesNumber ]; } );
 
     dicomDataset[dicomifier.dictionary['Laterality'][1]] = {
         'vr': dicomifier.dictionary['Laterality'][0] };
@@ -55,4 +57,26 @@ _module.GeneralSeries = function(indexGenerator, dicomDataset, brukerDataset) {
     toDicom(
         indexGenerator, dicomDataset, 'AnatomicalOrientationType',
         brukerDataset, 'VisuSubjectType', 3);
+};
+
+_module.MRSeries = function(indexGenerator, dicomDataset, brukerDataset) {
+
+    dicomDataset[dicomifier.dictionary['Modality'][1]] = {
+        'vr': dicomifier.dictionary['Modality'][0], 'Value' : ['MR'] };
+    
+    // add field ReferencedPerformedProcedureStepSequence
+    // Required if a Performed Procedure Step SOP Class was
+    // involved in the creation of this Series.
+    /*
+    // Only one item
+    var item = {};
+    item[dicomifier.dictionary['ReferencedSOPClassUID'][1]] = {
+        'vr': dicomifier.dictionary['ReferencedSOPClassUID'][0], 'Value' : ['to_defined']};
+    item[dicomifier.dictionary['ReferencedSOPInstanceUID'][1]] = {
+        'vr': dicomifier.dictionary['ReferencedSOPInstanceUID'][0], 'Value' : ['to_defined']};
+        
+    dicomDataset[dicomifier.dictionary['ReferencedPerformedProcedureStepSequence'][1]] = {
+        'vr': dicomifier.dictionary['ReferencedPerformedProcedureStepSequence'][0], 'Value' : [ item ] };
+    */
+    
 };

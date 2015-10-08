@@ -52,7 +52,7 @@ public:
     std::string get_ZipErrorMsg() const { return this->_ZipErrorMsg; }
 
     /// Convert Result to std::string
-    std::string resultToString(Result const result) const;
+    static std::string resultToString(Result const result);
 
     std::string get_dicomdirCreationToString() const;
     std::string get_zipCreationToString() const;

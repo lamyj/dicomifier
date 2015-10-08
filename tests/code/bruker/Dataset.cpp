@@ -15,7 +15,7 @@
 #include "bruker/Dataset.h"
 #include "core/DicomifierException.h"
 
-/*************************** TEST OK 01 *******************************/
+/******************************* TEST Nominal **********************************/
 /**
  * Nominal test case: Constructor and load file
  */
@@ -64,7 +64,7 @@ BOOST_FIXTURE_TEST_CASE(LoadFile, TestDataOK01)
     delete dataset;
 }
 
-/*************************** TEST OK 02 *******************************/
+/******************************* TEST Nominal **********************************/
 /**
  * Nominal test case: has_field
  */
@@ -78,9 +78,19 @@ BOOST_FIXTURE_TEST_CASE(HasField, TestDataOK01)
 
     BOOST_CHECK_EQUAL(dataset.has_field("Parameter Values"), false);
     BOOST_CHECK_EQUAL(dataset.has_field("not_a_good_field"), false);
+
+    // Test iterator
+    std::vector<std::string> expected_values = {
+        "DATATYPE", "END", "JCAMPDX", "ORIGIN", "SUBJECT_id", "TITLE" };
+    int count = 0;
+    for (auto it = dataset.begin(); it != dataset.end(); ++it)
+    {
+        BOOST_CHECK_EQUAL(it->first, expected_values[count]);
+        ++count;
+    }
 }
 
-/*************************** TEST OK 03 *******************************/
+/******************************* TEST Nominal **********************************/
 /**
  * Nominal test case: get_field and set_field
  */
@@ -116,7 +126,7 @@ BOOST_FIXTURE_TEST_CASE(GetAndSetField, TestDataOK01)
                       "Mortimer");
 }
 
-/*************************** TEST OK 04 *******************************/
+/******************************* TEST Nominal **********************************/
 /**
  * Nominal test case: update frame groups
  */
@@ -172,7 +182,7 @@ BOOST_FIXTURE_TEST_CASE(FrameGroups, TestDataOK01)
     BOOST_CHECK_EQUAL(framegroup[0].parameters[1].start_index, 0);
 }
 
-/*************************** TEST OK 05 *******************************/
+/******************************* TEST Nominal **********************************/
 /**
  * Nominal test case: get index and start position
  */
@@ -219,7 +229,7 @@ BOOST_FIXTURE_TEST_CASE(GetIndexForValue, TestDataOK05)
     BOOST_CHECK_EQUAL(startposition, 0);
 }
 
-/*************************** TEST OK 06 *******************************/
+/******************************* TEST Nominal **********************************/
 /**
  * Nominal test case: Constructor and load file
  */
@@ -506,7 +516,7 @@ BOOST_FIXTURE_TEST_CASE(Load_Complete_File, TestDataOK06)
     BOOST_CHECK_EQUAL(boost::get<std::string>(struct_10[2]), "DISP->S");
 }
 
-/*************************** TEST KO 01 *******************************/
+/******************************* TEST Error ************************************/
 /**
  * Error test case: Load bad file
  */
@@ -517,7 +527,7 @@ BOOST_AUTO_TEST_CASE(CouldNotOpenFile)
                         dicomifier::DicomifierException);
 }
 
-/*************************** TEST KO 02 *******************************/
+/******************************* TEST Error ************************************/
 /**
  * Error test case: Parsing error
  */
@@ -554,7 +564,7 @@ BOOST_FIXTURE_TEST_CASE(ParsingError, TestDataKO02)
                         dicomifier::DicomifierException);
 }
 
-/*************************** TEST KO 03 *******************************/
+/******************************* TEST Error ************************************/
 /**
  * Error test case: Get unexisting field
  */

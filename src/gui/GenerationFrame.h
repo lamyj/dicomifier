@@ -16,7 +16,6 @@
 #include "BaseFrame.h"
 #include "components/GenerationResultItem.h"
 #include "components/TreeItem.h"
-#include "dicom/DicomDirGenerator.h"
 
 namespace dicomifier
 {
@@ -66,6 +65,15 @@ public:
 
     std::string get_selectedFormat_toString() const;
 
+    /**
+     * @brief List DICOM files to add into DICOMDIR
+     * @param directory: Directory containing DICOM files
+     * @param absdirectory: absolute directory
+     */
+    static std::vector<std::string> getFilesForDicomdir(
+            std::string const & directory,
+            std::string const & absdirectory);
+
 public slots:
     /// Event triggered when Preferences are modify
     virtual void onUpdate_Preferences();
@@ -81,9 +89,9 @@ protected:
     /// Evaluate the value to set for Enabled property of Previous Button
     virtual void modify_previousButton_enabled();
 
-    OFCondition createDicomdirs(std::string const & directory,
-                                std::string const & absdirectory,
-                                std::string const & dicomdirfile);
+    void createDicomdirs(std::string const & directory,
+                         std::string const & absdirectory,
+                         std::string const & dicomdirfile);
 
     std::string createZipArchives(std::string const & directory,
                                   std::string const & filename);
@@ -96,15 +104,6 @@ protected:
      * @param directory: Directory containing DICOM files
      */
     void storeFilesIntoPACS(std::string const & directory);
-
-    /**
-     * @brief Add DICOM files into DICOMDIR
-     * @param directory: Directory containing DICOM files
-     * @param dcmdirgenerator: DICOMDIR
-     */
-    OFCondition insertFilesForDicomdir(std::string const & directory,
-                                       std::string const & absdirectory,
-                                       DicomDirGenerator* dcmdirgenerator);
 
 private slots:
     /// Event triggered by clicking Save checkBox

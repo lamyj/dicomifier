@@ -12,18 +12,20 @@
 #include "core/DicomifierException.h"
 #include "dicom/Dictionary.h"
 
-/*************************** TEST OK 01 *******************************/
+/******************************* TEST Nominal **********************************/
 /**
  * Nominal test case: Constructor / Destructor
  */
-BOOST_AUTO_TEST_CASE(TEST_OK_01)
+BOOST_AUTO_TEST_CASE(Constructor)
 {
     auto dictionary = dicomifier::Dictionary::New();
     
     BOOST_CHECK_EQUAL(dictionary != NULL, true);
+
+    BOOST_CHECK_EQUAL(dictionary->get_privateGroup(), 0);
 }
 
-/*************************** TEST OK 02 *******************************/
+/******************************* TEST Nominal **********************************/
 /**
  * Nominal test case: AddDictEntry / GetDictEntry
  */
@@ -75,7 +77,7 @@ BOOST_FIXTURE_TEST_CASE(TEST_OK_02, TestDataOK02)
     BOOST_CHECK_EQUAL(dictionary->GetEntryFromKey("0010,0020") != NULL, true);
 }
 
-/*************************** TEST KO 01 *******************************/
+/******************************* TEST Error ************************************/
 /**
  * Error test case: GetEntryFromName Unknown name
  */
@@ -87,7 +89,7 @@ BOOST_AUTO_TEST_CASE(TEST_KO_01)
                         dicomifier::DicomifierException);
 }
 
-/*************************** TEST KO 02 *******************************/
+/******************************* TEST Error ************************************/
 /**
  * Error test case: GetEntryFromKey Unknown key
  */

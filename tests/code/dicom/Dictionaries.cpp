@@ -12,7 +12,7 @@
 #include "core/DicomifierException.h"
 #include "dicom/Dictionaries.h"
 
-/*************************** TEST OK 01 *******************************/
+/******************************* TEST Nominal **********************************/
 /**
  * Nominal test case: Constructor / Destructor
  */
@@ -22,7 +22,7 @@ BOOST_AUTO_TEST_CASE(TEST_OK_01)
     dicomifier::Dictionaries::delete_instance();
 }
 
-/*************************** TEST OK 02 *******************************/
+/******************************* TEST Nominal **********************************/
 /**
  * Nominal test case: Parse Private Dictionary
  */
@@ -130,7 +130,8 @@ struct TestDataOK02
 
 BOOST_FIXTURE_TEST_CASE(TEST_OK_02, TestDataOK02)
 {
-    dicomifier::Dictionaries& dictionaries = dicomifier::Dictionaries::get_instance();
+    dicomifier::Dictionaries& dictionaries =
+            dicomifier::Dictionaries::get_instance();
     
     dictionaries.ParsePrivateDictionary(filepath);
     
@@ -139,13 +140,14 @@ BOOST_FIXTURE_TEST_CASE(TEST_OK_02, TestDataOK02)
                       0x0010);
 }
 
-/*************************** TEST OK 03 *******************************/
+/******************************* TEST Nominal **********************************/
 /**
  * Nominal test case: Get Creator num
  */
 BOOST_FIXTURE_TEST_CASE(TEST_OK_03, TestDataOK02)
 {
-    dicomifier::Dictionaries& dictionaries = dicomifier::Dictionaries::get_instance();
+    dicomifier::Dictionaries& dictionaries =
+            dicomifier::Dictionaries::get_instance();
     
     dictionaries.ParsePrivateDictionary(filepath);
     
@@ -155,42 +157,118 @@ BOOST_FIXTURE_TEST_CASE(TEST_OK_03, TestDataOK02)
     BOOST_CHECK_EQUAL(dictionaries.FindCreatorElementNumber("FLI-IAM", 
                                                             dataset), 
                       0x0011);
-                      
+
+    BOOST_CHECK_EQUAL(dictionaries.FindCreatorElementNumber("public",
+                                                            dataset),
+                      0x00FF);
+
     delete dataset;
 }
 
-/*************************** TEST KO 01 *******************************/
+/******************************* TEST Nominal **********************************/
+/**
+ * Nominal test case: GetTagFromName
+ */
+BOOST_FIXTURE_TEST_CASE(GetTagFromName, TestDataOK02)
+{
+    dicomifier::Dictionaries& dictionaries =
+            dicomifier::Dictionaries::get_instance();
+
+    dictionaries.ParsePrivateDictionary(filepath);
+
+    bool public_;
+    DcmTag tag1 = dictionaries.GetTagFromName("PatientName", "public", public_);
+    BOOST_CHECK_EQUAL(tag1.getTagName(), "PatientName");
+    BOOST_CHECK(!public_);
+
+    DcmTag tag2 = dictionaries.GetTagFromName("PatientName", "FLI-IAM", public_);
+    BOOST_CHECK_EQUAL(tag2.getTagName(), "PatientName");
+    BOOST_CHECK(public_);
+
+    DcmTag tag3 = dictionaries.GetTagFromName("SubjectCategory",
+                                              "FLI-IAM", public_);
+    BOOST_CHECK_EQUAL(tag3.getGroup(), 35);
+    BOOST_CHECK_EQUAL(tag3.getElement(), 1);
+    BOOST_CHECK(!public_);
+
+    dicomifier::Dictionaries::delete_instance();
+}
+
+/******************************* TEST Nominal **********************************/
+/**
+ * Nominal test case: GetTagFromKey
+ */
+BOOST_FIXTURE_TEST_CASE(GetTagFromKey, TestDataOK02)
+{
+    dicomifier::Dictionaries& dictionaries =
+            dicomifier::Dictionaries::get_instance();
+
+    dictionaries.ParsePrivateDictionary(filepath);
+
+    bool public_;
+    DcmTag tag1 = dictionaries.GetTagFromKey("0010,0010", "public", public_);
+    BOOST_CHECK_EQUAL(tag1.getTagName(), "PatientName");
+    BOOST_CHECK(!public_);
+
+    DcmTag tag2 = dictionaries.GetTagFromKey("0010,0010", "FLI-IAM", public_);
+    BOOST_CHECK_EQUAL(tag2.getTagName(), "PatientName");
+    BOOST_CHECK(public_);
+
+    DcmTag tag3 = dictionaries.GetTagFromKey("0023,xx01",
+                                             "FLI-IAM", public_);
+    BOOST_CHECK_EQUAL(tag3.getGroup(), 35);
+    BOOST_CHECK_EQUAL(tag3.getElement(), 1);
+    BOOST_CHECK(!public_);
+
+    dicomifier::Dictionaries::delete_instance();
+}
+
+/******************************* TEST Nominal **********************************/
+/**
+ * Nominal test case: public_dictionary_as_json
+ */
+BOOST_AUTO_TEST_CASE(PublicDictionaryAsJSON)
+{
+    BOOST_REQUIRE(dicomifier::Dictionaries::public_dictionary_as_json() != "");
+}
+
+/******************************* TEST Error ************************************/
 /**
  * Error test case: Unkown Dictionary file
  */
 BOOST_AUTO_TEST_CASE(TEST_KO_01)
 {
-    BOOST_REQUIRE_THROW(dicomifier::Dictionaries::get_instance().ParsePrivateDictionary("./unknownfile.xml"), 
+    BOOST_REQUIRE_THROW(dicomifier::Dictionaries::get_instance().
+                            ParsePrivateDictionary("./unknownfile.xml"),
                         std::runtime_error);
 }
 
-/*************************** TEST KO 02 *******************************/
+/******************************* TEST Error ************************************/
 /**
  * Error test case: GetTagFromName Unkown dictionary
  */
 BOOST_AUTO_TEST_CASE(TEST_KO_02)
 {
-    dicomifier::Dictionaries& dictionaries = dicomifier::Dictionaries::get_instance();
+    dicomifier::Dictionaries& dictionaries =
+            dicomifier::Dictionaries::get_instance();
     
     bool testvalue = false;
-    BOOST_REQUIRE_THROW(dictionaries.GetTagFromName("MyTagName", "badDictionary", testvalue), 
+    BOOST_REQUIRE_THROW(dictionaries.GetTagFromName("MyTagName",
+                                                    "badDictionary", testvalue),
                         dicomifier::DicomifierException);
 }
 
-/*************************** TEST KO 03 *******************************/
+/******************************* TEST Error ************************************/
 /**
  * Error test case: GetTagFromKey Unkown dictionary
  */
 BOOST_AUTO_TEST_CASE(TEST_KO_03)
 {
-    dicomifier::Dictionaries& dictionaries = dicomifier::Dictionaries::get_instance();
+    dicomifier::Dictionaries& dictionaries =
+            dicomifier::Dictionaries::get_instance();
     
     bool testvalue = false;
-    BOOST_REQUIRE_THROW(dictionaries.GetTagFromKey("0023,xx99", "badDictionary", testvalue), 
+    BOOST_REQUIRE_THROW(dictionaries.GetTagFromKey("0023,xx99",
+                                                   "badDictionary", testvalue),
                         dicomifier::DicomifierException);
 }

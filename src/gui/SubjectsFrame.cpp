@@ -209,16 +209,44 @@ SubjectsFrame
         // If we find a directory ( = subject )
         if( boost::filesystem::is_directory( (*it) ) )
         {
-            std::string const dir = directory +
-                                    VALID_FILE_SEPARATOR +
-                                    std::string((*it).path().filename().c_str());
-            std::string file = dir +
-                               VALID_FILE_SEPARATOR +
+            std::string subject_directory((*it).path().filename().c_str());
+
+            std::string const dir = directory + VALID_FILE_SEPARATOR +
+                                    subject_directory;
+            std::string file = dir + VALID_FILE_SEPARATOR +
                                "subject";
+
+            std::string subject_path = dir;
 
             if (!boost::filesystem::exists(boost::filesystem::path(file)))
             {
-                continue;
+                bool is_pv6 = false;
+                // Search if it's a PV6 directory ( = <file>.study )
+                boost::filesystem::directory_iterator itpv6(dir), itpv6_end;
+                for(; itpv6 != itpv6_end; ++itpv6)
+                {
+                    // If we find a directory ( = subject )
+                    if( boost::filesystem::is_directory( (*itpv6) ) )
+                    {
+                        std::string const dirpv6 = dir + VALID_FILE_SEPARATOR +
+                                                   std::string((*itpv6).path().filename().c_str());
+                        file = dirpv6 + VALID_FILE_SEPARATOR + "subject";
+
+                        if (!boost::filesystem::exists(boost::filesystem::path(file)))
+                        {
+                            continue;
+                        }
+
+                        is_pv6 = true;
+                        subject_directory = std::string((*itpv6).path().filename().c_str());
+                        subject_path = dirpv6;
+                    }
+                }
+
+                if (!is_pv6)
+                {
+                    continue;
+                }
             }
 
             dicomifier::bruker::Dataset dataset;
@@ -226,9 +254,9 @@ SubjectsFrame
 
             TreeItem* treeitem = new TreeItem();
             connect(treeitem, SIGNAL(SendDate(double)), this, SLOT(ReceivedDate(double)));
-            treeitem->set_directory(dir);
+            treeitem->set_directory(subject_path);
             treeitem->fill_data(dataset);
-            treeitem->set_subjectDirectory(std::string((*it).path().filename().c_str()));
+            treeitem->set_subjectDirectory(subject_directory);
             disconnect(treeitem, SIGNAL(SendDate(double)), this, SLOT(ReceivedDate(double)));
 
             subjectsAndStudiesList.push_back(treeitem);

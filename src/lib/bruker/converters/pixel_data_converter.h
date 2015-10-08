@@ -33,6 +33,10 @@ public:
                     std::string const & file_byte_order,
                     dcmtkpp::DataSet & dicom_data_set);
 
+    double get_rescaleintercept() const;
+
+    double get_rescaleslope() const;
+
 private:
     typedef uint16_t OutputPixelType;
 
@@ -40,6 +44,9 @@ private:
     dcmtkpp::Value::Binary _pixel_data;
     double _min;
     double _max;
+
+    double _rescaleintercept;
+    double _rescaleslope;
 
     void _set_data_set(std::string const & filename,
                        std::string const & word_type,

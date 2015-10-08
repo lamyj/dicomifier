@@ -258,3 +258,51 @@ BOOST_FIXTURE_TEST_CASE(Echo, DcmQrSCP)
     scu.release();
     BOOST_CHECK(!scu.is_associated());
 }
+
+BOOST_FIXTURE_TEST_CASE(CopyConstructor, DcmQrSCP)
+{
+    dicomifier::SCU scu;
+
+    scu.set_own_ae_title(calling_aet);
+
+    scu.set_peer_host_name(peer_host);
+    scu.set_peer_port(peer_port);
+    scu.set_peer_ae_title(peer_aet);
+
+    scu.add_presentation_context(UID_VerificationSOPClass,
+        { UID_LittleEndianImplicitTransferSyntax });
+
+    scu.associate();
+    BOOST_CHECK(scu.is_associated());
+
+    dicomifier::SCU copyscu(scu);
+    BOOST_CHECK(copyscu.is_associated());
+
+    scu.release();
+    copyscu.release();
+    BOOST_CHECK(!scu.is_associated());
+}
+
+BOOST_FIXTURE_TEST_CASE(OperatorEqual, DcmQrSCP)
+{
+    dicomifier::SCU scu;
+
+    scu.set_own_ae_title(calling_aet);
+
+    scu.set_peer_host_name(peer_host);
+    scu.set_peer_port(peer_port);
+    scu.set_peer_ae_title(peer_aet);
+
+    scu.add_presentation_context(UID_VerificationSOPClass,
+        { UID_LittleEndianImplicitTransferSyntax });
+
+    scu.associate();
+    BOOST_CHECK(scu.is_associated());
+
+
+    dicomifier::SCU copyscu; copyscu.operator =(scu);
+    BOOST_CHECK(copyscu.is_associated());
+
+    scu.release();
+    BOOST_CHECK(!scu.is_associated());
+}

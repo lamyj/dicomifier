@@ -51,6 +51,11 @@ SCU
   _affected_sop_class(other._affected_sop_class),
   _network(NULL), _association(NULL)
 {
+    for (auto item : other._presentation_contexts)
+    {
+        this->_presentation_contexts.push_back(item);
+    }
+
     if(other.is_associated())
     {
         this->associate();
@@ -88,7 +93,12 @@ SCU
         this->set_user_identity_type(other.get_user_identity_type());
         this->set_user_identity_primary_field(other.get_user_identity_primary_field());
         this->set_user_identity_secondary_field(other.get_user_identity_secondary_field());
-        
+
+        for (auto item : other._presentation_contexts)
+        {
+            this->_presentation_contexts.push_back(item);
+        }
+
         if(re_associate)
         {
             if(this->is_associated())

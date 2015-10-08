@@ -11,7 +11,7 @@
 namespace dicomifier
 {
     
-Dictionary::Dictionary()
+Dictionary::Dictionary(): _privateGroup(0)
 {
     // Nothing to do
 }

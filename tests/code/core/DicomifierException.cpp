@@ -11,21 +11,21 @@
 
 #include "core/DicomifierException.h"
 
-/*************************** TEST OK 01 *******************************/
+/******************************* TEST Nominal **********************************/
 /**
  * Nominal test case: Throw
  */
-BOOST_AUTO_TEST_CASE(TEST_OK_01)
+BOOST_AUTO_TEST_CASE(Throw)
 {
     BOOST_REQUIRE_THROW(throw dicomifier::DicomifierException("Error"), 
                         dicomifier::DicomifierException);
 }
 
-/*************************** TEST OK 02 *******************************/
+/******************************* TEST Nominal **********************************/
 /**
  * Nominal test case: Message
  */
-BOOST_AUTO_TEST_CASE(TEST_OK_02)
+BOOST_AUTO_TEST_CASE(Check_Message)
 {
     try
     {

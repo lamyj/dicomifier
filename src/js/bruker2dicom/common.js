@@ -1,3 +1,4 @@
+require("common.js");
 require("bruker2dicom/frame_index_generator.js");
 
 var _module = namespace('dicomifier.bruker2dicom');
@@ -40,6 +41,14 @@ _module.dateTimeMapper = function(type) {
                 ('0' + datetime.getUTCMinutes().toString()).slice(-2) +
                 ('0' + datetime.getUTCSeconds().toString()).slice(-2);
         }
+        else if(type === 'datetime') {
+            format = datetime.getUTCFullYear().toString() +
+                ('0' + (datetime.getUTCMonth()+1).toString()).slice(-2) +
+                ('0' + datetime.getUTCDate().toString()).slice(-2) +
+                ('0' + datetime.getUTCHours().toString()).slice(-2) +
+                ('0' + datetime.getUTCMinutes().toString()).slice(-2) +
+                ('0' + datetime.getUTCSeconds().toString()).slice(-2);
+        }
         else {
             throw new dicomifier.Exception(
                 'Unknown DateTime format: "' + format + '"');
@@ -71,7 +80,7 @@ _module.toDicom = function(
         throw new dicomifier.Exception(
             'Unknown DICOM element: "' + element + '"');
     }
-
+    
     // Get Bruker Value
     var value = getter;
     if (getter !== undefined) {
@@ -140,4 +149,51 @@ _module.toDicom = function(
             }
         }
     }
+};
+
+_module.getFileName = function(dataset, studyNumber, 
+                               seriesNumber, outputDir, useFileFormat) {
+    var tab = {};
+    tab['studyNumber'] = studyNumber;
+    tab['seriesNumber'] = seriesNumber;
+    tab['outputDir'] = outputDir;
+    tab['useFileFormat'] = useFileFormat;
+    
+    var vrAndTagPatientName = dicomifier.dictionary['PatientName'];
+    var vrAndTagPatientID = dicomifier.dictionary['PatientID'];
+    
+    // Subject Directory: Patient's name or Patient's ID or Default value
+    if (dataset[vrAndTagPatientName[1]] !== undefined || 
+        dataset[vrAndTagPatientName[1]] !== null) {
+        tab['SubjectName'] = 
+            dataset[vrAndTagPatientName[1]].Value[0]['Alphabetic'];
+    }
+    else if (dataset[vrAndTagPatientID[1]] !== undefined || 
+             dataset[vrAndTagPatientID[1]] !== null) {
+        tab['SubjectName'] = dataset[vrAndTagPatientID[1]].Value[0];
+    }
+    else {
+        tab['SubjectName'] = null;
+    }
+    
+    tab['StudyDescription'] = 
+        dataset[dicomifier.dictionary['StudyDescription'][1]].Value[0];
+        
+    if (dataset[dicomifier.dictionary['SeriesDescription'][1]] !== undefined &&
+        dataset[dicomifier.dictionary['SeriesDescription'][1]].Value !== undefined) {
+        tab['SeriesDescription'] = 
+            dataset[dicomifier.dictionary['SeriesDescription'][1]].Value[0];
+    }
+    else {
+        tab['SeriesDescription'] = "";
+    }
+    
+    if (useFileFormat) {
+        tab['InstanceNumber'] = 
+            dataset[dicomifier.dictionary['InstanceNumber'][1]].Value[0];
+        tab['ImagesInAcquisition'] = 
+            dataset[dicomifier.dictionary['ImagesInAcquisition'][1]].Value[0];
+    }
+    
+    return generateDICOMFileName(tab);
 };

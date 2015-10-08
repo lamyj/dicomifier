@@ -56,6 +56,30 @@ _module.FrameIndexGenerator.prototype.next = function() {
     }
 };
 
+/// @brief generate next index
+_module.FrameIndexGenerator.prototype.computeIndex = function(withoutIndex) {
+    var vect = [];
+    for (var i = 0; i < this.currentIndex.length; i++)
+    {
+        if (withoutIndex.indexOf(i) == -1)
+        {
+            for (var j = 0; j < vect.length; j++)
+            {
+                vect[j] = vect[j] * this.indexMax[i];
+            }
+            vect.push(this.currentIndex[i]);
+        }
+    }
+    
+    var ret = 0;
+    for (var j = 0; j < vect.length; j++)
+    {
+        ret += vect[j];
+    }
+    return ret;
+};
+
+
 
 /**
  * @brief Parsing frame group from a given Bruker Dataset
@@ -68,8 +92,21 @@ _module.getFrameGroups = function(brukerDataset) {
     }
 
     var array = [];
+    
+    // Attention: Parse 3D Bruker DataSet
+    var subarraySlice = [];
+    if (brukerDataset.VisuCoreDim !== undefined &&
+        brukerDataset.VisuCoreDim[0] === "3") {
+        subarraySlice[0] = brukerDataset.VisuCoreSize[2]; // slice number
+        subarraySlice[1] = "FG_SLICE";                    // Default Name
+        subarraySlice[2] = [["VisuCoreOrientation", 0], ["VisuCorePosition", 0]];
+    }
 
-    if(brukerDataset.VisuFGOrderDesc === undefined) {
+    if (brukerDataset.VisuFGOrderDesc === undefined) {
+        if (brukerDataset.VisuCoreDim !== undefined &&
+            brukerDataset.VisuCoreDim[0] === "3") {
+            array.push(subarraySlice);
+        }
         return array;
     }
 
@@ -80,12 +117,18 @@ _module.getFrameGroups = function(brukerDataset) {
         subarray[0] = description[0];
         subarray[1] = description[1];
         var parameters = [];
-        for(var j = parseInt(description[3]); j < description[3]+description[4]; ++j) {
+        for (var j = parseInt(description[3]); 
+            j < description[3]+description[4]; ++j) {
             parameters.push(brukerDataset.VisuGroupDepVals[j]);
         }
 
         subarray[2] = parameters;
         array.push(subarray);
+    }
+    
+    if (brukerDataset.VisuCoreDim !== undefined &&
+        brukerDataset.VisuCoreDim[0] === "3") {
+        array.push(subarraySlice);
     }
 
     // CAUTION: the frame groups are listed in innermost-to-outermost
@@ -115,7 +158,8 @@ _module.getFrameGroupIndex = function(brukerDataset, brukerElement) {
     for (var index = 0; index < frameGroups.length; ++index) {
         var parameters = frameGroups[index][2];
 
-        for(var indexParam = 0; indexParam < parameters.length; ++indexParam) {
+        for(var indexParam = 0; 
+            indexParam < parameters.length; ++indexParam) {
             if (brukerElement === parameters[indexParam][0]) {
                 return [index, parameters[indexParam][1]];
             }

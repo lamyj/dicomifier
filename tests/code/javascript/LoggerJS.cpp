@@ -38,7 +38,7 @@ struct TestDataLoggerJS
     }
 };
 
-/*************************** TEST Nominal *******************************/
+/******************************* TEST Nominal **********************************/
 /**
  * Nominal test case: Log error message from JavaScript code
  */
@@ -53,7 +53,7 @@ BOOST_FIXTURE_TEST_CASE(Logger_Error, TestDataLoggerJS)
     BOOST_CHECK(streamlog.str().find("My message") != std::string::npos);
 }
 
-/*************************** TEST Nominal *******************************/
+/******************************* TEST Nominal **********************************/
 /**
  * Nominal test case: Log error message from JavaScript code
  */
@@ -66,4 +66,17 @@ BOOST_FIXTURE_TEST_CASE(Logger_Info, TestDataLoggerJS)
     BOOST_REQUIRE_NE(streamlog.str(), "");
     BOOST_CHECK(streamlog.str().find("INFO") != std::string::npos);
     BOOST_CHECK(streamlog.str().find("My message") != std::string::npos);
+}
+
+/******************************* TEST Error ************************************/
+/**
+ * Error test case: Missing input
+ */
+BOOST_FIXTURE_TEST_CASE(Logger_missing_input, TestDataLoggerJS)
+{
+    dicomifier::javascript::JavascriptVM vm;
+
+    vm.run("log();", vm.get_context());
+
+    BOOST_REQUIRE_EQUAL(streamlog.str(), "");
 }

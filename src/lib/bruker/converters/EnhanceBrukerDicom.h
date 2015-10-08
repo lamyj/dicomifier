@@ -106,13 +106,8 @@ public:
 
     static void replace_unavailable_char(std::string &text);
 
-    /**
-     * @brief get_destination_filename: get formatted output filepath
-     * @param dataset: dataset to write
-     * @return output filepath
-     */
-    boost::filesystem::path get_destination_filename(
-        dcmtkpp::DataSet const & dataset, bool usefileformat = true) const;
+    static std::string create_directory_name(
+            int sizemax, std::string const & prefix, std::string const & suffix);
 
 protected:
     /// Create an instance of EnhanceBrukerDicom
@@ -132,12 +127,6 @@ protected:
                        std::string const & seriesNumber);
 
 private:
-    void _create_mr_image_storage(bruker::Dataset const & bruker_dataset) const;
-
-    std::string create_directory_name(int sizemax,
-                                      std::string const & prefix,
-                                      std::string const & suffix) const;
-
     /// Path of Bruker directory
     std::string _brukerDir;
 

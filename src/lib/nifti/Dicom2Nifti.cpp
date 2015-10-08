@@ -12,14 +12,10 @@
 #include <boost/filesystem.hpp>
 #include <boost/lexical_cast.hpp>
 
-#include <dcmtk/config/osconfig.h>
-#include <dcmtk/dcmdata/dctk.h>     /* Covers most common dcmdata classes */
-#include <dcmtk/ofstd/ofstd.h>
-
 #include <dcmtkpp/conversion.h>
 #include <dcmtkpp/DataSet.h>
 #include <dcmtkpp/json_converter.h>
-//#include <dcmtkpp/Reader.h>
+#include <dcmtkpp/Reader.h>
 #include <dcmtkpp/registry.h>
 
 #include "core/DicomifierException.h"
@@ -127,72 +123,33 @@ Dicom2Nifti
 
     typedef boost::filesystem::directory_iterator Iterator;
 
-    unsigned int count = 0;
+    std::vector<std::string> list_dataset;
+
     for(Iterator it(boost::filesystem::path(this->_dicomDir));
         it != Iterator(); ++it)
     {
         if(boost::filesystem::is_regular_file(*it))
         {
-            // Next version of dcmtkpp
-            //std::ifstream stream(boost::filesystem::path(*it).c_str(),
-            //                     std::ios::in | std::ios::binary);
-            //
-            //std::pair<dcmtkpp::DataSet, dcmtkpp::DataSet> file;
-            dcmtkpp::DataSet dataset;
-            try
-            {
-                // Next version of dcmtkpp
-                //file = dcmtkpp::Reader::read_file(stream);
-
-                DcmFileFormat file;
-                OFCondition const condition = file.loadFile(boost::filesystem::path(*it).c_str());
-
-                if(condition.bad())
-                {
-                    std::stringstream streamerror;
-                    streamerror << "Cannot read dataset: " << condition.text();
-                    throw DicomifierException(streamerror.str());
-                }
-
-                dataset = dcmtkpp::convert(file.getAndRemoveDataset());
-            }
-            catch(std::exception const & e)
-            {
-                std::cout << "Could not read " << *it << ": "
-                          << e.what() << "\n";
-            }
-
-            if (!dataset.has(dcmtkpp::registry::PixelData))
-            {
-                // ignore file
-                continue;
-            }
-
-            auto const json_dicom_dataset = dcmtkpp::as_json(dataset);
-
-            std::stringstream streamstr;
-            streamstr << "dicomifier.inputs[" << count << "] = "
-                   << json_dicom_dataset.toStyledString() << ";";
-            jsvm.run(streamstr.str(), jsvm.get_context());
-
-            ++count;
+            list_dataset.push_back(boost::filesystem::path(*it).c_str());
         }
     }
 
-    loggerDebug() << "Processing " << count << " DICOM files...";
+    std::sort(list_dataset.begin(), list_dataset.end());
+    loggerDebug() << "Processing " << list_dataset.size() << " files...";
 
-    std::stringstream script;
-    script << "require('dicom2nifti/converter.js');\n";
+    std::stringstream streamstr;
+    streamstr << "require('dicom2nifti/converter.js');\n";
+    for (unsigned int i = 0; i < list_dataset.size(); ++i)
+    {
+        streamstr << "dicomifier.inputs[" << i << "] = \""
+                  << list_dataset[i] << "\";\n";
+    }
+
     switch (this->_outputDimension)
     {
     case NIfTI_Dimension::Dimension3:
-    {
-        script << "dicomifier.outputs = dicomifier.dicom2nifti.convert(dicomifier.inputs, 3);";
-        break;
-    }
     case NIfTI_Dimension::Dimension4:
     {
-        script << "dicomifier.outputs = dicomifier.dicom2nifti.convert(dicomifier.inputs, 4);";
         break;
     }
     default:
@@ -200,59 +157,9 @@ Dicom2Nifti
         throw DicomifierException("Unknown dimension");
     }
     }
-
-    // Execute script
-    jsvm.run(script.str(), jsvm.get_context());
-
-    // For each stack
-    auto const length_value = jsvm.run(
-        "dicomifier.outputs.length;", jsvm.get_context());
-    auto const stack_number = length_value->ToInteger()->Value();
-    int const nbdigit = 1 + floor(log10(stack_number));
-    for (unsigned int stack_index = 0; stack_index < stack_number; ++stack_index)
-    {
-        // Get the JSON representation of the V8 data set.
-        std::string json;
-        {
-            std::stringstream stream;
-            stream << "JSON.stringify(dicomifier.outputs[" << stack_index << "]);";
-            auto const value = jsvm.run(stream.str(), jsvm.get_context());
-            json = *v8::String::Utf8Value(value);
-        }
-
-        // Parse it into a data set.
-        Json::Value jsondataset;
-        {
-            Json::Reader reader;
-            std::string old_locale = std::setlocale(LC_ALL, "C");
-            reader.parse(json, jsondataset);
-            std::setlocale(LC_ALL, old_locale.c_str());
-        }
-
-        // Write Nifti image file
-        std::ostringstream prefix;
-        prefix << std::setw(nbdigit) << std::setfill('0') << (stack_index+1);
-
-        nifti_image * nim = extract_information_from_dataset(jsondataset,
-                                                             prefix.str());
-        nifti_image_write(nim);
-        std::string filename(nim->iname);
-        delete[] reinterpret_cast<uint8_t*>(nim->data);
-        nim->data = 0; // if left pointing to data buffer
-        // nifti_image_free will try and free this memory
-        nifti_image_free(nim);
-
-        // Write Metadata file
-        boost::replace_all(filename, ".nii", ".json");
-        jsondataset.removeMember("PixelData");
-        jsondataset.removeMember("DICOMIFIER_STACKS_NUMBER");
-        jsondataset.removeMember("DICOMIFIER_DATASET_PERSTACK_NUMBER");
-        std::ofstream myfile;
-        myfile.open(filename);
-        myfile << jsondataset.toStyledString();
-        myfile.close();
-
-    }
+    streamstr << "dicomifier.dicom2nifti.convert(dicomifier.inputs, "
+              << this->_outputDimension << ", '" << this->_outputDir << "');";
+    jsvm.run(streamstr.str(), jsvm.get_context());
 
     loggerDebug() << "Done.";
 }
@@ -260,35 +167,22 @@ Dicom2Nifti
 nifti_image *
 Dicom2Nifti
 ::extract_information_from_dataset(Json::Value const & dataset,
-                                   std::string const & prefix) const
+                                   std::string const & filename,
+                                   NIfTI_Dimension dimension)
 {
     // fill out the image header.
     nifti_image * nim = nifti_simple_init_nim();
 
-    auto const seriesdesc = dataset.get("SeriesDescription", Json::Value());
-
-    std::stringstream filename;
-    filename << prefix << "_";
-    if (!seriesdesc.isNull()) filename << seriesdesc[0].asString();
-    filename << ".nii";
-
-    std::string filenamestr = filename.str();
-    boost::replace_all(filenamestr, " ", "_");
-
-    // Get file name
-    boost::filesystem::path const destination =
-        boost::filesystem::path(this->_outputDir)
-            /filenamestr;
-    boost::filesystem::create_directories(destination.parent_path());
-
-    char * tempbasename = nifti_makebasename(destination.c_str());
+    char * tempbasename = nifti_makebasename(filename.c_str());
     std::string const BaseName(tempbasename);
     free(tempbasename);
 
     nim->nifti_type = NIFTI_FTYPE_NIFTI1_1;
 
-    nim->fname = nifti_makehdrname(BaseName.c_str(), nim->nifti_type, false, false);
-    nim->iname = nifti_makeimgname(BaseName.c_str(), nim->nifti_type, false, false);
+    nim->fname = nifti_makehdrname(BaseName.c_str(),
+                                   nim->nifti_type, false, false);
+    nim->iname = nifti_makeimgname(BaseName.c_str(),
+                                   nim->nifti_type, false, false);
 
     // Initialize fields
     nim->nvox = 1;
@@ -302,33 +196,10 @@ Dicom2Nifti
     nim->dim[2] = nim->ny=1;
     nim->dim[1] = nim->nx=1;
 
-    // One stack = 3 dimensions
-    // Multi stack = 4 dimensions
-    nim->ndim = (int)this->_outputDimension;
-    nim->dim[0] = (int)this->_outputDimension;
+    Dicom2Nifti::extract_stack_number(dataset, dimension, nim);
 
-    if (this->_outputDimension == NIfTI_Dimension::Dimension4)
-    {
-        nim->dim[4] = nim->nt = dataset.get("DICOMIFIER_STACKS_NUMBER",
-                                            Json::Value()).asInt();
-        nim->pixdim[4] = nim->dt = 1;
-        nim->nvox *= nim->dim[4];
-
-        // Get number of dataset in the stack
-        // we suppose each stack contains the same number of datasets
-        unsigned int dsnumber =
-                dataset.get("DICOMIFIER_DATASET_PERSTACK_NUMBER",
-                            Json::Value())[0].asInt();
-        nim->dim[3] = nim->nz = dsnumber;
-    }
-    else
-    {
-        // Get number of dataset in the stack
-        unsigned int dsnumber = dataset.get("PixelData", Json::Value()).size();
-        nim->dim[3] = nim->nz = dsnumber;
-    }
     nim->pixdim[3] = nim->dz =
-            static_cast<float>( get_distance_between_slice(dataset) );
+            static_cast<float>(Dicom2Nifti::get_distance_between_slice(dataset));
     nim->nvox *= nim->dim[3];
 
     nim->dim[2] = nim->ny = dataset.get("Columns", Json::Value())[0].asInt();
@@ -357,12 +228,7 @@ Dicom2Nifti
 
     // Get 3 vectors for directions
     Json::Value const image_orientation_patient =
-            dataset.get("ImageOrientationPatient", Json::Value());
-
-    if (image_orientation_patient.isNull())
-    {
-        throw new DicomifierException("Missing ImageOrientationPatient");
-    }
+            Dicom2Nifti::extract_orientation(dataset);
 
     std::vector<double> directions;
     // Get dir x and y
@@ -395,7 +261,7 @@ Dicom2Nifti
 
     // Fill in origin.
     Json::Value const image_position_patient =
-            dataset.get("ImagePositionPatient", Json::Value());
+            Dicom2Nifti::extract_position(dataset);
 
     matrix.m[0][3] =
             static_cast<float>(-image_position_patient[0][0].asDouble());
@@ -458,9 +324,165 @@ Dicom2Nifti
     return nim;
 }
 
+void
+Dicom2Nifti
+::extract_stack_number(Json::Value const & dataset,
+                       NIfTI_Dimension dimension, nifti_image *nim)
+{
+    std::string const sopclassuid = dataset.get("SOPClassUID",
+                                                Json::Value())[0].asString();
+
+    if (sopclassuid == UID_MRImageStorage)
+    {
+        // One stack = 3 dimensions
+        // Multi stack = 4 dimensions
+        nim->ndim = (int)dimension;
+        nim->dim[0] = (int)dimension;
+
+        if (dimension == NIfTI_Dimension::Dimension4)
+        {
+            nim->dim[4] = nim->nt = dataset.get("DICOMIFIER_STACKS_NUMBER",
+                                                Json::Value()).asInt();
+            nim->pixdim[4] = nim->dt = 1;
+            nim->nvox *= nim->dim[4];
+
+            // Get number of dataset in the stack
+            // we suppose each stack contains the same number of datasets
+            Json::Value dsnumber_json =
+                    dataset.get("DICOMIFIER_DATASET_PERSTACK_NUMBER",
+                                Json::Value());
+            if (dsnumber_json.empty())
+            {
+                nim->dim[3] = nim->nz = 1;
+            }
+            else
+            {
+                unsigned int dsnumber = dsnumber_json[0].asInt();
+
+                nim->dim[3] = nim->nz = dsnumber;
+            }
+        }
+        else
+        {
+            // Get number of dataset in the stack
+            unsigned int dsnumber =
+                    dataset.get("PixelData", Json::Value()).size();
+            nim->dim[3] = nim->nz = dsnumber;
+        }
+    }
+    else if (sopclassuid == UID_EnhancedMRImageStorage)
+    {
+        if (dimension == NIfTI_Dimension::Dimension3)
+        {
+            loggerWarning() << "force NIfTI 4 dimension.";
+        }
+
+        int stack_number = 0;
+        int ds_perstack_number = 0;
+        // Get number of Stack:
+        for (auto value : dataset.get("PerFrameFunctionalGroupsSequence",
+                                      Json::Value()))
+        {
+            auto const strstackid =
+                    value.get("FrameContentSequence", Json::Value())[0].
+                          get("StackID", Json::Value())[0].asString();
+            int const instackpos =
+                    value.get("FrameContentSequence", Json::Value())[0].
+                          get("InStackPositionNumber", Json::Value())[0].asInt();
+
+            if (instackpos > ds_perstack_number)
+            {
+                ds_perstack_number = instackpos;
+            }
+
+            int stackid = boost::lexical_cast<int>(strstackid);
+            if (stackid > stack_number)
+            {
+                stack_number = stackid;
+            }
+        }
+
+        nim->dim[4] = nim->nt = stack_number;
+        nim->pixdim[4] = nim->dt = 1;
+        nim->nvox *= nim->dim[4];
+
+        // we suppose each stack contains the same number of datasets
+        nim->dim[3] = nim->nz = ds_perstack_number;
+    }
+}
+
+Json::Value
+Dicom2Nifti
+::extract_orientation(Json::Value const & dataset)
+{
+    std::string const sopclassuid = dataset.get("SOPClassUID",
+                                                Json::Value())[0].asString();
+
+    Json::Value image_orientation_patient;
+
+    if (sopclassuid == UID_MRImageStorage)
+    {
+        // Get 3 vectors for directions
+        image_orientation_patient =
+                dataset.get("ImageOrientationPatient", Json::Value());
+    }
+    else if (sopclassuid == UID_EnhancedMRImageStorage)
+    {
+        // Get ImageOrientationPatient for the first frame
+        image_orientation_patient =
+                dataset.get("PerFrameFunctionalGroupsSequence",
+                            Json::Value())[0].
+                        get("PlaneOrientationSequence", Json::Value())[0].
+                        get("ImageOrientationPatient", Json::Value());
+    }
+
+    if (image_orientation_patient.isNull())
+    {
+        throw new DicomifierException("Missing ImageOrientationPatient");
+    }
+
+    return image_orientation_patient;
+}
+
+Json::Value
+Dicom2Nifti
+::extract_position(Json::Value const & dataset)
+{
+    std::string const sopclassuid = dataset.get("SOPClassUID",
+                                                Json::Value())[0].asString();
+
+    Json::Value image_position_patient;
+
+    if (sopclassuid == UID_MRImageStorage)
+    {
+        // Get 3 vectors for directions
+        image_position_patient =
+                dataset.get("ImagePositionPatient", Json::Value());
+    }
+    else if (sopclassuid == UID_EnhancedMRImageStorage)
+    {
+        // Get ImageOrientationPatient for the first frame
+        Json::Value array(Json::ValueType::arrayValue);
+        array.append(
+                dataset.get("PerFrameFunctionalGroupsSequence",
+                            Json::Value())[0].
+                        get("PlanePositionSequence", Json::Value())[0].
+                        get("ImagePositionPatient", Json::Value()));
+
+        image_position_patient = array;
+    }
+
+    if (image_position_patient.isNull())
+    {
+        throw new DicomifierException("Missing ImagePositionPatient");
+    }
+
+    return image_position_patient;
+}
+
 double
 Dicom2Nifti
-::get_distance_between_slice(const Json::Value &dataset) const
+::get_distance_between_slice(Json::Value const & dataset)
 {
     Json::Value const image_position_patient =
             dataset.get("ImagePositionPatient", Json::Value());

@@ -19,9 +19,10 @@
 #include <v8.h>
 
 #include "core/DicomifierException.h"
+#include "core/Endian.h"
 #include "javascript/JavascriptVM.h"
 
-/*************************** TEST Nominal *******************************/
+/******************************* TEST Nominal **********************************/
 /**
  * Nominal test case: Constructor / Destructor
  */
@@ -33,7 +34,7 @@ BOOST_AUTO_TEST_CASE(Constructor)
     BOOST_REQUIRE(vm != NULL);
 }
 
-/*************************** TEST Nominal *******************************/
+/******************************* TEST Nominal **********************************/
 /**
  * Nominal test case: Run script
  */
@@ -51,7 +52,7 @@ BOOST_AUTO_TEST_CASE(Run)
     BOOST_CHECK_EQUAL("{\"hello\":\"world\"}", stream.str());
 }
 
-/*************************** TEST Nominal *******************************/
+/******************************* TEST Nominal **********************************/
 /**
  * Nominal test case: Run script file
  */
@@ -87,7 +88,66 @@ BOOST_FIXTURE_TEST_CASE(RunFile, TestDataRunFile)
     BOOST_CHECK_EQUAL("{\"hello\":\"world\"}", stream.str());
 }
 
-/*************************** TEST Nominal *******************************/
+/******************************* TEST Nominal **********************************/
+/**
+ * Nominal test case: Require local JS file
+ */
+BOOST_FIXTURE_TEST_CASE(Require, TestDataRunFile)
+{
+    dicomifier::javascript::JavascriptVM vm;
+
+    std::stringstream script;
+    script << "require(\"" << filename << "\");";
+
+    // Require no error
+    v8::Local<v8::Value> result = vm.run(script.str(), vm.get_context());
+    v8::String::Utf8Value utf8(result);
+
+    std::stringstream stream;
+    stream << *utf8;
+
+    BOOST_CHECK_EQUAL("{\"hello\":\"world\"}", stream.str());
+}
+
+/******************************* TEST Nominal **********************************/
+/**
+ * Nominal test case: is_big_endian
+ */
+BOOST_AUTO_TEST_CASE(Function_isBigEndian)
+{
+    dicomifier::javascript::JavascriptVM vm;
+
+    std::stringstream streaminput;
+    streaminput << "bigEndian();";
+
+    v8::Local<v8::Value> result = vm.run(streaminput.str(), vm.get_context());
+    BOOST_REQUIRE_EQUAL(result->ToBoolean()->BooleanValue(),
+                        dicomifier::endian::is_big_endian());
+    BOOST_REQUIRE_EQUAL(result->ToBoolean()->BooleanValue(),
+                        !dicomifier::endian::is_little_endian());
+}
+
+/******************************* TEST Nominal **********************************/
+/**
+ * Nominal test case: generate_uid
+ */
+BOOST_AUTO_TEST_CASE(Function_generateUID)
+{
+    dicomifier::javascript::JavascriptVM vm;
+
+    std::stringstream streaminput;
+    streaminput << "dcmGenerateUniqueIdentifier();";
+
+    v8::Local<v8::Value> result = vm.run(streaminput.str(), vm.get_context());
+
+    auto const uid = result->ToString();
+    std::string uid_utf8(uid->Utf8Length(), '\0');
+    uid->WriteUtf8(&uid_utf8[0]);
+
+    BOOST_REQUIRE_NE(uid_utf8, "");
+}
+
+/******************************* TEST Nominal **********************************/
 /**
  * Nominal test case: Test function dictionaryMapper descibes into function.js
  */
@@ -120,7 +180,7 @@ BOOST_AUTO_TEST_CASE(Functions_dictionaryMapper)
     }
 }
 
-/*************************** TEST Nominal *******************************/
+/******************************* TEST Nominal **********************************/
 /**
  * Nominal test case: Test function dateTimeMapper descibes into function.js
  */
@@ -151,7 +211,7 @@ BOOST_AUTO_TEST_CASE(Functions_dateTimeMapper)
     }
 }
 
-/*************************** TEST Nominal *******************************/
+/******************************* TEST Nominal **********************************/
 /**
  * Nominal test case: Test function toDicom descibes into function.js
  */
@@ -225,7 +285,7 @@ BOOST_FIXTURE_TEST_CASE(Functions_toDicom, TestDataToDicom)
     }
 }
 
-/*************************** TEST Nominal *******************************/
+/******************************* TEST Nominal **********************************/
 /**
  * Nominal test case: Test function toDicom descibes into function.js
  */
@@ -266,7 +326,7 @@ BOOST_FIXTURE_TEST_CASE(Functions_toDicom_NoValue, TestDataToDicom)
     }
 }
 
-/*************************** TEST Nominal *******************************/
+/******************************* TEST Nominal **********************************/
 /**
  * Nominal test case: Test function toDicom descibes into function.js
  */
@@ -288,7 +348,7 @@ BOOST_FIXTURE_TEST_CASE(Functions_toDicom_PN, TestDataToDicom)
       "{\"00100010\":{\"vr\":\"PN\",\"Value\":[{\"Alphabetic\":\"MyName\"}]}}");
 }
 
-/*************************** TEST Nominal *******************************/
+/******************************* TEST Nominal **********************************/
 /**
  * Nominal test case: Test function toDicom descibes into function.js
  */
@@ -313,7 +373,7 @@ BOOST_FIXTURE_TEST_CASE(Functions_toDicom_Setter, TestDataToDicom)
                 "{\"00100040\":{\"vr\":\"CS\",\"Value\":[\"M\"]}}");
 }
 
-/*************************** TEST Nominal *******************************/
+/******************************* TEST Nominal **********************************/
 /**
  * Nominal test case: Test function toDicom descibes into function.js
  */
@@ -337,7 +397,7 @@ BOOST_FIXTURE_TEST_CASE(Functions_toDicom_Getter, TestDataToDicom)
                 "{\"00100040\":{\"vr\":\"CS\",\"Value\":[\"F\"]}}");
 }
 
-/*************************** TEST Nominal *******************************/
+/******************************* TEST Nominal **********************************/
 /**
  * Nominal test case: Test function toDicom descibes into function.js
  */
@@ -384,7 +444,7 @@ BOOST_FIXTURE_TEST_CASE(Functions_toDicom_NullValue, TestDataToDicom)
     }
 }
 
-/*************************** TEST Error *********************************/
+/******************************* TEST Error ************************************/
 /**
  * Error test case: Generate an exception
  */
@@ -397,7 +457,33 @@ BOOST_AUTO_TEST_CASE(Exception)
         dicomifier::DicomifierException);
 }
 
-/*************************** TEST Error *********************************/
+/******************************* TEST Error ************************************/
+/**
+ * Error test case: Generate an exception
+ */
+BOOST_AUTO_TEST_CASE(run_empty_script)
+{
+    dicomifier::javascript::JavascriptVM vm;
+
+    BOOST_REQUIRE_THROW(
+        vm.run("my error", vm.get_context()),
+        dicomifier::DicomifierException);
+}
+
+/******************************* TEST Error ************************************/
+/**
+ * Error test case: No such file
+ */
+BOOST_AUTO_TEST_CASE(no_such_js_file)
+{
+    dicomifier::javascript::JavascriptVM vm;
+
+    BOOST_REQUIRE_THROW(
+        vm.run("require('unknown_file.js');", vm.get_context()),
+        dicomifier::DicomifierException);
+}
+
+/******************************* TEST Error ************************************/
 /**
  * Error test case: Test function dictionaryMapper descibes into function.js
  *                  Unknown value
@@ -414,7 +500,7 @@ BOOST_AUTO_TEST_CASE(Functions_dictionaryMapper_UnknownValue)
                         dicomifier::DicomifierException);
 }
 
-/*************************** TEST Error *********************************/
+/******************************* TEST Error ************************************/
 /**
  * Error test case: Test function dateTimeMapper descibes into function.js
  *                  Unknown format
@@ -431,7 +517,7 @@ BOOST_AUTO_TEST_CASE(Functions_dateTimeMapper_UnknownFormat)
                         dicomifier::DicomifierException);
 }
 
-/*************************** TEST Error *********************************/
+/******************************* TEST Error ************************************/
 /**
  * Error test case: Test function toDicom descibes into function.js
  *                  No value for Type 1
@@ -449,7 +535,7 @@ BOOST_FIXTURE_TEST_CASE(Functions_toDicom_NoValue_type1, TestDataToDicom)
         dicomifier::DicomifierException);
 }
 
-/*************************** TEST Error *********************************/
+/******************************* TEST Error ************************************/
 /**
  * Error test case: Test function toDicom descibes into function.js
  *                  Unknown type
@@ -467,7 +553,7 @@ BOOST_FIXTURE_TEST_CASE(Functions_toDicom_UnknownType, TestDataToDicom)
         dicomifier::DicomifierException);
 }
 
-/*************************** TEST Error *********************************/
+/******************************* TEST Error ************************************/
 /**
  * Error test case: Test function toDicom descibes into function.js
  *                  Unknown DICOM tag
@@ -485,7 +571,7 @@ BOOST_FIXTURE_TEST_CASE(Functions_toDicom_UnknownDicomTag, TestDataToDicom)
         dicomifier::DicomifierException);
 }
 
-/*************************** TEST Error *********************************/
+/******************************* TEST Error ************************************/
 /**
  * Error test case: Test function toDicom descibes into function.js
  *                  Null value and type 1
@@ -504,7 +590,7 @@ BOOST_FIXTURE_TEST_CASE(Functions_toDicom_NullValueType1, TestDataToDicom)
         dicomifier::DicomifierException);
 }
 
-/*************************** TEST Error *********************************/
+/******************************* TEST Error ************************************/
 /**
  * Error test case: Test function toDicom descibes into function.js
  *                  Empty value and type 1
@@ -521,4 +607,181 @@ BOOST_FIXTURE_TEST_CASE(Functions_toDicom_EmptyValueType1, TestDataToDicom)
     BOOST_REQUIRE_THROW(
         vm.run(stream.str(), vm.get_context()),
         dicomifier::DicomifierException);
+}
+
+/******************************* TEST Error ************************************/
+/**
+ * Error test case: Test function load_pixel_data
+ *                  Bruker DataSet missing
+ */
+BOOST_AUTO_TEST_CASE(Function_loadPixelData_no_dataset)
+{
+    dicomifier::javascript::JavascriptVM vm;
+
+    std::stringstream streaminput;
+    streaminput << "loadPixelData();";
+
+    BOOST_REQUIRE_THROW(vm.run(streaminput.str(), vm.get_context()),
+                        dicomifier::DicomifierException);
+}
+
+/******************************* TEST Error ************************************/
+/**
+ * Error test case: Test function load_pixel_data
+ *                  Frame number missing
+ */
+BOOST_AUTO_TEST_CASE(Function_loadPixelData_no_frameNumber)
+{
+    dicomifier::javascript::JavascriptVM vm;
+
+    std::stringstream streaminput;
+    streaminput << "loadPixelData({});";
+
+    BOOST_REQUIRE_THROW(vm.run(streaminput.str(), vm.get_context()),
+                        dicomifier::DicomifierException);
+}
+
+/******************************* TEST Error ************************************/
+/**
+ * Error test case: Test function load_pixel_data
+ *                  PixelData missing
+ */
+BOOST_AUTO_TEST_CASE(Function_loadPixelData_no_pixelData)
+{
+    dicomifier::javascript::JavascriptVM vm;
+
+    std::stringstream streaminput;
+    streaminput << "loadPixelData({}, 1);";
+
+    BOOST_REQUIRE_THROW(vm.run(streaminput.str(), vm.get_context()),
+                        dicomifier::DicomifierException);
+}
+
+/******************************* TEST Error ************************************/
+/**
+ * Error test case: Test function load_pixel_data
+ *                  VisuCoreByteOrder missing
+ */
+BOOST_AUTO_TEST_CASE(Function_loadPixelData_no_VisuCoreByteOrder)
+{
+    dicomifier::javascript::JavascriptVM vm;
+
+    std::stringstream streaminput;
+    streaminput << "loadPixelData({ \"PIXELDATA\" : [ \"value\" ], "
+                << "\"VisuCoreWordType\" : [ \"value\" ] }, 1);";
+
+    BOOST_REQUIRE_THROW(vm.run(streaminput.str(), vm.get_context()),
+                        dicomifier::DicomifierException);
+}
+
+/******************************* TEST Error ************************************/
+/**
+ * Error test case: Test function sort_pixel_data
+ *                  Input missing
+ */
+BOOST_AUTO_TEST_CASE(Function_sortPixelData_no_Input)
+{
+    dicomifier::javascript::JavascriptVM vm;
+
+    std::stringstream streaminput;
+    streaminput << "sortPixelData();";
+
+    BOOST_REQUIRE_THROW(vm.run(streaminput.str(), vm.get_context()),
+                        dicomifier::DicomifierException);
+}
+
+/******************************* TEST Error ************************************/
+/**
+ * Error test case: Test function sort_pixel_data
+ *                  Pixel data missing
+ */
+BOOST_AUTO_TEST_CASE(Function_sortPixelData_MissingPixelData)
+{
+    dicomifier::javascript::JavascriptVM vm;
+
+    std::stringstream streaminput;
+    streaminput << "sortPixelData({}, []);";
+
+    BOOST_REQUIRE_THROW(vm.run(streaminput.str(), vm.get_context()),
+                        dicomifier::DicomifierException);
+}
+
+/******************************* TEST Error ************************************/
+/**
+ * Error test case: Test function read_dicom
+ *                  DICOM file missing
+ */
+BOOST_AUTO_TEST_CASE(Function_readDicom_no_DICOMFile)
+{
+    dicomifier::javascript::JavascriptVM vm;
+
+    std::stringstream streaminput;
+    streaminput << "readDICOM();";
+
+    BOOST_REQUIRE_THROW(vm.run(streaminput.str(), vm.get_context()),
+                        dicomifier::DicomifierException);
+}
+
+/******************************* TEST Error ************************************/
+/**
+ * Error test case: Test function write_nifti
+ *                  arguments missing
+ */
+BOOST_AUTO_TEST_CASE(Function_writeNIfTI_missingArgs)
+{
+    dicomifier::javascript::JavascriptVM vm;
+
+    std::stringstream streaminput;
+    streaminput << "writeNIfTI();";
+
+    BOOST_REQUIRE_THROW(vm.run(streaminput.str(), vm.get_context()),
+                        dicomifier::DicomifierException);
+}
+
+/******************************* TEST Error ************************************/
+/**
+ * Error test case: Test function generate_dicom_filename
+ *                  arguments missing
+ */
+BOOST_AUTO_TEST_CASE(Function_generateDICOMFileName_missingArgs)
+{
+    dicomifier::javascript::JavascriptVM vm;
+
+    std::stringstream streaminput;
+    streaminput << "generateDICOMFileName();";
+
+    BOOST_REQUIRE_THROW(vm.run(streaminput.str(), vm.get_context()),
+                        dicomifier::DicomifierException);
+}
+
+/******************************* TEST Error ************************************/
+/**
+ * Error test case: Test function read_bruker_directory
+ *                  arguments missing
+ */
+BOOST_AUTO_TEST_CASE(Function_readBrukerDirectory_missingArgs)
+{
+    dicomifier::javascript::JavascriptVM vm;
+
+    std::stringstream streaminput;
+    streaminput << "readBrukerDirectory();";
+
+    BOOST_REQUIRE_THROW(vm.run(streaminput.str(), vm.get_context()),
+                        dicomifier::DicomifierException);
+}
+
+/******************************* TEST Error ************************************/
+/**
+ * Error test case: Test function write_dicom
+ *                  arguments missing
+ */
+BOOST_AUTO_TEST_CASE(Function_writeDICOM_missingArgs)
+{
+    dicomifier::javascript::JavascriptVM vm;
+
+    std::stringstream streaminput;
+    streaminput << "writeDICOM();";
+
+    BOOST_REQUIRE_THROW(vm.run(streaminput.str(), vm.get_context()),
+                        dicomifier::DicomifierException);
 }

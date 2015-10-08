@@ -14,7 +14,12 @@
 #include <boost/filesystem.hpp>
 
 #include <dcmtk/config/osconfig.h>
-#include <dcmtk/dcmdata/dctk.h>
+#include <dcmtk/dcmdata/dcdatset.h>
+
+#include <dcmtkpp/BasicDirectoryCreator.h>
+#include <dcmtkpp/conversion.h>
+#include <dcmtkpp/Reader.h>
+#include <dcmtkpp/registry.h>
 
 #include <zlib.h>
 
@@ -61,7 +66,7 @@ GenerationFrame
     QString selectitem = settings.value(CONF_GROUP_OUTPUT + "/" +
                                     CONF_KEY_FORMAT,
                                     QString("")).toString();
-    /*
+
     if (selectitem.toStdString() == UID_MRImageStorage)
     {
         this->_ui->formatMRIMultiple->setChecked(true);
@@ -70,9 +75,10 @@ GenerationFrame
     {
         this->_ui->formatMRISingle->setChecked(true);
     }
-    */
-    this->_ui->formatMRIMultiple->setChecked(true);
-    this->_ui->formatMRISingle->setEnabled(false);
+    else
+    {// default
+        this->_ui->formatMRIMultiple->setChecked(true);
+    }
 
     // Set DICOMDIR Creation
     Qt::CheckState checkstate =
@@ -361,56 +367,31 @@ GenerationFrame
     this->update_previousButton(true);
 }
 
-OFCondition
+void
 GenerationFrame
 ::createDicomdirs(const std::string &directory, const std::string &absdirectory,
                   const std::string &dicomdirfile)
 {
-    // patient_extra_attributes
-    std::vector<DcmTagKey> patient_extra_attributes_cpp =
+    std::vector<std::string> const files =
+            GenerationFrame::getFilesForDicomdir(directory, absdirectory);
+
+    // Should add path separator at the end for dcmtkpp
+    // (see BasicDirectoryCreator, attribute 'root')
+    QString rootdir(directory.c_str());
+    if (rootdir.at(rootdir.length()-1) != QDir::separator())
     {
-        // insert other DcmTagKey here
-    };
-
-    // study_extra_attributes
-    std::vector<DcmTagKey> study_extra_attributes_cpp =
-    {
-        DCM_StudyDescription
-        // insert other DcmTagKey here
-    };
-
-    // series_extra_attributes
-    std::vector<DcmTagKey> series_extra_attributes_cpp =
-    {
-        DCM_SeriesDescription
-        // insert other DcmTagKey here
-    };
-
-    // Create generator
-    DicomDirGenerator generator;
-    generator.enableMapFilenamesMode();
-    // Create DICOMDIR object
-    OFCondition ret = generator.createNewDicomDir(DicomDirGenerator::AP_GeneralPurpose,
-                                dicomdirfile.c_str());
-
-    if (ret.good())
-    {
-        // Configure DICOMDIR
-        generator.setPatientExtraAttributes(patient_extra_attributes_cpp);
-        generator.setStudyExtraAttributes(study_extra_attributes_cpp);
-        generator.setSeriesExtraAttributes(series_extra_attributes_cpp);
-
-        // Add files
-        ret = this->insertFilesForDicomdir(directory, absdirectory, &generator);
+        rootdir.append(QDir::separator());
     }
 
-    if (ret.good())
-    {
-        // Write DICOMDIR
-        ret = generator.writeDicomDir();
-    }
+    dcmtkpp::BasicDirectoryCreator creator(rootdir.toStdString(), files,
+        {
+            {"PATIENT", { }},
+            {"STUDY", { {dcmtkpp::registry::StudyDescription, 3} }},
+            {"SERIES", { {dcmtkpp::registry::SeriesDescription, 3} }},
+            {"IMAGE", { }},
+        });
 
-    return ret;
+    creator();
 }
 
 std::string
@@ -424,7 +405,7 @@ GenerationFrame
     QString command = "zip";
     QStringList args;
     args << "-r" << QString(filename.c_str());
-    args << qdirectory.entryList();
+    args << qdirectory.entryList(QDir::AllEntries | QDir::NoDotAndDotDot);
 
     QProcess *myProcess = new QProcess(this);
     myProcess->setWorkingDirectory(QString(directory.c_str()));
@@ -503,16 +484,20 @@ GenerationFrame
             }
             else
             {
-                    OFCondition ret = this->createDicomdirs(dir, dir, dicomdirfile);
-
-                if (ret.bad())
+                try
+                {
+                    this->createDicomdirs(dir, dir, dicomdirfile);
+                    resultitem.set_dicomdirCreation(GenerationResultItem::Result::OK);
+                }
+                catch (dcmtkpp::Exception const & dcmtkppexc)
                 {
                     resultitem.set_dicomdirCreation(GenerationResultItem::Result::Fail);
-                    resultitem.set_DicomdirErrorMsg(ret.text());
+                    resultitem.set_DicomdirErrorMsg(dcmtkppexc.what());
                 }
-                else
+                catch (DicomifierException const & dcmexc)
                 {
-                    resultitem.set_dicomdirCreation(GenerationResultItem::Result::OK);
+                    resultitem.set_dicomdirCreation(GenerationResultItem::Result::Fail);
+                    resultitem.set_DicomdirErrorMsg(dcmexc.what());
                 }
             }
         }
@@ -535,7 +520,7 @@ GenerationFrame
             }
             else
             {
-                    std::string errormsg = this->createZipArchives(dir, it->second);
+                std::string errormsg = this->createZipArchives(dir, it->second);
 
                 if (errormsg == "")
                 {
@@ -621,17 +606,24 @@ GenerationFrame
         // if it is a directory
         if( boost::filesystem::is_directory( (*it) ) )
         {
-            std::string const object = directory +
-                                       boost::filesystem::path("/").make_preferred().string() +
-                                       std::string((*it).path().filename().c_str());
+            std::string const object =
+                    directory +
+                    boost::filesystem::path("/").make_preferred().string() +
+                    std::string((*it).path().filename().c_str());
             // Recursive call
             this->storeFilesIntoPACS(object);
         }
         else
         {
-            DcmFileFormat fileformat;
-            fileformat.loadFile(boost::filesystem::absolute(*it).string().c_str());
-            DcmDataset * dataset = fileformat.getAndRemoveDataset();
+            std::ifstream stream(
+                        boost::filesystem::absolute(*it).string().c_str(),
+                        std::ios::in | std::ios::binary);
+
+            std::pair<dcmtkpp::DataSet, dcmtkpp::DataSet> file =
+                    dcmtkpp::Reader::read_file(stream);
+
+            auto dataset =
+                    dynamic_cast<DcmDataset*>(dcmtkpp::convert(file.second));
 
             // Create Store Rule
             auto storerule = dicomifier::StoreDataset::New(
@@ -644,27 +636,28 @@ GenerationFrame
     }
 }
 
-OFCondition
+std::vector<std::string>
 GenerationFrame
-::insertFilesForDicomdir(std::string const & directory,
-                         std::string const & absdirectory,
-                         DicomDirGenerator *dcmdirgenerator)
+::getFilesForDicomdir(std::string const & directory,
+                    std::string const & absdirectory)
 {
+    std::vector<std::string> files;
+
     boost::filesystem::directory_iterator it_end;
     for(boost::filesystem::directory_iterator it(directory); it != it_end; ++it)
     {
         // if it is a directory
         if( boost::filesystem::is_directory( (*it) ) )
         {
-            std::string const object = directory +
-                                       boost::filesystem::path("/").make_preferred().string() +
-                                       std::string((*it).path().filename().c_str());
+            std::string const object =
+                    directory +
+                    boost::filesystem::path("/").make_preferred().string() +
+                    std::string((*it).path().filename().c_str());
             // Recursive call
-            OFCondition ret = this->insertFilesForDicomdir(object, absdirectory, dcmdirgenerator);
-            if (ret.bad())
-            {
-                return ret;
-            }
+            auto const ret = GenerationFrame::getFilesForDicomdir(object,
+                                                                  absdirectory);
+
+            files.insert(files.end(), ret.begin(), ret.end());
         }
         else
         {
@@ -675,17 +668,11 @@ GenerationFrame
                 std::string((*it).path().filename().c_str());
 
             // add file
-            OFCondition ret = dcmdirgenerator->addDicomFile(filename.c_str(),
-                                                            absdirectory.c_str());
-
-            if (ret.bad())
-            {
-                return ret;
-            }
+            files.push_back(filename);
         }
     }
 
-    return EC_Normal;
+    return files;
 }
 
 void
@@ -750,8 +737,10 @@ GenerationFrame
 {
     QSettings settings;
     settings.beginGroup(CONF_GROUP_OUTPUT);
-    settings.setValue(CONF_KEY_FORMAT, QString(this->get_selectedFormat_toString().c_str()));
-    settings.setValue(CONF_KEY_DICOMDIR, this->_ui->DicomdirCheckBox->checkState());
+    settings.setValue(CONF_KEY_FORMAT,
+                      QString(this->get_selectedFormat_toString().c_str()));
+    settings.setValue(CONF_KEY_DICOMDIR,
+                      this->_ui->DicomdirCheckBox->checkState());
     settings.setValue(CONF_KEY_ZIP, this->_ui->ZIPCheckBox->checkState());
     settings.setValue(CONF_KEY_SAVE, this->_ui->saveCheckBox->checkState());
     settings.setValue(CONF_KEY_STORE, this->_ui->StoreCheckBox->checkState());
