@@ -21,8 +21,9 @@ Build-Depends: debhelper (>= 8.0.0),
                libboost-random-dev, 
                libboost-thread-dev, 
                libboost-test-dev, 
-               python-dev, 
-               libdcmtkpp-dev
+               python-dev,
+               libjsoncpp-dev, 
+               libdcmtkpp0-dev
 Standards-Version: 3.9.6
 Homepage: https://github.com/lamyj/dicomifier
 
@@ -31,7 +32,7 @@ Architecture: any
 Depends: ${shlibs:Depends}, 
          ${misc:Depends}
 Description: Tools to manipulate DICOM files
- <insert long description, indented with spaces>
+ dicomifier is a set of tools to convert Bruker Dataset into DICOM Dataset and DICOM Dataset to NIfTI files.
  This package contains the development files.
 
 Package: dicomifier-doc
