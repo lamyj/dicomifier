@@ -1,4 +1,4 @@
-find_package(Qt4 REQUIRED QtGui)
+find_package(Qt4 REQUIRED QtCore QtGui)
 include(${QT_USE_FILE})
 
 add_definitions(-DBOOST_FILESYSTEM_VERSION=3)

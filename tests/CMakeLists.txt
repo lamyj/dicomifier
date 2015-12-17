@@ -8,6 +8,9 @@ link_directories(${Boost_LIBRARY_DIRS})
 add_definitions(-DHAVE_CONFIG_H)
 ADD_DEFINITIONS(-DBOOST_TEST_DYN_LINK)
 
+add_custom_target(
+    Runner ${CMAKE_COMMAND} -E echo "Test runner" SOURCES run_tests.sh)
+
 file(GLOB_RECURSE tests *.cpp)
 foreach(test_file ${tests})
     get_filename_component(test ${test_file} NAME_WE)

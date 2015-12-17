@@ -9,6 +9,7 @@
 #ifndef _82c34c7d_4926_48bd_92fd_120aaa6c3791
 #define _82c34c7d_4926_48bd_92fd_120aaa6c3791
 
+#include <clocale>
 #include <string>
 
 #include <jsoncpp/json/json.h>

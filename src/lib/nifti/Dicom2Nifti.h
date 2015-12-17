@@ -14,19 +14,13 @@
 
 #include <jsoncpp/json/json.h>
 
-#include <nifti/nifti1_io.h>
+#include <nifti1_io.h>
 
 namespace dicomifier
 {
 
 namespace nifti
 {
-
-enum NIfTI_Dimension
-{
-    Dimension3 = 3,
-    Dimension4 = 4
-};
 
 class Dicom2Nifti
 {
@@ -46,7 +40,7 @@ public:
      */
     static Pointer New(
         std::string const & dicomDir, std::string const & outputDir,
-        NIfTI_Dimension outputDimension = NIfTI_Dimension::Dimension4);
+        int outputDimension = 4);
 
     /// Destroy the instance of Dicom2Nifti
     virtual ~Dicom2Nifti();
@@ -75,9 +69,9 @@ public:
      */
     void set_outputDir(std::string const & outputDir);
 
-    NIfTI_Dimension get_outputDimension() const;
+    int get_outputDimension() const;
 
-    void set_outputDimension(NIfTI_Dimension outputDimension);
+    void set_outputDimension(int outputDimension);
 
     /**
      * @brief run: Execute the conversion
@@ -86,10 +80,10 @@ public:
 
     static nifti_image * extract_information_from_dataset(
             Json::Value const & dataset, std::string const & filename,
-            NIfTI_Dimension dimension);
+            int dimension);
 
     static void extract_stack_number(Json::Value const & dataset,
-                                     NIfTI_Dimension dimension,
+                                     int dimension,
                                      nifti_image * nim);
 
     static double get_distance_between_slice(Json::Value const & dataset);
@@ -108,7 +102,7 @@ protected:
      * @param outputDir: Directory to store NIfTI files
      */
     Dicom2Nifti(std::string const & dicomDir, std::string const & outputDir,
-                NIfTI_Dimension outputDimension = NIfTI_Dimension::Dimension4);
+                int outputDimension = 4);
 
 private:
     /// Path of DICOM directory
@@ -117,7 +111,7 @@ private:
     /// Path to write NIfTI Datasets
     std::string _outputDir;
 
-    NIfTI_Dimension _outputDimension;
+    int _outputDimension;
 
     Dicom2Nifti(Self const & other);     // Purposely not implemented
     Self const & operator=(Self const & other); // Purposely not implemented

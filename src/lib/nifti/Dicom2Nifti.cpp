@@ -39,7 +39,7 @@ Dicom2Nifti
 Dicom2Nifti::Pointer
 Dicom2Nifti
 ::New(std::string const & dicomDir, std::string const & outputDir,
-      NIfTI_Dimension outputDimension)
+      int outputDimension)
 {
     return Pointer(new Self(dicomDir, outputDir, outputDimension));
 }
@@ -47,14 +47,14 @@ Dicom2Nifti
 Dicom2Nifti
 ::Dicom2Nifti():
     _dicomDir(""), _outputDir(""),
-    _outputDimension(NIfTI_Dimension::Dimension4)
+    _outputDimension(4)
 {
     // Nothing to do
 }
 
 Dicom2Nifti
 ::Dicom2Nifti(std::string const & dicomDir, std::string const & outputDir,
-              NIfTI_Dimension outputDimension):
+              int outputDimension):
     _dicomDir(dicomDir), _outputDir(outputDir),
     _outputDimension(outputDimension)
 {
@@ -95,7 +95,7 @@ Dicom2Nifti
     this->_outputDir = outputDir;
 }
 
-NIfTI_Dimension
+int
 Dicom2Nifti
 ::get_outputDimension() const
 {
@@ -104,7 +104,7 @@ Dicom2Nifti
 
 void
 Dicom2Nifti
-::set_outputDimension(NIfTI_Dimension outputDimension)
+::set_outputDimension(int outputDimension)
 {
     this->_outputDimension = outputDimension;
 }
@@ -145,18 +145,11 @@ Dicom2Nifti
                   << list_dataset[i] << "\";\n";
     }
 
-    switch (this->_outputDimension)
-    {
-    case NIfTI_Dimension::Dimension3:
-    case NIfTI_Dimension::Dimension4:
-    {
-        break;
-    }
-    default:
+    if(this->_outputDimension != 3 && this->_outputDimension != 4)
     {
         throw DicomifierException("Unknown dimension");
     }
-    }
+
     streamstr << "dicomifier.dicom2nifti.convert(dicomifier.inputs, "
               << this->_outputDimension << ", '" << this->_outputDir << "');";
     jsvm.run(streamstr.str(), jsvm.get_context());
@@ -168,7 +161,7 @@ nifti_image *
 Dicom2Nifti
 ::extract_information_from_dataset(Json::Value const & dataset,
                                    std::string const & filename,
-                                   NIfTI_Dimension dimension)
+                                   int dimension)
 {
     // fill out the image header.
     nifti_image * nim = nifti_simple_init_nim();
@@ -327,7 +320,7 @@ Dicom2Nifti
 void
 Dicom2Nifti
 ::extract_stack_number(Json::Value const & dataset,
-                       NIfTI_Dimension dimension, nifti_image *nim)
+                       int dimension, nifti_image *nim)
 {
     std::string const sopclassuid = dataset.get("SOPClassUID",
                                                 Json::Value())[0].asString();
@@ -339,7 +332,7 @@ Dicom2Nifti
         nim->ndim = (int)dimension;
         nim->dim[0] = (int)dimension;
 
-        if (dimension == NIfTI_Dimension::Dimension4)
+        if (dimension == 4)
         {
             nim->dim[4] = nim->nt = dataset.get("DICOMIFIER_STACKS_NUMBER",
                                                 Json::Value()).asInt();
@@ -372,7 +365,7 @@ Dicom2Nifti
     }
     else if (sopclassuid == UID_EnhancedMRImageStorage)
     {
-        if (dimension == NIfTI_Dimension::Dimension3)
+        if (dimension == 3)
         {
             loggerWarning() << "force NIfTI 4 dimension.";
         }
