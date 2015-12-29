@@ -31,7 +31,7 @@ public:
     }
 };
 
-/*************************** TEST Nominal *******************************/
+/******************************* TEST Nominal **********************************/
 /**
  * Nominal test case: Function dictionaryMapper
  */
@@ -53,7 +53,7 @@ BOOST_FIXTURE_TEST_CASE(dictionaryMapper, TestData)
     BOOST_REQUIRE_EQUAL( std::string(*v8::String::Utf8Value(result)), "FFS" );
 }
 
-/*************************** TEST Nominal *******************************/
+/******************************* TEST Nominal **********************************/
 /**
  * Nominal test case: Function dateTimeMapper
  */
@@ -93,7 +93,7 @@ BOOST_FIXTURE_TEST_CASE(dateTimeMapper, TestData)
     }
 }
 
-/*************************** TEST Nominal *******************************/
+/******************************* TEST Nominal **********************************/
 /**
  * Nominal test case: Function toDicom
  */
@@ -205,7 +205,7 @@ BOOST_FIXTURE_TEST_CASE(toDicom, TestData)
         "IS");
 }
 
-/*************************** TEST Error *********************************/
+/******************************* TEST Error ************************************/
 /**
  * Error test case: Function dictionaryMapper
  *                  Value not mapped
@@ -227,7 +227,7 @@ BOOST_FIXTURE_TEST_CASE(dictionaryMapper_notFind, TestData)
                         dicomifier::DicomifierException);
 }
 
-/*************************** TEST Error *********************************/
+/******************************* TEST Error ************************************/
 /**
  * Error test case: Function dateTimeMapper
  *                  Value not mapped
@@ -246,7 +246,7 @@ BOOST_FIXTURE_TEST_CASE(dateTimeMapper_notFind, TestData)
                         dicomifier::DicomifierException);
 }
 
-/*************************** TEST Error *********************************/
+/******************************* TEST Error ************************************/
 /**
  * Error test case: Function dateTimeMapper
  *                  Value not date
@@ -265,7 +265,7 @@ BOOST_FIXTURE_TEST_CASE(dateTimeMapper_NotADate, TestData)
                         dicomifier::DicomifierException);
 }
 
-/*************************** TEST Error *********************************/
+/******************************* TEST Error ************************************/
 /**
  * Error test case: Function toDicom
  *                  Unknown DICOM element

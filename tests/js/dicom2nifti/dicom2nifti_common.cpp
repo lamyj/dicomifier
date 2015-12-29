@@ -30,7 +30,7 @@ public:
     }
 };
 
-/*************************** TEST Nominal *******************************/
+/******************************* TEST Nominal **********************************/
 /**
  * Nominal test case: Function getKeys
  */
@@ -118,7 +118,7 @@ BOOST_FIXTURE_TEST_CASE(getKeys, TestData)
     }
 }
 
-/*************************** TEST Nominal *******************************/
+/******************************* TEST Nominal **********************************/
 /**
  * Nominal test case: Function closeEquals
  */
@@ -155,7 +155,7 @@ BOOST_FIXTURE_TEST_CASE(closeEquals, TestData)
     }
 }
 
-/*************************** TEST Nominal *******************************/
+/******************************* TEST Nominal **********************************/
 /**
  * Nominal test case: Function findStack
  */
@@ -218,7 +218,7 @@ BOOST_FIXTURE_TEST_CASE(findStack, TestData)
     }
 }
 
-/*************************** TEST Nominal *******************************/
+/******************************* TEST Nominal **********************************/
 /**
  * Nominal test case: Function distance
  */
@@ -237,7 +237,7 @@ BOOST_FIXTURE_TEST_CASE(distance, TestData)
     BOOST_REQUIRE_EQUAL( result->ToInt32()->Value(), 5 );
 }
 
-/*************************** TEST Nominal *******************************/
+/******************************* TEST Nominal **********************************/
 /**
  * Nominal test case: Function sortStack
  */
@@ -314,7 +314,7 @@ BOOST_FIXTURE_TEST_CASE(sortStack, TestData)
     }
 }
 
-/*************************** TEST Nominal *******************************/
+/******************************* TEST Nominal **********************************/
 /**
  * Nominal test case: Function mergeStack
  */

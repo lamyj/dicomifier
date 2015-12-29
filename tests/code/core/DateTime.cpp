@@ -12,7 +12,7 @@
 #include "core/DateTime.h"
 #include "core/DicomifierException.h"
 
-/*************************** TEST Nominal *******************************/
+/******************************* TEST Nominal **********************************/
 /**
  * Nominal test case: string_to_local_date_time
  */
@@ -50,7 +50,7 @@ BOOST_AUTO_TEST_CASE(String_To_Local_DateTime)
     }
 }
 
-/*************************** TEST Nominal *******************************/
+/******************************* TEST Nominal **********************************/
 /**
  * Nominal test case: posix_time_to_string
  */
@@ -61,7 +61,7 @@ BOOST_AUTO_TEST_CASE(PosixTime_To_String)
                       "06 May 2015");
 }
 
-/*************************** TEST Nominal *******************************/
+/******************************* TEST Nominal **********************************/
 /**
  * Nominal test case: local_date_time_to_string
  */
@@ -84,7 +84,7 @@ BOOST_AUTO_TEST_CASE(Local_DateTime_To_String)
         "2013-04-29T12:27:46000000Z");
 }
 
-/*************************** TEST Error *********************************/
+/******************************* TEST Error ************************************/
 /**
  * Error test case: Unknown format
  */

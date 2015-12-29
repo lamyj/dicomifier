@@ -136,7 +136,7 @@ BOOST_FIXTURE_TEST_CASE(InitializeloggerDebug, TestDataLogger)
     BOOST_CHECK(stream.str().find("DEBUG") != std::string::npos);
 }
 
-/*************************** TEST Nominal *******************************/
+/******************************* TEST Nominal **********************************/
 /**
  * Nominal test case: InitializeLogger (DEFAULT)
  */
@@ -159,7 +159,7 @@ BOOST_FIXTURE_TEST_CASE(InitializeLogger_Default, TestDataLogger)
     BOOST_CHECK(stream.str().find("DEBUG") != std::string::npos);
 }
 
-/*************************** TEST Nominal *******************************/
+/******************************* TEST Nominal **********************************/
 /**
  * Nominal test case: Get Logger
  */

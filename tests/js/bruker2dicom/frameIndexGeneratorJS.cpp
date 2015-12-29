@@ -46,7 +46,7 @@ public:
     }
 };
 
-/*************************** TEST Nominal *******************************/
+/******************************* TEST Nominal **********************************/
 /**
  * Nominal test case: Constructor / Destructor
  */
@@ -101,7 +101,7 @@ BOOST_FIXTURE_TEST_CASE(Constructor, TestDataFrameIndexGenerator)
     BOOST_CHECK_EQUAL(result.get("currentStep", Json::Value()).asInt(), 0);
 }
 
-/*************************** TEST Nominal *******************************/
+/******************************* TEST Nominal **********************************/
 /**
  * Nominal test case: Function Done
  */
@@ -116,7 +116,7 @@ BOOST_FIXTURE_TEST_CASE(Done, TestDataFrameIndexGenerator)
     BOOST_REQUIRE( !result->ToBoolean()->Value() );
 }
 
-/*************************** TEST Nominal *******************************/
+/******************************* TEST Nominal **********************************/
 /**
  * Nominal test case: Function Next
  */
@@ -188,7 +188,7 @@ BOOST_FIXTURE_TEST_CASE(Next, TestDataFrameIndexGenerator)
     }
 }
 
-/*************************** TEST Nominal *******************************/
+/******************************* TEST Nominal **********************************/
 /**
  * Nominal test case: Static Function GetFrameGroups
  */
@@ -213,7 +213,7 @@ BOOST_FIXTURE_TEST_CASE(GetFrameGroups, TestDataFrameIndexGenerator)
     BOOST_CHECK_EQUAL(result[0][2][1][1].asInt(), 0);
 }
 
-/*************************** TEST Nominal *******************************/
+/******************************* TEST Nominal **********************************/
 /**
  * Nominal test case: Static Function getFrameGroupIndex
  */
@@ -232,7 +232,7 @@ BOOST_FIXTURE_TEST_CASE(getFrameGroupIndex, TestDataFrameIndexGenerator)
     BOOST_REQUIRE_EQUAL(result[1].asInt(), 0);
 }
 
-/*************************** TEST Nominal *******************************/
+/******************************* TEST Nominal **********************************/
 /**
  * Nominal test case: Static Function getFrameGroupIndex
  *                    Empty BrukerField
@@ -250,7 +250,7 @@ BOOST_FIXTURE_TEST_CASE(getFrameGroupIndex_EmptyBrukerField,
     BOOST_REQUIRE(result.isNull());
 }
 
-/*************************** TEST Nominal *******************************/
+/******************************* TEST Nominal **********************************/
 /**
  * Nominal test case: Static Function getFrameGroupIndex
  *                    BrukerField not found
@@ -268,7 +268,7 @@ BOOST_FIXTURE_TEST_CASE(getFrameGroupIndex_BrukerFieldNotFound,
     BOOST_REQUIRE(result.isNull());
 }
 
-/*************************** TEST Error *********************************/
+/******************************* TEST Error ************************************/
 /**
  * Error test case: Static Function GetFrameGroups
  *                  Empty Bruker Dataset
@@ -281,7 +281,7 @@ BOOST_FIXTURE_TEST_CASE(GetFrameGroups_NoBrukerDataset,
                         dicomifier::DicomifierException);
 }
 
-/*************************** TEST Error *********************************/
+/******************************* TEST Error ************************************/
 /**
  * Error test case: Static Function getFrameGroupIndex
  *                  Empty Bruker Dataset
