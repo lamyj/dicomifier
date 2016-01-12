@@ -12,11 +12,11 @@
 #include <boost/filesystem.hpp>
 #include <boost/lexical_cast.hpp>
 
-#include <dcmtkpp/conversion.h>
-#include <dcmtkpp/DataSet.h>
-#include <dcmtkpp/json_converter.h>
-#include <dcmtkpp/Reader.h>
-#include <dcmtkpp/registry.h>
+#include <odil/DataSet.h>
+#include <odil/json_converter.h>
+#include <odil/Reader.h>
+#include <odil/registry.h>
+#include <odil/dcmtk/conversion.h>
 
 #include "core/DicomifierException.h"
 #include "core/Logger.h"
