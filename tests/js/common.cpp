@@ -15,7 +15,7 @@
 #include "core/DicomifierException.h"
 #include "javascript/JavascriptVM.h"
 
-/*************************** TEST Nominal *******************************/
+/******************************* TEST Nominal **********************************/
 /**
  * Nominal test case: Exception class
  */
@@ -30,7 +30,7 @@ BOOST_AUTO_TEST_CASE(Exception)
                         dicomifier::DicomifierException);
 }
 
-/*************************** TEST Nominal *******************************/
+/******************************* TEST Nominal **********************************/
 /**
  * Nominal test case: Object Equals
  */
@@ -69,7 +69,7 @@ BOOST_AUTO_TEST_CASE(Object_Equals)
     BOOST_REQUIRE( !resultnot->ToBoolean()->Value() );
 }
 
-/*************************** TEST Nominal *******************************/
+/******************************* TEST Nominal **********************************/
 /**
  * Nominal test case: Array Equals
  */

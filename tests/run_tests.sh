@@ -1,5 +1,5 @@
 #!/bin/sh
-DIRECTORY=`mktemp -d`
+DIRECTORY=`mktemp -d -t dicomifier`
 
 cat > ${DIRECTORY}/config  << EOF
 HostTable BEGIN
@@ -116,7 +116,7 @@ export DICOMIFIER_PEER_AET=REMOTE
 
 export DICOMIFIER_CONFIGURATION_DIR="../../configuration"
 
-ctest --no-compress-output -T Test || true
+ctest --no-compress-output -T Test $@ || true
 
 kill ${PID}
 rm -rf ${DIRECTORY}
