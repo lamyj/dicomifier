@@ -16,10 +16,10 @@
 #include <dcmtk/config/osconfig.h>
 #include <dcmtk/dcmdata/dcdatset.h>
 
-#include <dcmtkpp/BasicDirectoryCreator.h>
-#include <dcmtkpp/conversion.h>
-#include <dcmtkpp/Reader.h>
-#include <dcmtkpp/registry.h>
+#include <odil/BasicDirectoryCreator.h>
+#include <odil/Reader.h>
+#include <odil/registry.h>
+#include <odil/dcmtk/conversion.h>
 
 #include <zlib.h>
 
@@ -375,7 +375,7 @@ GenerationFrame
     std::vector<std::string> const files =
             GenerationFrame::getFilesForDicomdir(directory, absdirectory);
 
-    // Should add path separator at the end for dcmtkpp
+    // Should add path separator at the end for odil
     // (see BasicDirectoryCreator, attribute 'root')
     QString rootdir(directory.c_str());
     if (rootdir.at(rootdir.length()-1) != QDir::separator())
@@ -383,11 +383,11 @@ GenerationFrame
         rootdir.append(QDir::separator());
     }
 
-    dcmtkpp::BasicDirectoryCreator creator(rootdir.toStdString(), files,
+    odil::BasicDirectoryCreator creator(rootdir.toStdString(), files,
         {
             {"PATIENT", { }},
-            {"STUDY", { {dcmtkpp::registry::StudyDescription, 3} }},
-            {"SERIES", { {dcmtkpp::registry::SeriesDescription, 3} }},
+            {"STUDY", { {odil::registry::StudyDescription, 3} }},
+            {"SERIES", { {odil::registry::SeriesDescription, 3} }},
             {"IMAGE", { }},
         });
 
@@ -489,10 +489,10 @@ GenerationFrame
                     this->createDicomdirs(dir, dir, dicomdirfile);
                     resultitem.set_dicomdirCreation(GenerationResultItem::Result::OK);
                 }
-                catch (dcmtkpp::Exception const & dcmtkppexc)
+                catch (odil::Exception const & odilexc)
                 {
                     resultitem.set_dicomdirCreation(GenerationResultItem::Result::Fail);
-                    resultitem.set_DicomdirErrorMsg(dcmtkppexc.what());
+                    resultitem.set_DicomdirErrorMsg(odilexc.what());
                 }
                 catch (DicomifierException const & dcmexc)
                 {
@@ -619,11 +619,11 @@ GenerationFrame
                         boost::filesystem::absolute(*it).string().c_str(),
                         std::ios::in | std::ios::binary);
 
-            std::pair<dcmtkpp::DataSet, dcmtkpp::DataSet> file =
-                    dcmtkpp::Reader::read_file(stream);
+            std::pair<odil::DataSet, odil::DataSet> file =
+                    odil::Reader::read_file(stream);
 
             auto dataset =
-                    dynamic_cast<DcmDataset*>(dcmtkpp::convert(file.second));
+                    dynamic_cast<DcmDataset*>(odil::dcmtk::convert(file.second));
 
             // Create Store Rule
             auto storerule = dicomifier::StoreDataset::New(

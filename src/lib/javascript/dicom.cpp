@@ -12,14 +12,15 @@
 #include <cmath>
 #include <exception>
 #include <fstream>
+#include <iomanip>
 #include <utility>
 
 #include <boost/filesystem.hpp>
-#include <dcmtkpp/json_converter.h>
-#include <dcmtkpp/uid.h>
-#include <dcmtkpp/Reader.h>
-#include <dcmtkpp/registry.h>
-#include <dcmtkpp/Writer.h>
+#include <odil/json_converter.h>
+#include <odil/uid.h>
+#include <odil/Reader.h>
+#include <odil/registry.h>
+#include <odil/Writer.h>
 #include <v8.h>
 
 #include "bruker/converters/EnhanceBrukerDicom.h"
@@ -47,10 +48,10 @@ v8::Handle<v8::Value> read_dicom(v8::Arguments const & args)
         boost::filesystem::path(filename).c_str(),
         std::ios::in | std::ios::binary);
 
-    std::pair<dcmtkpp::DataSet, dcmtkpp::DataSet> file;
+    std::pair<odil::DataSet, odil::DataSet> file;
     try
     {
-        file = dcmtkpp::Reader::read_file(stream);
+        file = odil::Reader::read_file(stream);
     }
     catch(std::exception const & e)
     {
@@ -59,7 +60,7 @@ v8::Handle<v8::Value> read_dicom(v8::Arguments const & args)
         return v8::Null();
     }
 
-    if (!file.second.has(dcmtkpp::registry::PixelData))
+    if (!file.second.has(odil::registry::PixelData))
     {
         // ignore file
         return v8::Null();
@@ -67,7 +68,7 @@ v8::Handle<v8::Value> read_dicom(v8::Arguments const & args)
 
     try
     {
-        auto const json_dicom_dataset = dcmtkpp::as_json(file.second);
+        auto const json_dicom_dataset = odil::as_json(file.second);
 
         std::stringstream script;
         script
@@ -106,7 +107,7 @@ v8::Handle<v8::Value> write_dicom(v8::Arguments const & args)
             std::setlocale(LC_ALL, old_locale.c_str());
         }
 
-        auto const dataset = dcmtkpp::as_dataset(jsondataset);
+        auto const dataset = odil::as_dataset(jsondataset);
 
         // Get output file name
         auto const path_dcm = as_scalar<std::string>(args[1]);
@@ -115,7 +116,7 @@ v8::Handle<v8::Value> write_dicom(v8::Arguments const & args)
         boost::filesystem::path const destination(path_dcm);
         boost::filesystem::create_directories(destination.parent_path());
 
-        std::string transfer_syntax = dcmtkpp::registry::ExplicitVRLittleEndian;
+        std::string transfer_syntax = odil::registry::ExplicitVRLittleEndian;
         if(args.Length() == 3)
         {
             transfer_syntax = as_scalar<std::string>(args[2]);
@@ -123,9 +124,9 @@ v8::Handle<v8::Value> write_dicom(v8::Arguments const & args)
 
         std::ofstream stream(
             destination.c_str(), std::ios::out | std::ios::binary);
-        dcmtkpp::Writer::write_file(
-            dataset, stream, dcmtkpp::DataSet(), transfer_syntax,
-            dcmtkpp::Writer::ItemEncoding::UndefinedLength);
+        odil::Writer::write_file(
+            dataset, stream, odil::DataSet(), transfer_syntax,
+            odil::Writer::ItemEncoding::UndefinedLength);
     }
     catch (std::exception const & e)
     {
@@ -203,7 +204,7 @@ v8::Handle<v8::Value> generate_dicom_filename(v8::Arguments const & args)
 
 v8::Handle<v8::Value> generate_uid(v8::Arguments const &)
 {
-    auto const uid = dcmtkpp::generate_uid();
+    auto const uid = odil::generate_uid();
     return v8::String::New(uid.c_str());
 }
 

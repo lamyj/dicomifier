@@ -18,9 +18,9 @@
 #include <dcmtk/config/osconfig.h>
 #include <dcmtk/dcmdata/dcuid.h>
 
-#include <dcmtkpp/DataSet.h>
-#include <dcmtkpp/Reader.h>
-#include <dcmtkpp/registry.h>
+#include <odil/DataSet.h>
+#include <odil/Reader.h>
+#include <odil/registry.h>
 
 #include "bruker/converters/EnhanceBrukerDicom.h"
 #include "core/DicomifierException.h"
@@ -30,7 +30,7 @@ struct TestEnvironment
     std::string directorypath;
     std::string outputdirectory;
     std::vector<std::string> filestoremove;
-    dcmtkpp::DataSet dataset;
+    odil::DataSet dataset;
 
     std::string pdatapath;
 
@@ -102,7 +102,7 @@ struct TestEnvironment
             }
         }
         
-        dataset.add(dcmtkpp::registry::SeriesNumber, {10001});
+        dataset.add(odil::registry::SeriesNumber, {10001});
 
         outputdicom = outputdirectory + "/Mouse^Mickey/1_DICOMI/1_PROTOC/1";
         filestoremove.push_back(outputdicom);
@@ -268,27 +268,27 @@ BOOST_FIXTURE_TEST_CASE(Run_MRImageStorage, TestEnvironment)
         std::ifstream stream(boost::filesystem::path(outputdicom).c_str(),
                              std::ios::in | std::ios::binary);
 
-        std::pair<dcmtkpp::DataSet, dcmtkpp::DataSet> file =
-                dcmtkpp::Reader::read_file(stream);
+        std::pair<odil::DataSet, odil::DataSet> file =
+                odil::Reader::read_file(stream);
 
         BOOST_REQUIRE(!file.second.empty());
         BOOST_REQUIRE_EQUAL(file.second.as_string(
-                                dcmtkpp::registry::SOPClassUID)[0],
+                                odil::registry::SOPClassUID)[0],
                             UID_MRImageStorage);
 
         BOOST_REQUIRE_EQUAL(file.second.as_string(
-                                dcmtkpp::registry::PatientName)[0],
+                                odil::registry::PatientName)[0],
                             "Mouse^Mickey");
         BOOST_REQUIRE_EQUAL(file.second.as_string(
-                                dcmtkpp::registry::PatientID)[0],
+                                odil::registry::PatientID)[0],
                             "subject_01");
 
-        dcmtkpp::Value::Reals expectedResult({1, 6.12303176911189e-17, 0});
+        odil::Value::Reals expectedResult({1, 6.12303176911189e-17, 0});
         for (unsigned int i = 0; i < expectedResult.size(); ++i)
         {
             BOOST_CHECK_CLOSE(expectedResult[i],
                               file.second.as_real(
-                                  dcmtkpp::registry::ImageOrientationPatient)[i],
+                                  odil::registry::ImageOrientationPatient)[i],
                               0.0001);
         }
     }
@@ -314,25 +314,25 @@ BOOST_FIXTURE_TEST_CASE(Run_EnhanceMRImageStorage, TestEnvironment)
         std::ifstream stream(boost::filesystem::path(outputdicom).c_str(),
                              std::ios::in | std::ios::binary);
 
-        std::pair<dcmtkpp::DataSet, dcmtkpp::DataSet> file =
-                dcmtkpp::Reader::read_file(stream);
+        std::pair<odil::DataSet, odil::DataSet> file =
+                odil::Reader::read_file(stream);
 
         BOOST_REQUIRE(!file.second.empty());
         BOOST_REQUIRE_EQUAL(file.second.as_string(
-                                dcmtkpp::registry::SOPClassUID)[0],
+                                odil::registry::SOPClassUID)[0],
                             UID_EnhancedMRImageStorage);
 
         BOOST_REQUIRE_EQUAL(file.second.as_string(
-                                dcmtkpp::registry::PatientName)[0],
+                                odil::registry::PatientName)[0],
                             "Mouse^Mickey");
         BOOST_REQUIRE_EQUAL(file.second.as_string(
-                                dcmtkpp::registry::PatientID)[0],
+                                odil::registry::PatientID)[0],
                             "subject_01");
 
         BOOST_REQUIRE(file.second.has(
-                          dcmtkpp::registry::SharedFunctionalGroupsSequence));
+                          odil::registry::SharedFunctionalGroupsSequence));
         BOOST_REQUIRE(file.second.has(
-                          dcmtkpp::registry::PerFrameFunctionalGroupsSequence));
+                          odil::registry::PerFrameFunctionalGroupsSequence));
     }
 }
 

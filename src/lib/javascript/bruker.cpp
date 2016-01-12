@@ -14,11 +14,11 @@
 #include <dcmtk/config/osconfig.h>
 #include <dcmtk/ofstd/ofstd.h>
 #include <dcmtk/ofstd/ofstream.h>
-#include <dcmtkpp/DataSet.h>
-#include <dcmtkpp/Element.h>
-#include <dcmtkpp/json_converter.h>
-#include <dcmtkpp/registry.h>
-#include <dcmtkpp/uid.h>
+#include <odil/DataSet.h>
+#include <odil/Element.h>
+#include <odil/json_converter.h>
+#include <odil/registry.h>
+#include <odil/uid.h>
 #include <v8.h>
 
 #include "bruker/converters/pixel_data_converter.h"

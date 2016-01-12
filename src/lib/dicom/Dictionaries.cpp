@@ -12,7 +12,7 @@
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/xml_parser.hpp>
 
-#include <dcmtkpp/registry.h>
+#include <odil/registry.h>
 
 #include "Dictionaries.h"
 
@@ -126,8 +126,8 @@ Dictionaries
     // Create pointer
     auto publicdict = Dictionary::New();
 
-    for(auto it = dcmtkpp::registry::public_dictionary.begin();
-        it != dcmtkpp::registry::public_dictionary.end(); ++it)
+    for(auto it = odil::registry::public_dictionary.begin();
+        it != odil::registry::public_dictionary.end(); ++it)
     {
         std::vector<std::string> splitvalues;
         boost::split(splitvalues, it->second.vm, boost::is_any_of("-"));
@@ -277,8 +277,8 @@ Dictionaries
     stream << "{";
 
     bool first = true;
-    for(auto it = dcmtkpp::registry::public_dictionary.begin();
-        it != dcmtkpp::registry::public_dictionary.end(); ++it)
+    for(auto it = odil::registry::public_dictionary.begin();
+        it != odil::registry::public_dictionary.end(); ++it)
     {
         if (!first)
         {

@@ -13,11 +13,11 @@
 #include <boost/filesystem.hpp>
 #include <boost/lexical_cast.hpp>
 
-#include <dcmtkpp/conversion.h>
-#include <dcmtkpp/Element.h>
-#include <dcmtkpp/json_converter.h>
-#include <dcmtkpp/registry.h>
-#include <dcmtkpp/Writer.h>
+#include <odil/dcmtk/conversion.h>
+#include <odil/Element.h>
+#include <odil/json_converter.h>
+#include <odil/registry.h>
+#include <odil/Writer.h>
 
 #include "bruker/Directory.h"
 #include "bruker/json_converter.h"

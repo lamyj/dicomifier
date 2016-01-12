@@ -10,11 +10,11 @@
 #include <boost/filesystem.hpp>
 #include <boost/test/unit_test.hpp>
 
-#include <dcmtkpp/conversion.h>
-#include <dcmtkpp/DataSet.h>
-#include <dcmtkpp/json_converter.h>
-#include <dcmtkpp/registry.h>
-#include <dcmtkpp/Writer.h>
+#include <odil/DataSet.h>
+#include <odil/json_converter.h>
+#include <odil/registry.h>
+#include <odil/Writer.h>
+#include <odil/dcmtk/conversion.h>
 
 #include "core/DicomifierException.h"
 #include "nifti/Dicom2Nifti.h"
@@ -44,14 +44,14 @@ struct TestRun
         Json::Value json;
         dataset >> json;
 
-        dcmtkpp::DataSet const data_set = dcmtkpp::as_dataset(json);
+        odil::DataSet const data_set = odil::as_dataset(json);
 
         // Write input data set
         std::stringstream stream2;
-        dcmtkpp::Writer::write_file(
-                    data_set, stream2,
-                    dcmtkpp::registry::ExplicitVRLittleEndian,
-                    dcmtkpp::Writer::ItemEncoding::UndefinedLength, false);
+        odil::Writer::write_file(
+                    data_set, stream2, odil::DataSet(),
+                    odil::registry::ExplicitVRLittleEndian,
+                    odil::Writer::ItemEncoding::UndefinedLength, false);
 
         std::string file = datasetfile;
         if (filename != "")
