@@ -22,7 +22,6 @@
 #include "bruker/Directory.h"
 #include "bruker/json_converter.h"
 #include "core/DicomifierException.h"
-#include "dicom/SOPClass.h"
 #include "javascript/JavascriptVM.h"
 
 namespace dicomifier
@@ -42,11 +41,25 @@ EnhanceBrukerDicom::EnhanceBrukerDicom(
     std::string const & outputDir, std::string const & studyNumber,
     std::string const & seriesNumber):
     _brukerDir(brukerDir),
-    _SOPClassUID(dicomifier::get_SOPClassUID_from_name(sopclassuid)),
+    _SOPClassUID(),
     _outputDir(outputDir), _studyNumber(studyNumber),
     _seriesNumber(seriesNumber)
 {
-    // Nothing to do
+    std::string uid;
+    for(auto const & entry: odil::registry::uids_dictionary)
+    {
+        if(entry.second.name == sopclassuid || entry.second.keyword == sopclassuid)
+        {
+            uid = entry.first;
+            break;
+        }
+    }
+    if(uid.empty())
+    {
+        throw DicomifierException("Unknown SOP Class UID name");
+    }
+
+    this->_SOPClassUID = uid;
 }
 
 EnhanceBrukerDicom::~EnhanceBrukerDicom()

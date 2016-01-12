@@ -7,12 +7,15 @@
  ************************************************************************/
 
 #include "core/DicomifierException.h"
-#include "dicom/SCU.h"
 #include "PACSConfigurationFrame.h"
 #include "ui_PACSConfigurationFrame.h"
 
 #include <iostream>
 #include <stdexcept>
+
+#include <odil/Association.h>
+#include <odil/registry.h>
+#include <odil/FindSCU.h>
 
 namespace dicomifier
 {
@@ -81,13 +84,13 @@ PACSConfigurationFrame
     item->set_caller(this->_ui->pacsCaller->text().toStdString());
     if (this->_ui->pacsIdType->currentIndex() != -1)
     {
-        item->set_identityType((UserIdentityType)this->_ui->pacsIdType->currentIndex());
+        item->set_identityType(this->_ui->pacsIdType->currentIndex());
         item->set_idTypeFirst(this->_ui->pacsFrist->text().toStdString());
         item->set_idTypeSecond(this->_ui->pacsSecond->text().toStdString());
     }
     else
     {
-        item->set_identityType(UserIdentityType::None);
+        item->set_identityType(0);
         item->set_idTypeFirst("");
         item->set_idTypeSecond("");
     }
@@ -162,33 +165,23 @@ PACSConfigurationFrame
 
     try
     {
-        // Create SCU
-        SCU * echoscu = new SCU();
-
-        // Set own AE Title
-        echoscu->set_timeout(30);
-        echoscu->set_own_ae_title(this->_ui->pacsCaller->text().toStdString());
-
-        // Set called information
-        echoscu->set_peer_ae_title(this->_ui->pacsCalled->text().toStdString());
-        echoscu->set_peer_host_name(this->_ui->pacsAddress->text().toStdString());
-        uint16_t port = std::stoi(this->_ui->pacsPort->text().toStdString());
-        echoscu->set_peer_port(port);
-
-        // Set Presentation Context
-        std::vector<std::string> tempvect = { UID_LittleEndianImplicitTransferSyntax };
-        echoscu->add_presentation_context(UID_VerificationSOPClass, tempvect);
-        echoscu->add_presentation_context(UID_MRImageStorage, tempvect);
-        echoscu->add_presentation_context(UID_EnhancedMRImageStorage, tempvect);
-
-        // Create association
-        echoscu->associate();
-
-        // Send ECHO Request
-        echoscu->echo();
-
-        // Release and destroy association
-        delete echoscu;
+        odil::Association association;
+        association.set_peer_host(this->_ui->pacsAddress->text().toStdString());
+        association.set_peer_port(
+            std::stoi(this->_ui->pacsPort->text().toStdString()));
+        association.update_parameters()
+            .set_calling_ae_title(this->_ui->pacsCaller->text().toStdString())
+            .set_called_ae_title(this->_ui->pacsCalled->text().toStdString())
+            .set_presentation_contexts({
+                {
+                    1, odil::registry::VerificationSOPClass,
+                    { odil::registry::ImplicitVRLittleEndian }, true, true
+                }
+            });
+        association.associate();
+        odil::FindSCU scu(association);
+        scu.echo();
+        association.release();
     }
     catch (DicomifierException &exc)
     {

@@ -13,13 +13,11 @@
 #include <boost/algorithm/string.hpp>
 #include <boost/filesystem.hpp>
 
-#include <dcmtk/config/osconfig.h>
-#include <dcmtk/dcmdata/dcdatset.h>
-
+#include <odil/Association.h>
 #include <odil/BasicDirectoryCreator.h>
 #include <odil/Reader.h>
 #include <odil/registry.h>
-#include <odil/dcmtk/conversion.h>
+#include <odil/StoreSCU.h>
 
 #include <zlib.h>
 
@@ -27,7 +25,6 @@
 #include "components/PACSTreeItem.h"
 #include "core/DicomifierException.h"
 #include "core/Logger.h"
-#include "dicom/StoreDataset.h"
 #include "GenerationFrame.h"
 #include "ui_GenerationFrame.h"
 
@@ -67,11 +64,11 @@ GenerationFrame
                                     CONF_KEY_FORMAT,
                                     QString("")).toString();
 
-    if (selectitem.toStdString() == UID_MRImageStorage)
+    if (selectitem.toStdString() == odil::registry::MRImageStorage)
     {
         this->_ui->formatMRIMultiple->setChecked(true);
     }
-    else if (selectitem.toStdString() == UID_EnhancedMRImageStorage)
+    else if (selectitem.toStdString() == odil::registry::EnhancedMRImageStorage)
     {
         this->_ui->formatMRISingle->setChecked(true);
     }
@@ -306,11 +303,11 @@ GenerationFrame
     std::string format = "";
     if (this->_ui->formatMRIMultiple->isChecked())
     {
-        format = UID_MRImageStorage;
+        format = odil::registry::MRImageStorage;
     }
     else if (this->_ui->formatMRISingle->isChecked())
     {
-        format = UID_EnhancedMRImageStorage;
+        format = odil::registry::EnhancedMRImageStorage;
     }
 
     return format;
@@ -548,7 +545,7 @@ GenerationFrame
     std::string port = "";
     std::string called = "";
     std::string caller = "";
-    UserIdentityType idType = UserIdentityType::None;
+    int idType = 0;
     std::string first = "";
     std::string second = "";
 
@@ -586,7 +583,7 @@ GenerationFrame
 
             std::stringstream streamidentity;
             streamidentity << stream.str() << CONF_KEY_IDENTITY.toStdString();
-            idType = (UserIdentityType)settings.value(streamidentity.str().c_str(), 0).toInt();
+            idType = settings.value(streamidentity.str().c_str(), 0).toInt();
 
             std::stringstream streamfirst;
             streamfirst << stream.str() << CONF_KEY_FIRST.toStdString();
@@ -619,19 +616,58 @@ GenerationFrame
                         boost::filesystem::absolute(*it).string().c_str(),
                         std::ios::in | std::ios::binary);
 
-            std::pair<odil::DataSet, odil::DataSet> file =
-                    odil::Reader::read_file(stream);
+            auto const header_and_data_set = odil::Reader::read_file(stream);
 
-            auto dataset =
-                    dynamic_cast<DcmDataset*>(odil::dcmtk::convert(file.second));
+            odil::Association association;
+            association.set_peer_host(address);
+            association.set_peer_port(std::stoul(port));
+            association.update_parameters()
+                .set_called_ae_title(called)
+                .set_calling_ae_title(caller)
+                .set_presentation_contexts({
+                    {
+                        1,
+                        header_and_data_set.second.as_string("MediaStorageSOPClassUID", 0),
+                        header_and_data_set.first.as_string("TransferSyntaxUID"),
+                        true, false
+                    }
+                });
+            if(idType == 0)
+            {
+                association.update_parameters().set_user_identity_to_none();
+            }
+            else if(idType == 1)
+            {
+                association.update_parameters()
+                    .set_user_identity_to_username(first);
+            }
+            else if(idType == 2)
+            {
+                association.update_parameters()
+                    .set_user_identity_to_username_and_password(first, second);
+            }
+            else if(idType == 3)
+            {
+                association.update_parameters()
+                    .set_user_identity_to_kerberos(first);
+            }
+            else if(idType == 4)
+            {
+                association.update_parameters()
+                    .set_user_identity_to_saml(first);
+            }
+            else
+            {
+                throw DicomifierException("Unknown identity type");
+            }
 
-            // Create Store Rule
-            auto storerule = dicomifier::StoreDataset::New(
-                        dataset, address, std::stoi(port), called, caller,
-                        idType, first, second);
+            association.associate();
 
-            // Execute Store
-            storerule->run();
+            odil::StoreSCU scu(association);
+            scu.set_affected_sop_class(header_and_data_set.second);
+            scu.store(header_and_data_set.second);
+
+            association.release();
         }
     }
 }
