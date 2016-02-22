@@ -6,11 +6,12 @@
  * for details.
  ************************************************************************/
 
+#include "json_converter.h"
+
 #include <boost/algorithm/string.hpp>
 #include <boost/lexical_cast.hpp>
 
 #include "core/DicomifierException.h"
-#include "json_converter.h"
 
 namespace dicomifier
 {
@@ -165,6 +166,65 @@ as_string(Json::Value const & data_set)
     }
 
     return result.str();
+}
+
+Field::Item as_field_item(Json::Value const & json)
+{
+    Field::Item item;
+
+    if(json.isInt())
+    {
+        item = long(json.asInt());
+    }
+    else if(json.isDouble())
+    {
+        item = float(json.asDouble());
+    }
+    else if(json.isString())
+    {
+        item = json.asString();
+    }
+    else if(json.isArray())
+    {
+        Field::Value sub_items;
+        for(auto const & sub_item: json)
+        {
+            sub_items.push_back(as_field_item(sub_item));
+        }
+        item = sub_items;
+    }
+    else
+    {
+        throw DicomifierException("Unknown item type");
+    }
+
+    return item;
+}
+
+Dataset as_dataset(Json::Value const & json)
+{
+    Dataset dataset;
+
+    for(Json::Value::const_iterator it=json.begin(); it != json.end(); ++it)
+    {
+        std::string const name = it.memberName();
+        auto const & json_element = *it;
+
+        if(!json_element.isArray())
+        {
+            throw DicomifierException("Not an array: "+name);
+        }
+
+        Field::Value items;
+        for(auto const & item: json_element)
+        {
+            items.push_back(as_field_item(item));
+        }
+
+        dataset.set_field(Field(name, Field::Shape(), items));
+    }
+
+    return dataset;
 }
 
 } // namespace bruker

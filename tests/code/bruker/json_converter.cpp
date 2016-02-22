@@ -11,7 +11,7 @@
 
 #include <fstream>
 
-#include <jsoncpp/json/json.h>
+#include <json/json.h>
 
 #include "bruker/Dataset.h"
 #include "bruker/json_converter.h"
@@ -321,4 +321,52 @@ BOOST_AUTO_TEST_CASE(AsString)
     expectedresult << "}";
 
     BOOST_CHECK_EQUAL(result, expectedresult.str());
+}
+
+BOOST_FIXTURE_TEST_CASE(AsDataset, TestData)
+{
+    std::istringstream json_text(R"(
+        {
+          "Int": [ 1, 2 ],
+          "Double": [ 1, 2.2 ],
+          "String": [ "foo", "bar" ],
+          "Struct": [ [ "foo", 1 ], [ "bar", 2 ] ]
+        }
+    )");
+
+    Json::Value json;
+    json_text >> json;
+
+    auto const data_set = dicomifier::bruker::as_dataset(json);
+
+    BOOST_REQUIRE(data_set.has_field("Int"));
+    BOOST_REQUIRE_EQUAL(data_set.get_field("Int").get_size(), 2);
+    BOOST_REQUIRE_EQUAL(data_set.get_field("Int").get_int(0), 1);
+    BOOST_REQUIRE_EQUAL(data_set.get_field("Int").get_int(1), 2);
+
+    BOOST_REQUIRE(data_set.has_field("Double"));
+    BOOST_REQUIRE_EQUAL(data_set.get_field("Double").get_size(), 2);
+    BOOST_REQUIRE_EQUAL(data_set.get_field("Double").get_float(0), 1.0);
+    BOOST_REQUIRE_CLOSE(data_set.get_field("Double").get_float(1), 2.2, 1e-2);
+
+    BOOST_REQUIRE(data_set.has_field("String"));
+    BOOST_REQUIRE_EQUAL(data_set.get_field("String").get_size(), 2);
+    BOOST_REQUIRE_EQUAL(data_set.get_field("String").get<std::string>(0), "foo");
+    BOOST_REQUIRE_EQUAL(data_set.get_field("String").get<std::string>(1), "bar");
+
+    BOOST_REQUIRE(data_set.has_field("Struct"));
+    BOOST_REQUIRE_EQUAL(data_set.get_field("Struct").get_size(), 2);
+    auto const & first =
+        data_set.get_field("Struct")
+            .get<std::vector<dicomifier::bruker::Field::Item>>(0);
+    BOOST_REQUIRE_EQUAL(first.size(), 2);
+    BOOST_REQUIRE_EQUAL(boost::get<std::string>(first[0]), "foo");
+    BOOST_REQUIRE_EQUAL(boost::get<long>(first[1]), 1);
+
+    auto const & second =
+        data_set.get_field("Struct")
+            .get<std::vector<dicomifier::bruker::Field::Item>>(1);
+    BOOST_REQUIRE_EQUAL(second.size(), 2);
+    BOOST_REQUIRE_EQUAL(boost::get<std::string>(second[0]), "bar");
+    BOOST_REQUIRE_EQUAL(boost::get<long>(second[1]), 2);
 }
