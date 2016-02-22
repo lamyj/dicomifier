@@ -56,7 +56,7 @@ EnhanceBrukerDicom::EnhanceBrukerDicom(
     }
     if(uid.empty())
     {
-        throw DicomifierException("Unknown SOP Class UID name");
+        uid = sopclassuid;
     }
 
     this->_SOPClassUID = uid;
