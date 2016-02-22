@@ -93,5 +93,5 @@ BOOST_AUTO_TEST_CASE(Unrecognize_format)
     std::string format = "";
     BOOST_REQUIRE_THROW(
         dicomifier::string_to_local_date_time("BAD_VALUE", format),
-        dicomifier::DicomifierException)
+        dicomifier::DicomifierException);
 }
