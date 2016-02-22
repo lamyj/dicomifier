@@ -138,7 +138,7 @@ v8::Handle<v8::Value> require(v8::Arguments const & args)
 
 v8::Handle<v8::Value> is_big_endian(v8::Arguments const &)
 {
-    return v8::Boolean::New(endian::is_big_endian());
+    return v8::Boolean::New(::dicomifier::is_big_endian());
 }
 
 }
