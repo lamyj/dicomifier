@@ -19,7 +19,7 @@ PACSTreeItem
     _parentItem(parent),
     _name(""), _address(""), _port(""),
     _caller(""), _called(""),
-    _identityType(UserIdentityType::None),
+    _identityType(0),
     _idTypeFirst(""), _idTypeSecond("")
 {
     this->extractData(copy);

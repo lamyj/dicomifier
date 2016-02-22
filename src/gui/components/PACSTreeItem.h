@@ -14,8 +14,6 @@
 #include <QObject>
 #include <QVariant>
 
-#include "dicom/SCU.h"
-
 namespace dicomifier
 {
 
@@ -109,7 +107,7 @@ public:
     void set_port(std::string const & port) { this->_port = port; }
     void set_caller(std::string const & caller) { this->_caller = caller; }
     void set_called(std::string const & called) { this->_called = called; }
-    void set_identityType(UserIdentityType const & idType) { this->_identityType = idType; }
+    void set_identityType(int const & idType) { this->_identityType = idType; }
     void set_idTypeFirst(std::string const & first) { this->_idTypeFirst = first; }
     void set_idTypeSecond(std::string const & second) { this->_idTypeSecond = second; }
 
@@ -118,7 +116,7 @@ public:
     std::string get_port() const { return this->_port; }
     std::string get_caller() const { return this->_caller; }
     std::string get_called() const { return this->_called; }
-    UserIdentityType get_identityType() const { return this->_identityType; }
+    int get_identityType() const { return this->_identityType; }
     std::string get_idTypeFirst() const { return this->_idTypeFirst; }
     std::string get_idTypeSecond() const { return this->_idTypeSecond; }
 
@@ -150,7 +148,7 @@ private:
     std::string _called;
 
     /// Authentification type
-    UserIdentityType _identityType;
+    int _identityType;
 
     /// Authentification first parameter
     std::string _idTypeFirst;
