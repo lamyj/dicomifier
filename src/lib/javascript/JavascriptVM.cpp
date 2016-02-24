@@ -61,8 +61,7 @@ JavascriptVM
 
     DICOMIFIER_EXPOSE_FUNCTION(log, "log");
     DICOMIFIER_EXPOSE_FUNCTION(is_big_endian, "bigEndian");
-    DICOMIFIER_EXPOSE_FUNCTION(load_pixel_data, "loadPixelData");
-    DICOMIFIER_EXPOSE_FUNCTION(sort_pixel_data, "sortPixelData");
+    DICOMIFIER_EXPOSE_FUNCTION(convertPixelDataToDicom, "convertPixelDataToDicom");
     DICOMIFIER_EXPOSE_FUNCTION(generate_dicom_filename, "generateDICOMFileName");
     DICOMIFIER_EXPOSE_FUNCTION(read_bruker_directory, "readBrukerDirectory");
     DICOMIFIER_EXPOSE_FUNCTION(read_dicom, "readDICOM");

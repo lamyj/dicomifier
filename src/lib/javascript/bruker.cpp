@@ -8,23 +8,17 @@
 
 #include "javascript/bruker.h"
 
+#include <iterator>
+#include <sstream>
 #include <string>
 
 #include <boost/filesystem.hpp>
-#include <dcmtk/config/osconfig.h>
-#include <dcmtk/ofstd/ofstd.h>
-#include <dcmtk/ofstd/ofstream.h>
-#include <odil/DataSet.h>
-#include <odil/Element.h>
-#include <odil/json_converter.h>
-#include <odil/registry.h>
-#include <odil/uid.h>
+#include <odil/base64.h>
 #include <v8.h>
 
 #include "bruker/converters/pixel_data_converter.h"
 #include "bruker/Directory.h"
 #include "bruker/json_converter.h"
-#include "core/DicomifierException.h"
 #include "javascript/common.h"
 #include "javascript/JavascriptVM.h"
 
@@ -33,169 +27,6 @@ namespace dicomifier
 
 namespace javascript
 {
-
-void get_pixeldata_information(v8::Local<v8::Object> const & data_set,
-                               std::string & pixel_data,
-                               std::string & word_type,
-                               std::string & byte_order,
-                               int & frame_size)
-{
-    // Get PIXELDATA
-    pixel_data = as_scalar<std::string>(data_set, "PIXELDATA", 0);
-
-    // Get VisuCoreWordType
-    word_type = as_scalar<std::string>(data_set, "VisuCoreWordType", 0);
-
-    // Get VisuCoreByteOrder
-    byte_order = as_scalar<std::string>(data_set, "VisuCoreByteOrder", 0);
-
-    // Get VisuCoreSize
-    auto const size_vector = as_vector<double>(data_set, "VisuCoreSize");
-    if(size_vector.size() != 2)
-    {
-        throw DicomifierException("Invalid VisuCoreSize");
-    }
-    frame_size = int(size_vector[0])*int(size_vector[1]);
-}
-
-v8::Handle<v8::Value> load_pixel_data(v8::Arguments const & args)
-{
-    if(args.Length() < 1)
-    {
-        return v8::ThrowException(v8::String::New("Missing BrukerDataset"));
-    }
-    if(args.Length() < 2)
-    {
-        return v8::ThrowException(v8::String::New("Missing frame number"));
-    }
-
-    std::string pixel_data;
-    std::string word_type;
-    std::string byte_order;
-    int framesize;
-
-    try
-    {
-        auto const data_set = args[0]->ToObject();
-        if(data_set.IsEmpty())
-        {
-            throw DicomifierException("Data set is not an object");
-        }
-        get_pixeldata_information(
-            data_set, pixel_data, word_type, byte_order, framesize);
-    }
-    catch (DicomifierException const & exc)
-    {
-        return v8::ThrowException(v8::String::New(exc.what()));
-    }
-
-    // Get the frame number
-    auto numberOfFrame = as_scalar<double>(args[1]);
-    if (args.Length() == 3)
-    {
-        // Get a flag to return all pixel data or a string for each frame
-        if(as_scalar<bool>(args[2]))
-        {
-            framesize *= numberOfFrame;
-            numberOfFrame = 1;
-        }
-    }
-
-    // Create the array to return
-    v8::Local<v8::Array> array = v8::Array::New(3);
-    v8::Local<v8::Array> arrayimage = v8::Array::New(numberOfFrame);
-
-    try
-    {
-        // Convert each frame in base64 String
-        bruker::pixel_data_converter converter;
-        for (unsigned int i = 0; i < numberOfFrame; ++i)
-        {
-            // Read pixel data file and get the Frame i
-            converter(framesize, i, pixel_data, word_type, byte_order);
-
-            auto const & pixel_data = converter.get_pixel_data();
-            unsigned char const * data =
-                reinterpret_cast<unsigned char const *>(&pixel_data[0]);
-            OFStringStream stream;
-            OFStandard::encodeBase64(stream, data, pixel_data.size());
-
-            auto const & pixel_data_base64 = stream.str();
-
-            // Store into the array
-            arrayimage->Set(
-                i, v8::String::New(
-                    pixel_data_base64.c_str(), pixel_data_base64.size()));
-        }
-
-        array->Set(0, arrayimage);
-        array->Set(1, v8::Number::New(converter.get_rescale_intercept()));
-        array->Set(2, v8::Number::New(converter.get_rescale_slope()));
-    }
-    catch (std::exception const & e)
-    {
-        return v8::ThrowException(v8::String::New(e.what()));
-    }
-
-    return array;
-}
-
-v8::Handle<v8::Value> sort_pixel_data(v8::Arguments const & args)
-{
-    if(args.Length() < 2)
-    {
-        return v8::ThrowException(v8::String::New("Missing input"));
-    }
-
-    try
-    {
-        std::string pixel_data;
-        std::string word_type;
-        std::string byte_order;
-        int framesize;
-        auto const data_set = args[0]->ToObject();
-        if(data_set.IsEmpty())
-        {
-            throw DicomifierException("Data set is not an object");
-        }
-        get_pixeldata_information(data_set, pixel_data, word_type, byte_order,
-                                  framesize);
-
-        v8::Local<v8::Array> array = args[1].As<v8::Array>();
-
-        dcmtkpp::Element element = dcmtkpp::Element(dcmtkpp::Value::Binary(),
-                                                    dcmtkpp::VR::OW);
-        bruker::pixel_data_converter converter;
-        for (unsigned int i = 0; i < array->Length(); ++i)
-        {
-            int index = array->Get(i)->ToInt32()->Int32Value();
-            converter(framesize, index, pixel_data, word_type, byte_order);
-            auto const & pixel_data = converter.get_pixel_data();
-
-            element.as_binary().insert(
-                element.as_binary().end(), pixel_data.begin(), pixel_data.end());
-        }
-
-        dcmtkpp::DataSet dataset;
-        dataset.add(dcmtkpp::registry::PixelData, element);
-
-        // Convert to JSON
-        Json::Value const json_dtset = dcmtkpp::as_json(dataset);
-
-        return v8::String::New(
-                    json_dtset["7fe00010"]["InlineBinary"].asCString());
-
-    }
-    catch (DicomifierException const & exc)
-    {
-        return v8::ThrowException(v8::String::New(exc.what()));
-    }
-    catch (std::exception const & otherexc)
-    {
-        return v8::ThrowException(v8::String::New(otherexc.what()));
-    }
-    return v8::Null();
-}
 
 v8::Handle<v8::Value> read_bruker_directory(v8::Arguments const & args)
 {
@@ -245,6 +76,73 @@ v8::Handle<v8::Value> read_bruker_directory(v8::Arguments const & args)
     }
 
     return v8::Null();
+}
+
+v8::Handle<v8::Value>
+convertPixelDataToDicom(v8::Arguments const & args)
+{
+    v8::HandleScope scope;
+
+    v8::Handle<v8::Context> context = v8::Context::GetCurrent();
+    v8::Handle<v8::Object> global = context->Global();
+
+    v8::Handle<v8::Object> JSON =
+        global->Get(v8::String::New("JSON"))->ToObject();
+    v8::Handle<v8::Function> JSON_stringify =
+        v8::Handle<v8::Function>::Cast(JSON->Get(v8::String::New("stringify")));
+    auto object = args[0];
+    v8::String::Utf8Value json_js(JSON_stringify->Call(JSON, 1, &object));
+
+    std::istringstream json_text(std::string(*json_js, json_js.length()));
+    Json::Value json;
+    json_text >> json;
+
+
+    try
+    {
+        auto const dataset = dicomifier::bruker::as_dataset(json);
+        auto const conversion_info =
+            dicomifier::bruker::convert_pixel_data_to_dicom(dataset);
+        auto conversion_info_js = v8::Array::New(4);
+        conversion_info_js->Set(0, v8::Null());
+        conversion_info_js->Set(1, v8::Boolean::New(std::get<1>(conversion_info)));
+        conversion_info_js->Set(2, v8::Number::New(std::get<2>(conversion_info)));
+        conversion_info_js->Set(3, v8::Number::New(std::get<3>(conversion_info)));
+
+        auto const & buffer = std::get<0>(conversion_info);
+        auto const frames_count = args[1]->IntegerValue();
+        if(frames_count != 0)
+        {
+            auto frames = v8::Array::New(frames_count);
+            auto const frame_size = buffer.size()/frames_count;
+            for(int i=0; i<frames_count; ++i)
+            {
+                std::string buffer_base64;
+                buffer_base64.reserve(frame_size);
+                odil::base64::encode(
+                    buffer.begin()+i*frame_size, buffer.begin()+(i+1)*frame_size,
+                    std::back_inserter(buffer_base64));
+                frames->Set(
+                    i, v8::String::New(buffer_base64.c_str(), buffer_base64.size()));
+            }
+            conversion_info_js->Set(0, frames);
+        }
+        else
+        {
+            std::string buffer_base64;
+            buffer_base64.reserve(buffer.size());
+            odil::base64::encode(
+                buffer.begin(), buffer.end(), std::back_inserter(buffer_base64));
+            conversion_info_js->Set(
+                0, v8::String::New(buffer_base64.c_str(), buffer_base64.size()));
+        }
+
+        return scope.Close(conversion_info_js);
+    }
+    catch(std::exception const & e)
+    {
+        return v8::ThrowException(v8::String::New(e.what()));
+    }
 }
 
 }

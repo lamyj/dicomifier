@@ -9,9 +9,9 @@
 #ifndef _e7c45dce_2bc3_47ba_93bd_017c50687fb4
 #define _e7c45dce_2bc3_47ba_93bd_017c50687fb4
 
-#include <string>
-
-#include <dcmtkpp/DataSet.h>
+#include <cstdint>
+#include <tuple>
+#include <vector>
 
 #include "bruker/Dataset.h"
 
@@ -21,53 +21,32 @@ namespace dicomifier
 namespace bruker
 {
 
-class pixel_data_converter
-{
-public:
-    pixel_data_converter();
+/**
+ * @brief Convert Bruker pixel data to a DICOM-compatible representation (host
+ * endianness, 16 bits integers).
+ *
+ * @return DICOM-compatible data, flag indicating whether the data was
+ * resampled, rescale slope and rescale intercept.
+ *
+ * If the Bruker data is of integer type and 16 bits or shorter, then the Bruker
+ * data will be copied without resampling. Otherwise, the data is resampled
+ * to the 0, 65535 range.
+ */
+std::tuple<std::vector<uint8_t>, bool, double, double>
+convert_pixel_data_to_dicom(Dataset const & data_set);
 
-    virtual ~pixel_data_converter();
-
-    void operator()(unsigned int frame_size, unsigned int frame_index,
-                    std::string const & filename, std::string const & word_type,
-                    std::string const & file_byte_order,
-                    dcmtkpp::DataSet & dicom_data_set);
-
-    double get_rescaleintercept() const;
-
-    double get_rescaleslope() const;
-
-private:
-    typedef uint16_t OutputPixelType;
-
-    std::string _filename;
-    dcmtkpp::Value::Binary _pixel_data;
-    double _min;
-    double _max;
-
-    double _rescaleintercept;
-    double _rescaleslope;
-
-    void _set_data_set(std::string const & filename,
-                       std::string const & word_type,
-                       std::string const & file_byte_order);
-
-    template<typename TPixelType>
-    dcmtkpp::Value::Binary _read_pixel_data(
-        unsigned int frame_size, unsigned int index) const;
-
-    template<typename TPixelType>
-    void _flip();
-
-    template<typename TPixelType>
-    void _update_min_max();
-
-};
+/**
+ * @brief Convert Bruker pixel data to a DICOM-compatible representation (host
+ * endianness, 16 bits integers).
+ */
+template<typename T>
+std::tuple<std::vector<uint8_t>, bool, double, double>
+convert_pixel_data_to_dicom(Dataset const & data_set);
 
 } // namespace bruker
 
 } // namespace dicomifier
 
-#include "pixel_data_converter.txx"
+#include "bruker/converters/pixel_data_converter.txx"
 
 #endif // _e7c45dce_2bc3_47ba_93bd_017c50687fb4

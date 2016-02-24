@@ -24,6 +24,7 @@
 
 #include "bruker/converters/EnhanceBrukerDicom.h"
 #include "core/DicomifierException.h"
+#include "core/Logger.h"
 
 struct TestEnvironment
 {
@@ -40,6 +41,8 @@ struct TestEnvironment
         directorypath("./test_ModuleEnhanceBrukerDicom"),
         outputdirectory("./test_ModuleEnhanceBrukerDicom_out")
     {
+        dicomifier::InitializeLogger("DEBUG");
+
         boost::filesystem::create_directory(
                     boost::filesystem::path(directorypath.c_str()));
         boost::filesystem::create_directory(
