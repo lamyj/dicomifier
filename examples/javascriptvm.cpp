@@ -13,10 +13,10 @@
 #include <odil/json_converter.h>
 #include <odil/registry.h>
 
-#include "lib/bruker/Dataset.h"
-#include "lib/bruker/json_converter.h"
-#include "lib/core/Logger.h"
-#include "lib/javascript/JavascriptVM.h"
+#include "bruker/Dataset.h"
+#include "bruker/json_converter.h"
+#include "core/Logger.h"
+#include "javascript/JavascriptVM.h"
 
 int main()
 {
