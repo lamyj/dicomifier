@@ -1,33 +1,43 @@
-find_package(DCMTK REQUIRED)
 find_package(Boost COMPONENTS date_time filesystem system regex REQUIRED)
+find_package(DCMTK REQUIRED)
+find_package(JsonCpp REQUIRED)
+find_package(Log4Cpp REQUIRED)
+find_package(NIfTI REQUIRED)
+find_package(Odil REQUIRED)
+find_package(V8 REQUIRED)
 
-add_definitions(-DBOOST_FILESYSTEM_VERSION=3)
-add_definitions(-DHAVE_CONFIG_H)
-
-# add include
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}
-                    ${Boost_INCLUDE_DIRS}
-                    ${Nifti_INCLUDE_DIRS}
-                    /usr/include/nifti)
-
-# create the library
+file(GLOB_RECURSE headers "*.h")
+file(GLOB_RECURSE templates "*.txx")
 file(GLOB_RECURSE files "*.cpp")
-add_library(libdicomifier SHARED ${files})
+
+include_directories(
+    ${CMAKE_CURRENT_SOURCE_DIR}
+    ${Boost_INCLUDE_DIRS} ${DCMTK_INCLUDE_DIRS} ${JsonCpp_INCLUDE_DIRS}
+    ${Log4Cpp_INCLUDE_DIRS} ${Nifti_INCLUDE_DIRS} ${Odil_INCLUDE_DIRS}
+    ${V8_INCLUDE_DIRS})
+add_definitions(
+    ${DCMTK_DEFINITIONS} -DBOOST_FILESYSTEM_VERSION=3)
+link_directories(
+    ${Boost_LIBRARY_DIRS} ${DCMTK_LIBRARY_DIRS})
+
+add_library(
+    libdicomifier SHARED ${files} ${headers} ${templates})
+
+target_link_libraries(
+    libdicomifier
+    ${Boost_LIBRARIES} ${DCMTK_LIBRARIES} ${JsonCpp_LIBRARIES}
+    ${Log4Cpp_LIBRARIES} ${NIfTI_LIBRARIES} ${Odil_LIBRARIES} ${V8_LIBRARIES})
 set_property(
    SOURCE ${CMAKE_CURRENT_SOURCE_DIR}/javascript/JavascriptVM.cpp
    PROPERTY COMPILE_DEFINITIONS DICOMIFIER_DEFAULT_JS_PATH="/usr/share/dicomifier"
-   )
-set_target_properties(libdicomifier PROPERTIES OUTPUT_NAME dicomifier)
-target_link_libraries(libdicomifier dcmtkpp dcmtls ssl dcmdata dcmnet jsoncpp log4cpp niftiio oflog ofstd v8 wrap pthread z ${Boost_LIBRARIES})
+)
+set_target_properties(
+    libdicomifier PROPERTIES OUTPUT_NAME dicomifier)
 
-# deploy the library
-install(TARGETS libdicomifier
-        LIBRARY DESTINATION lib
-        COMPONENT libraries)
-
-# copy all header files to the include directory
-install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-        FILE_PERMISSIONS OWNER_EXECUTE OWNER_WRITE OWNER_READ GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE
-        DIRECTORY_PERMISSIONS OWNER_EXECUTE OWNER_WRITE OWNER_READ GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE
-        DESTINATION include/dicomifier/
-        FILES_MATCHING PATTERN "*.h")
+install(
+    FILES ${headers} ${templates} DESTINATION include/dicomifier)
+install(
+    TARGETS libdicomifier
+    ARCHIVE DESTINATION lib
+    LIBRARY DESTINATION lib
+    RUNTIME DESTINATION bin)
