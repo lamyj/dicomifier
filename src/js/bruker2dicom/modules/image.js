@@ -150,7 +150,7 @@ _module.ImagePixel = function(indexGenerator, dicomDataset, brukerDataset,
 
     // Force VR to OW (and not vrAndTag[0] = OB)
     dicomDataset[dicomifier.dictionary['PixelData'][1]] = {
-        'vr': 'OW', 'InlineBinary' : pixelData[indexGenerator.currentIndex] };
+        'vr': 'OW', 'InlineBinary' : pixelData[indexGenerator.currentStep] };
 };
 
 _module.MRImage = function(indexGenerator, dicomDataset, brukerDataset) {
