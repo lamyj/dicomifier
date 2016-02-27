@@ -109,12 +109,7 @@ dump2dcm ${DIRECTORY}/dataset "${DICOMIFIER_TEST_DATA}/image.dcm"
 dcmqrscp -c ${DIRECTORY}/config 11112 &
 PID=$!
 
-export DICOMIFIER_CALLING_AET=LOCAL
-export DICOMIFIER_PEER_HOST=localhost
-export DICOMIFIER_PEER_PORT=11112
-export DICOMIFIER_PEER_AET=REMOTE
-
-export DICOMIFIER_CONFIGURATION_DIR="../../configuration"
+export DICOMIFIER_JS_PATH="../../src/js"
 
 ctest --no-compress-output -T Test $@ || true
 
