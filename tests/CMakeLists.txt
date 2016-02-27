@@ -1,12 +1,16 @@
-find_package(DCMTK REQUIRED)
-find_package(Boost COMPONENTS unit_test_framework REQUIRED)
+find_package(Boost COMPONENTS filesystem system unit_test_framework REQUIRED)
+find_package(JsonCPP REQUIRED)
+find_package(Odil REQUIRED)
+find_package(V8 REQUIRED)
 
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../src/lib
-                    /usr/include/nifti)
-link_directories(${Boost_LIBRARY_DIRS})
-
-add_definitions(-DHAVE_CONFIG_H)
-ADD_DEFINITIONS(-DBOOST_TEST_DYN_LINK)
+include_directories(
+    ${CMAKE_CURRENT_SOURCE_DIR}/../src/lib
+    ${Boost_INCLUDE_DIRS} ${JsonCPP_INCLUDES} ${Odil_INCLUDE_DIRS}
+    ${V8_INCLUDE_DIRS})
+add_definitions(
+    -DBOOST_FILESYSTEM_VERSION=3 -DBOOST_TEST_DYN_LINK)
+link_directories(
+    ${Boost_LIBRARY_DIRS})
 
 add_custom_target(
     Runner ${CMAKE_COMMAND} -E echo "Test runner" SOURCES run_tests.sh)
@@ -15,9 +19,14 @@ file(GLOB_RECURSE tests *.cpp)
 foreach(test_file ${tests})
     get_filename_component(test ${test_file} NAME_WE)
     add_executable(${test} ${test_file})
-    target_link_libraries(${test} odil libdicomifier ${Boost_LIBRARIES})
-    file(READ ${test_file} content)
-    
+    target_link_libraries(
+        ${test}
+        libdicomifier
+        ${Boost_LIBRARIES} ${JsonCpp_LIBRARIES} ${Odil_LIBRARIES}
+        ${V8_LIBRARIES})
+
+    file(READ ${test_file} content)    
+
     set(pattern "BOOST_(AUTO|FIXTURE)_TEST_CASE\\(([^),]+)")
     
     string(REGEX MATCHALL ${pattern} cases ${content})
