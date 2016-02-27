@@ -12,7 +12,7 @@
 #include <memory>
 #include <string>
 
-#include <jsoncpp/json/json.h>
+#include <json/json.h>
 
 #include <nifti1_io.h>
 

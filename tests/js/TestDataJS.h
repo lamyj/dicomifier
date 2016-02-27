@@ -12,7 +12,7 @@
 #include <clocale>
 #include <string>
 
-#include <jsoncpp/json/json.h>
+#include <json/json.h>
 
 #include "javascript/JavascriptVM.h"
 

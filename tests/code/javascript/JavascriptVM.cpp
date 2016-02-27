@@ -15,7 +15,7 @@
 #include <string>
 #include <vector>
 
-#include <jsoncpp/json/json.h>
+#include <json/json.h>
 #include <v8.h>
 
 #include "core/DicomifierException.h"
