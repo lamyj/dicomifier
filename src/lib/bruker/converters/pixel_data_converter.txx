@@ -96,7 +96,7 @@ convert_pixel_data_to_dicom(Dataset const & data_set)
 
     // Convert to 16 bits
     std::vector<uint8_t> dicom_pixel_data(2*bruker_pixel_data.size());
-    uint8_t * output_iterator = &dicom_pixel_data[0];
+    auto output_iterator = dicom_pixel_data.begin();
 
     for(auto const & item: bruker_pixel_data)
     {
@@ -106,7 +106,7 @@ convert_pixel_data_to_dicom(Dataset const & data_set)
             uint8_t const * input_iterator =
                 reinterpret_cast<uint8_t const *>(&value);
             output_iterator = std::copy(
-                input_iterator, input_iterator+2, output_iterator);
+                input_iterator, input_iterator+sizeof(value), output_iterator);
         }
         else
         {
