@@ -6,6 +6,7 @@
  * for details.
  ************************************************************************/
 
+#include <fstream>
 #include <memory>
 #include <iostream>
 #include <stdlib.h>

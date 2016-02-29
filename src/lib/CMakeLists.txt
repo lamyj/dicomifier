@@ -13,7 +13,7 @@ file(GLOB_RECURSE files "*.cpp")
 include_directories(
     ${CMAKE_CURRENT_SOURCE_DIR}
     ${Boost_INCLUDE_DIRS} ${DCMTK_INCLUDE_DIRS} ${JsonCpp_INCLUDE_DIRS}
-    ${Log4Cpp_INCLUDE_DIRS} ${Nifti_INCLUDE_DIRS} ${Odil_INCLUDE_DIRS}
+    ${Log4Cpp_INCLUDE_DIRS} ${NIfTI_INCLUDE_DIRS} ${Odil_INCLUDE_DIRS}
     ${V8_INCLUDE_DIRS})
 add_definitions(
     ${DCMTK_DEFINITIONS} -DBOOST_FILESYSTEM_VERSION=3)

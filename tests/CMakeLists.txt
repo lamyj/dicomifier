@@ -1,14 +1,16 @@
 find_package(Boost COMPONENTS filesystem system unit_test_framework REQUIRED)
-find_package(JsonCPP REQUIRED)
+find_package(DCMTK REQUIRED)
+find_package(JsonCpp REQUIRED)
+find_package(NIfTI REQUIRED)
 find_package(Odil REQUIRED)
 find_package(V8 REQUIRED)
 
 include_directories(
     ${CMAKE_CURRENT_SOURCE_DIR}/../src/lib
-    ${Boost_INCLUDE_DIRS} ${JsonCPP_INCLUDES} ${Odil_INCLUDE_DIRS}
-    ${V8_INCLUDE_DIRS})
+    ${Boost_INCLUDE_DIRS} ${DCMTK_INCLUDE_DIRS} ${JsonCpp_INCLUDE_DIRS} 
+    ${NIfTI_INCLUDE_DIRS} ${Odil_INCLUDE_DIRS} ${V8_INCLUDE_DIRS})
 add_definitions(
-    -DBOOST_FILESYSTEM_VERSION=3 -DBOOST_TEST_DYN_LINK)
+    ${DCMTK_DEFINITIONS} -DBOOST_FILESYSTEM_VERSION=3 -DBOOST_TEST_DYN_LINK)
 link_directories(
     ${Boost_LIBRARY_DIRS})
 

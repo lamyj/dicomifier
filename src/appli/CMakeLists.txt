@@ -1,4 +1,7 @@
 find_package(Boost COMPONENTS filesystem program_options system REQUIRED)
+find_package(DCMTK REQUIRED)
+find_package(JsonCpp REQUIRED)
+find_package(NIfTI REQUIRED)
 find_package(Odil REQUIRED)
 find_package(Qt4 REQUIRED QtCore QtGui)
 
@@ -6,11 +9,12 @@ include(${QT_USE_FILE})
 
 include_directories(
     ${CMAKE_CURRENT_SOURCE_DIR}/../lib ${CMAKE_CURRENT_SOURCE_DIR}/../gui
-    ${Boost_INCLUDE_DIRS} ${Odil_INCLUDE_DIRS} ${QT_INCLUDES})
+    ${Boost_INCLUDE_DIRS} ${DCMTK_INCLUDE_DIRS} ${JsonCpp_INCLUDE_DIRS} 
+    ${NIfTI_INCLUDE_DIRS} ${Odil_INCLUDE_DIRS} ${QT_INCLUDES})
 add_definitions(
-    -DBOOST_FILESYSTEM_VERSION=3)
+    ${DCMTK_DEFINITIONS} -DBOOST_FILESYSTEM_VERSION=3)
 link_directories(
-    ${Boost_LIBRARY_DIRS})
+    ${Boost_LIBRARY_DIRS} ${DCMTK_LIBRARY_DIRS})
 
 add_executable(bruker2dicom "bruker2dicom.cpp")
 target_link_libraries(
