@@ -1,17 +1,5 @@
 #!/bin/sh
-DIRECTORY=`mktemp -d -t dicomifier`
-
-cat > ${DIRECTORY}/config  << EOF
-HostTable BEGIN
-remote = (REMOTE, localhost, 11112)
-local = (LOCAL, localhost, 0)
-HostTable END
-
-AETable BEGIN
-REMOTE ${DIRECTORY} RW (10, 1024mb) local
-AETable END
-EOF
-
+DIRECTORY=$(python -c "import tempfile; print tempfile.mkdtemp()")
 
 # Create Dump Dataset File for Dataset Creation
 cat > ${DIRECTORY}/dataset << EOF
@@ -106,12 +94,8 @@ export DICOMIFIER_TEST_DATA=${DIRECTORY}
 # Create Dataset
 dump2dcm ${DIRECTORY}/dataset "${DICOMIFIER_TEST_DATA}/image.dcm"
 
-dcmqrscp -c ${DIRECTORY}/config 11112 &
-PID=$!
-
-export DICOMIFIER_JS_PATH="../../src/js"
+export DICOMIFIER_JS_PATH="${PWD}/../src/js"
 
 ctest --no-compress-output -T Test $@ || true
 
-kill ${PID}
 rm -rf ${DIRECTORY}
