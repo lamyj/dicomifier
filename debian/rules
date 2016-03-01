@@ -10,11 +10,9 @@ LDFLAGS:=$(shell dpkg-buildflags --get LDFLAGS)
 %:
 	dh $@ --builddirectory=build --parallel
 
-override_dh_auto_build:
-	dh_auto_build
-
 override_dh_auto_configure:
-	dh_auto_configure -- -DBUILD_TESTING:BOOL=OFF
+	dh_auto_configure -- -DNIfTI_INCLUDE_DIR=/usr/include/nifti
 
 override_dh_auto_test:
-	cd build && ../tests/run_tests.sh
+	cd build && ../tests/run_tests.sh -E EnhanceBrukerDicom_Run_EnhanceMRImageStorage
+
