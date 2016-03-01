@@ -6,17 +6,18 @@
  * for details.
  ************************************************************************/
 
+#include <iterator>
 #include <sstream>
 
 #include <boost/algorithm/string/replace.hpp>
 #include <boost/filesystem.hpp>
 #include <boost/lexical_cast.hpp>
 
+#include <odil/base64.h>
 #include <odil/DataSet.h>
 #include <odil/json_converter.h>
 #include <odil/Reader.h>
 #include <odil/registry.h>
-#include <odil/dcmtk/conversion.h>
 
 #include "core/DicomifierException.h"
 #include "core/Logger.h"
@@ -298,15 +299,9 @@ Dicom2Nifti
     for (unsigned int i = 0; i < pixeldata.size(); ++i)
     {
         auto const & encoded = pixeldata[i].asString();
-        OFString const encoded_dcmtk(encoded.c_str());
-        unsigned char * decoded;
-        size_t const decoded_size =
-            OFStandard::decodeBase64(encoded_dcmtk, decoded);
-
-        buffer.resize(buffer.size() + decoded_size);
-        std::copy(decoded, decoded + decoded_size, buffer.end() - decoded_size);
-
-        delete[] decoded;
+        odil::base64::decode(
+            encoded.begin(), encoded.end(),
+            std::back_inserter(buffer));
     }
 
     uint8_t * data = new uint8_t[buffer.size()];
@@ -325,7 +320,7 @@ Dicom2Nifti
     std::string const sopclassuid = dataset.get("SOPClassUID",
                                                 Json::Value())[0].asString();
 
-    if (sopclassuid == UID_MRImageStorage)
+    if (sopclassuid == odil::registry::MRImageStorage)
     {
         // One stack = 3 dimensions
         // Multi stack = 4 dimensions
@@ -363,7 +358,7 @@ Dicom2Nifti
             nim->dim[3] = nim->nz = dsnumber;
         }
     }
-    else if (sopclassuid == UID_EnhancedMRImageStorage)
+    else if (sopclassuid == odil::registry::EnhancedMRImageStorage)
     {
         if (dimension == 3)
         {
@@ -413,13 +408,13 @@ Dicom2Nifti
 
     Json::Value image_orientation_patient;
 
-    if (sopclassuid == UID_MRImageStorage)
+    if (sopclassuid == odil::registry::MRImageStorage)
     {
         // Get 3 vectors for directions
         image_orientation_patient =
                 dataset.get("ImageOrientationPatient", Json::Value());
     }
-    else if (sopclassuid == UID_EnhancedMRImageStorage)
+    else if (sopclassuid == odil::registry::EnhancedMRImageStorage)
     {
         // Get ImageOrientationPatient for the first frame
         image_orientation_patient =
@@ -446,13 +441,13 @@ Dicom2Nifti
 
     Json::Value image_position_patient;
 
-    if (sopclassuid == UID_MRImageStorage)
+    if (sopclassuid == odil::registry::MRImageStorage)
     {
         // Get 3 vectors for directions
         image_position_patient =
                 dataset.get("ImagePositionPatient", Json::Value());
     }
-    else if (sopclassuid == UID_EnhancedMRImageStorage)
+    else if (sopclassuid == odil::registry::EnhancedMRImageStorage)
     {
         // Get ImageOrientationPatient for the first frame
         Json::Value array(Json::ValueType::arrayValue);

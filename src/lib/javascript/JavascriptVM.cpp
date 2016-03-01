@@ -12,9 +12,9 @@
 #include <sstream>
 #include <string>
 
+#include <odil/registry.h>
 #include <v8.h>
 
-#include "dicom/Dictionaries.h"
 #include "javascript/bruker.h"
 #include "javascript/common.h"
 #include "javascript/dicom.h"
@@ -82,9 +82,32 @@ JavascriptVM
         myobject);
     }
 
+    std::stringstream dictionary_as_json;
+    {
+        dictionary_as_json << "{";
+
+        bool first = true;
+        for(auto it = odil::registry::public_dictionary.begin();
+            it != odil::registry::public_dictionary.end(); ++it)
+        {
+            if (!first)
+            {
+                dictionary_as_json << ",";
+            }
+            first = false;
+
+            dictionary_as_json
+                << "\"" << it->second.keyword
+                << "\": [\"" << it->second.vr
+                << "\",\"" << std::string(it->first) << "\"]";
+        }
+
+        dictionary_as_json << "}";
+    }
+
     std::stringstream streamdictionary;
     streamdictionary << "dicomifier[\"dictionary\"] = "
-                     << Dictionaries::public_dictionary_as_json()
+                     << dictionary_as_json.str()
                      << ";";
     JavascriptVM::run(streamdictionary.str(), this->get_context());
 }

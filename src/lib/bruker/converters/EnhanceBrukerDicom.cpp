@@ -13,7 +13,6 @@
 #include <boost/filesystem.hpp>
 #include <boost/lexical_cast.hpp>
 
-#include <odil/dcmtk/conversion.h>
 #include <odil/Element.h>
 #include <odil/json_converter.h>
 #include <odil/registry.h>
