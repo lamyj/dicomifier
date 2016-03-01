@@ -74,7 +74,7 @@ PACSTreeView
 
         std::stringstream streamidentity;
         streamidentity << stream.str() << CONF_KEY_IDENTITY.toStdString();
-        pacsitem->set_identityType((UserIdentityType)settings.value(streamidentity.str().c_str(), 0).toInt());
+        pacsitem->set_identityType(settings.value(streamidentity.str().c_str(), 0).toInt());
 
         std::stringstream streamfirst;
         streamfirst << stream.str() << CONF_KEY_FIRST.toStdString();

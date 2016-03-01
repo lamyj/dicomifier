@@ -3,6 +3,8 @@ cmake_minimum_required(VERSION 2.6.0)
 
 option(BUILD_EXAMPLES "Build the examples directory." ON)
 
+set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}" ${CMAKE_MODULE_PATH})
+
 include(CTest)
 
 add_subdirectory(src)

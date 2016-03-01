@@ -95,8 +95,7 @@ int main(int argc, char *argv[])
     dicomifier::InitializeLogger(level);
 
     auto rule = dicomifier::nifti::Dicom2Nifti::New(
-                    dicom_directory, nifti_directory,
-                    (dicomifier::nifti::NIfTI_Dimension)dimension);
+                    dicom_directory, nifti_directory, dimension);
 
     if (rule == NULL)
     {

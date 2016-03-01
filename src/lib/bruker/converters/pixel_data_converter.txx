@@ -9,12 +9,19 @@
 #ifndef _dd05e8c5_1691_4fc4_9525_6518ae932117
 #define _dd05e8c5_1691_4fc4_9525_6518ae932117
 
-#include <algorithm>
-#include <cstdint>
-#include <limits>
-#include <string>
+#include "bruker/converters/pixel_data_converter.h"
 
-#include "core/Endian.h"
+#include <algorithm>
+#include <fstream>
+#include <cstdint>
+#include <tuple>
+#include <vector>
+
+#include <boost/filesystem.hpp>
+#include <odil/endian.h>
+
+#include "bruker/Dataset.h"
+#include "core/DicomifierException.h"
 
 namespace dicomifier
 {
@@ -22,70 +29,95 @@ namespace dicomifier
 namespace bruker
 {
 
-template<typename TPixelType>
-dcmtkpp::Value::Binary
-pixel_data_converter
-::_read_pixel_data(unsigned int frame_size, unsigned int index) const
+template<typename T>
+std::tuple<std::vector<uint8_t>, bool, double, double>
+convert_pixel_data_to_dicom(Dataset const & data_set)
 {
-    dcmtkpp::Value::Binary pixel_data;
-    pixel_data.resize(
-        sizeof(OutputPixelType)/sizeof(dcmtkpp::Value::Binary::value_type)*frame_size);
-
-    TPixelType const * const source_begin =
-        reinterpret_cast<TPixelType const *>(&this->_pixel_data[0]) +
-        + frame_size*index;
-    //TPixelType const * const source_end = source_begin+frame_size ;
-
-    OutputPixelType * const destination_begin =
-        reinterpret_cast<OutputPixelType *>(&pixel_data[0]);
-    OutputPixelType * const destination_end = destination_begin + frame_size;
-    //OutputPixelType * destination_it = destination_begin;
-
-    std::transform(source_begin, source_begin+frame_size, destination_begin,
-        [&] (TPixelType const & source)
-        {
-            double const destination =
-                (source-this->_min)/
-                    (this->_max-this->_min)*
-                    std::numeric_limits<OutputPixelType>::max();
-            return destination;
-        }
-    );
-
-    if(endian::is_big_endian())
+    auto const & pixel_data_file = data_set.get_field("PIXELDATA").get_string(0);
+    // Read the Bruker pixel data from the thile
+    if(!boost::filesystem::is_regular_file(pixel_data_file) &&
+        !boost::filesystem::is_symlink(pixel_data_file))
     {
-        // Transfer syntax is little endian
-        endian::swap(destination_begin, destination_end);
+        throw DicomifierException("Cannot read pixel data");
+    }
+    std::ifstream stream(pixel_data_file);
+    if(!stream.good())
+    {
+        throw DicomifierException("Cannot read pixel data");
     }
 
-    return pixel_data;
-}
+    stream.seekg(0, stream.end);
+    auto const bytes_count = stream.tellg();
+    stream.seekg(0, stream.beg);
 
-template<typename TPixelType>
-void
-pixel_data_converter
-::_flip()
-{
-    TPixelType * const begin =
-        reinterpret_cast<TPixelType *>(&this->_pixel_data[0]);
-    auto const factor = sizeof(TPixelType)/sizeof(dcmtkpp::Value::Binary::value_type);
-    TPixelType * const end=begin+this->_pixel_data.size()/factor;
+    if(bytes_count % sizeof(T) != 0)
+    {
+        throw DicomifierException("Invalid file");
+    }
 
-    endian::swap(begin, end);
-}
+    std::vector<T> bruker_pixel_data(bytes_count / sizeof(T));
+    stream.read(reinterpret_cast<char*>(&bruker_pixel_data[0]), bytes_count);
 
-template<typename TPixelType>
-void
-pixel_data_converter
-::_update_min_max()
-{
-    TPixelType const * const begin =
-        reinterpret_cast<TPixelType const *>(&this->_pixel_data[0]);
-    auto const factor = sizeof(TPixelType)/sizeof(dcmtkpp::Value::Binary::value_type);
-    TPixelType const * const end=begin+this->_pixel_data.size()/factor;
+    // Swap to host order
+    auto const & byte_order = data_set.get_field("VisuCoreByteOrder").get_string(0);
+    if(byte_order == "bigEndian")
+    {
+        std::for_each(
+            bruker_pixel_data.begin(), bruker_pixel_data.end(),
+            [](T & item) { item = odil::big_endian_to_host<T>(item); });
+    }
+    else if(byte_order == "littleEndian")
+    {
+        std::for_each(
+            bruker_pixel_data.begin(), bruker_pixel_data.end(),
+            [](T & item) { item = odil::little_endian_to_host<T>(item); });
+    }
+    else
+    {
+        throw DicomifierException("Invalid byte order: "+byte_order);
+    }
 
-    this->_min = *std::min_element(begin, end);
-    this->_max = *std::max_element(begin, end);
+    // Compute downsampling parameters
+    bool is_downsampled = false;
+    double slope = 1;
+    double intercept = 0;
+    if(sizeof(T) > 2)
+    {
+        auto const min = *std::min_element(
+            bruker_pixel_data.begin(), bruker_pixel_data.end());
+        auto const max = *std::max_element(
+            bruker_pixel_data.begin(), bruker_pixel_data.end());
+
+        slope = float(max-min)/float(65535);
+        intercept = min;
+
+        is_downsampled = true;
+    }
+
+    // Convert to 16 bits
+    std::vector<uint8_t> dicom_pixel_data(2*bruker_pixel_data.size());
+    auto output_iterator = dicom_pixel_data.begin();
+
+    for(auto const & item: bruker_pixel_data)
+    {
+        if(is_downsampled)
+        {
+            uint16_t const value = static_cast<uint16_t>((item-intercept)/slope);
+            uint8_t const * input_iterator =
+                reinterpret_cast<uint8_t const *>(&value);
+            output_iterator = std::copy(
+                input_iterator, input_iterator+sizeof(value), output_iterator);
+        }
+        else
+        {
+            uint8_t const * input_iterator =
+                reinterpret_cast<uint8_t const *>(&item);
+            output_iterator = std::copy(
+                input_iterator, input_iterator+sizeof(T), output_iterator);
+        }
+    }
+
+    return std::make_tuple(dicom_pixel_data, is_downsampled, slope, intercept);
 }
 
 } // namespace bruker

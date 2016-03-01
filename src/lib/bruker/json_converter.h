@@ -9,9 +9,10 @@
 #ifndef _18bea9eb_cbff_4af8_89a2_21bbe2bac286
 #define _18bea9eb_cbff_4af8_89a2_21bbe2bac286
 
-#include <jsoncpp/json/json.h>
+#include <json/json.h>
 
-#include "Dataset.h"
+#include "bruker/Dataset.h"
+#include "bruker/Field.h"
 
 namespace dicomifier
 {
@@ -24,6 +25,9 @@ Json::Value as_json(Dataset const & data_set);
 
 /// @brief Convert JSON data set as string representation
 std::string as_string(Json::Value const & data_set);
+
+/// @brief Convert JSON data to a Bruker data set.
+Dataset as_dataset(Json::Value const & json);
 
 } // namespace bruker
 

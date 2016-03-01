@@ -9,14 +9,14 @@
 #include <memory>
 #include <sstream>
 
-#include <dcmtkpp/DataSet.h>
-#include <dcmtkpp/json_converter.h>
-#include <dcmtkpp/registry.h>
+#include <odil/DataSet.h>
+#include <odil/json_converter.h>
+#include <odil/registry.h>
 
-#include "lib/bruker/Dataset.h"
-#include "lib/bruker/json_converter.h"
-#include "lib/core/Logger.h"
-#include "lib/javascript/JavascriptVM.h"
+#include "bruker/Dataset.h"
+#include "bruker/json_converter.h"
+#include "core/Logger.h"
+#include "javascript/JavascriptVM.h"
 
 int main()
 {
@@ -63,7 +63,7 @@ int main()
     Json::Value jsondataset;
     datasetstream >> jsondataset;
     std::cout << "jsondataset = " << jsondataset.toStyledString() << std::endl;
-    dcmtkpp::DataSet const dataset = dcmtkpp::as_dataset(jsondataset);
+    odil::DataSet const dataset = odil::as_dataset(jsondataset);
 
     return EXIT_SUCCESS;
 }

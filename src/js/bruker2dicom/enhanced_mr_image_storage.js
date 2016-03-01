@@ -13,8 +13,11 @@ _module.EnhancedMRImageStorage = function(brukerDataset) {
     var indexGenerator = 
             new dicomifier.bruker2dicom.FrameIndexGenerator(frameGroups);
 
-    var pixelData = loadPixelData(brukerDataset, 
-                                  indexGenerator.countMax, true);
+    var conversionInfo = convertPixelDataToDicom(brukerDataset);
+    var pixelData = conversionInfo[0];
+    var resampled = conversionInfo[1];
+    var rescaleSlope = conversionInfo[2];
+    var rescaleIntercept = conversionInfo[3];
 
     var modules = dicomifier.bruker2dicom.modules;
     
@@ -34,16 +37,15 @@ _module.EnhancedMRImageStorage = function(brukerDataset) {
     
     modules.GeneralEquipment(indexGenerator, dicomDataset, brukerDataset);
     
-    modules.ImagePixel(indexGenerator, dicomDataset, brukerDataset, 
-                       pixelData[0]);
+    modules.ImagePixel(indexGenerator, dicomDataset, brukerDataset, pixelData);
     modules.AcquisitionContext(indexGenerator, dicomDataset, brukerDataset);
     modules.EnhancedMRImage(indexGenerator, dicomDataset, brukerDataset);
     modules.MRPulseSequence(indexGenerator, dicomDataset, brukerDataset);
     modules.SOPCommon(indexGenerator, dicomDataset, brukerDataset, 
                       '1.2.840.10008.5.1.4.1.1.4.1');
-    modules.MultiFrameFunctionalGroups(indexGenerator, dicomDataset, 
-                                       brukerDataset, pixelData[1], 
-                                       pixelData[2]);
+    modules.MultiFrameFunctionalGroups(
+        indexGenerator, dicomDataset, brukerDataset,
+        rescaleIntercept, rescaleSlope);
                                        
     // Sort PixelData by stacks
     var sliceNumbers = [];

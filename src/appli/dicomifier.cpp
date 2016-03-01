@@ -13,7 +13,6 @@
 #include <boost/filesystem.hpp>
 
 #include "core/Logger.h"
-#include "dicom/Dictionaries.h"
 #include "mainframe.h"
 
 int main(int argc, char *argv[])
@@ -27,18 +26,6 @@ int main(int argc, char *argv[])
     char* mode = getenv("DICOMIFIER_LOGGER");
     std::string logmode = mode != NULL ? std::string(mode): "ERROR";
     dicomifier::InitializeLogger(logmode);
-
-    // Load Private Dictionary
-    // if file exist locally
-    if (boost::filesystem::exists(boost::filesystem::path("../configuration/private_dictionary.xml")))
-    {
-        dicomifier::Dictionaries::get_instance().ParsePrivateDictionary("../configuration/private_dictionary.xml");
-    }
-    // else use default file
-    else
-    {
-        dicomifier::Dictionaries::get_instance().ParsePrivateDictionary("/etc/dicomifier/private_dictionary.xml");
-    }
 
     // Create main frame
     dicomifier::gui::MainFrame frame;

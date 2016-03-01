@@ -10,11 +10,11 @@
 #include <boost/filesystem.hpp>
 #include <boost/test/unit_test.hpp>
 
-#include <dcmtkpp/conversion.h>
-#include <dcmtkpp/DataSet.h>
-#include <dcmtkpp/json_converter.h>
-#include <dcmtkpp/registry.h>
-#include <dcmtkpp/Writer.h>
+#include <odil/DataSet.h>
+#include <odil/json_converter.h>
+#include <odil/registry.h>
+#include <odil/Writer.h>
+#include <odil/dcmtk/conversion.h>
 
 #include "core/DicomifierException.h"
 #include "nifti/Dicom2Nifti.h"
@@ -44,14 +44,14 @@ struct TestRun
         Json::Value json;
         dataset >> json;
 
-        dcmtkpp::DataSet const data_set = dcmtkpp::as_dataset(json);
+        odil::DataSet const data_set = odil::as_dataset(json);
 
         // Write input data set
         std::stringstream stream2;
-        dcmtkpp::Writer::write_file(
-                    data_set, stream2,
-                    dcmtkpp::registry::ExplicitVRLittleEndian,
-                    dcmtkpp::Writer::ItemEncoding::UndefinedLength, false);
+        odil::Writer::write_file(
+                    data_set, stream2, odil::DataSet(),
+                    odil::registry::ExplicitVRLittleEndian,
+                    odil::Writer::ItemEncoding::UndefinedLength, false);
 
         std::string file = datasetfile;
         if (filename != "")
@@ -474,8 +474,7 @@ BOOST_AUTO_TEST_CASE(Constructor)
     auto d2n = dicomifier::nifti::Dicom2Nifti::New();
     BOOST_CHECK(d2n != NULL);
 
-    d2n = dicomifier::nifti::Dicom2Nifti::New(
-                "", "", dicomifier::nifti::NIfTI_Dimension::Dimension4);
+    d2n = dicomifier::nifti::Dicom2Nifti::New("", "", 4);
     BOOST_CHECK(d2n != NULL);
 }
 
@@ -489,18 +488,15 @@ BOOST_AUTO_TEST_CASE(Accessors)
 
     BOOST_CHECK_EQUAL(testdicom2nifti->get_dicomDir(), "");
     BOOST_CHECK_EQUAL(testdicom2nifti->get_outputDir(), "");
-    BOOST_CHECK_EQUAL(testdicom2nifti->get_outputDimension(),
-                      dicomifier::nifti::NIfTI_Dimension::Dimension4);
+    BOOST_CHECK_EQUAL(testdicom2nifti->get_outputDimension(), 4);
 
     testdicom2nifti->set_dicomDir("inputDir");
     testdicom2nifti->set_outputDir("outputdir");
-    testdicom2nifti->set_outputDimension(
-                dicomifier::nifti::NIfTI_Dimension::Dimension3);
+    testdicom2nifti->set_outputDimension(3);
 
     BOOST_CHECK_EQUAL(testdicom2nifti->get_dicomDir(), "inputDir");
     BOOST_CHECK_EQUAL(testdicom2nifti->get_outputDir(), "outputdir");
-    BOOST_CHECK_EQUAL(testdicom2nifti->get_outputDimension(),
-                      dicomifier::nifti::NIfTI_Dimension::Dimension3);
+    BOOST_CHECK_EQUAL(testdicom2nifti->get_outputDimension(), 3);
 }
 
 /******************************* TEST Nominal **********************************/
@@ -523,8 +519,7 @@ BOOST_FIXTURE_TEST_CASE(Run_DICOM2D_to_3D, TestRun3D)
 {
     std::string results = directory + "/results";
     auto d2n = dicomifier::nifti::Dicom2Nifti::New(
-                directory, results,
-                dicomifier::nifti::NIfTI_Dimension::Dimension3);
+                directory, results, 3);
     d2n->run();
 
     BOOST_REQUIRE(boost::filesystem::is_regular_file(
@@ -537,8 +532,7 @@ BOOST_FIXTURE_TEST_CASE(Run_DICOM2D_to_4D, TestRun3D)
 {
     std::string results = directory + "/results";
     auto d2n = dicomifier::nifti::Dicom2Nifti::New(
-                directory, results,
-                dicomifier::nifti::NIfTI_Dimension::Dimension4);
+                directory, results, 4);
     d2n->run();
 
     BOOST_REQUIRE(boost::filesystem::is_regular_file(
@@ -566,8 +560,7 @@ struct TestRun4D : public TestRun
 BOOST_FIXTURE_TEST_CASE(Run_DICOM3D_to_3D, TestRun4D)
 {
     std::string results = directory + "/results";
-    auto d2n = dicomifier::nifti::Dicom2Nifti::New(
-                directory, results, dicomifier::nifti::Dimension3);
+    auto d2n = dicomifier::nifti::Dicom2Nifti::New(directory, results, 3);
     d2n->run();
 
     BOOST_REQUIRE(boost::filesystem::is_regular_file(
@@ -616,8 +609,7 @@ BOOST_FIXTURE_TEST_CASE(Distance_Between_slice, TestDistance)
 {
     std::string results = directory + "/results";
     auto d2n = dicomifier::nifti::Dicom2Nifti::New(
-                directory, results,
-                dicomifier::nifti::NIfTI_Dimension::Dimension3);
+                directory, results, 3);
     d2n->run();
 
     BOOST_REQUIRE(boost::filesystem::is_regular_file(
@@ -643,7 +635,6 @@ BOOST_AUTO_TEST_CASE(Missing_InputDirectory)
 BOOST_FIXTURE_TEST_CASE(Unknown_Dimension, TestRun)
 {
     std::string results = directory + "/results";
-    auto d2n = dicomifier::nifti::Dicom2Nifti::New(
-                directory, results, (dicomifier::nifti::NIfTI_Dimension)5);
+    auto d2n = dicomifier::nifti::Dicom2Nifti::New(directory, results, 5);
     BOOST_REQUIRE_THROW(d2n->run(), dicomifier::DicomifierException);
 }

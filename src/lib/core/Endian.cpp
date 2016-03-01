@@ -11,9 +11,6 @@
 namespace dicomifier
 {
 
-namespace endian
-{
-
 /**
  * @brief Test if the current byte order is big endian.
  */
@@ -37,8 +34,6 @@ bool is_little_endian()
 {
     return !is_big_endian();
 }
-
-} // namespace endian
 
 } // namespace dicomifier
 

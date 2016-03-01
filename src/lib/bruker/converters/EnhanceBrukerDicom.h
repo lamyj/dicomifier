@@ -15,7 +15,7 @@
 
 #include <boost/filesystem.hpp>
 
-#include <dcmtkpp/DataSet.h>
+#include <odil/DataSet.h>
 
 #include "bruker/Dataset.h"
 

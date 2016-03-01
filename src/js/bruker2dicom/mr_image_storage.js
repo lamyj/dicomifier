@@ -10,10 +10,15 @@ var _module = namespace('dicomifier.bruker2dicom');
 
 _module.MRImageStorage = function(brukerDataset) {
     var frameGroups = dicomifier.bruker2dicom.getFrameGroups(brukerDataset);
-    var indexGenerator = 
+    var indexGenerator =
         new dicomifier.bruker2dicom.FrameIndexGenerator(frameGroups);
-    var pixelData = loadPixelData(brukerDataset, indexGenerator.countMax, 
-                                  false);
+
+    var conversionInfo = convertPixelDataToDicom(
+        brukerDataset, indexGenerator.countMax);
+    var pixelData = conversionInfo[0];
+    var resampled = conversionInfo[1];
+    var rescaleSlope = conversionInfo[2];
+    var rescaleIntercept = conversionInfo[3];
 
     var modules = dicomifier.bruker2dicom.modules;
 
@@ -36,8 +41,8 @@ _module.MRImageStorage = function(brukerDataset) {
 
         modules.GeneralImage(indexGenerator, dicomDataset, brukerDataset);
         modules.ImagePlane(indexGenerator, dicomDataset, brukerDataset);
-        modules.ImagePixel(indexGenerator, dicomDataset, brukerDataset, 
-                           pixelData[0]);
+        modules.ImagePixel(
+            indexGenerator, dicomDataset, brukerDataset, pixelData);
         modules.MRImage(indexGenerator, dicomDataset, brukerDataset);
         modules.SOPCommon(indexGenerator, dicomDataset, brukerDataset, 
                           '1.2.840.10008.5.1.4.1.1.4');

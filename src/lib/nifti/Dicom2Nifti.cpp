@@ -6,17 +6,18 @@
  * for details.
  ************************************************************************/
 
+#include <iterator>
 #include <sstream>
 
 #include <boost/algorithm/string/replace.hpp>
 #include <boost/filesystem.hpp>
 #include <boost/lexical_cast.hpp>
 
-#include <dcmtkpp/conversion.h>
-#include <dcmtkpp/DataSet.h>
-#include <dcmtkpp/json_converter.h>
-#include <dcmtkpp/Reader.h>
-#include <dcmtkpp/registry.h>
+#include <odil/base64.h>
+#include <odil/DataSet.h>
+#include <odil/json_converter.h>
+#include <odil/Reader.h>
+#include <odil/registry.h>
 
 #include "core/DicomifierException.h"
 #include "core/Logger.h"
@@ -39,7 +40,7 @@ Dicom2Nifti
 Dicom2Nifti::Pointer
 Dicom2Nifti
 ::New(std::string const & dicomDir, std::string const & outputDir,
-      NIfTI_Dimension outputDimension)
+      int outputDimension)
 {
     return Pointer(new Self(dicomDir, outputDir, outputDimension));
 }
@@ -47,14 +48,14 @@ Dicom2Nifti
 Dicom2Nifti
 ::Dicom2Nifti():
     _dicomDir(""), _outputDir(""),
-    _outputDimension(NIfTI_Dimension::Dimension4)
+    _outputDimension(4)
 {
     // Nothing to do
 }
 
 Dicom2Nifti
 ::Dicom2Nifti(std::string const & dicomDir, std::string const & outputDir,
-              NIfTI_Dimension outputDimension):
+              int outputDimension):
     _dicomDir(dicomDir), _outputDir(outputDir),
     _outputDimension(outputDimension)
 {
@@ -95,7 +96,7 @@ Dicom2Nifti
     this->_outputDir = outputDir;
 }
 
-NIfTI_Dimension
+int
 Dicom2Nifti
 ::get_outputDimension() const
 {
@@ -104,7 +105,7 @@ Dicom2Nifti
 
 void
 Dicom2Nifti
-::set_outputDimension(NIfTI_Dimension outputDimension)
+::set_outputDimension(int outputDimension)
 {
     this->_outputDimension = outputDimension;
 }
@@ -145,18 +146,11 @@ Dicom2Nifti
                   << list_dataset[i] << "\";\n";
     }
 
-    switch (this->_outputDimension)
-    {
-    case NIfTI_Dimension::Dimension3:
-    case NIfTI_Dimension::Dimension4:
-    {
-        break;
-    }
-    default:
+    if(this->_outputDimension != 3 && this->_outputDimension != 4)
     {
         throw DicomifierException("Unknown dimension");
     }
-    }
+
     streamstr << "dicomifier.dicom2nifti.convert(dicomifier.inputs, "
               << this->_outputDimension << ", '" << this->_outputDir << "');";
     jsvm.run(streamstr.str(), jsvm.get_context());
@@ -168,7 +162,7 @@ nifti_image *
 Dicom2Nifti
 ::extract_information_from_dataset(Json::Value const & dataset,
                                    std::string const & filename,
-                                   NIfTI_Dimension dimension)
+                                   int dimension)
 {
     // fill out the image header.
     nifti_image * nim = nifti_simple_init_nim();
@@ -305,15 +299,9 @@ Dicom2Nifti
     for (unsigned int i = 0; i < pixeldata.size(); ++i)
     {
         auto const & encoded = pixeldata[i].asString();
-        OFString const encoded_dcmtk(encoded.c_str());
-        unsigned char * decoded;
-        size_t const decoded_size =
-            OFStandard::decodeBase64(encoded_dcmtk, decoded);
-
-        buffer.resize(buffer.size() + decoded_size);
-        std::copy(decoded, decoded + decoded_size, buffer.end() - decoded_size);
-
-        delete[] decoded;
+        odil::base64::decode(
+            encoded.begin(), encoded.end(),
+            std::back_inserter(buffer));
     }
 
     uint8_t * data = new uint8_t[buffer.size()];
@@ -327,19 +315,19 @@ Dicom2Nifti
 void
 Dicom2Nifti
 ::extract_stack_number(Json::Value const & dataset,
-                       NIfTI_Dimension dimension, nifti_image *nim)
+                       int dimension, nifti_image *nim)
 {
     std::string const sopclassuid = dataset.get("SOPClassUID",
                                                 Json::Value())[0].asString();
 
-    if (sopclassuid == UID_MRImageStorage)
+    if (sopclassuid == odil::registry::MRImageStorage)
     {
         // One stack = 3 dimensions
         // Multi stack = 4 dimensions
         nim->ndim = (int)dimension;
         nim->dim[0] = (int)dimension;
 
-        if (dimension == NIfTI_Dimension::Dimension4)
+        if (dimension == 4)
         {
             nim->dim[4] = nim->nt = dataset.get("DICOMIFIER_STACKS_NUMBER",
                                                 Json::Value()).asInt();
@@ -370,9 +358,9 @@ Dicom2Nifti
             nim->dim[3] = nim->nz = dsnumber;
         }
     }
-    else if (sopclassuid == UID_EnhancedMRImageStorage)
+    else if (sopclassuid == odil::registry::EnhancedMRImageStorage)
     {
-        if (dimension == NIfTI_Dimension::Dimension3)
+        if (dimension == 3)
         {
             loggerWarning() << "force NIfTI 4 dimension.";
         }
@@ -420,13 +408,13 @@ Dicom2Nifti
 
     Json::Value image_orientation_patient;
 
-    if (sopclassuid == UID_MRImageStorage)
+    if (sopclassuid == odil::registry::MRImageStorage)
     {
         // Get 3 vectors for directions
         image_orientation_patient =
                 dataset.get("ImageOrientationPatient", Json::Value());
     }
-    else if (sopclassuid == UID_EnhancedMRImageStorage)
+    else if (sopclassuid == odil::registry::EnhancedMRImageStorage)
     {
         // Get ImageOrientationPatient for the first frame
         image_orientation_patient =
@@ -453,13 +441,13 @@ Dicom2Nifti
 
     Json::Value image_position_patient;
 
-    if (sopclassuid == UID_MRImageStorage)
+    if (sopclassuid == odil::registry::MRImageStorage)
     {
         // Get 3 vectors for directions
         image_position_patient =
                 dataset.get("ImagePositionPatient", Json::Value());
     }
-    else if (sopclassuid == UID_EnhancedMRImageStorage)
+    else if (sopclassuid == odil::registry::EnhancedMRImageStorage)
     {
         // Get ImageOrientationPatient for the first frame
         Json::Value array(Json::ValueType::arrayValue);

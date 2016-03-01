@@ -15,11 +15,13 @@
 #include <boost/algorithm/string/split.hpp>
 #include <boost/program_options.hpp>
 
+#include <odil/registry.h>
+
 #include "bruker/converters/EnhanceBrukerDicom.h"
 #include "bruker/Dataset.h"
 #include "bruker/Directory.h"
+#include "core/DicomifierException.h"
 #include "core/Logger.h"
-#include "dicom/Dictionaries.h"
 
 std::string to_series_number(std::string const & series,
                              std::string const & reconstruction)
@@ -66,7 +68,7 @@ int main(int argc, char *argv[])
     std::string bruker_directory = "";
     std::string dicom_directory = "";
     std::string level = "ERROR";
-    std::string sopclassuid = UID_MRImageStorage;
+    std::string sopclassuid = odil::registry::MRImageStorage;
     std::vector<std::string> series_and_reco;
 
     boost::program_options::options_description description("Options");
@@ -119,10 +121,6 @@ int main(int argc, char *argv[])
 
     dicomifier::InitializeLogger(level);
     
-    /* TODO Private dictionary
-    {
-        dicomifier::Dictionaries::get_instance().ParsePrivateDictionary(argv[2]);
-    }*/
     // create Rule
 
     // Get the subject name

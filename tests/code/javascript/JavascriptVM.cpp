@@ -15,7 +15,7 @@
 #include <string>
 #include <vector>
 
-#include <jsoncpp/json/json.h>
+#include <json/json.h>
 #include <v8.h>
 
 #include "core/DicomifierException.h"
@@ -122,9 +122,9 @@ BOOST_AUTO_TEST_CASE(Function_isBigEndian)
 
     v8::Local<v8::Value> result = vm.run(streaminput.str(), vm.get_context());
     BOOST_REQUIRE_EQUAL(result->ToBoolean()->BooleanValue(),
-                        dicomifier::endian::is_big_endian());
+                        dicomifier::is_big_endian());
     BOOST_REQUIRE_EQUAL(result->ToBoolean()->BooleanValue(),
-                        !dicomifier::endian::is_little_endian());
+                        !dicomifier::is_little_endian());
 }
 
 /******************************* TEST Nominal **********************************/
