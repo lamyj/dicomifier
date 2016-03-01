@@ -3,6 +3,8 @@ Maintainer: Julien Lamy <lamy@unistra.fr>
 Section: science
 Priority: optional
 Build-Depends: debhelper (>= 8.0.0), 
+               cmake,
+               pkg-config,
                libnifti-dev, 
                libqt4-dev, 
                liblog4cpp5-dev, 
@@ -14,6 +16,7 @@ Build-Depends: debhelper (>= 8.0.0),
                libboost-regex-dev, 
                libjsoncpp-dev, 
                libodil0-dev,
+               zlib1g-dev,
                libboost-test-dev
 Standards-Version: 3.9.6
 Homepage: https://github.com/lamyj/dicomifier
