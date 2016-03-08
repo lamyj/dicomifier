@@ -1,0 +1,5 @@
+version=3
+
+opts=filenamemangle=s/.+\/v?(\d\S*)\.tar\.gz/dicomifier-$1\.tar\.gz/ \
+  https://github.com/lamyj/dicomifier/tags .*/v?(\d\S*)\.tar\.gz
+
