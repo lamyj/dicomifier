@@ -486,15 +486,10 @@ GenerationFrame
                     this->createDicomdirs(dir, dir, dicomdirfile);
                     resultitem.set_dicomdirCreation(GenerationResultItem::Result::OK);
                 }
-                catch (odil::Exception const & odilexc)
+                catch(std::exception const & e)
                 {
                     resultitem.set_dicomdirCreation(GenerationResultItem::Result::Fail);
-                    resultitem.set_DicomdirErrorMsg(odilexc.what());
-                }
-                catch (DicomifierException const & dcmexc)
-                {
-                    resultitem.set_dicomdirCreation(GenerationResultItem::Result::Fail);
-                    resultitem.set_DicomdirErrorMsg(dcmexc.what());
+                    resultitem.set_DicomdirErrorMsg(e.what());
                 }
             }
         }
