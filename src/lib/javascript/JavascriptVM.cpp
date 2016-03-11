@@ -70,6 +70,7 @@ JavascriptVM
     DICOMIFIER_EXPOSE_FUNCTION(generate_uid, "dcmGenerateUniqueIdentifier");
     DICOMIFIER_EXPOSE_FUNCTION(require, "require");
     DICOMIFIER_EXPOSE_FUNCTION(namespace_, "namespace");
+    DICOMIFIER_EXPOSE_FUNCTION(getTagKeyword, "getTagKeyword");
 
 #undef DICOMIFIER_EXPOSE_FUNCTION
 

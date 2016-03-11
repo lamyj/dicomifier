@@ -208,6 +208,14 @@ v8::Handle<v8::Value> generate_uid(v8::Arguments const &)
     return v8::String::New(uid.c_str());
 }
 
+v8::Handle<v8::Value> getTagKeyword(v8::Arguments const & arguments)
+{
+    auto const tag_string = as_scalar<std::string>(arguments[0]);
+    odil::Tag const tag(tag_string);
+    auto const keyword = tag.get_name();
+    return v8::String::New(keyword.c_str());
+}
+
 }
 
 }
