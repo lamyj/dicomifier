@@ -42,9 +42,11 @@ v8::Handle<v8::Value> generate_dicom_filename(v8::Arguments const & args);
 
 v8::Handle<v8::Value> generate_uid(v8::Arguments const &);
 
+/// @brief Return the keyword associated with a tag.
+v8::Handle<v8::Value> getTagKeyword(v8::Arguments const & arguments);
+
 }
 
 }
 
 #endif // _be72f1ef_933a_48ef_b202_867bfbfbbb5c
-

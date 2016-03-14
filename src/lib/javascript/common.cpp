@@ -124,6 +124,8 @@ v8::Handle<v8::Value> require(v8::Arguments const & args)
             absolute_path = root/path_utf8;
         }
     }
+#else
+#warning "No default Javascript path"
 #endif
 
     if(absolute_path.empty())

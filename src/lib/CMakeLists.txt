@@ -27,10 +27,15 @@ target_link_libraries(
     libdicomifier
     ${Boost_LIBRARIES} ${DCMTK_LIBRARIES} ${JsonCpp_LIBRARIES}
     ${Log4Cpp_LIBRARIES} ${NIfTI_LIBRARIES} ${Odil_LIBRARIES} ${V8_LIBRARIES})
-set_property(
-   SOURCE ${CMAKE_CURRENT_SOURCE_DIR}/javascript/JavascriptVM.cpp
-   PROPERTY COMPILE_DEFINITIONS DICOMIFIER_DEFAULT_JS_PATH="/usr/share/dicomifier"
-)
+if(DEFAULT_JS_PATH)
+    set_property(
+        SOURCE ${CMAKE_CURRENT_SOURCE_DIR}/javascript/common.cpp
+        PROPERTY COMPILE_DEFINITIONS DICOMIFIER_DEFAULT_JS_PATH="${DEFAULT_JS_PATH}"
+    )
+else()
+    message(WARNING "No default Javascript path")
+endif()
+
 set_target_properties(
     libdicomifier PROPERTIES OUTPUT_NAME dicomifier)
 
