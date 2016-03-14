@@ -91,6 +91,11 @@ JavascriptVM
         for(auto it = odil::registry::public_dictionary.begin();
             it != odil::registry::public_dictionary.end(); ++it)
         {
+            if(it->first.get_type() != odil::ElementsDictionaryKey::Type::Tag)
+            {
+                continue;
+            }
+
             if (!first)
             {
                 dictionary_as_json << ",";
@@ -100,7 +105,7 @@ JavascriptVM
             dictionary_as_json
                 << "\"" << it->second.keyword
                 << "\": [\"" << it->second.vr
-                << "\",\"" << std::string(it->first) << "\"]";
+                << "\",\"" << std::string(it->first.get_tag()) << "\"]";
         }
 
         dictionary_as_json << "}";
