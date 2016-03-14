@@ -2,6 +2,12 @@ dicomifier (0.5.3-1) unstable; urgency=medium
 
   * New upstream release.
 
+ -- Julien Lamy <lamy@unistra.fr>  Mon, 14 Mar 2016 12:04:14 +0100
+
+dicomifier (0.5.3-1) unstable; urgency=medium
+
+  * New upstream release.
+
  -- Julien Lamy <lamy@unistra.fr>  Tue, 01 Mar 2016 15:34:56 +0100
 
 dicomifier (0.5.2-1) unstable; urgency=medium
