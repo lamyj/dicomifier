@@ -41,7 +41,6 @@ install(CODE "
     file(WRITE \"\${CMAKE_INSTALL_PREFIX}/${qtconf_dest_dir}/qt.conf\" \"\")
     ")
 
-set(DIRS "/Users/julien/src/dicomifier/build/install/lib;/usr/local/opt/icu4c/lib")
 set(LIBRARIES )
 
 install(
@@ -73,5 +72,5 @@ install(CODE "
     endmacro()
     set(BU_CHMOD_BUNDLE_ITEMS ON)
     include(BundleUtilities)
-    fixup_bundle(\"${APPS}\" \"${LIBRARIES}\" \"${DIRS}\")
+    fixup_bundle(\"${APPS}\" \"${LIBRARIES}\" \"${EXTRA_BUNDLE_DIRS}\")
     ")
