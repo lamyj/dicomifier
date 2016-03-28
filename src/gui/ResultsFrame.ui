@@ -25,9 +25,6 @@
   <property name="windowTitle">
    <string/>
   </property>
-  <property name="styleSheet">
-   <string notr="true"/>
-  </property>
   <layout class="QGridLayout" name="gridLayout">
    <property name="leftMargin">
     <number>0</number>
@@ -51,9 +48,6 @@
        <horstretch>0</horstretch>
        <verstretch>0</verstretch>
       </sizepolicy>
-     </property>
-     <property name="styleSheet">
-      <string notr="true"/>
      </property>
      <property name="text">
       <string>Results:</string>
