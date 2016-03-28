@@ -53,6 +53,9 @@
         </item>
         <item>
          <widget class="QRadioButton" name="formatMRISingle">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
           <property name="text">
            <string>MRI Single File</string>
           </property>
@@ -124,8 +127,6 @@
        </widget>
       </item>
      </layout>
-     <zorder>saveCheckBox</zorder>
-     <zorder></zorder>
      <zorder>outputDirectoryTitle</zorder>
      <zorder>ZIPCheckBox</zorder>
      <zorder>outputDirBrowseButton</zorder>
