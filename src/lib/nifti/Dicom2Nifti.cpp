@@ -196,13 +196,13 @@ Dicom2Nifti
             static_cast<float>(Dicom2Nifti::get_distance_between_slice(dataset));
     nim->nvox *= nim->dim[3];
 
-    nim->dim[2] = nim->ny = dataset.get("Columns", Json::Value())[0].asInt();
+    nim->dim[2] = nim->ny = dataset.get("Rows", Json::Value())[0].asInt();
     nim->pixdim[2] = nim->dy =
             static_cast<float>( dataset.get("PixelSpacing",
                                             Json::Value())[1].asDouble() );
     nim->nvox *= nim->dim[2];
 
-    nim->dim[1] = nim->nx = dataset.get("Rows", Json::Value())[0].asInt();
+    nim->dim[1] = nim->nx = dataset.get("Columns", Json::Value())[0].asInt();
     nim->pixdim[1] = nim->dx =
             static_cast<float>( dataset.get("PixelSpacing",
                                             Json::Value())[0].asDouble() );

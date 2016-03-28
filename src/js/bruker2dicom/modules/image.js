@@ -128,12 +128,12 @@ _module.ImagePixel = function(indexGenerator, dicomDataset, brukerDataset,
     toDicom(
         indexGenerator, dicomDataset, 'Rows', brukerDataset,
         'VisuCoreSize', 1, undefined,
-        function(brukerDataset) { return [ brukerDataset.VisuCoreSize[0] ]; } );
+        function(brukerDataset) { return [ brukerDataset.VisuCoreSize[1] ]; } );
 
     toDicom(
         indexGenerator, dicomDataset, 'Columns', brukerDataset,
         'VisuCoreSize', 1, undefined,
-        function(brukerDataset) { return [ brukerDataset.VisuCoreSize[1] ]; } );
+        function(brukerDataset) { return [ brukerDataset.VisuCoreSize[0] ]; } );
 
     dicomDataset[dicomifier.dictionary['BitsAllocated'][1]] = {
         'vr': dicomifier.dictionary['BitsAllocated'][0], 'Value': [ 16 ] };

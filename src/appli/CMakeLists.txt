@@ -23,11 +23,54 @@ target_link_libraries(
 add_executable(dicom2nifti "dicom2nifti.cpp")
 target_link_libraries(dicom2nifti libdicomifier ${Boost_LIBRARIES})
 
-add_executable(dicomifier "dicomifier.cpp")
+add_executable(dicomifier MACOSX_BUNDLE "dicomifier.cpp")
 target_link_libraries(
     dicomifier
     libdicomifier libdicomifiergui ${Boost_LIBRARIES} ${QT_LIBRARIES})
 
+SET(APPS "\${CMAKE_INSTALL_PREFIX}/bin/dicomifier")
+SET(qtconf_dest_dir bin)
+if(APPLE)
+    set(APPS "\${CMAKE_INSTALL_PREFIX}/dicomifier.app")
+    set(qtconf_dest_dir dicomifier.app/Contents/Resources)
+endif()
+
+# We need an empty qt.conf in order to override the hard-coded paths that are 
+# compiled into the Qt library. 
+install(CODE "
+    file(WRITE \"\${CMAKE_INSTALL_PREFIX}/${qtconf_dest_dir}/qt.conf\" \"\")
+    ")
+
+set(LIBRARIES )
+
 install(
     TARGETS bruker2dicom dicom2nifti dicomifier
+    BUNDLE DESTINATION .
     RUNTIME DESTINATION bin)
+if(APPLE)
+    install(
+        TARGETS bruker2dicom dicom2nifti 
+        RUNTIME DESTINATION dicomifier.app/Contents/MacOS)
+endif()
+
+install(CODE "
+    macro(gp_resolve_item_override context item exepath dirs resolved_item_var resolved_var)
+        if(NOT \${resolved_var})
+            # Context is sometimes wrong: look in dirs
+            if(item MATCHES \"^@loader_path\")
+                string(REPLACE \"@loader_path/\" \"\" noprefix_item \"\${item}\")
+                set(ri \"ri-NOTFOUND\")
+                find_file(ri \"\${noprefix_item}\" \${dirs} NO_DEFAULT_PATH)
+                find_file(ri \"\${noprefix_item}\" \${dirs} /usr/lib)
+                if(EXISTS \"\${ri}\")
+                    set(\${resolved_var} 1)
+                    set(\${resolved_item_var} \"\${ri}\")
+                    set(ri \"ri-NOTFOUND\")
+                endif()
+            endif()
+        endif()
+    endmacro()
+    set(BU_CHMOD_BUNDLE_ITEMS ON)
+    include(BundleUtilities)
+    fixup_bundle(\"${APPS}\" \"${LIBRARIES}\" \"${EXTRA_BUNDLE_DIRS}\")
+    ")
