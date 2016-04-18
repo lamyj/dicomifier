@@ -15,7 +15,7 @@
 
 #include <odil/Association.h>
 #include <odil/registry.h>
-#include <odil/FindSCU.h>
+#include <odil/EchoSCU.h>
 
 namespace dicomifier
 {
@@ -179,7 +179,7 @@ PACSConfigurationFrame
                 }
             });
         association.associate();
-        odil::FindSCU scu(association);
+        odil::EchoSCU scu(association);
         scu.echo();
         association.release();
     }
