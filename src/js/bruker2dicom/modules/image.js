@@ -148,9 +148,14 @@ _module.ImagePixel = function(indexGenerator, dicomDataset, brukerDataset,
     dicomDataset[dicomifier.dictionary['PixelRepresentation'][1]] = {
         'vr': dicomifier.dictionary['PixelRepresentation'][0], 'Value': [ 0 ] };
 
+    var slice = indexGenerator.currentStep;
+    if(brukerDataset.VisuCoreDiskSliceOrder == 'disk_reverse_slice_order') {
+        log('Slice order is reversed', 'WARNING');
+        slice = indexGenerator.countMax-slice-1;
+    }
     // Force VR to OW (and not vrAndTag[0] = OB)
     dicomDataset[dicomifier.dictionary['PixelData'][1]] = {
-        'vr': 'OW', 'InlineBinary' : pixelData[indexGenerator.currentStep] };
+        'vr': 'OW', 'InlineBinary' : pixelData[slice] };
 };
 
 _module.MRImage = function(indexGenerator, dicomDataset, brukerDataset) {
