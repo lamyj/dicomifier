@@ -28,6 +28,19 @@ _module.GeneralImage = function(indexGenerator, dicomDataset, brukerDataset) {
         'vr': dicomifier.dictionary['ImageType'][0],
         'Value': [ 'ORIGINAL', 'PRIMARY' ] };
 
+    var acquisitionNumber = 0;
+    var emptyFrameGroupsSize = 1;
+    for(var i=0; i<indexGenerator.frameGroups.length; ++i) {
+        var frameGroup = indexGenerator.frameGroups[i];
+        if(frameGroup[2].length === 0) {
+            acquisitionNumber += emptyFrameGroupsSize*indexGenerator.currentIndex[i];
+            emptyFrameGroupsSize *= indexGenerator.indexMax[i];
+        }
+    }
+    dicomDataset[dicomifier.dictionary['AcquisitionNumber'][1]] = {
+        'vr': dicomifier.dictionary['AcquisitionNumber'][0],
+        'Value': [ acquisitionNumber ] };
+
     toDicom(
         indexGenerator, dicomDataset, 'AcquisitionDate',
         brukerDataset, 'VisuAcqDate', 3, dateTimeMapper('date'));

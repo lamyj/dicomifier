@@ -92,21 +92,8 @@ _module.getFrameGroups = function(brukerDataset) {
     }
 
     var array = [];
-    
-    // Attention: Parse 3D Bruker DataSet
-    var subarraySlice = [];
-    if (brukerDataset.VisuCoreDim !== undefined &&
-        brukerDataset.VisuCoreDim[0] === "3") {
-        subarraySlice[0] = brukerDataset.VisuCoreSize[2]; // slice number
-        subarraySlice[1] = "FG_SLICE";                    // Default Name
-        subarraySlice[2] = [["VisuCoreOrientation", 0], ["VisuCorePosition", 0]];
-    }
 
     if (brukerDataset.VisuFGOrderDesc === undefined) {
-        if (brukerDataset.VisuCoreDim !== undefined &&
-            brukerDataset.VisuCoreDim[0] === "3") {
-            array.push(subarraySlice);
-        }
         return array;
     }
 
@@ -124,11 +111,6 @@ _module.getFrameGroups = function(brukerDataset) {
 
         subarray[2] = parameters;
         array.push(subarray);
-    }
-    
-    if (brukerDataset.VisuCoreDim !== undefined &&
-        brukerDataset.VisuCoreDim[0] === "3") {
-        array.push(subarraySlice);
     }
 
     // CAUTION: the frame groups are listed in innermost-to-outermost
