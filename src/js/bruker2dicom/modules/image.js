@@ -28,6 +28,19 @@ _module.GeneralImage = function(indexGenerator, dicomDataset, brukerDataset) {
         'vr': dicomifier.dictionary['ImageType'][0],
         'Value': [ 'ORIGINAL', 'PRIMARY' ] };
 
+    var acquisitionNumber = 0;
+    var emptyFrameGroupsSize = 1;
+    for(var i=0; i<indexGenerator.frameGroups.length; ++i) {
+        var frameGroup = indexGenerator.frameGroups[i];
+        if(frameGroup[2].length === 0) {
+            acquisitionNumber += emptyFrameGroupsSize*indexGenerator.currentIndex[i];
+            emptyFrameGroupsSize *= indexGenerator.indexMax[i];
+        }
+    }
+    dicomDataset[dicomifier.dictionary['AcquisitionNumber'][1]] = {
+        'vr': dicomifier.dictionary['AcquisitionNumber'][0],
+        'Value': [ acquisitionNumber ] };
+
     toDicom(
         indexGenerator, dicomDataset, 'AcquisitionDate',
         brukerDataset, 'VisuAcqDate', 3, dateTimeMapper('date'));
@@ -148,9 +161,14 @@ _module.ImagePixel = function(indexGenerator, dicomDataset, brukerDataset,
     dicomDataset[dicomifier.dictionary['PixelRepresentation'][1]] = {
         'vr': dicomifier.dictionary['PixelRepresentation'][0], 'Value': [ 0 ] };
 
+    var slice = indexGenerator.currentStep;
+    if(brukerDataset.VisuCoreDiskSliceOrder == 'disk_reverse_slice_order') {
+        log('Slice order is reversed', 'WARNING');
+        slice = indexGenerator.countMax-slice-1;
+    }
     // Force VR to OW (and not vrAndTag[0] = OB)
     dicomDataset[dicomifier.dictionary['PixelData'][1]] = {
-        'vr': 'OW', 'InlineBinary' : pixelData[indexGenerator.currentStep] };
+        'vr': 'OW', 'InlineBinary' : pixelData[slice] };
 };
 
 _module.MRImage = function(indexGenerator, dicomDataset, brukerDataset) {

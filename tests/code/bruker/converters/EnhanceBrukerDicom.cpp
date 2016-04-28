@@ -302,43 +302,43 @@ BOOST_FIXTURE_TEST_CASE(Run_MRImageStorage, TestEnvironment)
 /**
  * Nominal test case: Run (EnhanceMRImageStorage)
  */
-BOOST_FIXTURE_TEST_CASE(Run_EnhanceMRImageStorage, TestEnvironment)
-{
-    std::vector<std::string> seriesnb = { "10001", "10002", "10003", "10004",
-                                          "10005", "10006", "10007", "10008"};
-    for (auto item : seriesnb)
-    {
-        auto enhanceb2d = dicomifier::bruker::EnhanceBrukerDicom::
-                New(directorypath, UID_EnhancedMRImageStorage,
-                    outputdirectory, "1", item);
-
-        // Process
-        enhanceb2d->run();
-
-        std::ifstream stream(boost::filesystem::path(outputdicom).c_str(),
-                             std::ios::in | std::ios::binary);
-
-        std::pair<odil::DataSet, odil::DataSet> file =
-                odil::Reader::read_file(stream);
-
-        BOOST_REQUIRE(!file.second.empty());
-        BOOST_REQUIRE_EQUAL(file.second.as_string(
-                                odil::registry::SOPClassUID)[0],
-                            UID_EnhancedMRImageStorage);
-
-        BOOST_REQUIRE_EQUAL(file.second.as_string(
-                                odil::registry::PatientName)[0],
-                            "Mouse^Mickey");
-        BOOST_REQUIRE_EQUAL(file.second.as_string(
-                                odil::registry::PatientID)[0],
-                            "subject_01");
-
-        BOOST_REQUIRE(file.second.has(
-                          odil::registry::SharedFunctionalGroupsSequence));
-        BOOST_REQUIRE(file.second.has(
-                          odil::registry::PerFrameFunctionalGroupsSequence));
-    }
-}
+// BOOST_DISABLED_FIXTURE_TEST_CASE(Run_EnhanceMRImageStorage, TestEnvironment)
+// {
+//     std::vector<std::string> seriesnb = { "10001", "10002", "10003", "10004",
+//                                           "10005", "10006", "10007", "10008"};
+//     for (auto item : seriesnb)
+//     {
+//         auto enhanceb2d = dicomifier::bruker::EnhanceBrukerDicom::
+//                 New(directorypath, UID_EnhancedMRImageStorage,
+//                     outputdirectory, "1", item);
+// 
+//         // Process
+//         enhanceb2d->run();
+// 
+//         std::ifstream stream(boost::filesystem::path(outputdicom).c_str(),
+//                              std::ios::in | std::ios::binary);
+// 
+//         std::pair<odil::DataSet, odil::DataSet> file =
+//                 odil::Reader::read_file(stream);
+// 
+//         BOOST_REQUIRE(!file.second.empty());
+//         BOOST_REQUIRE_EQUAL(file.second.as_string(
+//                                 odil::registry::SOPClassUID)[0],
+//                             UID_EnhancedMRImageStorage);
+// 
+//         BOOST_REQUIRE_EQUAL(file.second.as_string(
+//                                 odil::registry::PatientName)[0],
+//                             "Mouse^Mickey");
+//         BOOST_REQUIRE_EQUAL(file.second.as_string(
+//                                 odil::registry::PatientID)[0],
+//                             "subject_01");
+// 
+//         BOOST_REQUIRE(file.second.has(
+//                           odil::registry::SharedFunctionalGroupsSequence));
+//         BOOST_REQUIRE(file.second.has(
+//                           odil::registry::PerFrameFunctionalGroupsSequence));
+//     }
+// }
 
 /******************************* TEST Nominal **********************************/
 /**

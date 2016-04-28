@@ -358,6 +358,7 @@ Dicom2Nifti
             nim->dim[3] = nim->nz = dsnumber;
         }
     }
+    /*
     else if (sopclassuid == odil::registry::EnhancedMRImageStorage)
     {
         if (dimension == 3)
@@ -396,6 +397,11 @@ Dicom2Nifti
 
         // we suppose each stack contains the same number of datasets
         nim->dim[3] = nim->nz = ds_perstack_number;
+    }
+    */
+    else
+    {
+        throw DicomifierException("Unknown SOP Class UID: "+sopclassuid);
     }
 }
 

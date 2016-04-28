@@ -91,7 +91,7 @@ Dataset
     auto const field_it = this->_fields.find(name);
     if(field_it == this->_fields.end())
     {
-        throw DicomifierException("No such field");
+        throw DicomifierException("No such field: "+name);
     }
     
     return field_it->second;

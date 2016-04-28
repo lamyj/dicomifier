@@ -14,10 +14,12 @@ _module.convert = function(brukerDirectory, studyNumber, seriesNumber, SOPClassU
     if (SOPClassUID === '1.2.840.10008.5.1.4.1.1.4') {
         dicomList = _module.MRImageStorage(brukerDataset);
     }
+    /*
     // Enhanced MR Image Storage
     else if (SOPClassUID === '1.2.840.10008.5.1.4.1.1.4.1') {
         dicomList = _module.EnhancedMRImageStorage(brukerDataset);
     }
+    */
     else {
         throw new dicomifier.Exception("Unkown SOP Class UID '" + SOPClassUID + "'");
     }

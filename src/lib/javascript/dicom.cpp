@@ -212,8 +212,15 @@ v8::Handle<v8::Value> getTagKeyword(v8::Arguments const & arguments)
 {
     auto const tag_string = as_scalar<std::string>(arguments[0]);
     odil::Tag const tag(tag_string);
-    auto const keyword = tag.get_name();
-    return v8::String::New(keyword.c_str());
+    try
+    {
+        auto const keyword = tag.get_name();
+        return v8::String::New(keyword.c_str());
+    }
+    catch(std::exception const & e)
+    {
+        return v8::ThrowException(v8::String::New(e.what()));
+    }
 }
 
 }

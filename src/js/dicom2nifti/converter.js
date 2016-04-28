@@ -31,10 +31,12 @@ _module.convert = function(datasetlist, dimension, outputdir) {
             // MRImageStorage
             listMRImageStorage.push(dicomDataset);
         }
+        /*
         else if (sopClassUID === '1.2.840.10008.5.1.4.1.1.4.1' ) {
             // EnhancedMRImageStorage
             listEnhancedMRImageStorage.push(dicomDataset);
         }
+        */
         else {
             log('Unknown SOPClassUID. Ignore Dataset', 'ERROR');
             ++ignoredFiles;

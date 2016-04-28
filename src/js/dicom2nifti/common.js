@@ -4,30 +4,21 @@ var _module = namespace('dicomifier.dicom2nifti');
 
 _module.getKeys = function(dataset) {
     var keys = {};
-
-    // Image Orientation (Patient) (0020,0037)
-    var imageOrientation = dataset['00200037'];
-    if (imageOrientation !== undefined) {
-        keys['00200037'] = imageOrientation['Value'];
-    }
-
-    // Repetition Time (0018,0080)
-    var repetitionTime = dataset['00180080'];
-    if (repetitionTime !== undefined) {
-        keys['00180080'] = repetitionTime['Value'];
-    }
-
-    // Echo Time (0018,0081)
-    var echoTime = dataset['00180081'];
-    if (echoTime !== undefined) {
-        keys['00180081'] = echoTime['Value'];
-    }
-
-    // Inversion Time (0018,0082)
-    var inversionTime = dataset['00180082'];
-    if (inversionTime !== undefined) {
-        keys['00180082'] = inversionTime['Value'];
-    }
+    
+    var simpleElements = [
+        '00180080', // Repetition Time
+        '00180081', // Echo Time
+        '00180082', // Inversion Time
+        '00200012', // Acquisition Number
+        '00200037', // Image Orientation (Patient)
+    ];
+    
+    simpleElements.forEach(function(tag) {
+        var element = dataset[tag];
+        if(element !== undefined) {
+            keys[tag] = element['Value'];
+        }
+    });
 
     return keys;
 }
@@ -147,7 +138,14 @@ _module.mergeStack = function(datasets, dictionaryTagToName) {
                 continue;
             }
 
-            var keyword = getTagKeyword(key);
+            var keyword = key;
+            try {
+                keyword = getTagKeyword(key);
+            }
+            catch(e) {
+                // Ignore the error, keep the string representation.
+                log('Unknown tag: '+key, 'DEBUG');
+            }
 
             // ignore unknown keys
             if(keyword === undefined) {
@@ -290,7 +288,14 @@ _module.convertSQ = function(sequence, dictionaryTagToName) {
                 continue;
             }
 
-            var keyword = getTagKeyword(key);
+            var keyword = key;
+            try {
+                keyword = getTagKeyword(key);
+            }
+            catch(e) {
+                // Ignore the error, keep the string representation.
+                log('Unknown tag: '+key, 'DEBUG');
+            }
 
             // ignore unknown keys
             if (keyword === undefined) {
