@@ -76,8 +76,10 @@ int main(int argc, char *argv[])
         ("help,h", "Print help messages")
         ("level,l", boost::program_options::value<std::string>(&level),
          "Log Level [DEBUG, INFO, WARNING, ERROR (default)]")
+        /*
         ("SOPClassUID,s", boost::program_options::value<std::string>(&sopclassuid),
          "SOPClassUID [MRImageStorage (default), EnhancedMRImageStorage]")
+        */
         ("reconstruction,r", boost::program_options::
             value<std::vector<std::string> >(&series_and_reco),
          "Series:Reconstruction to convert")
