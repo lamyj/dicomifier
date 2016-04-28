@@ -147,7 +147,14 @@ _module.mergeStack = function(datasets, dictionaryTagToName) {
                 continue;
             }
 
-            var keyword = getTagKeyword(key);
+            var keyword = key;
+            try {
+                keyword = getTagKeyword(key);
+            }
+            catch(e) {
+                // Ignore the error, keep the string representation.
+                log('Unknown tag: '+key, 'DEBUG');
+            }
 
             // ignore unknown keys
             if(keyword === undefined) {
@@ -290,7 +297,14 @@ _module.convertSQ = function(sequence, dictionaryTagToName) {
                 continue;
             }
 
-            var keyword = getTagKeyword(key);
+            var keyword = key;
+            try {
+                keyword = getTagKeyword(key);
+            }
+            catch(e) {
+                // Ignore the error, keep the string representation.
+                log('Unknown tag: '+key, 'DEBUG');
+            }
 
             // ignore unknown keys
             if (keyword === undefined) {
