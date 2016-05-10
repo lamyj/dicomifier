@@ -1,0 +1,110 @@
+#!/usr/bin/env python
+
+from __future__ import print_function
+import argparse
+import glob
+import logging
+import json
+import math
+import os
+import sys
+
+import numpy
+import odil
+
+import dicomifier
+
+def main():
+    parser = argparse.ArgumentParser(description="Convert DICOM to NIfTI")
+    parser.add_argument("dicom", nargs="+", help="DICOM file")
+    parser.add_argument("destination", help="Output directory")
+    parser.add_argument(
+        "--dtype", "-d", default="single", type=lambda x: getattr(numpy, x), 
+        help="Pixel type")
+    parser.add_argument(
+        "--zip", "-z", action="store_true", 
+        help="Compress NIfTI files")
+    parser.add_argument(
+        "--pretty-print", "-p", action="store_true", 
+        help="Pretty-print JSON files")
+    parser.add_argument(
+        "--verbosity", "-v",
+        choices=["warning", "info", "debug"], default="warning")
+    
+    arguments = vars(parser.parse_args())
+    
+    verbosity = arguments.pop("verbosity")
+    logging.getLogger().setLevel(verbosity.upper())
+    
+    try:
+        convert(**arguments)
+    except Exception as e:
+        if verbosity == "debug":
+            raise
+        else:
+            parser.error(e)
+
+def convert(dicom, destination, dtype, pretty_print, zip):
+    if os.path.isdir(destination) and len(os.listdir(destination)) > 0:
+        logging.warning("{} is not empty".format(destination))
+    
+    logging.info(
+        "Reading {} DICOM file{}".format(
+            len(dicom), "s" if len(dicom)>1 else ""))
+    dicom_data_sets = [odil.read(x)[1] for x in dicom]
+    dicom_data_sets = [json.loads(odil.as_json(x)) for x in dicom_data_sets]
+    
+    logging.info("Converting to NIfTI")
+    nifti_data = dicomifier.dicom_to_nifti.convert(dicom_data_sets, dtype)
+    
+    stacks_count = {}
+    for nifti_image, nifti_meta_data in nifti_data:
+        series_instance_uid = nifti_meta_data["SeriesInstanceUID"][0]
+        
+        stacks_count.setdefault(series_instance_uid, 0)
+        stacks_count[series_instance_uid] += 1
+    
+    directories = {}
+    
+    for nifti_image, nifti_meta_data in nifti_data:
+        study_instance_uid = nifti_meta_data["StudyInstanceUID"]
+        series_instance_uid = nifti_meta_data["SeriesInstanceUID"][0]
+        
+        study_description = nifti_meta_data.get("StudyDescription", "")
+        series_description = nifti_meta_data.get("SeriesDescription", "")
+        
+        study_directory, _ = directories.setdefault(
+            study_instance_uid, [1+len(directories), {}])
+        series_directory = directories[study_instance_uid][1].setdefault(
+            series_instance_uid, 1+len(directories[study_instance_uid][1]))
+        
+        destination_directory = os.path.join(
+            destination, 
+            "{}{}".format(
+                study_directory, 
+                "_{}".format(study_description) if study_description else ""),
+            "{}{}".format(
+                series_directory, 
+                "_{}".format(series_description) if series_description else ""))
+        
+        if not os.path.isdir(destination_directory):
+            os.makedirs(destination_directory)
+        
+        index = len(os.listdir(destination_directory))/2
+        width = 1+int(math.log10(stacks_count[series_instance_uid]))
+        
+        destination_root = os.path.join(
+            destination_directory, ("{{:0{}d}}".format(width)).format(index))
+        
+        suffix = ".nii"
+        if zip:
+            suffix += ".gz"
+        nifti_image.save(destination_root+suffix)
+        
+        kwargs = {}
+        if pretty_print:
+            kwargs = {"sort_keys": True, "indent": 4}
+        json.dump(nifti_meta_data, open(destination_root+".json", "w"), **kwargs)
+
+if __name__ == "__main__":
+    sys.exit(main())
