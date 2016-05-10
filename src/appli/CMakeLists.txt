@@ -16,10 +16,6 @@ add_definitions(
 link_directories(
     ${Boost_LIBRARY_DIRS} ${DCMTK_LIBRARY_DIRS})
 
-add_executable(bruker2dicom "bruker2dicom.cpp")
-target_link_libraries(
-    bruker2dicom libdicomifier ${Boost_LIBRARIES} ${Odil_LIBRARIES})
-
 add_executable(dicom2nifti "dicom2nifti.cpp")
 target_link_libraries(dicom2nifti libdicomifier ${Boost_LIBRARIES})
 
@@ -29,7 +25,15 @@ target_link_libraries(
     libdicomifier libdicomifiergui ${Boost_LIBRARIES} ${QT_LIBRARIES})
 
 install(
-    TARGETS bruker2dicom dicom2nifti dicomifier
+    FILES bruker2dicom
+    DESTINATION ${CMAKE_INSTALL_PREFIX}/bin
+    PERMISSIONS 
+        OWNER_READ OWNER_EXECUTE 
+        GROUP_READ GROUP_EXECUTE 
+        WORLD_READ WORLD_EXECUTE
+)
+install(
+    TARGETS dicom2nifti dicomifier
     BUNDLE DESTINATION .
     RUNTIME DESTINATION bin)
 
