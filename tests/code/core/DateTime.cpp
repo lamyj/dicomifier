@@ -52,17 +52,6 @@ BOOST_AUTO_TEST_CASE(String_To_Local_DateTime)
 
 /*************************** TEST Nominal *******************************/
 /**
- * Nominal test case: posix_time_to_string
- */
-BOOST_AUTO_TEST_CASE(PosixTime_To_String)
-{
-    boost::posix_time::ptime time(boost::gregorian::date(2015, 05, 06));
-    BOOST_CHECK_EQUAL(dicomifier::posix_time_to_string(time, "%d %b %Y"),
-                      "06 May 2015");
-}
-
-/*************************** TEST Nominal *******************************/
-/**
  * Nominal test case: local_date_time_to_string
  */
 BOOST_AUTO_TEST_CASE(Local_DateTime_To_String)

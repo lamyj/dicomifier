@@ -21,7 +21,6 @@
 #include "bruker/Directory.h"
 #include "bruker/json_converter.h"
 #include "core/DicomifierException.h"
-#include "javascript/JavascriptVM.h"
 
 namespace dicomifier
 {
@@ -120,8 +119,8 @@ EnhanceBrukerDicom
               << "', '" << this->_SOPClassUID
               << "', '" << this->_outputDir << "');";
 
-    javascript::JavascriptVM jsvm;
-    jsvm.run(streamstr.str(), jsvm.get_context());
+    // javascript::JavascriptVM jsvm;
+    // jsvm.run(streamstr.str(), jsvm.get_context());
 }
 
 std::string

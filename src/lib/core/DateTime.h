@@ -20,10 +20,6 @@ namespace dicomifier
 boost::local_time::local_date_time string_to_local_date_time(std::string const & datetime,
                                                              std::string & format);
 
-std::string posix_time_to_string(
-    boost::posix_time::ptime const & ptime, std::string const & format);
-
-
 std::string local_date_time_to_string(boost::local_time::local_date_time const & ldt,
                                       std::string const & outputformat);
 
