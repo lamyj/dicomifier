@@ -11,6 +11,7 @@
 #include <QApplication>
 
 #include <boost/filesystem.hpp>
+#include <boost/python.hpp>
 
 #include "core/Logger.h"
 #include "mainframe.h"
@@ -18,6 +19,7 @@
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
+    Py_Initialize();
 
     // Configure application
     QCoreApplication::setOrganizationName("Dicomifier");

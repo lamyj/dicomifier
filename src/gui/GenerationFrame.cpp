@@ -6,12 +6,17 @@
  * for details.
  ************************************************************************/
 
+#include <string>
+#include <vector>
+
 #include <QFileDialog>
+#include <QMessageBox>
 #include <QProcess>
 #include <QSettings>
 
 #include <boost/algorithm/string.hpp>
 #include <boost/filesystem.hpp>
+#include <boost/python.hpp>
 
 #include <odil/Association.h>
 #include <odil/BasicDirectoryCreator.h>
@@ -21,7 +26,6 @@
 
 #include <zlib.h>
 
-#include "bruker/converters/EnhanceBrukerDicom.h"
 #include "components/PACSTreeItem.h"
 #include "core/DicomifierException.h"
 #include "core/Logger.h"
@@ -152,6 +156,7 @@ GenerationFrame
 
     int progressValue = 0;
     // Create DICOM files
+    std::vector<std::string> files;
     for (auto currentItem : selectedItems)
     {
         // Canceled => force stop
@@ -188,58 +193,79 @@ GenerationFrame
         snprintf(&temp[0], 7, mask.c_str(), seriesnum, reconum);
         std::string seriesnumber(temp);
 
-        std::string outputdir = this->_ui->outputDirectory->text().toStdString();
-        if (this->_ui->saveCheckBox->isChecked() == false)
+        auto outputdir = this->_ui->outputDirectory->text().toStdString();
+        if(!this->_ui->saveCheckBox->isChecked())
         {
             // Create temporary directory
-            boost::filesystem::path uniquepath = boost::filesystem::unique_path();
-            boost::filesystem::path temp = boost::filesystem::temp_directory_path();
-
-            outputdir = boost::filesystem::absolute(temp).string() + "/" + uniquepath.filename().string();
-
-            boost::filesystem::create_directories(boost::filesystem::path(outputdir.c_str()));
+            auto const temp = boost::filesystem::temp_directory_path();
+            auto const uniquepath = boost::filesystem::unique_path();
+            outputdir = (temp/uniquepath).filename().string();
+            boost::filesystem::create_directories(outputdir);
         }
 
-        std::string currentStudyNumber;
-        if (mapOutputStudyNumber.find(currentItem->get_subjectDirectory()) == mapOutputStudyNumber.end())
-        {
-            boost::filesystem::path const dest =
-                boost::filesystem::path(outputdir) / currentItem->get_name();
-            currentStudyNumber = dicomifier::bruker::EnhanceBrukerDicom::get_default_directory_name(dest);
-            mapOutputStudyNumber[currentItem->get_subjectDirectory()] = currentStudyNumber;
-        }
-        else
-        {
-            currentStudyNumber = mapOutputStudyNumber[currentItem->get_subjectDirectory()];
-        }
-
-        // create Rule
-        auto rule = dicomifier::bruker::EnhanceBrukerDicom::New(
-            currentItem->get_directory(), this->get_selectedFormat_toString(),
-            outputdir, currentStudyNumber, seriesnumber);
-
-        if (rule == NULL)
-        {
-            currentItem->set_DicomErrorMsg("Cannot create conversion rule");
-            continue;
-        }
+        // std::string currentStudyNumber;
+        // if (mapOutputStudyNumber.find(currentItem->get_subjectDirectory()) == mapOutputStudyNumber.end())
+        // {
+        //     boost::filesystem::path const dest =
+        //         boost::filesystem::path(outputdir) / currentItem->get_name();
+        //     currentStudyNumber = dicomifier::bruker::EnhanceBrukerDicom::get_default_directory_name(dest);
+        //     mapOutputStudyNumber[currentItem->get_subjectDirectory()] = currentStudyNumber;
+        // }
+        // else
+        // {
+        //     currentStudyNumber = mapOutputStudyNumber[currentItem->get_subjectDirectory()];
+        // }
 
         // Force to look if Cancel is called
         QApplication::processEvents( QEventLoop::AllEvents );
 
         try
         {
-            // Execute Save
-            rule->run();
+            using namespace boost::python;
+            
+            object dicomifier = import("dicomifier");
+            object bruker_to_dicom = dicomifier.attr("bruker_to_dicom");
+            object mr_image_storage = bruker_to_dicom.attr("mr_image_storage");
+            object convert_reconstruction = 
+                bruker_to_dicom.attr("convert_reconstruction");
+            
+            object files_python = convert_reconstruction(
+                currentItem->get_directory(),
+                currentItem->get_seriesDirectory(),
+                currentItem->get_recoDirectory(), 
+                mr_image_storage, "1.2.840.10008.1.2.1",
+                outputdir);
+            
+            for(unsigned int i=0; i<len(files_python); ++i)
+            {
+                std::string const file = extract<std::string>(files_python[i]);
+                files.push_back(file);
+            }
 
             currentItem->set_DicomErrorMsg("OK");
         }
-        catch (dicomifier::DicomifierException &exc)
+        catch(boost::python::error_already_set const & exc)
         {
-            dicomifier::loggerError() << exc.what();
-            currentItem->set_DicomErrorMsg(exc.what());
+            PyObject *type, *value, *traceback;
+            PyErr_Fetch(&type, &value, &traceback);
+            PyErr_NormalizeException(&type, &value, &traceback);
+            
+            using namespace boost::python;
+            
+            boost::python::handle<> type_handle(type), value_handle(allow_null(value)),
+                traceback_handle(allow_null(traceback));
+            
+            object traceback_module = import("traceback");
+            object format_exception = traceback_module.attr("format_exception");
+            object formatted_list = format_exception(
+                type_handle, value_handle, traceback_handle);
+            object formatted  = str("").join(formatted_list);
+            
+            std::string const message = extract<std::string>(formatted);
+            dicomifier::loggerError() << message;
+            currentItem->set_DicomErrorMsg(message);
         }
-        catch (std::exception &e)
+        catch(std::exception &e)
         {
             dicomifier::loggerError() << e.what();
             currentItem->set_DicomErrorMsg(e.what());
@@ -251,7 +277,7 @@ GenerationFrame
             try
             {
                 this->storeFilesIntoPACS(outputdir);
-
+        
                 currentItem->set_StoreErrorMsg("OK");
             }
             catch (dicomifier::DicomifierException &exc)
@@ -269,25 +295,25 @@ GenerationFrame
         {
             currentItem->set_StoreErrorMsg("");
         }
-
+        
         if (this->_ui->saveCheckBox->isChecked() == false)
         {
             // Remove temporary directory
-            boost::filesystem::remove_all(boost::filesystem::path(outputdir.c_str()));
+            boost::filesystem::remove_all(outputdir);
         }
     }
 
     // Initialize Result items
-    this->_Results.clear();
-    for (auto iter = mapHascodeToSubject.begin();
-         iter != mapHascodeToSubject.end();
-         iter++)
-    {
-        this->_Results[iter->second] = GenerationResultItem();
-    }
-
+    // this->_Results.clear();
+    // for (auto iter = mapHascodeToSubject.begin();
+    //      iter != mapHascodeToSubject.end();
+    //      iter++)
+    // {
+    //     this->_Results[iter->second] = GenerationResultItem();
+    // }
+    // 
     // Create DICOMDIR and ZIP files
-    this->createDicomdirsOrZipFiles(progress, mapHascodeToSubject);
+    // this->createDicomdirsOrZipFiles(progress, mapHascodeToSubject);
 
     // Disabled Run button
     this->update_nextButton(false);
