@@ -127,7 +127,7 @@ MRImage = [ # http://dicom.nema.org/medical/dicom/current/output/chtml/part03/se
         None, "SpacingBetweenSlices", 3, 
         lambda d,g,i: [numpy.linalg.norm(
             numpy.subtract(d["VisuCorePosition"][3:6], d["VisuCorePosition"][0:3]
-        ))], 
+        ))] if len(d["VisuCorePosition"]) >= 6 else None, 
         None
     ),
     ("VisuAcqPhaseEncSteps", "NumberOfPhaseEncodingSteps", 3, None, None),
