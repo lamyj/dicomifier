@@ -123,10 +123,18 @@ def convert(
     
     for series, reconstructions in sorted(series_and_reconstructions.items()):
         for reconstruction in sorted(reconstructions):
-            files.extend(dicomifier.bruker_to_dicom.convert_reconstruction(
-                source, series, reconstruction, 
-                dicomifier.bruker_to_dicom.mr_image_storage, transfer_syntax,
-                destination, directory))
+            try:
+                reco_files = dicomifier.bruker_to_dicom.convert_reconstruction(
+                    source, series, reconstruction, 
+                    dicomifier.bruker_to_dicom.mr_image_storage, transfer_syntax,
+                    destination, directory)
+            except Exception as e:
+                logging.error(
+                    "Could not convert {}:{} - {}".format(
+                        series, reconstruction, e))
+                logging.debug("Stack trace", exc_info=True)
+            else:
+                files.extend(reco_files)
     
     if dicomdir and files:
         create_dicomdir(files, destination, [], [], [], [])

@@ -25,7 +25,7 @@ def convert_reconstruction(
     
     if directory is None:
         logging.info("Loading Bruker directory {}".format(source))
-        directory = dicomifier.bruker.Directory()
+        directory = bruker.Directory()
         directory.load(source)
     
     logging.info("Converting {}:{}".format(series, reconstruction))
@@ -39,13 +39,7 @@ def convert_reconstruction(
         bruker_json.get("RECO_mode", ["none"])[0]
     ))
 
-    try:
-        dicom_jsons = iod_converter(bruker_json, transfer_syntax)
-    except Exception as e:
-        logging.error(
-            "Could not convert {}:{} - {}".format(
-                series, reconstruction, e))
-        logging.debug("Stack trace", exc_info=True)
+    dicom_jsons = iod_converter(bruker_json, transfer_syntax)
 
     logging.info(
         "Writing {} dataset{}".format(
