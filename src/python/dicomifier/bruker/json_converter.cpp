@@ -6,6 +6,8 @@
  * for details.
  ************************************************************************/
 
+#include <clocale>
+
 #include <boost/python.hpp>
 
 #include <json/json.h>
@@ -30,7 +32,9 @@ std::string as_json(dicomifier::bruker::Dataset const & data_set, bool pretty_pr
         writer = new Json::FastWriter();
     }
 
+    auto const old_locale = std::setlocale(LC_ALL, "C");
     auto const string = writer->write(json);
+    std::setlocale(LC_ALL, old_locale);
     return string;
 }
 
