@@ -11,4 +11,6 @@ install(
     DIRECTORY .
     DESTINATION ${CMAKE_INSTALL_PREFIX}/${PYTHON_SITE_PACKAGES}
     FILES_MATCHING PATTERN *.py
+    # Avoid empty directory
+    PATTERN "bruker" EXCLUDE
 )
