@@ -70,11 +70,9 @@ def convert_reconstruction(
             
         destination_file = os.path.join(
             destination, 
+            ("{}".format(study_description) if study_description else "STUDY")[:8],
             "{}{}".format(
                 series, 
-                "_{}".format(study_description) if study_description else "")[:8],
-            "{}{}".format(
-                reconstruction, 
                 "_{}".format(series_description) if series_description else "")[:8],
             ("{{:0{}d}}".format(image_file_width)).format(index)
         )
