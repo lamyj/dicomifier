@@ -79,7 +79,7 @@ def _get_splitters(data_sets):
 def _default_getter(data_set, tag):
     # List is not hashable, use tuple instead
     result = None
-    if tag in data_set:
+    if tag in data_set and "Value" in data_set[tag]:
         result = tuple(data_set[tag]["Value"])
     return result
 
