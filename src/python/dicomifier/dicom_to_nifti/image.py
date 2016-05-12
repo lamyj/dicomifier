@@ -7,6 +7,8 @@
 #########################################################################
 
 import base64
+import logging
+
 import nifti
 import numpy
 import odil
@@ -59,8 +61,8 @@ def get_pixel_data(data_set):
         dtype
     )
     pixel_data = pixel_data.reshape((
-        data_set[str(odil.registry.Columns)]["Value"][0], 
-        data_set[str(odil.registry.Rows)]["Value"][0]
+        data_set[str(odil.registry.Rows)]["Value"][0],
+        data_set[str(odil.registry.Columns)]["Value"][0]
     ))
     
     pixel_transformation = data_set.get(
@@ -85,8 +87,9 @@ def get_geometry(data_sets):
                 data_sets[0][str(odil.registry.ImagePositionPatient)]["Value"][0],
                 data_sets[1][str(odil.registry.ImagePositionPatient)]["Value"][0]))
     else:
-        # 2D data set, do nothing
-        pass
+        # 2D data set, add dummy spacing at the end since DICOM images are
+        # in a 3D space
+        spacing.append(0)
     
     # Image Orientation gives the columns of the matrix, cf.
     # http://dicom.nema.org/medical/dicom/current/output/chtml/part03/sect_C.7.6.2.html#sect_C.7.6.2.1.1
