@@ -63,6 +63,7 @@ def _get_splitters(data_sets):
             (odil.registry.RepetitionTime, _default_getter),
             (odil.registry.EchoTime, _default_getter),
             (odil.registry.InversionTime, _default_getter),
+            (odil.registry.MRDiffusionSequence, _diffusion_getter)
         ],
     }
     
@@ -113,3 +114,22 @@ class OrientationGetter(object):
             return False
         else :
             return (numpy.linalg.norm(numpy.subtract(o1,o2), numpy.inf) <= epsilon)
+
+def _diffusion_getter(data_set, tag):
+    value = _default_getter(data_set, tag)
+    if value is not None:
+        b_value = _default_getter(value[0], str(odil.registry.DiffusionBValue))
+        directionality = value[0][str(odil.registry.DiffusionDirectionality)]["Value"][0]
+        sensitization = None
+        if directionality == "DIRECTIONAL":
+            item = value[0][str(odil.registry.DiffusionGradientDirectionSequence)]["Value"][0]
+            sensitization = tuple(item[str(odil.registry.DiffusionGradientOrientation)]["Value"])
+        elif directionality == "BMATRIX":
+            item = value[0][str(odil.registry.DiffusionBMatrixSequence)]["Value"][0]
+            sensitization = tuple([
+                item[str(getattr(odil.registry, "DiffusionBValue{}".format(x)))]["Value"][0]
+                for x in ["XX", "XY", "XZ", "YY", "YZ", "ZZ"]])
+        else:
+            raise Exception("Unknown directionality: {}".format(directionality))
+        value = (b_value, sensitization)
+    return value
