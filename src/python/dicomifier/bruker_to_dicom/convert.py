@@ -1,3 +1,11 @@
+#########################################################################
+# Dicomifier - Copyright (C) Universite de Strasbourg
+# Distributed under the terms of the CeCILL-B license, as published by
+# the CEA-CNRS-INRIA. Refer to the LICENSE file or to
+# http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html
+# for details.
+#########################################################################
+
 import json
 import logging
 import math
@@ -50,20 +58,20 @@ def convert_reconstruction(
         
         image_file_width = 1+int(math.log10(len(dicom_jsons)))
         
-        study_instance_uid = dicom_binary.as_string(odil.registry.StudyInstanceUID)[0]
+        study_instance_uid = dicom_binary.as_string("StudyInstanceUID")[0]
         
         study_description = (
-            dicom_binary.as_string(odil.registry.StudyDescription)[0]
-            if dicom_binary.has(odil.registry.StudyDescription) 
-                and not dicom_binary.empty(odil.registry.StudyDescription)
+            dicom_binary.as_string("StudyDescription")[0]
+            if dicom_binary.has("StudyDescription") 
+                and not dicom_binary.empty("StudyDescription")
             else "")
         study_description = re.sub(
             r"[^A-Z0-9_]", "_", study_description.upper())
         
         series_description = (
-            dicom_binary.as_string(odil.registry.SeriesDescription)[0]
-            if dicom_binary.has(odil.registry.SeriesDescription) 
-                and not dicom_binary.empty(odil.registry.SeriesDescription)
+            dicom_binary.as_string("SeriesDescription")[0]
+            if dicom_binary.has("SeriesDescription") 
+                and not dicom_binary.empty("SeriesDescription")
             else "")
         series_description = re.sub(
             r"[^A-Z0-9_]", "_", series_description.upper())
@@ -104,19 +112,19 @@ def convert_element(
             if bruker_name in x[2]][0]
         value = [ value[frame_index[group_index]] ]
 
-    tag = getattr(odil.registry, dicom_name)
-    vr = str(vr_finder(tag))
+    tag = str(getattr(odil.registry, dicom_name))
+    vr = str(vr_finder(dicom_name))
 
     if value is None:
         if type_ == 1:
             raise Exception("{} must be present".format(dicom_name))
         elif type_ == 2:
-            dicom_data_set[str(tag)] = {"vr": vr}
+            dicom_data_set[tag] = {"vr": vr}
         elif type_ == 3:
             # May be absent
             pass
     else:
-        dicom_data_set[str(tag)] = {"vr": vr}
+        dicom_data_set[tag] = {"vr": vr}
         if isinstance(setter, dict):
             value = [setter[x] for x in value]
         elif setter is not None:
@@ -127,8 +135,8 @@ def convert_element(
             value = [vr_converter(x) for x in value]
         
         if vr in ["OB", "OD", "OF", "OL", "OW"]:
-            dicom_data_set[str(tag)]["InlineBinary"] = value[0]
+            dicom_data_set[tag]["InlineBinary"] = value[0]
         else:
-            dicom_data_set[str(tag)]["Value"] = value
+            dicom_data_set[tag]["Value"] = value
     
     return value

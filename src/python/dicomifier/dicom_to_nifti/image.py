@@ -1,3 +1,11 @@
+#########################################################################
+# Dicomifier - Copyright (C) Universite de Strasbourg
+# Distributed under the terms of the CeCILL-B license, as published by
+# the CEA-CNRS-INRIA. Refer to the LICENSE file or to
+# http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html
+# for details.
+#########################################################################
+
 import base64
 import nifti
 import numpy
@@ -71,8 +79,14 @@ def get_geometry(data_sets):
     spacing = data_sets[0][str(odil.registry.PixelSpacing)]["Value"]
     if str(odil.registry.SpacingBetweenSlices) in data_sets[0]:
         spacing.append(data_sets[0][str(odil.registry.SpacingBetweenSlices)]["Value"][0])
+    elif len(data_sets)>2:
+        spacing.append(
+            numpy.subtract(
+                data_sets[0][str(odil.registry.ImagePositionPatient)]["Value"][0],
+                data_sets[1][str(odil.registry.ImagePositionPatient)]["Value"][0]))
     else:
-        raise NotImplementedError("TODO: compute spacing between slices")
+        # 2D data set, do nothing
+        pass
     
     # Image Orientation gives the columns of the matrix, cf.
     # http://dicom.nema.org/medical/dicom/current/output/chtml/part03/sect_C.7.6.2.html#sect_C.7.6.2.1.1
