@@ -8,6 +8,7 @@
 
 import base64
 import datetime
+import re
 
 import numpy
 import odil
@@ -153,6 +154,47 @@ PixelValueTransformation = [ # http://dicom.nema.org/medical/dicom/current/outpu
         lambda d,g,i: [d["VisuCoreDataSlope"][g.get_linear_index(i)]], None
     ),
     (None, "RescaleType", 1, lambda d,g,i: ["US"], None),
+]
+
+def _get_direction_and_b_value(b_matrix):
+    # Adapted from https://github.com/BRAINSia/BRAINSTools/blob/master/DWIConvert/SiemensDWIConverter.h#L457
+    # FIXME: find a reference to support this
+    values, vectors = numpy.linalg.eigh(b_matrix)
+    direction = vectors[:, -1]
+    b_value = numpy.trace(b_matrix)
+    
+    return direction, b_value
+
+MRDiffusion = [ # http://dicom.nema.org/medical/dicom/current/output/chtml/part03/sect_C.8.13.5.9.html
+    (
+        "VisuAcqDiffusionBMatrix", "DiffusionBValue", 1, 
+        lambda d,g,i: [
+            _get_direction_and_b_value(x)[1] 
+            for x in numpy.reshape(d["VisuAcqDiffusionBMatrix"], (-1, 3, 3))], 
+        None),
+    (None, "DiffusionDirectionality", 1, lambda d,g,i: ["BMATRIX"], None),
+    (
+        "VisuAcqDiffusionBMatrix", "DiffusionGradientDirectionSequence", 1,
+        lambda d,g,i: [
+            _get_direction_and_b_value(x)[0] 
+            for x in numpy.reshape(d["VisuAcqDiffusionBMatrix"], (-1, 3, 3))], 
+        lambda x: [{ 
+            str(odil.registry.DiffusionGradientOrientation): {
+                "vr": "FD", "Value": numpy.asarray(x).ravel().tolist() } 
+        }]
+    ),
+    (
+        "VisuAcqDiffusionBMatrix", "DiffusionBMatrixSequence", 1,
+        lambda d,g,i: numpy.reshape(d["VisuAcqDiffusionBMatrix"], (-1, 3, 3)), 
+        lambda x: [{ 
+            str(odil.registry.DiffusionBValueXX): { "vr": "FD", "Value": [x[0][0,0]] },
+            str(odil.registry.DiffusionBValueXY): { "vr": "FD", "Value": [x[0][0,1]] },
+            str(odil.registry.DiffusionBValueXZ): { "vr": "FD", "Value": [x[0][0,2]] },
+            str(odil.registry.DiffusionBValueYY): { "vr": "FD", "Value": [x[0][1,1]] }, 
+            str(odil.registry.DiffusionBValueYZ): { "vr": "FD", "Value": [x[0][1,2]] },
+            str(odil.registry.DiffusionBValueZZ): { "vr": "FD", "Value": [x[0][2,2]] },
+        }]
+    )
 ]
 
 SOPCommon = [ # http://dicom.nema.org/medical/dicom/current/output/chtml/part03/sect_C.12.html#sect_C.12.1

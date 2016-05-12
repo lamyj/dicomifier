@@ -52,6 +52,19 @@ def mr_image_storage(bruker_data_set, transfer_syntax):
                 None
             )
         ],
+        [
+            (
+                None, "MRDiffusionSequence", 3,
+                lambda bruker_data_set, generator, frame_index: [ 
+                    convert_elements(
+                        bruker_data_set, {}, image.MRDiffusion,
+                        frame_index, generator, vr_finder_function
+                    ) ] 
+                    if "FG_DIFFUSION" in [x[1] for x in generator.frame_groups]
+                    else None,
+                None
+            )
+        ],
         image.SOPCommon
     ]
     
