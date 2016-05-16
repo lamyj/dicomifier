@@ -13,7 +13,7 @@ import nifti
 import numpy
 import odil
 
-def get_nifti_image(data_sets, dtype):
+def get_image(data_sets, dtype):
     pixel_data = [get_pixel_data(data_set) for data_set in data_sets]
     pixel_data = numpy.asarray(pixel_data, dtype=dtype)
 

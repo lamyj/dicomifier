@@ -58,20 +58,20 @@ def convert(dicom, destination, dtype, pretty_print, zip):
     nifti_data = dicomifier.dicom_to_nifti.convert(dicom_data_sets, dtype)
     
     stacks_count = {}
-    for nifti_image, nifti_meta_data in nifti_data:
-        series_instance_uid = nifti_meta_data["SeriesInstanceUID"][0]
+    for image, meta_data in nifti_data:
+        series_instance_uid = meta_data["SeriesInstanceUID"][0]
         
         stacks_count.setdefault(series_instance_uid, 0)
         stacks_count[series_instance_uid] += 1
     
     directories = {}
     
-    for nifti_image, nifti_meta_data in nifti_data:
-        study_instance_uid = nifti_meta_data["StudyInstanceUID"]
-        series_instance_uid = nifti_meta_data["SeriesInstanceUID"][0]
+    for image, meta_data in nifti_data:
+        study_instance_uid = meta_data["StudyInstanceUID"][0]
+        series_instance_uid = meta_data["SeriesInstanceUID"][0]
         
-        study_description = nifti_meta_data.get("StudyDescription", "")
-        series_description = nifti_meta_data.get("SeriesDescription", "")
+        study_description = meta_data.get("StudyDescription", [""])[0]
+        series_description = meta_data.get("SeriesDescription", [""])[0]
         
         study_directory, _ = directories.setdefault(
             study_instance_uid, [1+len(directories), {}])
@@ -99,12 +99,14 @@ def convert(dicom, destination, dtype, pretty_print, zip):
         suffix = ".nii"
         if zip:
             suffix += ".gz"
-        nifti_image.save(destination_root+suffix)
+        image.save(destination_root+suffix)
         
         kwargs = {}
         if pretty_print:
             kwargs = {"sort_keys": True, "indent": 4}
-        json.dump(nifti_meta_data, open(destination_root+".json", "w"), **kwargs)
+        json.dump(
+            meta_data, open(destination_root+".json", "w"), 
+            cls=dicomifier.MetaData.JSONEncoder, **kwargs)
 
 if __name__ == "__main__":
     sys.exit(main())

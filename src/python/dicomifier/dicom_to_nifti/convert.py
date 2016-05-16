@@ -1,4 +1,4 @@
-from __future__ import print_function
+import logging
 import itertools
 
 import numpy
@@ -11,11 +11,13 @@ def convert(dicom_data_sets, dtype, pretty_print=False):
     nifti_data = []
     
     stacks = get_stacks(dicom_data_sets)
+    logging.info(
+        "Found {} stack{}".format(len(stacks), "s" if len(stacks)>1 else ""))
     for key, data_sets in stacks.items():
         sort(data_sets)
         
-        nifti_image = image.get_nifti_image(data_sets, dtype)
-        nifti_meta_data = meta_data.get_nifti_meta_data(data_sets, key)
+        nifti_image = image.get_image(data_sets, dtype)
+        nifti_meta_data = meta_data.get_meta_data(data_sets, key)
         
         nifti_data.append((nifti_image, nifti_meta_data))
     

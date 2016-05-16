@@ -8,9 +8,18 @@
 
 import itertools
 
+import numpy
 import odil
 
-def get_nifti_meta_data(data_sets, key):
+from .. import MetaData
+
+def get_meta_data(data_sets, key):
+    """ Return the merged meta-data from the DICOM data sets in the NIfTI+JSON
+        format: a dictionary keyed by the DICOM keyword (or the string 
+        representation of the tag if no keyword is found) and valued by the 
+        Value (or InlineBinary) of the DICOM elements.
+    """
+    
     meta_data = [convert_meta_data(x) for x in data_sets]
     
     named_key = []
@@ -21,18 +30,26 @@ def get_nifti_meta_data(data_sets, key):
         except odil.Exception as e:
             pass
         named_key.append(name)
-            
+    
     return merge_meta_data(meta_data, named_key)
 
 def convert_meta_data(data_set):
+    """ Convert the meta-data from DICOM data sets to the NIfTI+JSON format.
+    """
+    
     meta_data = {}
     
     skipped = [
+        # Stored in the NIfTI image
         "Rows", "Columns", 
         "ImageOrientationPatient", "ImagePositionPatient", "PixelSpacing",
+        # Useless in the NIfTI world (?)
         "SOPInstanceUID", 
+        # Implicit with the NIfTI data type
         "PixelRepresentation", "HighBit", "BitsStored", "BitsAllocated",
+        # Stored in the NIfTI image
         "PixelData",
+        # PixelValueTransformation sequence is applied on the image
         "PixelValueTransformationSequence",
         "SmallestImagePixelValue", "LargestImagePixelValue",
     ]
@@ -64,34 +81,24 @@ def convert_meta_data(data_set):
     return meta_data
 
 def merge_meta_data(data_sets, key):
+    """ Merge the meta-data of DICOM data sets if they are equal.
+    """
+    
     merged = {}
     
     tags = set(itertools.chain(*[x.keys() for x in data_sets]))
     for tag in tags:
-        multiplicity = "unknown"
-        try:
-            multiplicity = odil.registry.public_dictionary[
-                getattr(odil.registry, tag)].vm
-        except:
-            # Nothing is known about the multiplicity
-            pass
-        
         merged_value = None
         if tag in key:
-            if multiplicity == "1":
-                merged_value = data_sets[0][tag]
-            else:
-                merged_value = data_sets[0][tag]
+            merged_value = data_sets[0][tag]
         else:
             merged_value = []
             for data_set in data_sets:
                 value = data_set.get(tag, None)
-                if value is not None and multiplicity == "1":
-                    value = value[0]
                 merged_value.append(value)
             
             if all(x == merged_value[0] for x in merged_value):
                 merged_value = merged_value[0]
         merged[tag] = merged_value
     
-    return merged
+    return MetaData(merged)
