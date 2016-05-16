@@ -1,0 +1,10 @@
+Index: debian/CMakeLists.txt
+===================================================================
+--- debian.orig/CMakeLists.txt	2016-05-16 17:54:09.793644135 +0200
++++ debian/CMakeLists.txt	2016-05-16 19:11:15.617550741 +0200
+@@ -14,4 +14,4 @@
+     add_subdirectory(tests)
+ endif()
+ 
+-add_subdirectory(configuration)
++#add_subdirectory(configuration)
