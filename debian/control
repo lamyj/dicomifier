@@ -26,6 +26,7 @@ Build-Depends: debhelper (>= 9),
                python-nose
 Standards-Version: 3.9.8
 Homepage: https://github.com/lamyj/dicomifier
+X-Python-Version: >= 2.7
 
 Package: dicomifier
 Architecture: any
