@@ -1,0 +1,14 @@
+Description: Fix environment in Python unit tests
+Author: Julien Lamy <lamy@unistra.fr>
+Forwarded: https://github.com/lamyj/dicomifier/commit/2836ea11f98c634fb3bcd9a6663bf388dd55d8cb
+Index: debian/tests/run_tests.sh
+===================================================================
+--- debian.orig/tests/run_tests.sh	2016-05-17 09:14:34.930830806 +0200
++++ debian/tests/run_tests.sh	2016-05-17 09:26:28.578592552 +0200
+@@ -1,5 +1,5 @@
+ #!/bin/sh
+ 
+ ctest --no-compress-output -T Test $@ || true
+-PYTHONPATH=../src/python:../build/src/python/dicomifier:../build/src/python/dicomifier/bruker
++export PYTHONPATH=../src/python:../build/src/python/dicomifier:../build/src/python/dicomifier/bruker
+ nosetests-2.7 ../tests/python/dicomifier

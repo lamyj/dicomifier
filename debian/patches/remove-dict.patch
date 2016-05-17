@@ -1,3 +1,6 @@
+Description: Remove unused private dictionary from packages
+Author: Julien Lamy <lamy@unistra.fr>
+Forwarded: no
 Index: debian/CMakeLists.txt
 ===================================================================
 --- debian.orig/CMakeLists.txt	2016-05-16 17:54:09.793644135 +0200
