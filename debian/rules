@@ -1,18 +1,10 @@
 #!/usr/bin/make -f
 
 export DEB_CXXFLAGS_MAINT_APPEND  = -std=c++0x
-
-CPPFLAGS:=$(shell dpkg-buildflags --get CPPFLAGS)
-CFLAGS:=$(shell dpkg-buildflags --get CFLAGS)
-CXXFLAGS:=$(shell dpkg-buildflags --get CXXFLAGS)
-LDFLAGS:=$(shell dpkg-buildflags --get LDFLAGS)
+export DEB_BUILD_MAINT_OPTIONS = hardening=+all
 
 %:
-	dh $@ --builddirectory=build --parallel
-
-override_dh_auto_configure:
-	dh_auto_configure -- -DNIfTI_INCLUDE_DIR=/usr/include/nifti
+	dh $@ --builddirectory=build --parallel --with python2
 
 override_dh_auto_test:
-	cd build && ../tests/run_tests.sh -E EnhanceBrukerDicom_Run_EnhanceMRImageStorage
-
+	cd build && ../tests/run_tests.sh
