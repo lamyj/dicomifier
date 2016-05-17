@@ -18,6 +18,7 @@ Build-Depends: debhelper (>= 9),
                libodil0-dev (>= 0.6.0),
                zlib1g-dev,
                python,
+               python-nifti,
                python-numpy,
                python-dateutil,
                python-odil (>= 0.6.0),
@@ -28,12 +29,10 @@ Homepage: https://github.com/lamyj/dicomifier
 
 Package: dicomifier
 Architecture: any
-Section: science
 Depends: ${shlibs:Depends}, 
          ${python:Depends},
          ${misc:Depends}
-Description: Tools to manipulate DICOM files
- dicomifier is a set of tools to convert Bruker Dataset into DICOM Dataset 
- and DICOM Dataset to NIfTI files.
- .
- This package contains the applications.
+Description: Convert data to and from DICOM
+ Dicomifier is a set of tools to convert Bruker to DICOM and DICOM to NIfTI. A
+ set of mapping rules is provided, allowing the conservation of meta-data upon
+ conversion.
