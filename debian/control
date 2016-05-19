@@ -30,7 +30,11 @@ X-Python-Version: >= 2.7
 
 Package: dicomifier
 Architecture: any
-Depends: ${shlibs:Depends}, 
+Depends: python-nifti,
+         python-numpy,
+         python-dateutil,
+         python-odil (>= 0.6.0),
+         ${shlibs:Depends}, 
          ${python:Depends},
          ${misc:Depends}
 Description: Convert data to and from DICOM
