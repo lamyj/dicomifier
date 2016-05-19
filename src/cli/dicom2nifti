@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 
-from __future__ import print_function
 import argparse
 import glob
 import logging
@@ -48,11 +47,18 @@ def convert(dicom, destination, dtype, pretty_print, zip):
     if os.path.isdir(destination) and len(os.listdir(destination)) > 0:
         logging.warning("{} is not empty".format(destination))
     
+    def binary_as_bytes(data):
+        if "InlineBinary" in data:
+            data["InlineBinary"] = data["InlineBinary"].encode("ascii")
+        return data
+    
     logging.info(
         "Reading {} DICOM file{}".format(
             len(dicom), "s" if len(dicom)>1 else ""))
     dicom_data_sets = [odil.read(x)[1] for x in dicom]
-    dicom_data_sets = [json.loads(odil.as_json(x)) for x in dicom_data_sets]
+    dicom_data_sets = [
+        json.loads(odil.as_json(x), object_hook=binary_as_bytes) 
+        for x in dicom_data_sets]
     
     logging.info("Converting to NIfTI")
     nifti_data = dicomifier.dicom_to_nifti.convert(dicom_data_sets, dtype)
