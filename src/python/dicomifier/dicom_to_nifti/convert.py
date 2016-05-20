@@ -119,6 +119,7 @@ def _get_splitters(data_sets):
             (odil.registry.SpacingBetweenSlices, _default_getter),
         ],
         odil.registry.MRImageStorage: [
+            (odil.registry.AcquisitionNumber, _default_getter),
             (odil.registry.RepetitionTime, _default_getter),
             (odil.registry.EchoTime, _default_getter),
             (odil.registry.InversionTime, _default_getter),
