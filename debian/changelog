@@ -1,3 +1,9 @@
+dicomifier (0.8.0~pre1-1) unstable; urgency=medium
+
+  * Pre-release with 4D NIfTI generation.
+
+ -- Julien Lamy <lamy@unistra.fr>  Fri, 20 May 2016 16:07:51 +0200
+
 dicomifier (0.7.0-2) unstable; urgency=medium
 
   * Fix Python dependecies
