@@ -21,8 +21,7 @@ def main():
         "--dtype", "-d", default="single", type=lambda x: getattr(numpy, x), 
         help="Pixel type")
     parser.add_argument(
-        "--zip", "-z", action="store_true", 
-        help="Compress NIfTI files")
+        "--zip", "-z", action="store_true", help="Compress NIfTI files")
     parser.add_argument(
         "--pretty-print", "-p", action="store_true", 
         help="Pretty-print JSON files")
@@ -72,35 +71,61 @@ def convert(dicom, destination, dtype, pretty_print, zip):
     
     directories = {}
     
+    study_directories = {}
+    series_directories = {}
+    for image, meta_data in nifti_data:
+        study_instance_uid = meta_data["StudyInstanceUID"][0]
+        if study_instance_uid in study_directories:
+            continue
+        
+        study_id = meta_data.get("StudyID", [None])[0]
+        study_description = meta_data.get("StudyDescription", [None])[0]
+        
+        directory = []
+        if study_id is not None:
+            directory.append(study_id)
+        else:
+            directory.append(str(len(study_directories)))
+        if study_description is not None:
+            directory.append(study_description)
+        directory = "_".join(directory)
+        
+        study_directories[study_instance_uid] = directory
+        series_directories[study_instance_uid] = {}
+    
+    for image, meta_data in nifti_data:
+        study_instance_uid = meta_data["StudyInstanceUID"][0]
+        series_instance_uid = meta_data["SeriesInstanceUID"][0]
+        if series_instance_uid in series_directories:
+            continue
+        series_number = meta_data.get("SeriesNumber", [None])[0]
+        series_description = meta_data.get("SeriesDescription", [None])[0]
+        
+        directory = []
+        if study_id is not None:
+            directory.append(str(series_number))
+        else:
+            directory.append(str(len(series_directories[study_instance_uid])))
+        if series_description is not None:
+            directory.append(series_description)
+        directory = "_".join(directory)
+        
+        series_directories[study_instance_uid][series_instance_uid] = directory
+    
     for image, meta_data in nifti_data:
         study_instance_uid = meta_data["StudyInstanceUID"][0]
         series_instance_uid = meta_data["SeriesInstanceUID"][0]
         
-        study_description = meta_data.get("StudyDescription", [""])[0]
-        series_description = meta_data.get("SeriesDescription", [""])[0]
-        
-        study_directory, _ = directories.setdefault(
-            study_instance_uid, [1+len(directories), {}])
-        series_directory = directories[study_instance_uid][1].setdefault(
-            series_instance_uid, 1+len(directories[study_instance_uid][1]))
-        
         destination_directory = os.path.join(
             destination, 
-            "{}{}".format(
-                study_directory, 
-                "_{}".format(study_description) if study_description else ""),
-            "{}{}".format(
-                series_directory, 
-                "_{}".format(series_description) if series_description else ""))
+            study_directories[study_instance_uid],
+            series_directories[study_instance_uid][series_instance_uid])
         
         if not os.path.isdir(destination_directory):
             os.makedirs(destination_directory)
         
-        index = len(os.listdir(destination_directory))/2
-        width = 1+int(math.log10(stacks_count[series_instance_uid]))
-        
-        destination_root = os.path.join(
-            destination_directory, ("{{:0{}d}}".format(width)).format(index))
+        index = 1+len(os.listdir(destination_directory))/2
+        destination_root = os.path.join(destination_directory, str(index))
         
         suffix = ".nii"
         if zip:
