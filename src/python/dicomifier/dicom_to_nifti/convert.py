@@ -1,11 +1,14 @@
 import logging
 import itertools
 
+import nifti
 import numpy
 import odil
 
 import meta_data
 import image
+
+from .. import MetaData
 
 def convert(dicom_data_sets, dtype, pretty_print=False):
     nifti_data = []
@@ -14,6 +17,9 @@ def convert(dicom_data_sets, dtype, pretty_print=False):
     logging.info(
         "Found {} stack{}".format(len(stacks), "s" if len(stacks)>1 else ""))
     for key, data_sets in stacks.items():
+        logging.info(
+            "Merging {} data set{}".format(
+                len(data_sets), "s" if len(data_sets)>1 else ""))
         sort(data_sets)
         
         nifti_image = image.get_image(data_sets, dtype)
@@ -21,7 +27,31 @@ def convert(dicom_data_sets, dtype, pretty_print=False):
         
         nifti_data.append((nifti_image, nifti_meta_data))
     
-    return nifti_data
+    # Try to merge stacks in each series
+    merged_stacks = []
+    series = {}
+    for nitfi_image, nifti_meta_data in nifti_data:
+        series.setdefault(nifti_meta_data["SeriesInstanceUID"][0], []).append(
+            (nitfi_image, nifti_meta_data))
+    for stacks in series.values():
+        mergeable = {}
+        for nitfi_image, nifti_meta_data in stacks:
+            geometry = (
+                nitfi_image.qoffset, nifti_image.voxdim, nifti_image.quatern)
+            mergeable.setdefault(geometry, []).append(
+                (nitfi_image, nifti_meta_data))
+        
+        for stack in mergeable.values():
+            if len(stack)>1:
+                logging.info(
+                    "{} stack{} can be merged".format(
+                        len(stack), "s" if len(stack)>1 else ""))
+                merged = merge_images_and_meta_data(stack)
+                merged_stacks.append(merged)
+            else: 
+                merged_stacks.append(stack[0])
+    
+    return merged_stacks
 
 def get_stacks(data_sets):
     splitters = _get_splitters(data_sets)
@@ -53,6 +83,33 @@ def sort(data_sets):
     data_sets.sort(
         key=lambda x: numpy.dot(
             x[str(odil.registry.ImagePositionPatient)]["Value"], normal))
+
+def merge_images_and_meta_data(images_and_meta_data):
+    """ Merge the pixel and meta-data of geometrically coherent images.
+    """
+    
+    images = [x[0] for x in images_and_meta_data]
+    array = numpy.asarray([x.asarray() for x in images])
+    
+    merged_image = nifti.NiftiImage(array)
+    
+    merged_image.setQForm(images[0].getQForm(), images[0].getQFormCode())
+    merged_image.setQOffset(images[0].getQOffset(), images[0].getQFormCode())
+    merged_image.setVoxDims(images[0].voxdim)
+    merged_image.setXYZUnit(images[0].getXYZUnit())
+    
+    meta_data = [x[1] for x in images_and_meta_data]
+    merged_meta_data = MetaData()
+    keys = set()
+    for m in meta_data:
+        keys.update(m.keys())
+    for key in keys:
+        value = [m.get(key, None) for m in meta_data]
+        if all(x == value[0] for x in value):
+            value = value[0]
+        merged_meta_data[key] = value
+    
+    return merged_image, merged_meta_data
 
 def _get_splitters(data_sets):
     splitters = {
