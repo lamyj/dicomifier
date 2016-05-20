@@ -19,7 +19,8 @@ class MetaData(collections.MutableMapping):
         n-dimensional meta-data where items in dimensions [m,n] are all equal.
     """
     
-    def __init__(self, dictionary):
+    def __init__(self, dictionary=None):
+        dictionary = dictionary or {}
         self._dictionary = dictionary.copy()
     
     def __len__(self):

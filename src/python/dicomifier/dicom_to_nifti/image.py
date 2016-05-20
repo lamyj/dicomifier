@@ -40,6 +40,8 @@ def get_image(data_sets, dtype):
     # Set pixdim *after* the others, otherwise pixdim gets reset.
     image.setVoxDims(spacing)
     
+    image.setXYZUnit("mm")
+    
     return image
 
 def get_pixel_data(data_set):
