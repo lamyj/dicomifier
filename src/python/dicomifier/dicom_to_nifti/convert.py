@@ -27,6 +27,9 @@ def convert(dicom_data_sets, dtype, pretty_print=False):
         
         nifti_data.append((nifti_image, nifti_meta_data))
     
+    # Try to preserve the original stacks order
+    nifti_data.sort(key=lambda x: x[1].get("InstanceNumber", [None])[0])
+    
     # Try to merge stacks in each series
     merged_stacks = []
     series = {}
