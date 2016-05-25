@@ -58,7 +58,7 @@ Directory
 
             for(Iterator reco_it(it->path()); reco_it != Iterator(); ++reco_it)
             {
-                if(boost::filesystem::is_directory(it->path()))
+                if(boost::filesystem::is_directory(reco_it->path()))
                 {
                     this->_add_reconstruction(*reco_it, dataset);
                 }
@@ -107,7 +107,7 @@ Directory
         {
             for(Iterator reco_it(it->path()); reco_it != Iterator(); ++reco_it)
             {
-                if(boost::filesystem::is_directory(it->path()))
+                if(boost::filesystem::is_directory(reco_it->path()))
                 {
                     std::string const reconstruction = ((Path)*reco_it).filename().string();
                     std::string const series = ((Path)*reco_it).parent_path().parent_path().filename().string();
