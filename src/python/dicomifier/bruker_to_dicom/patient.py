@@ -8,7 +8,7 @@
 
 Patient= [ # http://dicom.nema.org/medical/dicom/current/output/chtml/part03/sect_C.7.html#sect_C.7.1.1
     ("VisuSubjectName", "PatientName", 2, None, None),
-    ("VisuSubjectName", "PatientID", 2, None, None),
+    ("VisuSubjectId", "PatientID", 2, None, None),
     ("VisuSubjectBirthDate", "PatientBirthDate", 2, None, None),
     (
         "VisuSubjectSex", "PatientSex", 2, None, 

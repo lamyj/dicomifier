@@ -19,4 +19,5 @@ GeneralEquipment = [ # http://dicom.nema.org/medical/dicom/current/output/chtml/
         ),
         None
     ),
+    ("VisuSystemOrderNumber", "DeviceSerialNumber", 3, None, None),
 ]

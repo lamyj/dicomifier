@@ -119,7 +119,7 @@ MRImage = [ # http://dicom.nema.org/medical/dicom/current/output/chtml/part03/se
     (None, "ScanningSequence", 1, lambda d,g,i: ["RM"], None),
     (None, "SequenceVariant", 1, lambda d,g,i: ["NONE"], None),
     (None, "ScanOptions", 2, lambda d,g,i: None, None),
-    ("VisuCoreDim", "MRAcquisitionType", 2, None, lambda x: "{}D".format(x[0])),
+    ("PVM_SpatDimEnum", "MRAcquisitionType", 2, None, None),
     ("VisuAcqRepetitionTime", "RepetitionTime", 2, None, None),
     ("VisuAcqEchoTime", "EchoTime", 2, None, None),
     ("VisuAcqEchoTrainLength", "EchoTrainLength", 2, None, None),
