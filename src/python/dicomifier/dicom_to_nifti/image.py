@@ -9,38 +9,38 @@
 import base64
 import logging
 
-import nifti
 import numpy
 import odil
+
+import nifti_image
+import niftiio
 
 def get_image(data_sets, dtype):
     pixel_data = [get_pixel_data(data_set) for data_set in data_sets]
     pixel_data = numpy.asarray(pixel_data, dtype=dtype)
 
     origin, spacing, direction = get_geometry(data_sets)
-
-    image = nifti.NiftiImage(pixel_data)
     
-    # According to NIfTI doc (http://nifti.nimh.nih.gov/nifti-1/documentation/nifti1fields/nifti1fields_pages/qsform.html),
-    # the "normal" case is to use the qform
-    qform = numpy.identity(4)
     lps_to_ras = [
         [-1,  0, 0],
         [ 0, -1, 0],
         [ 0,  0, 1]
     ]
-    qform[:3,:3] = numpy.dot(lps_to_ras, direction)
-    image.setQForm(qform, "scanner")
-
-    # Origin must be transformed to LPS
-    origin[0] = -origin[0]
-    origin[1] = -origin[1]
-    image.setQOffset(origin, "scanner")
     
-    # Set pixdim *after* the others, otherwise pixdim gets reset.
-    image.setVoxDims(spacing)
+    scanner_transform = numpy.identity(4)
+    scanner_transform[:3, :3] = numpy.dot(lps_to_ras, direction)
+    scanner_transform[:3, :3] = numpy.dot(
+        numpy.diag(spacing), scanner_transform[:3, :3])
+    scanner_transform[:3, 3] = numpy.dot(lps_to_ras, origin)
     
-    image.setXYZUnit("mm")
+    image = nifti_image.NIfTIImage(
+        pixdim=[0.]+spacing+(8-len(spacing)-1)*[0.],
+        cal_min=pixel_data.min(), cal_max=pixel_data.max(),
+        qform_code = niftiio.NIFTI_XFORM_SCANNER_ANAT,
+        sform_code = niftiio.NIFTI_XFORM_SCANNER_ANAT,
+        qform=scanner_transform, sform=scanner_transform,
+        xyz_units=niftiio.NIFTI_UNITS_MM,
+        data=pixel_data)
     
     return image
 

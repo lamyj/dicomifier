@@ -148,7 +148,7 @@ def convert(dicom, destination, dtype, pretty_print, zip):
         suffix = ".nii"
         if zip:
             suffix += ".gz"
-        image.save(destination_root+suffix)
+        image.write(destination_root+suffix)
         
         kwargs = {}
         if pretty_print:
