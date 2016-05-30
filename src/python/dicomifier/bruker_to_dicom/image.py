@@ -36,7 +36,12 @@ def _get_pixel_data(data_set, generator, frame_index):
             data_set["PIXELDATA"] = pixel_data.reshape(
                 -1, data_set["VisuCoreSize"][0]*data_set["VisuCoreSize"][1])
     
-    frame_data = data_set["PIXELDATA"][generator.get_linear_index(frame_index)]
+    frame_index = (
+        generator.frames_count-generator.get_linear_index(frame_index)-1
+        if data_set.get("VisuCoreDiskSliceOrder", [None])[0] == "disk_reverse_slice_order"
+        else generator.get_linear_index(frame_index))
+    frame_data = data_set["PIXELDATA"][frame_index]
+    
     encoded = base64.b64encode(frame_data)
     
     return [encoded]
