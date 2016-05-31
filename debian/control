@@ -17,8 +17,8 @@ Build-Depends: debhelper (>= 9),
                libjsoncpp-dev, 
                libodil0-dev (>= 0.6.0),
                zlib1g-dev,
+               libnifti-dev,
                python,
-               python-nifti,
                python-numpy,
                python-dateutil,
                python-odil (>= 0.6.0),
@@ -30,7 +30,7 @@ X-Python-Version: >= 2.7
 
 Package: dicomifier
 Architecture: any
-Depends: python-nifti,
+Depends: libnifti2,
          python-numpy,
          python-dateutil,
          python-odil (>= 0.6.0),
