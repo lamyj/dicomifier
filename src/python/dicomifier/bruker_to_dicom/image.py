@@ -36,7 +36,12 @@ def _get_pixel_data(data_set, generator, frame_index):
             data_set["PIXELDATA"] = pixel_data.reshape(
                 -1, data_set["VisuCoreSize"][0]*data_set["VisuCoreSize"][1])
     
-    frame_data = data_set["PIXELDATA"][generator.get_linear_index(frame_index)]
+    frame_index = (
+        generator.frames_count-generator.get_linear_index(frame_index)-1
+        if data_set.get("VisuCoreDiskSliceOrder", [None])[0] == "disk_reverse_slice_order"
+        else generator.get_linear_index(frame_index))
+    frame_data = data_set["PIXELDATA"][frame_index]
+    
     encoded = base64.b64encode(frame_data)
     
     return [encoded]
@@ -119,7 +124,7 @@ MRImage = [ # http://dicom.nema.org/medical/dicom/current/output/chtml/part03/se
     (None, "ScanningSequence", 1, lambda d,g,i: ["RM"], None),
     (None, "SequenceVariant", 1, lambda d,g,i: ["NONE"], None),
     (None, "ScanOptions", 2, lambda d,g,i: None, None),
-    ("VisuCoreDim", "MRAcquisitionType", 2, None, lambda x: "{}D".format(x[0])),
+    ("PVM_SpatDimEnum", "MRAcquisitionType", 2, None, None),
     ("VisuAcqRepetitionTime", "RepetitionTime", 2, None, None),
     ("VisuAcqEchoTime", "EchoTime", 2, None, None),
     ("VisuAcqEchoTrainLength", "EchoTrainLength", 2, None, None),

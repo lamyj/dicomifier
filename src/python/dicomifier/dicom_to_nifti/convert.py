@@ -1,13 +1,14 @@
 import logging
 import itertools
 
-import nifti
 import numpy
 import odil
 
 import meta_data
 import image
 
+import nifti_image
+import niftiio
 from .. import MetaData
 
 def convert(dicom_data_sets, dtype, pretty_print=False):
@@ -39,8 +40,7 @@ def convert(dicom_data_sets, dtype, pretty_print=False):
     for stacks in series.values():
         mergeable = {}
         for nitfi_image, nifti_meta_data in stacks:
-            geometry = (
-                nitfi_image.qoffset, nifti_image.voxdim, nifti_image.quatern)
+            geometry = nifti_image.shape+tuple(nitfi_image.qform.ravel().tolist())
             mergeable.setdefault(geometry, []).append(
                 (nitfi_image, nifti_meta_data))
         
@@ -92,14 +92,15 @@ def merge_images_and_meta_data(images_and_meta_data):
     """
     
     images = [x[0] for x in images_and_meta_data]
-    array = numpy.asarray([x.asarray() for x in images])
     
-    merged_image = nifti.NiftiImage(array)
-    
-    merged_image.setQForm(images[0].getQForm(), images[0].getQFormCode())
-    merged_image.setQOffset(images[0].getQOffset(), images[0].getQFormCode())
-    merged_image.setVoxDims(images[0].voxdim)
-    merged_image.setXYZUnit(images[0].getXYZUnit())
+    merged_image = nifti_image.NIfTIImage(
+        pixdim=images[0].pixdim,
+        cal_min=min(x.cal_min for x in images), 
+        cal_max=max(x.cal_max for x in images),
+        qform_code=images[0].qform_code, sform_code=images[0].sform_code,
+        qform=images[0].qform, sform=images[0].sform,
+        xyz_units=images[0].xyz_units, time_units=images[0].time_units,
+        data=numpy.asarray([x.data for x in images]))
     
     meta_data = [x[1] for x in images_and_meta_data]
     merged_meta_data = MetaData()

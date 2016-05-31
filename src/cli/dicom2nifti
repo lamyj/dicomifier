@@ -15,7 +15,8 @@ import dicomifier
 
 def main():
     parser = argparse.ArgumentParser(description="Convert DICOM to NIfTI")
-    parser.add_argument("dicom", nargs="+", help="DICOM file")
+    parser.add_argument(
+        "dicom", nargs="+", help="DICOM file, directory or DICOMDIR")
     parser.add_argument("destination", help="Output directory")
     parser.add_argument(
         "--dtype", "-d", default="single", type=lambda x: getattr(numpy, x), 
@@ -43,8 +44,25 @@ def main():
             parser.error(e)
 
 def convert(dicom, destination, dtype, pretty_print, zip):
+    
     if os.path.isdir(destination) and len(os.listdir(destination)) > 0:
         logging.warning("{} is not empty".format(destination))
+    
+    dicom_files = []
+    for entry in dicom:
+        if os.path.isdir(entry):
+            for dirpath, dirnames, filenames in os.walk(entry):
+                dicom_files.extend([os.path.join(dirpath, x) for x in filenames])
+        elif os.path.basename(entry).upper() == "DICOMDIR":
+            _, dicomdir = odil.read(entry)
+            for record in dicomdir.as_data_set("DirectoryRecordSequence"):
+                if record.as_string("DirectoryRecordType")[0] == "IMAGE":
+                    dicom_files.append(
+                        os.path.join(
+                            os.path.dirname(entry),
+                            *record.as_string("ReferencedFileID")))
+        else:
+            dicom_files.append(entry)
     
     def binary_as_bytes(data):
         if "InlineBinary" in data:
@@ -53,8 +71,8 @@ def convert(dicom, destination, dtype, pretty_print, zip):
     
     logging.info(
         "Reading {} DICOM file{}".format(
-            len(dicom), "s" if len(dicom)>1 else ""))
-    dicom_data_sets = [odil.read(x)[1] for x in dicom]
+            len(dicom_files), "s" if len(dicom_files)>1 else ""))
+    dicom_data_sets = [odil.read(x)[1] for x in dicom_files]
     dicom_data_sets = [
         json.loads(odil.as_json(x), object_hook=binary_as_bytes) 
         for x in dicom_data_sets]
@@ -130,7 +148,7 @@ def convert(dicom, destination, dtype, pretty_print, zip):
         suffix = ".nii"
         if zip:
             suffix += ".gz"
-        image.save(destination_root+suffix)
+        image.write(destination_root+suffix)
         
         kwargs = {}
         if pretty_print:

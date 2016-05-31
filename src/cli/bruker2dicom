@@ -68,11 +68,14 @@ def main():
 
 def list_(source):
     directory = dicomifier.bruker.Directory()
-    directory.load(source)
     
-    series_and_reconstructions = directory.get_series_and_reco(source)
-    for series, reconstructions in sorted(series_and_reconstructions.items()):
-        for reconstruction in sorted(reconstructions):
+    series_and_reconstructions = sorted(
+        directory.get_series_and_reco(source).items(),
+        key=lambda x: (int(x[0]), [int(y) for y in x[1]]))
+    
+    for series, reconstructions in series_and_reconstructions:
+        directory.load(os.path.join(source, series))
+        for reconstruction in reconstructions:
             bruker_binary = directory.get_dataset(
                 "{}{:04d}".format(series, int(reconstruction)))
             bruker_json = json.loads(dicomifier.bruker.as_json(bruker_binary))
