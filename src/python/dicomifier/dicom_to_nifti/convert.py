@@ -11,7 +11,7 @@ import nifti_image
 import niftiio
 from .. import MetaData
 
-def convert(dicom_data_sets, dtype, pretty_print=False):
+def convert(dicom_data_sets, dtype):
     nifti_data = []
     
     stacks = get_stacks(dicom_data_sets)

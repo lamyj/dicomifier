@@ -48,6 +48,21 @@ def convert(dicom, destination, dtype, pretty_print, zip):
     if os.path.isdir(destination) and len(os.listdir(destination)) > 0:
         logging.warning("{} is not empty".format(destination))
     
+    dicom_files = get_files(dicom)
+    series = split_series(dicom_files)
+    
+    logging.info("{} series found".format(len(series)))
+    
+    study_directories = {}
+    series_directories = {}
+    
+    for series_files in series.values():
+        nifti_data = convert_series(series_files, dtype)
+        write_nifti(
+            nifti_data, destination, pretty_print, zip, 
+            study_directories, series_directories)
+
+def get_files(dicom):
     dicom_files = []
     for entry in dicom:
         if os.path.isdir(entry):
@@ -64,6 +79,26 @@ def convert(dicom, destination, dtype, pretty_print, zip):
         else:
             dicom_files.append(entry)
     
+    return dicom_files
+
+def split_series(dicom_files):
+    logging.info(
+        "Splitting {} DICOM file{} in series".format(
+            len(dicom_files), "s" if len(dicom_files)>1 else ""))
+    
+    def until_series_instance_uid(tag):
+        tag = tag.group*2**16 + tag.element
+        return (tag > 0x0200010) # StudyInstanceUID
+    
+    series = {}
+    for file_ in dicom_files:
+        _, data_set = odil.read(file_, halt_condition=until_series_instance_uid)
+        series_instance_uid = data_set.as_string("SeriesInstanceUID")[0]
+        series.setdefault(series_instance_uid, []).append(file_)
+    
+    return series
+
+def convert_series(series_files, dtype):
     def binary_as_bytes(data):
         if "InlineBinary" in data:
             data["InlineBinary"] = data["InlineBinary"].encode("ascii")
@@ -71,66 +106,58 @@ def convert(dicom, destination, dtype, pretty_print, zip):
     
     logging.info(
         "Reading {} DICOM file{}".format(
-            len(dicom_files), "s" if len(dicom_files)>1 else ""))
-    dicom_data_sets = [odil.read(x)[1] for x in dicom_files]
+            len(series_files), "s" if len(series_files)>1 else ""))
+    dicom_data_sets = [odil.read(x)[1] for x in series_files]
     dicom_data_sets = [
         json.loads(odil.as_json(x), object_hook=binary_as_bytes) 
         for x in dicom_data_sets]
     
-    logging.info("Converting to NIfTI")
     nifti_data = dicomifier.dicom_to_nifti.convert(dicom_data_sets, dtype)
     
-    stacks_count = {}
-    for image, meta_data in nifti_data:
-        series_instance_uid = meta_data["SeriesInstanceUID"][0]
-        
-        stacks_count.setdefault(series_instance_uid, 0)
-        stacks_count[series_instance_uid] += 1
+    return nifti_data
     
-    directories = {}
-    
-    study_directories = {}
-    series_directories = {}
+def write_nifti(
+        nifti_data, destination, pretty_print, zip, 
+        study_directories, series_directories):
     for image, meta_data in nifti_data:
+        # Generate a study directory name
         study_instance_uid = meta_data["StudyInstanceUID"][0]
-        if study_instance_uid in study_directories:
-            continue
+        if study_instance_uid not in study_directories:
+            study_id = meta_data.get("StudyID", [None])[0]
+            study_description = meta_data.get("StudyDescription", [None])[0]
+            
+            directory = []
+            if study_id is not None:
+                directory.append(study_id)
+            else:
+                directory.append(str(1+len(study_directories)))
+            if study_description is not None:
+                directory.append(study_description)
+            directory = "_".join(directory)
+            
+            study_directories[study_instance_uid] = directory
+            series_directories[study_instance_uid] = {}
         
-        study_id = meta_data.get("StudyID", [None])[0]
-        study_description = meta_data.get("StudyDescription", [None])[0]
-        
-        directory = []
-        if study_id is not None:
-            directory.append(study_id)
-        else:
-            directory.append(str(len(study_directories)))
-        if study_description is not None:
-            directory.append(study_description)
-        directory = "_".join(directory)
-        
-        study_directories[study_instance_uid] = directory
-        series_directories[study_instance_uid] = {}
-    
-    for image, meta_data in nifti_data:
-        study_instance_uid = meta_data["StudyInstanceUID"][0]
+        # Generate a series directory name
         series_instance_uid = meta_data["SeriesInstanceUID"][0]
-        if series_instance_uid in series_directories:
-            continue
-        series_number = meta_data.get("SeriesNumber", [None])[0]
-        series_description = meta_data.get("SeriesDescription", [None])[0]
-        
-        directory = []
-        if study_id is not None:
-            directory.append(str(series_number))
-        else:
-            directory.append(str(len(series_directories[study_instance_uid])))
-        if series_description is not None:
-            directory.append(series_description)
-        directory = "_".join(directory)
-        
-        series_directories[study_instance_uid][series_instance_uid] = directory
+        if series_instance_uid not in series_directories:
+            series_number = meta_data.get("SeriesNumber", [None])[0]
+            series_description = meta_data.get("SeriesDescription", [None])[0]
+            
+            directory = []
+            if series_number is not None:
+                directory.append(str(series_number))
+            else:
+                directory.append(str(1+len(series_directories[study_instance_uid])))
+            if series_description is not None:
+                directory.append(series_description)
+            directory = "_".join(directory)
+            
+            series_directories[series_instance_uid] = directory
+            series_directories[study_instance_uid][series_instance_uid] = directory
     
-    for image, meta_data in nifti_data:
+    # Write one nii+json per stack
+    for index, (image, meta_data) in enumerate(nifti_data):
         study_instance_uid = meta_data["StudyInstanceUID"][0]
         series_instance_uid = meta_data["SeriesInstanceUID"][0]
         
@@ -142,8 +169,7 @@ def convert(dicom, destination, dtype, pretty_print, zip):
         if not os.path.isdir(destination_directory):
             os.makedirs(destination_directory)
         
-        index = 1+len(os.listdir(destination_directory))/2
-        destination_root = os.path.join(destination_directory, str(index))
+        destination_root = os.path.join(destination_directory, str(1+index))
         
         suffix = ".nii"
         if zip:

@@ -30,7 +30,7 @@ def get_image(data_sets, dtype):
     scanner_transform = numpy.identity(4)
     scanner_transform[:3, :3] = numpy.dot(lps_to_ras, direction)
     scanner_transform[:3, :3] = numpy.dot(
-        numpy.diag(spacing), scanner_transform[:3, :3])
+        scanner_transform[:3, :3], numpy.diag(spacing))
     scanner_transform[:3, 3] = numpy.dot(lps_to_ras, origin)
     
     image = nifti_image.NIfTIImage(
