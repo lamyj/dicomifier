@@ -67,31 +67,27 @@ def get_pixel_data(data_set):
         data_set[str(odil.registry.Columns)]["Value"][0]
     ))
     
-    pixel_transformation = data_set.get(
-        str(odil.registry.PixelValueTransformationSequence))
-    if pixel_transformation is not None:
-        pixel_transformation = pixel_transformation["Value"][0]
-        slope = pixel_transformation[str(odil.registry.RescaleSlope)]["Value"][0]
-        intercept = pixel_transformation[str(odil.registry.RescaleIntercept)]["Value"][0]
+    modality = data_set[str(odil.registry.Modality)]["Value"][0]
+    slope = None
+    intercept = None
+    if modality == "MR":
+        pixel_transformation = data_set.get(
+            str(odil.registry.PixelValueTransformationSequence))
+        if pixel_transformation is not None:
+            pixel_transformation = pixel_transformation["Value"][0]
+            slope = pixel_transformation[str(odil.registry.RescaleSlope)]["Value"][0]
+            intercept = pixel_transformation[str(odil.registry.RescaleIntercept)]["Value"][0]
+    elif modality == "CT":
+        slope = data_set[str(odil.registry.RescaleSlope)]["Value"][0]
+        intercept = data_set[str(odil.registry.RescaleIntercept)]["Value"][0]
+    
+    if None not in [slope, intercept]:
         pixel_data = pixel_data*slope+intercept
     
     return pixel_data
 
 def get_geometry(data_sets):
     origin = data_sets[0][str(odil.registry.ImagePositionPatient)]["Value"]
-    
-    spacing = data_sets[0][str(odil.registry.PixelSpacing)]["Value"]
-    if str(odil.registry.SpacingBetweenSlices) in data_sets[0]:
-        spacing.append(data_sets[0][str(odil.registry.SpacingBetweenSlices)]["Value"][0])
-    elif len(data_sets)>2:
-        spacing.append(
-            numpy.subtract(
-                data_sets[0][str(odil.registry.ImagePositionPatient)]["Value"][0],
-                data_sets[1][str(odil.registry.ImagePositionPatient)]["Value"][0]))
-    else:
-        # 2D data set, add dummy spacing at the end since DICOM images are
-        # in a 3D space
-        spacing.append(0)
     
     # Image Orientation gives the columns of the matrix, cf.
     # http://dicom.nema.org/medical/dicom/current/output/chtml/part03/sect_C.7.6.2.html#sect_C.7.6.2.1.1
@@ -100,5 +96,19 @@ def get_geometry(data_sets):
     direction[:,0] = orientation[:3]
     direction[:,1] = orientation[3:]
     direction[:,2] = numpy.cross(direction[:,0], direction[:,1])
+    
+    spacing = data_sets[0][str(odil.registry.PixelSpacing)]["Value"]
+    if str(odil.registry.SpacingBetweenSlices) in data_sets[0]:
+        spacing.append(data_sets[0][str(odil.registry.SpacingBetweenSlices)]["Value"][0])
+    elif len(data_sets)>2:
+        difference = numpy.subtract(
+            data_sets[1][str(odil.registry.ImagePositionPatient)]["Value"],
+            data_sets[0][str(odil.registry.ImagePositionPatient)]["Value"])
+        spacing_between_slices = abs(numpy.dot(difference, direction[:,2]))
+        spacing.append(spacing_between_slices)
+    else:
+        # 2D data set, add dummy spacing at the end since DICOM images are
+        # in a 3D space
+        spacing.append(0)
     
     return origin, spacing, direction
