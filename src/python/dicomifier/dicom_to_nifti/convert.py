@@ -138,7 +138,7 @@ def _get_splitters(data_sets):
     
     return list(itertools.chain(
         splitters["ALL"], 
-        *[splitters[x] for x in sop_classes]
+        *[splitters.get(x, []) for x in sop_classes]
     ))
 
 def _default_getter(data_set, tag):
