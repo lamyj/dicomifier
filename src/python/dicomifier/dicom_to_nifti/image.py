@@ -67,12 +67,21 @@ def get_pixel_data(data_set):
         data_set[str(odil.registry.Columns)]["Value"][0]
     ))
     
-    pixel_transformation = data_set.get(
-        str(odil.registry.PixelValueTransformationSequence))
-    if pixel_transformation is not None:
-        pixel_transformation = pixel_transformation["Value"][0]
-        slope = pixel_transformation[str(odil.registry.RescaleSlope)]["Value"][0]
-        intercept = pixel_transformation[str(odil.registry.RescaleIntercept)]["Value"][0]
+    modality = data_set[str(odil.registry.Modality)]["Value"][0]
+    slope = None
+    intercept = None
+    if modality == "MR":
+        pixel_transformation = data_set.get(
+            str(odil.registry.PixelValueTransformationSequence))
+        if pixel_transformation is not None:
+            pixel_transformation = pixel_transformation["Value"][0]
+            slope = pixel_transformation[str(odil.registry.RescaleSlope)]["Value"][0]
+            intercept = pixel_transformation[str(odil.registry.RescaleIntercept)]["Value"][0]
+    elif modality == "CT":
+        slope = data_set[str(odil.registry.RescaleSlope)]["Value"][0]
+        intercept = data_set[str(odil.registry.RescaleIntercept)]["Value"][0]
+    
+    if None not in [slope, intercept]:
         pixel_data = pixel_data*slope+intercept
     
     return pixel_data
