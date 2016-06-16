@@ -140,20 +140,19 @@ def write_nifti(
         
         # Generate a series directory name
         series_instance_uid = meta_data["SeriesInstanceUID"][0]
-        if series_instance_uid not in series_directories:
+        if not series_directories.get(series_instance_uid):
             series_number = meta_data.get("SeriesNumber", [None])[0]
             series_description = meta_data.get("SeriesDescription", [None])[0]
             
             directory = []
-            if series_number is not None:
+            if series_number:
                 directory.append(str(series_number))
             else:
                 directory.append(str(1+len(series_directories[study_instance_uid])))
-            if series_description is not None:
+            if series_description:
                 directory.append(series_description)
             directory = "_".join(directory)
             
-            series_directories[series_instance_uid] = directory
             series_directories[study_instance_uid][series_instance_uid] = directory
     
     # Write one nii+json per stack
