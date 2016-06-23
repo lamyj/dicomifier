@@ -31,21 +31,6 @@ struct TestDataLogger
 
 /******************************* TEST Nominal **********************************/
 /**
- * Nominal test case: Logger not Initialize
- */
-BOOST_FIXTURE_TEST_CASE(No_Initialization, TestDataLogger)
-{
-    // Test
-    dicomifier::loggerError() << " test ";
-    dicomifier::loggerWarning() << " test ";
-    dicomifier::loggerInfo() << " test ";
-    dicomifier::loggerDebug() << " test ";
-
-    BOOST_CHECK_EQUAL(stream.str(), "");
-}
-
-/******************************* TEST Nominal **********************************/
-/**
  * Nominal test case: InitializeLogger (ERROR)
  */
 BOOST_FIXTURE_TEST_CASE(InitializeloggerError, TestDataLogger)
