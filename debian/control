@@ -17,11 +17,7 @@ Build-Depends: debhelper (>= 9),
                libjsoncpp-dev, 
                libodil0-dev (>= 0.7.0),
                zlib1g-dev,
-               libnifti-dev,
                python,
-               python-numpy,
-               python-dateutil,
-               python-odil (>= 0.7.0),
                libboost-test-dev,
                python-nose
 Standards-Version: 3.9.8
