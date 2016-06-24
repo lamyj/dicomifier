@@ -66,21 +66,34 @@ def convert(dicom, destination, dtype, pretty_print, zip):
             study_directories, series_directories)
 
 def get_files(dicom):
-    dicom_files = []
+    dicom_files = set()
     for entry in dicom:
+        entry = os.path.abspath(entry)
+        
         if os.path.isdir(entry):
             for dirpath, dirnames, filenames in os.walk(entry):
-                dicom_files.extend([os.path.join(dirpath, x) for x in filenames])
+                for filename in filenames:
+                    if filename.upper() == "DICOMDIR":
+                        dicom_files.update(
+                            get_dicomdir_files(os.path.join(dirpath, filename)))
+                    else:
+                        dicom_files.add(os.path.join(dirpath, filename))
         elif os.path.basename(entry).upper() == "DICOMDIR":
-            _, dicomdir = odil.read(entry)
-            for record in dicomdir.as_data_set("DirectoryRecordSequence"):
-                if record.as_string("DirectoryRecordType")[0] == "IMAGE":
-                    dicom_files.append(
-                        os.path.join(
-                            os.path.dirname(entry),
-                            *record.as_string("ReferencedFileID")))
+            dicom_files.update(get_dicomdir_files(entry))
         else:
-            dicom_files.append(entry)
+            dicom_files.add(entry)
+    
+    return dicom_files
+
+def get_dicomdir_files(path):
+    dicom_files = []
+    _, dicomdir = odil.read(path)
+    for record in dicomdir.as_data_set("DirectoryRecordSequence"):
+        if record.as_string("DirectoryRecordType")[0] == "IMAGE":
+            dicom_files.append(
+                os.path.join(
+                    os.path.dirname(path),
+                    *record.as_string("ReferencedFileID")))
     
     return dicom_files
 
