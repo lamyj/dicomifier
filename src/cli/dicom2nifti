@@ -58,6 +58,9 @@ def convert(dicom, destination, dtype, pretty_print, zip):
     
     for series_files in series.values():
         nifti_data = convert_series(series_files, dtype)
+        if nifti_data is None:
+            # No image in the series
+            continue
         write_nifti(
             nifti_data, destination, pretty_print, zip, 
             study_directories, series_directories)
@@ -108,6 +111,12 @@ def convert_series(series_files, dtype):
         "Reading {} DICOM file{}".format(
             len(series_files), "s" if len(series_files)>1 else ""))
     dicom_data_sets = [odil.read(x)[1] for x in series_files]
+    
+    # Filter non-images
+    dicom_data_sets = [x for x in dicom_data_sets if "PixelData" in x]
+    if len(dicom_data_sets) == 0:
+        return None
+    
     dicom_data_sets = [
         json.loads(odil.as_json(x), object_hook=binary_as_bytes) 
         for x in dicom_data_sets]
