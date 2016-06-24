@@ -51,17 +51,23 @@ def get_pixel_data(data_set):
     pixel_representation = data_set[str(odil.registry.PixelRepresentation)]["Value"][0]
     is_unsigned = (pixel_representation==0)
     
-    bits_stored = data_set[str(odil.registry.BitsStored)]["Value"][0]
-    if bits_stored%8 != 0:
+    bits_allocated = data_set[str(odil.registry.BitsAllocated)]["Value"][0]
+    if bits_allocated%8 != 0:
         raise NotImplementedError("Cannot handle non-byte types")
     
     dtype = numpy.dtype(
-        "{}{}{}".format(byte_order, "u" if is_unsigned else "i", bits_stored/8))
+        "{}{}{}".format(
+            byte_order, "u" if is_unsigned else "i", bits_allocated/8))
     
     pixel_data = numpy.fromstring(
         base64.b64decode(data_set[str(odil.registry.PixelData)]["InlineBinary"]),
         dtype
     )
+    
+    # Mask the data using Bits Stored, cf. PS 3.5, 8.1.1
+    bits_stored = data_set[str(odil.registry.BitsStored)]["Value"][0]
+    pixel_data = numpy.bitwise_and(pixel_data, 2**bits_stored-1)
+    
     pixel_data = pixel_data.reshape((
         data_set[str(odil.registry.Rows)]["Value"][0],
         data_set[str(odil.registry.Columns)]["Value"][0]
@@ -109,6 +115,6 @@ def get_geometry(data_sets):
     else:
         # 2D data set, add dummy spacing at the end since DICOM images are
         # in a 3D space
-        spacing.append(0)
+        spacing.append(1.)
     
     return origin, spacing, direction
