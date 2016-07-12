@@ -136,6 +136,10 @@ TreeModel
             }
         }
     }
+
+    emit dataChanged(
+        this->index(0,0),
+        this->index(this->rowCount()-1, this->columnCount()-1));
 }
 
 QVariant
