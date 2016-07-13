@@ -128,9 +128,9 @@ def convert(
         for reconstruction in sorted(reconstructions):
             try:
                 reco_files = dicomifier.bruker_to_dicom.convert_reconstruction(
-                    source, series, reconstruction, 
+                    directory, series, reconstruction,
                     dicomifier.bruker_to_dicom.mr_image_storage, transfer_syntax,
-                    destination, directory)
+                    destination, True, "hierarchical")
             except Exception as e:
                 logging.error(
                     "Could not convert {}:{} - {}".format(
@@ -140,7 +140,7 @@ def convert(
                 files.extend(reco_files)
     
     if dicomdir and files:
-        create_dicomdir(files, destination, [], [], [], [])
+        create_dicomdir(files, destination, [], [], ["SeriesDescription:3"], [])
 
 def create_dicomdir(
         names, directory, patient_key, study_key, series_key, image_key):

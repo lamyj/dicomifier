@@ -83,21 +83,22 @@ signals:
     void CreateNewPACSConfiguration();
 
 protected:
+    typedef boost::filesystem::path Path;
     /// Evaluate the value to set for Enabled property of Next Button
     virtual void modify_nextButton_enabled();
 
     /// Evaluate the value to set for Enabled property of Previous Button
     virtual void modify_previousButton_enabled();
 
-    void createDicomdirs(std::string const & directory,
-                         std::string const & absdirectory,
-                         std::string const & dicomdirfile);
+    void createDicomdir(std::vector<Path> const & files) const;
 
-    std::string createZipArchives(std::string const & directory,
-                                  std::string const & filename);
+    std::string createZipArchive(
+        std::string const & subject, std::vector<Path> const & files,
+        bool has_dicomdir) const;
 
-    void createDicomdirsOrZipFiles(QProgressDialog &progress,
-                                   std::map<std::string, std::string> &mapHascodeToSubject);
+    void createDicomdirsOrZipFiles(
+        QProgressDialog & progress,
+        std::map<std::string, std::vector<Path>> const & subject_files);
 
     /**
      * @brief For each processed item, send the DICOM to selected PACS
