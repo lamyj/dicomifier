@@ -6,3 +6,7 @@ install(
         GROUP_READ GROUP_EXECUTE 
         WORLD_READ WORLD_EXECUTE
 )
+
+file(GLOB_RECURSE files "*")
+add_custom_target(
+    Scripts ${CMAKE_COMMAND} -E echo "Scripts" SOURCES ${files})
