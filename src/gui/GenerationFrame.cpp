@@ -46,8 +46,12 @@ make_relative(
     boost::filesystem::path const & directory,
     boost::filesystem::path const & file)
 {
+    // boost::filesystem::path::preferred_separator does not exist in
+    // wheezy or precise
+    static char const separator =
+        boost::filesystem::path("/").make_preferred().string()[0];
     auto relative_file = file.string().substr(directory.string().size());
-    if(relative_file[0] == boost::filesystem::path::preferred_separator)
+    if(relative_file[0] == separator)
     {
         relative_file = relative_file.substr(1);
     }
