@@ -11,11 +11,21 @@ GeneralSeries = [ #http://dicom.nema.org/medical/dicom/current/output/chtml/part
     ("VisuUid", "SeriesInstanceUID", 1, None, None),
     (
         None, "SeriesNumber", 2, 
-        lambda d,g,i: d.get("VisuExperimentNumber") or d.get("VisuSeriesNumber"),
+        lambda d,g,i: (
+            d.get("VisuExperimentNumber") or
+            [int(x)>>16 for x in d.get("VisuSeriesNumber")]),
         None
     ),
-    ("VisuSeriesDate", "SeriesDate", 3, None, None),
-    ("VisuSeriesDate", "SeriesTime", 3, None, None),
+    (
+        None, "SeriesDate", 3,
+        lambda d,g,i: d.get("VisuSeriesDate") or d.get("VisuAcqDate"),
+        None
+    ),
+    (
+        None, "SeriesTime", 3,
+        lambda d,g,i: d.get("VisuSeriesDate") or d.get("VisuAcqDate"),
+        None
+    ),
     ("OWNER", "PerformingPhysicianName", 3, None, None),
     ("VisuAcquisitionProtocol", "ProtocolName", 3, None, None),
     ("VisuAcquisitionProtocol", "SeriesDescription", 3, None, None),
