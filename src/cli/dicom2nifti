@@ -141,51 +141,11 @@ def convert_series(series_files, dtype):
 def write_nifti(
         nifti_data, destination, pretty_print, zip, 
         study_directories, series_directories):
-    for image, meta_data in nifti_data:
-        # Generate a study directory name
-        study_instance_uid = meta_data["StudyInstanceUID"][0]
-        if study_instance_uid not in study_directories:
-            study_id = meta_data.get("StudyID", [None])[0]
-            study_description = meta_data.get("StudyDescription", [None])[0]
-            
-            directory = []
-            if study_id is not None:
-                directory.append(study_id)
-            else:
-                directory.append(str(1+len(study_directories)))
-            if study_description is not None:
-                directory.append(study_description)
-            directory = "_".join(directory)
-            
-            study_directories[study_instance_uid] = directory
-            series_directories[study_instance_uid] = {}
-        
-        # Generate a series directory name
-        series_instance_uid = meta_data["SeriesInstanceUID"][0]
-        if not series_directories.get(series_instance_uid):
-            series_number = meta_data.get("SeriesNumber", [None])[0]
-            series_description = meta_data.get("SeriesDescription", [None])[0]
-            
-            directory = []
-            if series_number:
-                directory.append(str(series_number))
-            else:
-                directory.append(str(1+len(series_directories[study_instance_uid])))
-            if series_description:
-                directory.append(series_description)
-            directory = "_".join(directory)
-            
-            series_directories[study_instance_uid][series_instance_uid] = directory
-    
+
     # Write one nii+json per stack
     for index, (image, meta_data) in enumerate(nifti_data):
-        study_instance_uid = meta_data["StudyInstanceUID"][0]
-        series_instance_uid = meta_data["SeriesInstanceUID"][0]
-        
         destination_directory = os.path.join(
-            destination, 
-            study_directories[study_instance_uid],
-            series_directories[study_instance_uid][series_instance_uid])
+            destination, get_series_directory(meta_data))
         
         if not os.path.isdir(destination_directory):
             os.makedirs(destination_directory)
@@ -197,12 +157,50 @@ def write_nifti(
             suffix += ".gz"
         image.write(destination_root+suffix)
         
-        kwargs = {}
-        if pretty_print:
-            kwargs = {"sort_keys": True, "indent": 4}
+        kwargs = {"sort_keys": True, "indent": 4} if pretty_print else {}
         json.dump(
             meta_data, open(destination_root+".json", "w"), 
             cls=dicomifier.MetaData.JSONEncoder, **kwargs)
+
+def get_series_directory(meta_data):
+    """ Return the directory associated with the patient, study and series of
+        the NIfTI meta-data.
+    """
+
+    # Patient directory: <PatientName> or <PatientID>.
+    patient_directory = None
+    if "PatientName" in meta_data and meta_data["PatientName"]:
+        patient_directory = meta_data["PatientName"][0]["Alphabetic"]
+    else:
+        patient_directory = meta_data["PatientID"][0]
+
+    # Study directory: <StudyID>_<StudyDescription>, both parts are
+    # optional. If both tags are missing or empty, raise an exception
+    study_directory = []
+    if "StudyID" in meta_data and meta_data["StudyID"]:
+        study_directory.append(meta_data["StudyID"][0])
+    if ("StudyDescription" in meta_data and meta_data["StudyDescription"]):
+        study_directory.append(meta_data["StudyDescription"][0])
+
+    if not study_directory:
+        raise Exception("Study ID and Study Description are both missing")
+
+    study_directory = "_".join(study_directory)
+
+    # Study directory: <SeriesNumber>_<SeriesDescription>, both
+    # parts are optional. If both tags are missing or empty, raise an exception
+    series_directory = []
+    if "SeriesNumber" in meta_data and meta_data["SeriesNumber"]:
+        series_directory.append(str(meta_data["SeriesNumber"][0]))
+    if ("SeriesDescription" in meta_data and meta_data["SeriesDescription"]):
+        series_directory.append(meta_data["SeriesDescription"][0])
+
+    if not series_directory:
+        raise Exception("Series Number and Series Description are both missing")
+
+    series_directory = "_".join(series_directory)
+
+    return os.path.join(patient_directory, study_directory, series_directory)
 
 if __name__ == "__main__":
     sys.exit(main())
