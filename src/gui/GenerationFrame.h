@@ -9,9 +9,14 @@
 #ifndef _c893b98a_2a9d_41b4_bcf7_02699144b4d9
 #define _c893b98a_2a9d_41b4_bcf7_02699144b4d9
 
-#include <QProgressDialog>
+#include <map>
+#include <string>
+#include <vector>
 
 #include <boost/filesystem.hpp>
+
+#include <QtCore>
+#include <QtGui>
 
 #include "BaseFrame.h"
 #include "components/GenerationResultItem.h"
@@ -23,80 +28,70 @@ namespace dicomifier
 namespace gui
 {
 
-namespace Ui {
-class GenerationFrame;
-} // namespace Ui
+namespace Ui
+{
 
-/**
- * @brief The GenerationFrame class
- */
-class GenerationFrame : public BaseFrame
+class GenerationFrame;
+
+}
+
+/// @brief Widget converting Bruker data and reporting on the conversion.
+class GenerationFrame: public BaseFrame
 {
     Q_OBJECT
 
 public:
-    /**
-     * @brief Create an instance of GenerationFrame
-     * @param parent: widget containing the GenerationFrame
-     */
+    /// @brief Constructor
     explicit GenerationFrame(QWidget *parent = 0);
 
-    /// Destroy the instance of GenerationFrame
+    /// @brief Destructor.
     virtual ~GenerationFrame();
 
-    /// Initialize the instance of GenerationFrame
+    /// @brief Initialize the instance of GenerationFrame
     virtual void Initialize();
 
-    /// Re-initialize the widget
+    /// @brief Re-initialize the widget
     virtual void Reset();
 
-    /**
-     * @brief Process conversion Bruker -> DICOM
-     * @param selectedItems: Selected items (Subject/Study/Series/Reconstruction)
-     */
-    void RunDicomifier(std::vector<TreeItem*> selectedItems);
+    /// @brief Convert selected reconstructions from Bruker to DICOM.
+    void generate(std::vector<TreeItem*> const & selected_items);
 
-    /**
-     * @brief Return the process results for each subject
-     * @return results
-     */
-    std::map<std::string, GenerationResultItem> get_Results()
-            { return this->_Results; }
-
-    std::string get_selectedFormat_toString() const;
-
-    /**
-     * @brief List DICOM files to add into DICOMDIR
-     * @param directory: Directory containing DICOM files
-     * @param absdirectory: absolute directory
-     */
-    static std::vector<std::string> getFilesForDicomdir(
-            std::string const & directory,
-            std::string const & absdirectory);
+    /// @brief Return the process results for each subject.
+    std::map<std::string, GenerationResultItem> get_results() const;
 
 public slots:
-    /// Event triggered when Preferences are modify
+    /// @brief Event triggered when preferences are modified.
     virtual void onUpdate_Preferences();
 
 signals:
-    /// Signal emit to open Preferences Widget and add new PACS
+    /// @brief Signal emitted to open Preferences widget and add new PACS entry.
     void CreateNewPACSConfiguration();
 
-protected:
+private:
     typedef boost::filesystem::path Path;
+
+    /// @brief User interface.
+    Ui::GenerationFrame * _ui;
+
+    /// @brief Map a subject to its conversion results.
+    std::map<std::string, GenerationResultItem> _results;
+
     /// Evaluate the value to set for Enabled property of Next Button
     virtual void modify_nextButton_enabled();
 
     /// Evaluate the value to set for Enabled property of Previous Button
     virtual void modify_previousButton_enabled();
 
-    void createDicomdir(std::vector<Path> const & files) const;
+    /// @brief Create a DICOMDIR for a set of files belonging to a single subject.
+    void _create_dicomdir(std::vector<Path> const & files) const;
 
-    std::string createZipArchive(
+    /// @brief Create a ZIP archive for a set of files belonging to a single subject.
+    std::string _create_zip_archive(
         std::string const & subject, std::vector<Path> const & files,
         bool has_dicomdir) const;
 
-    void createDicomdirsOrZipFiles(
+    /// @brief Create extra files (DICOMDIR, ZIP archive, etc.).
+    void _create_extra_files(
         QProgressDialog & progress,
         std::map<std::string, std::vector<Path>> const & subject_files);
 
@@ -104,33 +99,21 @@ protected:
      * @brief For each processed item, send the DICOM to selected PACS
      * @param directory: Directory containing DICOM files
      */
-    void storeFilesIntoPACS(std::string const & directory);
+    void _store_files_in_pacs(std::string const & directory);
+
+    /// @brief Save all preferences.
+    void _save_preferences();
 
 private slots:
-    /// Event triggered by clicking Save checkBox
-    void on_saveCheckBox_clicked();
+    void on_save_check_box_clicked();
 
-    /// Event triggered by clicking Browse Button
-    void on_outputDirBrowseButton_clicked();
+    void on_output_directory_button_clicked();
 
-    /// Event triggered by modifying output directory LineEdit
-    void on_outputDirectory_editingFinished();
+    void on_output_directory_text_editingFinished();
 
-    /// Event triggered by modifying output directory LineEdit
-    void on_outputDirectory_textEdited(const QString &arg1);
+    void on_output_directory_text_textEdited(QString const &);
 
-    /// Event triggered by clicking New Button
-    void on_CreateButton_clicked();
-
-private:
-    /// Save all choices for the next time
-    void SavePreferences();
-
-    /// User Interface
-    Ui::GenerationFrame * _ui;
-
-    /// Map <subject name, result>
-    std::map<std::string, GenerationResultItem> _Results;
+    void on_pacs_button_clicked();
 
 };
 

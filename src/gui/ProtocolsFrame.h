@@ -52,7 +52,7 @@ public:
      * @brief Return all selected items
      * @return selected items
      */
-    std::vector<TreeItem*> get_selectedData() const;
+    std::vector<TreeItem*> get_selected_data() const;
 
 public slots:
     /// Event triggered when user click on TreeView

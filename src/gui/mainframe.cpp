@@ -134,7 +134,7 @@ MainFrame
     {
         if (nextstep)
         {
-            this->_protocolsframe->InitializeWithData(this->_subjectsframe->get_selectedData());
+            this->_protocolsframe->InitializeWithData(this->_subjectsframe->get_selected_data());
         }
         else
         {
@@ -162,7 +162,7 @@ MainFrame
         if (nextstep)
         {
             this->_resultsframe->InitializeWithData(this->_itemsToProcess,
-                                                    this->_generationframe->get_Results());
+                                                    this->_generationframe->get_results());
         }
         else
         {
@@ -211,8 +211,8 @@ MainFrame
 
         if (nextstep)
         {
-            _itemsToProcess = this->_protocolsframe->get_selectedData();
-            this->_generationframe->RunDicomifier(_itemsToProcess);
+            _itemsToProcess = this->_protocolsframe->get_selected_data();
+            this->_generationframe->generate(_itemsToProcess);
         }
         break;
     }

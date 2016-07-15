@@ -27,7 +27,7 @@
   </property>
   <layout class="QVBoxLayout" name="verticalLayout_2">
    <item>
-    <widget class="QGroupBox" name="groupBox_3">
+    <widget class="QGroupBox" name="format_group">
      <property name="title">
       <string>DICOM Format</string>
      </property>
@@ -35,14 +35,14 @@
       <item>
        <layout class="QHBoxLayout" name="horizontalLayout">
         <item>
-         <widget class="QLabel" name="formatTitle">
+         <widget class="QLabel" name="media_storage_label">
           <property name="text">
            <string>Media storage:</string>
           </property>
          </widget>
         </item>
         <item>
-         <widget class="QRadioButton" name="formatMRIMultiple">
+         <widget class="QRadioButton" name="multiple_files_radio_button">
           <property name="text">
            <string>MRI Multiple Files</string>
           </property>
@@ -52,7 +52,7 @@
          </widget>
         </item>
         <item>
-         <widget class="QRadioButton" name="formatMRISingle">
+         <widget class="QRadioButton" name="single_file_radio_button">
           <property name="enabled">
            <bool>false</bool>
           </property>
@@ -62,7 +62,7 @@
          </widget>
         </item>
         <item>
-         <spacer name="horizontalSpacer">
+         <spacer name="format_spacer">
           <property name="orientation">
            <enum>Qt::Horizontal</enum>
           </property>
@@ -80,13 +80,13 @@
     </widget>
    </item>
    <item>
-    <widget class="QGroupBox" name="groupBox">
+    <widget class="QGroupBox" name="save_group">
      <property name="title">
       <string>Save to disk</string>
      </property>
      <layout class="QGridLayout" name="gridLayout">
       <item row="0" column="0">
-       <widget class="QCheckBox" name="saveCheckBox">
+       <widget class="QCheckBox" name="save_check_box">
         <property name="text">
          <string>Save</string>
         </property>
@@ -96,70 +96,70 @@
        </widget>
       </item>
       <item row="0" column="1">
-       <widget class="QLabel" name="outputDirectoryTitle">
+       <widget class="QLabel" name="output_directory_label">
         <property name="text">
          <string>Output Directory: </string>
         </property>
        </widget>
       </item>
       <item row="0" column="2">
-       <widget class="QLineEdit" name="outputDirectory"/>
+       <widget class="QLineEdit" name="output_directory_text"/>
       </item>
       <item row="0" column="3">
-       <widget class="QPushButton" name="outputDirBrowseButton">
+       <widget class="QPushButton" name="output_directory_button">
         <property name="text">
          <string>Browse</string>
         </property>
        </widget>
       </item>
       <item row="1" column="1" colspan="2">
-       <widget class="QCheckBox" name="DicomdirCheckBox">
+       <widget class="QCheckBox" name="dicomdir_check_box">
         <property name="text">
          <string>Create DICOMDIR</string>
         </property>
        </widget>
       </item>
       <item row="2" column="1" colspan="2">
-       <widget class="QCheckBox" name="ZIPCheckBox">
+       <widget class="QCheckBox" name="zip_check_box">
         <property name="text">
          <string>Create ZIP Archive</string>
         </property>
        </widget>
       </item>
      </layout>
-     <zorder>outputDirectoryTitle</zorder>
-     <zorder>ZIPCheckBox</zorder>
-     <zorder>outputDirBrowseButton</zorder>
-     <zorder>DicomdirCheckBox</zorder>
-     <zorder>saveCheckBox</zorder>
-     <zorder>outputDirectory</zorder>
+     <zorder>output_directory_label</zorder>
+     <zorder>zip_check_box</zorder>
+     <zorder>output_directory_button</zorder>
+     <zorder>dicomdir_check_box</zorder>
+     <zorder>save_check_box</zorder>
+     <zorder>output_directory_text</zorder>
     </widget>
    </item>
    <item>
-    <widget class="QGroupBox" name="groupBox_2">
+    <widget class="QGroupBox" name="store_group">
      <property name="title">
       <string>Store on network</string>
      </property>
      <layout class="QHBoxLayout" name="horizontalLayout_2" stretch="0,0,1,0">
       <item>
-       <widget class="QCheckBox" name="StoreCheckBox">
+       <widget class="QCheckBox" name="store_check_box">
         <property name="text">
          <string>Store</string>
         </property>
        </widget>
       </item>
       <item>
-       <widget class="QLabel" name="PACSTitle">
+       <widget class="QLabel" name="pacs_label">
         <property name="text">
          <string>PACS:</string>
         </property>
        </widget>
       </item>
       <item>
-       <widget class="QComboBox" name="PACSComboBox"/>
+       <widget class="QComboBox" name="pacs_combo_box"/>
       </item>
       <item>
-       <widget class="QPushButton" name="CreateButton">
+       <widget class="QPushButton" name="pacs_button">
         <property name="text">
          <string>New</string>
         </property>
@@ -169,7 +169,7 @@
     </widget>
    </item>
    <item>
-    <spacer name="verticalSpacer">
+    <spacer name="spacer">
      <property name="orientation">
       <enum>Qt::Vertical</enum>
      </property>
