@@ -41,7 +41,7 @@ SubjectsFrame
 
     // Link Signals and Slots
     connect(this->_tree_view, SIGNAL(itemsSelectionChanged()),
-            this, SLOT(on_tree_view_clicked()));
+            this, SLOT(_on_tree_view_clicked()));
 
     // Disabled Subject part
     this->_set_list_enabled(false);
@@ -79,7 +79,7 @@ SubjectsFrame
     }
 
     // Initialize treeView
-    this->on_tree_view_clicked();
+    this->_on_tree_view_clicked();
 
     // Initialize frame
     this->BaseFrame::Initialize();
@@ -249,13 +249,13 @@ SubjectsFrame
             TreeItem* treeitem = new TreeItem();
             connect(
                 treeitem, SIGNAL(SendDate(double)),
-                this, SLOT(on_date_received(double)));
+                this, SLOT(_on_date_received(double)));
             treeitem->set_directory(subject_path);
             treeitem->fill_data(dataset);
             treeitem->set_subjectDirectory(subject_directory);
             disconnect(
                 treeitem, SIGNAL(SendDate(double)),
-                this, SLOT(on_date_received(double)));
+                this, SLOT(_on_date_received(double)));
 
             subjectsAndStudiesList.push_back(treeitem);
         }
@@ -277,7 +277,7 @@ SubjectsFrame
 
 void
 SubjectsFrame
-::on_tree_view_clicked()
+::_on_tree_view_clicked()
 {
     this->_ui->selectAllCheckBox->setCheckState(
         this->_tree_view->compute_selection());
@@ -352,7 +352,7 @@ SubjectsFrame
 
 void
 SubjectsFrame
-::on_date_received(double date)
+::_on_date_received(double date)
 {
     QDateTime datetemp = QDateTime::fromTime_t(date);
 

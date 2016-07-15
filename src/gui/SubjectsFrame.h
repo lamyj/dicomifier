@@ -98,8 +98,8 @@ private slots:
 
     void on_dateFilterEnd_dateTimeChanged(const QDateTime &dateTime);
 
-    void on_tree_view_clicked();
-    void on_date_received(double date);
+    void _on_tree_view_clicked();
+    void _on_date_received(double date);
 
 };
 
