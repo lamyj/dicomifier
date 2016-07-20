@@ -23,11 +23,17 @@ def _get_acquisition_number(data_set, generator, frame_index):
     return [acquisition_number]
 
 def _get_pixel_data(data_set, generator, frame_index):
+    """ Read the pixel data and return the given frame.
+        This function MUST be called before converting VisuCoreDataOffs and 
+        VisuCoreDataSlope.
+    """
+    
     if isinstance(data_set["PIXELDATA"], list):
         dtype = {
             "_8BIT_UNSGN_INT": numpy.uint8,
             "_16BIT_SGN_INT": numpy.int16,
-            "_32BIT_SGN_INT": numpy.int32
+            "_32BIT_SGN_INT": numpy.int32,
+            "_32BIT_FLOAT": numpy.single,
         }[data_set["VisuCoreWordType"][0]]
         
         # Read the file
@@ -35,6 +41,24 @@ def _get_pixel_data(data_set, generator, frame_index):
             pixel_data = numpy.fromfile(fd, dtype)
             data_set["PIXELDATA"] = pixel_data.reshape(
                 -1, data_set["VisuCoreSize"][0]*data_set["VisuCoreSize"][1])
+        if data_set["PIXELDATA"].dtype == numpy.single:
+            # Map to uint32
+            min = data_set["PIXELDATA"].min()
+            max = data_set["PIXELDATA"].max()
+            
+            data_set["PIXELDATA"] -= min
+            data_set["PIXELDATA"] *= (1<<32)/(max-min)
+            data_set["PIXELDATA"] = data_set["PIXELDATA"].astype(numpy.uint32)
+            
+            data_set["VisuCoreDataOffs"] = [0]*len(data_set["VisuCoreDataOffs"])
+            data_set["VisuCoreDataSlope"] = [1]*len(data_set["VisuCoreDataOffs"])
+            
+            if "VisuCoreDataOffs" in data_set:
+                data_set["VisuCoreDataOffs"] = [
+                    x+min for x in data_set["VisuCoreDataOffs"]]
+            if "VisuCoreDataSlope" in data_set:
+                data_set["VisuCoreDataSlope"] = [
+                    x/((1<<32)/(max-min)) for x in data_set["VisuCoreDataSlope"]]
     
     frame_index = (
         generator.frames_count-generator.get_linear_index(frame_index)-1
@@ -91,23 +115,34 @@ ImagePixel = [ # http://dicom.nema.org/medical/dicom/current/output/chtml/part03
     ("VisuCoreSize", "Columns", 1, lambda d,g,i: [d["VisuCoreSize"][0]], None),
     (
         "VisuCoreWordType", "BitsAllocated", 1, 
-        None, {"_32BIT_SGN_INT": 32, "_16BIT_SGN_INT": 16, "_8BIT_UNSGN_INT": 8}
+        None, {
+            "_32BIT_FLOAT": 32, 
+            "_32BIT_SGN_INT": 32, "_16BIT_SGN_INT": 16, "_8BIT_UNSGN_INT": 8
+        }
     ),
     (
         "VisuCoreWordType", "BitsStored", 1, 
-        None, {"_32BIT_SGN_INT": 32, "_16BIT_SGN_INT": 16, "_8BIT_UNSGN_INT": 8}
+        None, {
+            "_32BIT_FLOAT": 32, 
+            "_32BIT_SGN_INT": 32, "_16BIT_SGN_INT": 16, "_8BIT_UNSGN_INT": 8
+        }
     ),
     (
         "VisuCoreByteOrder", "HighBit", 1, 
         lambda d,g,i: [
-            {"_32BIT_SGN_INT": 32, "_16BIT_SGN_INT": 16, "_8BIT_UNSGN_INT": 8}[d["VisuCoreWordType"][0]]-1 
+            {
+                "_32BIT_FLOAT": 32, 
+                "_32BIT_SGN_INT": 32, "_16BIT_SGN_INT": 16, "_8BIT_UNSGN_INT": 8
+            }[d["VisuCoreWordType"][0]]-1 
             if d["VisuCoreByteOrder"][0]=="littleEndian" else 0
         ],
         None
     ),
     (
         "VisuCoreWordType", "PixelRepresentation", 1, 
-        None, {"_32BIT_SGN_INT": 1, "_16BIT_SGN_INT": 1, "_8BIT_UNSGN_INT": 0}
+        None, {
+            "_32BIT_FLOAT": 0, # mapped to uint32 
+            "_32BIT_SGN_INT": 1, "_16BIT_SGN_INT": 1, "_8BIT_UNSGN_INT": 0}
     ),
     (None, "PixelData", 1, _get_pixel_data, None),
     (
