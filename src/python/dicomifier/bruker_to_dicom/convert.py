@@ -30,7 +30,7 @@ vr_converters = {
 def convert_reconstruction(
         bruker_directory, series, reconstruction,
         iod_converter, transfer_syntax,
-        destination, iso_9660, layout):
+        destination, iso_9660):
     """ Convert and save a single reconstruction.
 
         :param bruker_directory: Bruker directory object
@@ -40,7 +40,6 @@ def convert_reconstruction(
         :param transfer_syntax: target transfer syntax
         :param destination: destination directory
         :param iso_9660: whether to use ISO-9660 compatible file names
-        :param layout: file layout in destination directory ("flat" or "hierarchical")
     """
     
     logging.info("Converting {}:{}".format(series, reconstruction))
@@ -69,14 +68,9 @@ def convert_reconstruction(
         else:
             filename = dicom_binary.as_string("SOPInstanceUID")[0]
         
-        if layout == "flat":
-            destination_file = os.path.join(destination, filename)
-        elif layout == "hierarchical":
-            destination_file = os.path.join(
-                destination, get_series_directory(dicom_binary, iso_9660),
-                filename)
-        else:
-            raise Exception("Unknown layout: {}".format(layout))
+        destination_file = os.path.join(
+            destination, get_series_directory(dicom_binary, iso_9660),
+            reconstruction, filename)
         
         if not os.path.isdir(os.path.dirname(destination_file)):
             os.makedirs(os.path.dirname(destination_file))
@@ -168,10 +162,11 @@ def get_series_directory(data_set, iso_9660):
     series_directory = []
     if "SeriesNumber" in data_set and data_set.as_int("SeriesNumber"):
         series_directory.append(str(data_set.as_int("SeriesNumber")[0]))
-    if ("SeriesDescription" in data_set and
-            data_set.as_string("SeriesDescription")):
-        series_directory.append(
-            data_set.as_string("SeriesDescription")[0])
+    if not iso_9660:
+        if ("SeriesDescription" in data_set and
+                data_set.as_string("SeriesDescription")):
+            series_directory.append(
+                data_set.as_string("SeriesDescription")[0])
 
     if not series_directory:
         raise Exception("Series Number and Series Description are both missing")

@@ -130,7 +130,7 @@ def convert(
                 reco_files = dicomifier.bruker_to_dicom.convert_reconstruction(
                     directory, series, reconstruction,
                     dicomifier.bruker_to_dicom.mr_image_storage, transfer_syntax,
-                    destination, True, "hierarchical")
+                    destination, True)
             except Exception as e:
                 logging.error(
                     "Could not convert {}:{} - {}".format(
