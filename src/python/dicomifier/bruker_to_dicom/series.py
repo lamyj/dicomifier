@@ -6,16 +6,21 @@
 # for details.
 #########################################################################
 
+def _get_series_number(data_set, generator, index):
+    if "VisuSeriesNumber" in data_set:
+        series_number = int(data_set["VisuSeriesNumber"][0])
+    else:
+        # cf. ParaVision Parameters, 2.4.11.6
+        experiment = int(data_set["VisuExperimentNumber"][0])
+        processing = int(data_set["VisuProcessingNumber"][0])
+        series_number = (experiment * 2**16)+processing
+    
+    return [series_number]
+
 GeneralSeries = [ #http://dicom.nema.org/medical/dicom/current/output/chtml/part03/sect_C.7.3.html#sect_C.7.3.1
     (None, "Modality", 1, lambda d,g,i: ["MR"], None),
     ("VisuUid", "SeriesInstanceUID", 1, None, None),
-    (
-        None, "SeriesNumber", 2, 
-        lambda d,g,i: (
-            d.get("VisuExperimentNumber") or
-            [int(x)>>16 for x in d.get("VisuSeriesNumber")]),
-        None
-    ),
+    (None, "SeriesNumber", 2, _get_series_number, None),
     (
         None, "SeriesDate", 3,
         lambda d,g,i: d.get("VisuSeriesDate") or d.get("VisuAcqDate"),
