@@ -11,6 +11,7 @@
 
 #include <map>
 #include <string>
+#include <vector>
 
 #include "Field.h"
 
@@ -52,11 +53,6 @@ public:
     /// @brief Return the frame groups, in outermost-to-innermost order.
     std::vector<FrameGroup> const & get_frame_groups() const;
     
-    /// @brief Return the index of the frame group that contains the given parameter.
-    void get_indexForValue(
-        std::string const & valuename, int & indexposition, 
-        int & startposition) const;
-
     typedef std::map<std::string, Field>::const_iterator const_iterator;
     const_iterator begin() const { return this->_fields.begin(); }
     const_iterator end() const { return this->_fields.end(); }

@@ -6,85 +6,119 @@
  * for details.
  ************************************************************************/
 
-#define BOOST_TEST_MODULE ModuleField
+#define BOOST_TEST_MODULE Field
 #include <boost/test/unit_test.hpp>
 
 #include "bruker/Field.h"
 #include "core/DicomifierException.h"
 
-struct TestData
+BOOST_AUTO_TEST_CASE(DefaultConstructor)
 {
-    dicomifier::bruker::Field field;
+    dicomifier::bruker::Field const field;
+    BOOST_REQUIRE(field.name.empty());
+    BOOST_REQUIRE(field.shape.empty());
+    BOOST_REQUIRE(field.value.empty());
+}
 
-    TestData()
-    {
-        field.name = "myname";
-
-        dicomifier::bruker::Field::Value value;
-        value.push_back("myvalue2");
-        value.push_back((long)12);
-        value.push_back((float)3.14);
-
-        field.value.push_back("myvalue");
-        field.value.push_back((long)42);
-        field.value.push_back((float)37.1);
-        field.value.push_back(value);
-    }
-
-    ~TestData()
-    {
-        // Nothing to do
-    }
-};
-
-/******************************* TEST Nominal **********************************/
-/**
- * Nominal test case: Constructor
- */
 BOOST_AUTO_TEST_CASE(Constructor)
 {
-    dicomifier::bruker::Field field;
-    BOOST_CHECK_EQUAL(field.name == "", true);
-    BOOST_CHECK_EQUAL(field.shape.size(), 0);
-    BOOST_CHECK_EQUAL(field.value.size(), 0);
-    BOOST_CHECK_EQUAL(field.get_size(), 0);
-
-    dicomifier::bruker::Field field2("myname", {}, {});
-    BOOST_CHECK_EQUAL(field2.name == "myname", true);
-    BOOST_CHECK_EQUAL(field2.shape.size(), 0);
-    BOOST_CHECK_EQUAL(field2.value.size(), 0);
-    BOOST_CHECK_EQUAL(field2.get_size(), 0);
+    dicomifier::bruker::Field const field("name", {1, 2}, {"foo", 3L});
+    BOOST_REQUIRE_EQUAL(field.name, "name");
+    BOOST_REQUIRE(field.shape == dicomifier::bruker::Field::Shape({1, 2}));
+    BOOST_REQUIRE(field.value == dicomifier::bruker::Field::Value({"foo", 3L}));
 }
 
-/******************************* TEST Nominal **********************************/
-/**
- * Nominal test case: Get values
- */
-BOOST_FIXTURE_TEST_CASE(GetValues, TestData)
+BOOST_AUTO_TEST_CASE(String)
 {
-    BOOST_CHECK_EQUAL(field.get_string(0) == "myvalue", true);
-    BOOST_CHECK_EQUAL(field.get_int(1), (long)42);
-    BOOST_CHECK_EQUAL(field.get_float(2), (float)37.1);
-    BOOST_CHECK_EQUAL(field.get_struct(3).size(), 3);
-
-    BOOST_CHECK_EQUAL(boost::get<std::string>(field.get_struct(3)[0]) == "myvalue2", true);
-    BOOST_CHECK_EQUAL(boost::get<long>(field.get_struct(3)[1]), (long)12);
-    BOOST_CHECK_EQUAL(boost::get<float>(field.get_struct(3)[2]), (float)3.14);
-
-    BOOST_CHECK_EQUAL(field.get<std::string>(0) == "myvalue", true);
-    BOOST_CHECK_EQUAL(field.get<long>(1), (long)42);
-    BOOST_CHECK_EQUAL(field.get<float>(2), (float)37.1);
-    BOOST_CHECK_EQUAL(field.get<dicomifier::bruker::Field::Value>(3).size(), 3);
+    dicomifier::bruker::Field const field("name", {}, {"foo"});
+    BOOST_REQUIRE(field.is_string(0));
+    BOOST_REQUIRE_EQUAL(field.get_string(0), "foo");
 }
 
-/******************************* TEST Nominal **********************************/
-/**
- * Nominal test case: Is_valuetype
- */
-BOOST_FIXTURE_TEST_CASE(IsValueType, TestData)
+BOOST_AUTO_TEST_CASE(BadString)
 {
-    BOOST_CHECK(field.is_string(0));
-    BOOST_CHECK(field.is_int(1));
-    BOOST_CHECK(field.is_float(2));
-    BOOST_CHECK(field.is_struct(3));
+    dicomifier::bruker::Field const field("name", {}, {123L});
+    BOOST_REQUIRE_THROW(field.get_string(0), std::exception);
+}
+
+BOOST_AUTO_TEST_CASE(Int)
+{
+    dicomifier::bruker::Field const field("name", {}, {123L});
+    BOOST_REQUIRE(field.is_int(0));
+    BOOST_REQUIRE_EQUAL(field.get_int(0), 123);
+}
+
+BOOST_AUTO_TEST_CASE(BadInt)
+{
+    dicomifier::bruker::Field const field("name", {}, {1.23f});
+    BOOST_REQUIRE_THROW(field.get_int(0), std::exception);
+}
+
+BOOST_AUTO_TEST_CASE(IntFromString)
+{
+    dicomifier::bruker::Field const field("name", {}, {"123"});
+    BOOST_REQUIRE_EQUAL(field.get_int(0), 123);
+}
+
+BOOST_AUTO_TEST_CASE(BadIntFromString)
+{
+    dicomifier::bruker::Field const field("name", {}, {"invalid"});
+    BOOST_REQUIRE_THROW(field.get_int(0), std::exception);
+}
+
+BOOST_AUTO_TEST_CASE(Float)
+{
+    dicomifier::bruker::Field const field("name", {}, {1.23f});
+    BOOST_REQUIRE(field.is_float(0));
+    BOOST_REQUIRE_CLOSE(field.get_float(0), 1.23, 1e-3);
+}
+
+BOOST_AUTO_TEST_CASE(FloatFromInt)
+{
+    dicomifier::bruker::Field const field("name", {}, {123L});
+    BOOST_REQUIRE_CLOSE(field.get_float(0), 123, 1e-3);
+}
+
+BOOST_AUTO_TEST_CASE(FloatFromString)
+{
+    dicomifier::bruker::Field const field("name", {}, {"1.23"});
+    BOOST_REQUIRE_CLOSE(field.get_float(0), 1.23, 1e-3);
+}
+
+BOOST_AUTO_TEST_CASE(BadFloatFromString)
+{
+    dicomifier::bruker::Field const field("name", {}, {"invalid"});
+    BOOST_REQUIRE_THROW(field.get_float(0), std::exception);
+}
+
+BOOST_AUTO_TEST_CASE(Struct)
+{
+    dicomifier::bruker::Field::Value const item({1L, "foo"});
+    dicomifier::bruker::Field const field("name", {}, {item});
+    BOOST_REQUIRE(field.is_struct(0));
+    BOOST_REQUIRE(field.get_struct(0) == item);
+}
+
+BOOST_AUTO_TEST_CASE(BadStruct)
+{
+    dicomifier::bruker::Field const field("name", {}, {123L});
+    BOOST_REQUIRE_THROW(field.get_struct(0), std::exception);
+}
+
+BOOST_AUTO_TEST_CASE(MixedTypes)
+{
+    dicomifier::bruker::Field::Value const item({1L, "foo"});
+    dicomifier::bruker::Field const field("name", {}, {2L, "bar", -3.45f, item});
+
+    BOOST_REQUIRE(field.is_int(0));
+    BOOST_REQUIRE_EQUAL(field.get_int(0), 2);
+
+    BOOST_REQUIRE(field.is_string(1));
+    BOOST_REQUIRE_EQUAL(field.get_string(1), "bar");
+
+    BOOST_REQUIRE(field.is_float(2));
+    BOOST_REQUIRE_CLOSE(field.get_float(2), -3.45, 1e-3);
+
+    BOOST_REQUIRE(field.is_struct(3));
+    BOOST_REQUIRE(field.get_struct(3) == item);
 }

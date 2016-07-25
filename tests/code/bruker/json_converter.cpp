@@ -6,367 +6,136 @@
  * for details.
  ************************************************************************/
 
-#define BOOST_TEST_MODULE Modulejson_converter
+#define BOOST_TEST_MODULE json_converter
 #include <boost/test/unit_test.hpp>
-
-#include <fstream>
 
 #include <json/json.h>
 
 #include "bruker/Dataset.h"
+#include "bruker/Field.h"
 #include "bruker/json_converter.h"
 
-class TestData
-{
-public:
-    std::string filepath;
-    dicomifier::bruker::Dataset data_set;
-
-    TestData() : filepath("./tmp_test_file_json_converter.txt")
-    {
-        // NOthing to do
-    }
-
-    virtual ~TestData()
-    {
-        remove(filepath.c_str());
-    }
-};
-
-/******************************* TEST Nominal **********************************/
-/**
- * Nominal test case: Empty Dataset
- */
-BOOST_AUTO_TEST_CASE(AsJSONEmpty)
+BOOST_AUTO_TEST_CASE(EmptyAsJSON)
 {
     dicomifier::bruker::Dataset data_set;
     auto const json = dicomifier::bruker::as_json(data_set);
     BOOST_REQUIRE(json.empty());
 }
 
-/******************************* TEST Nominal **********************************/
-/**
- * Nominal test case: Convert a String field
- */
-class TestDataStringValue : public TestData
+BOOST_AUTO_TEST_CASE(StringAsJson)
 {
-public:
-    TestDataStringValue() : TestData()
-    {
-        std::ofstream myfile;
-        myfile.open(this->filepath);
-        myfile << "##AttributeName=string value\n";
-        myfile << "##END=\n";
-        myfile.close();
-
-        this->data_set.load(this->filepath);
-    }
-
-};
-
-BOOST_FIXTURE_TEST_CASE(StringValue, TestDataStringValue)
-{
+    dicomifier::bruker::Dataset data_set;
+    data_set.set_field(dicomifier::bruker::Field("Name", {}, {"value"}));
     auto const json = dicomifier::bruker::as_json(data_set);
     BOOST_REQUIRE(json.isObject());
-    BOOST_REQUIRE(json["AttributeName"].isArray());
-    BOOST_REQUIRE(json["AttributeName"].get(Json::Value::ArrayIndex(0),
-                                            Json::Value()).isString());
-    BOOST_REQUIRE_EQUAL(json["AttributeName"].get(Json::Value::ArrayIndex(0),
-                                                  Json::Value()).asString(),
-                        "string value");
+    BOOST_REQUIRE(json["Name"].isArray());
+    BOOST_REQUIRE_EQUAL(json["Name"].size(), 1);
+    BOOST_REQUIRE(json["Name"][0].isString());
+    BOOST_REQUIRE_EQUAL(json["Name"][0].asString(), "value");
 }
 
-/******************************* TEST Nominal **********************************/
-/**
- * Nominal test case: Convert a Int field
- */
-class TestDataIntValue : public TestData
+BOOST_AUTO_TEST_CASE(IntAsJson)
 {
-public:
-    TestDataIntValue() : TestData()
-    {
-        std::ofstream myfile;
-        myfile.open(this->filepath);
-        myfile << "##AttributeName=( 1 )\n";
-        myfile << "12\n";
-        myfile << "##END=\n";
-        myfile.close();
-
-        this->data_set.load(this->filepath);
-    }
-
-};
-
-BOOST_FIXTURE_TEST_CASE(IntValue, TestDataIntValue)
-{
+    dicomifier::bruker::Dataset data_set;
+    data_set.set_field(dicomifier::bruker::Field("Name", {}, {12L}));
     auto const json = dicomifier::bruker::as_json(data_set);
     BOOST_REQUIRE(json.isObject());
-    BOOST_REQUIRE(json["AttributeName"].isArray());
-    BOOST_REQUIRE(json["AttributeName"].get(Json::Value::ArrayIndex(0),
-                                            Json::Value()).isInt());
-    BOOST_REQUIRE_EQUAL(json["AttributeName"].get(Json::Value::ArrayIndex(0),
-                                                  Json::Value()).asInt(),
-                        12);
+    BOOST_REQUIRE(json["Name"].isArray());
+    BOOST_REQUIRE_EQUAL(json["Name"].size(), 1);
+    BOOST_REQUIRE(json["Name"][0].isInt());
+    BOOST_REQUIRE_EQUAL(json["Name"][0].asInt(), 12);
 }
 
-/******************************* TEST Nominal **********************************/
-/**
- * Nominal test case: Convert a Float field
- */
-class TestDataFloatValue : public TestData
+BOOST_AUTO_TEST_CASE(FloatAsJson)
 {
-public:
-    TestDataFloatValue() : TestData()
-    {
-        std::ofstream myfile;
-        myfile.open(this->filepath);
-        myfile << "##AttributeName=( 1 )\n";
-        myfile << "12.56\n";
-        myfile << "##END=\n";
-        myfile.close();
-
-        this->data_set.load(this->filepath);
-    }
-
-};
-
-BOOST_FIXTURE_TEST_CASE(FloatValue, TestDataFloatValue)
-{
+    dicomifier::bruker::Dataset data_set;
+    data_set.set_field(dicomifier::bruker::Field("Name", {}, {12.56f}));
     auto const json = dicomifier::bruker::as_json(data_set);
     BOOST_REQUIRE(json.isObject());
-    BOOST_REQUIRE(json["AttributeName"].isArray());
-    BOOST_REQUIRE(json["AttributeName"].get(Json::Value::ArrayIndex(0),
-                                            Json::Value()).isDouble());
-    BOOST_REQUIRE_CLOSE(json["AttributeName"].get(Json::Value::ArrayIndex(0),
-                                                  Json::Value()).asDouble(),
-                        12.56, 0.0001);
+    BOOST_REQUIRE(json["Name"].isArray());
+    BOOST_REQUIRE_EQUAL(json["Name"].size(), 1);
+    BOOST_REQUIRE(json["Name"][0].isDouble());
+    BOOST_REQUIRE_CLOSE(json["Name"][0].asDouble(), 12.56, 1e-3);
 }
 
-/******************************* TEST Nominal **********************************/
-/**
- * Nominal test case: Convert a multi-values field
- */
-class TestDataMultiValue : public TestData
+BOOST_AUTO_TEST_CASE(StructAsJson)
 {
-public:
-    TestDataMultiValue() : TestData()
-    {
-        std::ofstream myfile;
-        myfile.open(this->filepath);
-        myfile << "##AttributeInt=( 3 )\n";
-        myfile << "12 -5 42\n";
-        myfile << "##AttributeFloat=( 3 )\n";
-        myfile << "12.56 -5.74 42.15\n";
-        myfile << "##AttributeString=( 3 )\n";
-        myfile << "string1 string2 string3\n";
-        myfile << "##END=\n";
-        myfile.close();
-
-        this->data_set.load(this->filepath);
-    }
-
-};
-
-BOOST_FIXTURE_TEST_CASE(MultiValue, TestDataMultiValue)
-{
+    dicomifier::bruker::Dataset data_set;
+    data_set.set_field(
+        dicomifier::bruker::Field("Name", {}, {-5L, 12.56f, "value"}));
     auto const json = dicomifier::bruker::as_json(data_set);
     BOOST_REQUIRE(json.isObject());
+    BOOST_REQUIRE(json["Name"].isArray());
+    BOOST_REQUIRE_EQUAL(json["Name"].size(), 3);
 
-    BOOST_REQUIRE(json["AttributeInt"].isArray());
-    BOOST_REQUIRE(json["AttributeInt"].get(Json::Value::ArrayIndex(0),
-                                            Json::Value()).isInt());
-    BOOST_REQUIRE(json["AttributeInt"].get(Json::Value::ArrayIndex(1),
-                                            Json::Value()).isInt());
-    BOOST_REQUIRE(json["AttributeInt"].get(Json::Value::ArrayIndex(2),
-                                            Json::Value()).isInt());
-    BOOST_REQUIRE_EQUAL(json["AttributeInt"].get(Json::Value::ArrayIndex(0),
-                                                 Json::Value()).asInt(),
-                        12);
-    BOOST_REQUIRE_EQUAL(json["AttributeInt"].get(Json::Value::ArrayIndex(1),
-                                                 Json::Value()).asInt(),
-                        -5);
-    BOOST_REQUIRE_EQUAL(json["AttributeInt"].get(Json::Value::ArrayIndex(2),
-                                                 Json::Value()).asInt(),
-                        42);
+    BOOST_REQUIRE(json["Name"][0].isInt());
+    BOOST_REQUIRE_EQUAL(json["Name"][0].asInt(), -5);
 
-    BOOST_REQUIRE(json["AttributeFloat"].isArray());
-    BOOST_REQUIRE(json["AttributeFloat"].get(Json::Value::ArrayIndex(0),
-                                             Json::Value()).isDouble());
-    BOOST_REQUIRE(json["AttributeFloat"].get(Json::Value::ArrayIndex(1),
-                                             Json::Value()).isDouble());
-    BOOST_REQUIRE(json["AttributeFloat"].get(Json::Value::ArrayIndex(2),
-                                             Json::Value()).isDouble());
-    BOOST_REQUIRE_CLOSE(json["AttributeFloat"].get(Json::Value::ArrayIndex(0),
-                                                   Json::Value()).asDouble(),
-                        12.56, 0.0001);
-    BOOST_REQUIRE_CLOSE(json["AttributeFloat"].get(Json::Value::ArrayIndex(1),
-                                                   Json::Value()).asDouble(),
-                        -5.74, 0.0001);
-    BOOST_REQUIRE_CLOSE(json["AttributeFloat"].get(Json::Value::ArrayIndex(2),
-                                                   Json::Value()).asDouble(),
-                        42.15, 0.0001);
+    BOOST_REQUIRE(json["Name"][1].isDouble());
+    BOOST_REQUIRE_CLOSE(json["Name"][1].asDouble(), 12.56, 1e-3);
 
-    BOOST_REQUIRE(json["AttributeString"].isArray());
-    BOOST_REQUIRE(json["AttributeString"].get(Json::Value::ArrayIndex(0),
-                                              Json::Value()).isString());
-    BOOST_REQUIRE(json["AttributeString"].get(Json::Value::ArrayIndex(1),
-                                              Json::Value()).isString());
-    BOOST_REQUIRE(json["AttributeString"].get(Json::Value::ArrayIndex(2),
-                                              Json::Value()).isString());
-    BOOST_REQUIRE_EQUAL(json["AttributeString"].get(Json::Value::ArrayIndex(0),
-                                                    Json::Value()).asString(),
-                        "string1");
-    BOOST_REQUIRE_EQUAL(json["AttributeString"].get(Json::Value::ArrayIndex(1),
-                                                    Json::Value()).asString(),
-                        "string2");
-    BOOST_REQUIRE_EQUAL(json["AttributeString"].get(Json::Value::ArrayIndex(2),
-                                                    Json::Value()).asString(),
-                        "string3");
+    BOOST_REQUIRE(json["Name"][2].isString());
+    BOOST_REQUIRE_EQUAL(json["Name"][2].asString(), "value");
 }
 
-/******************************* TEST Nominal **********************************/
-/**
- * Nominal test case: Convert a struct field
- */
-class TestDataStructValue : public TestData
+BOOST_AUTO_TEST_CASE(EmptyAsDataset)
 {
-public:
-    TestDataStructValue() : TestData()
-    {
-        std::ofstream myfile;
-        myfile.open(this->filepath);
-        myfile << "##AttributeStruct=( 1 )\n";
-        myfile << "(1, <text>, <>, 0, 2)\n";
-        myfile << "##END=\n";
-        myfile.close();
-
-        this->data_set.load(this->filepath);
-    }
-
-};
-
-BOOST_FIXTURE_TEST_CASE(StructValue, TestDataStructValue)
-{
-    auto const json = dicomifier::bruker::as_json(data_set);
-    BOOST_REQUIRE(json.isObject());
-
-    BOOST_REQUIRE(json["AttributeStruct"].isArray());
-    BOOST_REQUIRE(json["AttributeStruct"].get(Json::Value::ArrayIndex(0),
-                                            Json::Value()).isArray());
-    BOOST_REQUIRE_EQUAL(json["AttributeStruct"].get(Json::Value::ArrayIndex(0),
-                                                    Json::Value()).
-                                                get(Json::Value::ArrayIndex(0),
-                                                    Json::Value()).asInt(),
-                        1);
-    BOOST_REQUIRE_EQUAL(json["AttributeStruct"].get(Json::Value::ArrayIndex(0),
-                                                    Json::Value()).
-                                                get(Json::Value::ArrayIndex(1),
-                                                    Json::Value()).asString(),
-                        "text");
-    BOOST_REQUIRE_EQUAL(json["AttributeStruct"].get(Json::Value::ArrayIndex(0),
-                                                    Json::Value()).
-                                                get(Json::Value::ArrayIndex(2),
-                                                    Json::Value()).asString(),
-                        "");
-    BOOST_REQUIRE_EQUAL(json["AttributeStruct"].get(Json::Value::ArrayIndex(0),
-                                                    Json::Value()).
-                                                get(Json::Value::ArrayIndex(3),
-                                                    Json::Value()).asInt(),
-                        0);
-    BOOST_REQUIRE_EQUAL(json["AttributeStruct"].get(Json::Value::ArrayIndex(0),
-                                                    Json::Value()).
-                                                get(Json::Value::ArrayIndex(4),
-                                                    Json::Value()).asInt(),
-                        2);
-}
-
-/******************************* TEST Nominal **********************************/
-/**
- * Nominal test case: Convert as string
- */
-BOOST_AUTO_TEST_CASE(AsString)
-{
-    Json::Value jsonobject;
-    jsonobject["first"] = Json::Value("firstvalue");
-
-    Json::Value jsonarray;
-    jsonarray.append(Json::Value(12));
-    jsonarray.append(Json::Value(13));
-    jsonarray.append(Json::Value(14));
-
     Json::Value json;
-    json["Array"] = jsonarray;
-    json["NULL"] = Json::Value();
-    json["Object"] = jsonobject;
-    json["String"] = Json::Value("stringvalue");
-    json["Int"] = Json::Value(42);
-    json["UInt"] = Json::Value((Json::Value::UInt)34);
-    json["Float"] = Json::Value(1.56);
-    json["Bool"] = Json::Value(true);
-
-    std::string const result = dicomifier::bruker::as_string(json);
-
-    std::stringstream expectedresult;
-    expectedresult << "{\n";
-    expectedresult << "\"Array\" : [12, 13, 14],\n";
-    expectedresult << "\"Bool\" : 1,\n";
-    expectedresult << "\"Float\" : 1.55999994,\n";
-    expectedresult << "\"Int\" : 42,\n";
-    expectedresult << "\"NULL\" : null,\n";
-    expectedresult << "\"Object\" : {\n";
-    expectedresult << "\"first\" : \"firstvalue\"\n";
-    expectedresult << "},\n";
-    expectedresult << "\"String\" : \"stringvalue\",\n";
-    expectedresult << "\"UInt\" : 34\n";
-    expectedresult << "}";
-
-    BOOST_CHECK_EQUAL(result, expectedresult.str());
-}
-
-BOOST_FIXTURE_TEST_CASE(AsDataset, TestData)
-{
-    std::istringstream json_text(R"(
-        {
-          "Int": [ 1, 2 ],
-          "Double": [ 1, 2.2 ],
-          "String": [ "foo", "bar" ],
-          "Struct": [ [ "foo", 1 ], [ "bar", 2 ] ]
-        }
-    )");
-
-    Json::Value json;
-    json_text >> json;
-
     auto const data_set = dicomifier::bruker::as_dataset(json);
+    BOOST_REQUIRE(data_set.begin() == data_set.end());
+}
 
-    BOOST_REQUIRE(data_set.has_field("Int"));
-    BOOST_REQUIRE_EQUAL(data_set.get_field("Int").get_size(), 2);
-    BOOST_REQUIRE_EQUAL(data_set.get_field("Int").get_int(0), 1);
-    BOOST_REQUIRE_EQUAL(data_set.get_field("Int").get_int(1), 2);
+BOOST_AUTO_TEST_CASE(IntAsDataset)
+{
+    Json::Value json;
+    json["Name"].append(12);
+    auto const data_set = dicomifier::bruker::as_dataset(json);
+    BOOST_REQUIRE(data_set.has_field("Name"));
 
-    BOOST_REQUIRE(data_set.has_field("Double"));
-    BOOST_REQUIRE_EQUAL(data_set.get_field("Double").get_size(), 2);
-    BOOST_REQUIRE_EQUAL(data_set.get_field("Double").get_float(0), 1.0);
-    BOOST_REQUIRE_CLOSE(data_set.get_field("Double").get_float(1), 2.2, 1e-2);
+    auto const & field = data_set.get_field("Name");
+    BOOST_REQUIRE_EQUAL(field.name, "Name");
+    BOOST_REQUIRE(field.value == dicomifier::bruker::Field::Value({12L}));
+}
 
-    BOOST_REQUIRE(data_set.has_field("String"));
-    BOOST_REQUIRE_EQUAL(data_set.get_field("String").get_size(), 2);
-    BOOST_REQUIRE_EQUAL(data_set.get_field("String").get<std::string>(0), "foo");
-    BOOST_REQUIRE_EQUAL(data_set.get_field("String").get<std::string>(1), "bar");
+BOOST_AUTO_TEST_CASE(FloatAsDataset)
+{
+    Json::Value json;
+    json["Name"].append(12.56);
+    auto const data_set = dicomifier::bruker::as_dataset(json);
+    BOOST_REQUIRE(data_set.has_field("Name"));
 
-    BOOST_REQUIRE(data_set.has_field("Struct"));
-    BOOST_REQUIRE_EQUAL(data_set.get_field("Struct").get_size(), 2);
-    auto const & first =
-        data_set.get_field("Struct")
-            .get<std::vector<dicomifier::bruker::Field::Item>>(0);
-    BOOST_REQUIRE_EQUAL(first.size(), 2);
-    BOOST_REQUIRE_EQUAL(boost::get<std::string>(first[0]), "foo");
-    BOOST_REQUIRE_EQUAL(boost::get<long>(first[1]), 1);
+    auto const & field = data_set.get_field("Name");
+    BOOST_REQUIRE_EQUAL(field.name, "Name");
+    BOOST_REQUIRE(field.value == dicomifier::bruker::Field::Value({12.56f}));
+}
 
-    auto const & second =
-        data_set.get_field("Struct")
-            .get<std::vector<dicomifier::bruker::Field::Item>>(1);
-    BOOST_REQUIRE_EQUAL(second.size(), 2);
-    BOOST_REQUIRE_EQUAL(boost::get<std::string>(second[0]), "bar");
-    BOOST_REQUIRE_EQUAL(boost::get<long>(second[1]), 2);
+BOOST_AUTO_TEST_CASE(StringAsDataset)
+{
+    Json::Value json;
+    json["Name"].append("foo");
+    auto const data_set = dicomifier::bruker::as_dataset(json);
+    BOOST_REQUIRE(data_set.has_field("Name"));
+
+    auto const & field = data_set.get_field("Name");
+    BOOST_REQUIRE_EQUAL(field.name, "Name");
+    BOOST_REQUIRE(field.value == dicomifier::bruker::Field::Value({"foo"}));
+}
+
+BOOST_AUTO_TEST_CASE(StructAsDataset)
+{
+    Json::Value json_item;
+    json_item.append(12);
+    json_item.append(12.56);
+    json_item.append("foo");
+
+    Json::Value json;
+    json["Name"].append(json_item);
+    auto const data_set = dicomifier::bruker::as_dataset(json);
+    BOOST_REQUIRE(data_set.has_field("Name"));
+
+    auto const & field = data_set.get_field("Name");
+    BOOST_REQUIRE_EQUAL(field.name, "Name");
+
+    dicomifier::bruker::Field::Value const bruker_item({12L, 12.56f, "foo"});
+    BOOST_REQUIRE(field.value == dicomifier::bruker::Field::Value({bruker_item}));
 }

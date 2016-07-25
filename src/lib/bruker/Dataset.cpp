@@ -10,14 +10,15 @@
 
 #include <fstream>
 #include <iterator>
+#include <map>
+#include <string>
 #include <vector>
 
 #include <boost/regex.hpp>
 
+#include "bruker/Field.h"
+#include "bruker/grammar.h"
 #include "core/DicomifierException.h"
-
-#include "Field.h"
-#include "grammar.h"
 
 namespace dicomifier
 {
@@ -33,9 +34,7 @@ Dataset
     std::ifstream stream(path);
     if(stream.fail())
     {
-        std::stringstream error;
-        error << "Could not open file: " << path;
-        throw DicomifierException(error.str());
+        throw DicomifierException("Could not open file: " + path);
     }
     std::string data(
         (std::istreambuf_iterator<typename std::string::value_type>(stream)),
@@ -63,8 +62,8 @@ Dataset
         throw DicomifierException("File was parsed incompletely");
     }
 
-    // Update the map
-    for(auto field: fields)
+    // Fill the fields map
+    for(auto & field: fields)
     {
         if(field.name[0] == '$')
         {
@@ -72,8 +71,6 @@ Dataset
         }
         this->set_field(field);
     }
-    
-    this->_update_frame_groups();
 }
 
 bool
@@ -110,29 +107,6 @@ Dataset
 ::get_frame_groups() const
 {
     return this->_frame_groups;
-}
-
-void 
-Dataset
-::get_indexForValue(
-    std::string const & valuename, int & indexposition, int & startposition) const
-{
-    indexposition = -1;
-    startposition = 0;
-    int count = -1;
-    for(auto const & frame_group: this->_frame_groups)
-    {
-        ++count;
-        for(auto const & parameter: frame_group.parameters)
-        {
-            if(parameter.name == valuename)
-            {
-                startposition = parameter.start_index;
-                indexposition = count;
-                return;
-            }
-        }
-    }
 }
 
 void
