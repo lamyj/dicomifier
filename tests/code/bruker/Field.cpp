@@ -94,7 +94,8 @@ BOOST_AUTO_TEST_CASE(BadFloatFromString)
 BOOST_AUTO_TEST_CASE(Struct)
 {
     dicomifier::bruker::Field::Value const item({1L, "foo"});
-    dicomifier::bruker::Field const field("name", {}, {item});
+    dicomifier::bruker::Field const field(
+        "name", {}, dicomifier::bruker::Field::Value({item}));
     BOOST_REQUIRE(field.is_struct(0));
     BOOST_REQUIRE(field.get_struct(0) == item);
 }
