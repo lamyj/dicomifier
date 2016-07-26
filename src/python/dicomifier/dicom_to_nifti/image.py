@@ -73,19 +73,26 @@ def get_pixel_data(data_set):
         data_set[str(odil.registry.Columns)]["Value"][0]
     ))
     
-    modality = data_set[str(odil.registry.Modality)]["Value"][0]
+    # Rescale: look for Pixel Value Transformation sequence then Rescale Slope
+    # and Rescale Intercept
     slope = None
     intercept = None
-    if modality == "MR":
-        pixel_transformation = data_set.get(
-            str(odil.registry.PixelValueTransformationSequence))
-        if pixel_transformation is not None:
-            pixel_transformation = pixel_transformation["Value"][0]
-            slope = pixel_transformation[str(odil.registry.RescaleSlope)]["Value"][0]
-            intercept = pixel_transformation[str(odil.registry.RescaleIntercept)]["Value"][0]
-    elif modality == "CT":
-        slope = data_set[str(odil.registry.RescaleSlope)]["Value"][0]
-        intercept = data_set[str(odil.registry.RescaleIntercept)]["Value"][0]
+    pixel_value_transformation = data_set.get(
+        str(odil.registry.PixelValueTransformationSequence))
+    if pixel_value_transformation is not None:
+        pixel_value_transformation = pixel_value_transformation["Value"][0]
+        slope = pixel_value_transformation[
+            str(odil.registry.RescaleSlope)]["Value"][0]
+        intercept = pixel_value_transformation[
+            str(odil.registry.RescaleIntercept)]["Value"][0]
+    else:
+        slope = data_set.get(str(odil.registry.RescaleSlope))
+        if slope is not None:
+            slope = slope["Value"][0]
+
+        intercept = data_set.get(str(odil.registry.RescaleIntercept))
+        if intercept is not None:
+            intercept = intercept["Value"][0]
     
     if None not in [slope, intercept]:
         pixel_data = pixel_data*slope+intercept
