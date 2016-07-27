@@ -194,7 +194,7 @@ def get_series_directory(meta_data):
     if not study_directory:
         raise Exception("Study ID and Study Description are both missing")
 
-    study_directory = "_".join(study_directory)
+    study_directory = "_".join(study_directory).replace(os.path.sep, "_")
 
     # Study directory: <SeriesNumber>_<SeriesDescription>, both
     # parts are optional. If both tags are missing or empty, raise an exception
@@ -207,7 +207,7 @@ def get_series_directory(meta_data):
     if not series_directory:
         raise Exception("Series Number and Series Description are both missing")
 
-    series_directory = "_".join(series_directory)
+    series_directory = "_".join(series_directory).replace(os.path.sep, "_")
 
     return os.path.join(patient_directory, study_directory, series_directory)
 
