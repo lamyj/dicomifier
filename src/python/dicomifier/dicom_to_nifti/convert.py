@@ -168,6 +168,7 @@ def _get_splitters(data_sets):
             (odil.registry.RepetitionTime, _default_getter),
             (odil.registry.EchoTime, _default_getter),
             (odil.registry.InversionTime, _default_getter),
+            (odil.registry.EchoNumbers, _default_getter),
             (odil.registry.MRDiffusionSequence, _diffusion_getter)
         ],
     }
