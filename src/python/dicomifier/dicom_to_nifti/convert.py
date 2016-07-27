@@ -25,10 +25,43 @@ def convert(dicom_data_sets, dtype):
     stacks = get_stacks(dicom_data_sets)
     logging.info(
         "Found {} stack{}".format(len(stacks), "s" if len(stacks)>1 else ""))
+
+    # Set up progress information
+    stacks_count = {}
+    stacks_converted = {}
     for key, data_sets in stacks.items():
+        series_instance_uid = data_sets[0][
+            str(odil.registry.SeriesInstanceUID)]["Value"][0]
+        stacks_count.setdefault(series_instance_uid, 0)
+        stacks_count[series_instance_uid] += 1
+        stacks_converted[series_instance_uid] = 0
+
+    for key, data_sets in stacks.items():
+        study = [
+            data_sets[0].get(
+                str(odil.registry.StudyID), {"Value": [None]})["Value"][0],
+            data_sets[0].get(
+                str(odil.registry.StudyDescription), {"Value": [None]})["Value"][0]]
+        study = [str(x) for x in study if x is not None]
+        series = [
+            data_sets[0].get(
+                str(odil.registry.SeriesNumber), {"Value": [None]})["Value"][0],
+            data_sets[0].get(
+                str(odil.registry.SeriesDescription), {"Value": [None]})["Value"][0]]
+        series = [str(x) for x in series if x is not None]
+        series_instance_uid = data_sets[0][
+            str(odil.registry.SeriesInstanceUID)]["Value"][0]
+        if stacks_count[series_instance_uid] > 1:
+            stack_info = " (stack {}/{})".format(
+                1+stacks_converted[series_instance_uid],
+                stacks_count[series_instance_uid])
+        else:
+            stack_info = ""
         logging.info(
-            "Merging {} data set{}".format(
-                len(data_sets), "s" if len(data_sets)>1 else ""))
+            "Converting {} / {}{}".format(
+                "-".join(study), "-".join(series), stack_info))
+        stacks_converted[series_instance_uid] += 1
+
         sort(data_sets)
         
         nifti_image = image.get_image(data_sets, dtype)
@@ -55,7 +88,7 @@ def convert(dicom_data_sets, dtype):
         for stack in mergeable.values():
             if len(stack)>1:
                 logging.info(
-                    "{} stack{} can be merged".format(
+                    "Merging {} stack{}".format(
                         len(stack), "s" if len(stack)>1 else ""))
                 merged = merge_images_and_meta_data(stack)
                 merged_stacks.append(merged)
