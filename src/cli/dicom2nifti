@@ -125,8 +125,17 @@ def convert_series(series_files, dtype):
             len(series_files), "s" if len(series_files)>1 else ""))
     dicom_data_sets = [odil.read(x)[1] for x in series_files]
     
-    # Filter non-images
+    # Filter non-images and multi-sample data sets
     dicom_data_sets = [x for x in dicom_data_sets if "PixelData" in x]
+    single_sample = [
+        x for x in dicom_data_sets if list(x.as_int("SamplesPerPixel")) == [1]]
+    multi_samples = [
+        x for x in dicom_data_sets if list(x.as_int("SamplesPerPixel")) != [1]]
+    if multi_samples:
+        logging.warning(
+            "Discarding {} muti-samples dataset{}".format(
+                len(multi_samples), "s" if len(multi_samples)>1 else ""))
+    dicom_data_sets = single_sample
     if len(dicom_data_sets) == 0:
         return None
     
