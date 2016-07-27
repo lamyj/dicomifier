@@ -8,19 +8,51 @@
 
 import base64
 import logging
+import math
 
 import numpy
 import odil
 
 import nifti_image
 import niftiio
+import siemens
 
 def get_image(data_sets, dtype):
     pixel_data = [get_pixel_data(data_set) for data_set in data_sets]
     pixel_data = numpy.asarray(pixel_data, dtype=dtype)
 
     origin, spacing, direction = get_geometry(data_sets)
-    
+
+    if (len(data_sets) == 1 and
+            "MOSAIC" in data_sets[0][str(odil.registry.ImageType)]["Value"]):
+        data_set = data_sets[0]
+        siemens_header = siemens.parse_csa(
+            base64.b64decode(data_set["00291010"]["InlineBinary"]))
+
+        number_of_images_in_mosaic = siemens_header["NumberOfImagesInMosaic"][0]
+        tiles_per_line = int(math.ceil(math.sqrt(number_of_images_in_mosaic)))
+
+        mosaic_shape = numpy.asarray(pixel_data.shape[-2:])
+
+        rows = pixel_data.shape[-2]/tiles_per_line
+        columns = pixel_data.shape[-1]/tiles_per_line
+
+        real_shape = numpy.asarray([rows, columns])
+
+        # Re-arrange array so that tiles are contiguous
+        pixel_data = pixel_data.reshape(tiles_per_line, rows, tiles_per_line, columns)
+        pixel_data = pixel_data.transpose((0,2,1,3))
+        pixel_data = pixel_data.reshape(tiles_per_line**2, rows, columns)
+
+        # Get the origin of the tiles (i.e. origin of the first tile), cf.
+        # http://nipy.org/nibabel/dicom/dicom_mosaic.html
+        # WARNING: need to invert their rows and columns
+        R = direction[:,:2]
+        Q = R*spacing[:2]
+        origin = origin + numpy.dot(Q, (mosaic_shape[::-1]-real_shape[::-1])/2.)
+
+        direction[:,2] = siemens_header["SliceNormalVector"]
+
     lps_to_ras = [
         [-1,  0, 0],
         [ 0, -1, 0],
