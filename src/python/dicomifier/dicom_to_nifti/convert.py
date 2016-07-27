@@ -36,7 +36,7 @@ def convert(dicom_data_sets, dtype):
         stacks_count[series_instance_uid] += 1
         stacks_converted[series_instance_uid] = 0
 
-    for key, data_sets in stacks.items():
+    for data_sets in stacks.values():
         study = [
             data_sets[0].get(
                 str(odil.registry.StudyID), {"Value": [None]})["Value"][0],
@@ -65,7 +65,7 @@ def convert(dicom_data_sets, dtype):
         sort(data_sets)
         
         nifti_image = image.get_image(data_sets, dtype)
-        nifti_meta_data = meta_data.get_meta_data(data_sets, key)
+        nifti_meta_data = meta_data.get_meta_data(data_sets)
         
         nifti_data.append((nifti_image, nifti_meta_data))
     
@@ -134,6 +134,12 @@ def merge_images_and_meta_data(images_and_meta_data):
     
     images = [x[0] for x in images_and_meta_data]
     
+    pixel_data = numpy.ndarray(
+        (len(images),)+images[0].shape,
+        dtype=images[0].data.dtype)
+    for i, image in enumerate(images):
+        pixel_data[i] = image.data
+
     merged_image = nifti_image.NIfTIImage(
         pixdim=images[0].pixdim,
         cal_min=min(x.cal_min for x in images), 
@@ -141,7 +147,7 @@ def merge_images_and_meta_data(images_and_meta_data):
         qform_code=images[0].qform_code, sform_code=images[0].sform_code,
         qform=images[0].qform, sform=images[0].sform,
         xyz_units=images[0].xyz_units, time_units=images[0].time_units,
-        data=numpy.asarray([x.data for x in images]))
+        data=pixel_data)
     
     meta_data = [x[1] for x in images_and_meta_data]
     merged_meta_data = MetaData()

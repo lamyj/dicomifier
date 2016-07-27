@@ -13,7 +13,7 @@ import odil
 
 from .. import MetaData
 
-def get_meta_data(data_sets, key):
+def get_meta_data(data_sets):
     """ Return the merged meta-data from the DICOM data sets in the NIfTI+JSON
         format: a dictionary keyed by the DICOM keyword (or the string 
         representation of the tag if no keyword is found) and valued by the 
@@ -22,16 +22,18 @@ def get_meta_data(data_sets, key):
     
     meta_data = [convert_meta_data(x) for x in data_sets]
     
-    named_key = []
-    for item in key:
-        name = item[0]
+    merged = merge_meta_data(meta_data)
+
+    named_meta_data = {}
+    for key, value in merged.items():
         try:
-            name = odil.Tag(name).get_name()
+            key = odil.Tag(key.encode()).get_name()
         except odil.Exception as e:
+            # Keep numeric tag
             pass
-        named_key.append(name)
-    
-    return merge_meta_data(meta_data, named_key)
+        named_meta_data[key] = value
+
+    return named_meta_data
 
 def convert_meta_data(data_set):
     """ Convert the meta-data from DICOM data sets to the NIfTI+JSON format.
@@ -43,8 +45,9 @@ def convert_meta_data(data_set):
         # Stored in the NIfTI image
         "Rows", "Columns", 
         "ImageOrientationPatient", "ImagePositionPatient", "PixelSpacing",
+        "SliceLocation",
         # Useless in the NIfTI world (?)
-        "SOPInstanceUID", 
+        "SOPInstanceUID", "InstanceCreationDate", "InstanceCreationTime",
         # Implicit with the NIfTI data type
         "PixelRepresentation", "HighBit", "BitsStored", "BitsAllocated",
         # Stored in the NIfTI image
@@ -53,14 +56,9 @@ def convert_meta_data(data_set):
         "PixelValueTransformationSequence",
         "SmallestImagePixelValue", "LargestImagePixelValue",
     ]
+    skipped = [str(getattr(odil.registry, x)) for x in skipped]
     
     for key, value in data_set.items():
-        try:
-            key = odil.Tag(key.encode()).get_name()
-        except odil.Exception:
-            # Keep string version
-            pass
-        
         if key in skipped:
             continue
         
@@ -80,7 +78,7 @@ def convert_meta_data(data_set):
     
     return meta_data
 
-def merge_meta_data(data_sets, key):
+def merge_meta_data(data_sets):
     """ Merge the meta-data of DICOM data sets if they are equal.
     """
     
@@ -88,17 +86,13 @@ def merge_meta_data(data_sets, key):
     
     tags = set(itertools.chain(*[x.keys() for x in data_sets]))
     for tag in tags:
-        merged_value = None
-        if tag in key:
-            merged_value = data_sets[0][tag]
-        else:
-            merged_value = []
-            for data_set in data_sets:
-                value = data_set.get(tag, None)
-                merged_value.append(value)
-            
-            if all(x == merged_value[0] for x in merged_value):
-                merged_value = merged_value[0]
+        merged_value = []
+        for data_set in data_sets:
+            value = data_set.get(tag, None)
+            merged_value.append(value)
+
+        if all(x == merged_value[0] for x in merged_value):
+            merged_value = merged_value[0]
         merged[tag] = merged_value
     
     return MetaData(merged)

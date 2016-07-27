@@ -18,8 +18,13 @@ import niftiio
 import siemens
 
 def get_image(data_sets, dtype):
-    pixel_data = [get_pixel_data(data_set) for data_set in data_sets]
-    pixel_data = numpy.asarray(pixel_data, dtype=dtype)
+    # WARNING: the following is much slower :
+    # numpy.asarray([get_pixel_data(data_set) for data_set in data_sets])
+    sample = get_pixel_data(data_sets[0])
+    pixel_data = numpy.ndarray((len(data_sets),)+sample.shape, dtype=dtype)
+    pixel_data[0] = sample
+    for i, data_set in enumerate(data_sets[1:]):
+        pixel_data[1+i] = get_pixel_data(data_set)
 
     origin, spacing, direction = get_geometry(data_sets)
 
@@ -64,7 +69,7 @@ def get_image(data_sets, dtype):
     scanner_transform[:3, :3] = numpy.dot(
         scanner_transform[:3, :3], numpy.diag(spacing))
     scanner_transform[:3, 3] = numpy.dot(lps_to_ras, origin)
-    
+
     image = nifti_image.NIfTIImage(
         pixdim=[0.]+spacing+(8-len(spacing)-1)*[0.],
         cal_min=pixel_data.min(), cal_max=pixel_data.max(),
@@ -125,10 +130,10 @@ def get_pixel_data(data_set):
         intercept = data_set.get(str(odil.registry.RescaleIntercept))
         if intercept is not None:
             intercept = intercept["Value"][0]
-    
+
     if None not in [slope, intercept]:
         pixel_data = pixel_data*slope+intercept
-    
+
     return pixel_data
 
 def get_geometry(data_sets):
