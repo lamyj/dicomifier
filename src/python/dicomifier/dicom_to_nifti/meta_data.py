@@ -23,17 +23,7 @@ def get_meta_data(data_sets):
     meta_data = [convert_meta_data(x) for x in data_sets]
     
     merged = merge_meta_data(meta_data)
-
-    named_meta_data = {}
-    for key, value in merged.items():
-        try:
-            key = odil.Tag(key.encode()).get_name()
-        except odil.Exception as e:
-            # Keep numeric tag
-            pass
-        named_meta_data[key] = value
-
-    return named_meta_data
+    return tag_to_name(merged)
 
 def convert_meta_data(data_set):
     """ Convert the meta-data from DICOM data sets to the NIfTI+JSON format.
@@ -96,3 +86,27 @@ def merge_meta_data(data_sets):
         merged[tag] = merged_value
     
     return MetaData(merged)
+
+def tag_to_name(meta_data):
+    """ Convert the numeric keys to named keys of a single meta data or a list
+        of meta data.
+    """
+    
+    result = None
+    
+    if isinstance(meta_data, list):
+        result = [tag_to_name(item) for item in meta_data]
+    elif isinstance(meta_data, (dict, MetaData)):
+        result = {}
+        for key, value in meta_data.items():
+            try:
+                key = odil.Tag(key.encode()).get_name()
+            except odil.Exception as e:
+                # Keep numeric tag
+                pass
+            result[key] = tag_to_name(value)
+    else:
+        # Scalar data
+        result = meta_data
+    
+    return result
