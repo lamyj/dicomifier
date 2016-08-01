@@ -1,5 +1,8 @@
 version=3
 
-opts=filenamemangle=s/.+\/v?(\d\S*)\.tar\.gz/dicomifier-$1\.tar\.gz/ \
-  https://github.com/lamyj/dicomifier/tags .*/v?(\d\S*)\.tar\.gz
+opts=filenamemangle=s/.+\/v(\d[\d\.]*)\.tar\.gz/dicomifier-$1\.tar\.gz/,\
+pgpsigurlmangle=s/archive/releases\/download/;\
+s/([^\/]+)\.tar\.gz/$1\/$1\.tar\.gz/;\
+s/$/.asc/ \
+  https://github.com/lamyj/dicomifier/tags (?:.*/)?v(\d[\d\.]*)\.tar\.gz
 
