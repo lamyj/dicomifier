@@ -23,10 +23,13 @@ namespace bruker
 
 /**
  * @brief A field (i.e. record in JCAMP-DX jargon) of a Bruker data set.
+ *
+ * A field is a container of named variant-typed items.
  */
 class Field
 {
 public:
+    /// @brief Variant-typed field item.
     typedef boost::make_recursive_variant<
         long, float, std::string,
         std::vector<boost::recursive_variant_>
@@ -35,26 +38,43 @@ public:
     typedef std::vector<int> Shape;
     typedef std::vector<Item> Value;
     
+    /// @brief Name of the field.
     std::string name;
+
+    /// @brief Shape of the field.
     Shape shape;
+
+    /// @brief Value of the field.
     Value value;
     
+    /// @brief Create an empty, un-named, field.
     Field();
+
+    /// @brief Creator.
     Field(std::string const & name, Shape const & shape, Value const & value);
     
-    Shape::size_type get_size() const;
-    
-    template<typename T>
-    T get(unsigned int index) const;
-    
+    /// @brief Return a string item, throw an exception if not string-typed.
     std::string const & get_string(unsigned int index) const;
+
+    /// @brief Return a int-convertible item, throw an exception if not convertible.
     long get_int(unsigned int index) const;
+
+    /// @brief Return a float-convertible item, throw an exception if not convertible.
     float get_float(unsigned int index) const;
+
+    /// @brief Return a struct item, throw an exception if not struct-typed.
     Value get_struct(unsigned int index) const;
 
+    /// @brief Test whether item is an int.
     bool is_int(unsigned int index) const;
+
+    /// @brief Test whether item is a float.
     bool is_float(unsigned int index) const;
+
+    /// @brief Test whether item is a string.
     bool is_string(unsigned int index) const;
+
+    /// @brief Test whether item is a struct.
     bool is_struct(unsigned int index) const;
 };
 

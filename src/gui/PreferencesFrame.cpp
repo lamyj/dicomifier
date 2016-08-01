@@ -93,6 +93,9 @@ PreferencesFrame
     // Edit and Delete button only enabled when treeItem is selected
     this->_ui->EditButton->setEnabled(selected);
     this->_ui->DeleteButton->setEnabled(selected);
+
+    // FIXME: this should not be necessary
+    this->modify_nextButton_enabled();
 }
 
 void

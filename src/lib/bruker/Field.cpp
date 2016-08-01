@@ -8,7 +8,10 @@
 
 #include "Field.h"
 
-#include <boost/lexical_cast.hpp>
+#include <string>
+#include <vector>
+
+#include <boost/fusion/include/adapt_struct.hpp>
 #include <boost/variant.hpp>
 
 namespace dicomifier
@@ -29,13 +32,6 @@ Field
 {
 }
 
-Field::Shape::size_type
-Field
-::get_size() const
-{
-    return this->value.size();
-}
-    
 std::string const &
 Field
 ::get_string(unsigned int index) const
@@ -53,8 +49,7 @@ Field
     }
     catch(boost::bad_get const & e)
     {
-        return boost::lexical_cast<long>(
-            boost::get<std::string>(this->value[index]));
+        return std::stol(boost::get<std::string>(this->value[index]));
     }
 }
 
@@ -74,8 +69,7 @@ Field
         }
         catch(boost::bad_get const & e)
         {
-            return boost::lexical_cast<float>(
-                boost::get<std::string>(this->value[index]));
+            return std::stof(boost::get<std::string>(this->value[index]));
         }
     }
 }
@@ -113,38 +107,6 @@ Field
 ::is_struct(unsigned int index) const
 {
     return this->value[index].type() == typeid(Field::Value);
-}
-
-template<>
-std::string
-Field
-::get<std::string>(unsigned int index) const
-{
-    return this->get_string(index);
-}
-
-template<>
-long
-Field
-::get<long>(unsigned int index) const
-{
-    return this->get_int(index);
-}
-
-template<>
-float
-Field
-::get<float>(unsigned int index) const
-{
-    return this->get_float(index);
-}
-
-template<>
-Field::Value
-Field
-::get<Field::Value>(unsigned int index) const
-{
-    return this->get_struct(index);
 }
 
 } // namespace bruker

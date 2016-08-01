@@ -8,19 +8,56 @@
 
 import base64
 import logging
+import math
 
 import numpy
 import odil
 
 import nifti_image
 import niftiio
+import siemens
 
 def get_image(data_sets, dtype):
-    pixel_data = [get_pixel_data(data_set) for data_set in data_sets]
-    pixel_data = numpy.asarray(pixel_data, dtype=dtype)
+    # WARNING: the following is much slower :
+    # numpy.asarray([get_pixel_data(data_set) for data_set in data_sets])
+    sample = get_pixel_data(data_sets[0])
+    pixel_data = numpy.ndarray((len(data_sets),)+sample.shape, dtype=dtype)
+    pixel_data[0] = sample
+    for i, data_set in enumerate(data_sets[1:]):
+        pixel_data[1+i] = get_pixel_data(data_set)
 
     origin, spacing, direction = get_geometry(data_sets)
-    
+
+    if (len(data_sets) == 1 and
+            "MOSAIC" in data_sets[0][str(odil.registry.ImageType)]["Value"]):
+        data_set = data_sets[0]
+        siemens_header = siemens.parse_csa(
+            base64.b64decode(data_set["00291010"]["InlineBinary"]))
+
+        number_of_images_in_mosaic = siemens_header["NumberOfImagesInMosaic"][0]
+        tiles_per_line = int(math.ceil(math.sqrt(number_of_images_in_mosaic)))
+
+        mosaic_shape = numpy.asarray(pixel_data.shape[-2:])
+
+        rows = pixel_data.shape[-2]/tiles_per_line
+        columns = pixel_data.shape[-1]/tiles_per_line
+
+        real_shape = numpy.asarray([rows, columns])
+
+        # Re-arrange array so that tiles are contiguous
+        pixel_data = pixel_data.reshape(tiles_per_line, rows, tiles_per_line, columns)
+        pixel_data = pixel_data.transpose((0,2,1,3))
+        pixel_data = pixel_data.reshape(tiles_per_line**2, rows, columns)
+
+        # Get the origin of the tiles (i.e. origin of the first tile), cf.
+        # http://nipy.org/nibabel/dicom/dicom_mosaic.html
+        # WARNING: need to invert their rows and columns
+        R = direction[:,:2]
+        Q = R*spacing[:2]
+        origin = origin + numpy.dot(Q, (mosaic_shape[::-1]-real_shape[::-1])/2.)
+
+        direction[:,2] = siemens_header["SliceNormalVector"]
+
     lps_to_ras = [
         [-1,  0, 0],
         [ 0, -1, 0],
@@ -32,7 +69,7 @@ def get_image(data_sets, dtype):
     scanner_transform[:3, :3] = numpy.dot(
         scanner_transform[:3, :3], numpy.diag(spacing))
     scanner_transform[:3, 3] = numpy.dot(lps_to_ras, origin)
-    
+
     image = nifti_image.NIfTIImage(
         pixdim=[0.]+spacing+(8-len(spacing)-1)*[0.],
         cal_min=pixel_data.min(), cal_max=pixel_data.max(),
@@ -51,39 +88,52 @@ def get_pixel_data(data_set):
     pixel_representation = data_set[str(odil.registry.PixelRepresentation)]["Value"][0]
     is_unsigned = (pixel_representation==0)
     
-    bits_stored = data_set[str(odil.registry.BitsStored)]["Value"][0]
-    if bits_stored%8 != 0:
+    bits_allocated = data_set[str(odil.registry.BitsAllocated)]["Value"][0]
+    if bits_allocated%8 != 0:
         raise NotImplementedError("Cannot handle non-byte types")
     
     dtype = numpy.dtype(
-        "{}{}{}".format(byte_order, "u" if is_unsigned else "i", bits_stored/8))
+        "{}{}{}".format(
+            byte_order, "u" if is_unsigned else "i", bits_allocated/8))
     
     pixel_data = numpy.fromstring(
         base64.b64decode(data_set[str(odil.registry.PixelData)]["InlineBinary"]),
         dtype
     )
+    
+    # Mask the data using Bits Stored, cf. PS 3.5, 8.1.1
+    bits_stored = data_set[str(odil.registry.BitsStored)]["Value"][0]
+    pixel_data = numpy.bitwise_and(pixel_data, 2**bits_stored-1)
+    
     pixel_data = pixel_data.reshape((
         data_set[str(odil.registry.Rows)]["Value"][0],
         data_set[str(odil.registry.Columns)]["Value"][0]
     ))
     
-    modality = data_set[str(odil.registry.Modality)]["Value"][0]
+    # Rescale: look for Pixel Value Transformation sequence then Rescale Slope
+    # and Rescale Intercept
     slope = None
     intercept = None
-    if modality == "MR":
-        pixel_transformation = data_set.get(
-            str(odil.registry.PixelValueTransformationSequence))
-        if pixel_transformation is not None:
-            pixel_transformation = pixel_transformation["Value"][0]
-            slope = pixel_transformation[str(odil.registry.RescaleSlope)]["Value"][0]
-            intercept = pixel_transformation[str(odil.registry.RescaleIntercept)]["Value"][0]
-    elif modality == "CT":
-        slope = data_set[str(odil.registry.RescaleSlope)]["Value"][0]
-        intercept = data_set[str(odil.registry.RescaleIntercept)]["Value"][0]
-    
+    pixel_value_transformation = data_set.get(
+        str(odil.registry.PixelValueTransformationSequence))
+    if pixel_value_transformation is not None:
+        pixel_value_transformation = pixel_value_transformation["Value"][0]
+        slope = pixel_value_transformation[
+            str(odil.registry.RescaleSlope)]["Value"][0]
+        intercept = pixel_value_transformation[
+            str(odil.registry.RescaleIntercept)]["Value"][0]
+    else:
+        slope = data_set.get(str(odil.registry.RescaleSlope))
+        if slope is not None:
+            slope = slope["Value"][0]
+
+        intercept = data_set.get(str(odil.registry.RescaleIntercept))
+        if intercept is not None:
+            intercept = intercept["Value"][0]
+
     if None not in [slope, intercept]:
         pixel_data = pixel_data*slope+intercept
-    
+
     return pixel_data
 
 def get_geometry(data_sets):
@@ -109,6 +159,6 @@ def get_geometry(data_sets):
     else:
         # 2D data set, add dummy spacing at the end since DICOM images are
         # in a 3D space
-        spacing.append(0)
+        spacing.append(1.)
     
     return origin, spacing, direction

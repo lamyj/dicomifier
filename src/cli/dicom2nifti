@@ -58,26 +58,42 @@ def convert(dicom, destination, dtype, pretty_print, zip):
     
     for series_files in series.values():
         nifti_data = convert_series(series_files, dtype)
+        if nifti_data is None:
+            # No image in the series
+            continue
         write_nifti(
             nifti_data, destination, pretty_print, zip, 
             study_directories, series_directories)
 
 def get_files(dicom):
-    dicom_files = []
+    dicom_files = set()
     for entry in dicom:
+        entry = os.path.abspath(entry)
+        
         if os.path.isdir(entry):
             for dirpath, dirnames, filenames in os.walk(entry):
-                dicom_files.extend([os.path.join(dirpath, x) for x in filenames])
+                for filename in filenames:
+                    if filename.upper() == "DICOMDIR":
+                        dicom_files.update(
+                            get_dicomdir_files(os.path.join(dirpath, filename)))
+                    else:
+                        dicom_files.add(os.path.join(dirpath, filename))
         elif os.path.basename(entry).upper() == "DICOMDIR":
-            _, dicomdir = odil.read(entry)
-            for record in dicomdir.as_data_set("DirectoryRecordSequence"):
-                if record.as_string("DirectoryRecordType")[0] == "IMAGE":
-                    dicom_files.append(
-                        os.path.join(
-                            os.path.dirname(entry),
-                            *record.as_string("ReferencedFileID")))
+            dicom_files.update(get_dicomdir_files(entry))
         else:
-            dicom_files.append(entry)
+            dicom_files.add(entry)
+    
+    return dicom_files
+
+def get_dicomdir_files(path):
+    dicom_files = []
+    _, dicomdir = odil.read(path)
+    for record in dicomdir.as_data_set("DirectoryRecordSequence"):
+        if record.as_string("DirectoryRecordType")[0] == "IMAGE":
+            dicom_files.append(
+                os.path.join(
+                    os.path.dirname(path),
+                    *record.as_string("ReferencedFileID")))
     
     return dicom_files
 
@@ -108,6 +124,21 @@ def convert_series(series_files, dtype):
         "Reading {} DICOM file{}".format(
             len(series_files), "s" if len(series_files)>1 else ""))
     dicom_data_sets = [odil.read(x)[1] for x in series_files]
+    
+    # Filter non-images and multi-sample data sets
+    dicom_data_sets = [x for x in dicom_data_sets if "PixelData" in x]
+    single_sample = [
+        x for x in dicom_data_sets if list(x.as_int("SamplesPerPixel")) == [1]]
+    multi_samples = [
+        x for x in dicom_data_sets if list(x.as_int("SamplesPerPixel")) != [1]]
+    if multi_samples:
+        logging.warning(
+            "Discarding {} muti-samples dataset{}".format(
+                len(multi_samples), "s" if len(multi_samples)>1 else ""))
+    dicom_data_sets = single_sample
+    if len(dicom_data_sets) == 0:
+        return None
+    
     dicom_data_sets = [
         json.loads(odil.as_json(x), object_hook=binary_as_bytes) 
         for x in dicom_data_sets]
@@ -119,51 +150,11 @@ def convert_series(series_files, dtype):
 def write_nifti(
         nifti_data, destination, pretty_print, zip, 
         study_directories, series_directories):
-    for image, meta_data in nifti_data:
-        # Generate a study directory name
-        study_instance_uid = meta_data["StudyInstanceUID"][0]
-        if study_instance_uid not in study_directories:
-            study_id = meta_data.get("StudyID", [None])[0]
-            study_description = meta_data.get("StudyDescription", [None])[0]
-            
-            directory = []
-            if study_id is not None:
-                directory.append(study_id)
-            else:
-                directory.append(str(1+len(study_directories)))
-            if study_description is not None:
-                directory.append(study_description)
-            directory = "_".join(directory)
-            
-            study_directories[study_instance_uid] = directory
-            series_directories[study_instance_uid] = {}
-        
-        # Generate a series directory name
-        series_instance_uid = meta_data["SeriesInstanceUID"][0]
-        if not series_directories.get(series_instance_uid):
-            series_number = meta_data.get("SeriesNumber", [None])[0]
-            series_description = meta_data.get("SeriesDescription", [None])[0]
-            
-            directory = []
-            if series_number:
-                directory.append(str(series_number))
-            else:
-                directory.append(str(1+len(series_directories[study_instance_uid])))
-            if series_description:
-                directory.append(series_description)
-            directory = "_".join(directory)
-            
-            series_directories[study_instance_uid][series_instance_uid] = directory
-    
+
     # Write one nii+json per stack
     for index, (image, meta_data) in enumerate(nifti_data):
-        study_instance_uid = meta_data["StudyInstanceUID"][0]
-        series_instance_uid = meta_data["SeriesInstanceUID"][0]
-        
         destination_directory = os.path.join(
-            destination, 
-            study_directories[study_instance_uid],
-            series_directories[study_instance_uid][series_instance_uid])
+            destination, get_series_directory(meta_data))
         
         if not os.path.isdir(destination_directory):
             os.makedirs(destination_directory)
@@ -175,12 +166,50 @@ def write_nifti(
             suffix += ".gz"
         image.write(destination_root+suffix)
         
-        kwargs = {}
-        if pretty_print:
-            kwargs = {"sort_keys": True, "indent": 4}
+        kwargs = {"sort_keys": True, "indent": 4} if pretty_print else {}
         json.dump(
             meta_data, open(destination_root+".json", "w"), 
             cls=dicomifier.MetaData.JSONEncoder, **kwargs)
+
+def get_series_directory(meta_data):
+    """ Return the directory associated with the patient, study and series of
+        the NIfTI meta-data.
+    """
+
+    # Patient directory: <PatientName> or <PatientID>.
+    patient_directory = None
+    if "PatientName" in meta_data and meta_data["PatientName"]:
+        patient_directory = meta_data["PatientName"][0]["Alphabetic"]
+    else:
+        patient_directory = meta_data["PatientID"][0]
+
+    # Study directory: <StudyID>_<StudyDescription>, both parts are
+    # optional. If both tags are missing or empty, raise an exception
+    study_directory = []
+    if "StudyID" in meta_data and meta_data["StudyID"]:
+        study_directory.append(meta_data["StudyID"][0])
+    if ("StudyDescription" in meta_data and meta_data["StudyDescription"]):
+        study_directory.append(meta_data["StudyDescription"][0])
+
+    if not study_directory:
+        raise Exception("Study ID and Study Description are both missing")
+
+    study_directory = "_".join(study_directory).replace(os.path.sep, "_")
+
+    # Study directory: <SeriesNumber>_<SeriesDescription>, both
+    # parts are optional. If both tags are missing or empty, raise an exception
+    series_directory = []
+    if "SeriesNumber" in meta_data and meta_data["SeriesNumber"]:
+        series_directory.append(str(meta_data["SeriesNumber"][0]))
+    if ("SeriesDescription" in meta_data and meta_data["SeriesDescription"]):
+        series_directory.append(meta_data["SeriesDescription"][0])
+
+    if not series_directory:
+        raise Exception("Series Number and Series Description are both missing")
+
+    series_directory = "_".join(series_directory).replace(os.path.sep, "_")
+
+    return os.path.join(patient_directory, study_directory, series_directory)
 
 if __name__ == "__main__":
     sys.exit(main())

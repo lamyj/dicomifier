@@ -16,6 +16,13 @@
 #include <boost/spirit/include/phoenix_operator.hpp>
 #include <boost/spirit/include/phoenix_stl.hpp>
 
+#include <string>
+#include <vector>
+
+#include <boost/spirit/include/qi.hpp>
+
+#include "Field.h"
+
 namespace dicomifier
 {
     

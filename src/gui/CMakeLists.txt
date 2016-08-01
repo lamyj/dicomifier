@@ -1,5 +1,6 @@
 find_package(
     Boost COMPONENTS filesystem program_options python regex system REQUIRED)
+find_package(Odil REQUIRED)
 find_package(PythonLibs 2.7 REQUIRED)
 find_package(Qt4 REQUIRED QtCore QtGui)
 
@@ -12,7 +13,8 @@ file(GLOB_RECURSE resources "*.qrc")
 
 include_directories(
     ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/../lib
-    ${Boost_INCLUDE_DIRS} ${PYTHON_INCLUDE_DIRS} ${QT_INCLUDES}
+    ${Boost_INCLUDE_DIRS} ${Odil_INCLUDE_DIR} ${PYTHON_INCLUDE_DIRS}
+    ${QT_INCLUDES}
     ${CMAKE_CURRENT_BINARY_DIR})
 add_definitions(
     ${DCMTK_DEFINITIONS} -DBOOST_FILESYSTEM_VERSION=3)
@@ -29,7 +31,8 @@ add_executable(
 
 target_link_libraries(
     dicomifier
-    libdicomifier ${Boost_LIBRARIES} ${PYTHON_LIBRARIES} ${QT_LIBRARIES})
+    libdicomifier ${Boost_LIBRARIES} ${Odil_LIBRARY} ${PYTHON_LIBRARIES}
+    ${QT_LIBRARIES})
 
 install(
     TARGETS dicomifier

@@ -6,17 +6,18 @@
  * for details.
  ************************************************************************/
 
+#include "GenerationFrame.h"
+
+#include <algorithm>
+#include <map>
 #include <string>
+#include <tuple>
 #include <vector>
 
-#include <QFileDialog>
-#include <QMessageBox>
-#include <QProcess>
-#include <QSettings>
-
-#include <boost/algorithm/string.hpp>
 #include <boost/filesystem.hpp>
+#include <boost/filesystem/fstream.hpp>
 #include <boost/python.hpp>
+#include <boost/python/stl_iterator.hpp>
 
 #include <odil/Association.h>
 #include <odil/BasicDirectoryCreator.h>
@@ -24,13 +25,40 @@
 #include <odil/registry.h>
 #include <odil/StoreSCU.h>
 
-#include <zlib.h>
+#include <QtCore>
+#include <QtGui>
 
+#include "BaseFrame.h"
+#include "components/GenerationResultItem.h"
+#include "components/TreeItem.h"
 #include "components/PACSTreeItem.h"
 #include "core/DicomifierException.h"
 #include "core/Logger.h"
 #include "GenerationFrame.h"
 #include "ui_GenerationFrame.h"
+
+namespace
+{
+
+/// @brief Return the path of file relative to directory.
+boost::filesystem::path
+make_relative(
+    boost::filesystem::path const & directory,
+    boost::filesystem::path const & file)
+{
+    // boost::filesystem::path::preferred_separator does not exist in
+    // wheezy or precise
+    static char const separator =
+        boost::filesystem::path("/").make_preferred().string()[0];
+    auto relative_file = file.string().substr(directory.string().size());
+    if(relative_file[0] == separator)
+    {
+        relative_file = relative_file.substr(1);
+    }
+    return relative_file;
+}
+
+}
 
 namespace dicomifier
 {
@@ -39,9 +67,8 @@ namespace gui
 {
 
 GenerationFrame
-::GenerationFrame(QWidget *parent) :
-    BaseFrame(parent),
-    _ui(new Ui::GenerationFrame)
+::GenerationFrame(QWidget *parent)
+: BaseFrame(parent), _ui(new Ui::GenerationFrame)
 {
     this->_ui->setupUi(this);
 }
@@ -59,70 +86,63 @@ GenerationFrame
     QSettings settings;
 
     // Set Output Directory
-    this->_ui->outputDirectory->setText(settings.value(CONF_GROUP_OUTPUT + "/" +
-                                                       CONF_KEY_DIRECTORY,
-                                                       QString("")).toString());
+    this->_ui->output_directory_button->setText(
+        settings.value(
+            CONF_GROUP_OUTPUT+"/"+CONF_KEY_DIRECTORY, "").toString());
 
     // Set Output Format File
-    QString selectitem = settings.value(CONF_GROUP_OUTPUT + "/" +
-                                    CONF_KEY_FORMAT,
-                                    QString("")).toString();
-
-    if (selectitem.toStdString() == odil::registry::MRImageStorage)
+    auto const abstract_syntax = settings.value(
+        CONF_GROUP_OUTPUT+"/"+CONF_KEY_FORMAT, "").toString().toStdString();
+    if(abstract_syntax == odil::registry::MRImageStorage)
     {
-        this->_ui->formatMRIMultiple->setChecked(true);
+        this->_ui->multiple_files_radio_button->setChecked(true);
     }
-    else if (selectitem.toStdString() == odil::registry::EnhancedMRImageStorage)
+    else if(abstract_syntax == odil::registry::EnhancedMRImageStorage)
     {
-        this->_ui->formatMRISingle->setChecked(true);
+        this->_ui->single_file_radio_button->setChecked(true);
     }
     else
-    {// default
-        this->_ui->formatMRIMultiple->setChecked(true);
+    {
+        this->_ui->multiple_files_radio_button->setChecked(true);
     }
 
     // Set DICOMDIR Creation
-    Qt::CheckState checkstate =
-            (Qt::CheckState)settings.value(CONF_GROUP_OUTPUT + "/" + CONF_KEY_DICOMDIR,
-                                           Qt::CheckState::Unchecked).toInt();
-    this->_ui->DicomdirCheckBox->setCheckState(checkstate);
+    this->_ui->dicomdir_check_box->setCheckState(
+        Qt::CheckState(settings.value(
+            CONF_GROUP_OUTPUT+"/"+CONF_KEY_DICOMDIR,
+            Qt::CheckState::Unchecked).toInt()));
 
     // Set ZIP Creation
-    checkstate =
-            (Qt::CheckState)settings.value(CONF_GROUP_OUTPUT + "/" + CONF_KEY_ZIP,
-                                           Qt::CheckState::Unchecked).toInt();
-    this->_ui->ZIPCheckBox->setCheckState(checkstate);
+    this->_ui->zip_check_box->setCheckState(
+        Qt::CheckState(settings.value(
+            CONF_GROUP_OUTPUT+"/"+CONF_KEY_ZIP,
+            Qt::CheckState::Unchecked).toInt()));
 
     // Set Save Option
-    checkstate =
-            (Qt::CheckState)settings.value(CONF_GROUP_OUTPUT + "/" + CONF_KEY_SAVE,
-                                           Qt::CheckState::Unchecked).toInt();
-    this->_ui->saveCheckBox->setCheckState(checkstate);
+    this->_ui->save_check_box->setCheckState(
+        Qt::CheckState(settings.value(
+            CONF_GROUP_OUTPUT+"/"+CONF_KEY_SAVE,
+            Qt::CheckState::Unchecked).toInt()));
 
     // Set Store Option
-    checkstate =
-            (Qt::CheckState)settings.value(CONF_GROUP_OUTPUT + "/" + CONF_KEY_STORE,
-                                           Qt::CheckState::Unchecked).toInt();
-    this->_ui->StoreCheckBox->setCheckState(checkstate);
+    this->_ui->store_check_box->setCheckState(
+        Qt::CheckState(settings.value(
+            CONF_GROUP_OUTPUT+"/"+CONF_KEY_STORE,
+            Qt::CheckState::Unchecked).toInt()));
 
     // Set PACS name
-    this->_ui->PACSComboBox->clear();
-    int number = settings.value(CONF_GROUP_PACS + "/" + CONF_KEY_NUMBER, 0).toInt();
+    this->_ui->pacs_combo_box->clear();
+    int number = settings.value(CONF_GROUP_PACS+"/"+CONF_KEY_NUMBER, 0).toInt();
     QStringList itemslist;
-    for (unsigned int i = 0 ; i < number ; ++i)
+    for(int i = 0 ; i < number ; ++i)
     {
-        std::stringstream stream;
-        stream << CONF_GROUP_PACS.toStdString() << "/"
-               << CONF_GROUP_PACS.toStdString() << i << "_";
-
-        std::stringstream streamname;
-        streamname << stream.str() << CONF_KEY_NAME.toStdString();
-
-        itemslist << settings.value(streamname.str().c_str(), QString("")).toString();
+        auto const name =
+            QString("%1/%1%2_%3").arg(CONF_GROUP_PACS).arg(i).arg(CONF_KEY_NAME);
+        itemslist << settings.value(name, "").toString();
     }
-    this->_ui->PACSComboBox->addItems(itemslist);
+    this->_ui->pacs_combo_box->addItems(itemslist);
 
-    BaseFrame::Initialize();
+    this->BaseFrame::Initialize();
 }
 
 void
@@ -134,117 +154,98 @@ GenerationFrame
 
 void
 GenerationFrame
-::RunDicomifier(std::vector<TreeItem *> selectedItems)
+::generate(std::vector<TreeItem *> const & selected_items)
 {
     // Create ProgressDialog
-    QProgressDialog progress("Copying files...", "Cancel", 0, selectedItems.size(), this);
-    // Initialize ProgressDialog
+    QProgressDialog progress(
+        "Converting...", "Cancel", 0, selected_items.size(), this);
     progress.setWindowModality(Qt::WindowModal);
-    QRect geom = progress.geometry();
+    auto geom = progress.geometry();
     geom.setWidth(900);
     progress.setGeometry(geom);
     progress.setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-    // Display ProgressDialog
     progress.show();
 
     // Save preferences
-    this->SavePreferences();
+    this->_save_preferences();
 
-    std::map<std::string, std::string> mapHascodeToSubject;
-
-    std::map<std::string, std::string> mapOutputStudyNumber;
-
-    int progressValue = 0;
-    // Create DICOM files
-    std::vector<std::string> files;
-    for (auto currentItem : selectedItems)
+    // Convert selected items
+    progress.setValue(0);
+    std::map<std::string, std::vector<Path>> subject_files;
+    std::map<std::string, boost::python::object> bruker_directories;
+    for(auto const & currentItem: selected_items)
     {
         // Canceled => force stop
-        if (progress.wasCanceled())
+        if(progress.wasCanceled())
         {
             return;
         }
 
-        // Update progressDialog
-        progress.setValue(progressValue);
-        ++progressValue;
-        // Update ProgressDialog label
-        std::stringstream progressLabel;
-        progressLabel << "Create DICOM " << progressValue << " / " << selectedItems.size()
-                      << " (Directory = " << currentItem->get_subjectDirectory() << ", "
-                      << "Series=" << currentItem->get_seriesDirectory() << ", "
-                      << "Reco=" << currentItem->get_recoDirectory() << ")";
-        progress.setLabelText(QString(progressLabel.str().c_str()));
+        progress.setLabelText(
+            QString("Converting %1/%2 (Directory: %3, Series: %4, Reco: %5)")
+                .arg(1+progress.value()).arg(progress.maximum())
+                .arg(QString::fromStdString(currentItem->get_subjectDirectory()))
+                .arg(QString::fromStdString(currentItem->get_seriesDirectory()))
+                .arg(QString::fromStdString(currentItem->get_recoDirectory())));
 
-        if (mapHascodeToSubject.find(currentItem->get_destinationDirectory()) == mapHascodeToSubject.end())
+        boost::filesystem::path outputdir;
+        if(this->_ui->save_check_box->isChecked())
         {
-            boost::filesystem::path dir(currentItem->get_directory());
-            mapHascodeToSubject[std::string(dir.filename().c_str())] = currentItem->get_name();
+            outputdir = this->_ui->output_directory_text->text().toStdString();
         }
-
-        int seriesnum = atoi(currentItem->get_seriesDirectory().c_str());
-        int reconum = atoi(currentItem->get_recoDirectory().c_str());
-
-        std::string mask = seriesnum < 10 ? "%01d%04d" : "%02d%04d";
-
-        // Conversion: seriesnum (A) + reconum (B) => AABBBB
-        char temp[7];
-        memset(&temp[0], 0, 7);
-        snprintf(&temp[0], 7, mask.c_str(), seriesnum, reconum);
-        std::string seriesnumber(temp);
-
-        auto outputdir = this->_ui->outputDirectory->text().toStdString();
-        if(!this->_ui->saveCheckBox->isChecked())
+        else
         {
             // Create temporary directory
             auto const temp = boost::filesystem::temp_directory_path();
             auto const uniquepath = boost::filesystem::unique_path();
-            outputdir = (temp/uniquepath).filename().string();
-            boost::filesystem::create_directories(outputdir);
+            outputdir = temp/uniquepath;
         }
 
-        // std::string currentStudyNumber;
-        // if (mapOutputStudyNumber.find(currentItem->get_subjectDirectory()) == mapOutputStudyNumber.end())
-        // {
-        //     boost::filesystem::path const dest =
-        //         boost::filesystem::path(outputdir) / currentItem->get_name();
-        //     currentStudyNumber = dicomifier::bruker::EnhanceBrukerDicom::get_default_directory_name(dest);
-        //     mapOutputStudyNumber[currentItem->get_subjectDirectory()] = currentStudyNumber;
-        // }
-        // else
-        // {
-        //     currentStudyNumber = mapOutputStudyNumber[currentItem->get_subjectDirectory()];
-        // }
-
         // Force to look if Cancel is called
-        QApplication::processEvents( QEventLoop::AllEvents );
+        QApplication::processEvents(QEventLoop::AllEvents);
 
         try
         {
             using namespace boost::python;
             
             object dicomifier = import("dicomifier");
+
+            object bruker = dicomifier.attr("bruker");
+            object Directory = bruker.attr("Directory");
+
             object bruker_to_dicom = dicomifier.attr("bruker_to_dicom");
             object mr_image_storage = bruker_to_dicom.attr("mr_image_storage");
             object convert_reconstruction = 
                 bruker_to_dicom.attr("convert_reconstruction");
+
+            auto const source = currentItem->get_directory();
+            if(bruker_directories.find(source) == bruker_directories.end())
+            {
+                object bruker_directory = Directory();
+                bruker_directory.attr("load")(source);
+                bruker_directories[source] = bruker_directory;
+            }
+            auto const & bruker_directory = bruker_directories.at(source);
             
             object files_python = convert_reconstruction(
-                currentItem->get_directory(),
+                bruker_directory,
                 currentItem->get_seriesDirectory(),
-                currentItem->get_recoDirectory(), 
+                currentItem->get_recoDirectory(),
                 mr_image_storage, "1.2.840.10008.1.2.1",
-                outputdir);
+                outputdir.string(), true, "hierarchical");
             
-            for(unsigned int i=0; i<len(files_python); ++i)
+            if(len(files_python) > 0)
             {
-                std::string const file = extract<std::string>(files_python[i]);
-                files.push_back(file);
+                auto & files = subject_files[currentItem->get_name()];
+                std::copy(
+                    stl_input_iterator<std::string>(files_python),
+                    stl_input_iterator<std::string>(),
+                    std::back_inserter(files));
             }
 
             currentItem->set_DicomErrorMsg("OK");
         }
-        catch(boost::python::error_already_set const & exc)
+        catch(boost::python::error_already_set const &)
         {
             PyObject *type, *value, *traceback;
             PyErr_Fetch(&type, &value, &traceback);
@@ -265,25 +266,24 @@ GenerationFrame
             dicomifier::loggerError() << message;
             currentItem->set_DicomErrorMsg(message);
         }
-        catch(std::exception &e)
+        catch(std::exception const & e)
         {
             dicomifier::loggerError() << e.what();
             currentItem->set_DicomErrorMsg(e.what());
         }
 
-        if (this->_ui->StoreCheckBox->isChecked() &&
+        if(this->_ui->store_check_box->isChecked() &&
             currentItem->get_DicomErrorMsg() == "OK")
         {
             try
             {
-                this->storeFilesIntoPACS(outputdir);
-        
+                this->_store_files_in_pacs(outputdir.string());
                 currentItem->set_StoreErrorMsg("OK");
             }
-            catch (dicomifier::DicomifierException &exc)
+            catch(dicomifier::DicomifierException const & e)
             {
-                dicomifier::loggerError() << exc.what();
-                currentItem->set_StoreErrorMsg(exc.what());
+                dicomifier::loggerError() << e.what();
+                currentItem->set_StoreErrorMsg(e.what());
             }
             catch (std::exception &e)
             {
@@ -291,29 +291,21 @@ GenerationFrame
                 currentItem->set_StoreErrorMsg(e.what());
             }
         }
-        else if (!this->_ui->StoreCheckBox->isChecked())
+        else if(!this->_ui->store_check_box->isChecked())
         {
             currentItem->set_StoreErrorMsg("");
         }
         
-        if (this->_ui->saveCheckBox->isChecked() == false)
+        if(!this->_ui->save_check_box->isChecked())
         {
             // Remove temporary directory
             boost::filesystem::remove_all(outputdir);
         }
+
+        progress.setValue(1+progress.value());
     }
 
-    // Initialize Result items
-    // this->_Results.clear();
-    // for (auto iter = mapHascodeToSubject.begin();
-    //      iter != mapHascodeToSubject.end();
-    //      iter++)
-    // {
-    //     this->_Results[iter->second] = GenerationResultItem();
-    // }
-    // 
-    // Create DICOMDIR and ZIP files
-    // this->createDicomdirsOrZipFiles(progress, mapHascodeToSubject);
+    this->_create_extra_files(progress, subject_files);
 
     // Disabled Run button
     this->update_nextButton(false);
@@ -322,21 +314,11 @@ GenerationFrame
     progress.setValue(progress.maximum());
 }
 
-std::string
+std::map<std::string, GenerationResultItem>
 GenerationFrame
-::get_selectedFormat_toString() const
+::get_results() const
 {
-    std::string format = "";
-    if (this->_ui->formatMRIMultiple->isChecked())
-    {
-        format = odil::registry::MRImageStorage;
-    }
-    else if (this->_ui->formatMRISingle->isChecked())
-    {
-        format = odil::registry::EnhancedMRImageStorage;
-    }
-
-    return format;
+    return this->_results;
 }
 
 void
@@ -346,21 +328,16 @@ GenerationFrame
     QSettings settings;
 
     // Set PACS name
-    this->_ui->PACSComboBox->clear();
-    int number = settings.value(CONF_GROUP_PACS + "/" + CONF_KEY_NUMBER, 0).toInt();
+    this->_ui->pacs_combo_box->clear();
+    int number = settings.value(CONF_GROUP_PACS+"/"+CONF_KEY_NUMBER, 0).toInt();
     QStringList itemslist;
-    for (unsigned int i = 0 ; i < number ; ++i)
+    for(int i = 0 ; i < number ; ++i)
     {
-        std::stringstream stream;
-        stream << CONF_GROUP_PACS.toStdString() << "/"
-               << CONF_GROUP_PACS.toStdString() << i << "_";
-
-        std::stringstream streamname;
-        streamname << stream.str() << CONF_KEY_NAME.toStdString();
-
-        itemslist << settings.value(streamname.str().c_str(), QString("")).toString();
+        auto const name =
+            QString("%1/%1%2_%3").arg(CONF_GROUP_PACS).arg(i).arg(CONF_KEY_NAME);
+        itemslist << settings.value(name, "").toString();
     }
-    this->_ui->PACSComboBox->addItems(itemslist);
+    this->_ui->pacs_combo_box->addItems(itemslist);
 }
 
 void
@@ -370,14 +347,14 @@ GenerationFrame
     // "Next button" is "Run Button" for this Frame
 
     std::string const directory =
-            this->_ui->outputDirectory->text().toUtf8().constData();
+            this->_ui->output_directory_text->text().toUtf8().constData();
 
     // Directory is filled and available or Store selected
-    bool enabled = (this->_ui->saveCheckBox->checkState() == Qt::Checked &&
-                   directory != "" &&
-                   boost::filesystem::exists(boost::filesystem::path(directory))) ||
-
-                   (this->_ui->StoreCheckBox->checkState() == Qt::Checked);
+    bool enabled = (
+            this->_ui->save_check_box->checkState() == Qt::Checked &&
+            directory != "" &&
+            boost::filesystem::exists(boost::filesystem::path(directory))
+        ) || (this->_ui->store_check_box->checkState() == Qt::Checked);
 
     this->update_nextButton(enabled);
 }
@@ -392,369 +369,321 @@ GenerationFrame
 
 void
 GenerationFrame
-::createDicomdirs(const std::string &directory, const std::string &absdirectory,
-                  const std::string &dicomdirfile)
+::_create_dicomdir(std::vector<Path> const & files) const
 {
-    std::vector<std::string> const files =
-            GenerationFrame::getFilesForDicomdir(directory, absdirectory);
-
-    // Should add path separator at the end for odil
-    // (see BasicDirectoryCreator, attribute 'root')
-    QString rootdir(directory.c_str());
-    if (rootdir.at(rootdir.length()-1) != QDir::separator())
-    {
-        rootdir.append(QDir::separator());
-    }
-
-    odil::BasicDirectoryCreator creator(rootdir.toStdString(), files,
+    // Compute the files relative to the subject directory
+    auto const directory =
+        files[0].parent_path().parent_path().parent_path();
+    std::vector<std::string> relative_files(files.size());
+    std::transform(
+        files.begin(), files.end(), relative_files.begin(),
+        [&directory](Path const & file)
         {
-            {"PATIENT", { }},
-            {"STUDY", { {odil::registry::StudyDescription, 3} }},
-            {"SERIES", { {odil::registry::SeriesDescription, 3} }},
-            {"IMAGE", { }},
+            return make_relative(directory, file).string();
         });
 
+    odil::BasicDirectoryCreator const creator(
+        directory.string(), relative_files,
+        { { "SERIES", { { odil::registry::SeriesDescription, 3 } } } });
     creator();
 }
 
 std::string
 GenerationFrame
-::createZipArchives(std::string const & directory,
-                    std::string const & filename)
+::_create_zip_archive(
+    std::string const & subject, std::vector<Path> const & files,
+    bool has_dicomdir) const
 {
-    QDir qdirectory(QString(directory.c_str()));
-
-    // Create ZIP Archive (One per Subject)
-    QString command = "zip";
-    QStringList args;
-    args << "-r" << QString(filename.c_str());
-    args << qdirectory.entryList(QDir::AllEntries | QDir::NoDotAndDotDot);
-
-    QProcess *myProcess = new QProcess(this);
-    myProcess->setWorkingDirectory(QString(directory.c_str()));
-    myProcess->start(command, args);
-
-    myProcess->waitForFinished();
-
-    if (myProcess->exitCode() == EXIT_SUCCESS)
+    // Compute the files relative to the root directory
+    auto const directory =
+        files[0].parent_path().parent_path().parent_path().parent_path();
+    std::vector<std::string> relative_files(files.size());
+    std::transform(
+        files.begin(), files.end(), relative_files.begin(),
+        [&directory](Path const & file)
+        {
+            return make_relative(directory, file).string();
+        });
+    if(has_dicomdir)
     {
-        return "";
+        auto const dicomdir =
+            files[0].parent_path().parent_path().parent_path()/"DICOMDIR";
+        relative_files.push_back(make_relative(directory, dicomdir).string());
     }
 
-    return myProcess->errorString().toStdString();
+    QStringList args;
+    args << "-r" << QString::fromStdString(subject)+".zip";
+    for(auto const & file: relative_files)
+    {
+        args << QString::fromStdString(file);
+    }
+
+    QProcess zip;
+    zip.setWorkingDirectory(QString::fromStdString(directory.string()));
+    zip.start("zip", args);
+
+    zip.waitForFinished();
+
+    std::string message;
+    if(zip.exitCode() != EXIT_SUCCESS)
+    {
+        message = QString(zip.readAll()).toStdString();
+    }
+
+    return message;
 }
 
 void
 GenerationFrame
-::createDicomdirsOrZipFiles(QProgressDialog &progress,
-                            std::map<std::string, std::string> &mapHascodeToSubject)
+::_create_extra_files(
+    QProgressDialog & progress,
+    std::map<std::string, std::vector<Path>> const & subject_files)
 {
-    bool createDICOMDIR = this->_ui->saveCheckBox->isChecked() &&
-                          this->_ui->DicomdirCheckBox->isChecked();
-    bool createZIP = this->_ui->saveCheckBox->isChecked() &&
-                     this->_ui->ZIPCheckBox->isChecked();
-
-    if (!createDICOMDIR && !createZIP)
+    // Initialize Result items
+    this->_results.clear();
+    for(auto const & entry: subject_files)
     {
-        // nothing to do
+        this->_results[entry.first] =  GenerationResultItem();
+    }
+
+    if(!this->_ui->save_check_box->isChecked() || subject_files.empty())
+    {
+        // No data to process
         return;
     }
 
-    int nbdir = mapHascodeToSubject.size();
-    int progressValue = 0;
-    progress.setValue(progressValue);
-    progress.setMaximum(nbdir);
+    progress.setValue(0);
+    progress.setMaximum(subject_files.size());
 
-    std::list<std::string> alreadyprocess;
-
-    for(auto it = mapHascodeToSubject.begin(); it != mapHascodeToSubject.end(); ++it)
+    for(auto const & entry: subject_files)
     {
         // Canceled => force stop
-        if (progress.wasCanceled())
+        if(progress.wasCanceled())
         {
             return;
         }
 
-        std::string filename(it->first);
-        GenerationResultItem& resultitem = this->_Results[it->second];
+        auto & result = this->_results[entry.first];
 
-        // Update progressValue
-        ++progressValue;
-
-        std::string dir = this->_ui->outputDirectory->text().toStdString() +
-                          boost::filesystem::path("/").make_preferred().string() +
-                          it->second;
-
-        if (std::find(alreadyprocess.begin(), alreadyprocess.end(), dir) == alreadyprocess.end())
+        if(this->_ui->dicomdir_check_box->isChecked())
         {
-            alreadyprocess.push_back(dir);
+            progress.setLabelText(
+                QString("Create DICOMDIR %1/%2 (Directory: %3)")
+                    .arg(1+progress.value())
+                    .arg(progress.maximum())
+                    .arg(QString::fromStdString(entry.first)));
 
-        // Create DICOMDIR file (One per Subject)
-        if (createDICOMDIR)
-        {
-            // Update ProgressDialog label
-            std::stringstream progressLabel;
-            progressLabel << "Create DICOMDIR " << progressValue << " / " << nbdir
-                          << " (Directory = " << filename << ")";
-            progress.setLabelText(QString(progressLabel.str().c_str()));
-
-            std::string dicomdirfile = dir + boost::filesystem::path("/").make_preferred().string() + "DICOMDIR";
-
-            if (boost::filesystem::exists(boost::filesystem::path(dicomdirfile.c_str())))
+            try
             {
-                resultitem.set_dicomdirCreation(GenerationResultItem::Result::Fail);
-                resultitem.set_DicomdirErrorMsg("DICOMDIR already exist: " + dicomdirfile);
+                this->_create_dicomdir(entry.second);
+                result.set_dicomdirCreation(GenerationResultItem::Result::OK);
+            }
+            catch(std::exception const & e)
+            {
+                result.set_dicomdirCreation(GenerationResultItem::Result::Fail);
+                result.set_DicomdirErrorMsg(e.what());
+            }
+        }
+
+        if(this->_ui->zip_check_box->isChecked())
+        {
+            progress.setLabelText(
+                QString("Create ZIP archive %1/%2 (Directory: %3)")
+                    .arg(1+progress.value())
+                    .arg(progress.maximum())
+                    .arg(QString::fromStdString(entry.first)));
+
+            auto const message = this->_create_zip_archive(
+                entry.first, entry.second,
+                this->_ui->dicomdir_check_box->isChecked());
+
+            if(message.empty())
+            {
+                result.set_zipCreation(GenerationResultItem::Result::OK);
             }
             else
             {
-                try
-                {
-                    this->createDicomdirs(dir, dir, dicomdirfile);
-                    resultitem.set_dicomdirCreation(GenerationResultItem::Result::OK);
-                }
-                catch(std::exception const & e)
-                {
-                    resultitem.set_dicomdirCreation(GenerationResultItem::Result::Fail);
-                    resultitem.set_DicomdirErrorMsg(e.what());
-                }
+                result.set_zipCreation(GenerationResultItem::Result::Fail);
+                result.set_ZipErrorMsg(message);
             }
         }
 
-        // Create ZIP Archive (One per Subject)
-        if (createZIP)
-        {
-            // Update ProgressDialog label
-            std::stringstream progressLabel;
-            progressLabel << "Create ZIP Archive " << progressValue << " / " << nbdir
-                          << " (Directory = " << filename << ")";
-            progress.setLabelText(QString(progressLabel.str().c_str()));
-
-            std::string zipfile = dir + boost::filesystem::path("/").make_preferred().string() + filename;
-
-            if (boost::filesystem::exists(boost::filesystem::path(zipfile.c_str())))
-            {
-                resultitem.set_zipCreation(GenerationResultItem::Result::Fail);
-                resultitem.set_ZipErrorMsg("ZIP already exist: " + zipfile);
-            }
-            else
-            {
-                std::string errormsg = this->createZipArchives(dir, it->second);
-
-                if (errormsg == "")
-                {
-                    resultitem.set_zipCreation(GenerationResultItem::Result::OK);
-                }
-                else
-                {
-                    resultitem.set_zipCreation(GenerationResultItem::Result::Fail);
-                    resultitem.set_ZipErrorMsg(errormsg);
-                }
-            }
-        }
-        }
-
-        // Update progressDialog
-        progress.setValue(progressValue);
+        progress.setValue(1+progress.value());
     }
 }
 
 void
 GenerationFrame
-::storeFilesIntoPACS(std::string const & directory)
+::_store_files_in_pacs(std::string const & directory)
 {
-    std::string address = "";
-    std::string port = "";
-    std::string called = "";
-    std::string caller = "";
-    int idType = 0;
-    std::string first = "";
-    std::string second = "";
+    // Find all files in directory
+    std::vector<Path> files;
+    for(boost::filesystem::recursive_directory_iterator it(directory);
+        it != boost::filesystem::recursive_directory_iterator(); ++it)
+    {
+        if(boost::filesystem::is_directory(*it))
+        {
+            continue;
+        }
+        files.push_back(*it);
+    }
+
+    // Find all transfer syntaxes and abstract syntaxes
+    std::map<std::string, std::set<std::string>> transfer_syntaxes;
+    for(auto const & file: files)
+    {
+        // Read only header
+        boost::filesystem::ifstream stream(file, std::ios::in|std::ios::binary);
+        auto const header_and_data_set = odil::Reader::read_file(
+            stream, false, [](odil::Tag const &) { return true; });
+        auto const & header = header_and_data_set.first;
+
+        auto const & abstract_syntax = header.as_string(
+            odil::registry::MediaStorageSOPClassUID, 0);
+        auto const & transfer_syntax = header.as_string(
+            odil::registry::TransferSyntaxUID, 0);
+
+        transfer_syntaxes[abstract_syntax].insert(transfer_syntax);
+    }
 
     // Search PACS information
     QSettings settings;
-    int number = settings.value(CONF_GROUP_PACS + "/" + CONF_KEY_NUMBER, 0).toInt();
-    QStringList itemslist;
-    for (unsigned int i = 0 ; i < number ; ++i)
+    auto const count = settings.value(CONF_GROUP_PACS+"/"+CONF_KEY_NUMBER).toInt();
+    QString pacs;
+    for(int i = 0 ; i < count ; ++i)
     {
-        std::stringstream stream;
-        stream << CONF_GROUP_PACS.toStdString() << "/"
-               << CONF_GROUP_PACS.toStdString() << i << "_";
+        auto const name =
+            QString("%1/%1%2_%3").arg(CONF_GROUP_PACS).arg(i).arg(CONF_KEY_NAME);
 
-        std::stringstream streamname;
-        streamname << stream.str() << CONF_KEY_NAME.toStdString();
-
-        if (settings.value(streamname.str().c_str(), QString("")).toString() ==
-                this->_ui->PACSComboBox->currentText())
+        if(settings.value(name) == this->_ui->pacs_combo_box->currentText())
         {
-            std::stringstream streamaddress;
-            streamaddress << stream.str() << CONF_KEY_ADDRESS.toStdString();
-            address = settings.value(streamaddress.str().c_str(), QString("")).toString().toStdString();
-
-            std::stringstream streamport;
-            streamport << stream.str() << CONF_KEY_PORT.toStdString();
-            port = settings.value(streamport.str().c_str(), QString("")).toString().toStdString();
-
-            std::stringstream streamcalled;
-            streamcalled << stream.str() << CONF_KEY_CALLED.toStdString();
-            called = settings.value(streamcalled.str().c_str(), QString("")).toString().toStdString();
-
-            std::stringstream streamcaller;
-            streamcaller << stream.str() << CONF_KEY_CALLER.toStdString();
-            caller = settings.value(streamcaller.str().c_str(), QString("")).toString().toStdString();
-
-            std::stringstream streamidentity;
-            streamidentity << stream.str() << CONF_KEY_IDENTITY.toStdString();
-            idType = settings.value(streamidentity.str().c_str(), 0).toInt();
-
-            std::stringstream streamfirst;
-            streamfirst << stream.str() << CONF_KEY_FIRST.toStdString();
-            first = settings.value(streamfirst.str().c_str(), QString("")).toString().toStdString();
-
-            std::stringstream streamsecond;
-            streamsecond << stream.str() << CONF_KEY_SECOND.toStdString();
-            second = settings.value(streamsecond.str().c_str(), QString("")).toString().toStdString();
-
+            pacs = QString("%1/%1%2").arg(CONF_GROUP_PACS).arg(i);
             break;
         }
     }
 
-    boost::filesystem::directory_iterator it_end;
-    for(boost::filesystem::directory_iterator it(directory); it != it_end; ++it)
+    // Configure association
+    odil::Association association;
+    association.set_peer_host(
+        settings.value(pacs+"_"+CONF_KEY_ADDRESS).toString().toStdString());
+    association.set_peer_port(settings.value(pacs+"_"+CONF_KEY_PORT).toInt());
+
+    auto & parameters = association.update_parameters();
+
+    parameters
+        .set_called_ae_title(
+            settings.value(pacs+"_"+CONF_KEY_CALLED).toString().toStdString())
+        .set_calling_ae_title(
+            settings.value(pacs+"_"+CONF_KEY_CALLER).toString().toStdString());
+
+    uint8_t pc_index = 1;
+    std::vector<odil::AssociationParameters::PresentationContext> contexts;
+    for(auto const & entry: transfer_syntaxes)
     {
-        // if it is a directory
-        if( boost::filesystem::is_directory( (*it) ) )
-        {
-            std::string const object =
-                    directory +
-                    boost::filesystem::path("/").make_preferred().string() +
-                    std::string((*it).path().filename().c_str());
-            // Recursive call
-            this->storeFilesIntoPACS(object);
-        }
-        else
-        {
-            std::ifstream stream(
-                        boost::filesystem::absolute(*it).string().c_str(),
-                        std::ios::in | std::ios::binary);
-
-            auto const header_and_data_set = odil::Reader::read_file(stream);
-
-            odil::Association association;
-            association.set_peer_host(address);
-            association.set_peer_port(std::stoul(port));
-            association.update_parameters()
-                .set_called_ae_title(called)
-                .set_calling_ae_title(caller)
-                .set_presentation_contexts({
-                    {
-                        1,
-                        header_and_data_set.second.as_string("MediaStorageSOPClassUID", 0),
-                        header_and_data_set.first.as_string("TransferSyntaxUID"),
-                        true, false
-                    }
-                });
-            if(idType == 0)
-            {
-                association.update_parameters().set_user_identity_to_none();
-            }
-            else if(idType == 1)
-            {
-                association.update_parameters()
-                    .set_user_identity_to_username(first);
-            }
-            else if(idType == 2)
-            {
-                association.update_parameters()
-                    .set_user_identity_to_username_and_password(first, second);
-            }
-            else if(idType == 3)
-            {
-                association.update_parameters()
-                    .set_user_identity_to_kerberos(first);
-            }
-            else if(idType == 4)
-            {
-                association.update_parameters()
-                    .set_user_identity_to_saml(first);
-            }
-            else
-            {
-                throw DicomifierException("Unknown identity type");
-            }
-
-            association.associate();
-
-            odil::StoreSCU scu(association);
-            scu.set_affected_sop_class(header_and_data_set.second);
-            scu.store(header_and_data_set.second);
-
-            association.release();
-        }
+        std::vector<std::string> syntaxes(
+            entry.second.begin(), entry.second.end());
+        contexts.push_back(odil::AssociationParameters::PresentationContext{
+            pc_index, entry.first, syntaxes, true, false});
+        pc_index += 2;
     }
-}
+    parameters.set_presentation_contexts(contexts);
 
-std::vector<std::string>
-GenerationFrame
-::getFilesForDicomdir(std::string const & directory,
-                    std::string const & absdirectory)
-{
-    std::vector<std::string> files;
+    int const identification = settings.value(pacs+"_"+CONF_KEY_IDENTITY).toInt();
+    std::string const first_field =
+        settings.value(pacs+"_"+CONF_KEY_FIRST).toString().toStdString();
+    std::string const second_field =
+        settings.value(pacs+"_"+CONF_KEY_SECOND).toString().toStdString();
 
-    boost::filesystem::directory_iterator it_end;
-    for(boost::filesystem::directory_iterator it(directory); it != it_end; ++it)
+    if(identification == 0)
     {
-        // if it is a directory
-        if( boost::filesystem::is_directory( (*it) ) )
-        {
-            std::string const object =
-                    directory +
-                    boost::filesystem::path("/").make_preferred().string() +
-                    std::string((*it).path().filename().c_str());
-            // Recursive call
-            auto const ret = GenerationFrame::getFilesForDicomdir(object,
-                                                                  absdirectory);
-
-            files.insert(files.end(), ret.begin(), ret.end());
-        }
-        else
-        {
-            // filename = relative path from DICOMDIR directory
-            std::string filename =
-                directory.substr(absdirectory.length() + 1) +
-                boost::filesystem::path("/").make_preferred().string() +
-                std::string((*it).path().filename().c_str());
-
-            // add file
-            files.push_back(filename);
-        }
+        parameters.set_user_identity_to_none();
+    }
+    else if(identification == 1)
+    {
+        parameters.set_user_identity_to_username(first_field);
+    }
+    else if(identification == 2)
+    {
+        parameters.set_user_identity_to_username_and_password(
+            first_field, second_field);
+    }
+    else if(identification == 3)
+    {
+        parameters.set_user_identity_to_kerberos(first_field);
+    }
+    else if(identification == 4)
+    {
+        parameters.set_user_identity_to_saml(first_field);
+    }
+    else
+    {
+        throw DicomifierException("Unknown identity type");
     }
 
-    return files;
+    association.associate();
+
+    odil::StoreSCU scu(association);
+    for(auto const & file: files)
+    {
+        boost::filesystem::ifstream stream(file, std::ios::in|std::ios::binary);
+        odil::DataSet data_set;
+        std::tie(std::ignore, data_set) = odil::Reader::read_file(stream);
+
+        scu.set_affected_sop_class(data_set);
+        scu.store(data_set);
+    }
+
+    association.release();
 }
 
 void
 GenerationFrame
-::on_saveCheckBox_clicked()
+::_save_preferences()
+{
+    std::string abstract_syntax = "";
+    if (this->_ui->multiple_files_radio_button->isChecked())
+    {
+        abstract_syntax = odil::registry::MRImageStorage;
+    }
+    else if (this->_ui->single_file_radio_button->isChecked())
+    {
+        abstract_syntax = odil::registry::EnhancedMRImageStorage;
+    }
+
+    QSettings settings;
+    settings.beginGroup(CONF_GROUP_OUTPUT);
+    settings.setValue(
+        CONF_KEY_FORMAT, QString::fromStdString(abstract_syntax));
+    settings.setValue(
+        CONF_KEY_DICOMDIR, this->_ui->dicomdir_check_box->checkState());
+    settings.setValue(CONF_KEY_ZIP, this->_ui->zip_check_box->checkState());
+    settings.setValue(CONF_KEY_SAVE, this->_ui->save_check_box->checkState());
+    settings.setValue(CONF_KEY_STORE, this->_ui->store_check_box->checkState());
+    settings.endGroup();
+}
+
+void
+GenerationFrame
+::on_save_check_box_clicked()
 {
     this->modify_nextButton_enabled();
 }
 
 void
 GenerationFrame
-::on_outputDirBrowseButton_clicked()
+::on_output_directory_button_clicked()
 {
     // Create dialog
     QFileDialog dialog;
     // Initialize: Only search directory
     dialog.setFileMode(QFileDialog::Directory);
     dialog.setOption(QFileDialog::ShowDirsOnly);
-    dialog.setDirectory(this->_ui->outputDirectory->text());
+    dialog.setDirectory(this->_ui->output_directory_text->text());
 
-    if (dialog.exec())
-    {   // Dialog validate
-        // Get selected Directory path
+    if(dialog.exec())
+    {
         QString directory = dialog.selectedFiles()[0];
-        this->_ui->outputDirectory->setText(directory);
+        this->_ui->output_directory_text->setText(directory);
 
         // Save this directory as default path
         QSettings settings;
@@ -763,45 +692,29 @@ GenerationFrame
         settings.endGroup();
 
         // Update
-        this->on_outputDirectory_editingFinished();
+        this->on_output_directory_text_editingFinished();
     }
 }
 
 void
 GenerationFrame
-::on_outputDirectory_textEdited(const QString &arg1)
+::on_output_directory_text_textEdited(QString const &)
 {
     this->modify_nextButton_enabled();
 }
 
 void
 GenerationFrame
-::on_outputDirectory_editingFinished()
+::on_output_directory_text_editingFinished()
 {
     this->modify_nextButton_enabled();
 }
 
 void
 GenerationFrame
-::on_CreateButton_clicked()
+::on_pacs_button_clicked()
 {
     this->CreateNewPACSConfiguration();
-}
-
-void
-GenerationFrame
-::SavePreferences()
-{
-    QSettings settings;
-    settings.beginGroup(CONF_GROUP_OUTPUT);
-    settings.setValue(CONF_KEY_FORMAT,
-                      QString(this->get_selectedFormat_toString().c_str()));
-    settings.setValue(CONF_KEY_DICOMDIR,
-                      this->_ui->DicomdirCheckBox->checkState());
-    settings.setValue(CONF_KEY_ZIP, this->_ui->ZIPCheckBox->checkState());
-    settings.setValue(CONF_KEY_SAVE, this->_ui->saveCheckBox->checkState());
-    settings.setValue(CONF_KEY_STORE, this->_ui->StoreCheckBox->checkState());
-    settings.endGroup();
 }
 
 } // namespace gui

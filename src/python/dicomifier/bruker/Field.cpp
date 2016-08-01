@@ -36,7 +36,6 @@ void wrap_Field()
     scope field_scope = class_<Field>("Field", no_init)
         .def_readwrite("name", &Field::name)
         .def_readwrite("shape", &Field::shape)
-        .def("get_size", &Field::get_size)
         .def(
             "get_string", &Field::get_string, 
             return_value_policy<copy_const_reference>())

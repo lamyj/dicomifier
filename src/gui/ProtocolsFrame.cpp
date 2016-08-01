@@ -198,7 +198,7 @@ ProtocolsFrame
 
 std::vector<TreeItem *>
 ProtocolsFrame
-::get_selectedData() const
+::get_selected_data() const
 {
     std::vector<TreeItem*> returnvect;
     ProtocolsTreeModel* model =

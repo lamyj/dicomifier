@@ -1,3 +1,11 @@
+#########################################################################
+# Dicomifier - Copyright (C) Universite de Strasbourg
+# Distributed under the terms of the CeCILL-B license, as published by
+# the CEA-CNRS-INRIA. Refer to the LICENSE file or to
+# http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html
+# for details.
+#########################################################################
+
 import logging
 import itertools
 
@@ -17,14 +25,47 @@ def convert(dicom_data_sets, dtype):
     stacks = get_stacks(dicom_data_sets)
     logging.info(
         "Found {} stack{}".format(len(stacks), "s" if len(stacks)>1 else ""))
+
+    # Set up progress information
+    stacks_count = {}
+    stacks_converted = {}
     for key, data_sets in stacks.items():
+        series_instance_uid = data_sets[0][
+            str(odil.registry.SeriesInstanceUID)]["Value"][0]
+        stacks_count.setdefault(series_instance_uid, 0)
+        stacks_count[series_instance_uid] += 1
+        stacks_converted[series_instance_uid] = 0
+
+    for data_sets in stacks.values():
+        study = [
+            data_sets[0].get(
+                str(odil.registry.StudyID), {"Value": [None]})["Value"][0],
+            data_sets[0].get(
+                str(odil.registry.StudyDescription), {"Value": [None]})["Value"][0]]
+        study = [str(x) for x in study if x is not None]
+        series = [
+            data_sets[0].get(
+                str(odil.registry.SeriesNumber), {"Value": [None]})["Value"][0],
+            data_sets[0].get(
+                str(odil.registry.SeriesDescription), {"Value": [None]})["Value"][0]]
+        series = [str(x) for x in series if x is not None]
+        series_instance_uid = data_sets[0][
+            str(odil.registry.SeriesInstanceUID)]["Value"][0]
+        if stacks_count[series_instance_uid] > 1:
+            stack_info = " (stack {}/{})".format(
+                1+stacks_converted[series_instance_uid],
+                stacks_count[series_instance_uid])
+        else:
+            stack_info = ""
         logging.info(
-            "Merging {} data set{}".format(
-                len(data_sets), "s" if len(data_sets)>1 else ""))
+            "Converting {} / {}{}".format(
+                "-".join(study), "-".join(series), stack_info))
+        stacks_converted[series_instance_uid] += 1
+
         sort(data_sets)
         
         nifti_image = image.get_image(data_sets, dtype)
-        nifti_meta_data = meta_data.get_meta_data(data_sets, key)
+        nifti_meta_data = meta_data.get_meta_data(data_sets)
         
         nifti_data.append((nifti_image, nifti_meta_data))
     
@@ -47,7 +88,7 @@ def convert(dicom_data_sets, dtype):
         for stack in mergeable.values():
             if len(stack)>1:
                 logging.info(
-                    "{} stack{} can be merged".format(
+                    "Merging {} stack{}".format(
                         len(stack), "s" if len(stack)>1 else ""))
                 merged = merge_images_and_meta_data(stack)
                 merged_stacks.append(merged)
@@ -93,6 +134,12 @@ def merge_images_and_meta_data(images_and_meta_data):
     
     images = [x[0] for x in images_and_meta_data]
     
+    pixel_data = numpy.ndarray(
+        (len(images),)+images[0].shape,
+        dtype=images[0].data.dtype)
+    for i, image in enumerate(images):
+        pixel_data[i] = image.data
+
     merged_image = nifti_image.NIfTIImage(
         pixdim=images[0].pixdim,
         cal_min=min(x.cal_min for x in images), 
@@ -100,7 +147,7 @@ def merge_images_and_meta_data(images_and_meta_data):
         qform_code=images[0].qform_code, sform_code=images[0].sform_code,
         qform=images[0].qform, sform=images[0].sform,
         xyz_units=images[0].xyz_units, time_units=images[0].time_units,
-        data=numpy.asarray([x.data for x in images]))
+        data=pixel_data)
     
     meta_data = [x[1] for x in images_and_meta_data]
     merged_meta_data = MetaData()
@@ -127,6 +174,7 @@ def _get_splitters(data_sets):
             (odil.registry.RepetitionTime, _default_getter),
             (odil.registry.EchoTime, _default_getter),
             (odil.registry.InversionTime, _default_getter),
+            (odil.registry.EchoNumbers, _default_getter),
             (odil.registry.MRDiffusionSequence, _diffusion_getter)
         ],
     }

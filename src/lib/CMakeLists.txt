@@ -2,7 +2,6 @@ find_package(Boost COMPONENTS date_time filesystem system regex REQUIRED)
 find_package(DCMTK REQUIRED)
 find_package(JsonCpp REQUIRED)
 find_package(Log4Cpp REQUIRED)
-find_package(Odil REQUIRED)
 
 file(GLOB_RECURSE headers "*.h")
 file(GLOB_RECURSE templates "*.txx")
@@ -11,7 +10,7 @@ file(GLOB_RECURSE files "*.cpp")
 include_directories(
     ${CMAKE_CURRENT_SOURCE_DIR}
     ${Boost_INCLUDE_DIRS} ${DCMTK_INCLUDE_DIRS} ${JsonCpp_INCLUDE_DIRS}
-    ${Log4Cpp_INCLUDE_DIRS} ${Odil_INCLUDE_DIRS})
+    ${Log4Cpp_INCLUDE_DIRS})
 add_definitions(
     ${DCMTK_DEFINITIONS} -DBOOST_FILESYSTEM_VERSION=3)
 link_directories(
@@ -23,7 +22,7 @@ add_library(
 target_link_libraries(
     libdicomifier
     ${Boost_LIBRARIES} ${DCMTK_LIBRARIES} ${JsonCpp_LIBRARIES}
-    ${Log4Cpp_LIBRARIES} ${Odil_LIBRARIES})
+    ${Log4Cpp_LIBRARIES})
 
 set_target_properties(
     libdicomifier PROPERTIES OUTPUT_NAME dicomifier)
