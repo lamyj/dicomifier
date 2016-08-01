@@ -15,11 +15,15 @@ Build-Depends: debhelper (>= 9),
                libboost-system-dev, 
                libboost-regex-dev, 
                libjsoncpp-dev, 
-               libodil0-dev (>= 0.7.0),
+               libodil0-dev (>= 0.7.1),
+               libnifti-dev,
                zlib1g-dev,
                python,
                libboost-test-dev,
-               python-nose
+               python-nose,
+               python-dateutil,
+               python-numpy,
+               python-odil (>= 0.7.1)
 Standards-Version: 3.9.8
 Homepage: https://github.com/lamyj/dicomifier
 X-Python-Version: >= 2.7
@@ -27,9 +31,9 @@ X-Python-Version: >= 2.7
 Package: dicomifier
 Architecture: any
 Depends: libnifti2,
-         python-numpy,
          python-dateutil,
-         python-odil (>= 0.7.0),
+         python-numpy,
+         python-odil (>= 0.7.1),
          ${shlibs:Depends}, 
          ${python:Depends},
          ${misc:Depends}
