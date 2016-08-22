@@ -36,21 +36,29 @@ def convert(dicom_data_sets, dtype):
         stacks_count[series_instance_uid] += 1
         stacks_converted[series_instance_uid] = 0
 
+    def get_element(data_set, tag):
+        if isinstance(tag, odil.Tag):
+            tag = str(tag)
+        element = data_set.get(tag, {})
+        value = element.get("Value")
+        return value[0] if value is not None else None
+
     for data_sets in stacks.values():
+        data_set = data_sets[0]
+        
         study = [
-            data_sets[0].get(
-                str(odil.registry.StudyID), {"Value": [None]})["Value"][0],
-            data_sets[0].get(
-                str(odil.registry.StudyDescription), {"Value": [None]})["Value"][0]]
+            get_element(data_set, odil.registry.StudyID),
+            get_element(data_set, odil.registry.StudyDescription)]
         study = [str(x) for x in study if x is not None]
+        
         series = [
-            data_sets[0].get(
-                str(odil.registry.SeriesNumber), {"Value": [None]})["Value"][0],
-            data_sets[0].get(
-                str(odil.registry.SeriesDescription), {"Value": [None]})["Value"][0]]
+            get_element(data_set, odil.registry.SeriesNumber),
+            get_element(data_set, odil.registry.SeriesDescription)]
         series = [str(x) for x in series if x is not None]
-        series_instance_uid = data_sets[0][
-            str(odil.registry.SeriesInstanceUID)]["Value"][0]
+        
+        series_instance_uid = get_element(
+            data_set, odil.registry.SeriesInstanceUID)
+        
         if stacks_count[series_instance_uid] > 1:
             stack_info = " (stack {}/{})".format(
                 1+stacks_converted[series_instance_uid],
