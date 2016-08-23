@@ -14,12 +14,14 @@ import numpy
 import odil
 
 def _get_acquisition_number(data_set, generator, frame_index):
-    acquisition_number = 0
-    empty_frame_groups_size = 1
-    for frame_group_index, frame_group in enumerate(generator.frame_groups):
-        if len(frame_group[2]) == 0:
-            acquisition_number += empty_frame_groups_size*frame_index[frame_group_index]
-            empty_frame_groups_size *= 1+len(frame_group[2])
+    index = [
+        x for g, x in zip(generator.frame_groups, frame_index)
+        if g[1] != "FG_SLICE"]
+    shape = [g[0] for g in generator.frame_groups if g[1] != "FG_SLICE"]
+
+    acquisition_number = (
+        numpy.ravel_multi_index(index, shape) if (len(index) != 0) else 0)
+
     return [acquisition_number]
 
 def _get_pixel_data(data_set, generator, frame_index):
