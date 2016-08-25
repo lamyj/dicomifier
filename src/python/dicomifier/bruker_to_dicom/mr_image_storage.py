@@ -101,34 +101,50 @@ def to_2d(data_set):
         numpy.asarray(data_set["VisuCoreExtent"][2], dtype=float),
         numpy.asarray(data_set["VisuCoreSize"][2], dtype=float))
     
-    slice_count = data_set["VisuCoreSize"][2]
+    frame_count = int(data_set.get("VisuCoreFrameCount", [1])[0])
+    slice_count = int(data_set["VisuCoreSize"][2])
     
-    # 1. Constant fields
+    # Constant fields
     data_set["VisuCoreDim"] = [2]
-    data_set["VisuCoreFrameCount"] = [slice_count]
-    data_set["VisuFGOrderDescDim"] = [1]
-    data_set["VisuFGOrderDesc"] = [[slice_count, "FG_SLICE", "", 0, 2]]
-    data_set["VisuGroupDepVals"] = [
-        ["VisuCoreOrientation", 0], 
-        ["VisuCorePosition", 0] ]
+    data_set["VisuCoreFrameCount"] = [frame_count*slice_count]
 
-    # 2. Sliced fields: subsets of original fields
+    # Frame groups
+    groups = data_set.get("VisuFGOrderDesc", [])
+    fields = data_set.get("VisuGroupDepVals", [])
+
+    groups = [[slice_count, "FG_SLICE", "", 0, 2]] + [
+        [count, name, comment, 2+start, length]
+        for count, name, comment, start, length in groups]
+    fields = [["VisuCoreOrientation", 0], ["VisuCorePosition", 0] ] + fields
+
+    data_set["VisuFGOrderDescDim"] = [len(groups)]
+    data_set["VisuFGOrderDesc"] = groups
+    data_set["VisuGroupDepVals"] = fields
+
+    # Sliced fields: subsets of original fields
     sliced_fields = [
         "VisuCoreSize", "VisuCoreDimDesc", "VisuCoreExtent", "VisuCoreUnits"]
     for name in sliced_fields:
         data_set[name] = data_set[name][0:2]
 
-    # 3. Repeated fields: repeat the same value for each slice
-    repeated_fields = [ 
-        "VisuCoreOrientation", "VisuCoreDataMin", "VisuCoreDataMax",
-        "VisuCoreDataOffs", "VisuCoreDataSlope"
+    # Repeated fields: repeat the same value for each slice
+    repeated_fields = [
+        ("VisuCoreDataMin", (1,)), ("VisuCoreDataMax", (1,)),
+        ("VisuCoreDataOffs", (1,)), ("VisuCoreDataSlope", (1,)),
+        ("VisuCoreOrientation", (9,))
     ]
-    for name in repeated_fields:
-        value = data_set.get(name)
-        if value is not None:
-            data_set[name] = list(itertools.chain(*(slice_count*[value])))
+    for name, shape in repeated_fields:
+        if name not in data_set:
+            continue
+
+        value = numpy.reshape(data_set[name], (-1,)+shape)
+        data_set[name] = list(
+            itertools.chain(*
+                [slice_count*x.tolist() for x in value]
+            )
+        )
     
-    # 4. Special case: position, depending on origin, dz and z
+    # Special case: position, depending on origin, dz and z
     data_set["VisuCorePosition"] = list(itertools.chain(*[
         (origin+i*dz*z).tolist() for i in range(slice_count)
     ]))
