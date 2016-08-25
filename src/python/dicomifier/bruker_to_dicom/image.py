@@ -62,10 +62,23 @@ def _get_pixel_data(data_set, generator, frame_index):
                 data_set["VisuCoreDataSlope"] = [
                     x/((1<<32)/(max-min)) for x in data_set["VisuCoreDataSlope"]]
     
-    frame_index = (
-        generator.frames_count-generator.get_linear_index(frame_index)-1
-        if data_set.get("VisuCoreDiskSliceOrder", [None])[0] == "disk_reverse_slice_order"
-        else generator.get_linear_index(frame_index))
+    if data_set.get("VisuCoreDiskSliceOrder", [None])[0] == "disk_reverse_slice_order":
+        # Volumes are always in order, but slice order depends on
+        # VisuCoreDiskSliceOrder
+        #fg_slice = [g for g in generator.frame_groups if g[1] == "FG_SLICE"]
+        non_slice = [g for g in generator.frame_groups if g[1] != "FG_SLICE"]
+        if len(non_slice) == 0:
+            slices_per_frame = data_set["VisuCoreFrameCount"][0]
+        else:
+            slices_per_frame = (
+                data_set["VisuCoreFrameCount"][0]
+                / numpy.cumprod([x[0] for x in non_slice])[-1])
+        frame_index = generator.get_linear_index(frame_index)
+        volume = int(frame_index / slices_per_frame)
+        slice_index = frame_index % slices_per_frame
+        frame_index = volume*slices_per_frame+(slices_per_frame-slice_index-1)
+    else:
+        frame_index = generator.get_linear_index(frame_index)
     frame_data = data_set["PIXELDATA"][frame_index]
     
     encoded = base64.b64encode(frame_data)
