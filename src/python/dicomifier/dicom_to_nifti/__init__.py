@@ -8,4 +8,4 @@
 
 from convert import convert
 from nifti_image import NIfTIImage
-import niftiio
+from .. import nifti

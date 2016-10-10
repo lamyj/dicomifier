@@ -16,7 +16,6 @@ import meta_data
 import image
 
 import nifti_image
-import niftiio
 from .. import MetaData
 
 def convert(dicom_data_sets, dtype):

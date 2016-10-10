@@ -2,6 +2,7 @@ find_package(Boost REQUIRED COMPONENTS python)
 find_package(PythonLibs 2.7 REQUIRED)
 
 add_subdirectory(bruker)
+add_subdirectory(nifti)
 
 include_directories(
     ${CMAKE_SOURCE_DIR}/src/lib ${Boost_INCLUDE_DIRS}

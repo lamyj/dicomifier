@@ -164,7 +164,7 @@ def write_nifti(
         suffix = ".nii"
         if zip:
             suffix += ".gz"
-        image.write(destination_root+suffix)
+        dicomifier.nifti.write(image, (destination_root+suffix).encode("utf-8"))
         
         kwargs = {"sort_keys": True, "indent": 4} if pretty_print else {}
         json.dump(
