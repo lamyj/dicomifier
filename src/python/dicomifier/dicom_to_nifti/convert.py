@@ -48,12 +48,12 @@ def convert(dicom_data_sets, dtype):
         study = [
             get_element(data_set, odil.registry.StudyID),
             get_element(data_set, odil.registry.StudyDescription)]
-        study = [str(x) for x in study if x is not None]
+        study = [unicode(x) for x in study if x is not None]
         
         series = [
             get_element(data_set, odil.registry.SeriesNumber),
             get_element(data_set, odil.registry.SeriesDescription)]
-        series = [str(x) for x in series if x is not None]
+        series = [unicode(x) for x in series if x is not None]
         
         series_instance_uid = get_element(
             data_set, odil.registry.SeriesInstanceUID)
@@ -65,7 +65,7 @@ def convert(dicom_data_sets, dtype):
         else:
             stack_info = ""
         logging.info(
-            "Converting {} / {}{}".format(
+            u"Converting {} / {}{}".format(
                 "-".join(study), "-".join(series), stack_info))
         stacks_converted[series_instance_uid] += 1
 
