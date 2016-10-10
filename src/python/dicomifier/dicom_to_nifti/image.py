@@ -85,7 +85,11 @@ def get_pixel_data(data_set):
     high_bit = data_set[str(odil.registry.HighBit)]["Value"][0]
     byte_order = ">" if high_bit==0 else "<"
     
-    pixel_representation = data_set[str(odil.registry.PixelRepresentation)]["Value"][0]
+    if str(odil.registry.PixelRepresentation) in data_set:
+        pixel_representation = data_set[
+            str(odil.registry.PixelRepresentation)]["Value"][0]
+    else:
+        pixel_representation = 0
     is_unsigned = (pixel_representation==0)
     
     bits_allocated = data_set[str(odil.registry.BitsAllocated)]["Value"][0]
