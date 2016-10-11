@@ -182,7 +182,10 @@ def _get_splitters(data_sets):
             (odil.registry.EchoTime, _default_getter),
             (odil.registry.InversionTime, _default_getter),
             (odil.registry.EchoNumbers, _default_getter),
-            (odil.registry.MRDiffusionSequence, _diffusion_getter)
+            (odil.registry.MRDiffusionSequence, _diffusion_getter),
+            # Philips Ingenia stores these fields at top-level
+            (odil.registry.DiffusionGradientOrientation, _default_getter),
+            (odil.registry.DiffusionBValue, _default_getter),
         ],
     }
     

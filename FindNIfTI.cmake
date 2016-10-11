@@ -1,9 +1,9 @@
 # - Try to find NIfTI
 # Once done this will define
-#  NIfTI_FOUND - System has Odil
-#  NIfTI_INCLUDE_DIRS - The Odil include directories
-#  NIfTI_LIBRARIES - The libraries needed to use Odil
-#  NIfTI_DEFINITIONS - Compiler switches required for using Odil
+#  NIfTI_FOUND - System has NIfTI
+#  NIfTI_INCLUDE_DIRS - The NIfTI include directories
+#  NIfTI_LIBRARIES - The libraries needed to use NIfTI
+#  NIfTI_DEFINITIONS - Compiler switches required for using NIfTI
 
 find_path(NIfTI_INCLUDE_DIR "nifti1.h")
 find_library(NIfTI_LIBRARY NAMES niftiio)
