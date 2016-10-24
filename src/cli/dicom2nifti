@@ -164,7 +164,7 @@ def write_nifti(
         suffix = ".nii"
         if zip:
             suffix += ".gz"
-        image.write(destination_root+suffix)
+        dicomifier.nifti.write(image, (destination_root+suffix).encode("utf-8"))
         
         kwargs = {"sort_keys": True, "indent": 4} if pretty_print else {}
         json.dump(
@@ -176,12 +176,16 @@ def get_series_directory(meta_data):
         the NIfTI meta-data.
     """
 
-    # Patient directory: <PatientName> or <PatientID>.
+    # Patient directory: <PatientName> or <PatientID> or <StudyInstanceUID>.
     patient_directory = None
     if "PatientName" in meta_data and meta_data["PatientName"]:
         patient_directory = meta_data["PatientName"][0]["Alphabetic"]
-    else:
+    elif "PatientID" in meta_data and meta_data["PatientID"]:
         patient_directory = meta_data["PatientID"][0]
+    elif "StudyInstanceUID" in meta_data and meta_data["StudyInstanceUID"]:
+        patient_directory = meta_data["StudyInstanceUID"][0]
+    else:
+        raise Exception("Cannot determine patient directory")
 
     # Study directory: <StudyID>_<StudyDescription>, both parts are
     # optional. If both tags are missing or empty, raise an exception
@@ -192,8 +196,11 @@ def get_series_directory(meta_data):
         study_directory.append(meta_data["StudyDescription"][0])
 
     if not study_directory:
-        raise Exception("Study ID and Study Description are both missing")
-
+        if "StudyInstanceUID" in meta_data and meta_data["StudyInstanceUID"]:
+            study_directory = [meta_data["StudyInstanceUID"][0]]
+        else:
+            raise Exception("Cannot determine study directory")
+    
     study_directory = "_".join(study_directory).replace(os.path.sep, "_")
 
     # Study directory: <SeriesNumber>_<SeriesDescription>, both
@@ -205,7 +212,10 @@ def get_series_directory(meta_data):
         series_directory.append(meta_data["SeriesDescription"][0])
 
     if not series_directory:
-        raise Exception("Series Number and Series Description are both missing")
+        if "SeriesInstanceUID" in meta_data and meta_data["SeriesInstanceUID"]:
+            series_directory = [meta_data["SeriesInstanceUID"][0]]
+        else:
+            raise Exception("Cannot determine series directory")
 
     series_directory = "_".join(series_directory).replace(os.path.sep, "_")
 

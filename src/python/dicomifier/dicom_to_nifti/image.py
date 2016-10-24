@@ -14,7 +14,7 @@ import numpy
 import odil
 
 import nifti_image
-import niftiio
+from .. import nifti
 import siemens
 
 def get_image(data_sets, dtype):
@@ -72,11 +72,11 @@ def get_image(data_sets, dtype):
 
     image = nifti_image.NIfTIImage(
         pixdim=[0.]+spacing+(8-len(spacing)-1)*[0.],
-        cal_min=pixel_data.min(), cal_max=pixel_data.max(),
-        qform_code = niftiio.NIFTI_XFORM_SCANNER_ANAT,
-        sform_code = niftiio.NIFTI_XFORM_SCANNER_ANAT,
+        cal_min=float(pixel_data.min()), cal_max=float(pixel_data.max()),
+        qform_code = nifti.NIFTI_XFORM_SCANNER_ANAT,
+        sform_code = nifti.NIFTI_XFORM_SCANNER_ANAT,
         qform=scanner_transform, sform=scanner_transform,
-        xyz_units=niftiio.NIFTI_UNITS_MM,
+        xyz_units=nifti.NIFTI_UNITS_MM,
         data=pixel_data)
     
     return image
@@ -85,7 +85,11 @@ def get_pixel_data(data_set):
     high_bit = data_set[str(odil.registry.HighBit)]["Value"][0]
     byte_order = ">" if high_bit==0 else "<"
     
-    pixel_representation = data_set[str(odil.registry.PixelRepresentation)]["Value"][0]
+    if str(odil.registry.PixelRepresentation) in data_set:
+        pixel_representation = data_set[
+            str(odil.registry.PixelRepresentation)]["Value"][0]
+    else:
+        pixel_representation = 0
     is_unsigned = (pixel_representation==0)
     
     bits_allocated = data_set[str(odil.registry.BitsAllocated)]["Value"][0]
