@@ -6,5 +6,8 @@ export DEB_BUILD_MAINT_OPTIONS = hardening=+all
 %:
 	dh $@ --builddirectory=build --parallel --with python2
 
+override_dh_auto_configure:
+	dh_auto_configure -- -DNIfTI_INCLUDE_DIR=/usr/include/nifti
+
 override_dh_auto_test:
 	cd build && ../tests/run_tests.sh
