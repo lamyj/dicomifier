@@ -85,11 +85,6 @@ GenerationFrame
 {
     QSettings settings;
 
-    // Set Output Directory
-    this->_ui->output_directory_button->setText(
-        settings.value(
-            CONF_GROUP_OUTPUT+"/"+CONF_KEY_DIRECTORY, "").toString());
-
     // Set Output Format File
     auto const abstract_syntax = settings.value(
         CONF_GROUP_OUTPUT+"/"+CONF_KEY_FORMAT, "").toString().toStdString();
