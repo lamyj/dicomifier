@@ -1,6 +1,7 @@
 dicomifier (0.10.3-1) unstable; urgency=medium
 
   * New upstream release.
+  * Fix lintian warnings.
 
  -- Julien Lamy <lamy@unistra.fr>  Mon, 24 Oct 2016 15:44:50 +0200
 
