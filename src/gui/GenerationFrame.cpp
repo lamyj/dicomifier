@@ -227,7 +227,7 @@ GenerationFrame
                 currentItem->get_seriesDirectory(),
                 currentItem->get_recoDirectory(),
                 mr_image_storage, "1.2.840.10008.1.2.1",
-                outputdir.string(), true, "hierarchical");
+                outputdir.string(), true);
             
             if(len(files_python) > 0)
             {
