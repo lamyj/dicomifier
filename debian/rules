@@ -11,3 +11,7 @@ override_dh_auto_configure:
 
 override_dh_auto_test:
 	cd build && ../tests/run_tests.sh
+
+override_dh_auto_install: 
+	dh_numpy
+	dh_auto_install

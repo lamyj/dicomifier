@@ -1,2 +1,3 @@
 debian/bruker2dicom.1
 debian/dicom2nifti.1
+debian/dicomifier.1
