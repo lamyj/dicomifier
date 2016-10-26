@@ -9,6 +9,9 @@ import math
 import os
 import re
 import sys
+import tempfile
+import shutil
+import zipfile
 
 import odil
 
@@ -26,7 +29,7 @@ def main():
     list_parser.add_argument(
         "--verbosity", "-v",
         choices=["warning", "info", "debug"], default="warning")
-    list_parser.set_defaults(function=list_)
+    list_parser.set_defaults(function=list_full)
     
     convert_parser = subparsers.add_parser(
         "convert", help="Convert Bruker images")
@@ -47,7 +50,7 @@ def main():
     convert_parser.add_argument(
         "--verbosity", "-v",
         choices=["warning", "info", "debug"], default="warning")
-    convert_parser.set_defaults(function=convert)
+    convert_parser.set_defaults(function=convert_full)
     
     arguments = vars(parser.parse_args())
     
@@ -65,6 +68,55 @@ def main():
             raise
         else:
             parser.error(e)
+
+# Take into account that source can be a pvDataSet archive
+def list_full(source):
+    #create tmp directory in the current location
+    destdir = tempfile.mkdtemp("","",".")
+    try:
+        # try to extract the archive
+        zip_obj = zipfile.ZipFile(source)
+        zip_obj.extractall(destdir)
+    except:
+        # source is not a pvDataSet archive, so it should be a "normal" directory
+        list_(source)
+    else:
+        # get directories in the extract area
+        namelist = os.listdir(destdir)
+        for element in namelist :
+            elementpath = os.path.join(".",destdir,element)
+            if (os.path.isdir(elementpath)):
+                list_(elementpath)
+    finally:
+        #delete directory here
+        shutil.rmtree(destdir)
+
+#Same as for the list_full function (pvDataSet case)
+def convert_full(
+    source, destination, series_and_reconstructions, 
+    transfer_syntax, dicomdir
+    ):
+    #create tmp directory in the current location
+    destdir = tempfile.mkdtemp("","",".")
+    try:
+        # try to extract the archive
+        zip_obj = zipfile.ZipFile(source)
+        zip_obj.extractall(destdir)
+    except:
+        # source is not a pvDataSet archive, so it should be a "normal" directory
+        convert(source,destination, series_and_reconstructions, 
+        transfer_syntax, dicomdir)
+    else:
+        # get directories in the extract area
+        namelist = os.listdir(destdir)
+        for element in namelist :
+            elementpath = os.path.join(".",destdir,element)
+            if (os.path.isdir(elementpath)):
+                convert(elementpath,destination, series_and_reconstructions, 
+                transfer_syntax, dicomdir)
+    finally:
+        #delete directory here
+        shutil.rmtree(destdir)
 
 def list_(source):
     directory = dicomifier.bruker.Directory()
