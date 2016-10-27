@@ -63,22 +63,22 @@ def main():
     function = arguments.pop("function")
     source = arguments.pop("source")
     
-    #create tmp directory in the current location
-    extractdir = tempfile.mkdtemp("","",".")
+    #create tmp directory in the system tmp location
+    extractdir = tempfile.mkdtemp()
     try:
         # try to extract the archive
         zip_obj = zipfile.ZipFile(source)
         zip_obj.extractall(extractdir)
     except:
         # source is not a pvDataSet archive, so it should be a "normal" directory
-            arguments['source'] = source
+        arguments["source"] = source
     else:
         # get directories in the extract area
         namelist = os.listdir(extractdir)
         for element in namelist :
             elementpath = os.path.join(".",extractdir,element)
             if (os.path.isdir(elementpath)):
-                arguments['source'] = elementpath
+                arguments["source"] = elementpath
     finally:
         try:
             function(**arguments)
