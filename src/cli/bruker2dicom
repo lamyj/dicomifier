@@ -39,7 +39,7 @@ def main():
     convert_parser.add_argument(
         "--reconstruction", "-r", action="append",
         dest="series_and_reconstructions",
-        help="Series and reconstruction to convert")
+        help="Series and reconstruction to convert (format seriesNumber:reconstructionNumber)")
     convert_parser.add_argument(
         "--transfer-syntax", "-t", type=lambda x: getattr(odil.registry, x),
         default="ImplicitVRLittleEndian",
@@ -91,6 +91,11 @@ def main():
         shutil.rmtree(extractdir)
 
 def list_(source):
+    """
+        List series and reconstructions information for the directory/archive given in parameter
+        
+        :param source: path of the element to browse
+    """
     directory = dicomifier.bruker.Directory()
     
     series_and_reconstructions = sorted(
@@ -114,12 +119,22 @@ def list_(source):
 def convert(
         source, destination, series_and_reconstructions, transfer_syntax, 
         dicomdir):
+    """ Function that converts a source file (bruker) into a destionation file (dicom)
+	
+		:param source: source file
+		:param destination: destination file
+		:series_and_reconstructions: series and reconstruction to convert inside the source file
+		:param transfer_syntax:
+		:param dicomdir: Create a dicomdir or no
+	"""	
+    
     if os.path.isdir(destination) and len(os.listdir(destination)) > 0:
         logging.warning("{} is not empty".format(destination))
     
     directory = dicomifier.bruker.Directory()
     directory.load(source)
     
+    # Create series and reconstruction if they are not given in parameters
     if series_and_reconstructions is None:
         everything = dicomifier.bruker.Directory.get_series_and_reco(source)
         series_and_reconstructions = {}
@@ -139,7 +154,7 @@ def convert(
                     ))
                     continue
                 series_and_reconstructions.setdefault(series, []).append(reconstruction)
-    else:
+    else: # Use series & reco given in parameters
         parsed = {}
         for entry in series_and_reconstructions:
             series, reconstruction = entry.split(":")
