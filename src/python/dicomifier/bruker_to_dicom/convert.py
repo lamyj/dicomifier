@@ -19,11 +19,13 @@ from .. import bruker
 
 #explicit conversions
 vr_converters = {
+    "DA": lambda x: dateutil.parser.parse(x.replace(",", ".")).strftime("%Y%m%d"),
     "DS": lambda x: float(x),
     "FD": lambda x: float(x),
     "FL": lambda x: float(x),
     "IS": lambda x: int(x),
     "SS": lambda x: int(x),
+    "TM": lambda x: dateutil.parser.parse(x.replace(",", ".")).strftime("%H%M%S"),
     "US": lambda x: int(x),
 }
 
@@ -121,6 +123,8 @@ def convert_element(
     if value is None:
         if type_ == 1:
             raise Exception("{} must be present".format(dicom_name))
+	elif type_ == 2:
+	    dicom_data_set.add(tag)
      
     else:
         if isinstance(setter, dict):
