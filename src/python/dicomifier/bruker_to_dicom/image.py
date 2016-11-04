@@ -6,7 +6,6 @@
 # for details.
 #########################################################################
 
-import base64
 import datetime
 import re
 
@@ -81,9 +80,7 @@ def _get_pixel_data(data_set, generator, frame_index):
         frame_index = generator.get_linear_index(frame_index)
     frame_data = data_set["PIXELDATA"][frame_index]
     
-    encoded = base64.b64encode(frame_data)
-    
-    return [encoded]
+    return [frame_data.tostring()]
 
 GeneralImage = [ # http://dicom.nema.org/medical/dicom/current/output/chtml/part03/sect_C.7.6.html#sect_C.7.6.1
     (None, "InstanceNumber", 2, lambda d,g,i: [1+g.get_linear_index(i)], None),
