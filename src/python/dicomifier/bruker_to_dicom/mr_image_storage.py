@@ -20,6 +20,17 @@ from convert import convert_element
 def convert_elements(
         bruker_data_set, dicom_data_set, conversions,
         frame_index, generator, vr_finder):
+    """
+        Convert elements from the bruker_data_set into dicom_data_set
+        
+        :param bruker_data_set: Bruker data set to convert
+        :param dicom_data_set: Dicom data set destination
+        :param conversions: elements to convert (in case of sequence for example)
+        :param frame_index: index in a frame group
+        :param generator: object that will manage the frame_index
+        :param vr_finder: function to find the VR knowing only the dicom_name
+    """    
+    
     for bruker_name, dicom_name, type_, getter, setter in conversions:
         convert_element(
             bruker_data_set, dicom_data_set, 
@@ -28,6 +39,13 @@ def convert_elements(
     return dicom_data_set
 
 def mr_image_storage(bruker_data_set, transfer_syntax):
+    """
+		Function to convert specific burker images into dicom 
+		
+		:param bruker_data_set: bruker data set to convert
+		:param transfer_syntax: target transfer syntax
+	"""
+    
     if int(bruker_data_set.get("VisuCoreDim", ["unknown"])[0]) == 3:
         to_2d(bruker_data_set)
     
@@ -45,7 +63,7 @@ def mr_image_storage(bruker_data_set, transfer_syntax):
                 None, "PixelValueTransformationSequence", 1,
                 lambda bruker_data_set, generator, frame_index: [
                     convert_elements(
-                        bruker_data_set, {}, image.PixelValueTransformation,
+                        bruker_data_set,odil.DataSet(), image.PixelValueTransformation,
                         frame_index, generator, vr_finder_function
                     )
                 ],
@@ -57,7 +75,7 @@ def mr_image_storage(bruker_data_set, transfer_syntax):
                 None, "MRDiffusionSequence", 3,
                 lambda bruker_data_set, generator, frame_index: [ 
                     convert_elements(
-                        bruker_data_set, {}, image.MRDiffusion,
+                        bruker_data_set,odil.DataSet(), image.MRDiffusion,
                         frame_index, generator, vr_finder_function
                     ) ] 
                     if "FG_DIFFUSION" in [x[1] for x in generator.frame_groups]
@@ -75,7 +93,8 @@ def mr_image_storage(bruker_data_set, transfer_syntax):
     
     generator = FrameIndexGenerator(bruker_data_set)
     for frame_index in generator:
-        dicom_data_set = {}
+        dicom_data_set = odil.DataSet()
+        dicom_data_set.add("SpecificCharacterSet", ["ISO_IR 192"])
         
         for bruker_name, dicom_name, type_, getter, setter in itertools.chain(*modules):
             value = convert_element(
