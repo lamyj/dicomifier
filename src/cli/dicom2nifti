@@ -138,11 +138,6 @@ def convert_series(series_files, dtype):
     dicom_data_sets = single_sample
     if len(dicom_data_sets) == 0:
         return None
-    
-    dicom_data_sets = [
-        json.loads(odil.as_json(x), object_hook=binary_as_bytes) 
-        for x in dicom_data_sets]
-    
     nifti_data = dicomifier.dicom_to_nifti.convert(dicom_data_sets, dtype)
     
     return nifti_data
@@ -167,7 +162,7 @@ def write_nifti(
         dicomifier.nifti.write(image, (destination_root+suffix).encode("utf-8"))
         
         kwargs = {"sort_keys": True, "indent": 4} if pretty_print else {}
-        json.dump(
+	json.dump(
             meta_data, open(destination_root+".json", "w"), 
             cls=dicomifier.MetaData.JSONEncoder, **kwargs)
 
@@ -175,11 +170,11 @@ def get_series_directory(meta_data):
     """ Return the directory associated with the patient, study and series of
         the NIfTI meta-data.
     """
-
+    
     # Patient directory: <PatientName> or <PatientID> or <StudyInstanceUID>.
     patient_directory = None
     if "PatientName" in meta_data and meta_data["PatientName"]:
-        patient_directory = meta_data["PatientName"][0]["Alphabetic"]
+	patient_directory = meta_data["PatientName"][0]["Alphabetic"]
     elif "PatientID" in meta_data and meta_data["PatientID"]:
         patient_directory = meta_data["PatientID"][0]
     elif "StudyInstanceUID" in meta_data and meta_data["StudyInstanceUID"]:
