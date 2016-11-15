@@ -13,28 +13,29 @@ import odil
 
 import dicomifier
 
+
 def main():
     parser = argparse.ArgumentParser(description="Convert DICOM to NIfTI")
     parser.add_argument(
         "dicom", nargs="+", help="DICOM file, directory or DICOMDIR")
     parser.add_argument("destination", help="Output directory")
     parser.add_argument(
-        "--dtype", "-d", default="single", type=lambda x: getattr(numpy, x), 
+        "--dtype", "-d", default="single", type=lambda x: getattr(numpy, x),
         help="Pixel type")
     parser.add_argument(
         "--zip", "-z", action="store_true", help="Compress NIfTI files")
     parser.add_argument(
-        "--pretty-print", "-p", action="store_true", 
+        "--pretty-print", "-p", action="store_true",
         help="Pretty-print JSON files")
     parser.add_argument(
         "--verbosity", "-v",
         choices=["warning", "info", "debug"], default="warning")
-    
+
     arguments = vars(parser.parse_args())
-    
+
     verbosity = arguments.pop("verbosity")
     logging.getLogger().setLevel(verbosity.upper())
-    
+
     try:
         convert(**arguments)
     except Exception as e:
@@ -43,33 +44,35 @@ def main():
         else:
             parser.error(e)
 
+
 def convert(dicom, destination, dtype, pretty_print, zip):
-    
+
     if os.path.isdir(destination) and len(os.listdir(destination)) > 0:
         logging.warning("{} is not empty".format(destination))
-    
+
     dicom_files = get_files(dicom)
     series = split_series(dicom_files)
-    
+
     logging.info("{} series found".format(len(series)))
-    
+
     study_directories = {}
     series_directories = {}
-    
+
     for series_files in series.values():
         nifti_data = convert_series(series_files, dtype)
         if nifti_data is None:
             # No image in the series
             continue
         write_nifti(
-            nifti_data, destination, pretty_print, zip, 
+            nifti_data, destination, pretty_print, zip,
             study_directories, series_directories)
+
 
 def get_files(dicom):
     dicom_files = set()
     for entry in dicom:
         entry = os.path.abspath(entry)
-        
+
         if os.path.isdir(entry):
             for dirpath, dirnames, filenames in os.walk(entry):
                 for filename in filenames:
@@ -82,8 +85,9 @@ def get_files(dicom):
             dicom_files.update(get_dicomdir_files(entry))
         else:
             dicom_files.add(entry)
-    
+
     return dicom_files
+
 
 def get_dicomdir_files(path):
     dicom_files = []
@@ -94,37 +98,44 @@ def get_dicomdir_files(path):
                 os.path.join(
                     os.path.dirname(path),
                     *record.as_string("ReferencedFileID")))
-    
+
     return dicom_files
+
 
 def split_series(dicom_files):
     logging.info(
         "Splitting {} DICOM file{} in series".format(
-            len(dicom_files), "s" if len(dicom_files)>1 else ""))
-    
+            len(dicom_files), "s" if len(dicom_files) > 1 else ""))
+
     def until_series_instance_uid(tag):
-        tag = tag.group*2**16 + tag.element
-        return (tag > 0x0200010) # StudyInstanceUID
-    
+        tag = tag.group * 2**16 + tag.element
+        return (tag > 0x0200010)  # StudyInstanceUID
+
     series = {}
     for file_ in dicom_files:
-        _, data_set = odil.read(file_, halt_condition=until_series_instance_uid)
+        try:
+            _, data_set = odil.read(
+                file_, halt_condition=until_series_instance_uid)
+        except odil.Exception as e:
+            logging.warning("Could not read {}: {}".format(file_, e))
+            continue
         series_instance_uid = data_set.as_string("SeriesInstanceUID")[0]
         series.setdefault(series_instance_uid, []).append(file_)
-    
+
     return series
+
 
 def convert_series(series_files, dtype):
     def binary_as_bytes(data):
         if "InlineBinary" in data:
             data["InlineBinary"] = data["InlineBinary"].encode("ascii")
         return data
-    
+
     logging.info(
         "Reading {} DICOM file{}".format(
-            len(series_files), "s" if len(series_files)>1 else ""))
+            len(series_files), "s" if len(series_files) > 1 else ""))
     dicom_data_sets = [odil.read(x)[1] for x in series_files]
-    
+
     # Filter non-images and multi-sample data sets
     dicom_data_sets = [x for x in dicom_data_sets if "PixelData" in x]
     single_sample = [
@@ -134,42 +145,40 @@ def convert_series(series_files, dtype):
     if multi_samples:
         logging.warning(
             "Discarding {} muti-samples dataset{}".format(
-                len(multi_samples), "s" if len(multi_samples)>1 else ""))
+                len(multi_samples), "s" if len(multi_samples) > 1 else ""))
     dicom_data_sets = single_sample
     if len(dicom_data_sets) == 0:
         return None
-    
-    dicom_data_sets = [
-        json.loads(odil.as_json(x), object_hook=binary_as_bytes) 
-        for x in dicom_data_sets]
-    
     nifti_data = dicomifier.dicom_to_nifti.convert(dicom_data_sets, dtype)
-    
+
     return nifti_data
-    
+
+
 def write_nifti(
-        nifti_data, destination, pretty_print, zip, 
+        nifti_data, destination, pretty_print, zip,
         study_directories, series_directories):
 
     # Write one nii+json per stack
     for index, (image, meta_data) in enumerate(nifti_data):
         destination_directory = os.path.join(
             destination, get_series_directory(meta_data))
-        
+
         if not os.path.isdir(destination_directory):
             os.makedirs(destination_directory)
-        
-        destination_root = os.path.join(destination_directory, str(1+index))
-        
+
+        destination_root = os.path.join(destination_directory, str(1 + index))
+
         suffix = ".nii"
         if zip:
             suffix += ".gz"
-        dicomifier.nifti.write(image, (destination_root+suffix).encode("utf-8"))
-        
+        dicomifier.nifti.write(
+            image, (destination_root + suffix).encode("utf-8"))
+
         kwargs = {"sort_keys": True, "indent": 4} if pretty_print else {}
         json.dump(
-            meta_data, open(destination_root+".json", "w"), 
+            meta_data, open(destination_root + ".json", "w"),
             cls=dicomifier.MetaData.JSONEncoder, **kwargs)
+
 
 def get_series_directory(meta_data):
     """ Return the directory associated with the patient, study and series of
@@ -200,7 +209,7 @@ def get_series_directory(meta_data):
             study_directory = [meta_data["StudyInstanceUID"][0]]
         else:
             raise Exception("Cannot determine study directory")
-    
+
     study_directory = "_".join(study_directory).replace(os.path.sep, "_")
 
     # Study directory: <SeriesNumber>_<SeriesDescription>, both
