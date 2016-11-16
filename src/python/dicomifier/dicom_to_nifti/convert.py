@@ -19,10 +19,6 @@ import odil_getter
 import nifti_image
 from .. import MetaData
 
-# need here to have the first arg dicom_data_sets in odil format instead
-# of JSON
-
-
 def convert(dicom_data_sets, dtype):
     """ Convert a list of dicom data sets into Nfiti
 
@@ -40,8 +36,8 @@ def convert(dicom_data_sets, dtype):
     stacks_count = {}
     stacks_converted = {}
     for key, data_sets in stacks.items():
-        series_instance_uid = odil_getter._getter(
-            data_sets[0], odil.registry.SeriesInstanceUID)[0]
+        series_instance_uid = data_sets[0].as_string(
+            odil.registry.SeriesInstanceUID)[0]
         stacks_count.setdefault(series_instance_uid, 0)
         stacks_count[series_instance_uid] += 1
         stacks_converted[series_instance_uid] = 0
@@ -63,8 +59,8 @@ def convert(dicom_data_sets, dtype):
             get_element(data_set, odil.registry.SeriesDescription)]
         series = [unicode(x) for x in series if x is not None]
 
-        series_instance_uid = get_element(
-            data_set, odil.registry.SeriesInstanceUID)
+        series_instance_uid = data_set.as_string(
+            odil.registry.SeriesInstanceUID)[0]
 
         if stacks_count[series_instance_uid] > 1:
             stack_info = " (stack {}/{})".format(
@@ -156,7 +152,7 @@ def sort(data_sets):
     normal = numpy.cross(*numpy.reshape(orientation, (2, -1)))
     data_sets.sort(
         key=lambda x: numpy.dot(
-            odil_getter._getter(x, odil.registry.ImagePositionPatient), normal))
+            x.as_real(odil.registry.ImagePositionPatient), normal))
 
 
 def merge_images_and_meta_data(images_and_meta_data):
@@ -223,7 +219,7 @@ def _get_splitters(data_sets):
     }
 
     sop_classes = set(
-        odil_getter._getter(x, odil.registry.SOPClassUID)[0]
+        x.as_string(odil.registry.SOPClassUID)[0]
         for x in data_sets
     )
 

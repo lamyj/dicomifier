@@ -14,7 +14,6 @@ import struct
 import numpy
 import odil
 
-import odil_getter
 import nifti_image
 from .. import nifti
 import siemens
@@ -32,14 +31,12 @@ def get_image(data_sets, dtype):
     origin, spacing, direction = get_geometry(data_sets)
 
     if (len(data_sets) == 1 and
-            "MOSAIC" in odil_getter._getter(
-                data_sets[0], odil.registry.ImageType)):
+            "MOSAIC" in data_sets[0].as_string(odil.registry.ImageType)):
         data_set = data_sets[0]
 
-        tag_siemens_header = odil.Tag("00291010")
+        siemens_data = data_set.as_binary(odil.Tag("00291010"))[0]
         siemens_header = siemens.parse_csa(
-            odil_getter._getter(data_set, tag_siemens_header)[0].
-            get_memory_view().tobytes())
+            siemens_data.get_memory_view().tobytes())
 
         number_of_images_in_mosaic = siemens_header[
             "NumberOfImagesInMosaic"][0]
@@ -98,19 +95,17 @@ def get_pixel_data(data_set):
         :param data_set: The dataset containing the pixelData 
     """
 
-    high_bit = odil_getter._getter(data_set, odil.registry.HighBit)[0]
+    high_bit = data_set.as_int(odil.registry.HighBit)[0]
 
     byte_order = ">" if high_bit == 0 else "<"
 
     pixel_representation = 0
-    pixel_representation = odil_getter._default_getter(
-        data_set, odil.registry.PixelRepresentation)
-    if pixel_representation is not None:
-        pixel_representation = pixel_representation[0]
+    if data_set.has(odil.registry.PixelRepresentation):
+        pixel_representation = data_set.as_int(
+            odil.registry.PixelRepresentation)[0]
     is_unsigned = (pixel_representation == 0)
 
-    bits_allocated = odil_getter._getter(
-        data_set, odil.registry.BitsAllocated)[0]
+    bits_allocated = data_set.as_int(odil.registry.BitsAllocated)[0]
     if bits_allocated % 8 != 0:
         raise NotImplementedError("Cannot handle non-byte types")
 
@@ -118,35 +113,30 @@ def get_pixel_data(data_set):
         "{}{}{}".format(
             byte_order, "u" if is_unsigned else "i", bits_allocated / 8))
 
-    rows = odil_getter._getter(data_set, odil.registry.Rows)[0]
-    cols = odil_getter._getter(data_set, odil.registry.Columns)[0]
+    rows = data_set.as_int(odil.registry.Rows)[0]
+    cols = data_set.as_int(odil.registry.Columns)[0]
 
     type_ = byte_order + str(rows * cols) + dtype.char
-    int_array = struct.unpack(type_,
-                              odil_getter._getter(data_set, odil.registry.PixelData)[0].get_memory_view())
-    pixel_data = numpy.asarray(int_array).reshape(rows, cols)
+
+    view = data_set.as_binary(odil.registry.PixelData)[0].get_memory_view()
+    pixel_data = numpy.frombuffer(view.tobytes(), byte_order+dtype.char)
+    pixel_data = numpy.asarray(pixel_data).reshape(rows, cols)
 
     # Mask the data using Bits Stored, cf. PS 3.5, 8.1.1
-    bits_stored = odil_getter._getter(data_set, odil.registry.BitsStored)[0]
+    bits_stored = data_set.as_int(odil.registry.BitsStored)[0]
     pixel_data = numpy.bitwise_and(pixel_data, 2**bits_stored - 1)
 
     # Rescale: look for Pixel Value Transformation sequence then Rescale Slope
     # and Rescale Intercept
     slope = None
     intercept = None
-    pixel_value_transformation = odil_getter._default_getter(
-        data_set, odil.registry.PixelValueTransformationSequence
-    )
-    if pixel_value_transformation is not None:
-        pixel_value_transformation = pixel_value_transformation[0]
-        slope = odil_getter._default_getter(
-            pixel_value_transformation, odil.registry.RescaleSlope)
-        if slope is not None:
-            slope = slope[0]
-        intercept = odil_getter._default_getter(
-            pixel_value_transformation, odil.registry.RescaleIntercept)
-        if intercept is not None:
-            intercept = intercept[0]
+    if data_set.has(odil.registry.PixelValueTransformationSequence):
+        transformation = data_set.as_data_set(
+            odil.registry.PixelValueTransformationSequence)[0]
+        if transformation.has(odil.registry.RescaleSlope):
+            slope = transformation.as_real(odil.registry.RescaleSlope)[0]
+        if transformation.has(odil.registry.RescaleIntercept):
+            intercept = transformation.as_real(odil.registry.RescaleIntercept)[0]
     if None not in [slope, intercept]:
         pixel_data = pixel_data * slope + intercept
 
@@ -154,29 +144,25 @@ def get_pixel_data(data_set):
 
 
 def get_geometry(data_sets):
-    origin = odil_getter._getter(
-        data_sets[0], odil.registry.ImagePositionPatient)
+    origin = data_sets[0].as_real(odil.registry.ImagePositionPatient)
 
     # Image Orientation gives the columns of the matrix, cf.
     # http://dicom.nema.org/medical/dicom/current/output/chtml/part03/sect_C.7.6.2.html#sect_C.7.6.2.1.1
-    orientation = odil_getter._getter(
-        data_sets[0], odil.registry.ImageOrientationPatient)
+    orientation = data_sets[0].as_real(odil.registry.ImageOrientationPatient)
     direction = numpy.zeros((3, 3))
     direction[:, 0] = orientation[:3]
     direction[:, 1] = orientation[3:]
     direction[:, 2] = numpy.cross(direction[:, 0], direction[:, 1])
 
-    spacing = list(odil_getter._getter(
-        data_sets[0], odil.registry.PixelSpacing))
+    spacing = list(data_sets[0].as_real(odil.registry.PixelSpacing))
 
     if data_sets[0].has(odil.registry.SpacingBetweenSlices):
-        spacing.append(odil_getter._getter(
-            data_sets[0], odil.registry.SpacingBetweenSlices)[0])
+        spacing.append(
+            data_sets[0].as_real(odil.registry.SpacingBetweenSlices)[0])
     elif len(data_sets) > 2:
         difference = numpy.subtract(
-            odil_getter._getter(
-                data_sets[1], odil.registry.ImagePositionPatient),
-            odil_getter._getter(data_sets[0], odil.registry.ImagePositionPatient))
+            data_sets[1].as_real(odil.registry.ImagePositionPatient),
+            data_sets[0].as_real(odil.registry.ImagePositionPatient))
         spacing_between_slices = abs(numpy.dot(difference, direction[:, 2]))
         spacing.append(spacing_between_slices)
     else:
