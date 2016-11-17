@@ -6,9 +6,9 @@
 # for details.
 #########################################################################
 
-import itertools
+import base64
 
-import numpy
+import json
 import odil
 
 from .. import MetaData
@@ -19,21 +19,13 @@ def get_meta_data(data_sets):
         representation of the tag if no keyword is found) and valued by the 
         Value (or InlineBinary) of the DICOM elements.
     """
-    
-    meta_data = [convert_meta_data(x) for x in data_sets]
-    
-    merged = merge_meta_data(meta_data)
-    return tag_to_name(merged)
 
-def convert_meta_data(data_set):
-    """ Convert the meta-data from DICOM data sets to the NIfTI+JSON format.
-    """
-    
-    meta_data = {}
-    
+    # BUG in odil: tags are not hashed correctly
+    # Use the tuple (group, element) in Python objects (dict, set)
+
     skipped = [
         # Stored in the NIfTI image
-        "Rows", "Columns", 
+        "Rows", "Columns",
         "ImageOrientationPatient", "ImagePositionPatient", "PixelSpacing",
         "SliceLocation",
         # Useless in the NIfTI world (?)
@@ -46,67 +38,121 @@ def convert_meta_data(data_set):
         "PixelValueTransformationSequence",
         "SmallestImagePixelValue", "LargestImagePixelValue",
     ]
-    skipped = [str(getattr(odil.registry, x)) for x in skipped]
-    
-    for key, value in data_set.items():
-        if key in skipped:
-            continue
-        
-        converted_value = None
-        if "Value" in value:
-            if value["vr"] == "SQ":
-                converted_value = [convert_meta_data(x) for x in value["Value"]]
+    skipped = [getattr(odil.registry, x) for x in skipped]
+    skipped = [(x.group, x.element) for x in skipped]
+
+    # List all tags that appear in any of the data sets
+    tags = set()
+    for data_set in data_sets:
+        data_set_tags = [(x.group, x.element) for x in data_set]
+        tags.update(x for x in data_set_tags if x not in skipped)
+
+    meta_data = MetaData()
+    specific_character_set = []
+    for tag_tuple in sorted(tags):
+        tag_object = odil.Tag(*tag_tuple)
+
+        # List the value of this tag in every data set (None if absent)
+        values = []
+        for data_set in data_sets:
+            if data_set.has(tag_object):
+                values.append(data_set[tag_object])
             else:
-                converted_value = value["Value"]
-        elif "InlineBinary" in value:
-            value = value["InlineBinary"]
-            converted_value = value
+                value.append(None)
+
+        # Check whether all values are the same
+        all_equal = True
+        sample = values[0]
+        for value in values[1:]:
+            if value != sample:
+                all_equal = False
+                break
+
+        if all_equal:
+            # Only use the unique value.
+            value = convert_element(sample, specific_character_set)
         else:
-            converted_value = None
-        
-        meta_data[key] = converted_value
-    
+            # Convert each value. If we have multiple values of Specific 
+            # Character Set, use the one from the corresponding data set.
+            if (
+                    specific_character_set 
+                    and isinstance(specific_character_set[0], list)):
+                value = [
+                    convert_element(x, specific_character_set[i]) 
+                    for i, x in enumerate(values)]
+            else:
+                value = [
+                    convert_element(x, specific_character_set) for x in values]
+
+        if tag_object == odil.registry.SpecificCharacterSet:
+            specific_character_set = value
+
+        tag_name = get_tag_name(tag_object)
+
+        meta_data[tag_name] = value
+            
     return meta_data
 
-def merge_meta_data(data_sets):
-    """ Merge the meta-data of DICOM data sets if they are equal.
+def get_tag_name(tag):
+    """ Convert a DICOM tag to its NIfTI+JSON representation: the tag keyword
+        if known, and the standard DICOM JSON representation otherwise.
     """
-    
-    merged = {}
-    
-    tags = set(itertools.chain(*[x.keys() for x in data_sets]))
-    for tag in tags:
-        merged_value = []
-        for data_set in data_sets:
-            value = data_set.get(tag, None)
-            merged_value.append(value)
 
-        if all(x == merged_value[0] for x in merged_value):
-            merged_value = merged_value[0]
-        merged[tag] = merged_value
-    
-    return MetaData(merged)
+    try:
+        tag_name = tag.get_name()
+    except odil.Exception as e:
+        tag_name = str(tag)
+    return tag_name
 
-def tag_to_name(meta_data):
-    """ Convert the numeric keys to named keys of a single meta data or a list
-        of meta data.
+def convert_element(element, specific_character_set):
+    """ Convert a DICOM element to its NIfTI+JSON representation: the "Value"
+        (or "InlineBinary") attribute of its standard DICOM JSON 
+        representation.
     """
-    
+
     result = None
-    
-    if isinstance(meta_data, list):
-        result = [tag_to_name(item) for item in meta_data]
-    elif isinstance(meta_data, (dict, MetaData)):
-        result = {}
-        for key, value in meta_data.items():
-            try:
-                key = odil.Tag(key.encode()).get_name()
-            except odil.Exception as e:
-                # Keep numeric tag
-                pass
-            result[key] = tag_to_name(value)
+    if element.empty():
+        result = None
+    elif element.is_int():
+        result = list(element.as_int())
+    elif element.is_real():
+        result = list(element.as_real())
+    elif element.is_string():
+        if element.vr.name in ["LO", "LT", "PN", "SH", "ST", "UT"]:
+            data_set = odil.DataSet()
+            if specific_character_set:
+                data_set.add(
+                    odil.registry.SpecificCharacterSet, specific_character_set)
+            data_set.add(
+                odil.Tag(0xffff, 0xffff), element.as_string(), element.vr)
+            result = json.loads(odil.as_json(data_set))["ffffffff"]["Value"]
+        else:
+            result = list(element.as_string())
+    elif element.is_data_set():
+        result = [
+            convert_data_set(x, specific_character_set) 
+            for x in element.as_data_set()]
+    elif element.is_binary():
+        result = [
+            base64.b64encode(x.get_memory_view().tobytes())
+            for x in element.as_binary()]
     else:
-        # Scalar data
-        result = meta_data
-    
+        raise Exception("Unknown element type")
+
     return result
+
+def convert_data_set(data_set, specific_character_set):
+    """ Convert a DICOM data set to its NIfTI+JSON representation.
+    """
+
+    result = {}
+    if data_set.has(odil.registry.SpecificCharacterSet):
+        specific_character_set = data_set.as_string(
+            odil.registry.SpecificCharacterSet)
+    for tag, element in data_set.items():
+        name = get_tag_name(tag)
+        value = convert_element(element, specific_character_set)
+        result[name] = value
+
+    return result
+

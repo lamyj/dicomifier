@@ -85,11 +85,6 @@ GenerationFrame
 {
     QSettings settings;
 
-    // Set Output Directory
-    this->_ui->output_directory_button->setText(
-        settings.value(
-            CONF_GROUP_OUTPUT+"/"+CONF_KEY_DIRECTORY, "").toString());
-
     // Set Output Format File
     auto const abstract_syntax = settings.value(
         CONF_GROUP_OUTPUT+"/"+CONF_KEY_FORMAT, "").toString().toStdString();
@@ -232,7 +227,7 @@ GenerationFrame
                 currentItem->get_seriesDirectory(),
                 currentItem->get_recoDirectory(),
                 mr_image_storage, "1.2.840.10008.1.2.1",
-                outputdir.string(), true, "hierarchical");
+                outputdir.string(), true);
             
             if(len(files_python) > 0)
             {

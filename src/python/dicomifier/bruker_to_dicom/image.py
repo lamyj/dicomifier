@@ -6,7 +6,6 @@
 # for details.
 #########################################################################
 
-import base64
 import datetime
 import re
 
@@ -81,9 +80,7 @@ def _get_pixel_data(data_set, generator, frame_index):
         frame_index = generator.get_linear_index(frame_index)
     frame_data = data_set["PIXELDATA"][frame_index]
     
-    encoded = base64.b64encode(frame_data)
-    
-    return [encoded]
+    return [frame_data.tostring()]
 
 GeneralImage = [ # http://dicom.nema.org/medical/dicom/current/output/chtml/part03/sect_C.7.6.html#sect_C.7.6.1
     (None, "InstanceNumber", 2, lambda d,g,i: [1+g.get_linear_index(i)], None),
@@ -220,6 +217,28 @@ def _get_direction_and_b_value(b_matrix):
     
     return direction, b_value
 
+def _set_diffusion_gradient(value):
+	""" Return an odil DataSet containing the DiffusionGradientDiffusion element
+	    required for the DiffusionGradientDirectionSequence	
+	"""
+	# value == (x,y,z)
+	result = odil.DataSet()
+	result.add("DiffusionGradientOrientation", value)
+	return result
+	
+def _set_diffusion_b_matrix(matrix):
+	""" Return an odil DataSet containing all required elements for
+		the Diffusion B-Matrix Sequence
+	"""
+	result = odil.DataSet()
+	result.add("DiffusionBValueXX",[matrix[0][0,0]])
+	result.add("DiffusionBValueXY",[matrix[0][0,1]])
+	result.add("DiffusionBValueXZ",[matrix[0][0,2]])
+	result.add("DiffusionBValueYY",[matrix[0][1,1]])
+	result.add("DiffusionBValueYZ",[matrix[0][1,2]])
+	result.add("DiffusionBValueZZ",[matrix[0][2,2]])
+	return result
+	
 MRDiffusion = [ # http://dicom.nema.org/medical/dicom/current/output/chtml/part03/sect_C.8.13.5.9.html
     (
         "VisuAcqDiffusionBMatrix", "DiffusionBValue", 1, 
@@ -233,22 +252,12 @@ MRDiffusion = [ # http://dicom.nema.org/medical/dicom/current/output/chtml/part0
         lambda d,g,i: [
             _get_direction_and_b_value(x)[0] 
             for x in numpy.reshape(d["VisuAcqDiffusionBMatrix"], (-1, 3, 3))], 
-        lambda x: [{ 
-            str(odil.registry.DiffusionGradientOrientation): {
-                "vr": "FD", "Value": numpy.asarray(x).ravel().tolist() } 
-        }]
+        lambda x: [_set_diffusion_gradient(numpy.asarray(x).ravel().tolist())]
     ),
     (
         "VisuAcqDiffusionBMatrix", "DiffusionBMatrixSequence", 1,
         lambda d,g,i: numpy.reshape(d["VisuAcqDiffusionBMatrix"], (-1, 3, 3)), 
-        lambda x: [{ 
-            str(odil.registry.DiffusionBValueXX): { "vr": "FD", "Value": [x[0][0,0]] },
-            str(odil.registry.DiffusionBValueXY): { "vr": "FD", "Value": [x[0][0,1]] },
-            str(odil.registry.DiffusionBValueXZ): { "vr": "FD", "Value": [x[0][0,2]] },
-            str(odil.registry.DiffusionBValueYY): { "vr": "FD", "Value": [x[0][1,1]] }, 
-            str(odil.registry.DiffusionBValueYZ): { "vr": "FD", "Value": [x[0][1,2]] },
-            str(odil.registry.DiffusionBValueZZ): { "vr": "FD", "Value": [x[0][2,2]] },
-        }]
+        lambda x: [_set_diffusion_b_matrix(x)]
     )
 ]
 

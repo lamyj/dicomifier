@@ -9,6 +9,9 @@ import math
 import os
 import re
 import sys
+import tempfile
+import shutil
+import zipfile
 
 import odil
 
@@ -36,7 +39,7 @@ def main():
     convert_parser.add_argument(
         "--reconstruction", "-r", action="append",
         dest="series_and_reconstructions",
-        help="Series and reconstruction to convert")
+        help="Series and reconstruction to convert (format seriesNumber:reconstructionNumber)")
     convert_parser.add_argument(
         "--transfer-syntax", "-t", type=lambda x: getattr(odil.registry, x),
         default="ImplicitVRLittleEndian",
@@ -58,15 +61,41 @@ def main():
     logging.getLogger().setLevel(verbosity.upper())
     
     function = arguments.pop("function")
+    source = arguments.pop("source")
+    
+    #create tmp directory in the system tmp location
+    extractdir = tempfile.mkdtemp()
     try:
-        function(**arguments)
-    except Exception as e:
-        if verbosity == "debug":
-            raise
-        else:
-            parser.error(e)
+        # try to extract the archive
+        zip_obj = zipfile.ZipFile(source)
+        zip_obj.extractall(extractdir)
+    except:
+        # source is not a pvDataSet archive, so it should be a "normal" directory
+        arguments["source"] = source
+    else:
+        # get directories in the extract area
+        namelist = os.listdir(extractdir)
+        for element in namelist :
+            elementpath = os.path.join(".",extractdir,element)
+            if (os.path.isdir(elementpath)):
+                arguments["source"] = elementpath
+    finally:
+        try:
+            function(**arguments)
+        except Exception as e:
+            if verbosity == "debug":
+                raise
+            else:
+                parser.error(e)
+        #delete directory here
+        shutil.rmtree(extractdir)
 
 def list_(source):
+    """
+        List series and reconstructions information for the directory/archive given in parameter
+        
+        :param source: path of the element to browse
+    """
     directory = dicomifier.bruker.Directory()
     
     series_and_reconstructions = sorted(
@@ -90,12 +119,22 @@ def list_(source):
 def convert(
         source, destination, series_and_reconstructions, transfer_syntax, 
         dicomdir):
+    """ Function that converts a source file (bruker) into a destionation file (dicom)
+	
+		:param source: source file
+		:param destination: destination file
+		:series_and_reconstructions: series and reconstruction to convert inside the source file
+		:param transfer_syntax:
+		:param dicomdir: Create a dicomdir or no
+	"""	
+    
     if os.path.isdir(destination) and len(os.listdir(destination)) > 0:
         logging.warning("{} is not empty".format(destination))
     
     directory = dicomifier.bruker.Directory()
     directory.load(source)
     
+    # Create series and reconstruction if they are not given in parameters
     if series_and_reconstructions is None:
         everything = dicomifier.bruker.Directory.get_series_and_reco(source)
         series_and_reconstructions = {}
@@ -115,7 +154,7 @@ def convert(
                     ))
                     continue
                 series_and_reconstructions.setdefault(series, []).append(reconstruction)
-    else:
+    else: # Use series & reco given in parameters
         parsed = {}
         for entry in series_and_reconstructions:
             series, reconstruction = entry.split(":")

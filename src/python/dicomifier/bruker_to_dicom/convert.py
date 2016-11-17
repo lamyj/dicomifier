@@ -17,14 +17,16 @@ import odil
 
 from .. import bruker
 
+#explicit conversions
 vr_converters = {
     "DA": lambda x: dateutil.parser.parse(x.replace(",", ".")).strftime("%Y%m%d"),
     "DS": lambda x: float(x),
     "FD": lambda x: float(x),
     "FL": lambda x: float(x),
     "IS": lambda x: int(x),
-    "PN": lambda x: {"Alphabetic": x},
+    "SS": lambda x: int(x),
     "TM": lambda x: dateutil.parser.parse(x.replace(",", ".")).strftime("%H%M%S"),
+    "US": lambda x: int(x),
 }
 
 def convert_reconstruction(
@@ -53,15 +55,10 @@ def convert_reconstruction(
         bruker_json.get("RECO_mode", ["none"])[0]
     ))
 
-    dicom_jsons = iod_converter(bruker_json, transfer_syntax)
-
-    logging.info(
-        "Writing {} dataset{}".format(
-            len(dicom_jsons), "s" if len(dicom_jsons)>1 else ""))
+    dicom_binaries = iod_converter(bruker_json, transfer_syntax)
     
     files = []
-    for index, dicom_json in enumerate(dicom_jsons):
-        dicom_binary = odil.from_json(json.dumps(dicom_json))
+    for index, dicom_binary in enumerate(dicom_binaries):
         
         if iso_9660:
             filename = "IM{:06d}".format(1+index)
@@ -86,6 +83,25 @@ def convert_element(
         bruker_data_set, dicom_data_set, 
         bruker_name, dicom_name, type_, getter, setter,
         frame_index, generator, vr_finder):
+    """ Convert a specific element of a bruker_data_set into its
+        corresponding equivalent in a odil.DataSet object : 
+        dicom_data_set [ dicom_name ] = bruker_data_set [ bruker_name ]
+
+        :param burker_data_set: data set containing the element we want to convert
+        :param dicom_data_set: destination odil.DataSet object 
+        :param bruker_name: name of the element to convert
+        :param dicom_name: corresponding dicom name of the element in the dicom_data_set
+        :param type_: Specify the element's requirement in the dicom_data_set
+        :param getter: Either a string (to directly give the element to store in the dicom_data_set)
+                       or a function (to get a specific frame in a frame group for example)
+                       or None (to directly use the get() function on the bruker_data_set object)
+        :param setter: Either a dict (in order to directly choose the value to store)
+                       or a function (see image.py for examples)
+        :param frame_index: index in frame group 
+        :param generator: object that will manage the frame_index
+        :param vr_finder: function to find the VR knowing only the dicom_name
+    """
+    
     value = None
     if getter is not None:
         if isinstance(getter, basestring):
@@ -107,27 +123,22 @@ def convert_element(
     if value is None:
         if type_ == 1:
             raise Exception("{} must be present".format(dicom_name))
-        elif type_ == 2:
-            dicom_data_set[tag] = {"vr": vr}
-        elif type_ == 3:
-            # May be absent
-            pass
+	elif type_ == 2:
+	    dicom_data_set.add(tag)
+     
     else:
-        dicom_data_set[tag] = {"vr": vr}
         if isinstance(setter, dict):
             value = [setter[x] for x in value]
         elif setter is not None:
             value = setter(value)
-        
+        if value and isinstance(value[0], unicode):
+            value = [x.encode("utf-8") for x in value]
+		
         vr_converter = vr_converters.get(vr)
-        if vr_converter is not None:
-            value = [vr_converter(x) for x in value]
-        
-        if vr in ["OB", "OD", "OF", "OL", "OW"]:
-            dicom_data_set[tag]["InlineBinary"] = value[0]
-        else:
-            dicom_data_set[tag]["Value"] = value
-    
+        if vr_converter is not None :
+			value = [vr_converter(x) for x in value]
+			
+        dicom_data_set.add(tag, value, getattr(odil.VR, vr))        
     return value
 
 def get_series_directory(data_set, iso_9660):

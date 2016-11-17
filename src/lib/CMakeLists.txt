@@ -25,7 +25,10 @@ target_link_libraries(
     ${Log4Cpp_LIBRARIES})
 
 set_target_properties(
-    libdicomifier PROPERTIES OUTPUT_NAME dicomifier)
+    libdicomifier PROPERTIES 
+    OUTPUT_NAME dicomifier
+    VERSION ${dicomifier_VERSION}
+    SOVERSION ${dicomifier_MAJOR_VERSION})
 
 install(
     FILES ${headers} ${templates} DESTINATION include/dicomifier)
