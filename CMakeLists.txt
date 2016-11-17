@@ -1,7 +1,7 @@
 project(dicomifier)
 set(dicomifier_MAJOR_VERSION 0)
 set(dicomifier_MINOR_VERSION 10)
-set(dicomifier_PATCH_VERSION 3)
+set(dicomifier_PATCH_VERSION 4)
 set(dicomifier_VERSION
     ${dicomifier_MAJOR_VERSION}.${dicomifier_MINOR_VERSION}.${dicomifier_PATCH_VERSION})
 
