@@ -22,11 +22,26 @@ import siemens
 def get_image(data_sets, dtype):
     # WARNING: the following is much slower :
     # numpy.asarray([get_pixel_data(data_set) for data_set in data_sets])
-    sample = get_pixel_data(data_sets[0])
-    pixel_data = numpy.ndarray((len(data_sets),) + sample.shape, dtype=dtype)
-    pixel_data[0] = sample
-    for i, data_set in enumerate(data_sets[1:]):
-        pixel_data[1 + i] = get_pixel_data(data_set)
+
+    pixel_data_list = [get_pixel_data(x) for x in data_sets]
+
+    if dtype is None:
+        has_rescale = any(x.has("PixelValueTransformationSequence")
+                          for x in data_sets)
+        if has_rescale:
+            dtype = numpy.float32
+        else:
+            # Assume all data sets have the same type
+            dtype = pixel_data_list[0].dtype
+        logging.info("dtype deduced to be: {}".format(dtype))
+
+    pixel_data = numpy.ndarray(
+        (len(data_sets),) + pixel_data_list[0].shape, dtype=dtype)
+    for i, data in enumerate(pixel_data_list):
+        pixel_data[i] = data
+
+    dt = nifti.DT_UNKNOWN
+    scanner_transform = numpy.identity(4)
 
     origin, spacing, direction = get_geometry(data_sets)
 
@@ -65,17 +80,24 @@ def get_image(data_sets, dtype):
 
         direction[:, 2] = siemens_header["SliceNormalVector"]
 
-    lps_to_ras = [
-        [-1,  0, 0],
-        [0, -1, 0],
-        [0,  0, 1]
-    ]
+    samples_per_pix = data_sets[0].as_int("SamplesPerPixel")[0]
 
-    scanner_transform = numpy.identity(4)
-    scanner_transform[:3, :3] = numpy.dot(lps_to_ras, direction)
-    scanner_transform[:3, :3] = numpy.dot(
-        scanner_transform[:3, :3], numpy.diag(spacing))
-    scanner_transform[:3, 3] = numpy.dot(lps_to_ras, origin)
+    if samples_per_pix == 1:
+        lps_to_ras = [
+            [-1,  0, 0],
+            [0, -1, 0],
+            [0,  0, 1]
+        ]
+
+        scanner_transform[:3, :3] = numpy.dot(lps_to_ras, direction)
+        scanner_transform[:3, :3] = numpy.dot(
+            scanner_transform[:3, :3], numpy.diag(spacing))
+        scanner_transform[:3, 3] = numpy.dot(lps_to_ras, origin)
+
+    elif samples_per_pix == 3 and data_sets[0].as_string("PhotometricInterpretation")[0] == "RGB":
+        if dtype != numpy.uint8:
+            raise Exception("Invalid dtype {} for RGB".format(dtype))
+        dt = nifti.DT_RGB
 
     image = nifti_image.NIfTIImage(
         pixdim=[0.] + spacing + (8 - len(spacing) - 1) * [0.],
@@ -84,7 +106,8 @@ def get_image(data_sets, dtype):
         sform_code=nifti.NIFTI_XFORM_SCANNER_ANAT,
         qform=scanner_transform, sform=scanner_transform,
         xyz_units=nifti.NIFTI_UNITS_MM,
-        data=pixel_data)
+        data=pixel_data,
+        datatype_=dt)
 
     return image
 
@@ -116,11 +139,17 @@ def get_pixel_data(data_set):
     rows = data_set.as_int(odil.registry.Rows)[0]
     cols = data_set.as_int(odil.registry.Columns)[0]
 
-    type_ = byte_order + str(rows * cols) + dtype.char
+    samples_per_pixel = data_set.as_int(odil.registry.SamplesPerPixel)[0]
+
+    type_ = byte_order + str(rows * cols * samples_per_pixel) + dtype.char
 
     view = data_set.as_binary(odil.registry.PixelData)[0].get_memory_view()
-    pixel_data = numpy.frombuffer(view.tobytes(), byte_order+dtype.char)
-    pixel_data = numpy.asarray(pixel_data).reshape(rows, cols)
+    pixel_data = numpy.frombuffer(view.tobytes(), byte_order + dtype.char)
+    if samples_per_pixel == 1:
+        pixel_data = numpy.asarray(pixel_data).reshape(rows, cols)
+    else:
+        pixel_data = numpy.asarray(pixel_data).reshape(
+            rows, cols, samples_per_pixel)
 
     # Mask the data using Bits Stored, cf. PS 3.5, 8.1.1
     bits_stored = data_set.as_int(odil.registry.BitsStored)[0]
@@ -136,7 +165,8 @@ def get_pixel_data(data_set):
         if transformation.has(odil.registry.RescaleSlope):
             slope = transformation.as_real(odil.registry.RescaleSlope)[0]
         if transformation.has(odil.registry.RescaleIntercept):
-            intercept = transformation.as_real(odil.registry.RescaleIntercept)[0]
+            intercept = transformation.as_real(
+                odil.registry.RescaleIntercept)[0]
     if None not in [slope, intercept]:
         pixel_data = pixel_data * slope + intercept
 
@@ -144,8 +174,15 @@ def get_pixel_data(data_set):
 
 
 def get_geometry(data_sets):
-    origin = data_sets[0].as_real(odil.registry.ImagePositionPatient)
+    if not data_sets[0].has(odil.registry.ImagePositionPatient):
+        # default values
+        origin = numpy.zeros((3,)).tolist()
+        spacing = numpy.ones((3,)).tolist()
+        direction = numpy.identity(3)
+	logging.info("No geometry found, default returned")
+        return origin, spacing, direction
 
+    origin = data_sets[0].as_real(odil.registry.ImagePositionPatient)
     # Image Orientation gives the columns of the matrix, cf.
     # http://dicom.nema.org/medical/dicom/current/output/chtml/part03/sect_C.7.6.2.html#sect_C.7.6.2.1.1
     orientation = data_sets[0].as_real(odil.registry.ImageOrientationPatient)
