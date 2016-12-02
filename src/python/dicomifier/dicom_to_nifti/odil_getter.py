@@ -60,7 +60,9 @@ class OrientationGetter(object):
         self._orientations = {}
 
     def __call__(self, data_set, tag):
-        value = _getter(data_set, tag)
+        value = _default_getter(data_set, tag)
+        if value is None:
+            return ()
         orientation = numpy.reshape(value, (2, -1))
         normal = numpy.cross(*orientation)
 
