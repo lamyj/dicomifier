@@ -133,10 +133,12 @@ def get_pixel_data(data_set):
     if data_set.has(odil.registry.PixelValueTransformationSequence):
         transformation = data_set.as_data_set(
             odil.registry.PixelValueTransformationSequence)[0]
-        if transformation.has(odil.registry.RescaleSlope):
-            slope = transformation.as_real(odil.registry.RescaleSlope)[0]
-        if transformation.has(odil.registry.RescaleIntercept):
-            intercept = transformation.as_real(odil.registry.RescaleIntercept)[0]
+    else:
+        transformation = data_set
+    if transformation.has(odil.registry.RescaleSlope):
+        slope = transformation.as_real(odil.registry.RescaleSlope)[0]
+    if transformation.has(odil.registry.RescaleIntercept):
+        intercept = transformation.as_real(odil.registry.RescaleIntercept)[0]
     if None not in [slope, intercept]:
         pixel_data = pixel_data * slope + intercept
 
