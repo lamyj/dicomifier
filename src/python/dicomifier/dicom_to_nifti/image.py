@@ -26,9 +26,8 @@ def get_image(data_sets, dtype):
     pixel_data_list = [get_pixel_data(x) for x in data_sets]
 
     if dtype is None:
-        has_rescale = any(x.has("PixelValueTransformationSequence")
-                          for x in data_sets)
-        if has_rescale:
+        has_float = any(x.dtype.kind == "f" for x in pixel_data_list)
+        if has_float:
             dtype = numpy.float32
         else:
             # Assume all data sets have the same type
@@ -169,7 +168,7 @@ def get_pixel_data(data_set):
     if transformation.has(odil.registry.RescaleIntercept):
         intercept = transformation.as_real(odil.registry.RescaleIntercept)[0]
     if None not in [slope, intercept]:
-        pixel_data = pixel_data * slope + intercept
+        pixel_data = pixel_data * numpy.float32(slope) + numpy.float32(intercept)
 
     return pixel_data
 
