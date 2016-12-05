@@ -19,6 +19,7 @@ import odil_getter
 import nifti_image
 from .. import MetaData
 
+
 def convert(dicom_data_sets, dtype):
     """ Convert a list of dicom data sets into Nfiti
 
@@ -140,19 +141,26 @@ def sort(data_sets):
         :param data_sets: data_sets to sort
     """
 
-    getter = odil_getter.OrientationGetter()
-    orientations = set(
-        getter(data_set, odil.registry.ImageOrientationPatient)
-        for data_set in data_sets
-    )
-    if len(orientations) > 1:
-        raise Exception("Cannot sort data sets with non-uniform orientation")
+    if not data_sets[0].has("ImageOrientationPatient"):
+        logging.info("Sort data sets on their InstanceNumber field")
+        data_sets.sort(key=lambda x: x.as_int("InstanceNumber")[0])
+        return
 
-    orientation = orientations.pop()
-    normal = numpy.cross(*numpy.reshape(orientation, (2, -1)))
-    data_sets.sort(
-        key=lambda x: numpy.dot(
-            x.as_real(odil.registry.ImagePositionPatient), normal))
+    else:
+        getter = odil_getter.OrientationGetter()
+        orientations = set(
+            getter(data_set, odil.registry.ImageOrientationPatient)
+            for data_set in data_sets
+        )
+        if len(orientations) > 1:
+            raise Exception(
+                "Cannot sort data sets with non-uniform orientation")
+
+        orientation = orientations.pop()
+        normal = numpy.cross(*numpy.reshape(orientation, (2, -1)))
+        data_sets.sort(
+            key=lambda x: numpy.dot(
+                x.as_real(odil.registry.ImagePositionPatient), normal))
 
 
 def merge_images_and_meta_data(images_and_meta_data):
