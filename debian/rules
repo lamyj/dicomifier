@@ -1,6 +1,5 @@
 #!/usr/bin/make -f
 
-export DEB_CXXFLAGS_MAINT_APPEND  = -std=c++0x
 export DEB_BUILD_MAINT_OPTIONS = hardening=+all
 
 %:
