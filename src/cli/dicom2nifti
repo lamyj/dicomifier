@@ -55,17 +55,14 @@ def convert(dicom, destination, dtype, pretty_print, zip):
 
     logging.info("{} series found".format(len(series)))
 
-    study_directories = {}
-    series_directories = {}
-
     for series_files in series.values():
         nifti_data = convert_series(series_files, dtype)
         if nifti_data is None:
+            logging.info("No image in the series")
             # No image in the series
             continue
-        write_nifti(
-            nifti_data, destination, pretty_print, zip,
-            study_directories, series_directories)
+        write_nifti(nifti_data, destination,
+                    pretty_print, zip)
 
 
 def get_files(dicom):
@@ -140,6 +137,7 @@ def convert_series(series_files, dtype):
     dicom_data_sets = [x for x in dicom_data_sets if "PixelData" in x]
 
     if len(dicom_data_sets) == 0:
+        logging.warning("No Pixel Data found")
         return None
     nifti_data = dicomifier.dicom_to_nifti.convert(dicom_data_sets, dtype)
 
@@ -147,8 +145,7 @@ def convert_series(series_files, dtype):
 
 
 def write_nifti(
-        nifti_data, destination, pretty_print, zip,
-        study_directories, series_directories):
+        nifti_data, destination, pretty_print, zip):
 
     # Write one nii+json per stack
     for index, (image, meta_data) in enumerate(nifti_data):
