@@ -95,10 +95,11 @@ def convert(dicom_data_sets, dtype):
         for nifti_img, nifti_meta_data in stacks:
             geometry = nifti_img.shape + \
                 tuple(nifti_img.qform.ravel().tolist())
-            mergeable.setdefault(geometry, []).append(
+            dt = nifti_img.datatype
+            mergeable.setdefault((geometry, dt), []).append(
                 (nifti_img, nifti_meta_data))
 
-        for stack in mergeable.values():
+        for _, stack in sorted(mergeable.items()):
             if len(stack) > 1:
                 logging.info(
                     "Merging {} stack{}".format(
