@@ -10,11 +10,12 @@ import base64
 
 import json
 import odil
+import odil_getter
 
 from .. import MetaData
 
 
-def get_meta_data(data_sets_frame_idx):
+def get_meta_data(data_sets_frame_idx, cache):
     """ Get the meta data of the current stack 
 
         will keep the priority order for repeting element with the following rules:
@@ -25,7 +26,10 @@ def get_meta_data(data_sets_frame_idx):
 
         :param data_sets_frame_idx: List containing the data sets of the frame 
                                     with the corresponding frame when it's a multiframe data set
+        :param cache: used to store (tag,elem) for top priority sequences (top level & shared) in order to 
+                      parse them only once per data_set
     """
+
     skipped = [
         # Stored in the NIfTI image
         "Rows", "Columns",
@@ -40,6 +44,8 @@ def get_meta_data(data_sets_frame_idx):
         # PixelValueTransformation sequence is applied on the image
         "PixelValueTransformationSequence",
         "SmallestImagePixelValue", "LargestImagePixelValue",
+        "SharedFunctionalGroupsSequence",
+        "PerFrameFunctionalGroupsSequence",
     ]
 
     skipped = [getattr(odil.registry, x) for x in skipped]
@@ -55,19 +61,32 @@ def get_meta_data(data_sets_frame_idx):
     tag_values = {}
     # Parse here all data_set, and all tags, in order to get top priority
     # level values with index
+    parsed_top_seq = []
     for i, data_set_frame_idx in enumerate(data_sets_frame_idx):
+        in_cache = True
         data_set, frame_idx = data_set_frame_idx
-        priority_seq = []
+        sop_instance_uid = data_set.as_string(odil.registry.SOPInstanceUID)[0]
+        priority_seq = []  # tuple (dataset, prio level)
+        if sop_instance_uid not in [x[0] for x in cache.keys()]:
+            priority_seq.append((data_set, 0))
+            in_cache = False
         if frame_idx != None:
             per_frame = data_set.as_data_set(
                 odil.registry.PerFrameFunctionalGroupsSequence)[frame_idx]
-            shared = data_set.as_data_set(
-                odil.registry.SharedFunctionalGroupsSequence)[0]
-            priority_seq.append(per_frame)
-            priority_seq.append(shared)
-        priority_seq.append(data_set)
+            if not in_cache:
+                shared = data_set.as_data_set(
+                    odil.registry.SharedFunctionalGroupsSequence)[0]
+                priority_seq.append((shared, 1))
+            priority_seq.append((per_frame, 2))
+
+        if in_cache:
+            # Pre fill the tag_values if data_set is in cache
+            for (sop, tag), element in cache.iteritems():
+                if sop == sop_instance_uid:
+                    tag_values.setdefault(tag, {})[i] = element
+
         seq_s = []
-        for top_seq in priority_seq:
+        for (top_seq, prio_level) in priority_seq:
             seq_s.append(top_seq)
             for seq in seq_s:
                 for tag, elem in seq.items():
@@ -77,6 +96,9 @@ def get_meta_data(data_sets_frame_idx):
                             seq_s.append(seq.as_data_set(tag)[0])
                         else:
                             tag_values.setdefault(tag_, {})[i] = elem
+                            if in_cache == False and prio_level in [0, 1]:
+                                # Store only in cache for Top and Shared levels
+                                cache[(sop_instance_uid, tag_)] = elem
 
     meta_data = MetaData()
     specific_character_set = []
@@ -88,27 +110,26 @@ def get_meta_data(data_sets_frame_idx):
         all_equal = True
         sample = values_dict[0]
         for i in range(len(data_sets_frame_idx)):
-            value = values_dict[i]
+            value = values_dict.get(i)
             if value != sample:
                 all_equal = False
                 break
-
         if all_equal:
             # Only use the unique value.
             value = convert_element(sample, specific_character_set)
         else:
             # Convert each value. If we have multiple values of Specific
             # Character Set, use the one from the corresponding data set.
-            if (
-                    specific_character_set
+            if (specific_character_set
                     and isinstance(specific_character_set[0], list)):
                 value = [
                     convert_element(
-                        values_dict[idx], specific_character_set[idx])
+                        values_dict.get(idx), specific_character_set[idx])
                     for idx in range(len(data_sets_frame_idx))]
             else:
                 value = [
-                    convert_element(values_dict[idx], specific_character_set)
+                    convert_element(values_dict.get(idx), 
+                        specific_character_set)
                     for idx in range(len(data_sets_frame_idx))]
 
         if tag_object == odil.registry.SpecificCharacterSet:
@@ -117,7 +138,6 @@ def get_meta_data(data_sets_frame_idx):
         tag_name = get_tag_name(tag_object)
 
         meta_data[tag_name] = value
-
     return meta_data
 
 
@@ -140,6 +160,7 @@ def convert_element(element, specific_character_set):
     """
 
     result = None
+    # element can be None because a get is called above
     if element.empty():
         result = None
     elif element.is_int():

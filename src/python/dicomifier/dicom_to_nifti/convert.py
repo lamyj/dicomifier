@@ -47,6 +47,7 @@ def convert(dicom_data_sets, dtype):
         value = odil_getter._default_getter(data_set, tag)
         return value[0] if value is not None else None
 
+    cache = {}
     for keys, data_sets_frame_idx in stacks.items():
         data_set = data_sets_frame_idx[0][0]
 
@@ -75,10 +76,8 @@ def convert(dicom_data_sets, dtype):
         stacks_converted[series_instance_uid] += 1
 
         sort(keys, data_sets_frame_idx)
-        data_sets = [x[0] for x in data_sets_frame_idx]
         nifti_img = image.get_image(data_sets_frame_idx, dtype)
-        nifti_meta_data = meta_data.get_meta_data(data_sets_frame_idx)
-
+        nifti_meta_data = meta_data.get_meta_data(data_sets_frame_idx, cache)
         nifti_data.append((nifti_img, nifti_meta_data))
 
     # Try to preserve the original stacks order
@@ -135,6 +134,10 @@ def get_stacks(data_sets):
                     value = getter(data_set, tag)
                     if value is not None:
                         key.append(((None, None, tag), value))
+                else:
+                    continue
+                    # Nothing to do (we can only use direct splitters for
+                    # single frame dicom files)
             stacks.setdefault(tuple(key), []).append((data_set, None))
         # Multiple frame
         else:
@@ -145,20 +148,23 @@ def get_stacks(data_sets):
                 data_set)
             for frame_idx in range(number_of_frames):
                 key = []
-                for i in range(2):  # Only use to make difference between Shared & Per-Frame
-                                    # We need this if multiple orientation
-                                    # available for example
-                    if i == 0:  # PerFrameFunctionalGroupsSequence level
-                        top_seq = data_set.as_data_set(
-                            odil.registry.PerFrameFunctionalGroupsSequence)[frame_idx]
-                        top_seq_tag = str(
-                            odil.registry.PerFrameFunctionalGroupsSequence)
-                    else:  # SharedFrameFunctionGroupsSequence level
-                        top_seq = shared
-                        top_seq_tag = str(
-                            odil.registry.SharedFunctionalGroupsSequence)
+                top_seqs = []
+                top_seq_tags = []
+                top_seqs.append(
+                    (data_set.as_data_set(
+                        odil.registry.PerFrameFunctionalGroupsSequence)[frame_idx],
+                     str(odil.registry.PerFrameFunctionalGroupsSequence))
+                )
+                top_seqs.append(
+                    (shared,
+                     str(odil.registry.SharedFunctionalGroupsSequence))
+                )
+                for top_seq, top_seq_tag in top_seqs:  # Only use to make difference between Shared & Per-Frame
+                                                      # We need this if multiple orientation
+                                                      # available for example
                     for tags, getter in splitters:
-                        if len(tags) == 1 and i == 0:
+                        if len(tags) == 1 and top_seq_tag == str(odil.registry.SharedFunctionalGroupsSequence):
+                            # "and" case used to append element on key only once
                             tag = str(tags[0])
                             value = getter(data_set, tag)
                             if value is not None:

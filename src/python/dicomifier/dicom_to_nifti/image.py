@@ -250,8 +250,21 @@ def get_geometry(data_sets_frame_idx):
             pixel_measures_sequence = shared.as_data_set(
                 odil.registry.PixelMeasuresSequence)[0]
         else:
-            logging.info("No spacing found, default returned")
-            return origin, default_spacing, direction
+            if first_frame.has(odil.registry.PixelMeasuresSequence):
+                pixel_measures_sequence = first_frame.as_data_set(
+                    odil.registry.PixelMeasuresSequence)[0]
+                ref_spacing = list(pixel_measures_sequence.as_real(
+                    odil.registry.PixelSpacing))
+                for data_set, frame_idx in data_sets_frame_idx[:1]:
+                    spacing_ = list(
+                        odil_getter._get_spacing(data_set, frame_idx))
+                    if spacing_ != ref_spacing:
+                        logging.warning(
+                            "One or more frames found with different spacings")
+                        break
+            else:
+                logging.info("No spacing found, default returned")
+                return origin, default_spacing, direction
     else:
         pixel_measures_sequence = data_set
     spacing = list(pixel_measures_sequence.as_real(odil.registry.PixelSpacing))

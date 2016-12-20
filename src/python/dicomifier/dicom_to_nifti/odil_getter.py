@@ -110,6 +110,30 @@ def _get_position(data_set, frame_idx):
     return(plane_position_seq.as_real(odil.registry.ImagePositionPatient))
 
 
+def _get_spacing(data_set, frame_idx):
+    """ Get the spacing of the wanted frame in the data set
+	(only when spacing is stored in the perFrame group seq)
+        :param data_set: Data_set containing the wanted frame
+        :param frame_idx: Index of the wanted frame
+    """
+
+    if data_set.has(odil.registry.PerFrameFunctionalGroupsSequence):
+        frame = data_set.as_data_set(
+            odil.registry.PerFrameFunctionalGroupsSequence)[frame_idx]
+        if frame.has(odil.registry.PixelMeasuresSequence):
+            plane_position_seq = frame.as_data_set(
+                odil.registry.PixelMeasuresSequence)[0]
+        else:
+            return None
+    else:
+        plane_position_seq = data_set
+    if not plane_position_seq.has(odil.registry.PixelSpacing):
+        return None
+    return(plane_position_seq.as_real(odil.registry.PixelSpacing))
+
+
+
+
 def get_dimension_index_seq(frame_content_seq, tag, in_stack_position_index):
     """ Will return the dimension index pointer without InStackPosition
         in order to find the different volumes
