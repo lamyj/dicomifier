@@ -61,7 +61,6 @@ def get_meta_data(data_sets_frame_idx, cache):
     tag_values = {}
     # Parse here all data_set, and all tags, in order to get top priority
     # level values with index
-    parsed_top_seq = []
     for i, data_set_frame_idx in enumerate(data_sets_frame_idx):
         in_cache = True
         data_set, frame_idx = data_set_frame_idx

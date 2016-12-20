@@ -149,7 +149,6 @@ def get_stacks(data_sets):
             for frame_idx in range(number_of_frames):
                 key = []
                 top_seqs = []
-                top_seq_tags = []
                 top_seqs.append(
                     (data_set.as_data_set(
                         odil.registry.PerFrameFunctionalGroupsSequence)[frame_idx],
