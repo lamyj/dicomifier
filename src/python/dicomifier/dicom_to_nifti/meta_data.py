@@ -37,6 +37,8 @@ def get_meta_data(data_sets_frame_idx, cache):
         "SliceLocation",
         # Useless in the NIfTI world (?)
         "SOPInstanceUID", "InstanceCreationDate", "InstanceCreationTime",
+        "InstanceNumber",
+        "DimensionIndexValues", "InStackPositionNumber",
         # Implicit with the NIfTI data type
         "PixelRepresentation", "HighBit", "BitsStored", "BitsAllocated",
         # Stored in the NIfTI image
