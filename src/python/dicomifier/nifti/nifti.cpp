@@ -296,5 +296,6 @@ BOOST_PYTHON_MODULE(nifti)
 
     NumpyConverter<float, NPY_FLOAT32>();
     NumpyConverter<double, NPY_FLOAT64>();
+    NumpyConverter<std::size_t, NPY_INT64>();
     
 }
