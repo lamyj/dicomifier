@@ -21,3 +21,12 @@ GeneralEquipment = [ # http://dicom.nema.org/medical/dicom/current/output/chtml/
     ),
     ("VisuSystemOrderNumber", "DeviceSerialNumber", 3, None, None),
 ]
+
+# below -> new modules for enhanced image storage
+
+EnhancedGeneralEquipment = [
+    ("VisuManufacturer", "Manufacturer", 1, None, None), # Same as in GeneralEquipment but type 1 now
+    ("VisuStation", "ManufacturerModelName", 1, None, None),
+    ("VisuSystemOrderNumber", "DeviceSerialNumber", 1, None, None),
+    ("VisuAcqSoftwareVersion", "SoftwareVersions", 1, None, None),
+]
