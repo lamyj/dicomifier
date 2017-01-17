@@ -98,6 +98,13 @@ GeneralImage = [ # http://dicom.nema.org/medical/dicom/current/output/chtml/part
     ),
 ]
 
+MRImageFrameType = [ # http://dicom.nema.org/medical/dicom/current/output/chtml/part03/sect_C.8.13.5.html#sect_C.8.13.5.1
+    (None, "FrameType", 1, lambda d,g,i: ["ORIGINAL", "PRIMARY"], None), #Same as ImageType but "Mixed" not allowed if... (see link above)
+    (None, "PixelPresentation", 1, lambda d,g,i: ["MONOCHROME"], None),
+    (None, "VolumetricProperties", 1, ),
+    (None, "VolumeBasedCalculationTechnique", 1, ),
+]
+
 ImagePlane = [ # http://dicom.nema.org/medical/dicom/current/output/chtml/part03/sect_C.7.6.2.html
     (
         None, "PixelSpacing", 1,
@@ -218,27 +225,27 @@ def _get_direction_and_b_value(b_matrix):
     return direction, b_value
 
 def _set_diffusion_gradient(value):
-	""" Return an odil DataSet containing the DiffusionGradientDiffusion element
-	    required for the DiffusionGradientDirectionSequence	
-	"""
-	# value == (x,y,z)
-	result = odil.DataSet()
-	result.add("DiffusionGradientOrientation", value)
-	return result
-	
+    """ Return an odil DataSet containing the DiffusionGradientDiffusion element
+        required for the DiffusionGradientDirectionSequence
+    """
+    # value == (x,y,z)
+    result = odil.DataSet()
+    result.add("DiffusionGradientOrientation", value)
+    return result
+
 def _set_diffusion_b_matrix(matrix):
-	""" Return an odil DataSet containing all required elements for
-		the Diffusion B-Matrix Sequence
-	"""
-	result = odil.DataSet()
-	result.add("DiffusionBValueXX",[matrix[0][0,0]])
-	result.add("DiffusionBValueXY",[matrix[0][0,1]])
-	result.add("DiffusionBValueXZ",[matrix[0][0,2]])
-	result.add("DiffusionBValueYY",[matrix[0][1,1]])
-	result.add("DiffusionBValueYZ",[matrix[0][1,2]])
-	result.add("DiffusionBValueZZ",[matrix[0][2,2]])
-	return result
-	
+    """ Return an odil DataSet containing all required elements for
+        the Diffusion B-Matrix Sequence
+    """
+    result = odil.DataSet()
+    result.add("DiffusionBValueXX",[matrix[0][0,0]])
+    result.add("DiffusionBValueXY",[matrix[0][0,1]])
+    result.add("DiffusionBValueXZ",[matrix[0][0,2]])
+    result.add("DiffusionBValueYY",[matrix[0][1,1]])
+    result.add("DiffusionBValueYZ",[matrix[0][1,2]])
+    result.add("DiffusionBValueZZ",[matrix[0][2,2]])
+    return result
+
 MRDiffusion = [ # http://dicom.nema.org/medical/dicom/current/output/chtml/part03/sect_C.8.13.5.9.html
     (
         "VisuAcqDiffusionBMatrix", "DiffusionBValue", 1, 
@@ -267,4 +274,71 @@ SOPCommon = [ # http://dicom.nema.org/medical/dicom/current/output/chtml/part03/
     #SpecificCharacterSet
     (None, "InstanceCreationDate", 3, lambda d,g,i: [str(datetime.datetime.now())], None),
     (None, "InstanceCreationTime", 3, lambda d,g,i: [str(datetime.datetime.now())], None),
+]
+
+
+# Below -> new image modules for enhanced image storage
+
+MutliFrameFunctionalGroups = [#http://dicom.nema.org/medical/dicom/current/output/chtml/part03/sect_C.7.6.16.html
+    ("VisuCoreFrameCount", "NumberOfFrames", 1, None, None),
+    (None, "ContentDate", 1, lambda d,g,i: [str(datetime.datetime.now())], None),
+    (None, "ContentTime", 1, lambda d,g,i: [str(datetime.datetime.now())], None),
+    (None, "InstanceNumber", 1, lambda d,g,i: [1], None), # Same as in GeneralImage but type 1 here
+]
+
+MultiFrameDimension = [#http://dicom.nema.org/medical/dicom/current/output/chtml/part03/sect_C.7.6.17.html
+    (None, "DimensionOrganizationSequence", 1, lambda d,g,i: [odil.DataSet()], None),
+    (None, "DimensionIndexSequence", 1, lambda d,g,i: [odil.DataSet()], None),
+]
+
+AcquisitionContext = [#http://dicom.nema.org/medical/dicom/current/output/chtml/part03/sect_C.7.6.14.html
+    (None, "AcquisitionContextSequence", 1, lambda d,g,i: [odil.DataSet()], None), # Same as above
+]
+
+EnhancedMRImage = [#http://dicom.nema.org/medical/dicom/current/output/chtml/part03/sect_C.8.13.html#sect_C.8.13.1
+    (None, "ImageType", 1, lambda d,g,i: ["ORIGINAL", "PRIMARY"], None), # Same as in GeneralImage but type is 1 here
+    (None, "PixelPresentation", 1, lambda d,g,i: ["MONOCHROME"], None),
+    (None, "VolumetricProperties", 1, lambda d,g,i: ["VOLUME"], None),
+    (None, "VolumeBasedCalculationTechnique", 1, lambda d,g,i : ["NONE"], None),
+    ("VisuAcqImagedNucleus", "ResonantNucleus", 3, None, None),
+    ("VisuAcqDate", "AcquisitionDateTime", 3, None, None),
+    (
+        "VisuAcqImagingFrequency", "MagneticFieldStrength", 3, None,
+        lambda x: [float(x[0])/42.577480610]
+    ),
+]
+
+MRPulseSequence = [#http://dicom.nema.org/medical/dicom/current/output/chtml/part03/sect_C.8.13.4.html
+    ("PVM_SpatDimEnum", "MRAcquisitionType", 3, None, None),
+    ("VisuAcqEchoSequenceType", "EchoPulseSequence", 3,
+        lambda d,g,i: [d["VisuAcqEchoSequenceType"][0].replace("Echo","").upper()],
+        None
+    ),
+    # (None, "MultipleSpinEcho", 3, None, None),
+    # (None, "MultiPlanarExcitation", 3, None, None),
+    # (None, "PhaseContrast", 3, None, None),
+    ("VisuAcqHasTimeOfFlightContrast", "TimeOfFlightContrast", 3,
+        lambda d,g,i: [d["VisuAcqHasTimeOfFlightContrast"][0].upper()],
+        None
+    ),
+    # (None, "ArterialSpinLabelingContrast", 3, None, None),
+    # (None, "SteadyStatePulseSequence", 3, None, None),
+    ("VisuAcqIsEpiSequence", "EchoPlanarPulseSequence", 3,
+        lambda d,g,i: [d["VisuAcqIsEpiSequence"][0].upper()],
+        None
+    ),
+    # (None, "SaturationRecovery", 3, None, None),
+    ("VisuAcqSpectralSuppression", "SpectrallySelectedSuppression", 3,
+        lambda d,g,i: [d["VisuAcqSpectralSuppression"][0].replace("Suppression","").upper()],
+        None
+    ),
+    # (None, "OversamplingPhase", 3, None, None),
+    ("VisuAcqKSpaceTraversal", "GeometryOfKSpaceTraversal", 3,
+        lambda d,g,i: [d["VisuAcqKSpaceTraversal"][0].replace("Transversal","").upper()],
+        None
+    ),
+    # (None, "RectilinearPhaseEncodeReordering", 3, None, None),
+    # (None, "SegmentedKSpaceTraversal", 3, None, None),
+    # (None, "CoverageOfKSpace", 3, None, None),
+    ("VisuAcqKSpaceTrajectoryCnt", "NumberOfKSpaceTrajectories", 3, None, None),
 ]

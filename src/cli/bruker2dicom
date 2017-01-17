@@ -46,12 +46,16 @@ def main():
         help="Transfer syntax of the output files"
     )
     convert_parser.add_argument(
+        "--multiframe", "-m", action="store_true",
+        help="Generate multiframe dicom files"
+    )
+    convert_parser.add_argument(
         "--dicomdir", "-d", action="store_true", help="Create a DICOMDIR")
     convert_parser.add_argument(
         "--verbosity", "-v",
         choices=["warning", "info", "debug"], default="warning")
     convert_parser.set_defaults(function=convert)
-    
+
     arguments = vars(parser.parse_args())
     
     if "function" not in arguments:
@@ -91,11 +95,11 @@ def main():
         shutil.rmtree(extractdir)
 
 def list_(source):
-    """
-        List series and reconstructions information for the directory/archive given in parameter
+    """ List series and reconstructions information for the directory/archive given in parameter
         
         :param source: path of the element to browse
     """
+
     directory = dicomifier.bruker.Directory()
     
     series_and_reconstructions = sorted(
@@ -118,16 +122,16 @@ def list_(source):
 
 def convert(
         source, destination, series_and_reconstructions, transfer_syntax, 
-        dicomdir):
-    """ Function that converts a source file (bruker) into a destionation file (dicom)
-	
-		:param source: source file
-		:param destination: destination file
-		:series_and_reconstructions: series and reconstruction to convert inside the source file
-		:param transfer_syntax:
-		:param dicomdir: Create a dicomdir or no
-	"""	
-    
+        dicomdir, multiframe):
+    """ Function that converts a source file (bruker) into a destination file (dicom)
+
+        :param source: source file
+        :param destination: destination file
+        :param series_and_reconstructions: series and reconstruction to convert inside the source file
+        :param transfer_syntax: target transfer syntax
+        :param dicomdir: Create a dicomdir or no
+        :param multiframe: Whether generate dicom multiframe files or no
+    """
     if os.path.isdir(destination) and len(os.listdir(destination)) > 0:
         logging.warning("{} is not empty".format(destination))
     
@@ -162,13 +166,28 @@ def convert(
         series_and_reconstructions = parsed
     
     files = []
+    # key = (VisuInstanceModality, bool multiframe)
+    # value = function to be called
+    converters = {
+    ("MR", False) : dicomifier.bruker_to_dicom.mr_image_storage ,
+    ("MR", True) : dicomifier.bruker_to_dicom.enhanced_mr_image_storage
+    }
     
     for series, reconstructions in sorted(series_and_reconstructions.items()):
         for reconstruction in sorted(reconstructions):
             try:
+                bruker_binary = directory.get_dataset(
+                    "{}{:04d}".format(series, int(reconstruction)))
+                bruker_json = json.loads(dicomifier.bruker.as_json(bruker_binary))
+                if "VisuInstanceModality" in bruker_json:
+                    converter_key = (bruker_json.get("VisuInstanceModality")[0], multiframe)
+                else:
+                    logging.warning("Warning reconstruction {}:{} - VisuInstanceModality not found in bruker file, MRI will be used by default".
+                        format(series, reconstruction))
+                    converter_key = ("MR", multiframe)
                 reco_files = dicomifier.bruker_to_dicom.convert_reconstruction(
                     directory, series, reconstruction,
-                    dicomifier.bruker_to_dicom.mr_image_storage, transfer_syntax,
+                    converters[converter_key], transfer_syntax,
                     destination, True)
             except Exception as e:
                 logging.error(

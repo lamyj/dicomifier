@@ -20,9 +20,8 @@ from convert import convert_element
 def convert_elements(
         bruker_data_set, dicom_data_set, conversions,
         frame_index, generator, vr_finder):
-    """
-        Convert elements from the bruker_data_set into dicom_data_set
-        
+    """ Convert elements from the bruker_data_set into dicom_data_set
+
         :param bruker_data_set: Bruker data set to convert
         :param dicom_data_set: Dicom data set destination
         :param conversions: elements to convert (in case of sequence for example)
@@ -39,14 +38,13 @@ def convert_elements(
     return dicom_data_set
 
 def mr_image_storage(bruker_data_set, transfer_syntax):
+    """ Function to convert specific burker images into dicom
+
+        :param bruker_data_set: bruker data set to convert
+        :param transfer_syntax: target transfer syntax
     """
-		Function to convert specific burker images into dicom 
-		
-		:param bruker_data_set: bruker data set to convert
-		:param transfer_syntax: target transfer syntax
-	"""
     
-    if int(bruker_data_set.get("VisuCoreDim", ["unknown"])[0]) == 3:
+    if int(bruker_data_set.get("VisuCoreDim", [0])[0]) == 3:
         to_2d(bruker_data_set)
     
     dicom_data_sets = []
