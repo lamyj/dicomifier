@@ -118,7 +118,7 @@ def convert_element(
         group_index = [
             index for index, x in enumerate(generator.frame_groups) 
             if bruker_name in x[2]][0]
-    value = [ value[frame_index[group_index]] ]
+        value = [ value[frame_index[group_index]] ]
 
     tag = str(getattr(odil.registry, dicom_name))
     vr = str(vr_finder(dicom_name))
@@ -126,8 +126,8 @@ def convert_element(
     if value is None:
         if type_ == 1:
             raise Exception("{} must be present".format(dicom_name))
-    elif type_ == 2:
-        dicom_data_set.add(tag)
+        elif type_ == 2:
+            dicom_data_set.add(tag)
      
     else:
         if isinstance(setter, dict):
@@ -141,7 +141,7 @@ def convert_element(
         if vr_converter is not None :
             value = [vr_converter(x) for x in value]
 
-    dicom_data_set.add(tag, value, getattr(odil.VR, vr))
+        dicom_data_set.add(tag, value, getattr(odil.VR, vr))
 
     return value
 

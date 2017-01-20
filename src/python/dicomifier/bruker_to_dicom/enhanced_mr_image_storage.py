@@ -49,7 +49,7 @@ def enhanced_mr_image_storage(bruker_data_set, transfer_syntax):
     modules = [
         patient.Patient,
         study.GeneralStudy, study.PatientStudy,
-        series.GeneralSeries,
+        series.GeneralSeries + [(None, "Modality", 1, lambda d,g,i: ["MR"], None)] ,
         frame_of_reference.FrameOfReference,
         equipment.GeneralEquipment, equipment.EnhancedGeneralEquipment,
         image.MutliFrameFunctionalGroups,
@@ -57,7 +57,7 @@ def enhanced_mr_image_storage(bruker_data_set, transfer_syntax):
         image.AcquisitionContext,
         image.EnhancedMRImage,
         image.MRPulseSequence,
-        image.SOPCommon,
+        image.SOPCommon + [(None, "SOPClassUID", 1, lambda d,g,i: [odil.registry.EnhancedMRImageStorage], None)],
         image.ImagePixel,
     ]
 
@@ -101,7 +101,6 @@ def enhanced_mr_image_storage(bruker_data_set, transfer_syntax):
                     bruker_name, dicom_name, type_, getter, setter,
                     frame_index, generator, vr_finder_function
                 )
-
             per_frame[i].add(frame_g.keys()[0][0], [d])
 
 

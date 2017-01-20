@@ -28,8 +28,8 @@ def convert_elements(
         :param frame_index: index in a frame group
         :param generator: object that will manage the frame_index
         :param vr_finder: function to find the VR knowing only the dicom_name
-    """    
-    
+    """
+
     for bruker_name, dicom_name, type_, getter, setter in conversions:
         convert_element(
             bruker_data_set, dicom_data_set, 
@@ -43,19 +43,19 @@ def mr_image_storage(bruker_data_set, transfer_syntax):
         :param bruker_data_set: bruker data set to convert
         :param transfer_syntax: target transfer syntax
     """
-    
+
     if int(bruker_data_set.get("VisuCoreDim", [0])[0]) == 3:
         to_2d(bruker_data_set)
-    
+
     dicom_data_sets = []
-    
+
     modules = [
         patient.Patient,
         study.GeneralStudy, study.PatientStudy,
-        series.GeneralSeries, 
+        series.GeneralSeries + [(None, "Modality", 1, lambda d,g,i: ["MR"], None)],
         frame_of_reference.FrameOfReference,
         equipment.GeneralEquipment, 
-        image.GeneralImage, image.ImagePlane, image.ImagePixel, image.MRImage, 
+        image.GeneralImage, image.ImagePlane, image.ImagePixel, image.MRImage,
         [
             (
                 None, "PixelValueTransformationSequence", 1,
@@ -71,7 +71,7 @@ def mr_image_storage(bruker_data_set, transfer_syntax):
         [
             (
                 None, "MRDiffusionSequence", 3,
-                lambda bruker_data_set, generator, frame_index: [ 
+                lambda bruker_data_set, generator, frame_index: [
                     convert_elements(
                         bruker_data_set,odil.DataSet(), image.MRDiffusion,
                         frame_index, generator, vr_finder_function
@@ -81,31 +81,31 @@ def mr_image_storage(bruker_data_set, transfer_syntax):
                 None
             )
         ],
-        image.SOPCommon
+        image.SOPCommon + [(None, "SOPClassUID", 1, lambda d,g,i: [odil.registry.MRImageStorage], None)]
     ]
-    
+
     vr_finder_object = odil.VRFinder()
     vr_finder_function = lambda tag: vr_finder_object(tag, helper, transfer_syntax)
-    
+
     helper = odil.DataSet()
-    
+
     generator = FrameIndexGenerator(bruker_data_set)
     for frame_index in generator:
         dicom_data_set = odil.DataSet()
         dicom_data_set.add("SpecificCharacterSet", ["ISO_IR 192"])
-        
+
         for bruker_name, dicom_name, type_, getter, setter in itertools.chain(*modules):
             value = convert_element(
-                bruker_data_set, dicom_data_set, 
+                bruker_data_set, dicom_data_set,
                 bruker_name, dicom_name, type_, getter, setter,
                 frame_index, generator, vr_finder_function)
-            
+
             for name in ["BitsAllocated", "PixelRepresentation"]:
                 if dicom_name == name:
                     helper.add(getattr(odil.registry, name), value)
-        
+
         dicom_data_sets.append(dicom_data_set)
-    
+
     return dicom_data_sets
 
 def to_2d(data_set):

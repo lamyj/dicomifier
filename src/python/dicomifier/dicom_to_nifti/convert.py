@@ -83,6 +83,9 @@ def convert(dicom_data_sets, dtype):
     # Try to preserve the original stacks order
     nifti_data.sort(key=lambda x: x[1].get("InstanceNumber", [None])[0])
 
+    for nifti_img, nifti_meta_data in nifti_data:
+        meta_data.cleanup(nifti_meta_data)
+
     series = {}
     for nitfi_img, nifti_meta_data in nifti_data:
         series.setdefault(nifti_meta_data["SeriesInstanceUID"][0], []).append(
@@ -159,8 +162,8 @@ def get_stacks(data_sets):
                      str(odil.registry.SharedFunctionalGroupsSequence))
                 )
                 for top_seq, top_seq_tag in top_seqs:  # Only use to make difference between Shared & Per-Frame
-                                                      # We need this if multiple orientation
-                                                      # available for example
+                                                       # We need this if multiple orientations
+                                                       # available for example
                     for tags, getter in splitters:
                         if len(tags) == 1 and top_seq_tag == str(odil.registry.SharedFunctionalGroupsSequence):
                             # "and" case used to append element on key only once
@@ -175,7 +178,7 @@ def get_stacks(data_sets):
                                 data_set_seq = top_seq.as_data_set(seq)[0]
                                 tag = str(tag)
                                 if tag == "None":
-                                    value = getter(top_seq, tag)
+                                    value = getter(top_seq, seq)
                                 elif tag == str(odil.registry.DimensionIndexValues):
                                     # need to give idx of InStackPosition here
                                     value = getter(
@@ -198,7 +201,7 @@ def sort(keys, data_sets_frame_idx):
 
     number_of_frames = len(data_sets_frame_idx)
     if number_of_frames == 1:
-        # Can cause some problem when opening .nii file with Slicer
+        # WARNING : Can cause some problem when opening .nii file with Slicer
         logging.debug("Only one frame in the current stack")
         return
     else:
@@ -219,8 +222,7 @@ def sort(keys, data_sets_frame_idx):
                             odil.registry.DimensionIndexValues)[in_stack_position_idx])
                     sorted_in_stack = sorted(
                         range(len(in_stack_position)), key=lambda k: in_stack_position[k])
-                    data_sets_frame_idx = [data_sets_frame_idx[i]
-                                           for i in sorted_in_stack]
+                    data_sets_frame_idx = [data_sets_frame_idx[i] for i in sorted_in_stack]
                     return
                 if str(odil.registry.ImageOrientationPatient) == tag:
                     if sort_position(data_sets_frame_idx, value) == True:
@@ -327,7 +329,7 @@ def _get_splitters(data_sets):
              odil_getter._default_getter),
             ((odil.registry.MREchoSequence, odil.registry.EffectiveEchoTime),
              odil_getter._default_getter),
-            ((odil.registry.MRModifierSequence, odil.registry.InversionTime),
+            ((odil.registry.MRModifierSequence, odil.registry.InversionTimes),
              odil_getter._default_getter),
             ((odil.registry.MRImageFrameTypeSequence, odil.registry.FrameType),
              odil_getter._default_getter),

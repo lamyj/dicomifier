@@ -98,13 +98,6 @@ GeneralImage = [ # http://dicom.nema.org/medical/dicom/current/output/chtml/part
     ),
 ]
 
-MRImageFrameType = [ # http://dicom.nema.org/medical/dicom/current/output/chtml/part03/sect_C.8.13.5.html#sect_C.8.13.5.1
-    (None, "FrameType", 1, lambda d,g,i: ["ORIGINAL", "PRIMARY"], None), #Same as ImageType but "Mixed" not allowed if... (see link above)
-    (None, "PixelPresentation", 1, lambda d,g,i: ["MONOCHROME"], None),
-    (None, "VolumetricProperties", 1, ),
-    (None, "VolumeBasedCalculationTechnique", 1, ),
-]
-
 ImagePlane = [ # http://dicom.nema.org/medical/dicom/current/output/chtml/part03/sect_C.7.6.2.html
     (
         None, "PixelSpacing", 1,
@@ -269,7 +262,8 @@ MRDiffusion = [ # http://dicom.nema.org/medical/dicom/current/output/chtml/part0
 ]
 
 SOPCommon = [ # http://dicom.nema.org/medical/dicom/current/output/chtml/part03/sect_C.12.html#sect_C.12.1
-    (None, "SOPClassUID", 1, lambda d,g,i: [odil.registry.MRImageStorage], None),
+    # Will be add further in the converting function (mr_image_storage or enhanced_mr_image_storage)
+    # (None, "SOPClassUID", 1, lambda d,g,i: [odil.registry.MRImageStorage], None),
     (None, "SOPInstanceUID", 1, lambda d,g,i: [odil.generate_uid()], None),
     #SpecificCharacterSet
     (None, "InstanceCreationDate", 3, lambda d,g,i: [str(datetime.datetime.now())], None),
@@ -287,12 +281,12 @@ MutliFrameFunctionalGroups = [#http://dicom.nema.org/medical/dicom/current/outpu
 ]
 
 MultiFrameDimension = [#http://dicom.nema.org/medical/dicom/current/output/chtml/part03/sect_C.7.6.17.html
-    (None, "DimensionOrganizationSequence", 1, lambda d,g,i: [odil.DataSet()], None),
-    (None, "DimensionIndexSequence", 1, lambda d,g,i: [odil.DataSet()], None),
+    (None, "DimensionOrganizationSequence", 1, lambda d,g,i: [], None),
+    (None, "DimensionIndexSequence", 1, lambda d,g,i: [], None),
 ]
 
 AcquisitionContext = [#http://dicom.nema.org/medical/dicom/current/output/chtml/part03/sect_C.7.6.14.html
-    (None, "AcquisitionContextSequence", 1, lambda d,g,i: [odil.DataSet()], None), # Same as above
+    (None, "AcquisitionContextSequence", 1, lambda d,g,i: [], None),
 ]
 
 EnhancedMRImage = [#http://dicom.nema.org/medical/dicom/current/output/chtml/part03/sect_C.8.13.html#sect_C.8.13.1
