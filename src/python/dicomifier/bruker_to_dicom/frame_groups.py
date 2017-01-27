@@ -12,7 +12,8 @@ import numpy
 
 import odil
 
-from image import _get_acquisition_number, _get_direction_and_b_value, _set_diffusion_gradient, _set_diffusion_b_matrix
+from image import _get_acquisition_number, _get_direction, _get_b_value, _set_diffusion_gradient, \
+    _set_diffusion_b_matrix, _get_repetition_time
 
 """
 Model for frame groups
@@ -112,7 +113,8 @@ MRImageFrameType = { # http://dicom.nema.org/medical/dicom/current/output/chtml/
 MRTimingAndRelatedParameters = { # http://dicom.nema.org/medical/dicom/current/output/chtml/part03/sect_C.8.13.5.2.html
     ("MRTimingAndRelatedParametersSequence", False) :
     [
-        ("VisuAcqRepetitionTime", "RepetitionTime", 1, None, None),
+        # WARNING : First argument cannot be None if present if FG
+        ("VisuAcqRepetitionTime", "RepetitionTime", 1, lambda d,g,i: _get_repetition_time(d), None),
         ("VisuAcqEchoTrainLength", "EchoTrainLength", 1, None, None),
         ("VisuAcqFlipAngle", "FlipAngle", 1, None, None),
     ]
@@ -135,7 +137,7 @@ MREcho = { # http://dicom.nema.org/medical/dicom/current/output/chtml/part03/sec
 MRModifier = { # http://dicom.nema.org/medical/dicom/current/output/chtml/part03/sect_C.8.13.5.5.html
     ("MRModifierSequence", False) :
     [
-        ("VisuAcqInversionTime", "InversionTime", 3, None, None),
+        ("VisuAcqInversionTime", "InversionTimes", 3, None, None),
     ]
 }
 
@@ -151,22 +153,18 @@ MRDiffusion = { # http://dicom.nema.org/medical/dicom/current/output/chtml/part0
     [
         (
             "VisuAcqDiffusionBMatrix", "DiffusionBValue", 1,
-            lambda d,g,i: [
-                _get_direction_and_b_value(x)[1] 
-                for x in numpy.reshape(d["VisuAcqDiffusionBMatrix"], (-1, 3, 3))],
+            lambda d,g,i: _get_b_value(d),
             None
         ),
         (None, "DiffusionDirectionality", 1, lambda d,g,i: ["BMATRIX"], None),
         (
             "VisuAcqDiffusionBMatrix", "DiffusionGradientDirectionSequence", 1,
-            lambda d,g,i: [
-                _get_direction_and_b_value(x)[0] 
-                for x in numpy.reshape(d["VisuAcqDiffusionBMatrix"], (-1, 3, 3))],
+            lambda d,g,i: _get_direction(d),
             lambda x: [_set_diffusion_gradient(numpy.asarray(x).ravel().tolist())]
         ),
         (
             "VisuAcqDiffusionBMatrix", "DiffusionBMatrixSequence", 1,
-            lambda d,g,i: numpy.reshape(d["VisuAcqDiffusionBMatrix"], (-1, 3, 3)),
+            lambda d,g,i: numpy.reshape(d["PVM_DwBMat"], (-1, 3, 3)),
             lambda x: [_set_diffusion_b_matrix(x)]
         )
     ]

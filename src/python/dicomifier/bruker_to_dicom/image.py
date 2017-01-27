@@ -90,10 +90,10 @@ GeneralImage = [ # http://dicom.nema.org/medical/dicom/current/output/chtml/part
     ("VisuAcqDate", "AcquisitionTime", 3, None, None),
     (
         "VisuCoreFrameCount", "ImagesInAcquisition", 3,
-        lambda d,g,i: 
+        lambda d,g,i:
             [int(d["VisuCoreFrameCount"])[0]*d["VisuCoreSize"][2]]
-            if d["VisuCoreDim"]==3 
-            else [int(x) for x in d["VisuCoreFrameCount"]], 
+            if d["VisuCoreDim"]==3
+            else [int(x) for x in d["VisuCoreFrameCount"]],
         None
     ),
 ]
@@ -102,19 +102,19 @@ ImagePlane = [ # http://dicom.nema.org/medical/dicom/current/output/chtml/part03
     (
         None, "PixelSpacing", 1,
         lambda d,g,i: numpy.divide(
-                numpy.asarray(d["VisuCoreExtent"], float), 
+                numpy.asarray(d["VisuCoreExtent"], float),
                 numpy.asarray(d["VisuCoreSize"], float)
-            ).tolist(), 
+            ).tolist(),
         None
     ),
     (
-        "VisuCoreOrientation", "ImageOrientationPatient", 1, 
-        lambda d,g,i: numpy.reshape(d["VisuCoreOrientation"], (-1, 9)), 
+        "VisuCoreOrientation", "ImageOrientationPatient", 1,
+        lambda d,g,i: numpy.reshape(d["VisuCoreOrientation"], (-1, 9)),
         lambda x: x[0][:6].tolist()
     ),
     (
-        "VisuCorePosition", "ImagePositionPatient", 1, 
-        lambda d,g,i: numpy.reshape(d["VisuCorePosition"], (-1, 3)), 
+        "VisuCorePosition", "ImagePositionPatient", 1,
+        lambda d,g,i: numpy.reshape(d["VisuCorePosition"], (-1, 3)),
         lambda x: x[0].tolist()
     ),
     ("VisuCoreFrameThickness", "SliceThickness", 2, None, None)
@@ -172,7 +172,7 @@ MRImage = [ # http://dicom.nema.org/medical/dicom/current/output/chtml/part03/se
     (None, "SequenceVariant", 1, lambda d,g,i: ["NONE"], None),
     (None, "ScanOptions", 2, lambda d,g,i: None, None),
     ("PVM_SpatDimEnum", "MRAcquisitionType", 2, None, None),
-    ("VisuAcqRepetitionTime", "RepetitionTime", 2, None, None),
+    ("VisuAcqRepetitionTime", "RepetitionTime", 2, lambda d,g,i: _get_repetition_time(d), None),
     ("VisuAcqEchoTime", "EchoTime", 2, None, None),
     ("VisuAcqEchoTrainLength", "EchoTrainLength", 2, None, None),
     ("VisuAcqInversionTime", "InversionTime", 3, None, None),
@@ -181,11 +181,11 @@ MRImage = [ # http://dicom.nema.org/medical/dicom/current/output/chtml/part03/se
     ("VisuAcqImagingFrequency", "ImagingFrequency", 3, None, None),
     ("VisuAcqImagedNucleus", "ImagedNucleus", 3, None, None),
     (
-        "VisuAcqImagingFrequency", "MagneticFieldStrength", 3, None, 
+        "VisuAcqImagingFrequency", "MagneticFieldStrength", 3, None,
         lambda x: [float(x[0])/42.577480610]
     ),
     (
-        None, "SpacingBetweenSlices", 3, 
+        None, "SpacingBetweenSlices", 3,
         lambda d,g,i: [numpy.linalg.norm(
             numpy.subtract(d["VisuCorePosition"][3:6], d["VisuCorePosition"][0:3]
         ))] if len(d["VisuCorePosition"]) >= 6 else None, 
@@ -198,23 +198,50 @@ MRImage = [ # http://dicom.nema.org/medical/dicom/current/output/chtml/part03/se
 
 PixelValueTransformation = [ # http://dicom.nema.org/medical/dicom/current/output/chtml/part03/sect_C.7.6.16.2.html#sect_C.7.6.16.2.9
     (
-        "VisuCoreDataOffs", "RescaleIntercept", 1, 
+        "VisuCoreDataOffs", "RescaleIntercept", 1,
         lambda d,g,i: [d["VisuCoreDataOffs"][g.get_linear_index(i)]], None
     ),
     (
-        "VisuCoreDataSlope", "RescaleSlope", 1, 
+        "VisuCoreDataSlope", "RescaleSlope", 1,
         lambda d,g,i: [d["VisuCoreDataSlope"][g.get_linear_index(i)]], None
     ),
     (None, "RescaleType", 1, lambda d,g,i: ["US"], None),
 ]
 
-def _get_direction_and_b_value(b_matrix):
+def _get_direction(data_set):
+    dir_it = DirectionIterator()
+    return [_get_direction_and_b_value(data_set, x, dir_it)[0] for x in numpy.reshape(data_set["PVM_DwBMat"], (-1, 3, 3))]
+
+def _get_b_value(data_set):
+    return [_get_direction_and_b_value(data_set, x, None)[1] for x in numpy.reshape(data_set["PVM_DwBMat"], (-1, 3, 3))]
+
+class DirectionIterator():
+
+    def __init__(self):
+        self.idx = 0
+
+    def get_idx (self):
+        self.idx = self.idx+1
+        return self.idx-1
+
+def _get_direction_and_b_value(data_set, b_matrix, dir_it):
     # Adapted from https://github.com/BRAINSia/BRAINSTools/blob/master/DWIConvert/SiemensDWIConverter.h#L457
     # FIXME: find a reference to support this
-    values, vectors = numpy.linalg.eigh(b_matrix)
-    direction = vectors[:, -1]
+    values, _ = numpy.linalg.eigh(b_matrix)
+    direction = numpy.zeros(3)
     b_value = numpy.trace(b_matrix)
-    
+
+    wanted_b_values = set(data_set["PVM_DwBvalEach"])
+    wanted_b_values.add(0)
+    wanted_b_values = list(wanted_b_values)
+
+    b_values = [abs(b_value - x) for x in wanted_b_values]
+    b_value = wanted_b_values[numpy.argmin(b_values)]
+
+    if b_value != 0 and dir_it is not None:
+        wanted_grad_dir = numpy.reshape(data_set["PVM_DwDir"], [-1, 3])
+        direction = [float(x) for x in wanted_grad_dir[dir_it.get_idx()%len(wanted_grad_dir)]]
+
     return direction, b_value
 
 def _set_diffusion_gradient(value):
@@ -231,32 +258,43 @@ def _set_diffusion_b_matrix(matrix):
         the Diffusion B-Matrix Sequence
     """
     result = odil.DataSet()
-    result.add("DiffusionBValueXX",[matrix[0][0,0]])
-    result.add("DiffusionBValueXY",[matrix[0][0,1]])
-    result.add("DiffusionBValueXZ",[matrix[0][0,2]])
-    result.add("DiffusionBValueYY",[matrix[0][1,1]])
-    result.add("DiffusionBValueYZ",[matrix[0][1,2]])
-    result.add("DiffusionBValueZZ",[matrix[0][2,2]])
+    result.add("DiffusionBValueXX", [matrix[0][0, 0]])
+    result.add("DiffusionBValueXY", [matrix[0][0, 1]])
+    result.add("DiffusionBValueXZ", [matrix[0][0, 2]])
+    result.add("DiffusionBValueYY", [matrix[0][1, 1]])
+    result.add("DiffusionBValueYZ", [matrix[0][1, 2]])
+    result.add("DiffusionBValueZZ", [matrix[0][2, 2]])
     return result
+
+def _get_repetition_time (data_set):
+    rep_time = None
+    # WARNING : keep this order to have the main priority for the visu_pars file
+    values = [
+        data_set.get("MultiRepTime", None),
+        data_set.get("PVM_RepetitionTime", None),
+        data_set.get("VisuAcqRepetitionTime", None),
+    ]
+    for i, v in enumerate(values):
+        if v is not None:
+            rep_time = v
+    return rep_time
+
 
 MRDiffusion = [ # http://dicom.nema.org/medical/dicom/current/output/chtml/part03/sect_C.8.13.5.9.html
     (
-        "VisuAcqDiffusionBMatrix", "DiffusionBValue", 1, 
-        lambda d,g,i: [
-            _get_direction_and_b_value(x)[1] 
-            for x in numpy.reshape(d["VisuAcqDiffusionBMatrix"], (-1, 3, 3))], 
-        None),
+        "VisuAcqDiffusionBMatrix", "DiffusionBValue", 1,
+        lambda d,g,i: _get_b_value(d),
+        None
+    ),
     (None, "DiffusionDirectionality", 1, lambda d,g,i: ["BMATRIX"], None),
     (
         "VisuAcqDiffusionBMatrix", "DiffusionGradientDirectionSequence", 1,
-        lambda d,g,i: [
-            _get_direction_and_b_value(x)[0] 
-            for x in numpy.reshape(d["VisuAcqDiffusionBMatrix"], (-1, 3, 3))], 
+        lambda d,g,i: _get_direction(d),
         lambda x: [_set_diffusion_gradient(numpy.asarray(x).ravel().tolist())]
     ),
     (
         "VisuAcqDiffusionBMatrix", "DiffusionBMatrixSequence", 1,
-        lambda d,g,i: numpy.reshape(d["VisuAcqDiffusionBMatrix"], (-1, 3, 3)), 
+        lambda d,g,i: numpy.reshape(d["PVM_DwBMat"], (-1, 3, 3)),
         lambda x: [_set_diffusion_b_matrix(x)]
     )
 ]
