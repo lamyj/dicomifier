@@ -35,8 +35,13 @@ namespace bruker
 class Directory
 {
 public:
+
+    /// @brief Return a list of path for each subject found under @arg path
+    static std::vector<std::string> list_subjects (std::string const & path);
+
+    /// @brief Load datasets for every reconstruction found under @arg path
     void load(std::string const & path);
-    
+
     /// @brief Test if directory contains a given series.
     bool has_dataset(std::string const & series_number) const;
     

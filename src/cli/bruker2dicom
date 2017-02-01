@@ -102,23 +102,25 @@ def list_(source):
 
     directory = dicomifier.bruker.Directory()
 
-    series_and_reconstructions = sorted(
-        directory.get_series_and_reco(source).items(),
-        key=lambda x: (int(x[0]), [int(y) for y in x[1]]))
+    subjects = dicomifier.bruker.Directory.list_subjects(source)
+    for subject_source in subjects :
+        series_and_reconstructions = sorted(
+            directory.get_series_and_reco(subject_source).items(),
+            key=lambda x: (int(x[0]), [int(y) for y in x[1]]))
 
-    for series, reconstructions in series_and_reconstructions:
-        directory.load(os.path.join(source, series))
-        for reconstruction in reconstructions:
-            bruker_binary = directory.get_dataset(
-                "{}{:04d}".format(series, int(reconstruction)))
-            bruker_json = json.loads(dicomifier.bruker.as_json(bruker_binary))
-            print(
-                "{}:{} - {} ({})".format(
-                    series, reconstruction, 
-                    bruker_json.get("VisuAcquisitionProtocol", ["(none)"])[0],
-                    bruker_json.get("RECO_mode", ["none"])[0]
+        for series, reconstructions in series_and_reconstructions:
+            directory.load(os.path.join(subject_source, series))
+            for reconstruction in reconstructions:
+                bruker_binary = directory.get_dataset(
+                    "{}{:04d}".format(series, int(reconstruction)))
+                bruker_json = json.loads(dicomifier.bruker.as_json(bruker_binary))
+                print(
+                    "{}:{} - {} ({})".format(
+                        series, reconstruction,
+                        bruker_json.get("VisuAcquisitionProtocol", ["(none)"])[0],
+                        bruker_json.get("RECO_mode", ["none"])[0]
+                    )
                 )
-            )
 
 def convert(
         source, destination, series_and_reconstructions, transfer_syntax, 
@@ -135,70 +137,72 @@ def convert(
     if os.path.isdir(destination) and len(os.listdir(destination)) > 0:
         logging.warning("{} is not empty".format(destination))
 
-    directory = dicomifier.bruker.Directory()
-    directory.load(source)
+    subjects = dicomifier.bruker.Directory.list_subjects(source)
 
-    # Create series and reconstruction if they are not given in parameters
-    if series_and_reconstructions is None:
-        everything = dicomifier.bruker.Directory.get_series_and_reco(source)
-        series_and_reconstructions = {}
-        for series, reconstructions in sorted(everything.items()):
+    for subject_source in subjects:
+        directory = dicomifier.bruker.Directory()
+        directory.load(subject_source)
+
+        # Create series and reconstruction if they are not given in parameters
+        if series_and_reconstructions is None:
+            everything = dicomifier.bruker.Directory.get_series_and_reco(subject_source)
+            _series_and_reconstructions = {}
+            for series, reconstructions in sorted(everything.items()):
+                for reconstruction in sorted(reconstructions):
+                    bruker_binary = directory.get_dataset(
+                        "{}{:04d}".format(series, int(reconstruction)))
+                    bruker_json = json.loads(dicomifier.bruker.as_json(bruker_binary))
+                    type_id = bruker_json.get("VisuSeriesTypeId", ["UNKNOWN"])[0]
+                    if not type_id.startswith("ACQ_"):
+                        logging.warning("Skipping {}:{} - {} ({}): type is {}".format(
+                            series, reconstruction,
+                            bruker_json.get("VisuAcquisitionProtocol", ["(none)"])[0],
+                            bruker_json.get("RECO_mode", ["none"])[0],
+                            type_id
+                        ))
+                        continue
+                    _series_and_reconstructions.setdefault(series, []).append(reconstruction)
+        else: # Use series & reco given in parameters
+            parsed = {}
+            for entry in series_and_reconstructions:
+                series, reconstruction = entry.split(":")
+                parsed.setdefault(series, []).append(reconstruction)
+            _series_and_reconstructions = parsed
+
+        files = []
+        # key = (VisuInstanceModality, bool multiframe)
+        # value = function to be called
+        converters = {
+        ("MR", False) : dicomifier.bruker_to_dicom.mr_image_storage ,
+        ("MR", True) : dicomifier.bruker_to_dicom.enhanced_mr_image_storage
+        }
+
+        for series, reconstructions in sorted(_series_and_reconstructions.items()):
             for reconstruction in sorted(reconstructions):
-                bruker_binary = directory.get_dataset(
-                    "{}{:04d}".format(series, int(reconstruction)))
-                bruker_json = json.loads(dicomifier.bruker.as_json(bruker_binary))
-                
-                type_id = bruker_json.get("VisuSeriesTypeId", ["UNKNOWN"])[0]
-                if not type_id.startswith("ACQ_"):
-                    logging.warning("Skipping {}:{} - {} ({}): type is {}".format(
-                        series, reconstruction, 
-                        bruker_json.get("VisuAcquisitionProtocol", ["(none)"])[0],
-                        bruker_json.get("RECO_mode", ["none"])[0],
-                        type_id
-                    ))
-                    continue
-                series_and_reconstructions.setdefault(series, []).append(reconstruction)
-    else: # Use series & reco given in parameters
-        parsed = {}
-        for entry in series_and_reconstructions:
-            series, reconstruction = entry.split(":")
-            parsed.setdefault(series, []).append(reconstruction)
-        series_and_reconstructions = parsed
-
-    files = []
-    # key = (VisuInstanceModality, bool multiframe)
-    # value = function to be called
-    converters = {
-    ("MR", False) : dicomifier.bruker_to_dicom.mr_image_storage ,
-    ("MR", True) : dicomifier.bruker_to_dicom.enhanced_mr_image_storage
-    }
-
-    for series, reconstructions in sorted(series_and_reconstructions.items()):
-        for reconstruction in sorted(reconstructions):
-            try:
-                bruker_binary = directory.get_dataset(
-                    "{}{:04d}".format(series, int(reconstruction)))
-                bruker_json = json.loads(dicomifier.bruker.as_json(bruker_binary))
-                if "VisuInstanceModality" in bruker_json:
-                    converter_key = (bruker_json.get("VisuInstanceModality")[0], multiframe)
+                try:
+                    bruker_binary = directory.get_dataset(
+                        "{}{:04d}".format(series, int(reconstruction)))
+                    bruker_json = json.loads(dicomifier.bruker.as_json(bruker_binary))
+                    if "VisuInstanceModality" in bruker_json:
+                        converter_key = (bruker_json.get("VisuInstanceModality")[0], multiframe)
+                    else:
+                        logging.warning("Warning reconstruction {}:{} - VisuInstanceModality not found in bruker file, MRI will be used by default".
+                            format(series, reconstruction))
+                        converter_key = ("MR", multiframe)
+                    reco_files = dicomifier.bruker_to_dicom.convert_reconstruction(
+                        directory, series, reconstruction,
+                        converters[converter_key], transfer_syntax,
+                        destination, True)
+                except Exception as e:
+                    logging.error(
+                        "Could not convert {}:{} - {}".format(
+                            series, reconstruction, e))
+                    logging.debug("Stack trace", exc_info=True)
                 else:
-                    logging.warning("Warning reconstruction {}:{} - VisuInstanceModality not found in bruker file, MRI will be used by default".
-                        format(series, reconstruction))
-                    converter_key = ("MR", multiframe)
-                reco_files = dicomifier.bruker_to_dicom.convert_reconstruction(
-                    directory, series, reconstruction,
-                    converters[converter_key], transfer_syntax,
-                    destination, True)
-            except Exception as e:
-                logging.error(
-                    "Could not convert {}:{} - {}".format(
-                        series, reconstruction, e))
-                logging.debug("Stack trace", exc_info=True)
-            else:
-                files.extend(reco_files)
+                    files.extend(reco_files)
 
-    if dicomdir and files:
-        create_dicomdir(files, destination, [], [], ["SeriesDescription:3"], [])
+        if dicomdir and files:
+            create_dicomdir(files, destination, [], [], ["SeriesDescription:3"], [])
 
 def create_dicomdir(
         names, directory, patient_key, study_key, series_key, image_key):
