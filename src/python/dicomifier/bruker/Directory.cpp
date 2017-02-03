@@ -33,6 +33,18 @@ get_series_and_reco(std::string const & path)
     return result_python;
 }
 
+boost::python::object
+list_sujects(std::string const & path)
+{
+    auto const result_cpp = dicomifier::bruker::Directory::list_subjects(path);
+    boost::python::list result_python;
+    for (auto const & entry : result_cpp)
+    {
+        result_python.append(entry);
+    }
+    return result_python;
+}
+
 }
 
 void wrap_Directory()
@@ -46,5 +58,6 @@ void wrap_Directory()
         .def(
             "get_dataset", &Directory::get_dataset,
             return_value_policy<copy_const_reference>())
+        .def("list_subjects", &list_sujects).staticmethod("list_subjects")
         .def("get_series_and_reco", &get_series_and_reco).staticmethod("get_series_and_reco");
 }

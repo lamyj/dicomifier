@@ -37,7 +37,6 @@ def get_meta_data(data_sets_frame_idx, cache):
         "SliceLocation",
         # Useless in the NIfTI world (?)
         "SOPInstanceUID", "InstanceCreationDate", "InstanceCreationTime",
-        "InstanceNumber",
         "DimensionIndexValues", "InStackPositionNumber",
         # Implicit with the NIfTI data type
         "PixelRepresentation", "HighBit", "BitsStored", "BitsAllocated",
@@ -94,7 +93,9 @@ def get_meta_data(data_sets_frame_idx, cache):
                     tag_ = (tag.group, tag.element)
                     if tag_ not in skipped:
                         if seq.is_data_set(tag) and tag_ not in direct_sequences:
-                            seq_s.append(seq.as_data_set(tag)[0])
+                            ds = seq.as_data_set(tag)
+                            if ds:
+                                seq_s.append(ds[0])
                         else:
                             tag_values.setdefault(tag_, {})[i] = elem
                             if in_cache == False and prio_level in [0, 1]:
@@ -140,6 +141,18 @@ def get_meta_data(data_sets_frame_idx, cache):
 
         meta_data[tag_name] = value
     return meta_data
+
+
+def cleanup(meta_data):
+    """ Clean tags used after the merge
+        for example, InstanceNumber is used to sort nifti_tuple in order to preserve the original stack order
+    """
+
+    skipped = [
+        "InstanceNumber",
+    ]
+    for x in skipped:
+        del (meta_data[x])
 
 
 def get_tag_name(tag):

@@ -14,6 +14,7 @@
 
 #include <boost/filesystem.hpp>
 #include <boost/lexical_cast.hpp>
+#include <iostream>
 
 #include "Dataset.h"
 #include "core/DicomifierException.h"
@@ -28,46 +29,58 @@ std::set<Directory::Path> const
 Directory::_known_files = {
     "subject", "acqp", "method", "imnd", "isa", "d3proc", "reco", "visu_pars"};
 
+
+
+std::vector<std::string>
+Directory
+::list_subjects(std::string const & path)
+{
+    std::vector<std::string> subjects;
+    typedef boost::filesystem::recursive_directory_iterator RecursiveIterator;
+
+    for (RecursiveIterator it(path); it != RecursiveIterator(); ++it)
+    {
+        if (it->path().filename() == "subject")
+        {
+            subjects.push_back(it->path().parent_path().string());
+        }
+    }
+    return subjects;
+}
+
+
 void
 Directory
 ::load(std::string const & path)
 {
-    // Common files for each reconstruction.
-    std::vector<Path> files;
-    
-    typedef boost::filesystem::directory_iterator Iterator;
     typedef boost::filesystem::recursive_directory_iterator RecursiveIterator;
-    
-    for(RecursiveIterator it(path); it != RecursiveIterator(); ++it)
-    {
-        if(this->_known_files.find(it->path().filename()) != this->_known_files.end())
-        {
-            files.push_back(it->path());
-        }
-        
-        if(it->path().filename() == "pdata")
-        {
-            Dataset dataset;
-            for(auto const & file: files)
-            {
-                if (file.filename() != "visu_pars")
-                {// visu_pars should be in a sub-directory of pdata
-                    dataset.load(file.string());
-                }
-            }
+    typedef boost::filesystem::directory_iterator Iterator;
 
-            for(Iterator reco_it(it->path()); reco_it != Iterator(); ++reco_it)
+    std::vector<Path> reconstructions;
+    for (RecursiveIterator it(path); it != RecursiveIterator(); ++it)
+    {
+        if (it->path().filename() == "id")
+        {
+            reconstructions.push_back(it->path().parent_path());
+        }
+    }
+
+    for (auto const & reco : reconstructions)
+    {
+        Dataset dataset;
+        Path current_path;
+        for (current_path = reco; !boost::filesystem::equivalent(current_path, path); current_path.remove_leaf())
+        {
+            for (Iterator it(current_path); it!= Iterator(); ++it)
             {
-                if(boost::filesystem::is_directory(reco_it->path()))
+                if (this->_known_files. find(it->path().filename()) != this->_known_files.end() &&
+                        it->path().filename() != "visu_pars")
                 {
-                    this->_add_reconstruction(*reco_it, dataset);
+                    dataset.load(it->path().string());
                 }
             }
-            
-            // Don't descend reconstructions have been processed.
-            it.no_push();
-            files.clear();
         }
+        this->_add_reconstruction(reco, dataset);
     }
 }
 
