@@ -199,12 +199,12 @@ def get_geometry(data_sets_frame_idx):
 
     data_set, first_idx = data_sets_frame_idx[0]
 
+    # Here we look for image position - in the data_set or in the first frame
     if data_set.has(odil.registry.SharedFunctionalGroupsSequence):
         first_frame = data_set.as_data_set(
             odil.registry.PerFrameFunctionalGroupsSequence)[first_idx]
         shared = data_set.as_data_set(
             odil.registry.SharedFunctionalGroupsSequence)[0]
-
         if not first_frame.has(odil.registry.PlanePositionSequence):
             logging.info("No geometry found, default returned")
             return default_origin, default_spacing, default_direction
@@ -215,11 +215,13 @@ def get_geometry(data_sets_frame_idx):
         plane_position_seq = data_set
 
     if plane_position_seq.has(odil.registry.ImagePositionPatient):
+        # Here the orientation is correctly found
         origin = plane_position_seq.as_real(odil.registry.ImagePositionPatient)
     else:
         logging.info("No geometry found, default returned")
         return default_origin, default_spacing, default_direction
 
+    # Here we look for image orientation - in data set or in the first frame
     if data_set.has(odil.registry.SharedFunctionalGroupsSequence):
         if first_frame.has(odil.registry.PlaneOrientationSequence):
             plane_orientation_seq = first_frame.as_data_set(
@@ -245,6 +247,7 @@ def get_geometry(data_sets_frame_idx):
     direction[:, 1] = orientation[3:]
     direction[:, 2] = numpy.cross(direction[:, 0], direction[:, 1])
 
+    # Here we try to find the PixelSpacing location if there is one
     if data_set.has(odil.registry.SharedFunctionalGroupsSequence):
         if shared.has(odil.registry.PixelMeasuresSequence):
             pixel_measures_sequence = shared.as_data_set(
@@ -272,6 +275,7 @@ def get_geometry(data_sets_frame_idx):
     if len(data_sets_frame_idx) == 1:
         spacing.append(1.)
     else:
+        # Here we try to find the position of the second frame (plane_position_seq)
         if data_set.has(odil.registry.SharedFunctionalGroupsSequence):
             second_data_set, second_frame_idx = data_sets_frame_idx[1]
             second_frame = second_data_set.as_data_set(
@@ -297,7 +301,7 @@ def get_geometry(data_sets_frame_idx):
             if spacing_between_slices != 0.0:
                 spacing.append(spacing_between_slices)
             else:
-                logging.info("Something went wrong went spliting/sorting frames, "
+                logging.info("Something went wrong when spliting/sorting frames, "
                              "two or more frames with the same position were found")
                 spacing.append(1.)
         else:

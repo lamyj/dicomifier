@@ -26,8 +26,8 @@ def get_meta_data(data_sets_frame_idx, cache):
 
         :param data_sets_frame_idx: List containing the data sets of the frame 
                                     with the corresponding frame when it's a multiframe data set
-        :param cache: used to store (tag,elem) for top priority sequences (top level & shared) in order to 
-                      parse them only once per data_set
+        :param cache: dict used to store (tag,elem) for top priority sequences (top level & shared)
+                      in order to parse them only once per data_set
     """
 
     skipped = [

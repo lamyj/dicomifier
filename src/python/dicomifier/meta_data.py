@@ -63,6 +63,10 @@ class MetaData(collections.MutableMapping):
     
     def at(self, name, index):
         """ Return the value of the meta-data identified by name at given index.
+            :param index: [z,y,x,...] with z = coordinate in the meta_data "name" element
+
+            Note that index here takes into account the image shape, for example
+            meta_data.at(name, [0,2,2]) will return the first meta_data in the field "name" for the image [2,2]
         """
         
         value = numpy.asarray(self[name])
