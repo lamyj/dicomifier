@@ -106,10 +106,7 @@ def convert_element(
     value = None
     index = -1
     if getter is not None:
-        if isinstance(getter, basestring):
-            value = getter
-        else:
-            value = getter(bruker_data_set, generator, frame_index)
+        value = getter(bruker_data_set, generator, frame_index)
     else:
         value = bruker_data_set.get(bruker_name)
 

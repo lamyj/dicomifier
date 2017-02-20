@@ -89,13 +89,24 @@ class OrientationGetter(object):
             return (numpy.linalg.norm(numpy.subtract(o1, o2), numpy.inf) <= epsilon)
 
 
+def check_frame_index(data_set, frame_idx):
+    if data_set.has("NumberOfFrames"):
+        numberOfFrames = data_set.as_int("NumberOfFrames")[0]
+        if frame_idx >= numberOfFrames :
+            raise Exception("Frame index out of bound ({}/{})".format(frame_idx, numberOfFrames))
+    else:
+        raise Exception("No NumberOfFrames field found")
+
+
 def _get_position(data_set, frame_idx):
     """ Get the position of the wanted frame in the data set
         :param data_set: Data_set containing the wanted frame
         :param frame_idx: Index of the wanted frame
     """
 
-    if data_set.has(odil.registry.PerFrameFunctionalGroupsSequence):
+    if data_set.has(odil.registry.PerFrameFunctionalGroupsSequence) and \
+            data_set.has(odil.registry.NumberOfFrames):
+        check_frame_index(data_set, frame_idx)
         frame = data_set.as_data_set(
             odil.registry.PerFrameFunctionalGroupsSequence)[frame_idx]
         if frame.has(odil.registry.PlanePositionSequence):
@@ -112,12 +123,14 @@ def _get_position(data_set, frame_idx):
 
 def _get_spacing(data_set, frame_idx):
     """ Get the spacing of the wanted frame in the data set
-	(only when spacing is stored in the perFrame group seq)
+        (only when spacing is stored in the perFrame group seq)
+
         :param data_set: Data_set containing the wanted frame
         :param frame_idx: Index of the wanted frame
     """
 
     if data_set.has(odil.registry.PerFrameFunctionalGroupsSequence):
+        check_frame_index(data_set, frame_idx)
         frame = data_set.as_data_set(
             odil.registry.PerFrameFunctionalGroupsSequence)[frame_idx]
         if frame.has(odil.registry.PixelMeasuresSequence):
@@ -130,8 +143,6 @@ def _get_spacing(data_set, frame_idx):
     if not plane_position_seq.has(odil.registry.PixelSpacing):
         return None
     return(plane_position_seq.as_real(odil.registry.PixelSpacing))
-
-
 
 
 def get_dimension_index_seq(frame_content_seq, tag, in_stack_position_index):
@@ -166,11 +177,17 @@ def get_in_stack_position_index(data_set):
             not data_set.empty(odil.registry.DimensionIndexSequence):
         dimension_index_sequences = data_set.as_data_set(
             odil.registry.DimensionIndexSequence)
+        position = set()
         for i, dimension_index_sequence in enumerate(dimension_index_sequences):
-            idx = dimension_index_sequence.as_string(
-                odil.registry.DimensionIndexPointer)[0]
-            if odil.Tag(idx) == odil.registry.InStackPositionNumber:
-                return i
+            if dimension_index_sequence.has(odil.registry.DimensionIndexPointer):
+                idx = dimension_index_sequence.as_string(
+                    odil.registry.DimensionIndexPointer)[0]
+                if odil.Tag(idx) == odil.registry.InStackPositionNumber:
+                    position.add(i)
+        if len(position) == 1:
+            return list(position)[0]
+        else:
+            return None
     else:
         return None
 

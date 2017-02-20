@@ -222,7 +222,8 @@ def sort(keys, data_sets_frame_idx):
                             odil.registry.DimensionIndexValues)[in_stack_position_idx])
                     sorted_in_stack = sorted(
                         range(len(in_stack_position)), key=lambda k: in_stack_position[k])
-                    data_sets_frame_idx = [data_sets_frame_idx[i] for i in sorted_in_stack]
+                    keydict = dict(zip(data_sets_frame_idx, sorted_in_stack))
+                    data_sets_frame_idx.sort(key = keydict.get)
                     return
                 if str(odil.registry.ImageOrientationPatient) == tag:
                     if sort_position(data_sets_frame_idx, value) == True:
