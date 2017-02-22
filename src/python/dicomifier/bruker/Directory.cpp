@@ -58,6 +58,9 @@ void wrap_Directory()
         .def(
             "get_dataset", &Directory::get_dataset,
             return_value_policy<copy_const_reference>())
+        .def("get_used_files", &Directory::get_used_files,
+            return_value_policy<copy_const_reference>())
         .def("list_subjects", &list_sujects).staticmethod("list_subjects")
-        .def("get_series_and_reco", &get_series_and_reco).staticmethod("get_series_and_reco");
+        .def("get_series_and_reco", &get_series_and_reco).staticmethod("get_series_and_reco")
+    ;
 }

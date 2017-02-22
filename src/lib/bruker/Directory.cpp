@@ -68,8 +68,12 @@ Directory
     for (auto const & reco : reconstructions)
     {
         Dataset dataset;
-        Path current_path;
-        for (current_path = reco; !boost::filesystem::equivalent(current_path, path); current_path.remove_leaf())
+        Path current_path = reco, upper_path = path; // upper path will be used to store the path above "path" arg
+        // We can begin here because the files under "reco" path will anyway be parsed with the line "_add_reconstruction..."
+        current_path.remove_leaf();
+        // We use upper_path in order to parse the "path" directory too in the following while loop
+        upper_path.remove_leaf();
+        while (!boost::filesystem::equivalent(current_path, upper_path))
         {
             for (Iterator it(current_path); it!= Iterator(); ++it)
             {
@@ -79,6 +83,7 @@ Directory
                     dataset.load(it->path().string());
                 }
             }
+            current_path.remove_leaf();
         }
         this->_add_reconstruction(reco, dataset);
     }
@@ -103,6 +108,19 @@ Directory
     }
     
     return dataset_it->second;
+}
+
+std::vector<std::string> const &
+Directory
+::get_used_files(std::string const& reconstruction) const
+{
+    auto const dataset_it = this->_datasets.find(reconstruction);
+    if(dataset_it == this->_datasets.end())
+    {
+        throw DicomifierException("No such series");
+    }
+
+    return dataset_it->second.get_used_files();
 }
 
 std::map<std::string, std::vector<std::string> >

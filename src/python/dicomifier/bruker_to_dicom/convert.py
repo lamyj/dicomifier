@@ -55,6 +55,8 @@ def convert_reconstruction(
         bruker_json.get("VisuAcquisitionProtocol", ["(none)"])[0],
         bruker_json.get("RECO_mode", ["none"])[0]
     ))
+    bruker_json["reco_files"] = list(bruker_directory.get_used_files(
+        "{}{:04d}".format(series, int(reconstruction))))
 
     dicom_binaries = iod_converter(bruker_json, transfer_syntax)
     

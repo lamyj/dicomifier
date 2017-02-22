@@ -49,7 +49,10 @@ public:
      * @brief Return the dataset associated to the series, throw an exception 
      * if field is missing.
      */
-    Dataset const & get_dataset(std::string const & series_number) const;
+    Dataset const & get_dataset(std::string const & reconstruction) const;
+
+    /// @ return the list of used file associate to the reconstruction
+    std::vector<std::string> const & get_used_files(std::string const & reconstruction) const;
 
     static std::map<std::string, std::vector<std::string> >
             get_series_and_reco(std::string const & path);

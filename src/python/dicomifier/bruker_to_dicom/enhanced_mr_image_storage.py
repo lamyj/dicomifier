@@ -7,8 +7,10 @@
 #########################################################################
 
 import itertools
+import json
 import logging
 import numpy
+import os
 
 import odil
 
@@ -115,6 +117,14 @@ def enhanced_mr_image_storage(bruker_data_set, transfer_syntax):
         )
 
     dicom_data_set.add(odil.registry.PixelData, ["".join(pixel_data_list)] , vr_finder_function("PixelData"))
+
+    # Add Private tag containing the files content
+    dict_files = {}
+    path_list = bruker_data_set["reco_files"]
+    for path in path_list:
+        dict_files[os.path.basename(path)] = open(path).read()
+    reco_files_tag = odil.Tag("67890010")
+    dicom_data_set.add(reco_files_tag, [json.dumps(dict_files)], odil.VR.OB)
 
     return [dicom_data_set]
 

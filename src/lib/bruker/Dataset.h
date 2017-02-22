@@ -53,6 +53,9 @@ public:
     /// @brief Return the frame groups, in outermost-to-innermost order.
     std::vector<FrameGroup> const & get_frame_groups() const;
     
+    /// @brief Function used to return a set of files used to create the dataset (expect the PixelData file)
+    std::vector<std::string> const & get_used_files() const;
+
     typedef std::map<std::string, Field>::const_iterator const_iterator;
     const_iterator begin() const { return this->_fields.begin(); }
     const_iterator end() const { return this->_fields.end(); }
@@ -60,7 +63,8 @@ public:
 private:
     std::map<std::string, Field> _fields;
     std::vector<FrameGroup> _frame_groups;
-    
+
+    std::vector<std::string> _used_files;
     void _update_frame_groups();
 };
 

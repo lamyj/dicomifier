@@ -7,7 +7,9 @@
 #########################################################################
 
 import itertools
+import json
 import logging
+import os
 
 import dateutil.parser
 import numpy
@@ -103,6 +105,12 @@ def mr_image_storage(bruker_data_set, transfer_syntax):
             for name in ["BitsAllocated", "PixelRepresentation"]:
                 if dicom_name == name:
                     helper.add(getattr(odil.registry, name), value)
+        dict_files = {}
+        path_list = bruker_data_set["reco_files"]
+        for path in path_list:
+            dict_files[os.path.basename(path)] = open(path).read()
+        reco_files_tag = odil.Tag("67890010")
+        dicom_data_set.add(reco_files_tag, [json.dumps(dict_files)], odil.VR.OB)
 
         dicom_data_sets.append(dicom_data_set)
 
