@@ -310,7 +310,7 @@ def _get_splitters(data_sets):
              odil_getter.OrientationGetter()),
             ((odil.registry.PixelMeasuresSequence, odil.registry.SpacingBetweenSlices),
              odil_getter._default_getter),
-            ((odil.registry.FrameContentSequence, odil.registry.AcquisitionNumber),
+            ((odil.registry.FrameContentSequence, odil.registry.FrameAcquisitionNumber),
              odil_getter._default_getter)
         ],
         odil.registry.MRImageStorage: [

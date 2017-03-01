@@ -82,6 +82,108 @@ def _get_pixel_data(data_set, generator, frame_index):
     
     return [frame_data.tostring()]
 
+def _get_direction(data_set):
+    dir_it = DirectionIterator()
+    return [_get_direction_and_b_value(data_set, x, dir_it)[0] for x in numpy.reshape(data_set["PVM_DwBMat"], (-1, 3, 3))]
+
+def _get_b_value(data_set):
+    return [_get_direction_and_b_value(data_set, x, None)[1] for x in numpy.reshape(data_set["PVM_DwBMat"], (-1, 3, 3))]
+
+class DirectionIterator():
+
+    def __init__(self):
+        self.idx = 0
+
+    def get_idx (self):
+        self.idx = self.idx+1
+        return self.idx-1
+
+def _get_direction_and_b_value(data_set, b_matrix, dir_it):
+    # Adapted from https://github.com/BRAINSia/BRAINSTools/blob/master/DWIConvert/SiemensDWIConverter.h#L457
+    # FIXME: find a reference to support this
+    values, _ = numpy.linalg.eigh(b_matrix)
+    direction = numpy.zeros(3)
+    b_value = numpy.trace(b_matrix)
+
+    wanted_b_values = set(data_set["PVM_DwBvalEach"])
+    wanted_b_values.add(0)
+    wanted_b_values = list(wanted_b_values)
+
+    b_values = [abs(b_value - x) for x in wanted_b_values]
+    b_value = wanted_b_values[numpy.argmin(b_values)]
+
+    if b_value != 0 and dir_it is not None:
+        wanted_grad_dir = numpy.reshape(data_set["PVM_DwDir"], [-1, 3])
+        direction = [float(x) for x in wanted_grad_dir[dir_it.get_idx()%len(wanted_grad_dir)]]
+
+    return direction, b_value
+
+def _set_diffusion_gradient(value):
+    """ Return an odil DataSet containing the DiffusionGradientDiffusion element
+        required for the DiffusionGradientDirectionSequence
+    """
+    # value == (x,y,z)
+    result = odil.DataSet()
+    result.add("DiffusionGradientOrientation", value)
+    return result
+
+def _set_diffusion_b_matrix(matrix):
+    """ Return an odil DataSet containing all required elements for
+        the Diffusion B-Matrix Sequence
+    """
+    result = odil.DataSet()
+    result.add("DiffusionBValueXX", [matrix[0][0, 0]])
+    result.add("DiffusionBValueXY", [matrix[0][0, 1]])
+    result.add("DiffusionBValueXZ", [matrix[0][0, 2]])
+    result.add("DiffusionBValueYY", [matrix[0][1, 1]])
+    result.add("DiffusionBValueYZ", [matrix[0][1, 2]])
+    result.add("DiffusionBValueZZ", [matrix[0][2, 2]])
+    return result
+
+def _get_repetition_time (data_set):
+    rep_time = None
+    # WARNING : keep this order to have the main priority for the visu_pars file
+    values = [
+        data_set.get("MultiRepTime", None),
+        data_set.get("PVM_RepetitionTime", None),
+        data_set.get("VisuAcqRepetitionTime", None),
+    ]
+    for i, v in enumerate(values):
+        if v is not None:
+            rep_time = v
+    return rep_time
+
+def _get_echo_pulse_sequence (data_set, generator, frame_index):
+    if "VisuAcqEchoSequenceType" in data_set:
+        return [data_set["VisuAcqEchoSequenceType"][0].replace("Echo","").upper()]
+    else:
+        return None
+
+def _get_time_of_flight_contrast(data_set, generator, frame_index):
+    if "VisuAcqHasTimeOfFlightContrast" in data_set:
+        return [data_set["VisuAcqHasTimeOfFlightContrast"][0].upper()]
+    else:
+        return None
+
+def _get_echo_planar_pulse_seq(data_set, generator, frame_index):
+    if "VisuAcqIsEpiSequence" in data_set:
+        return [data_set["VisuAcqIsEpiSequence"][0].upper()]
+    else:
+        return None
+
+def _get_spectrally_selected_suppression(data_set, generator, frame_index):
+    if "VisuAcqSpectralSuppression" in data_set:
+        return [data_set["VisuAcqSpectralSuppression"][0].replace("Suppression","").upper()]
+    else:
+        return None
+
+def _get_geometry_of_kSpace_traversal(data_set, generator, frame_index):
+    if "VisuAcqKSpaceTraversal" in data_set:
+        return [data_set["VisuAcqKSpaceTraversal"][0].replace("Transversal","").upper()]
+    else:
+        return None
+
+
 GeneralImage = [ # http://dicom.nema.org/medical/dicom/current/output/chtml/part03/sect_C.7.6.html#sect_C.7.6.1
     (None, "InstanceNumber", 2, lambda d,g,i: [1+g.get_linear_index(i)], None),
     (None, "ImageType", 3, lambda d,g,i: ["ORIGINAL", "PRIMARY"], None),
@@ -208,77 +310,6 @@ PixelValueTransformation = [ # http://dicom.nema.org/medical/dicom/current/outpu
     (None, "RescaleType", 1, lambda d,g,i: ["US"], None),
 ]
 
-def _get_direction(data_set):
-    dir_it = DirectionIterator()
-    return [_get_direction_and_b_value(data_set, x, dir_it)[0] for x in numpy.reshape(data_set["PVM_DwBMat"], (-1, 3, 3))]
-
-def _get_b_value(data_set):
-    return [_get_direction_and_b_value(data_set, x, None)[1] for x in numpy.reshape(data_set["PVM_DwBMat"], (-1, 3, 3))]
-
-class DirectionIterator():
-
-    def __init__(self):
-        self.idx = 0
-
-    def get_idx (self):
-        self.idx = self.idx+1
-        return self.idx-1
-
-def _get_direction_and_b_value(data_set, b_matrix, dir_it):
-    # Adapted from https://github.com/BRAINSia/BRAINSTools/blob/master/DWIConvert/SiemensDWIConverter.h#L457
-    # FIXME: find a reference to support this
-    values, _ = numpy.linalg.eigh(b_matrix)
-    direction = numpy.zeros(3)
-    b_value = numpy.trace(b_matrix)
-
-    wanted_b_values = set(data_set["PVM_DwBvalEach"])
-    wanted_b_values.add(0)
-    wanted_b_values = list(wanted_b_values)
-
-    b_values = [abs(b_value - x) for x in wanted_b_values]
-    b_value = wanted_b_values[numpy.argmin(b_values)]
-
-    if b_value != 0 and dir_it is not None:
-        wanted_grad_dir = numpy.reshape(data_set["PVM_DwDir"], [-1, 3])
-        direction = [float(x) for x in wanted_grad_dir[dir_it.get_idx()%len(wanted_grad_dir)]]
-
-    return direction, b_value
-
-def _set_diffusion_gradient(value):
-    """ Return an odil DataSet containing the DiffusionGradientDiffusion element
-        required for the DiffusionGradientDirectionSequence
-    """
-    # value == (x,y,z)
-    result = odil.DataSet()
-    result.add("DiffusionGradientOrientation", value)
-    return result
-
-def _set_diffusion_b_matrix(matrix):
-    """ Return an odil DataSet containing all required elements for
-        the Diffusion B-Matrix Sequence
-    """
-    result = odil.DataSet()
-    result.add("DiffusionBValueXX", [matrix[0][0, 0]])
-    result.add("DiffusionBValueXY", [matrix[0][0, 1]])
-    result.add("DiffusionBValueXZ", [matrix[0][0, 2]])
-    result.add("DiffusionBValueYY", [matrix[0][1, 1]])
-    result.add("DiffusionBValueYZ", [matrix[0][1, 2]])
-    result.add("DiffusionBValueZZ", [matrix[0][2, 2]])
-    return result
-
-def _get_repetition_time (data_set):
-    rep_time = None
-    # WARNING : keep this order to have the main priority for the visu_pars file
-    values = [
-        data_set.get("MultiRepTime", None),
-        data_set.get("PVM_RepetitionTime", None),
-        data_set.get("VisuAcqRepetitionTime", None),
-    ]
-    for i, v in enumerate(values):
-        if v is not None:
-            rep_time = v
-    return rep_time
-
 
 MRDiffusion = [ # http://dicom.nema.org/medical/dicom/current/output/chtml/part03/sect_C.8.13.5.9.html
     (
@@ -343,31 +374,26 @@ EnhancedMRImage = [#http://dicom.nema.org/medical/dicom/current/output/chtml/par
 MRPulseSequence = [#http://dicom.nema.org/medical/dicom/current/output/chtml/part03/sect_C.8.13.4.html
     ("PVM_SpatDimEnum", "MRAcquisitionType", 3, None, None),
     ("VisuAcqEchoSequenceType", "EchoPulseSequence", 3,
-        lambda d,g,i: [d["VisuAcqEchoSequenceType"][0].replace("Echo","").upper()],
-        None
+        _get_echo_pulse_sequence, None
     ),
     # (None, "MultipleSpinEcho", 3, None, None),
     # (None, "MultiPlanarExcitation", 3, None, None),
     # (None, "PhaseContrast", 3, None, None),
     ("VisuAcqHasTimeOfFlightContrast", "TimeOfFlightContrast", 3,
-        lambda d,g,i: [d["VisuAcqHasTimeOfFlightContrast"][0].upper()],
-        None
+        _get_time_of_flight_contrast, None
     ),
     # (None, "ArterialSpinLabelingContrast", 3, None, None),
     # (None, "SteadyStatePulseSequence", 3, None, None),
     ("VisuAcqIsEpiSequence", "EchoPlanarPulseSequence", 3,
-        lambda d,g,i: [d["VisuAcqIsEpiSequence"][0].upper()],
-        None
+        _get_echo_planar_pulse_seq, None
     ),
     # (None, "SaturationRecovery", 3, None, None),
     ("VisuAcqSpectralSuppression", "SpectrallySelectedSuppression", 3,
-        lambda d,g,i: [d["VisuAcqSpectralSuppression"][0].replace("Suppression","").upper()],
-        None
+        _get_spectrally_selected_suppression, None
     ),
     # (None, "OversamplingPhase", 3, None, None),
     ("VisuAcqKSpaceTraversal", "GeometryOfKSpaceTraversal", 3,
-        lambda d,g,i: [d["VisuAcqKSpaceTraversal"][0].replace("Transversal","").upper()],
-        None
+        _get_geometry_of_kSpace_traversal, None
     ),
     # (None, "RectilinearPhaseEncodeReordering", 3, None, None),
     # (None, "SegmentedKSpaceTraversal", 3, None, None),
