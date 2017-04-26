@@ -97,5 +97,5 @@ BOOST_AUTO_TEST_CASE(Structure)
 
     dicomifier::bruker::Field::Value const item({3L, "Foo"});
     BOOST_REQUIRE(
-        fields[0].value == dicomifier::bruker::Field::Value({item}));
+        fields[0].value == dicomifier::bruker::Field::Value({{item}}));
 }
