@@ -12,7 +12,7 @@
 #include <string.h>
 
 #include <boost/python.hpp>
-#include <nifti/nifti1_io.h>
+#include <nifti1_io.h>
 #include <numpy/arrayobject.h>
 
 #include "core/DicomifierException.h"
