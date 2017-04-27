@@ -129,7 +129,9 @@ def convert_element(
             raise Exception("{} must be present".format(dicom_name))
         elif type_ == 2:
             dicom_data_set.add(tag)
-     
+    elif vr == "SQ" and not value:
+        # Type of empty value must be explicit
+        dicom_data_set.add(tag, odil.Value.DataSets(), getattr(odil.VR, vr))
     else:
         if isinstance(setter, dict):
             value = [setter[x] for x in value]
