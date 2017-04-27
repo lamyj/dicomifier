@@ -18,15 +18,18 @@ import odil
 from .. import bruker
 
 #explicit conversions
+def _convert_date_time(value, format_):
+    date_time = dateutil.parser.parse(value.replace(",", "."))
+    return date_time.strftime(format_)
 vr_converters = {
-    "DA": lambda x: dateutil.parser.parse(x.replace(",", ".")).strftime("%Y%m%d"),
+    "DA": lambda x: _convert_date_time(x, "%Y%m%d") if x else x,
     "DS": lambda x: float(x),
-    "DT": lambda x: dateutil.parser.parse(x.replace(",", ".")).strftime("%Y%m%d%H%M%S"),
+    "DT": lambda x: _convert_date_time(x, "%Y%m%d%H%M%S") if x else x,
     "FD": lambda x: float(x),
     "FL": lambda x: float(x),
     "IS": lambda x: int(x),
     "SS": lambda x: int(x),
-    "TM": lambda x: dateutil.parser.parse(x.replace(",", ".")).strftime("%H%M%S"),
+    "TM": lambda x: _convert_date_time(x, "%H%M%S") if x else x,
     "US": lambda x: int(x),
 }
 
