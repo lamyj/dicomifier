@@ -62,7 +62,9 @@ def main():
         parser.error("too few arguments")
 
     verbosity = arguments.pop("verbosity")
-    logging.getLogger().setLevel(verbosity.upper())
+    logging.basicConfig(
+        level=verbosity.upper(), 
+        format="%(levelname)s - %(name)s: %(message)s")
 
     function = arguments.pop("function")
     source = arguments.pop("source")
@@ -135,7 +137,7 @@ def convert(
         :param multiframe: Whether generate dicom multiframe files or no
     """
     if os.path.isdir(destination) and len(os.listdir(destination)) > 0:
-        logging.warning("{} is not empty".format(destination))
+        dicomifier.logger.warning("{} is not empty".format(destination))
 
     subjects = dicomifier.bruker.Directory.list_subjects(source)
 
@@ -154,11 +156,12 @@ def convert(
                     bruker_json = json.loads(dicomifier.bruker.as_json(bruker_binary))
                     type_id = bruker_json.get("VisuSeriesTypeId", ["UNKNOWN"])[0]
                     if not type_id.startswith("ACQ_"):
-                        logging.warning("Skipping {}:{} - {} ({}): type is {}".format(
-                            series, reconstruction,
-                            bruker_json.get("VisuAcquisitionProtocol", ["(none)"])[0],
-                            bruker_json.get("RECO_mode", ["none"])[0],
-                            type_id
+                        dicomifier.logger.warning(
+                            "Skipping {}:{} - {} ({}): type is {}".format(
+                                series, reconstruction,
+                                bruker_json.get("VisuAcquisitionProtocol", ["(none)"])[0],
+                                bruker_json.get("RECO_mode", ["none"])[0],
+                                type_id
                         ))
                         continue
                     _series_and_reconstructions.setdefault(series, []).append(reconstruction)
@@ -186,18 +189,21 @@ def convert(
                     if "VisuInstanceModality" in bruker_json:
                         converter_key = (bruker_json.get("VisuInstanceModality")[0], multiframe)
                     else:
-                        logging.warning("Warning reconstruction {}:{} - VisuInstanceModality not found in bruker file, MRI will be used by default".
-                            format(series, reconstruction))
+                        dicomifier.logger.warning(
+                            "Warning reconstruction {}:{} - "
+                            "VisuInstanceModality not found in bruker file, "
+                            "MRI will be used by default".format(
+                                series, reconstruction))
                         converter_key = ("MR", multiframe)
                     reco_files = dicomifier.bruker_to_dicom.convert_reconstruction(
                         directory, series, reconstruction,
                         converters[converter_key], transfer_syntax,
                         destination, True)
                 except Exception as e:
-                    logging.error(
+                    dicomifier.logger.error(
                         "Could not convert {}:{} - {}".format(
                             series, reconstruction, e))
-                    logging.debug("Stack trace", exc_info=True)
+                    dicomifier.logger.debug("Stack trace", exc_info=True)
                 else:
                     files.extend(reco_files)
 
@@ -237,4 +243,3 @@ def create_dicomdir(
 
 if __name__ == "__main__": 
     sys.exit(main())
-

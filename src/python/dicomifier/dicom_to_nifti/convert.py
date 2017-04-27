@@ -6,7 +6,6 @@
 # for details.
 #########################################################################
 
-import logging
 import itertools
 
 import numpy
@@ -17,7 +16,7 @@ import image
 import odil_getter
 
 import nifti_image
-from .. import MetaData
+from .. import logger, MetaData
 
 
 def convert(dicom_data_sets, dtype):
@@ -30,7 +29,7 @@ def convert(dicom_data_sets, dtype):
     nifti_data = []
 
     stacks = get_stacks(dicom_data_sets)
-    logging.info(
+    logger.info(
         "Found {} stack{}".format(len(stacks), "s" if len(stacks) > 1 else ""))
 
     # Set up progress information
@@ -48,7 +47,7 @@ def convert(dicom_data_sets, dtype):
         return value[0] if value is not None else None
 
     cache = {}
-    for keys, data_sets_frame_idx in stacks.items():
+    for stack_index, (keys, data_sets_frame_idx) in enumerate(stacks.items()):
         data_set = data_sets_frame_idx[0][0]
 
         study = [
@@ -70,9 +69,14 @@ def convert(dicom_data_sets, dtype):
                 stacks_count[series_instance_uid])
         else:
             stack_info = ""
-        logging.info(
-            u"Converting {} / {}{}".format(
-                "-".join(study), "-".join(series), stack_info))
+        if stack_index == 0:
+            logger.info(
+                u"Converting {} / {}".format(
+                    "-".join(study), "-".join(series)))
+        if stack_info:
+            logger.debug(
+                u"Converting {} / {}{}".format(
+                    "-".join(study), "-".join(series), stack_info))
         stacks_converted[series_instance_uid] += 1
 
         sort(keys, data_sets_frame_idx)
@@ -103,7 +107,7 @@ def convert(dicom_data_sets, dtype):
 
         for _, stack in sorted(mergeable.items()):
             if len(stack) > 1:
-                logging.info(
+                logger.info(
                     "Merging {} stack{}".format(
                         len(stack), "s" if len(stack) > 1 else ""))
                 merged = merge_images_and_meta_data(stack)
@@ -202,7 +206,7 @@ def sort(keys, data_sets_frame_idx):
     number_of_frames = len(data_sets_frame_idx)
     if number_of_frames == 1:
         # WARNING : Can cause some problem when opening .nii file with Slicer
-        logging.debug("Only one frame in the current stack")
+        logger.debug("Only one frame in the current stack")
         return
     else:
         for key in keys:
@@ -229,8 +233,9 @@ def sort(keys, data_sets_frame_idx):
                     if sort_position(data_sets_frame_idx, value) == True:
                         return
         available_tags = [x[0][2] for x in keys if len(x) > 1]
-        logging.warning("Cannot sort frames for the moment, available tags : {}".format(
-            [odil.Tag(x).get_name() for x in available_tags]))
+        logger.warning(
+            "Cannot sort frames for the moment, available tags : {}".format(
+                [odil.Tag(x).get_name() for x in available_tags]))
 
 
 def sort_position(data_sets_frame_idx, orientation):
@@ -248,7 +253,7 @@ def sort_position(data_sets_frame_idx, orientation):
                 odil_getter._get_position(x[0], x[1]), normal))
         return True
     else:
-        logging.warning(
+        logger.warning(
             "Orientation found but no position available to sort frames")
         return False
 

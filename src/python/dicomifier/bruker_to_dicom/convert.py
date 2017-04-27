@@ -7,7 +7,6 @@
 #########################################################################
 
 import json
-import logging
 import math
 import re
 import os
@@ -15,7 +14,7 @@ import os
 import dateutil
 import odil
 
-from .. import bruker
+from .. import bruker, logger
 
 #explicit conversions
 def _convert_date_time(value, format_):
@@ -48,12 +47,12 @@ def convert_reconstruction(
         :param iso_9660: whether to use ISO-9660 compatible file names
     """
     
-    logging.info("Converting {}:{}".format(series, reconstruction))
+    logger.info("Converting {}:{}".format(series, reconstruction))
     
     bruker_binary = bruker_directory.get_dataset(
         "{}{:04d}".format(series, int(reconstruction)))
     bruker_json = json.loads(bruker.as_json(bruker_binary))
-    logging.info("Found {}:{} - {} ({})".format(
+    logger.info("Found {}:{} - {} ({})".format(
         series, reconstruction, 
         bruker_json.get("VisuAcquisitionProtocol", ["(none)"])[0],
         bruker_json.get("RECO_mode", ["none"])[0]
