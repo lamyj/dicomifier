@@ -140,6 +140,18 @@ def _set_diffusion_b_matrix(matrix):
     result.add("DiffusionBValueZZ", [matrix[0][2, 2]])
     return result
 
+def _get_echo_time (data_set):
+    echo_time = None
+    # WARNING : keep this order to have the main priority for the visu_pars file
+    values = [
+        data_set.get("PVM_EchoTime", None),
+        data_set.get("VisuAcqEchoTime", None),
+    ]
+    for i, v in enumerate(values):
+        if v is not None:
+            echo_time = v
+    return echo_time
+
 def _get_repetition_time (data_set):
     rep_time = None
     # WARNING : keep this order to have the main priority for the visu_pars file

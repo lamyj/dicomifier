@@ -12,8 +12,10 @@ import numpy
 
 import odil
 
-from image import _get_acquisition_number, _get_direction, _get_b_value, _set_diffusion_gradient, \
-    _set_diffusion_b_matrix, _get_repetition_time
+from image import (
+    _get_acquisition_number, _get_direction, _get_b_value, 
+    _set_diffusion_gradient, _set_diffusion_b_matrix, _get_repetition_time,
+    _get_echo_time)
 
 """
 Model for frame groups
@@ -130,7 +132,9 @@ MRFOVGeometry = { # http://dicom.nema.org/medical/dicom/current/output/chtml/par
 MREcho = { # http://dicom.nema.org/medical/dicom/current/output/chtml/part03/sect_C.8.13.5.4.html
     ("MREchoSequence", False) :
     [
-        ("VisuAcqEchoTime", "EffectiveEchoTime", 1, None, None),
+        (
+            "VisuAcqEchoTime", "EffectiveEchoTime", 1, 
+            lambda d,g,i: _get_echo_time(d), None),
     ]
 }
 
