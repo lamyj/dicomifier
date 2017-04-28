@@ -271,13 +271,25 @@ ImagePixel = [ # http://dicom.nema.org/medical/dicom/current/output/chtml/part03
             "_32BIT_SGN_INT": 1, "_16BIT_SGN_INT": 1, "_8BIT_UNSGN_INT": 0}
     ),
     (None, "PixelData", 1, _get_pixel_data, None),
+    # WARNING SmallestImagePixelValue and LargestImagePixelValue are either US
+    # or SS and thus cannot accomodate 32 bits values. Use WindowCenter and
+    # WindowWidth instead.
     (
-        "VisuCoreDataMin", "SmallestImagePixelValue", 3, 
-        lambda d,g,i: [d["VisuCoreDataMin"][g.get_linear_index(i)]], None
+        None, "WindowCenter", 3, 
+        lambda d,g,i: [
+            0.5*(
+                d["VisuCoreDataMin"][g.get_linear_index(i)]
+                +d["VisuCoreDataMax"][g.get_linear_index(i)])
+        ], 
+        None
     ),
     (
-        "VisuCoreDataMax", "LargestImagePixelValue", 3, 
-        lambda d,g,i: [d["VisuCoreDataMax"][g.get_linear_index(i)]], None
+        None, "WindowWidth", 3, 
+        lambda d,g,i: [
+            d["VisuCoreDataMax"][g.get_linear_index(i)]
+            -d["VisuCoreDataMax"][g.get_linear_index(i)]
+        ],
+        None
     ),
 ]
 
