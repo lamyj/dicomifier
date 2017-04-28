@@ -83,46 +83,43 @@ def _get_pixel_data(data_set, generator, frame_index):
     return [frame_data.tostring()]
 
 def _get_direction(data_set):
-    dir_it = DirectionIterator()
-    return [_get_direction_and_b_value(data_set, x, dir_it)[0] for x in numpy.reshape(data_set["PVM_DwBMat"], (-1, 3, 3))]
+    return [
+        _get_direction_and_b_value(data_set, x)[0] 
+        for x in numpy.reshape(data_set["PVM_DwBMat"], (-1, 3, 3))]
 
 def _get_b_value(data_set):
-    return [_get_direction_and_b_value(data_set, x, None)[1] for x in numpy.reshape(data_set["PVM_DwBMat"], (-1, 3, 3))]
+    return [
+        _get_direction_and_b_value(data_set, x)[1] 
+        for x in numpy.reshape(data_set["PVM_DwBMat"], (-1, 3, 3))]
 
-class DirectionIterator():
-
-    def __init__(self):
-        self.idx = 0
-
-    def get_idx (self):
-        self.idx = self.idx+1
-        return self.idx-1
-
-def _get_direction_and_b_value(data_set, b_matrix, dir_it):
-    # Adapted from https://github.com/BRAINSia/BRAINSTools/blob/master/DWIConvert/SiemensDWIConverter.h#L457
+def _get_direction_and_b_value(data_set, b_matrix):
+    # Adapted from https://github.com/BRAINSia/BRAINSTools/blob/92cbbec97a8100a38bc019b30591f7c0f9a26951/DWIConvert/SiemensDWIConverter.h
     # FIXME: find a reference to support this
-    values, _ = numpy.linalg.eigh(b_matrix)
-    direction = numpy.zeros(3)
+    
+    ideal_b_values = set(data_set["PVM_DwBvalEach"])
+    ideal_b_values.add(0)
+    ideal_b_values = list(ideal_b_values)
+    
     b_value = numpy.trace(b_matrix)
-
-    wanted_b_values = set(data_set["PVM_DwBvalEach"])
-    wanted_b_values.add(0)
-    wanted_b_values = list(wanted_b_values)
-
-    b_values = [abs(b_value - x) for x in wanted_b_values]
-    b_value = wanted_b_values[numpy.argmin(b_values)]
-
-    if b_value != 0 and dir_it is not None:
-        wanted_grad_dir = numpy.reshape(data_set["PVM_DwDir"], [-1, 3])
-        direction = [float(x) for x in wanted_grad_dir[dir_it.get_idx()%len(wanted_grad_dir)]]
-
-    return direction, b_value
+    b_value_distances = [abs(b_value - x) for x in ideal_b_values]
+    ideal_b_value = ideal_b_values[numpy.argmin(b_value_distances)]
+    
+    direction = numpy.linalg.eigh(b_matrix)[1][:,-1]
+    if ideal_b_value == 0:
+        ideal_direction = direction
+    else:
+        ideal_directions = numpy.reshape(data_set["PVM_DwDir"], [-1, 3])
+        direction_dot = [
+            numpy.abs(numpy.dot(direction, x)) for x in ideal_directions]
+        ideal_direction = ideal_directions[numpy.argmax(direction_dot)]
+    
+    return ideal_direction.astype(float), float(ideal_b_value)
 
 def _set_diffusion_gradient(value):
     """ Return an odil DataSet containing the DiffusionGradientDiffusion element
         required for the DiffusionGradientDirectionSequence
     """
-    # value == (x,y,z)
+    
     result = odil.DataSet()
     result.add("DiffusionGradientOrientation", value)
     return result
@@ -338,13 +335,12 @@ PixelValueTransformation = [ # http://dicom.nema.org/medical/dicom/current/outpu
 MRDiffusion = [ # http://dicom.nema.org/medical/dicom/current/output/chtml/part03/sect_C.8.13.5.9.html
     (
         "VisuAcqDiffusionBMatrix", "DiffusionBValue", 1,
-        lambda d,g,i: _get_b_value(d),
-        None
+        lambda d,g,i: _get_b_value(d), None
     ),
     (None, "DiffusionDirectionality", 1, lambda d,g,i: ["BMATRIX"], None),
     (
         "VisuAcqDiffusionBMatrix", "DiffusionGradientDirectionSequence", 1,
-        lambda d,g,i: _get_direction(d),
+        lambda d,g,i: _get_direction(d), 
         lambda x: [_set_diffusion_gradient(numpy.asarray(x).ravel().tolist())]
     ),
     (
