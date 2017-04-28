@@ -195,7 +195,11 @@ def _get_geometry_of_kSpace_traversal(data_set, generator, frame_index):
 
 GeneralImage = [ # http://dicom.nema.org/medical/dicom/current/output/chtml/part03/sect_C.7.6.html#sect_C.7.6.1
     (None, "InstanceNumber", 2, lambda d,g,i: [1+g.get_linear_index(i)], None),
-    (None, "ImageType", 3, lambda d,g,i: ["ORIGINAL", "PRIMARY"], None),
+    (
+        None, "ImageType", 3, 
+        lambda d,g,i: [
+            "ORIGINAL", "PRIMARY", "", 
+            d["RECO_image_type"][0].encode("ascii")], None),
     (None, "AcquisitionNumber", 3, _get_acquisition_number, None),
     ("VisuAcqDate", "AcquisitionDate", 3, None, None),
     ("VisuAcqDate", "AcquisitionTime", 3, None, None),
@@ -379,7 +383,10 @@ AcquisitionContext = [#http://dicom.nema.org/medical/dicom/current/output/chtml/
 ]
 
 EnhancedMRImage = [#http://dicom.nema.org/medical/dicom/current/output/chtml/part03/sect_C.8.13.html#sect_C.8.13.1
-    (None, "ImageType", 1, lambda d,g,i: ["ORIGINAL", "PRIMARY"], None), # Same as in GeneralImage but type is 1 here
+    (None, "ImageType", 3, # Same as in GeneralImage but type is 1 here
+    lambda d,g,i: [
+        "ORIGINAL", "PRIMARY", "", 
+        d["RECO_image_type"][0].encode("ascii")], None),
     (None, "PixelPresentation", 1, lambda d,g,i: ["MONOCHROME"], None),
     (None, "VolumetricProperties", 1, lambda d,g,i: ["VOLUME"], None),
     (None, "VolumeBasedCalculationTechnique", 1, lambda d,g,i : ["NONE"], None),
