@@ -6,6 +6,7 @@
 # for details.
 #########################################################################
 
+import collections
 import itertools
 
 import numpy
@@ -85,7 +86,8 @@ def convert(dicom_data_sets, dtype):
         nifti_data.append((nifti_img, nifti_meta_data))
 
     # Try to preserve the original stacks order
-    nifti_data.sort(key=lambda x: x[1].get("InstanceNumber", [None])[0])
+    nifti_data.sort(
+        key=lambda x: numpy.ravel(x[1].get("InstanceNumber", [None])).min())
 
     for nifti_img, nifti_meta_data in nifti_data:
         meta_data.cleanup(nifti_meta_data)
@@ -97,7 +99,8 @@ def convert(dicom_data_sets, dtype):
 
     merged_stacks = []
     for stacks in series.values():
-        mergeable = {}
+        # Use OrderedDict to keep the relative order
+        mergeable = collections.OrderedDict()
         for nifti_img, nifti_meta_data in stacks:
             geometry = nifti_img.shape + \
                 tuple(nifti_img.qform.ravel().tolist())
@@ -105,7 +108,7 @@ def convert(dicom_data_sets, dtype):
             mergeable.setdefault((geometry, dt), []).append(
                 (nifti_img, nifti_meta_data))
 
-        for _, stack in sorted(mergeable.items()):
+        for _, stack in mergeable.items():
             if len(stack) > 1:
                 logger.info(
                     "Merging {} stack{}".format(
