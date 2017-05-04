@@ -47,7 +47,8 @@ def convert(dicom_data_sets, dtype):
         value = odil_getter._default_getter(data_set, tag)
         return value[0] if value is not None else None
 
-    cache = {}
+    meta_data_cache = {}
+    pixel_data_cache = {}
     for stack_index, (keys, data_sets_frame_idx) in enumerate(stacks.items()):
         data_set = data_sets_frame_idx[0][0]
 
@@ -81,8 +82,10 @@ def convert(dicom_data_sets, dtype):
         stacks_converted[series_instance_uid] += 1
 
         sort(keys, data_sets_frame_idx)
-        nifti_img = image.get_image(data_sets_frame_idx, dtype)
-        nifti_meta_data = meta_data.get_meta_data(data_sets_frame_idx, cache)
+        nifti_img = image.get_image(
+            data_sets_frame_idx, dtype, pixel_data_cache)
+        nifti_meta_data = meta_data.get_meta_data(
+            data_sets_frame_idx, meta_data_cache)
         nifti_data.append((nifti_img, nifti_meta_data))
 
     # Try to preserve the original stacks order

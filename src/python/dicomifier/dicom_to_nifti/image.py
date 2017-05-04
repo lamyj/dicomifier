@@ -20,7 +20,7 @@ from .. import logger, nifti
 import siemens
 
 
-def get_image(data_sets_frame_idx, dtype):
+def get_image(data_sets_frame_idx, dtype, cache):
     """ Get the nifti image of the current stack
         :param data_sets_frame_idx: List containing the data sets of the frame 
                                     with the corresponding frame when it's a multiframe data set
@@ -28,8 +28,17 @@ def get_image(data_sets_frame_idx, dtype):
         :return image: a nifti image
     """
 
-    pixel_data_list = [get_pixel_data(data_set, frame_idx)
-                       for data_set, frame_idx in data_sets_frame_idx]
+    # Cache the linear pixel data since this is a time-consuming operation for
+    # large data sets and needs to be repeated for multi-frame data sets.
+    for data_set, frame_idx in data_sets_frame_idx:
+        if data_set.as_string("SOPInstanceUID")[0] not in cache:
+            linear_array = get_linear_pixel_data(data_set)
+            cache[data_set.as_string("SOPInstanceUID")[0]] = linear_array
+    
+    pixel_data_list = [
+        get_shaped_pixel_data(
+            data_set, cache[data_set.as_string("SOPInstanceUID")[0]], frame_idx)
+        for data_set, frame_idx in data_sets_frame_idx]
 
     if dtype is None:
         has_float = any(x.dtype.kind == "f" for x in pixel_data_list)
@@ -116,14 +125,9 @@ def get_image(data_sets_frame_idx, dtype):
 
     return image
 
-
-def get_pixel_data(data_set, frame_idx):
-    """ Return the pixel data located in a dataset
-
-        :param data_set: The dataset containing the pixelData 
-        :param frame_idx: Index of the frame if data_set is multiframe, None otherwise
-    """
-
+def get_linear_pixel_data(data_set):
+    """Return a linear numpy array containing the pixel data."""
+    
     high_bit = data_set.as_int(odil.registry.HighBit)[0]
 
     byte_order = ">" if high_bit == 0 else "<"
@@ -142,25 +146,31 @@ def get_pixel_data(data_set, frame_idx):
         "{}{}{}".format(
             byte_order, "u" if is_unsigned else "i", bits_allocated / 8))
 
+    view = data_set.as_binary(odil.registry.PixelData)[0].get_memory_view()
+    linear_array = numpy.frombuffer(view.tobytes(), byte_order + dtype.char)
+    return linear_array
+
+def get_shaped_pixel_data(data_set, linear_pixel_data, frame_idx):
+    """ Return the pixel data located in a dataset shaped according to numer of
+        rows, columns and frames.
+
+        :param data_set: The dataset containing the pixelData 
+        :param frame_idx: Index of the frame if data_set is multiframe, None otherwise
+    """
+    
     rows = data_set.as_int(odil.registry.Rows)[0]
     cols = data_set.as_int(odil.registry.Columns)[0]
 
     samples_per_pixel = data_set.as_int(odil.registry.SamplesPerPixel)[0]
-
-    view = data_set.as_binary(odil.registry.PixelData)[0].get_memory_view()
-    pixel_data = numpy.frombuffer(view.tobytes(), byte_order + dtype.char)
     if samples_per_pixel == 1:
         if data_set.has(odil.registry.NumberOfFrames):
             number_of_frames = data_set.as_int(odil.registry.NumberOfFrames)[0]
-            pixel_data = numpy.asarray(pixel_data).reshape(
-                number_of_frames, rows * cols)
+            pixel_data = linear_pixel_data.reshape(number_of_frames, rows, cols)
             pixel_data = pixel_data[frame_idx, :]
-            pixel_data = numpy.asarray(pixel_data).reshape(rows, cols)
         else:
-            pixel_data = numpy.asarray(pixel_data).reshape(rows, cols)
+            pixel_data = linear_pixel_data.reshape(rows, cols)
     else:
-        pixel_data = numpy.asarray(pixel_data).reshape(
-            rows, cols, samples_per_pixel)
+        pixel_data = linear_pixel_data.reshape(rows, cols, samples_per_pixel)
 
     # Mask the data using Bits Stored, cf. PS 3.5, 8.1.1
     bits_stored = data_set.as_int(odil.registry.BitsStored)[0]
