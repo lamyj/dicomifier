@@ -53,14 +53,12 @@ def get_meta_data(data_sets_frame_idx, cache):
     ]
 
     skipped = [getattr(odil.registry, x) for x in skipped]
-    skipped = [(x.group, x.element) for x in skipped]
 
     # Must get directly this sequence (otherwise test fails)
     direct_sequences = [
         "MRDiffusionSequence"
     ]
     direct_sequences = [getattr(odil.registry, x) for x in direct_sequences]
-    direct_sequences = [(x.group, x.element) for x in direct_sequences]
 
     tag_values = {}
     # Parse here all data_set, and all tags, in order to get top priority
@@ -93,24 +91,21 @@ def get_meta_data(data_sets_frame_idx, cache):
             seq_s.append(top_seq)
             for seq in seq_s:
                 for tag, elem in seq.items():
-                    tag_ = (tag.group, tag.element)
-                    if tag_ not in skipped:
-                        if seq.is_data_set(tag) and tag_ not in direct_sequences:
+                    if tag not in skipped:
+                        if seq.is_data_set(tag) and tag not in direct_sequences:
                             ds = seq.as_data_set(tag)
                             if ds:
                                 seq_s.append(ds[0])
                         else:
-                            tag_values.setdefault(tag_, {})[i] = elem
+                            tag_values.setdefault(tag, {})[i] = elem
                             if not in_cache and prio_level in [0, 1]:
                                 # Store only in cache for Top and Shared levels
-                                cache["odil"][(sop_instance_uid, tag_)] = elem
+                                cache["odil"][(sop_instance_uid, tag)] = elem
 
     meta_data = MetaData()
     specific_character_set = []
 
     for tag, values_dict in tag_values.items():
-        tag_object = odil.Tag(*tag)
-
         # Check whether all values are the same
         all_equal = True
         sample = values_dict[0]
@@ -149,10 +144,10 @@ def get_meta_data(data_sets_frame_idx, cache):
                         False)
                 value.append(cache["json"][id(item)][0])
 
-        if tag_object == odil.registry.SpecificCharacterSet:
+        if tag == odil.registry.SpecificCharacterSet:
             specific_character_set = value
 
-        tag_name = get_tag_name(tag_object)
+        tag_name = get_tag_name(tag)
 
         meta_data[tag_name] = value
     return meta_data
