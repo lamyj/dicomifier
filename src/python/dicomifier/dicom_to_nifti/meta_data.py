@@ -29,6 +29,9 @@ def get_meta_data(data_sets_frame_idx, cache):
         :param cache: dict used to store (tag,elem) for top priority sequences (top level & shared)
                       in order to parse them only once per data_set
     """
+    
+    cache.setdefault("odil", {})
+    cache.setdefault("json", {})
 
     skipped = [
         # Stored in the NIfTI image
@@ -67,7 +70,7 @@ def get_meta_data(data_sets_frame_idx, cache):
         data_set, frame_idx = data_set_frame_idx
         sop_instance_uid = data_set.as_string(odil.registry.SOPInstanceUID)[0]
         priority_seq = []  # tuple (dataset, prio level)
-        if sop_instance_uid not in [x[0] for x in cache.keys()]:
+        if sop_instance_uid not in [x[0] for x in cache["odil"].keys()]:
             priority_seq.append((data_set, 0))
             in_cache = False
         if frame_idx != None:
@@ -81,7 +84,7 @@ def get_meta_data(data_sets_frame_idx, cache):
 
         if in_cache:
             # Pre fill the tag_values if data_set is in cache
-            for (sop, tag), element in cache.iteritems():
+            for (sop, tag), element in cache["odil"].iteritems():
                 if sop == sop_instance_uid:
                     tag_values.setdefault(tag, {})[i] = element
 
@@ -98,9 +101,9 @@ def get_meta_data(data_sets_frame_idx, cache):
                                 seq_s.append(ds[0])
                         else:
                             tag_values.setdefault(tag_, {})[i] = elem
-                            if in_cache == False and prio_level in [0, 1]:
+                            if not in_cache and prio_level in [0, 1]:
                                 # Store only in cache for Top and Shared levels
-                                cache[(sop_instance_uid, tag_)] = elem
+                                cache["odil"][(sop_instance_uid, tag_)] = elem
 
     meta_data = MetaData()
     specific_character_set = []
@@ -111,28 +114,40 @@ def get_meta_data(data_sets_frame_idx, cache):
         # Check whether all values are the same
         all_equal = True
         sample = values_dict[0]
-        for i in range(len(data_sets_frame_idx)):
-            value = values_dict.get(i)
-            if value != sample:
-                all_equal = False
-                break
+        if id(sample) not in cache["json"]:
+            for i in range(len(data_sets_frame_idx)):
+                value = values_dict.get(i)
+                if value != sample:
+                    all_equal = False
+                    break
+        else:
+            all_equal = cache["json"][id(sample)][1]
+
         if all_equal:
             # Only use the unique value.
-            value = convert_element(sample, specific_character_set)
+            if id(sample) not in cache["json"]:
+                cache["json"][id(sample)] = (
+                    convert_element(sample, specific_character_set),
+                    True)
+            value = cache["json"][id(sample)][0]
         else:
             # Convert each value. If we have multiple values of Specific
             # Character Set, use the one from the corresponding data set.
-            if (specific_character_set
-                    and isinstance(specific_character_set[0], list)):
-                value = [
-                    convert_element(
-                        values_dict.get(idx), specific_character_set[idx])
-                    for idx in range(len(data_sets_frame_idx))]
-            else:
-                value = [
-                    convert_element(values_dict.get(idx), 
-                        specific_character_set)
-                    for idx in range(len(data_sets_frame_idx))]
+            value = []
+            
+            for idx in range(len(data_sets_frame_idx)):
+                item = values_dict.get(idx)
+                if id(item) not in cache["json"]:
+                    cache["json"][id(item)] = (
+                        convert_element(
+                            item, 
+                            specific_character_set[idx] 
+                            if (
+                                specific_character_set 
+                                and isinstance(specific_character_set[0], list))
+                            else specific_character_set),
+                        False)
+                value.append(cache["json"][id(item)][0])
 
         if tag_object == odil.registry.SpecificCharacterSet:
             specific_character_set = value
