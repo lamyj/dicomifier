@@ -178,13 +178,16 @@ def get_shaped_pixel_data(data_set, linear_pixel_data, frame_idx):
 
     # Rescale: look for Pixel Value Transformation sequence then Rescale Slope
     # and Rescale Intercept
+    transformation = data_set
+    if data_set.has(odil.registry.SharedFunctionalGroupsSequence):
+        transformation = data_set.as_data_set(
+            odil.registry.SharedFunctionalGroupsSequence)[0]
+    if transformation.has(odil.registry.PixelValueTransformationSequence):
+        transformation = transformation.as_data_set(
+            odil.registry.PixelValueTransformationSequence)[0]
+    
     slope = None
     intercept = None
-    if data_set.has(odil.registry.PixelValueTransformationSequence):
-        transformation = data_set.as_data_set(
-            odil.registry.PixelValueTransformationSequence)[0]
-    else:
-        transformation = data_set
     if transformation.has(odil.registry.RescaleSlope):
         slope = transformation.as_real(odil.registry.RescaleSlope)[0]
     if transformation.has(odil.registry.RescaleIntercept):
