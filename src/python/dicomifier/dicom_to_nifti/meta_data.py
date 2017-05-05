@@ -57,47 +57,45 @@ def get_meta_data(data_sets_frame_idx, cache):
     ]
     direct_sequences = [getattr(odil.registry, x) for x in direct_sequences]
 
-    tag_values = {}
-    # Parse here all data_set, and all tags, in order to get top priority
-    # level values with index
-    for i, data_set_frame_idx in enumerate(data_sets_frame_idx):
-        in_cache = True
-        data_set, frame_idx = data_set_frame_idx
+    # Populate the Odil cache with the elements at top-level and in shared 
+    # functional groups
+    for data_set, frame_index in data_sets_frame_idx:
         sop_instance_uid = data_set.as_string(odil.registry.SOPInstanceUID)[0]
-        priority_seq = []  # tuple (dataset, prio level)
-        if sop_instance_uid not in [x[0] for x in cache.keys()]:
-            priority_seq.append((data_set, 0))
-            in_cache = False
-        if frame_idx != None:
-            per_frame = data_set.as_data_set(
-                odil.registry.PerFrameFunctionalGroupsSequence)[frame_idx]
-            if not in_cache:
-                shared = data_set.as_data_set(
-                    odil.registry.SharedFunctionalGroupsSequence)[0]
-                priority_seq.append((shared, 1))
-            priority_seq.append((per_frame, 2))
+        if sop_instance_uid in cache:
+            continue
+            
+        cache[sop_instance_uid] = {}
+        
+        for tag in data_set:
+            if tag in skipped:
+                continue
+            value = data_set[tag]
+            cache[sop_instance_uid][tag] = value
+        if frame_index is not None:
+            functional_groups = data_set.as_data_set(
+                odil.registry.SharedFunctionalGroupsSequence)[0]
+            _process_functional_groups(
+                functional_groups, 
+                lambda tag, value: 
+                    cache[sop_instance_uid].__setitem__(tag, value), 
+                skipped, direct_sequences)
 
-        if in_cache:
-            # Pre fill the tag_values if data_set is in cache
-            for (sop, tag), element in cache.iteritems():
-                if sop == sop_instance_uid:
-                    tag_values.setdefault(tag, {})[i] = element
-
-        seq_s = []
-        for (top_seq, prio_level) in priority_seq:
-            seq_s.append(top_seq)
-            for seq in seq_s:
-                for tag, elem in seq.items():
-                    if tag not in skipped:
-                        if seq.is_data_set(tag) and tag not in direct_sequences:
-                            ds = seq.as_data_set(tag)
-                            if ds:
-                                seq_s.append(ds[0])
-                        else:
-                            tag_values.setdefault(tag, {})[i] = elem
-                            if not in_cache and prio_level in [0, 1]:
-                                # Store only in cache for Top and Shared levels
-                                cache[(sop_instance_uid, tag)] = elem
+    # Get the values of all (data_set, frame_index)
+    tag_values = {}
+    for list_index, (data_set, frame_index) in enumerate(data_sets_frame_idx):
+        sop_instance_uid = data_set.as_string(odil.registry.SOPInstanceUID)[0]
+        # Fetch non-frame-specific elements from cache
+        for tag, element in cache[sop_instance_uid].items():
+            tag_values.setdefault(tag, {})[list_index] = element
+        if frame_index is not None:
+            # Fetch frame-specific elements
+            functional_groups = data_set.as_data_set(
+                odil.registry.PerFrameFunctionalGroupsSequence)[frame_index]
+            _process_functional_groups(
+                functional_groups, 
+                lambda tag, value: 
+                    tag_values.setdefault(tag, {}).__setitem__(list_index, value), 
+                skipped, direct_sequences)
 
     meta_data = MetaData()
     specific_character_set = []
@@ -215,3 +213,20 @@ def convert_data_set(data_set, specific_character_set):
         result[name] = value
 
     return result
+
+def _process_functional_groups(functional_groups, function, skipped, direct_sequences):
+    """ Utility function used in get_meta_data: apply a function on each item
+        of functional_groups depending on their status (skipped or direct 
+        sequence)
+    """
+    for sequence_tag in functional_groups:
+        if sequence_tag in skipped:
+            continue
+        functional_group = functional_groups[sequence_tag]
+        if sequence_tag in direct_sequences:
+            # Nothing to do, use value as is.
+            function(sequence_tag, functional_group)
+        elif not functional_group.empty():
+            item = functional_group.as_data_set()[0]
+            for item_tag, value in item.items():
+                function(item_tag, value)
