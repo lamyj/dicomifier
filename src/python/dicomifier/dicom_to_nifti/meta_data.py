@@ -38,6 +38,7 @@ def get_meta_data(data_sets_frame_idx, cache):
         # Useless in the NIfTI world (?)
         "SOPInstanceUID", "InstanceCreationDate", "InstanceCreationTime",
         "DimensionIndexValues", "InStackPositionNumber",
+        "WindowCenter", "WindowWidth",
         # Implicit with the NIfTI data type
         "PixelRepresentation", "HighBit", "BitsStored", "BitsAllocated",
         # Stored in the NIfTI image
@@ -45,6 +46,7 @@ def get_meta_data(data_sets_frame_idx, cache):
         # PixelValueTransformation sequence is applied on the image
         "PixelValueTransformationSequence",
         "SmallestImagePixelValue", "LargestImagePixelValue",
+        # Multi-frame related elements are extracted from their sequences
         "SharedFunctionalGroupsSequence",
         "PerFrameFunctionalGroupsSequence",
     ]
