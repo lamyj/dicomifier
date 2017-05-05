@@ -231,4 +231,6 @@ def _process_functional_groups(functional_groups, function, skipped, direct_sequ
         elif not functional_group.empty():
             item = functional_group.as_data_set()[0]
             for item_tag, value in item.items():
+                if item_tag in skipped:
+                    continue
                 function(item_tag, value)
