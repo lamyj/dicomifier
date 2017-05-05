@@ -57,28 +57,33 @@ Directory
     typedef boost::filesystem::directory_iterator Iterator;
 
     std::vector<Path> reconstructions;
-    for (RecursiveIterator it(path); it != RecursiveIterator(); ++it)
+    for(RecursiveIterator it(boost::filesystem::canonical(path));
+        it != RecursiveIterator(); ++it)
     {
-        if (it->path().filename() == "id")
+        if(it->path().filename() == "id")
         {
             reconstructions.push_back(it->path().parent_path());
         }
     }
 
-    for (auto const & reco : reconstructions)
+    for(auto const & reco: reconstructions)
     {
         Dataset dataset;
-        Path current_path = reco, upper_path = path; // upper path will be used to store the path above "path" arg
-        // We can begin here because the files under "reco" path will anyway be parsed with the line "_add_reconstruction..."
+        Path current_path = reco;
+        // upper path will be used to store the path above "path" arg
+        Path upper_path = boost::filesystem::canonical(path);
+        // We can begin here because the files under "reco" path will anyway be
+        // parsed with the line "_add_reconstruction..."
         current_path.remove_leaf();
-        // We use upper_path in order to parse the "path" directory too in the following while loop
+        // We use upper_path in order to parse the "path" directory too in the
+        // following while loop
         upper_path.remove_leaf();
-        while (!boost::filesystem::equivalent(current_path, upper_path))
+        while(!boost::filesystem::equivalent(current_path, upper_path))
         {
-            for (Iterator it(current_path); it!= Iterator(); ++it)
+            for(Iterator it(current_path); it!= Iterator(); ++it)
             {
-                if (this->_known_files. find(it->path().filename()) != this->_known_files.end() &&
-                        it->path().filename() != "visu_pars")
+                if(this->_known_files.find(it->path().filename()) != this->_known_files.end()
+                    && it->path().filename() != "visu_pars")
                 {
                     dataset.load(it->path().string());
                 }
