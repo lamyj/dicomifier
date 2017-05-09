@@ -49,7 +49,12 @@ def convert(dicom_data_sets, dtype):
 
     meta_data_cache = {}
     pixel_data_cache = {}
-    for stack_index, (keys, data_sets_frame_idx) in enumerate(stacks.items()):
+    # Try to preserve the original stacks order (multi-frame)
+    stacks = sorted(
+        stacks.items(),
+        key=lambda item: numpy.min([x[1] for x in item[1]])
+    )
+    for stack_index, (keys, data_sets_frame_idx) in enumerate(stacks):
         data_set = data_sets_frame_idx[0][0]
 
         study = [
@@ -88,7 +93,7 @@ def convert(dicom_data_sets, dtype):
             data_sets_frame_idx, meta_data_cache)
         nifti_data.append((nifti_img, nifti_meta_data))
 
-    # Try to preserve the original stacks order
+    # Try to preserve the original stacks order (single-frame)
     nifti_data.sort(
         key=lambda x: numpy.ravel(x[1].get("InstanceNumber", [None])).min())
 
