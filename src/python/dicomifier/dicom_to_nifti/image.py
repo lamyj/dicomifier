@@ -217,12 +217,16 @@ def get_geometry(data_sets_frame_idx):
             odil.registry.PerFrameFunctionalGroupsSequence)[first_idx]
         shared = data_set.as_data_set(
             odil.registry.SharedFunctionalGroupsSequence)[0]
-        if not first_frame.has(odil.registry.PlanePositionSequence):
-            logger.info("No geometry found, using default")
-            return default_origin, default_spacing, default_direction
-        else:
+        if first_frame.has(odil.registry.PlanePositionSequence):
             plane_position_seq = first_frame.as_data_set(
                 odil.registry.PlanePositionSequence)[0]
+        elif shared.has(odil.registry.PlanePositionSequence):
+            plane_position_seq = shared.as_data_set(
+                odil.registry.PlanePositionSequence)[0]
+        else:
+            logger.warning("No position data found, using default geometry")
+            return default_origin, default_spacing, default_direction
+            
     else:
         plane_position_seq = data_set
 
@@ -230,7 +234,7 @@ def get_geometry(data_sets_frame_idx):
         # Here the orientation is correctly found
         origin = plane_position_seq.as_real(odil.registry.ImagePositionPatient)
     else:
-        logger.info("No geometry found, using default")
+        logger.warning("No position found, using default geometry")
         return default_origin, default_spacing, default_direction
 
     # Here we look for image orientation - in data set or in the first frame
@@ -242,7 +246,9 @@ def get_geometry(data_sets_frame_idx):
             plane_orientation_seq = shared.as_data_set(
                 odil.registry.PlaneOrientationSequence)[0]
         else:
-            logger.info("No orientation found, using default")
+            logger.warning(
+                "No orientation data found, "
+                "using default spacing and orientation")
             return origin, default_spacing, default_direction
     else:
         plane_orientation_seq = data_set
@@ -251,7 +257,8 @@ def get_geometry(data_sets_frame_idx):
         orientation = plane_orientation_seq.as_real(
             odil.registry.ImageOrientationPatient)
     else:
-        logger.info("No orientation found, using default")
+        logger.warning(
+            "No orientation found, using default spacing and orientation")
         return origin, default_spacing, default_direction
 
     direction = numpy.zeros((3, 3))
@@ -278,7 +285,7 @@ def get_geometry(data_sets_frame_idx):
                             "One or more frames found with different spacings")
                         break
             else:
-                logger.info("No spacing found, default returned")
+                logger.warning("No spacing found, using default")
                 return origin, default_spacing, direction
     else:
         pixel_measures_sequence = data_set
