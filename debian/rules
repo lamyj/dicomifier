@@ -5,12 +5,42 @@ export DEB_BUILD_MAINT_OPTIONS = hardening=+all
 %:
 	dh $@ --builddirectory=build --parallel --with python2
 
-override_dh_auto_configure:
-	dh_auto_configure -- -DNIfTI_INCLUDE_DIR=/usr/include/nifti
+override_dh_auto_configure-arch:
+	dh_auto_configure -- -DNIfTI_INCLUDE_DIR=/usr/include/nifti -DBUILD_GUI=ON
 
-override_dh_auto_test:
+override_dh_auto_build-arch:
+	dh_auto_build
+
+override_dh_auto_test-arch:
 	cd build && ../tests/run_tests.sh
 
-override_dh_auto_install: 
+override_dh_auto_install-arch: 
 	dh_numpy
 	dh_auto_install
+
+override_dh_install-arch:
+	dh_install
+	chrpath -d debian/dicomifier-gui/usr/bin/dicomifier
+	d-shlibmove \
+		--devunversioned \
+		--commit --multiarch --exclude-a --exclude-la \
+		--override s/libboost_date_time.*-dev/libboost-date-time-dev/ \
+		--override s/libboost_filesystem.*-dev/libboost-filesystem-dev/ \
+		--override s/libboost_regex.*-dev/libboost-regex-dev/ \
+		--override s/libboost_system.*-dev/libboost-system-dev/ \
+		--movedev debian/tmp/usr/include/* usr/include \
+		--override s/libdcm.*-dev/libdcmtk-dev/ \
+		--override s/libof.*-dev/libdcmtk-dev/ \
+		--override s/libjsoncpp.-dev/libjsoncpp-dev/ \
+		debian/tmp/usr/lib/*.so
+
+override_dh_clean:
+	dh_clean
+	find . -name "*pyc" -delete
+	rm -rf build
+
+# These steps are not needed for arch-independent packages
+override_dh_auto_configure-indep:
+override_dh_auto_build-indep:
+override_dh_auto_test-indep:
+override_dh_auto_install-indep:

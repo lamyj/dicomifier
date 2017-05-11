@@ -3,6 +3,7 @@ Maintainer: Julien Lamy <lamy@unistra.fr>
 Section: science
 Priority: optional
 Build-Depends: debhelper (>= 9), 
+               d-shlibs,
                dh-python,
                cmake,
                pkg-config,
@@ -22,20 +23,73 @@ Build-Depends: debhelper (>= 9),
                zlib1g-dev,
                libboost-test-dev,
                python-nose,
-               libqt4-dev, 
+               libqt4-dev,
+               chrpath
 Standards-Version: 3.9.8
 Homepage: https://github.com/lamyj/dicomifier
 X-Python-Version: >= 2.7
 
-Package: dicomifier
+Package: libdicomifier1
 Architecture: any
-Depends: python-dateutil,
-         python-numpy,
-         python-odil (>= 0.7.3),
-         ${shlibs:Depends}, 
-         ${python:Depends},
-         ${misc:Depends}
-Description: Convert data to and from DICOM
+Section: libs
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Pre-Depends: multiarch-support
+Multi-Arch: same
+Description: Convert data to and from DICOM (shared libraries)
  Dicomifier is a set of tools to convert Bruker to DICOM and DICOM to NIfTI. A
  set of mapping rules is provided, allowing the conservation of meta-data upon
  conversion.
+ .
+ This package contains the shared libraries.
+
+Package: libdicomifier-dev
+Architecture: any
+Section: libdevel
+Depends: libdicomifier1 (= ${binary:Version}),
+         ${devlibs:Depends},
+         ${misc:Depends}
+Multi-Arch: same
+Description: Convert data to and from DICOM (development files)
+ Dicomifier is a set of tools to convert Bruker to DICOM and DICOM to NIfTI. A
+ set of mapping rules is provided, allowing the conservation of meta-data upon
+ conversion.
+ .
+ This package contains the development files.
+
+Package: python-dicomifier
+Architecture: any
+Section: python
+Depends: libdicomifier1 (= ${binary:Version}),
+         python-dateutil, 
+         python-numpy,
+         python-odil (>= 0.8.0),
+         ${shlibs:Depends}, 
+         ${python:Depends},
+         ${misc:Depends}
+Multi-Arch: foreign
+Description: Convert data to and from DICOM (Python modules)
+ Dicomifier is a set of tools to convert Bruker to DICOM and DICOM to NIfTI. A
+ set of mapping rules is provided, allowing the conservation of meta-data upon
+ conversion.
+ .
+ This package contains the Python modules.
+
+Package: dicomifier-cli
+Architecture: all
+Depends: python, python-dicomifier, python-numpy, ${misc:Depends}
+Description: Convert data to and from DICOM (command line tools)
+ Dicomifier is a set of tools to convert Bruker to DICOM and DICOM to NIfTI. A
+ set of mapping rules is provided, allowing the conservation of meta-data upon
+ conversion.
+ .
+ This package contains the command-line tools.
+
+Package: dicomifier-gui
+Architecture: any
+Depends: python-dicomifier, ${shlibs:Depends}, ${misc:Depends}
+Description: Convert data to and from DICOM (GUI tools)
+ Dicomifier is a set of tools to convert Bruker to DICOM and DICOM to NIfTI. A
+ set of mapping rules is provided, allowing the conservation of meta-data upon
+ conversion.
+ .
+ This package contains the GUI tools.

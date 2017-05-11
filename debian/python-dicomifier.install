@@ -1,0 +1,3 @@
+build/src/python/dicomifier/*.so usr/lib/python2.7/dist-packages/dicomifier
+build/src/python/dicomifier/*/*.so usr/lib/python2.7/dist-packages/dicomifier
+debian/tmp/usr/lib/python2.7/dist-packages/dicomifier usr/lib/python2.7/dist-packages
