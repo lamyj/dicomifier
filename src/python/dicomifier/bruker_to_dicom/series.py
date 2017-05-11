@@ -18,7 +18,8 @@ def _get_series_number(data_set, generator, index):
     return [series_number]
 
 GeneralSeries = [ #http://dicom.nema.org/medical/dicom/current/output/chtml/part03/sect_C.7.3.html#sect_C.7.3.1
-    (None, "Modality", 1, lambda d,g,i: ["MR"], None),
+    # Will be add further in the converting function (mr_image_storage or enhanced_mr_image_storage)
+    # (None, "Modality", 1, lambda d,g,i: ["MR"], None),
     ("VisuUid", "SeriesInstanceUID", 1, None, None),
     (None, "SeriesNumber", 2, _get_series_number, None),
     (

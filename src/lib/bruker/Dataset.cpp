@@ -36,6 +36,7 @@ Dataset
     {
         throw DicomifierException("Could not open file: " + path);
     }
+    _used_files.push_back(path);
     std::string data(
         (std::istreambuf_iterator<typename std::string::value_type>(stream)),
         (std::istreambuf_iterator<typename std::string::value_type>()));
@@ -71,6 +72,14 @@ Dataset
         }
         this->set_field(field);
     }
+}
+
+
+std::vector<std::string> const &
+Dataset
+::get_used_files() const
+{
+    return this->_used_files;
 }
 
 bool

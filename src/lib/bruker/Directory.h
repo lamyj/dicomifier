@@ -35,8 +35,13 @@ namespace bruker
 class Directory
 {
 public:
+
+    /// @brief Return a list of path for each subject found under @arg path
+    static std::vector<std::string> list_subjects (std::string const & path);
+
+    /// @brief Load datasets for every reconstruction found under @arg path
     void load(std::string const & path);
-    
+
     /// @brief Test if directory contains a given series.
     bool has_dataset(std::string const & series_number) const;
     
@@ -44,7 +49,10 @@ public:
      * @brief Return the dataset associated to the series, throw an exception 
      * if field is missing.
      */
-    Dataset const & get_dataset(std::string const & series_number) const;
+    Dataset const & get_dataset(std::string const & reconstruction) const;
+
+    /// @ return the list of used file associate to the reconstruction
+    std::vector<std::string> const & get_used_files(std::string const & reconstruction) const;
 
     static std::map<std::string, std::vector<std::string> >
             get_series_and_reco(std::string const & path);

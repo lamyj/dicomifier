@@ -7,7 +7,6 @@
 #########################################################################
 
 import json
-import logging
 import math
 import re
 import os
@@ -15,17 +14,21 @@ import os
 import dateutil
 import odil
 
-from .. import bruker
+from .. import bruker, logger
 
 #explicit conversions
+def _convert_date_time(value, format_):
+    date_time = dateutil.parser.parse(value.replace(",", "."))
+    return date_time.strftime(format_)
 vr_converters = {
-    "DA": lambda x: dateutil.parser.parse(x.replace(",", ".")).strftime("%Y%m%d"),
+    "DA": lambda x: _convert_date_time(x, "%Y%m%d") if x else x,
     "DS": lambda x: float(x),
+    "DT": lambda x: _convert_date_time(x, "%Y%m%d%H%M%S") if x else x,
     "FD": lambda x: float(x),
     "FL": lambda x: float(x),
     "IS": lambda x: int(x),
     "SS": lambda x: int(x),
-    "TM": lambda x: dateutil.parser.parse(x.replace(",", ".")).strftime("%H%M%S"),
+    "TM": lambda x: _convert_date_time(x, "%H%M%S") if x else x,
     "US": lambda x: int(x),
 }
 
@@ -44,16 +47,18 @@ def convert_reconstruction(
         :param iso_9660: whether to use ISO-9660 compatible file names
     """
     
-    logging.info("Converting {}:{}".format(series, reconstruction))
+    logger.info("Converting {}:{}".format(series, reconstruction))
     
     bruker_binary = bruker_directory.get_dataset(
         "{}{:04d}".format(series, int(reconstruction)))
     bruker_json = json.loads(bruker.as_json(bruker_binary))
-    logging.info("Found {}:{} - {} ({})".format(
+    logger.info("Found {}:{} - {} ({})".format(
         series, reconstruction, 
         bruker_json.get("VisuAcquisitionProtocol", ["(none)"])[0],
         bruker_json.get("RECO_mode", ["none"])[0]
     ))
+    bruker_json["reco_files"] = list(bruker_directory.get_used_files(
+        "{}{:04d}".format(series, int(reconstruction))))
 
     dicom_binaries = iod_converter(bruker_json, transfer_syntax)
     
@@ -103,15 +108,14 @@ def convert_element(
     """
     
     value = None
+    index = -1
     if getter is not None:
-        if isinstance(getter, basestring):
-            value = getter
-        else:
-            value = getter(bruker_data_set, generator, frame_index)
+        value = getter(bruker_data_set, generator, frame_index)
     else:
         value = bruker_data_set.get(bruker_name)
 
     if bruker_name in generator.dependent_fields:
+    # index of the first FG containing the bruker_name element
         group_index = [
             index for index, x in enumerate(generator.frame_groups) 
             if bruker_name in x[2]][0]
@@ -123,9 +127,11 @@ def convert_element(
     if value is None:
         if type_ == 1:
             raise Exception("{} must be present".format(dicom_name))
-	elif type_ == 2:
-	    dicom_data_set.add(tag)
-     
+        elif type_ == 2:
+            dicom_data_set.add(tag)
+    elif vr == "SQ" and not value:
+        # Type of empty value must be explicit
+        dicom_data_set.add(tag, odil.Value.DataSets(), getattr(odil.VR, vr))
     else:
         if isinstance(setter, dict):
             value = [setter[x] for x in value]
@@ -133,12 +139,13 @@ def convert_element(
             value = setter(value)
         if value and isinstance(value[0], unicode):
             value = [x.encode("utf-8") for x in value]
-		
+
         vr_converter = vr_converters.get(vr)
         if vr_converter is not None :
-			value = [vr_converter(x) for x in value]
-			
-        dicom_data_set.add(tag, value, getattr(odil.VR, vr))        
+            value = [vr_converter(x) for x in value]
+
+        dicom_data_set.add(tag, value, getattr(odil.VR, vr))
+
     return value
 
 def get_series_directory(data_set, iso_9660):

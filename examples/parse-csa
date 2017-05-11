@@ -1,0 +1,36 @@
+#!/usr/bin/env python
+
+import argparse
+import base64
+import json
+import sys
+
+import dicomifier
+import odil
+
+def main():
+    parser = argparse.ArgumentParser(
+        description="Parse CSA data from Siemens DICOM and save it as JSON")
+    parser.add_argument("source")
+    parser.add_argument("destination")
+    arguments = parser.parse_args()
+    
+    data_set = odil.read(arguments.source)[1]
+    image, meta_data = dicomifier.dicom_to_nifti.convert([data_set], None)[0]
+    csa_parsed = parse_csa(meta_data)
+    with open(arguments.destination, "w") as fd:
+        json.dump(meta_data, fd, cls=dicomifier.MetaData.JSONEncoder)
+    
+def parse_csa(meta_data):
+    def _parse(value):
+        if isinstance(value, list):
+            return [_parse(x) for x in value]
+        else:
+            decoded = base64.b64decode(value)
+            return dicomifier.dicom_to_nifti.siemens.parse_csa(decoded)
+    
+    for tag in ["00291010", "00291020"]:
+        meta_data[tag] = _parse(meta_data[tag])
+    
+if __name__ == "__main__":
+    sys.exit(main())

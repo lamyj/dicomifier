@@ -21,3 +21,21 @@ GeneralEquipment = [ # http://dicom.nema.org/medical/dicom/current/output/chtml/
     ),
     ("VisuSystemOrderNumber", "DeviceSerialNumber", 3, None, None),
 ]
+
+# below -> new modules for enhanced image storage
+
+EnhancedGeneralEquipment = [
+    ("ORIGIN", "Manufacturer", 1, None, None), # Same as in GeneralEquipment but type 1 now
+    ("VisuStation", "ManufacturerModelName", 1, None, None),
+    # WARNING : the device number seems to be missing in Paravision 5.1 it was consequently changed into type 2
+    ("VisuSystemOrderNumber", "DeviceSerialNumber", 2, None, None),
+    (
+        None, "SoftwareVersions", 1,
+        lambda d,g,i: reduce(
+            lambda e1, e2: e1+e2,
+            [d.get(name, []) for name in ["VisuCreator", "VisuCreatorVersion"]],
+            []
+        ),
+        None
+    ),
+]

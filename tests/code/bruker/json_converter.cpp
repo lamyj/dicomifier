@@ -94,7 +94,7 @@ BOOST_AUTO_TEST_CASE(IntAsDataset)
 
     auto const & field = data_set.get_field("Name");
     BOOST_REQUIRE_EQUAL(field.name, "Name");
-    BOOST_REQUIRE(field.value == dicomifier::bruker::Field::Value({12L}));
+    BOOST_REQUIRE(field.value == dicomifier::bruker::Field::Value({{12L}}));
 }
 
 BOOST_AUTO_TEST_CASE(FloatAsDataset)
@@ -106,7 +106,7 @@ BOOST_AUTO_TEST_CASE(FloatAsDataset)
 
     auto const & field = data_set.get_field("Name");
     BOOST_REQUIRE_EQUAL(field.name, "Name");
-    BOOST_REQUIRE(field.value == dicomifier::bruker::Field::Value({12.56f}));
+    BOOST_REQUIRE(field.value == dicomifier::bruker::Field::Value({{12.56f}}));
 }
 
 BOOST_AUTO_TEST_CASE(StringAsDataset)
@@ -137,5 +137,5 @@ BOOST_AUTO_TEST_CASE(StructAsDataset)
     BOOST_REQUIRE_EQUAL(field.name, "Name");
 
     dicomifier::bruker::Field::Value const bruker_item({12L, 12.56f, "foo"});
-    BOOST_REQUIRE(field.value == dicomifier::bruker::Field::Value({bruker_item}));
+    BOOST_REQUIRE(field.value == dicomifier::bruker::Field::Value({{bruker_item}}));
 }

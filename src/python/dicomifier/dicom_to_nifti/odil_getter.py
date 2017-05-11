@@ -62,7 +62,7 @@ class OrientationGetter(object):
     def __call__(self, data_set, tag):
         value = _default_getter(data_set, tag)
         if value is None:
-            return ()
+            return None
         orientation = numpy.reshape(value, (2, -1))
         normal = numpy.cross(*orientation)
 
@@ -89,12 +89,116 @@ class OrientationGetter(object):
             return (numpy.linalg.norm(numpy.subtract(o1, o2), numpy.inf) <= epsilon)
 
 
+def check_frame_index(data_set, frame_idx):
+    if data_set.has("NumberOfFrames"):
+        numberOfFrames = data_set.as_int("NumberOfFrames")[0]
+        if frame_idx >= numberOfFrames :
+            raise Exception("Frame index out of bound ({}/{})".format(frame_idx, numberOfFrames))
+    else:
+        raise Exception("No NumberOfFrames field found")
+
+
+def _get_position(data_set, frame_idx):
+    """ Get the position of the wanted frame in the data set
+        :param data_set: Data_set containing the wanted frame
+        :param frame_idx: Index of the wanted frame
+    """
+
+    if data_set.has(odil.registry.PerFrameFunctionalGroupsSequence) and \
+            data_set.has(odil.registry.NumberOfFrames):
+        check_frame_index(data_set, frame_idx)
+        frame = data_set.as_data_set(
+            odil.registry.PerFrameFunctionalGroupsSequence)[frame_idx]
+        if frame.has(odil.registry.PlanePositionSequence):
+            plane_position_seq = frame.as_data_set(
+                odil.registry.PlanePositionSequence)[0]
+        else:
+            return None
+    else:
+        plane_position_seq = data_set
+    if not plane_position_seq.has(odil.registry.ImagePositionPatient):
+        return None
+    return(plane_position_seq.as_real(odil.registry.ImagePositionPatient))
+
+
+def _get_spacing(data_set, frame_idx):
+    """ Get the spacing of the wanted frame in the data set
+        (only when spacing is stored in the perFrame group seq)
+
+        :param data_set: Data_set containing the wanted frame
+        :param frame_idx: Index of the wanted frame
+    """
+
+    if data_set.has(odil.registry.PerFrameFunctionalGroupsSequence):
+        check_frame_index(data_set, frame_idx)
+        frame = data_set.as_data_set(
+            odil.registry.PerFrameFunctionalGroupsSequence)[frame_idx]
+        if frame.has(odil.registry.PixelMeasuresSequence):
+            plane_position_seq = frame.as_data_set(
+                odil.registry.PixelMeasuresSequence)[0]
+        else:
+            return None
+    else:
+        plane_position_seq = data_set
+    if not plane_position_seq.has(odil.registry.PixelSpacing):
+        return None
+    return(plane_position_seq.as_real(odil.registry.PixelSpacing))
+
+
+def get_dimension_index_seq(frame_content_seq, tag, in_stack_position_index):
+    """ Will return the dimension index pointer without InStackPosition
+        in order to find the different volumes
+
+        :param frame_content_seq: sequence containing the dimensionIndexValues
+        :param tag: will DimensionIndexValues in this case
+        :param in_stack_position_index: index of the InStackPosition element 
+                                        within the dimensionIndexValues tuple
+
+        :return dimension_idx_values without the InStackPosition element
+    """
+
+    if frame_content_seq.has(tag):
+        dimension_idx_values = list(frame_content_seq.as_int(tag))
+        if in_stack_position_index is not None:
+            del(dimension_idx_values[in_stack_position_index])
+            return tuple(dimension_idx_values)
+        else:
+            raise Exception(
+                "Dimension Index Values found in Frame content but there is no InStackPosition")
+    return None
+
+
+def get_in_stack_position_index(data_set):
+    """ Will return the position of in-Stack-Position element in the dimensionIndexValue
+        Return None if no In-Stack-Position found
+    """
+
+    if data_set.has(odil.registry.DimensionIndexSequence) and \
+            not data_set.empty(odil.registry.DimensionIndexSequence):
+        dimension_index_sequences = data_set.as_data_set(
+            odil.registry.DimensionIndexSequence)
+        position = set()
+        for i, dimension_index_sequence in enumerate(dimension_index_sequences):
+            if dimension_index_sequence.has(odil.registry.DimensionIndexPointer):
+                idx = dimension_index_sequence.as_string(
+                    odil.registry.DimensionIndexPointer)[0]
+                if odil.Tag(idx) == odil.registry.InStackPositionNumber:
+                    position.add(i)
+        if len(position) == 1:
+            return list(position)[0]
+        else:
+            return None
+    else:
+        return None
+
+
 def _diffusion_getter(data_set, tag):
     """ Get Diffusion information from the data_set
 
         :param data_set: data_set wherein read the diffusion information
         :param tag: tag used to store the diffusion information in the data_set
     """
+
     value = _default_getter(data_set, tag)
     if value is not None:
         b_value = _getter(value[0], odil.registry.DiffusionBValue)
@@ -110,6 +214,8 @@ def _diffusion_getter(data_set, tag):
             item = _getter(value[0], odil.registry.DiffusionBMatrixSequence)[0]
             sensitization = tuple([_getter(item, getattr(odil.registry, "DiffusionBValue{}".format(x)))[0]
                                    for x in ["XX", "XY", "XZ", "YY", "YZ", "ZZ"]])
+        elif directionality == "ISOTROPIC" or directionality == "NONE":
+            return None
         else:
             raise Exception(
                 "Unknown directionality: {}".format(directionality))

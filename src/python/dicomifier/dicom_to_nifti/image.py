@@ -7,23 +7,38 @@
 #########################################################################
 
 import base64
-import logging
 import math
+import itertools
 
-import struct
 import numpy
 import odil
 
+import odil_getter
 import nifti_image
-from .. import nifti
+import meta_data
+from .. import logger, nifti
 import siemens
 
 
-def get_image(data_sets, dtype):
-    # WARNING: the following is much slower :
-    # numpy.asarray([get_pixel_data(data_set) for data_set in data_sets])
+def get_image(data_sets_frame_idx, dtype, cache):
+    """ Get the nifti image of the current stack
+        :param data_sets_frame_idx: List containing the data sets of the frame 
+                                    with the corresponding frame when it's a multiframe data set
+        :param dtype: wanted type
+        :return image: a nifti image
+    """
 
-    pixel_data_list = [get_pixel_data(x) for x in data_sets]
+    # Cache the linear pixel data since this is a time-consuming operation for
+    # large data sets and needs to be repeated for multi-frame data sets.
+    for data_set, frame_idx in data_sets_frame_idx:
+        if data_set.as_string("SOPInstanceUID")[0] not in cache:
+            linear_array = get_linear_pixel_data(data_set)
+            cache[data_set.as_string("SOPInstanceUID")[0]] = linear_array
+    
+    pixel_data_list = [
+        get_shaped_pixel_data(
+            data_set, cache[data_set.as_string("SOPInstanceUID")[0]], frame_idx)
+        for data_set, frame_idx in data_sets_frame_idx]
 
     if dtype is None:
         has_float = any(x.dtype.kind == "f" for x in pixel_data_list)
@@ -32,21 +47,21 @@ def get_image(data_sets, dtype):
         else:
             # Assume all data sets have the same type
             dtype = pixel_data_list[0].dtype
-        logging.info("dtype deduced to be: {}".format(dtype))
+        logger.info("dtype deduced to be: {}".format(dtype))
 
     pixel_data = numpy.ndarray(
-        (len(data_sets),) + pixel_data_list[0].shape, dtype=dtype)
+        (len(data_sets_frame_idx),) + pixel_data_list[0].shape, dtype=dtype)
     for i, data in enumerate(pixel_data_list):
         pixel_data[i] = data
 
     dt = nifti.DT_UNKNOWN
     scanner_transform = numpy.identity(4)
 
-    origin, spacing, direction = get_geometry(data_sets)
+    origin, spacing, direction = get_geometry(data_sets_frame_idx)
 
-    if (len(data_sets) == 1 and
-            "MOSAIC" in data_sets[0].as_string(odil.registry.ImageType)):
-        data_set = data_sets[0]
+    if (len(data_sets_frame_idx) == 1 and
+            "MOSAIC" in data_sets_frame_idx[0][0].as_string(odil.registry.ImageType)):
+        data_set = data_sets_frame_idx[0][0]
 
         siemens_data = data_set.as_binary(odil.Tag("00291010"))[0]
         siemens_header = siemens.parse_csa(
@@ -79,7 +94,7 @@ def get_image(data_sets, dtype):
 
         direction[:, 2] = siemens_header["SliceNormalVector"]
 
-    samples_per_pix = data_sets[0].as_int("SamplesPerPixel")[0]
+    samples_per_pix = data_sets_frame_idx[0][0].as_int("SamplesPerPixel")[0]
 
     if samples_per_pix == 1:
         lps_to_ras = [
@@ -93,7 +108,7 @@ def get_image(data_sets, dtype):
             scanner_transform[:3, :3], numpy.diag(spacing))
         scanner_transform[:3, 3] = numpy.dot(lps_to_ras, origin)
 
-    elif samples_per_pix == 3 and data_sets[0].as_string("PhotometricInterpretation")[0] == "RGB":
+    elif samples_per_pix == 3 and data_sets_frame_idx[0][0].as_string("PhotometricInterpretation")[0] == "RGB":
         if dtype != numpy.uint8:
             raise Exception("Invalid dtype {} for RGB".format(dtype))
         dt = nifti.DT_RGB
@@ -110,13 +125,9 @@ def get_image(data_sets, dtype):
 
     return image
 
-
-def get_pixel_data(data_set):
-    """ Return the pixel data located in a dataset
-
-        :param data_set: The dataset containing the pixelData 
-    """
-
+def get_linear_pixel_data(data_set):
+    """Return a linear numpy array containing the pixel data."""
+    
     high_bit = data_set.as_int(odil.registry.HighBit)[0]
 
     byte_order = ">" if high_bit == 0 else "<"
@@ -135,20 +146,31 @@ def get_pixel_data(data_set):
         "{}{}{}".format(
             byte_order, "u" if is_unsigned else "i", bits_allocated / 8))
 
+    view = data_set.as_binary(odil.registry.PixelData)[0].get_memory_view()
+    linear_array = numpy.frombuffer(view.tobytes(), byte_order + dtype.char)
+    return linear_array
+
+def get_shaped_pixel_data(data_set, linear_pixel_data, frame_idx):
+    """ Return the pixel data located in a dataset shaped according to numer of
+        rows, columns and frames.
+
+        :param data_set: The dataset containing the pixelData 
+        :param frame_idx: Index of the frame if data_set is multiframe, None otherwise
+    """
+    
     rows = data_set.as_int(odil.registry.Rows)[0]
     cols = data_set.as_int(odil.registry.Columns)[0]
 
     samples_per_pixel = data_set.as_int(odil.registry.SamplesPerPixel)[0]
-
-    type_ = byte_order + str(rows * cols * samples_per_pixel) + dtype.char
-
-    view = data_set.as_binary(odil.registry.PixelData)[0].get_memory_view()
-    pixel_data = numpy.frombuffer(view.tobytes(), byte_order + dtype.char)
     if samples_per_pixel == 1:
-        pixel_data = numpy.asarray(pixel_data).reshape(rows, cols)
+        if data_set.has(odil.registry.NumberOfFrames):
+            number_of_frames = data_set.as_int(odil.registry.NumberOfFrames)[0]
+            pixel_data = linear_pixel_data.reshape(number_of_frames, rows, cols)
+            pixel_data = pixel_data[frame_idx, :]
+        else:
+            pixel_data = linear_pixel_data.reshape(rows, cols)
     else:
-        pixel_data = numpy.asarray(pixel_data).reshape(
-            rows, cols, samples_per_pixel)
+        pixel_data = linear_pixel_data.reshape(rows, cols, samples_per_pixel)
 
     # Mask the data using Bits Stored, cf. PS 3.5, 8.1.1
     bits_stored = data_set.as_int(odil.registry.BitsStored)[0]
@@ -156,13 +178,16 @@ def get_pixel_data(data_set):
 
     # Rescale: look for Pixel Value Transformation sequence then Rescale Slope
     # and Rescale Intercept
+    transformation = data_set
+    if data_set.has(odil.registry.SharedFunctionalGroupsSequence):
+        transformation = data_set.as_data_set(
+            odil.registry.SharedFunctionalGroupsSequence)[0]
+    if transformation.has(odil.registry.PixelValueTransformationSequence):
+        transformation = transformation.as_data_set(
+            odil.registry.PixelValueTransformationSequence)[0]
+    
     slope = None
     intercept = None
-    if data_set.has(odil.registry.PixelValueTransformationSequence):
-        transformation = data_set.as_data_set(
-            odil.registry.PixelValueTransformationSequence)[0]
-    else:
-        transformation = data_set
     if transformation.has(odil.registry.RescaleSlope):
         slope = transformation.as_real(odil.registry.RescaleSlope)[0]
     if transformation.has(odil.registry.RescaleIntercept):
@@ -173,38 +198,133 @@ def get_pixel_data(data_set):
     return pixel_data
 
 
-def get_geometry(data_sets):
-    if not data_sets[0].has(odil.registry.ImagePositionPatient):
-        # default values
-        origin = numpy.zeros((3,)).tolist()
-        spacing = numpy.ones((3,)).tolist()
-        direction = numpy.identity(3)
-	logging.info("No geometry found, default returned")
-        return origin, spacing, direction
+def get_geometry(data_sets_frame_idx):
+    """ Compute the geometry for the current stack
 
-    origin = data_sets[0].as_real(odil.registry.ImagePositionPatient)
-    # Image Orientation gives the columns of the matrix, cf.
-    # http://dicom.nema.org/medical/dicom/current/output/chtml/part03/sect_C.7.6.2.html#sect_C.7.6.2.1.1
-    orientation = data_sets[0].as_real(odil.registry.ImageOrientationPatient)
+        :param data_sets_frame_idx: List containing the data sets of the frame 
+                                    with the corresponding frame when it's a multiframe data set
+    """
+
+    default_origin = numpy.zeros((3,)).tolist()
+    default_spacing = numpy.ones((3,)).tolist()
+    default_direction = numpy.identity(3)
+
+    data_set, first_idx = data_sets_frame_idx[0]
+
+    # Here we look for image position - in the data_set or in the first frame
+    if data_set.has(odil.registry.SharedFunctionalGroupsSequence):
+        first_frame = data_set.as_data_set(
+            odil.registry.PerFrameFunctionalGroupsSequence)[first_idx]
+        shared = data_set.as_data_set(
+            odil.registry.SharedFunctionalGroupsSequence)[0]
+        if first_frame.has(odil.registry.PlanePositionSequence):
+            plane_position_seq = first_frame.as_data_set(
+                odil.registry.PlanePositionSequence)[0]
+        elif shared.has(odil.registry.PlanePositionSequence):
+            plane_position_seq = shared.as_data_set(
+                odil.registry.PlanePositionSequence)[0]
+        else:
+            logger.warning("No position data found, using default geometry")
+            return default_origin, default_spacing, default_direction
+            
+    else:
+        plane_position_seq = data_set
+
+    if plane_position_seq.has(odil.registry.ImagePositionPatient):
+        # Here the orientation is correctly found
+        origin = plane_position_seq.as_real(odil.registry.ImagePositionPatient)
+    else:
+        logger.warning("No position found, using default geometry")
+        return default_origin, default_spacing, default_direction
+
+    # Here we look for image orientation - in data set or in the first frame
+    if data_set.has(odil.registry.SharedFunctionalGroupsSequence):
+        if first_frame.has(odil.registry.PlaneOrientationSequence):
+            plane_orientation_seq = first_frame.as_data_set(
+                odil.registry.PlaneOrientationSequence)[0]
+        elif shared.has(odil.registry.PlaneOrientationSequence):
+            plane_orientation_seq = shared.as_data_set(
+                odil.registry.PlaneOrientationSequence)[0]
+        else:
+            logger.warning(
+                "No orientation data found, "
+                "using default spacing and orientation")
+            return origin, default_spacing, default_direction
+    else:
+        plane_orientation_seq = data_set
+
+    if plane_orientation_seq.has(odil.registry.ImageOrientationPatient):
+        orientation = plane_orientation_seq.as_real(
+            odil.registry.ImageOrientationPatient)
+    else:
+        logger.warning(
+            "No orientation found, using default spacing and orientation")
+        return origin, default_spacing, default_direction
+
     direction = numpy.zeros((3, 3))
     direction[:, 0] = orientation[:3]
     direction[:, 1] = orientation[3:]
     direction[:, 2] = numpy.cross(direction[:, 0], direction[:, 1])
 
-    spacing = list(data_sets[0].as_real(odil.registry.PixelSpacing))
-
-    if data_sets[0].has(odil.registry.SpacingBetweenSlices):
-        spacing.append(
-            data_sets[0].as_real(odil.registry.SpacingBetweenSlices)[0])
-    elif len(data_sets) > 2:
-        difference = numpy.subtract(
-            data_sets[1].as_real(odil.registry.ImagePositionPatient),
-            data_sets[0].as_real(odil.registry.ImagePositionPatient))
-        spacing_between_slices = abs(numpy.dot(difference, direction[:, 2]))
-        spacing.append(spacing_between_slices)
+    # Here we try to find the PixelSpacing location if there is one
+    if data_set.has(odil.registry.SharedFunctionalGroupsSequence):
+        if shared.has(odil.registry.PixelMeasuresSequence):
+            pixel_measures_sequence = shared.as_data_set(
+                odil.registry.PixelMeasuresSequence)[0]
+        else:
+            if first_frame.has(odil.registry.PixelMeasuresSequence):
+                pixel_measures_sequence = first_frame.as_data_set(
+                    odil.registry.PixelMeasuresSequence)[0]
+                ref_spacing = list(pixel_measures_sequence.as_real(
+                    odil.registry.PixelSpacing))
+                for data_set, frame_idx in data_sets_frame_idx[:1]:
+                    spacing_ = list(
+                        odil_getter._get_spacing(data_set, frame_idx))
+                    if spacing_ != ref_spacing:
+                        logger.warning(
+                            "One or more frames found with different spacings")
+                        break
+            else:
+                logger.warning("No spacing found, using default")
+                return origin, default_spacing, direction
     else:
-        # 2D data set, add dummy spacing at the end since DICOM images are
-        # in a 3D space
-        spacing.append(1.)
+        pixel_measures_sequence = data_set
+    spacing = list(pixel_measures_sequence.as_real(odil.registry.PixelSpacing))
 
+    if len(data_sets_frame_idx) == 1:
+        spacing.append(1.)
+    else:
+        # Here we try to find the position of the second frame (plane_position_seq)
+        if data_set.has(odil.registry.SharedFunctionalGroupsSequence):
+            second_data_set, second_frame_idx = data_sets_frame_idx[1]
+            second_frame = second_data_set.as_data_set(
+                odil.registry.PerFrameFunctionalGroupsSequence)[second_frame_idx]
+            plane_position_seq = second_frame.as_data_set(
+                odil.registry.PlanePositionSequence)[0]
+        else:
+            if data_set.has(odil.registry.SpacingBetweenSlices):
+                spacing.append(data_set.as_real(
+                    odil.registry.SpacingBetweenSlices)[0])
+                return origin, spacing, direction
+            else:
+                plane_position_seq = data_sets_frame_idx[1][0]
+
+        if plane_position_seq.has(odil.registry.ImagePositionPatient):
+            second_position = plane_position_seq.as_real(
+                odil.registry.ImagePositionPatient)
+            difference = numpy.subtract(
+                second_position,
+                origin)
+            spacing_between_slices = abs(
+                numpy.dot(difference, direction[:, 2]))
+            if spacing_between_slices != 0.0:
+                spacing.append(spacing_between_slices)
+            else:
+                logger.warning("Multiple frames with the same position")
+                spacing.append(1.)
+        else:
+            logger.warning(
+                "No position found for one or more frames, "
+                "using default thickness")
+            spacing.append(1.)
     return origin, spacing, direction

@@ -6,6 +6,9 @@
 # for details.
 #########################################################################
 
+import logging
+logger = logging.getLogger(__name__)
+
 from _dicomifier import *
 import bruker
 from meta_data import MetaData

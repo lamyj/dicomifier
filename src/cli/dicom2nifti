@@ -34,7 +34,9 @@ def main():
     arguments = vars(parser.parse_args())
 
     verbosity = arguments.pop("verbosity")
-    logging.getLogger().setLevel(verbosity.upper())
+    logging.basicConfig(
+        level=verbosity.upper(), 
+        format="%(levelname)s - %(name)s: %(message)s")
 
     try:
         convert(**arguments)
@@ -48,24 +50,20 @@ def main():
 def convert(dicom, destination, dtype, pretty_print, zip):
 
     if os.path.isdir(destination) and len(os.listdir(destination)) > 0:
-        logging.warning("{} is not empty".format(destination))
+        dicomifier.logger.warning("{} is not empty".format(destination))
 
     dicom_files = get_files(dicom)
     series = split_series(dicom_files)
 
-    logging.info("{} series found".format(len(series)))
-
-    study_directories = {}
-    series_directories = {}
+    dicomifier.logger.info("{} series found".format(len(series)))
 
     for series_files in series.values():
         nifti_data = convert_series(series_files, dtype)
         if nifti_data is None:
-            # No image in the series
+            dicomifier.logger.info("No image in the series")
             continue
-        write_nifti(
-            nifti_data, destination, pretty_print, zip,
-            study_directories, series_directories)
+        write_nifti(nifti_data, destination,
+                    pretty_print, zip)
 
 
 def get_files(dicom):
@@ -103,7 +101,7 @@ def get_dicomdir_files(path):
 
 
 def split_series(dicom_files):
-    logging.info(
+    dicomifier.logger.info(
         "Splitting {} DICOM file{} in series".format(
             len(dicom_files), "s" if len(dicom_files) > 1 else ""))
 
@@ -117,7 +115,7 @@ def split_series(dicom_files):
             _, data_set = odil.read(
                 file_, halt_condition=until_series_instance_uid)
         except odil.Exception as e:
-            logging.warning("Could not read {}: {}".format(file_, e))
+            dicomifier.logger.warning("Could not read {}: {}".format(file_, e))
             continue
         series_instance_uid = data_set.as_string("SeriesInstanceUID")[0]
         series.setdefault(series_instance_uid, []).append(file_)
@@ -131,7 +129,7 @@ def convert_series(series_files, dtype):
             data["InlineBinary"] = data["InlineBinary"].encode("ascii")
         return data
 
-    logging.info(
+    dicomifier.logger.info(
         "Reading {} DICOM file{}".format(
             len(series_files), "s" if len(series_files) > 1 else ""))
     dicom_data_sets = [odil.read(x)[1] for x in series_files]
@@ -140,6 +138,7 @@ def convert_series(series_files, dtype):
     dicom_data_sets = [x for x in dicom_data_sets if "PixelData" in x]
 
     if len(dicom_data_sets) == 0:
+        dicomifier.logger.warning("No Pixel Data found")
         return None
     nifti_data = dicomifier.dicom_to_nifti.convert(dicom_data_sets, dtype)
 
@@ -147,8 +146,7 @@ def convert_series(series_files, dtype):
 
 
 def write_nifti(
-        nifti_data, destination, pretty_print, zip,
-        study_directories, series_directories):
+        nifti_data, destination, pretty_print, zip):
 
     # Write one nii+json per stack
     for index, (image, meta_data) in enumerate(nifti_data):

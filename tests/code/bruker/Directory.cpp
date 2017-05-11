@@ -73,6 +73,17 @@ struct TestDataOK01
         myfile.close();
         filestoremove.push_back(file);
 
+        file = recopath + "/id";
+        myfile.open(file);
+        myfile << "##TITLE=Parameter List, ParaVision 6.0\n";
+        myfile << "##JCAMPDX=4.24\n";
+        myfile << "##ORIGIN=Bruker BioSpin MRI GmbH\n";
+        myfile << "##$DATASET_KEY=( 65 )\n";
+        myfile << "<2.16.756.5.5.100.1333920868.10495.1568850965.987\n";
+        myfile << "##END=\n";
+        myfile.close();
+        filestoremove.push_back(file);
+
         file = recopath + "/2dseq";
         myfile.open(file);
         myfile << "\0\0\0\0\0\0\0\0\n";

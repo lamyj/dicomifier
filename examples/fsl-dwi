@@ -1,0 +1,38 @@
+#!/usr/bin/env python
+
+import argparse
+import json
+import sys
+
+def main():
+    parser = argparse.ArgumentParser(
+        description="Convert standard DICOM diffusion meta-data "
+            "from JSON to FSL")
+    parser.add_argument("source")
+    parser.add_argument(
+        "destination_root", 
+        help="Root name of the destination files. "
+            "bvec and bval will be appended")
+    arguments = parser.parse_args()
+    
+    with open(arguments.source) as fd:
+        meta_data = json.load(fd)
+    
+    bvec = []
+    bval = []
+    for entry in meta_data["MRDiffusionSequence"]:
+        bvec.append(
+            entry[0][
+                "DiffusionGradientDirectionSequence"][0][
+                    "DiffusionGradientOrientation"])
+        bval.append(entry[0]["DiffusionBValue"][0])
+    
+    with open("{}.bvec".format(arguments.destination_root), "w") as fd:
+        for values in zip(*bvec):
+            fd.write(" ".join(str(x) for x in values))
+            fd.write("\n")
+    with open("{}.bval".format(arguments.destination_root), "w") as fd:
+        fd.write(" ".join(str(x) for x in bval))
+
+if __name__ == "__main__":
+    sys.exit(main())

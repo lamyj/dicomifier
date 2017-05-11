@@ -10,18 +10,25 @@ import base64
 
 import json
 import odil
+import odil_getter
 
 from .. import MetaData
 
-def get_meta_data(data_sets):
-    """ Return the merged meta-data from the DICOM data sets in the NIfTI+JSON
-        format: a dictionary keyed by the DICOM keyword (or the string 
-        representation of the tag if no keyword is found) and valued by the 
-        Value (or InlineBinary) of the DICOM elements.
-    """
 
-    # BUG in odil: tags are not hashed correctly
-    # Use the tuple (group, element) in Python objects (dict, set)
+def get_meta_data(data_sets_frame_idx, cache):
+    """ Get the meta data of the current stack 
+
+        will keep the priority order for repeting element with the following rules:
+        low_priority = per_frame_seq
+        high_priority = top_level (data_set)
+        (if the same element is present in both shared and per_frame,
+         we will keep the element of the shared seq)
+
+        :param data_sets_frame_idx: List containing the data sets of the frame 
+                                    with the corresponding frame when it's a multiframe data set
+        :param cache: dict used to store (tag,elem) for top priority sequences (top level & shared)
+                      in order to parse them only once per data_set
+    """
 
     skipped = [
         # Stored in the NIfTI image
@@ -30,6 +37,8 @@ def get_meta_data(data_sets):
         "SliceLocation",
         # Useless in the NIfTI world (?)
         "SOPInstanceUID", "InstanceCreationDate", "InstanceCreationTime",
+        "DimensionIndexValues", "InStackPositionNumber",
+        "WindowCenter", "WindowWidth",
         # Implicit with the NIfTI data type
         "PixelRepresentation", "HighBit", "BitsStored", "BitsAllocated",
         # Stored in the NIfTI image
@@ -37,61 +46,109 @@ def get_meta_data(data_sets):
         # PixelValueTransformation sequence is applied on the image
         "PixelValueTransformationSequence",
         "SmallestImagePixelValue", "LargestImagePixelValue",
+        # Multi-frame related elements are extracted from their sequences
+        "SharedFunctionalGroupsSequence",
+        "PerFrameFunctionalGroupsSequence",
     ]
-    skipped = [getattr(odil.registry, x) for x in skipped]
-    skipped = [(x.group, x.element) for x in skipped]
 
-    # List all tags that appear in any of the data sets
-    tags = set()
-    for data_set in data_sets:
-        data_set_tags = [(x.group, x.element) for x in data_set]
-        tags.update(x for x in data_set_tags if x not in skipped)
+    skipped = [getattr(odil.registry, x) for x in skipped]
+
+    # Must get directly this sequence (otherwise test fails)
+    direct_sequences = [
+        "MRDiffusionSequence"
+    ]
+    direct_sequences = [getattr(odil.registry, x) for x in direct_sequences]
+
+    # Populate the Odil cache with the elements at top-level and in shared 
+    # functional groups
+    for data_set, frame_index in data_sets_frame_idx:
+        sop_instance_uid = data_set.as_string(odil.registry.SOPInstanceUID)[0]
+        if sop_instance_uid in cache:
+            continue
+            
+        cache[sop_instance_uid] = {}
+        
+        for tag in data_set:
+            if tag in skipped:
+                continue
+            value = data_set[tag]
+            cache[sop_instance_uid][tag] = value
+        if frame_index is not None:
+            functional_groups = data_set.as_data_set(
+                odil.registry.SharedFunctionalGroupsSequence)[0]
+            _process_functional_groups(
+                functional_groups, 
+                lambda tag, value: 
+                    cache[sop_instance_uid].__setitem__(tag, value), 
+                skipped, direct_sequences)
+
+    # Get the values of all (data_set, frame_index)
+    tag_values = {}
+    for list_index, (data_set, frame_index) in enumerate(data_sets_frame_idx):
+        sop_instance_uid = data_set.as_string(odil.registry.SOPInstanceUID)[0]
+        # Fetch non-frame-specific elements from cache
+        for tag, element in cache[sop_instance_uid].items():
+            tag_values.setdefault(tag, {})[list_index] = element
+        if frame_index is not None:
+            # Fetch frame-specific elements
+            functional_groups = data_set.as_data_set(
+                odil.registry.PerFrameFunctionalGroupsSequence)[frame_index]
+            _process_functional_groups(
+                functional_groups, 
+                lambda tag, value: 
+                    tag_values.setdefault(tag, {}).__setitem__(list_index, value), 
+                skipped, direct_sequences)
 
     meta_data = MetaData()
     specific_character_set = []
-    for tag_tuple in sorted(tags):
-        tag_object = odil.Tag(*tag_tuple)
 
-        # List the value of this tag in every data set (None if absent)
-        values = []
-        for data_set in data_sets:
-            if data_set.has(tag_object):
-                values.append(data_set[tag_object])
-            else:
-                value.append(None)
-
+    for tag, values_dict in tag_values.items():
         # Check whether all values are the same
         all_equal = True
-        sample = values[0]
-        for value in values[1:]:
+        sample = values_dict[0]
+        for i in range(len(data_sets_frame_idx)):
+            value = values_dict.get(i)
             if value != sample:
                 all_equal = False
                 break
-
         if all_equal:
             # Only use the unique value.
             value = convert_element(sample, specific_character_set)
         else:
-            # Convert each value. If we have multiple values of Specific 
+            # Convert each value. If we have multiple values of Specific
             # Character Set, use the one from the corresponding data set.
-            if (
-                    specific_character_set 
+            if (specific_character_set
                     and isinstance(specific_character_set[0], list)):
                 value = [
-                    convert_element(x, specific_character_set[i]) 
-                    for i, x in enumerate(values)]
+                    convert_element(
+                        values_dict.get(idx), specific_character_set[idx])
+                    for idx in range(len(data_sets_frame_idx))]
             else:
                 value = [
-                    convert_element(x, specific_character_set) for x in values]
+                    convert_element(values_dict.get(idx), 
+                        specific_character_set)
+                    for idx in range(len(data_sets_frame_idx))]
 
-        if tag_object == odil.registry.SpecificCharacterSet:
+        if tag == odil.registry.SpecificCharacterSet:
             specific_character_set = value
 
-        tag_name = get_tag_name(tag_object)
+        tag_name = get_tag_name(tag)
 
         meta_data[tag_name] = value
-            
     return meta_data
+
+
+def cleanup(meta_data):
+    """ Clean tags used after the merge
+        for example, InstanceNumber is used to sort nifti_tuple in order to preserve the original stack order
+    """
+
+    skipped = [
+        "InstanceNumber",
+    ]
+    for x in skipped:
+        del (meta_data[x])
+
 
 def get_tag_name(tag):
     """ Convert a DICOM tag to its NIfTI+JSON representation: the tag keyword
@@ -104,6 +161,7 @@ def get_tag_name(tag):
         tag_name = str(tag)
     return tag_name
 
+
 def convert_element(element, specific_character_set):
     """ Convert a DICOM element to its NIfTI+JSON representation: the "Value"
         (or "InlineBinary") attribute of its standard DICOM JSON 
@@ -111,6 +169,7 @@ def convert_element(element, specific_character_set):
     """
 
     result = None
+    # element can be None because a get is called above
     if element.empty():
         result = None
     elif element.is_int():
@@ -130,7 +189,7 @@ def convert_element(element, specific_character_set):
             result = list(element.as_string())
     elif element.is_data_set():
         result = [
-            convert_data_set(x, specific_character_set) 
+            convert_data_set(x, specific_character_set)
             for x in element.as_data_set()]
     elif element.is_binary():
         result = [
@@ -140,6 +199,7 @@ def convert_element(element, specific_character_set):
         raise Exception("Unknown element type")
 
     return result
+
 
 def convert_data_set(data_set, specific_character_set):
     """ Convert a DICOM data set to its NIfTI+JSON representation.
@@ -156,3 +216,21 @@ def convert_data_set(data_set, specific_character_set):
 
     return result
 
+def _process_functional_groups(functional_groups, function, skipped, direct_sequences):
+    """ Utility function used in get_meta_data: apply a function on each item
+        of functional_groups depending on their status (skipped or direct 
+        sequence)
+    """
+    for sequence_tag in functional_groups:
+        if sequence_tag in skipped:
+            continue
+        functional_group = functional_groups[sequence_tag]
+        if sequence_tag in direct_sequences:
+            # Nothing to do, use value as is.
+            function(sequence_tag, functional_group)
+        elif not functional_group.empty():
+            item = functional_group.as_data_set()[0]
+            for item_tag, value in item.items():
+                if item_tag in skipped:
+                    continue
+                function(item_tag, value)

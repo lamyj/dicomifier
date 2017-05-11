@@ -7,7 +7,8 @@
 #########################################################################
 
 import itertools
-import logging
+import json
+import os
 
 import dateutil.parser
 import numpy
@@ -20,17 +21,16 @@ from convert import convert_element
 def convert_elements(
         bruker_data_set, dicom_data_set, conversions,
         frame_index, generator, vr_finder):
-    """
-        Convert elements from the bruker_data_set into dicom_data_set
-        
+    """ Convert elements from the bruker_data_set into dicom_data_set
+
         :param bruker_data_set: Bruker data set to convert
         :param dicom_data_set: Dicom data set destination
         :param conversions: elements to convert (in case of sequence for example)
         :param frame_index: index in a frame group
         :param generator: object that will manage the frame_index
         :param vr_finder: function to find the VR knowing only the dicom_name
-    """    
-    
+    """
+
     for bruker_name, dicom_name, type_, getter, setter in conversions:
         convert_element(
             bruker_data_set, dicom_data_set, 
@@ -39,25 +39,24 @@ def convert_elements(
     return dicom_data_set
 
 def mr_image_storage(bruker_data_set, transfer_syntax):
+    """ Function to convert specific burker images into dicom
+
+        :param bruker_data_set: bruker data set to convert
+        :param transfer_syntax: target transfer syntax
     """
-		Function to convert specific burker images into dicom 
-		
-		:param bruker_data_set: bruker data set to convert
-		:param transfer_syntax: target transfer syntax
-	"""
-    
-    if int(bruker_data_set.get("VisuCoreDim", ["unknown"])[0]) == 3:
+
+    if int(bruker_data_set.get("VisuCoreDim", [0])[0]) == 3:
         to_2d(bruker_data_set)
-    
+
     dicom_data_sets = []
-    
+
     modules = [
         patient.Patient,
         study.GeneralStudy, study.PatientStudy,
-        series.GeneralSeries, 
+        series.GeneralSeries + [(None, "Modality", 1, lambda d,g,i: ["MR"], None)],
         frame_of_reference.FrameOfReference,
         equipment.GeneralEquipment, 
-        image.GeneralImage, image.ImagePlane, image.ImagePixel, image.MRImage, 
+        image.GeneralImage, image.ImagePlane, image.ImagePixel, image.MRImage,
         [
             (
                 None, "PixelValueTransformationSequence", 1,
@@ -73,7 +72,7 @@ def mr_image_storage(bruker_data_set, transfer_syntax):
         [
             (
                 None, "MRDiffusionSequence", 3,
-                lambda bruker_data_set, generator, frame_index: [ 
+                lambda bruker_data_set, generator, frame_index: [
                     convert_elements(
                         bruker_data_set,odil.DataSet(), image.MRDiffusion,
                         frame_index, generator, vr_finder_function
@@ -83,31 +82,41 @@ def mr_image_storage(bruker_data_set, transfer_syntax):
                 None
             )
         ],
-        image.SOPCommon
+        image.SOPCommon + [(None, "SOPClassUID", 1, lambda d,g,i: [odil.registry.MRImageStorage], None)]
     ]
-    
+
     vr_finder_object = odil.VRFinder()
     vr_finder_function = lambda tag: vr_finder_object(tag, helper, transfer_syntax)
-    
+
     helper = odil.DataSet()
-    
+
     generator = FrameIndexGenerator(bruker_data_set)
     for frame_index in generator:
         dicom_data_set = odil.DataSet()
         dicom_data_set.add("SpecificCharacterSet", ["ISO_IR 192"])
-        
+
         for bruker_name, dicom_name, type_, getter, setter in itertools.chain(*modules):
             value = convert_element(
-                bruker_data_set, dicom_data_set, 
+                bruker_data_set, dicom_data_set,
                 bruker_name, dicom_name, type_, getter, setter,
                 frame_index, generator, vr_finder_function)
-            
+
             for name in ["BitsAllocated", "PixelRepresentation"]:
                 if dicom_name == name:
                     helper.add(getattr(odil.registry, name), value)
         
+        # FIXME: storing the Bruker meta-data in all instances is rather 
+        # inefficient. It can amount to over 50 % of the total size of the
+        # DICOM file
+        # dict_files = {}
+        # path_list = bruker_data_set["reco_files"]
+        # for path in path_list:
+        #     dict_files[os.path.basename(path)] = open(path).read()
+        # reco_files_tag = odil.Tag("67890010")
+        # dicom_data_set.add(reco_files_tag, [json.dumps(dict_files)], odil.VR.OB)
+
         dicom_data_sets.append(dicom_data_set)
-    
+
     return dicom_data_sets
 
 def to_2d(data_set):
