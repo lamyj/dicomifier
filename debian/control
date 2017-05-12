@@ -23,6 +23,7 @@ Build-Depends: debhelper (>= 9),
                zlib1g-dev,
                libboost-test-dev,
                python-nose,
+               libboost-program-options-dev,
                libqt4-dev,
                chrpath
 Standards-Version: 3.9.8
