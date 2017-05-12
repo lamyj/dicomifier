@@ -78,6 +78,9 @@ Description: Convert data to and from DICOM (Python modules)
 Package: dicomifier-cli
 Architecture: all
 Depends: python, python-dicomifier, python-numpy, ${misc:Depends}
+Provides: dicomifier
+Conflicts: dicomifier
+Replaces: dicomifier
 Description: Convert data to and from DICOM (command line tools)
  Dicomifier is a set of tools to convert Bruker to DICOM and DICOM to NIfTI. A
  set of mapping rules is provided, allowing the conservation of meta-data upon
