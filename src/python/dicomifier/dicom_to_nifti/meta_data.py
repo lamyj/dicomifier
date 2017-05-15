@@ -105,7 +105,7 @@ def get_meta_data(data_sets_frame_idx, cache):
     for tag, values_dict in tag_values.items():
         # Check whether all values are the same
         all_equal = True
-        sample = values_dict[0]
+        sample = values_dict[values_dict.keys()[0]]
         for i in range(len(data_sets_frame_idx)):
             value = values_dict.get(i)
             if value != sample:
@@ -170,7 +170,9 @@ def convert_element(element, specific_character_set):
 
     result = None
     # element can be None because a get is called above
-    if element.empty():
+    if element is None:
+        result = None
+    elif element.empty():
         result = None
     elif element.is_int():
         result = list(element.as_int())
