@@ -45,7 +45,7 @@ def convert(dicom_data_sets, dtype):
 
     def get_element(data_set, tag):
         value = odil_getter._default_getter(data_set, tag)
-        return value[0] if value is not None else None
+        return value[0] if (value is not None and len(value)>0) else None
 
     meta_data_cache = {}
     pixel_data_cache = {}
@@ -319,6 +319,9 @@ def _get_splitters(data_sets):
             ((odil.registry.ImageOrientationPatient,),
              odil_getter.OrientationGetter()),
             ((odil.registry.SpacingBetweenSlices,), odil_getter._default_getter),
+            ((odil.registry.Rows,), odil_getter._default_getter), 
+            ((odil.registry.Columns,), odil_getter._default_getter), 
+            ((odil.registry.PhotometricInterpretation,), odil_getter._default_getter), 
             # Multiframe generic tags
             ((odil.registry.FrameContentSequence, odil.registry.DimensionIndexValues),
              odil_getter.get_dimension_index_seq),
