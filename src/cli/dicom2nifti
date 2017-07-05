@@ -112,11 +112,23 @@ def split_series(dicom_files):
     series = {}
     for file_ in dicom_files:
         try:
-            _, data_set = odil.read(
+            header, data_set = odil.read(
                 file_, halt_condition=until_series_instance_uid)
         except odil.Exception as e:
             dicomifier.logger.warning("Could not read {}: {}".format(file_, e))
             continue
+        
+        uncompressed_ts = [
+            getattr(odil.registry, x) for x in [
+                "ImplicitVRLittleEndian",
+                "ExplicitVRLittleEndian",
+                "ExplicitVRBigEndian_Retired"
+            ]]
+        if header.as_string("TransferSyntaxUID")[0] not in uncompressed_ts:
+            dicomifier.logger.warning(
+                "Could not read {}: compressed transfer syntax".format(file_))
+            continue
+        
         series_instance_uid = data_set.as_string("SeriesInstanceUID")[0]
         series.setdefault(series_instance_uid, []).append(file_)
 
