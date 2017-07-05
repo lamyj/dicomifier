@@ -174,7 +174,8 @@ def get_shaped_pixel_data(data_set, linear_pixel_data, frame_idx):
 
     # Mask the data using Bits Stored, cf. PS 3.5, 8.1.1
     bits_stored = data_set.as_int(odil.registry.BitsStored)[0]
-    pixel_data = numpy.bitwise_and(pixel_data, 2**bits_stored - 1)
+    pixel_data = numpy.bitwise_and(
+        pixel_data, 2**bits_stored - 1).astype(pixel_data.dtype)
 
     # Rescale: look for Pixel Value Transformation sequence then Rescale Slope
     # and Rescale Intercept
