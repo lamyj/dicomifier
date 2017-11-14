@@ -56,13 +56,13 @@ Directory
     typedef boost::filesystem::recursive_directory_iterator RecursiveIterator;
     typedef boost::filesystem::directory_iterator Iterator;
 
-    std::vector<Path> reconstructions;
+    std::set<Path> reconstructions;
     for(RecursiveIterator it(boost::filesystem::canonical(path));
         it != RecursiveIterator(); ++it)
     {
-        if(it->path().filename() == "id")
+        if(it->path().filename() == "id" || it->path().filename() == "reco")
         {
-            reconstructions.push_back(it->path().parent_path());
+            reconstructions.insert(it->path().parent_path());
         }
     }
 
@@ -132,36 +132,36 @@ std::map<std::string, std::vector<std::string> >
 Directory
 ::get_series_and_reco(const std::string &path)
 {
-    std::map<std::string, std::vector<std::string> > map;
+    std::map<std::string, std::vector<std::string> > series_and_reco;
 
     typedef boost::filesystem::directory_iterator Iterator;
     typedef boost::filesystem::recursive_directory_iterator RecursiveIterator;
-
+    
     for(RecursiveIterator it(path); it != RecursiveIterator(); ++it)
     {
-        if(it->path().filename() == "pdata")
+        if(it->path().filename() == "id" || it->path().filename() == "reco")
         {
-            for(Iterator reco_it(it->path()); reco_it != Iterator(); ++reco_it)
+            for(Iterator reco_it(it->path().parent_path().parent_path()); 
+                reco_it != Iterator(); ++reco_it)
             {
                 if(boost::filesystem::is_directory(reco_it->path()))
                 {
                     std::string const reconstruction = ((Path)*reco_it).filename().string();
                     std::string const series = ((Path)*reco_it).parent_path().parent_path().filename().string();
 
-                    if (map.find(series) == map.end())
-                    {// create new entry
-                        map[series] = {};
+                    auto & reconstructions = series_and_reco[series];
+                    if(std::find(
+                        reconstructions.begin(), reconstructions.end(), 
+                        reconstruction) == reconstructions.end())
+                    {
+                        reconstructions.push_back(reconstruction);
                     }
-                    map[series].push_back(reconstruction);
                 }
             }
-
-            // Don't descend reconstructions have been processed.
-            it.no_push();
         }
     }
 
-    return map;
+    return series_and_reco;
 }
 
 void
