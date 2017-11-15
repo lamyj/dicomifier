@@ -1,0 +1,34 @@
+#!/bin/sh
+
+export Architecture=${Architecture:?}
+export Distribution=${Distribution:?}
+export Python=${Python:?}
+export WORKSPACE=${WORKSPACE:?}
+
+rm -rf generatedJUnitFiles/CTest/*
+cd build
+rm -rf Testing/*
+
+if [ ! -d "${WORKSPACE}/generatedJUnitFiles" ]; then
+  mkdir "${WORKSPACE}/generatedJUnitFiles"
+fi
+
+sudo wget -O /usr/local/bin/lcov_cobertura https://raw.github.com/eriwen/lcov-to-cobertura-xml/master/lcov_cobertura/lcov_cobertura.py
+sudo chmod a+x /usr/local/bin/lcov_cobertura
+
+"${WORKSPACE}/tests/run_tests.sh"
+
+DIRECTORY=`mktemp -d`
+if [ "${Distribution}" != "ubuntu/precise" -a "${Distribution}" != "debian/wheezy" ]; then
+  lcov --capture --directory "${WORKSPACE}" --output-file ${DIRECTORY}/test.info
+  lcov --remove ${DIRECTORY}/test.info -o ${DIRECTORY}/filtered.info \
+    '/usr/*' 'src/cli/*' 'src/gui/*' 'tests/*' 'build/*'
+else
+  touch ${DIRECTORY}/filtered.info
+fi
+/usr/local/bin/lcov_cobertura ${DIRECTORY}/filtered.info -b "${WORKSPACE}"
+rm -rf ${DIRECTORY}
+
+cppcheck -q --xml --xml-version=2 --enable=all \
+  "${WORKSPACE}/src/" "${WORKSPACE}/tests/" \
+  2> ${WORKSPACE}/build/cppcheck.xml

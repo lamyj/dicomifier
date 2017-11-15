@@ -1,0 +1,16 @@
+#!/bin/sh
+
+export Architecture=${Architecture:?}
+export Distribution=${Distribution:?}
+export Python=${Python:?}
+export WORKSPACE=${WORKSPACE:?}
+
+mkdir build
+mkdir install
+cd build
+cmake \
+  -D CMAKE_CXX_FLAGS="--coverage" \
+  -D CMAKE_INSTALL_PREFIX="${WORKSPACE}/install" \
+  -D NIfTI_INCLUDE_DIR=/usr/include/nifti \
+  ..
+make install
