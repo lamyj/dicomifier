@@ -7,6 +7,7 @@ import json
 import math
 import os
 import sys
+import unicodedata
 
 import numpy
 import odil
@@ -230,7 +231,17 @@ def get_series_directory(meta_data):
 
     series_directory = "_".join(series_directory).replace(os.path.sep, "_")
 
-    return os.path.join(patient_directory, study_directory, series_directory)
+    return strip_accents(
+        os.path.join(patient_directory, study_directory, series_directory))
+
+def strip_accents(string):
+    """ Remove accents from a unicode object. 
+        cf. https://stackoverflow.com/a/518232
+    """
+    
+    return u"".join(
+        c for c in unicodedata.normalize("NFD", string)
+        if unicodedata.category(c) != "Mn")
 
 if __name__ == "__main__":
     sys.exit(main())

@@ -60,7 +60,10 @@ def convert(dicom_data_sets, dtype):
         study = [
             get_element(data_set, odil.registry.StudyID),
             get_element(data_set, odil.registry.StudyDescription)]
-        study = [unicode(x) for x in study if x is not None]
+        
+        study = [
+            odil.as_unicode(x, data_set.as_string("SpecificCharacterSet"))
+            for x in study if x is not None]
 
         series = [
             get_element(data_set, odil.registry.SeriesNumber),
