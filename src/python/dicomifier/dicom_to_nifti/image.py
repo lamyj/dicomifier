@@ -163,7 +163,9 @@ def get_shaped_pixel_data(data_set, linear_pixel_data, frame_idx):
 
     samples_per_pixel = data_set.as_int(odil.registry.SamplesPerPixel)[0]
     if samples_per_pixel == 1:
-        if data_set.has(odil.registry.NumberOfFrames):
+        if (
+                data_set.has(odil.registry.PerFrameFunctionalGroupsSequence) 
+                and data_set.has(odil.registry.NumberOfFrames)):
             number_of_frames = data_set.as_int(odil.registry.NumberOfFrames)[0]
             pixel_data = linear_pixel_data.reshape(number_of_frames, rows, cols)
             pixel_data = pixel_data[frame_idx, :]
