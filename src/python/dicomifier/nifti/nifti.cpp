@@ -13,9 +13,15 @@
 
 #include <boost/python.hpp>
 #include <nifti1_io.h>
+#define NPY_NO_DEPRECATED_API NPY_API_VERSION
 #include <numpy/arrayobject.h>
 
 #include "core/DicomifierException.h"
+
+void initialize()
+{
+    import_array();
+}
 
 /// @brief Convert numpy type to C++ type
 template<typename CppType, NPY_TYPES NumpyType>
@@ -23,7 +29,6 @@ struct NumpyConverter
 {
         NumpyConverter()
         {
-            import_array();
             boost::python::converter::registry::push_back(
                 &convertible, &construct, boost::python::type_id<CppType>());
         }
@@ -135,8 +140,9 @@ boost::python::object read(std::string const & filename)
     std::copy(
         reinterpret_cast<char*>(image_c->data), 
         reinterpret_cast<char*>(image_c->data)+image_c->nbyper*image_c->nvox, 
-        reinterpret_cast<PyArrayObject*>(dummy_array.ptr())->data);
-    
+        reinterpret_cast<char*>(
+            PyArray_DATA(reinterpret_cast<PyArrayObject*>(dummy_array.ptr()))));
+
     return dicomifier.attr(
         "dicom_to_nifti").attr("NIfTIImage")(*tuple(), **kwargs);
 }
@@ -225,7 +231,7 @@ void write(boost::python::object const & image, std::string const & filename)
     // CAUTION: nifti_image_free will free this. Do no forget to put it
     // back to NULL
     object data = image.attr("data");
-    image_c->data = reinterpret_cast<PyArrayObject*>(data.ptr())->data;
+    image_c->data = PyArray_DATA(reinterpret_cast<PyArrayObject*>(data.ptr()));
     
     nifti_image_write(image_c);
     
@@ -236,6 +242,8 @@ void write(boost::python::object const & image, std::string const & filename)
 BOOST_PYTHON_MODULE(nifti)
 {
     using namespace boost::python;
+    
+    initialize();
 
     def(
         "read", static_cast<object(*)(std::string const &)>(&read), 

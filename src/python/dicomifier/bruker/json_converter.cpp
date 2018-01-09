@@ -22,7 +22,16 @@ std::string as_json(dicomifier::bruker::Dataset const & data_set, bool pretty_pr
 {
     auto const json = dicomifier::bruker::as_json(data_set);
 
+#if JSONCPP_VERSION_HEXA > 0x160
+    auto const old_locale = std::setlocale(LC_ALL, "C");
+    Json::StreamWriterBuilder builder;
+    builder["indentation"] = pretty_print?"  ":"";
+    auto const string = Json::writeString(builder, json);
+    std::setlocale(LC_ALL, old_locale);
+    return string;
+#else
     Json::Writer * writer = NULL;
+
     if(pretty_print)
     {
         writer = new Json::StyledWriter();
@@ -36,6 +45,7 @@ std::string as_json(dicomifier::bruker::Dataset const & data_set, bool pretty_pr
     auto const string = writer->write(json);
     std::setlocale(LC_ALL, old_locale);
     return string;
+#endif
 }
 
 }

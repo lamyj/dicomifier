@@ -110,7 +110,11 @@ Dataset as_dataset(Json::Value const & json)
 
     for(Json::Value::const_iterator it=json.begin(); it != json.end(); ++it)
     {
+#if JSONCPP_VERSION_HEXA >= 0x160
+        auto const name = it.name();
+#else
         std::string const name = it.memberName();
+#endif
         auto const & json_element = *it;
 
         if(!json_element.isArray())
