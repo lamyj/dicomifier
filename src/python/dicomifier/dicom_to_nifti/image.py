@@ -295,7 +295,13 @@ def get_geometry(data_sets_frame_idx):
     spacing = list(pixel_measures_sequence.as_real(odil.registry.PixelSpacing))
 
     if len(data_sets_frame_idx) == 1:
-        spacing.append(1.)
+        data_set = data_sets_frame_idx[0][0]
+        if "SpacingBetweenSlices" in data_set:
+            spacing.append(data_set.as_real("SpacingBetweenSlices")[0])
+        else:
+            logger.warning(
+                "Only one frame and no SpacingBetweenSlices, using default spacing")
+            spacing.append(1.)
     else:
         # Here we try to find the position of the second frame (plane_position_seq)
         if data_set.has(odil.registry.SharedFunctionalGroupsSequence):
