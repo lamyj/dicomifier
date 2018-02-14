@@ -219,7 +219,16 @@ def get_series_directory(meta_data):
     # parts are optional. If both tags are missing or empty, raise an exception
     series_directory = []
     if "SeriesNumber" in meta_data and meta_data["SeriesNumber"]:
-        series_directory.append(str(meta_data["SeriesNumber"][0]))
+        series_number = meta_data["SeriesNumber"][0]
+        if (
+                meta_data.get("SoftwareVersions", [""])[0] == "ParaVision" 
+                and series_number > 2**16):
+            # Bruker ID based on experiment number and reconstruction number is
+            # not readable: separate the two values
+            series_directory.extend(
+                str(x) for x in divmod(series_number, 2**16))
+        else:
+            series_directory.append(str(series_number))
     if ("SeriesDescription" in meta_data and meta_data["SeriesDescription"]):
         series_directory.append(meta_data["SeriesDescription"][0])
 
