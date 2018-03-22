@@ -84,8 +84,25 @@ def get_files(dicom):
             dicom_files.update(get_dicomdir_files(entry))
         else:
             dicom_files.add(entry)
-
-    return dicom_files
+    
+    # Make sure we do not have the same file saved under multiple names
+    sop_instance_uids = {}
+    for dicom_file in dicom_files:
+        try:
+            # Read only the header
+            header, _ = odil.read(
+                dicom_file, 
+                halt_condition=lambda x: (x.group << 16) + x.element > 0x00040000)
+        except odil.Exception as e:
+            dicomifier.logger.warning("Could not read {}: {}".format(file_, e))
+            continue
+        sop_instance_uids.setdefault(
+                header.as_string("MediaStorageSOPInstanceUID")[0], []
+            ).append(dicom_file)
+    if any(len(x) > 0 for x in sop_instance_uids.values()):
+        dicomifier.logger.warning(
+            "Multiple files with the same SOP instance UID")
+    return [x[0] for x in sop_instance_uids.values()]
 
 
 def get_dicomdir_files(path):
