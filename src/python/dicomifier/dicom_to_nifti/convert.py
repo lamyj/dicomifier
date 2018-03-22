@@ -323,6 +323,7 @@ def _get_splitters(data_sets):
         "ALL": [
             # Single Frame generic tags
             ((odil.registry.SeriesInstanceUID,), odil_getter._default_getter),
+            ((odil.registry.ImageType,), odil_getter._default_getter),
             ((odil.registry.ImageOrientationPatient,),
              odil_getter.OrientationGetter()),
             ((odil.registry.SpacingBetweenSlices,), odil_getter._default_getter),
@@ -349,7 +350,8 @@ def _get_splitters(data_sets):
             # Philips Ingenia stores these fields at top-level
             ((odil.registry.DiffusionGradientOrientation,),
              odil_getter._default_getter),
-            ((odil.registry.DiffusionBValue,), odil_getter._default_getter)
+            ((odil.registry.DiffusionBValue,), odil_getter._default_getter),
+            ((odil.registry.TriggerTime,), odil_getter._default_getter),
         ],
         odil.registry.EnhancedMRImageStorage: [
             ((odil.registry.MRTimingAndRelatedParametersSequence, odil.registry.RepetitionTime),
