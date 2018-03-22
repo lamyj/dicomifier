@@ -256,9 +256,11 @@ def get_series_directory(meta_data):
             raise Exception("Cannot determine series directory")
 
     series_directory = "_".join(series_directory).replace(os.path.sep, "_")
-
-    return strip_accents(
-        os.path.join(patient_directory, study_directory, series_directory))
+    
+    path = os.path.join(patient_directory, study_directory, series_directory)
+    if isinstance(path, unicode):
+        path = strip_accents(path)
+    return path
 
 def strip_accents(string):
     """ Remove accents from a unicode object. 

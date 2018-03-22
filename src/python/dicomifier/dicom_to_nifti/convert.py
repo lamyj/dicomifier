@@ -68,7 +68,11 @@ def convert(dicom_data_sets, dtype):
         series = [
             get_element(data_set, odil.registry.SeriesNumber),
             get_element(data_set, odil.registry.SeriesDescription)]
-        series = [unicode(x) for x in series if x is not None]
+        if series[0] is not None:
+            series[0] = unicode(series[0])
+        if series[1] is not None:
+            series[1] = odil.as_unicode(
+                series[1], data_set.as_string("SpecificCharacterSet"))
 
         series_instance_uid = data_set.as_string(
             odil.registry.SeriesInstanceUID)[0]
