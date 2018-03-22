@@ -230,6 +230,11 @@ def _process_functional_groups(functional_groups, function, skipped, direct_sequ
         if sequence_tag in direct_sequences:
             # Nothing to do, use value as is.
             function(sequence_tag, functional_group)
+        elif not functional_group.is_data_set():
+            # Seen in a private functional group, but should not happen
+            if sequence_tag in skipped:
+                continue
+            function(sequence_tag, functional_group)
         elif not functional_group.empty():
             item = functional_group.as_data_set()[0]
             for item_tag, value in item.items():
