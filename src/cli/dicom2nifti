@@ -90,9 +90,9 @@ def get_files(dicom):
     for dicom_file in dicom_files:
         try:
             # Read only the header
-            header, _ = odil.read(
-                dicom_file, 
-                halt_condition=lambda x: (x.group << 16) + x.element > 0x00040000)
+            is_not_header = lambda x: (x.group << 16) + x.element > 0x00040000
+            with odil.open(dicom_file) as fd:
+                header, _ = odil.Reader.read_file(fd, halt_condition=is_not_header)
         except odil.Exception as e:
             dicomifier.logger.warning("Could not read {}: {}".format(file_, e))
             continue
@@ -107,7 +107,8 @@ def get_files(dicom):
 
 def get_dicomdir_files(path):
     dicom_files = []
-    _, dicomdir = odil.read(path)
+    with odil.open(path) as fd:
+        _, dicomdir = odil.Reader.read_file(fd)
     for record in dicomdir.as_data_set("DirectoryRecordSequence"):
         if record.as_string("DirectoryRecordType")[0] == "IMAGE":
             dicom_files.append(
@@ -130,8 +131,9 @@ def split_series(dicom_files):
     series = {}
     for file_ in dicom_files:
         try:
-            header, data_set = odil.read(
-                file_, halt_condition=until_series_instance_uid)
+            with odil.open(file_) as fd:
+                header, data_set = odil.Reader.read_file(
+                    fd, halt_condition=until_series_instance_uid)
         except odil.Exception as e:
             dicomifier.logger.warning("Could not read {}: {}".format(file_, e))
             continue
@@ -162,7 +164,10 @@ def convert_series(series_files, dtype):
     dicomifier.logger.info(
         "Reading {} DICOM file{}".format(
             len(series_files), "s" if len(series_files) > 1 else ""))
-    dicom_data_sets = [odil.read(x)[1] for x in series_files]
+    dicom_data_sets = []
+    for series_file in series_files:
+        with odil.open(series_file) as fd:
+            dicom_data_sets.append(odil.Reader.read_file(fd)[1])
 
     # Get only data_sets containing correct PixelData field
     dicom_data_sets = [x for x in dicom_data_sets if "PixelData" in x]
