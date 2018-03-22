@@ -197,7 +197,7 @@ def get_shaped_pixel_data(data_set, linear_pixel_data, frame_idx):
         slope = transformation.as_real(odil.registry.RescaleSlope)[0]
     if transformation.has(odil.registry.RescaleIntercept):
         intercept = transformation.as_real(odil.registry.RescaleIntercept)[0]
-    if None not in [slope, intercept]:
+    if None not in [slope, intercept] and not numpy.allclose([slope, intercept], [1, 0]):
         pixel_data = pixel_data * numpy.float32(slope) + numpy.float32(intercept)
 
     return pixel_data
