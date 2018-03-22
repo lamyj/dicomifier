@@ -59,8 +59,10 @@ def get_image(data_sets_frame_idx, dtype, cache):
 
     origin, spacing, direction = get_geometry(data_sets_frame_idx)
 
-    if (len(data_sets_frame_idx) == 1 and
-            "MOSAIC" in data_sets_frame_idx[0][0].as_string(odil.registry.ImageType)):
+    image_type = (
+        data_sets_frame_idx[0][0].as_string("ImageType") 
+        if "ImageType" in data_sets_frame_idx[0][0] else [])
+    if len(data_sets_frame_idx) == 1 and "MOSAIC" in image_type:
         data_set = data_sets_frame_idx[0][0]
 
         siemens_data = data_set.as_binary(odil.Tag("00291010"))[0]
