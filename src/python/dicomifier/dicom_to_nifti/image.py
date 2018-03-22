@@ -292,6 +292,10 @@ def get_geometry(data_sets_frame_idx):
                 return origin, default_spacing, direction
     else:
         pixel_measures_sequence = data_set
+    
+    if "PixelSpacing" not in pixel_measures_sequence:
+        logger.warning("No spacing found, using default")
+        return origin, default_spacing, direction
     spacing = list(pixel_measures_sequence.as_real(odil.registry.PixelSpacing))
 
     if len(data_sets_frame_idx) == 1:
