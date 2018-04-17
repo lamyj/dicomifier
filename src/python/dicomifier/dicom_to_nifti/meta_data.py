@@ -197,7 +197,7 @@ def convert_element(element, specific_character_set):
             for x in element.as_data_set()]
     elif element.is_binary():
         result = [
-            base64.b64encode(x.get_memory_view().tobytes())
+            base64.b64encode(x.get_memory_view().tobytes()).decode()
             for x in element.as_binary()]
     else:
         raise Exception("Unknown element type")
