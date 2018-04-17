@@ -24,7 +24,7 @@ def convert(dicom_data_sets, dtype):
     """ Convert a list of dicom data sets into Nfiti
 
         :param dicom_data_sets: list of dicom data sets to convert
-        :param dtype: type to use when coverting images
+        :param dtype: type to use when converting images
     """
 
     nifti_data = []
@@ -52,7 +52,9 @@ def convert(dicom_data_sets, dtype):
     # Try to preserve the original stacks order (multi-frame)
     stacks = sorted(
         stacks.items(),
-        key=lambda item: numpy.min([x[1] for x in item[1]])
+        # WARNING: in Python3, None <= None is an error. Use -1 instead since
+        # the frame index will always be positive
+        key=lambda item: numpy.min([x[1] if x[1] is not None else -1 for x in item[1]])
     )
     for stack_index, (keys, data_sets_frame_idx) in enumerate(stacks):
         data_set = data_sets_frame_idx[0][0]
@@ -69,7 +71,7 @@ def convert(dicom_data_sets, dtype):
             get_element(data_set, odil.registry.SeriesNumber),
             get_element(data_set, odil.registry.SeriesDescription)]
         if series[0] is not None:
-            series[0] = unicode(series[0])
+            series[0] = u"{}".format(series[0])
         if series[1] is not None:
             series[1] = odil.as_unicode(
                 series[1], data_set.as_string("SpecificCharacterSet"))

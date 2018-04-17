@@ -136,7 +136,7 @@ def get_linear_pixel_data(data_set):
 
     dtype = numpy.dtype(
         "{}{}{}".format(
-            byte_order, "u" if is_unsigned else "i", bits_allocated / 8))
+            byte_order, "u" if is_unsigned else "i", int(bits_allocated / 8)))
 
     view = data_set.as_binary(odil.registry.PixelData)[0].get_memory_view()
     linear_array = numpy.frombuffer(view.tobytes(), byte_order + dtype.char)

@@ -35,16 +35,23 @@ def _getter(data_set, tag):
     # List is not hashable, use tuple instead
     result = None
     if data_set.has(tag):
-        if (data_set.is_binary(tag)):
+        if data_set.is_binary(tag):
             result = tuple(data_set.as_binary(tag))
-        elif (data_set.is_data_set(tag)):
+        elif data_set.is_data_set(tag):
             result = tuple(data_set.as_data_set(tag))
-        elif (data_set.is_int(tag)):
+        elif data_set.is_int(tag):
             result = tuple(data_set.as_int(tag))
-        elif (data_set.is_real(tag)):
+        elif data_set.is_real(tag):
             result = tuple(data_set.as_real(tag))
-        elif (data_set.is_string(tag)):
-            result = tuple(data_set.as_string(tag))
+        elif data_set.is_string(tag):
+            specific_character_set = (
+                data_set.as_string("SpecificCharacterSet") 
+                if "SpecificCharacterSet" in data_set
+                else odil.Value.Strings()
+            )
+            result = tuple(
+                odil.as_unicode(x, specific_character_set)
+                for x in data_set.as_string(tag))
         elif data_set.empty(tag):  # present but empty
             result = None
         else:

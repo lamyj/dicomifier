@@ -6,4 +6,4 @@
 # for details.
 #########################################################################
 
-from convert import convert
+from .convert import convert

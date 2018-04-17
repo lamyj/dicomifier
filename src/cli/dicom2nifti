@@ -262,7 +262,7 @@ def get_series_directory(meta_data):
     series_directory = "_".join(series_directory).replace(os.path.sep, "_")
     
     path = os.path.join(patient_directory, study_directory, series_directory)
-    if isinstance(path, unicode):
+    if isinstance(path, unicode if sys.version_info.major <= 2 else str):
         path = strip_accents(path)
     return path
 

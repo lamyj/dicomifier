@@ -14,9 +14,9 @@ import dateutil.parser
 import numpy
 import odil
 
-import patient, study, series, frame_of_reference, equipment, image
-from frame_index_generator import FrameIndexGenerator
-from convert import convert_element
+from . import patient, study, series, frame_of_reference, equipment, image
+from .frame_index_generator import FrameIndexGenerator
+from .convert import convert_element
 
 def convert_elements(
         bruker_data_set, dicom_data_set, conversions,

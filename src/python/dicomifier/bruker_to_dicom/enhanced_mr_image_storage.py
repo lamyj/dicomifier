@@ -13,11 +13,11 @@ import os
 
 import odil
 
-import patient, study, series, frame_of_reference, equipment, image
-import frame_groups as fg
-from mr_image_storage import to_2d
-from frame_index_generator import FrameIndexGenerator
-from convert import convert_element
+from . import patient, study, series, frame_of_reference, equipment, image
+from . import frame_groups as fg
+from .mr_image_storage import to_2d
+from .frame_index_generator import FrameIndexGenerator
+from .convert import convert_element
 
 
 def enhanced_mr_image_storage(bruker_data_set, transfer_syntax):

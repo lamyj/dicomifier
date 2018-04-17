@@ -12,7 +12,7 @@ import numpy
 
 import odil
 
-from image import (
+from .image import (
     _get_acquisition_number, _get_direction, _get_b_value, 
     _set_diffusion_gradient, _set_diffusion_b_matrix, _get_repetition_time,
     _get_echo_time)
