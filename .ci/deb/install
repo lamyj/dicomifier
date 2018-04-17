@@ -19,9 +19,9 @@ ${APT_GET} update
 PACKAGES="build-essential cmake pkg-config python-minimal"
 # Dependencies of C++ lib
 PACKAGES="${PACKAGES} libboost-dev libboost-date-time-dev libboost-regex-dev libboost-filesystem-dev"
-PACKAGES="${PACKAGES} libjsoncpp-dev liblog4cpp5-dev libnifti-dev libodil0 libodil-dev zlib1g-dev"
+PACKAGES="${PACKAGES} libjsoncpp-dev liblog4cpp5-dev libodil0 libodil-dev zlib1g-dev"
 # Dependencies of Python lib
-PACKAGES="${PACKAGES} libboost-python-dev python-numpy python-dateutil python-odil"
+PACKAGES="${PACKAGES} libboost-python-dev python-nibabel python-numpy python-dateutil python-odil"
 # Dependencies of unit tests
 PACKAGES="${PACKAGES} libboost-test-dev python-nose"
 # Coverage and static analysis

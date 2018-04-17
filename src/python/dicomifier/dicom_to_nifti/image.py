@@ -10,14 +10,14 @@ import base64
 import math
 import itertools
 
+import nibabel
 import numpy
 import odil
 
-import odil_getter
-import nifti_image
-import meta_data
-from .. import logger, nifti
-import siemens
+from . import odil_getter
+from . import meta_data
+from .. import logger
+from . import siemens
 
 
 def get_image(data_sets_frame_idx, dtype, cache):
@@ -54,7 +54,6 @@ def get_image(data_sets_frame_idx, dtype, cache):
     for i, data in enumerate(pixel_data_list):
         pixel_data[i] = data
 
-    dt = nifti.DT_UNKNOWN
     scanner_transform = numpy.identity(4)
 
     origin, spacing, direction = get_geometry(data_sets_frame_idx)
@@ -113,19 +112,10 @@ def get_image(data_sets_frame_idx, dtype, cache):
     elif samples_per_pix == 3 and data_sets_frame_idx[0][0].as_string("PhotometricInterpretation")[0] == "RGB":
         if dtype != numpy.uint8:
             raise Exception("Invalid dtype {} for RGB".format(dtype))
-        dt = nifti.DT_RGB
 
-    image = nifti_image.NIfTIImage(
-        pixdim=[0.] + spacing + (8 - len(spacing) - 1) * [0.],
-        cal_min=float(pixel_data.min()), cal_max=float(pixel_data.max()),
-        qform_code=nifti.NIFTI_XFORM_SCANNER_ANAT,
-        sform_code=nifti.NIFTI_XFORM_SCANNER_ANAT,
-        qform=scanner_transform, sform=scanner_transform,
-        xyz_units=nifti.NIFTI_UNITS_MM,
-        data=pixel_data,
-        datatype_=dt)
-
-    return image
+    # WARNING: ArrayWriter.to_fileobj is Fortran-order by default whereas numpy
+    # is C-order by default
+    return nibabel.Nifti1Image(pixel_data.T, scanner_transform)
 
 def get_linear_pixel_data(data_set):
     """Return a linear numpy array containing the pixel data."""

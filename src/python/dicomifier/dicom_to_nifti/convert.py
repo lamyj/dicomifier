@@ -9,14 +9,14 @@
 import collections
 import itertools
 
+import nibabel
 import numpy
 import odil
 
-import meta_data
-import image
-import odil_getter
+from . import meta_data
+from . import image
+from . import odil_getter
 
-import nifti_image
 from .. import logger, MetaData
 
 
@@ -118,8 +118,8 @@ def convert(dicom_data_sets, dtype):
         mergeable = collections.OrderedDict()
         for nifti_img, nifti_meta_data in stacks:
             geometry = nifti_img.shape + \
-                tuple(nifti_img.qform.ravel().tolist())
-            dt = nifti_img.datatype
+                tuple(nifti_img.affine.ravel().tolist())
+            dt = nifti_img.dataobj.dtype
             mergeable.setdefault((geometry, dt), []).append(
                 (nifti_img, nifti_meta_data))
 
@@ -284,19 +284,11 @@ def merge_images_and_meta_data(images_and_meta_data):
 
     pixel_data = numpy.ndarray(
         (len(images),) + images[0].shape,
-        dtype=images[0].data.dtype)
+        dtype=images[0].dataobj.dtype)
     for i, image in enumerate(images):
-        pixel_data[i] = image.data
+        pixel_data[i] = image.dataobj
 
-    merged_image = nifti_image.NIfTIImage(
-        pixdim=images[0].pixdim,
-        cal_min=min(x.cal_min for x in images),
-        cal_max=max(x.cal_max for x in images),
-        qform_code=images[0].qform_code, sform_code=images[0].sform_code,
-        qform=images[0].qform, sform=images[0].sform,
-        xyz_units=images[0].xyz_units, time_units=images[0].time_units,
-        data=pixel_data,
-        datatype_=images[0].datatype)
+    merged_image = nibabel.Nifti1Image(pixel_data, images[0].affine)
 
     meta_data = [x[1] for x in images_and_meta_data]
     merged_meta_data = MetaData()

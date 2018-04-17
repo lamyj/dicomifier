@@ -12,6 +12,5 @@ logger = logging.getLogger(__name__)
 from _dicomifier import *
 import bruker
 from meta_data import MetaData
-import nifti
 import bruker_to_dicom
 import dicom_to_nifti

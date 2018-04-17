@@ -11,6 +11,5 @@ cd build
 cmake \
   -D CMAKE_CXX_FLAGS="--coverage" \
   -D CMAKE_INSTALL_PREFIX="${WORKSPACE}/install" \
-  -D NIfTI_INCLUDE_DIR=/usr/include/nifti \
   ..
 make install

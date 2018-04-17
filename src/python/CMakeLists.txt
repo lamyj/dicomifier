@@ -13,7 +13,6 @@ install(
     FILES_MATCHING PATTERN *.py
     # Avoid empty directory
     PATTERN "bruker" EXCLUDE
-    PATTERN "nifti" EXCLUDE
 )
 
 file(GLOB_RECURSE python_files "*.py")
