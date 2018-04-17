@@ -285,13 +285,13 @@ def merge_images_and_meta_data(images_and_meta_data):
     images = [x[0] for x in images_and_meta_data]
 
     pixel_data = numpy.ndarray(
-        (len(images),) + images[0].shape,
-        dtype=images[0].dataobj.dtype)
+        images[0].shape + (len(images),),
+        dtype=images[0].dataobj.dtype, order="F")
     for i, image in enumerate(images):
-        pixel_data[i] = image.dataobj
+        pixel_data[...,i] = image.dataobj
 
     merged_image = nibabel.Nifti1Image(pixel_data, images[0].affine)
-
+    
     meta_data = [x[1] for x in images_and_meta_data]
     merged_meta_data = MetaData()
     keys = set()
