@@ -109,9 +109,12 @@ def get_image(data_sets_frame_idx, dtype, cache):
             scanner_transform[:3, :3], numpy.diag(spacing))
         scanner_transform[:3, 3] = numpy.dot(lps_to_ras, origin)
 
-    elif samples_per_pix == 3 and data_sets_frame_idx[0][0].as_string("PhotometricInterpretation")[0] == "RGB":
+    elif samples_per_pix == 3 and data_sets_frame_idx[0][0].as_string("PhotometricInterpretation")[0] == b"RGB":
         if dtype != numpy.uint8:
             raise Exception("Invalid dtype {} for RGB".format(dtype))
+        pixel_data = pixel_data.view(
+                nibabel.nifti1.data_type_codes.dtype["RGB"]
+            ).reshape(pixel_data.shape[:3])
 
     # WARNING: ArrayWriter.to_fileobj is Fortran-order by default whereas numpy
     # is C-order by default
