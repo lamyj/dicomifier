@@ -16,9 +16,14 @@ import odil
 
 from .. import bruker, logger
 
+try:
+    unicode
+except NameError:
+    unicode = str
+
 #explicit conversions
 def _convert_date_time(value, format_):
-    date_time = dateutil.parser.parse(value.replace(",", "."))
+    date_time = dateutil.parser.parse(value.replace(b",", b"."))
     return date_time.strftime(format_)
 vr_converters = {
     "DA": lambda x: _convert_date_time(x, "%Y%m%d") if x else x,

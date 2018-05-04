@@ -102,7 +102,7 @@ def enhanced_mr_image_storage(bruker_data_set, transfer_syntax):
                     bruker_name, dicom_name, type_, getter, setter,
                     frame_index, generator, vr_finder_function
                 )
-            per_frame[i].add(frame_g.keys()[0][0], [d])
+            per_frame[i].add(next(iter(frame_g.keys()))[0], [d])
 
 
     dicom_data_set.add(odil.registry.PerFrameFunctionalGroupsSequence, per_frame)
@@ -115,11 +115,13 @@ def enhanced_mr_image_storage(bruker_data_set, transfer_syntax):
             image._get_pixel_data(bruker_data_set, generator, frame_index)[0]
         )
 
-    dicom_data_set.add(odil.registry.PixelData, ["".join(pixel_data_list)] , vr_finder_function("PixelData"))
+    dicom_data_set.add(
+        odil.registry.PixelData, [b"".join(pixel_data_list)], 
+        vr_finder_function("PixelData"))
 
     # Add the raw Bruker meta-data
     bruker_files = { 
-        os.path.basename(x): open(x).read() 
+        os.path.basename(x.decode()): open(x).read() 
         for x in bruker_data_set["reco_files"] }
     dicom_data_set.add("EncapsulatedDocument", [json.dumps(bruker_files)])
     dicom_data_set.add("MIMETypeOfEncapsulatedDocument", ["application/json"])
@@ -135,7 +137,7 @@ def regroup_shared_data(dicom_data_set, framegroups):
     shared = dicom_data_set.as_data_set(odil.registry.SharedFunctionalGroupsSequence)[0]
     number_of_frames = dicom_data_set.as_int(odil.registry.NumberOfFrames)[0]
 
-    top_sequences = [x[0] for x in [y.keys()[0] for y in framegroups] if x[1] is False]
+    top_sequences = [x[0] for x in [next(iter(y.keys())) for y in framegroups] if x[1] is False]
 
     seq_data_sets = {}
     for i in range(number_of_frames):

@@ -114,7 +114,7 @@ def get_dicomdir_files(path):
             dicom_files.append(
                 os.path.join(
                     os.path.dirname(path),
-                    *record.as_string("ReferencedFileID")))
+                    *[x.decode() for x in record.as_string("ReferencedFileID")]))
 
     return dicom_files
 

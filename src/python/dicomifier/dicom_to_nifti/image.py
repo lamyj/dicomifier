@@ -74,8 +74,8 @@ def get_image(data_sets_frame_idx, dtype, cache):
 
         mosaic_shape = numpy.asarray(pixel_data.shape[-2:])
 
-        rows = pixel_data.shape[-2] / tiles_per_line
-        columns = pixel_data.shape[-1] / tiles_per_line
+        rows = round(pixel_data.shape[-2] / tiles_per_line)
+        columns = round(pixel_data.shape[-1] / tiles_per_line)
 
         real_shape = numpy.asarray([rows, columns])
 

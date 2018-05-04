@@ -198,8 +198,8 @@ GeneralImage = [ # http://dicom.nema.org/medical/dicom/current/output/chtml/part
     (
         None, "ImageType", 3, 
         lambda d,g,i: [
-            "ORIGINAL", "PRIMARY", "", 
-            d["RECO_image_type"][0].encode("ascii")], None),
+            b"ORIGINAL", b"PRIMARY", b"", 
+            d["RECO_image_type"][0].encode("utf-8")], None),
     (None, "AcquisitionNumber", 3, _get_acquisition_number, None),
     ("VisuAcqDate", "AcquisitionDate", 3, None, None),
     ("VisuAcqDate", "AcquisitionTime", 3, None, None),
@@ -385,7 +385,7 @@ AcquisitionContext = [#http://dicom.nema.org/medical/dicom/current/output/chtml/
 EnhancedMRImage = [#http://dicom.nema.org/medical/dicom/current/output/chtml/part03/sect_C.8.13.html#sect_C.8.13.1
     (None, "ImageType", 3, # Same as in GeneralImage but type is 1 here
     lambda d,g,i: [
-        "ORIGINAL", "PRIMARY", "", 
+        b"ORIGINAL", b"PRIMARY", b"", 
         d["RECO_image_type"][0].encode("ascii")], None),
     (None, "PixelPresentation", 1, lambda d,g,i: ["MONOCHROME"], None),
     (None, "VolumetricProperties", 1, lambda d,g,i: ["VOLUME"], None),
