@@ -187,8 +187,7 @@ def get_in_stack_position_index(data_set):
         position = set()
         for i, dimension_index_sequence in enumerate(dimension_index_sequences):
             if dimension_index_sequence.has(odil.registry.DimensionIndexPointer):
-                idx = dimension_index_sequence.as_string(
-                    odil.registry.DimensionIndexPointer)[0]
+                idx = dimension_index_sequence.as_string("DimensionIndexPointer")[0]
                 if odil.Tag(idx) == odil.registry.InStackPositionNumber:
                     position.add(i)
         if len(position) == 1:

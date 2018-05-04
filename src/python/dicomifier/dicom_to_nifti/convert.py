@@ -37,8 +37,7 @@ def convert(dicom_data_sets, dtype):
     stacks_count = {}
     stacks_converted = {}
     for key, data_sets_frame_idx in stacks.items():
-        series_instance_uid = data_sets_frame_idx[0][0].as_string(
-            odil.registry.SeriesInstanceUID)[0]
+        series_instance_uid = data_sets_frame_idx[0][0].as_string("SeriesInstanceUID")[0]
         stacks_count.setdefault(series_instance_uid, 0)
         stacks_count[series_instance_uid] += 1
         stacks_converted[series_instance_uid] = 0
@@ -76,8 +75,7 @@ def convert(dicom_data_sets, dtype):
             series[1] = odil.as_unicode(
                 series[1], data_set.as_string("SpecificCharacterSet"))
 
-        series_instance_uid = data_set.as_string(
-            odil.registry.SeriesInstanceUID)[0]
+        series_instance_uid = data_set.as_string("SeriesInstanceUID")[0]
 
         if stacks_count[series_instance_uid] > 1:
             stack_info = " (stack {}/{})".format(
@@ -371,10 +369,7 @@ def _get_splitters(data_sets):
         ]
     }
 
-    sop_classes = set(
-        x.as_string(odil.registry.SOPClassUID)[0]
-        for x in data_sets
-    )
+    sop_classes = set(x.as_string("SOPClassUID")[0] for x in data_sets)
 
     return list(itertools.chain(
         splitters["ALL"],

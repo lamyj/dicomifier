@@ -211,8 +211,7 @@ def convert_data_set(data_set, specific_character_set):
 
     result = {}
     if data_set.has(odil.registry.SpecificCharacterSet):
-        specific_character_set = data_set.as_string(
-            odil.registry.SpecificCharacterSet)
+        specific_character_set = data_set.as_string("SpecificCharacterSet")
     for tag, element in data_set.items():
         name = get_tag_name(tag)
         value = convert_element(element, specific_character_set)

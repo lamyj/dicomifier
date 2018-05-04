@@ -99,7 +99,7 @@ def get_files(dicom):
         sop_instance_uids.setdefault(
                 header.as_string("MediaStorageSOPInstanceUID")[0], []
             ).append(dicom_file)
-    if any(len(x) > 0 for x in sop_instance_uids.values()):
+    if any(len(x) > 1 for x in sop_instance_uids.values()):
         dicomifier.logger.warning(
             "Multiple files with the same SOP instance UID")
     return [x[0] for x in sop_instance_uids.values()]
@@ -110,7 +110,7 @@ def get_dicomdir_files(path):
     with odil.open(path) as fd:
         _, dicomdir = odil.Reader.read_file(fd)
     for record in dicomdir.as_data_set("DirectoryRecordSequence"):
-        if record.as_string("DirectoryRecordType")[0] == "IMAGE":
+        if record.as_string("DirectoryRecordType")[0] == b"IMAGE":
             dicom_files.append(
                 os.path.join(
                     os.path.dirname(path),

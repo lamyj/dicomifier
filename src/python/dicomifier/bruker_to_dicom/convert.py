@@ -68,7 +68,7 @@ def convert_reconstruction(
         if iso_9660:
             filename = "IM{:06d}".format(1+index)
         else:
-            filename = dicom_binary.as_string("SOPInstanceUID")[0]
+            filename = dicom_binary.as_string("SOPInstanceUID")[0].decode()
         
         destination_file = os.path.join(
             destination, get_series_directory(dicom_binary, iso_9660),
@@ -156,19 +156,31 @@ def get_series_directory(data_set, iso_9660):
     # Patient directory: <PatientName> or <PatientID>.
     patient_directory = None
     if "PatientName" in data_set and data_set.as_string("PatientName"):
-        patient_directory = data_set.as_string("PatientName")[0]
+        patient_directory = odil.as_unicode(
+            data_set.as_string("PatientName")[0],
+            data_set.as_string("SpecificCharacterSet") 
+            if "SpecificCharacterSet" in data_set else odil.Value.Strings())
     else:
-        patient_directory = data_set.as_string("PatientID")[0]
+        patient_directory = odil.as_unicode(
+            data_set.as_string("PatientID")[0],
+            data_set.as_string("SpecificCharacterSet") 
+            if "SpecificCharacterSet" in data_set else odil.Value.Strings())
 
     # Study directory: <StudyID>_<StudyDescription>, both parts are
     # optional. If both tags are missing or empty, raise an exception
     study_directory = []
     if "StudyID" in data_set and data_set.as_string("StudyID"):
-        study_directory.append(data_set.as_string("StudyID")[0])
-    if ("StudyDescription" in data_set and
-            data_set.as_string("StudyDescription")):
         study_directory.append(
-            data_set.as_string("StudyDescription")[0])
+            odil.as_unicode(
+                data_set.as_string("StudyID")[0],
+                data_set.as_string("SpecificCharacterSet") 
+                if "SpecificCharacterSet" in data_set else odil.Value.Strings()))
+    if "StudyDescription" in data_set and data_set.as_string("StudyDescription"):
+        study_directory.append(
+            odil.as_unicode(
+                data_set.as_string("StudyDescription")[0],
+                data_set.as_string("SpecificCharacterSet") 
+                if "SpecificCharacterSet" in data_set else odil.Value.Strings()))
 
     if not study_directory:
         raise Exception("Study ID and Study Description are both missing")
@@ -181,10 +193,12 @@ def get_series_directory(data_set, iso_9660):
     if "SeriesNumber" in data_set and data_set.as_int("SeriesNumber"):
         series_directory.append(str(data_set.as_int("SeriesNumber")[0]))
     if not iso_9660:
-        if ("SeriesDescription" in data_set and
-                data_set.as_string("SeriesDescription")):
+        if "SeriesDescription" in data_set and data_set.as_string("SeriesDescription"):
             series_directory.append(
-                data_set.as_string("SeriesDescription")[0])
+                odil.as_unicode(
+                    data_set.as_string("SeriesDescription")[0],
+                    data_set.as_string("SpecificCharacterSet") 
+                    if "SpecificCharacterSet" in data_set else odil.Value.Strings()))
 
     if not series_directory:
         raise Exception("Series Number and Series Description are both missing")
