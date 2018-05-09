@@ -9,14 +9,14 @@
 import collections
 import itertools
 
+import nibabel
 import numpy
 import odil
 
-import meta_data
-import image
-import odil_getter
+from . import meta_data
+from . import image
+from . import odil_getter
 
-import nifti_image
 from .. import logger, MetaData
 
 
@@ -24,7 +24,7 @@ def convert(dicom_data_sets, dtype):
     """ Convert a list of dicom data sets into Nfiti
 
         :param dicom_data_sets: list of dicom data sets to convert
-        :param dtype: type to use when coverting images
+        :param dtype: type to use when converting images
     """
 
     nifti_data = []
@@ -37,8 +37,7 @@ def convert(dicom_data_sets, dtype):
     stacks_count = {}
     stacks_converted = {}
     for key, data_sets_frame_idx in stacks.items():
-        series_instance_uid = data_sets_frame_idx[0][0].as_string(
-            odil.registry.SeriesInstanceUID)[0]
+        series_instance_uid = data_sets_frame_idx[0][0].as_string("SeriesInstanceUID")[0]
         stacks_count.setdefault(series_instance_uid, 0)
         stacks_count[series_instance_uid] += 1
         stacks_converted[series_instance_uid] = 0
@@ -52,7 +51,9 @@ def convert(dicom_data_sets, dtype):
     # Try to preserve the original stacks order (multi-frame)
     stacks = sorted(
         stacks.items(),
-        key=lambda item: numpy.min([x[1] for x in item[1]])
+        # WARNING: in Python3, None <= None is an error. Use -1 instead since
+        # the frame index will always be positive
+        key=lambda item: numpy.min([x[1] if x[1] is not None else -1 for x in item[1]])
     )
     for stack_index, (keys, data_sets_frame_idx) in enumerate(stacks):
         data_set = data_sets_frame_idx[0][0]
@@ -60,15 +61,21 @@ def convert(dicom_data_sets, dtype):
         study = [
             get_element(data_set, odil.registry.StudyID),
             get_element(data_set, odil.registry.StudyDescription)]
-        study = [unicode(x) for x in study if x is not None]
+        
+        study = [
+            odil.as_unicode(x, data_set.as_string("SpecificCharacterSet"))
+            for x in study if x is not None]
 
         series = [
             get_element(data_set, odil.registry.SeriesNumber),
             get_element(data_set, odil.registry.SeriesDescription)]
-        series = [unicode(x) for x in series if x is not None]
+        if series[0] is not None:
+            series[0] = u"{}".format(series[0])
+        if series[1] is not None:
+            series[1] = odil.as_unicode(
+                series[1], data_set.as_string("SpecificCharacterSet"))
 
-        series_instance_uid = data_set.as_string(
-            odil.registry.SeriesInstanceUID)[0]
+        series_instance_uid = data_set.as_string("SeriesInstanceUID")[0]
 
         if stacks_count[series_instance_uid] > 1:
             stack_info = " (stack {}/{})".format(
@@ -111,8 +118,8 @@ def convert(dicom_data_sets, dtype):
         mergeable = collections.OrderedDict()
         for nifti_img, nifti_meta_data in stacks:
             geometry = nifti_img.shape + \
-                tuple(nifti_img.qform.ravel().tolist())
-            dt = nifti_img.datatype
+                tuple(nifti_img.affine.ravel().tolist())
+            dt = nifti_img.dataobj.dtype
             mergeable.setdefault((geometry, dt), []).append(
                 (nifti_img, nifti_meta_data))
 
@@ -276,21 +283,13 @@ def merge_images_and_meta_data(images_and_meta_data):
     images = [x[0] for x in images_and_meta_data]
 
     pixel_data = numpy.ndarray(
-        (len(images),) + images[0].shape,
-        dtype=images[0].data.dtype)
+        images[0].shape + (len(images),),
+        dtype=images[0].dataobj.dtype, order="F")
     for i, image in enumerate(images):
-        pixel_data[i] = image.data
+        pixel_data[...,i] = image.dataobj
 
-    merged_image = nifti_image.NIfTIImage(
-        pixdim=images[0].pixdim,
-        cal_min=min(x.cal_min for x in images),
-        cal_max=max(x.cal_max for x in images),
-        qform_code=images[0].qform_code, sform_code=images[0].sform_code,
-        qform=images[0].qform, sform=images[0].sform,
-        xyz_units=images[0].xyz_units, time_units=images[0].time_units,
-        data=pixel_data,
-        datatype_=images[0].datatype)
-
+    merged_image = nibabel.Nifti1Image(pixel_data, images[0].affine)
+    
     meta_data = [x[1] for x in images_and_meta_data]
     merged_meta_data = MetaData()
     keys = set()
@@ -316,6 +315,7 @@ def _get_splitters(data_sets):
         "ALL": [
             # Single Frame generic tags
             ((odil.registry.SeriesInstanceUID,), odil_getter._default_getter),
+            ((odil.registry.ImageType,), odil_getter._default_getter),
             ((odil.registry.ImageOrientationPatient,),
              odil_getter.OrientationGetter()),
             ((odil.registry.SpacingBetweenSlices,), odil_getter._default_getter),
@@ -342,7 +342,8 @@ def _get_splitters(data_sets):
             # Philips Ingenia stores these fields at top-level
             ((odil.registry.DiffusionGradientOrientation,),
              odil_getter._default_getter),
-            ((odil.registry.DiffusionBValue,), odil_getter._default_getter)
+            ((odil.registry.DiffusionBValue,), odil_getter._default_getter),
+            ((odil.registry.TriggerTime,), odil_getter._default_getter),
         ],
         odil.registry.EnhancedMRImageStorage: [
             ((odil.registry.MRTimingAndRelatedParametersSequence, odil.registry.RepetitionTime),
@@ -368,10 +369,7 @@ def _get_splitters(data_sets):
         ]
     }
 
-    sop_classes = set(
-        x.as_string(odil.registry.SOPClassUID)[0]
-        for x in data_sets
-    )
+    sop_classes = set(x.as_string("SOPClassUID")[0] for x in data_sets)
 
     return list(itertools.chain(
         splitters["ALL"],

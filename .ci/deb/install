@@ -1,0 +1,30 @@
+#!/bin/sh
+
+export Architecture=${Architecture:?}
+export Distribution=${Distribution:?}
+export Python=${Python:?}
+export WORKSPACE=${WORKSPACE:?}
+
+APT_GET="sudo apt-get -y"
+
+${APT_GET} update
+${APT_GET} install gnupg lsb-release
+
+wget -O - http://dl.bintray.com/lamyj/generic/gpg.key | sudo apt-key add -
+echo "deb http://dl.bintray.com/lamyj/generic/apt $(lsb_release -cs) main" | sudo tee -a /etc/apt/sources.list
+
+${APT_GET} update
+
+# Compilation toolchain
+PACKAGES="build-essential cmake pkg-config python-minimal"
+# Dependencies of C++ lib
+PACKAGES="${PACKAGES} libboost-dev libboost-date-time-dev libboost-regex-dev libboost-filesystem-dev"
+PACKAGES="${PACKAGES} libjsoncpp-dev liblog4cpp5-dev libodil0 libodil-dev zlib1g-dev"
+# Dependencies of Python lib
+PACKAGES="${PACKAGES} libboost-python-dev python-nibabel python-numpy python-dateutil python-odil"
+# Dependencies of unit tests
+PACKAGES="${PACKAGES} libboost-test-dev python-nose"
+# Coverage and static analysis
+PACKAGES="${PACKAGES} cppcheck lcov"
+
+${APT_GET} install ${PACKAGES}

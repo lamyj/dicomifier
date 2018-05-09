@@ -48,7 +48,7 @@ def parse_element(csa, start):
 
     name, vm, vr, unknown_1, syngo_datatype, number_of_items, unknown_2 = struct.unpack(
         format, csa[start:start+size])
-    name = name.split("\x00")[0]
+    name = name.split(b"\x00")[0].decode()
 
     total_size = size
     start += size
@@ -56,9 +56,9 @@ def parse_element(csa, start):
     for i in range(number_of_items) :
         item, size = parse_item(csa, start)
         if i < vm :
-            if vr in ["DS", "FL", "FD"] :
+            if vr in [b"DS", b"FL", b"FD"] :
                 item = float(item[:-1])
-            elif vr in ["IS", "SS", "US", "SL", "UL"] :
+            elif vr in [b"IS", b"SS", b"US", b"SL", b"UL"] :
                 item = int(item[:-1])
             items.append(item)
         start += size
@@ -97,22 +97,22 @@ def parse_protocol(data):
     types = integer_types+floating_point_types+["s", "b", "t"]
 
     def integer_parser(value):
-        return int(value, 16 if value.startswith("0x") else 10)
+        return int(value, 16 if value.startswith(b"0x") else 10)
 
     def floating_point_parser(value):
         return float(value)
 
     def string_parser(value):
         # Remove beginning and ending quotes
-        if all(c=='"' for c in value):
-            return ""
+        if all(c==b'"' for c in value):
+            return b""
         else:
-            return re.match(r"\"*(.*[^\"])\"*", value).group(1)
+            return re.match(rb"\"*(.*[^\"])\"*", value).group(1)
 
     def value_parser(type_, value):
-        if type_ == "b":
+        if type_ == b"b":
             value = bool(integer_parser(value))
-        elif type_ == "t":
+        elif type_ == b"t":
             value = string_parser(value)
         elif type_ in integer_types:
             value = integer_parser(value)
@@ -129,19 +129,22 @@ def parse_protocol(data):
                     pass
         return value
 
-    if isinstance(data, basestring):
+    if isinstance(data, bytes):
         data = data.splitlines()
 
     protocol = {}
     for line in data:
-        match = re.match(r"^(?P<key>[\w\[\]\.]+)\s+=\s+(?P<value>.*)$", line)
+        match = re.match(rb"^(?P<key>[\w\[\]\.]+)\s+=\s+(?P<value>.*)$", line)
         key, value = match.groupdict()["key"], match.groupdict()["value"]
-
+        
         entry = protocol
-        for element in key.split("."):
-            match = re.match(r"(a?)((?:{0})?)(\w+)(?:\[(\d+)\])?".format("|".join(types)), element)
+        for element in key.split(b"."):
+            match = re.match(
+                r"(a?)((?:{0})?)(\w+)(?:\[(\d+)\])?".format("|".join(types)).encode(), 
+                element)
             is_array, type_, name, index = match.groups()
-            is_array = (is_array == "a")
+            is_array = (is_array == b"a")
+            name = name.decode()
             if index:
                 index = int(index)
 
@@ -150,13 +153,13 @@ def parse_protocol(data):
 
                 if len(entry) <= index:
                     entry.extend((1+index-len(entry))*[None])
-                if type_ not in ("", "s"):
+                if type_ not in (b"", b"s"):
                     entry[index] = value_parser(type_, value)
                 else:
                     if entry[index] is None:
                         entry[index] = {}
                     entry = entry[index]
-            elif type_ == "s":
+            elif type_ == b"s":
                 entry = entry.setdefault(name, {})
             else:
                 entry.setdefault(name, value_parser(type_, value))

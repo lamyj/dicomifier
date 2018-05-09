@@ -6,6 +6,4 @@
 # for details.
 #########################################################################
 
-from convert import convert
-from nifti_image import NIfTIImage
-from .. import nifti
+from .convert import convert

@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!${PYTHON_EXECUTABLE}
 
 import argparse
 import glob
@@ -7,7 +7,9 @@ import json
 import math
 import os
 import sys
+import unicodedata
 
+import nibabel
 import numpy
 import odil
 
@@ -62,8 +64,7 @@ def convert(dicom, destination, dtype, pretty_print, zip):
         if nifti_data is None:
             dicomifier.logger.info("No image in the series")
             continue
-        write_nifti(nifti_data, destination,
-                    pretty_print, zip)
+        write_nifti(nifti_data, destination, pretty_print, zip)
 
 
 def get_files(dicom):
@@ -83,19 +84,37 @@ def get_files(dicom):
             dicom_files.update(get_dicomdir_files(entry))
         else:
             dicom_files.add(entry)
-
-    return dicom_files
+    
+    # Make sure we do not have the same file saved under multiple names
+    sop_instance_uids = {}
+    for dicom_file in dicom_files:
+        try:
+            # Read only the header
+            is_not_header = lambda x: (x.group << 16) + x.element > 0x00040000
+            with odil.open(dicom_file) as fd:
+                header, _ = odil.Reader.read_file(fd, halt_condition=is_not_header)
+        except odil.Exception as e:
+            dicomifier.logger.warning("Could not read {}: {}".format(dicom_file, e))
+            continue
+        sop_instance_uids.setdefault(
+                header.as_string("MediaStorageSOPInstanceUID")[0], []
+            ).append(dicom_file)
+    if any(len(x) > 1 for x in sop_instance_uids.values()):
+        dicomifier.logger.warning(
+            "Multiple files with the same SOP instance UID")
+    return [x[0] for x in sop_instance_uids.values()]
 
 
 def get_dicomdir_files(path):
     dicom_files = []
-    _, dicomdir = odil.read(path)
+    with odil.open(path) as fd:
+        _, dicomdir = odil.Reader.read_file(fd)
     for record in dicomdir.as_data_set("DirectoryRecordSequence"):
-        if record.as_string("DirectoryRecordType")[0] == "IMAGE":
+        if record.as_string("DirectoryRecordType")[0] == b"IMAGE":
             dicom_files.append(
                 os.path.join(
                     os.path.dirname(path),
-                    *record.as_string("ReferencedFileID")))
+                    *[x.decode() for x in record.as_string("ReferencedFileID")]))
 
     return dicom_files
 
@@ -112,8 +131,9 @@ def split_series(dicom_files):
     series = {}
     for file_ in dicom_files:
         try:
-            header, data_set = odil.read(
-                file_, halt_condition=until_series_instance_uid)
+            with odil.open(file_) as fd:
+                header, data_set = odil.Reader.read_file(
+                    fd, halt_condition=until_series_instance_uid)
         except odil.Exception as e:
             dicomifier.logger.warning("Could not read {}: {}".format(file_, e))
             continue
@@ -144,7 +164,10 @@ def convert_series(series_files, dtype):
     dicomifier.logger.info(
         "Reading {} DICOM file{}".format(
             len(series_files), "s" if len(series_files) > 1 else ""))
-    dicom_data_sets = [odil.read(x)[1] for x in series_files]
+    dicom_data_sets = []
+    for series_file in series_files:
+        with odil.open(series_file) as fd:
+            dicom_data_sets.append(odil.Reader.read_file(fd)[1])
 
     # Get only data_sets containing correct PixelData field
     dicom_data_sets = [x for x in dicom_data_sets if "PixelData" in x]
@@ -173,8 +196,7 @@ def write_nifti(
         suffix = ".nii"
         if zip:
             suffix += ".gz"
-        dicomifier.nifti.write(
-            image, (destination_root + suffix).encode("utf-8"))
+        nibabel.save(image, destination_root + suffix)
 
         kwargs = {"sort_keys": True, "indent": 4} if pretty_print else {}
         json.dump(
@@ -218,7 +240,16 @@ def get_series_directory(meta_data):
     # parts are optional. If both tags are missing or empty, raise an exception
     series_directory = []
     if "SeriesNumber" in meta_data and meta_data["SeriesNumber"]:
-        series_directory.append(str(meta_data["SeriesNumber"][0]))
+        series_number = meta_data["SeriesNumber"][0]
+        if (
+                meta_data.get("SoftwareVersions", [""])[0] == "ParaVision" 
+                and series_number > 2**16):
+            # Bruker ID based on experiment number and reconstruction number is
+            # not readable: separate the two values
+            series_directory.extend(
+                str(x) for x in divmod(series_number, 2**16))
+        else:
+            series_directory.append(str(series_number))
     if ("SeriesDescription" in meta_data and meta_data["SeriesDescription"]):
         series_directory.append(meta_data["SeriesDescription"][0])
 
@@ -229,8 +260,20 @@ def get_series_directory(meta_data):
             raise Exception("Cannot determine series directory")
 
     series_directory = "_".join(series_directory).replace(os.path.sep, "_")
+    
+    path = os.path.join(patient_directory, study_directory, series_directory)
+    if isinstance(path, unicode if sys.version_info.major <= 2 else str):
+        path = strip_accents(path)
+    return path
 
-    return os.path.join(patient_directory, study_directory, series_directory)
+def strip_accents(string):
+    """ Remove accents from a unicode object. 
+        cf. https://stackoverflow.com/a/518232
+    """
+    
+    return u"".join(
+        c for c in unicodedata.normalize("NFD", string)
+        if unicodedata.category(c) != "Mn")
 
 if __name__ == "__main__":
     sys.exit(main())

@@ -10,10 +10,9 @@ import base64
 
 import json
 import odil
-import odil_getter
 
+from . import odil_getter
 from .. import MetaData
-
 
 def get_meta_data(data_sets_frame_idx, cache):
     """ Get the meta data of the current stack 
@@ -100,12 +99,12 @@ def get_meta_data(data_sets_frame_idx, cache):
                 skipped, direct_sequences)
 
     meta_data = MetaData()
-    specific_character_set = []
+    specific_character_set = odil.Value.Strings()
 
     for tag, values_dict in tag_values.items():
         # Check whether all values are the same
         all_equal = True
-        sample = values_dict[values_dict.keys()[0]]
+        sample = next(iter(values_dict.values()))
         for i in range(len(data_sets_frame_idx)):
             value = values_dict.get(i)
             if value != sample:
@@ -130,8 +129,11 @@ def get_meta_data(data_sets_frame_idx, cache):
                     for idx in range(len(data_sets_frame_idx))]
 
         if tag == odil.registry.SpecificCharacterSet:
-            specific_character_set = value
-
+            if value and isinstance(value[0], list):
+                specific_character_set = [odil.Value.Strings(x) for x in value]
+            else:
+                specific_character_set = odil.Value.Strings(value)
+        
         tag_name = get_tag_name(tag)
 
         meta_data[tag_name] = value
@@ -178,24 +180,24 @@ def convert_element(element, specific_character_set):
         result = list(element.as_int())
     elif element.is_real():
         result = list(element.as_real())
+    elif element.vr == odil.VR.PN:
+        data_set = odil.DataSet()
+        if specific_character_set:
+            data_set.add("SpecificCharacterSet", specific_character_set)
+        data_set.add(odil.registry.PersonName, element.as_string(), element.vr)
+        json_data_set = json.loads(odil.as_json(data_set))
+        result = json_data_set[str(odil.registry.PersonName)]["Value"]
     elif element.is_string():
-        if element.vr.name in ["LO", "LT", "PN", "SH", "ST", "UT"]:
-            data_set = odil.DataSet()
-            if specific_character_set:
-                data_set.add(
-                    odil.registry.SpecificCharacterSet, specific_character_set)
-            data_set.add(
-                odil.Tag(0xffff, 0xffff), element.as_string(), element.vr)
-            result = json.loads(odil.as_json(data_set))["ffffffff"]["Value"]
-        else:
-            result = list(element.as_string())
+        result = list(
+            odil.as_unicode(x, specific_character_set)
+            for x in element.as_string())
     elif element.is_data_set():
         result = [
             convert_data_set(x, specific_character_set)
             for x in element.as_data_set()]
     elif element.is_binary():
         result = [
-            base64.b64encode(x.get_memory_view().tobytes())
+            base64.b64encode(x.get_memory_view().tobytes()).decode()
             for x in element.as_binary()]
     else:
         raise Exception("Unknown element type")
@@ -209,8 +211,7 @@ def convert_data_set(data_set, specific_character_set):
 
     result = {}
     if data_set.has(odil.registry.SpecificCharacterSet):
-        specific_character_set = data_set.as_string(
-            odil.registry.SpecificCharacterSet)
+        specific_character_set = data_set.as_string("SpecificCharacterSet")
     for tag, element in data_set.items():
         name = get_tag_name(tag)
         value = convert_element(element, specific_character_set)
@@ -229,6 +230,11 @@ def _process_functional_groups(functional_groups, function, skipped, direct_sequ
         functional_group = functional_groups[sequence_tag]
         if sequence_tag in direct_sequences:
             # Nothing to do, use value as is.
+            function(sequence_tag, functional_group)
+        elif not functional_group.is_data_set():
+            # Seen in a private functional group, but should not happen
+            if sequence_tag in skipped:
+                continue
             function(sequence_tag, functional_group)
         elif not functional_group.empty():
             item = functional_group.as_data_set()[0]

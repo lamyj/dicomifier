@@ -10,14 +10,14 @@ import base64
 import math
 import itertools
 
+import nibabel
 import numpy
 import odil
 
-import odil_getter
-import nifti_image
-import meta_data
-from .. import logger, nifti
-import siemens
+from . import odil_getter
+from . import meta_data
+from .. import logger
+from . import siemens
 
 
 def get_image(data_sets_frame_idx, dtype, cache):
@@ -54,13 +54,14 @@ def get_image(data_sets_frame_idx, dtype, cache):
     for i, data in enumerate(pixel_data_list):
         pixel_data[i] = data
 
-    dt = nifti.DT_UNKNOWN
     scanner_transform = numpy.identity(4)
 
     origin, spacing, direction = get_geometry(data_sets_frame_idx)
 
-    if (len(data_sets_frame_idx) == 1 and
-            "MOSAIC" in data_sets_frame_idx[0][0].as_string(odil.registry.ImageType)):
+    image_type = (
+        data_sets_frame_idx[0][0].as_string("ImageType") 
+        if "ImageType" in data_sets_frame_idx[0][0] else [])
+    if len(data_sets_frame_idx) == 1 and b"MOSAIC" in image_type:
         data_set = data_sets_frame_idx[0][0]
 
         siemens_data = data_set.as_binary(odil.Tag("00291010"))[0]
@@ -73,8 +74,8 @@ def get_image(data_sets_frame_idx, dtype, cache):
 
         mosaic_shape = numpy.asarray(pixel_data.shape[-2:])
 
-        rows = pixel_data.shape[-2] / tiles_per_line
-        columns = pixel_data.shape[-1] / tiles_per_line
+        rows = round(pixel_data.shape[-2] / tiles_per_line)
+        columns = round(pixel_data.shape[-1] / tiles_per_line)
 
         real_shape = numpy.asarray([rows, columns])
 
@@ -108,22 +109,16 @@ def get_image(data_sets_frame_idx, dtype, cache):
             scanner_transform[:3, :3], numpy.diag(spacing))
         scanner_transform[:3, 3] = numpy.dot(lps_to_ras, origin)
 
-    elif samples_per_pix == 3 and data_sets_frame_idx[0][0].as_string("PhotometricInterpretation")[0] == "RGB":
+    elif samples_per_pix == 3 and data_sets_frame_idx[0][0].as_string("PhotometricInterpretation")[0] == b"RGB":
         if dtype != numpy.uint8:
             raise Exception("Invalid dtype {} for RGB".format(dtype))
-        dt = nifti.DT_RGB
+        pixel_data = pixel_data.view(
+                nibabel.nifti1.data_type_codes.dtype["RGB"]
+            ).reshape(pixel_data.shape[:3])
 
-    image = nifti_image.NIfTIImage(
-        pixdim=[0.] + spacing + (8 - len(spacing) - 1) * [0.],
-        cal_min=float(pixel_data.min()), cal_max=float(pixel_data.max()),
-        qform_code=nifti.NIFTI_XFORM_SCANNER_ANAT,
-        sform_code=nifti.NIFTI_XFORM_SCANNER_ANAT,
-        qform=scanner_transform, sform=scanner_transform,
-        xyz_units=nifti.NIFTI_UNITS_MM,
-        data=pixel_data,
-        datatype_=dt)
-
-    return image
+    # WARNING: ArrayWriter.to_fileobj is Fortran-order by default whereas numpy
+    # is C-order by default
+    return nibabel.Nifti1Image(pixel_data.T, scanner_transform)
 
 def get_linear_pixel_data(data_set):
     """Return a linear numpy array containing the pixel data."""
@@ -144,7 +139,7 @@ def get_linear_pixel_data(data_set):
 
     dtype = numpy.dtype(
         "{}{}{}".format(
-            byte_order, "u" if is_unsigned else "i", bits_allocated / 8))
+            byte_order, "u" if is_unsigned else "i", int(bits_allocated / 8)))
 
     view = data_set.as_binary(odil.registry.PixelData)[0].get_memory_view()
     linear_array = numpy.frombuffer(view.tobytes(), byte_order + dtype.char)
@@ -163,7 +158,9 @@ def get_shaped_pixel_data(data_set, linear_pixel_data, frame_idx):
 
     samples_per_pixel = data_set.as_int(odil.registry.SamplesPerPixel)[0]
     if samples_per_pixel == 1:
-        if data_set.has(odil.registry.NumberOfFrames):
+        if (
+                data_set.has(odil.registry.PerFrameFunctionalGroupsSequence) 
+                and data_set.has(odil.registry.NumberOfFrames)):
             number_of_frames = data_set.as_int(odil.registry.NumberOfFrames)[0]
             pixel_data = linear_pixel_data.reshape(number_of_frames, rows, cols)
             pixel_data = pixel_data[frame_idx, :]
@@ -193,7 +190,7 @@ def get_shaped_pixel_data(data_set, linear_pixel_data, frame_idx):
         slope = transformation.as_real(odil.registry.RescaleSlope)[0]
     if transformation.has(odil.registry.RescaleIntercept):
         intercept = transformation.as_real(odil.registry.RescaleIntercept)[0]
-    if None not in [slope, intercept]:
+    if None not in [slope, intercept] and not numpy.allclose([slope, intercept], [1, 0]):
         pixel_data = pixel_data * numpy.float32(slope) + numpy.float32(intercept)
 
     return pixel_data
@@ -290,10 +287,20 @@ def get_geometry(data_sets_frame_idx):
                 return origin, default_spacing, direction
     else:
         pixel_measures_sequence = data_set
+    
+    if "PixelSpacing" not in pixel_measures_sequence:
+        logger.warning("No spacing found, using default")
+        return origin, default_spacing, direction
     spacing = list(pixel_measures_sequence.as_real(odil.registry.PixelSpacing))
 
     if len(data_sets_frame_idx) == 1:
-        spacing.append(1.)
+        data_set = data_sets_frame_idx[0][0]
+        if "SpacingBetweenSlices" in data_set:
+            spacing.append(data_set.as_real("SpacingBetweenSlices")[0])
+        else:
+            logger.warning(
+                "Only one frame and no SpacingBetweenSlices, using default spacing")
+            spacing.append(1.)
     else:
         # Here we try to find the position of the second frame (plane_position_seq)
         if data_set.has(odil.registry.SharedFunctionalGroupsSequence):

@@ -6,6 +6,7 @@
 # for details.
 #########################################################################
 
+import functools
 import itertools
 
 class FrameIndexGenerator(object):
@@ -44,7 +45,7 @@ class FrameIndexGenerator(object):
         """ Return the total number of frames.
         """
         
-        return reduce(lambda x,y: x*y[0], self.frame_groups, 1)
+        return functools.reduce(lambda x,y: x*y[0], self.frame_groups, 1)
     frames_count = property(_get_frames_count)
     
     def _get_dependent_fields(self):
