@@ -82,9 +82,8 @@ def convert_reconstruction(
         if not os.path.isdir(os.path.dirname(destination_file)):
             os.makedirs(os.path.dirname(destination_file))
 
-        odil.write(
-            dicom_binary, destination_file, 
-            transfer_syntax=transfer_syntax)
+        with odil.open(destination_file, "wb") as fd:
+            odil.Writer.write_file(dicom_binary, fd, odil.DataSet(), transfer_syntax)
         files.append(destination_file)
     
     return files
