@@ -1,2 +1,1 @@
-src/cli/bruker2dicom usr/bin/
-src/cli/dicom2nifti usr/bin/
+usr/bin/

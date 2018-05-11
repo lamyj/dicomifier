@@ -1,33 +1,77 @@
 #!/usr/bin/make -f
 
+export DEB_CXXFLAGS_MAINT_APPEND  = -std=c++11
 export DEB_BUILD_MAINT_OPTIONS = hardening=+all
 
+# Find all Python versions
+PYTHON2=$(shell pyversions -vrd)
+PYTHON3=$(shell py3versions -vrd)
+ALLPY=$(PYTHON2) $(PYTHON3)
+
+# Required to get the full path to the boost.python library
+TRIPLET=$(shell dpkg-architecture -qDEB_HOST_MULTIARCH)
+
 %:
-	dh $@ --builddirectory=build --parallel --with python2
+	dh $@ --builddirectory=build --parallel --with python2,python3
 
 override_dh_auto_configure-arch:
-	dh_auto_configure -- -DNIfTI_INCLUDE_DIR=/usr/include/nifti -DBUILD_GUI=ON
 
+# Reconfigure build for specific Python version
+# WARNING: Python2 and Python3 MUST be built sequentially since they use the 
+# same build directory
 override_dh_auto_build-arch:
-	dh_auto_build
+	for Python in $(ALLPY); do \
+	  PythonNoDot=$$(echo $${Python} | sed 's|\.||'); \
+	  mkdir build; \
+	  dh_auto_configure -- \
+	    -DBUILD_GUI=OFF \
+	    -DPython_ADDITIONAL_VERSIONS=$${Python} \
+	    -DPYTHON_EXECUTABLE=/usr/bin/python$${Python} \
+	    -DBoost_PYTHON_LIBRARY_DEBUG=/usr/lib/$(TRIPLET)/libboost_python-py$${PythonNoDot}.so \
+	    -DBoost_PYTHON_LIBRARY_RELEASE=/usr/lib/$(TRIPLET)/libboost_python-py$${PythonNoDot}.so; \
+	  dh_auto_build; \
+	  mv build build-py$${Python}; \
+	done
 
+override_dh_auto_build-indep:
+	dh_auto_configure --builddirectory=build-indep -- \
+	  -DBUILD_GUI=OFF \
+	  -DPython_ADDITIONAL_VERSIONS=$(PYTHON3) \
+	  -DPYTHON_EXECUTABLE=/usr/bin/python$(PYTHON3)
+
+override_dh_makeshlibs-arch:
+	dh_makeshlibs -V'libdicomifier1 (>= 1.1.0-1)'
+
+# WARNING: Python2 and Python3 MUST be tested sequentially since they use the 
+# same build directory
 override_dh_auto_test-arch:
-	cd build && ../tests/run_tests.sh
+	# for Python in $(ALLPY); do \
+	#   ln -s build-py$${Python} build; \
+	#   cd build && ../tests/run_tests.sh; \
+	#   cd ..; \
+	#   rm build; \
+	# done
 
-override_dh_auto_install-arch: 
-	dh_numpy
-	dh_auto_install
+# WARNING: Python2 and Python3 MUST be installed sequentially since they use the 
+# same build directory
+override_dh_auto_install-arch:
+	for Python in $(ALLPY); do \
+	  ln -s build-py$${Python} build; \
+	  $(MAKE) -C build/src/lib install DESTDIR=$(CURDIR)/debian/tmp; \
+	  $(MAKE) -C build/src/python install DESTDIR=$(CURDIR)/debian/tmp; \
+	  rm build; \
+	done
+
+override_dh_auto_install-indep:
+	ln -s build-indep build
+	$(MAKE) -C build/src/cli install DESTDIR=$(CURDIR)/debian/tmp
+	rm build
 
 override_dh_install-arch:
 	dh_install
-	chrpath -d debian/dicomifier-gui/usr/bin/dicomifier
 	d-shlibmove \
 		--devunversioned \
 		--commit --multiarch --exclude-a --exclude-la \
-		--override s/libboost_date_time.*-dev/libboost-date-time-dev/ \
-		--override s/libboost_filesystem.*-dev/libboost-filesystem-dev/ \
-		--override s/libboost_regex.*-dev/libboost-regex-dev/ \
-		--override s/libboost_system.*-dev/libboost-system-dev/ \
 		--movedev debian/tmp/usr/include/* usr/include \
 		--override s/libdcm.*-dev/libdcmtk-dev/ \
 		--override s/libof.*-dev/libdcmtk-dev/ \
@@ -37,10 +81,8 @@ override_dh_install-arch:
 override_dh_clean:
 	dh_clean
 	find . -name "*pyc" -delete
-	rm -rf build
+	rm -rf build-indep $(ALLPY:%=build-py%)
 
 # These steps are not needed for arch-independent packages
 override_dh_auto_configure-indep:
-override_dh_auto_build-indep:
 override_dh_auto_test-indep:
-override_dh_auto_install-indep:

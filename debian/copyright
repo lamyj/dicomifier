@@ -3,7 +3,7 @@ Upstream-Name: dicomifier
 Source: https://github.com/lamyj/dicomifier
 
 Files: *
-Copyright: 2015 Julien Lamy <lamy@unistra.fr>
+Copyright: 2018 Julien Lamy <lamy@unistra.fr>
 License: CeCILL-B
  CeCILL-B FREE SOFTWARE LICENSE AGREEMENT
  .
