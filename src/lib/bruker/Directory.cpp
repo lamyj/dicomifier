@@ -109,7 +109,7 @@ Directory
     auto const dataset_it = this->_datasets.find(reconstruction);
     if(dataset_it == this->_datasets.end())
     {
-        throw DicomifierException("No such series");
+        throw DicomifierException("No such reconstruction: "+reconstruction);
     }
     
     return dataset_it->second;
@@ -122,7 +122,7 @@ Directory
     auto const dataset_it = this->_datasets.find(reconstruction);
     if(dataset_it == this->_datasets.end())
     {
-        throw DicomifierException("No such series");
+        throw DicomifierException("No such reconstruction: "+reconstruction);
     }
 
     return dataset_it->second.get_used_files();
