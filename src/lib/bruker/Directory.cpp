@@ -139,24 +139,19 @@ Directory
     
     for(RecursiveIterator it(path); it != RecursiveIterator(); ++it)
     {
-        if(it->path().filename() == "id" || it->path().filename() == "reco")
+        auto const & path = it->path();
+        if(path.filename() == "id" || path.filename() == "reco")
         {
-            for(Iterator reco_it(it->path().parent_path().parent_path()); 
-                reco_it != Iterator(); ++reco_it)
+            auto const series = 
+                path.parent_path().parent_path().parent_path().filename().string();
+            auto const reconstruction = path.parent_path().filename().string();
+            
+            auto & reconstructions = series_and_reco[series];
+            if(std::find(
+                reconstructions.begin(), reconstructions.end(), 
+                reconstruction) == reconstructions.end())
             {
-                if(boost::filesystem::is_directory(reco_it->path()))
-                {
-                    std::string const reconstruction = ((Path)*reco_it).filename().string();
-                    std::string const series = ((Path)*reco_it).parent_path().parent_path().filename().string();
-
-                    auto & reconstructions = series_and_reco[series];
-                    if(std::find(
-                        reconstructions.begin(), reconstructions.end(), 
-                        reconstruction) == reconstructions.end())
-                    {
-                        reconstructions.push_back(reconstruction);
-                    }
-                }
+                reconstructions.push_back(reconstruction);
             }
         }
     }
