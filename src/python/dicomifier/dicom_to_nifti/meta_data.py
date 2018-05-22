@@ -101,7 +101,9 @@ def get_meta_data(data_sets_frame_idx, cache):
     meta_data = MetaData()
     specific_character_set = odil.Value.Strings()
 
-    for tag, values_dict in tag_values.items():
+    # WARNING: we need to process items in tag order since SpecificCharacterSet
+    # must be processed before any non-ASCII element is.
+    for tag, values_dict in sorted(tag_values.items()):
         # Check whether all values are the same
         all_equal = True
         sample = next(iter(values_dict.values()))
