@@ -344,6 +344,9 @@ def _get_splitters(data_sets):
              odil_getter._default_getter),
             ((odil.registry.DiffusionBValue,), odil_getter._default_getter),
             ((odil.registry.TriggerTime,), odil_getter._default_getter),
+            (
+                (odil.registry.ContributingEquipmentSequence,), 
+                odil_getter._frame_group_index_getter)
         ],
         odil.registry.EnhancedMRImageStorage: [
             ((odil.registry.MRTimingAndRelatedParametersSequence, odil.registry.RepetitionTime),
