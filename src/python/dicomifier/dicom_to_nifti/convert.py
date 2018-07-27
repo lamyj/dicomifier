@@ -70,7 +70,13 @@ def convert(dicom_data_sets, dtype):
             get_element(data_set, odil.registry.SeriesNumber),
             get_element(data_set, odil.registry.SeriesDescription)]
         if series[0] is not None:
-            series[0] = u"{}".format(series[0])
+            software = get_element(data_set, odil.registry.SoftwareVersions)
+            if (software and software == "ParaVision" and series[0] > 2**16):
+                # Bruker ID based on experiment number and reconstruction number is
+                # not readable: separate the two values
+                series[0] = u"{}:{}".format(*[str(x) for x in divmod(series[0], 2**16)])
+            else:
+                series[0] = u"{}".format(series[0])
         if series[1] is not None:
             series[1] = odil.as_unicode(
                 series[1], data_set.as_string("SpecificCharacterSet"))
