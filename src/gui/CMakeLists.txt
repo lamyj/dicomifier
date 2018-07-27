@@ -17,9 +17,9 @@ include_directories(
     ${QT_INCLUDES}
     ${CMAKE_CURRENT_BINARY_DIR})
 add_definitions(
-    ${DCMTK_DEFINITIONS} -DBOOST_FILESYSTEM_VERSION=3)
+    -DBOOST_FILESYSTEM_VERSION=3)
 link_directories(
-    ${Boost_LIBRARY_DIRS} ${DCMTK_LIBRARY_DIRS})
+    ${Boost_LIBRARY_DIRS})
 
 QT4_WRAP_CPP(mocs ${headers})
 QT4_WRAP_UI(compiled_forms ${forms})
