@@ -45,15 +45,10 @@ def main():
         default="ImplicitVRLittleEndian",
         help="Transfer syntax of the output files"
     )
-    # Disabled in order to correctly store the Frame Group index: since some
-    # frame groups are empty (i.e. in VisuFGOrderDesc one where the last value 
-    # is 0), we store the Frame Group index in Contributing Equipment Sequence;
-    # however, this is per-instance and no frame-level element exist to match 
-    # this.
-    # convert_parser.add_argument(
-    #     "--multiframe", "-m", action="store_true",
-    #     help="Generate multiframe dicom files"
-    # )
+    convert_parser.add_argument(
+        "--multiframe", "-m", action="store_true",
+        help="Generate multiframe dicom files"
+    )
     convert_parser.add_argument(
         "--dicomdir", "-d", action="store_true", help="Create a DICOMDIR")
     convert_parser.add_argument(
@@ -62,7 +57,6 @@ def main():
     convert_parser.set_defaults(function=convert)
 
     arguments = vars(parser.parse_args())
-    arguments["multiframe"] = False # cf. previous comment
     
     if "function" not in arguments:
         parser.error("too few arguments")

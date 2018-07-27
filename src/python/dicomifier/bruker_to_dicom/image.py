@@ -377,9 +377,6 @@ SOPCommon = [ # http://dicom.nema.org/medical/dicom/current/output/chtml/part03/
     #SpecificCharacterSet
     (None, "InstanceCreationDate", 3, lambda d,g,i: [str(datetime.datetime.now())], None),
     (None, "InstanceCreationTime", 3, lambda d,g,i: [str(datetime.datetime.now())], None),
-    (
-        None, "ContributingEquipmentSequence", 3, 
-        lambda d,g,i: [_get_frame_index(d,g,i)], None)
 ]
 
 

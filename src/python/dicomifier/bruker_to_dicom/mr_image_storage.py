@@ -82,7 +82,11 @@ def mr_image_storage(bruker_data_set, transfer_syntax):
                 None
             )
         ],
-        image.SOPCommon + [(None, "SOPClassUID", 1, lambda d,g,i: [odil.registry.MRImageStorage], None)]
+        image.SOPCommon + [
+            (None, "SOPClassUID", 1, lambda d,g,i: [odil.registry.MRImageStorage], None),
+            (
+                None, "ContributingEquipmentSequence", 3, 
+                lambda d,g,i: [image._get_frame_index(d,g,i)], None)]
     ]
 
     vr_finder_object = odil.VRFinder()
