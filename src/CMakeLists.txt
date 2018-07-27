@@ -1,6 +1,3 @@
 add_subdirectory(lib)
 add_subdirectory(python)
 add_subdirectory(cli)
-if(BUILD_GUI)
-    add_subdirectory(gui)
-endif()

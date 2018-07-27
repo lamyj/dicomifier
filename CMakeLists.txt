@@ -8,8 +8,6 @@ set(dicomifier_VERSION
 cmake_minimum_required(VERSION 2.8)
 
 option(BUILD_EXAMPLES "Build the examples directory." ON)
-option(BUILD_GUI "Build the graphical user interface" OFF)
-set(EXTRA_BUNDLE_DIRS "" CACHE STRING "Extra search path when creating bundle")
 
 # Add the C++0x or C++11 flag
 include(CheckCXXCompilerFlag)
