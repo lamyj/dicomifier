@@ -70,7 +70,13 @@ def convert(dicom_data_sets, dtype):
             get_element(data_set, odil.registry.SeriesNumber),
             get_element(data_set, odil.registry.SeriesDescription)]
         if series[0] is not None:
-            series[0] = u"{}".format(series[0])
+            software = get_element(data_set, odil.registry.SoftwareVersions)
+            if (software and software == "ParaVision" and series[0] > 2**16):
+                # Bruker ID based on experiment number and reconstruction number is
+                # not readable: separate the two values
+                series[0] = u"{}:{}".format(*[str(x) for x in divmod(series[0], 2**16)])
+            else:
+                series[0] = u"{}".format(series[0])
         if series[1] is not None:
             series[1] = odil.as_unicode(
                 series[1], data_set.as_string("SpecificCharacterSet"))
@@ -211,6 +217,21 @@ def get_stacks(data_sets):
                                     key.append(
                                         ((top_seq_tag, seq, tag), value))
                 stacks.setdefault(tuple(key), []).append((data_set, frame_idx))
+    
+    # Simplify keys: remove those that have the same value for all stacks
+    keys = numpy.asarray(list(stacks.keys())) # stack_id, tag, value
+    to_keep = []
+    for index in range(keys.shape[1]):
+        unique_values = set(keys[:,index,:][:,1])
+        is_orientation = (keys[:,index,:][0][0][2] == str(odil.registry.ImageOrientationPatient))
+        if len(unique_values) > 1 or is_orientation:
+            # Key must be kept
+            to_keep.append(index)
+    stacks = {
+        tuple(v for (i, v) in enumerate(stack_key) if i in to_keep): stack_value
+        for stack_key, stack_value in stacks.items()
+    }
+    
     return stacks
 
 
@@ -330,6 +351,8 @@ def _get_splitters(data_sets):
             ((odil.registry.PixelMeasuresSequence, odil.registry.SpacingBetweenSlices),
              odil_getter._default_getter),
             ((odil.registry.FrameContentSequence, odil.registry.FrameAcquisitionNumber),
+             odil_getter._default_getter),
+            ((odil.registry.FrameContentSequence, odil.registry.FrameLabel),
              odil_getter._default_getter)
         ],
         odil.registry.MRImageStorage: [
@@ -344,6 +367,9 @@ def _get_splitters(data_sets):
              odil_getter._default_getter),
             ((odil.registry.DiffusionBValue,), odil_getter._default_getter),
             ((odil.registry.TriggerTime,), odil_getter._default_getter),
+            (
+                (odil.registry.ContributingEquipmentSequence,), 
+                odil_getter._frame_group_index_getter)
         ],
         odil.registry.EnhancedMRImageStorage: [
             ((odil.registry.MRTimingAndRelatedParametersSequence, odil.registry.RepetitionTime),
@@ -357,7 +383,7 @@ def _get_splitters(data_sets):
             ((odil.registry.MRMetaboliteMapSequence, odil.registry.MetaboliteMapDescription),
              odil_getter._default_getter),
             ((odil.registry.MRDiffusionSequence, None),
-             odil_getter._diffusion_getter)
+             odil_getter._diffusion_getter),
         ],
         odil.registry.EnhancedPETImageStorage: [
             ((odil.registry.PETFrameTypeSequence, odil.registry.FrameType),

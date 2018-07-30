@@ -195,7 +195,13 @@ def get_series_directory(data_set, iso_9660):
     # parts are optional. If both tags are missing or empty, raise an exception
     series_directory = []
     if "SeriesNumber" in data_set and data_set.as_int("SeriesNumber"):
-        series_directory.append(str(data_set.as_int("SeriesNumber")[0]))
+        series_number = data_set.as_int("SeriesNumber")[0]
+        if series_number > 2**16:
+            # Bruker ID based on experiment number and reconstruction number is
+            # not readable: separate the two values
+            series_directory.append(str(divmod(series_number, 2**16)[0]))
+        else:
+            series_directory.append(str(series_number))
     if not iso_9660:
         if "SeriesDescription" in data_set and data_set.as_string("SeriesDescription"):
             series_directory.append(

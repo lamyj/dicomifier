@@ -7,6 +7,7 @@
 #########################################################################
 
 import datetime
+import json
 import re
 
 import numpy
@@ -192,6 +193,23 @@ def _get_geometry_of_kSpace_traversal(data_set, generator, frame_index):
     else:
         return None
 
+def _get_frame_index(bruker_data_set, generator, frame_index):
+    purpose = odil.DataSet()
+    purpose.add("CodeValue", ["109102"])
+    purpose.add("CodingSchemeDesignator", ["DCM"])
+    purpose.add("CodeMeaning", ["Processing Equipment"])
+    
+    data_set = odil.DataSet()
+    data_set.add("PurposeOfReferenceCodeSequence", [purpose])
+    data_set.add("Manufacturer", ["Dicomifier"])
+    data_set.add("ManufacturerModelName", ["Bruker Frame Group index"])
+    contribution = [
+        [fg[1], frame_index[i]]
+        for i, fg in enumerate(generator.frame_groups) 
+        if fg[1] != 'FG_SLICE']
+    data_set.add("ContributionDescription", [json.dumps(contribution)])
+    
+    return data_set
 
 GeneralImage = [ # http://dicom.nema.org/medical/dicom/current/output/chtml/part03/sect_C.7.6.html#sect_C.7.6.1
     (None, "InstanceNumber", 2, lambda d,g,i: [1+g.get_linear_index(i)], None),
@@ -355,8 +373,6 @@ MRDiffusion = [ # http://dicom.nema.org/medical/dicom/current/output/chtml/part0
 ]
 
 SOPCommon = [ # http://dicom.nema.org/medical/dicom/current/output/chtml/part03/sect_C.12.html#sect_C.12.1
-    # Will be add further in the converting function (mr_image_storage or enhanced_mr_image_storage)
-    # (None, "SOPClassUID", 1, lambda d,g,i: [odil.registry.MRImageStorage], None),
     (None, "SOPInstanceUID", 1, lambda d,g,i: [odil.generate_uid()], None),
     #SpecificCharacterSet
     (None, "InstanceCreationDate", 3, lambda d,g,i: [str(datetime.datetime.now())], None),

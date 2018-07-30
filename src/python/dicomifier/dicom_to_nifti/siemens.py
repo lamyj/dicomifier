@@ -107,7 +107,7 @@ def parse_protocol(data):
         if all(c==b'"' for c in value):
             return b""
         else:
-            return re.match(rb"\"*(.*[^\"])\"*", value).group(1)
+            return re.match(br"\"*(.*[^\"])\"*", value).group(1)
 
     def value_parser(type_, value):
         if type_ == b"b":
@@ -134,7 +134,7 @@ def parse_protocol(data):
 
     protocol = {}
     for line in data:
-        match = re.match(rb"^(?P<key>[\w\[\]\.]+)\s+=\s+(?P<value>.*)$", line)
+        match = re.match(br"^(?P<key>[\w\[\]\.]+)\s+=\s+(?P<value>.*)$", line)
         key, value = match.groupdict()["key"], match.groupdict()["value"]
         
         entry = protocol

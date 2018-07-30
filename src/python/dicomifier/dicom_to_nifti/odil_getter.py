@@ -6,9 +6,10 @@
 # for details.
 #########################################################################
 
-import odil
-import numpy
+import json
 
+import numpy
+import odil
 
 def _default_getter(data_set, tag):
     """ Get an element from the dataset, but don't raise any exception if not found
@@ -227,3 +228,24 @@ def _diffusion_getter(data_set, tag):
                 "Unknown directionality: {}".format(directionality))
         value = (b_value, sensitization)
     return value
+
+def _frame_group_index_getter(data_set, tag):
+    value = _default_getter(data_set, tag)
+    if value is None:
+        return value
+    
+    frame_group_index_entries = [
+        x for x in value 
+        if (
+            x.as_string("Manufacturer")[0] == b"Dicomifier"
+            and x.as_string("ManufacturerModelName")[0] == b"Bruker Frame Group index")]
+    if not frame_group_index_entries:
+        return None
+    elif len(frame_group_index_entries) > 1:
+        raise Exception("Multiple Frame Group index entries found")
+    
+    contribution_description = json.loads(
+        frame_group_index_entries[0].as_string("ContributionDescription")[0])
+    
+    index = tuple(tuple(x) for x in contribution_description)
+    return index

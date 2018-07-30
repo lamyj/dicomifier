@@ -63,7 +63,12 @@ class FrameIndexGenerator(object):
         frame_groups = []
         for description in data_set.get("VisuFGOrderDesc", []):
             frame_count, name, _, begin, fields_count = description
-            fields = [x[0] for x in data_set["VisuGroupDepVals"][begin:begin+fields_count]]
+            if fields_count == 0:
+                fields = []
+            else:
+                fields = [
+                    x[0] for x in 
+                    data_set["VisuGroupDepVals"][begin:begin+fields_count]]
             frame_groups.append([frame_count, name]+[fields])
         # CAUTION: the frame groups are listed in innermost-to-outermost
         # order, while FrameIndexGenerator uses outermost-to-innermost order.
