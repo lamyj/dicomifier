@@ -351,6 +351,8 @@ def _get_splitters(data_sets):
             ((odil.registry.PixelMeasuresSequence, odil.registry.SpacingBetweenSlices),
              odil_getter._default_getter),
             ((odil.registry.FrameContentSequence, odil.registry.FrameAcquisitionNumber),
+             odil_getter._default_getter),
+            ((odil.registry.FrameContentSequence, odil.registry.FrameLabel),
              odil_getter._default_getter)
         ],
         odil.registry.MRImageStorage: [
@@ -381,7 +383,7 @@ def _get_splitters(data_sets):
             ((odil.registry.MRMetaboliteMapSequence, odil.registry.MetaboliteMapDescription),
              odil_getter._default_getter),
             ((odil.registry.MRDiffusionSequence, None),
-             odil_getter._diffusion_getter)
+             odil_getter._diffusion_getter),
         ],
         odil.registry.EnhancedPETImageStorage: [
             ((odil.registry.PETFrameTypeSequence, odil.registry.FrameType),
