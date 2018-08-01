@@ -1,6 +1,6 @@
 Name: dicomifier
 Summary: Convert data to and from DICOM (libraries)
-Version: 1.2.0
+Version: 1.2.1
 Release: 1%{?dist}
 License: CeCILL-B
 Source0: https://github.com/lamyj/%{name}/archive/v%{version}.tar.gz
@@ -12,10 +12,8 @@ BuildRequires: make
 BuildRequires: pkgconfig
 
 BuildRequires: boost-devel
-BuildRequires: odil-devel
 BuildRequires: pkgconfig(jsoncpp)
 BuildRequires: pkgconfig(log4cpp)
-BuildRequires: pkgconfig(uuid)
 BuildRequires: python2-dateutil
 BuildRequires: python2-nibabel
 BuildRequires: python2-numpy
@@ -25,8 +23,6 @@ BuildRequires: python2-devel
 #BuildRequires: python-nose
 # boost-python is only compiled for Python 2: skip Python 3-related packages
 
-BuildRequires: doxygen
-BuildRequires: graphviz
 BuildRequires: help2man
 
 %description
@@ -57,10 +53,10 @@ This package contains the development files.
 Summary: Convert data to and from DICOM (Python 2 modules)
 Requires: %{name} = %{version}-%{release}
 Requires: python
-Requires: python-dateutil
-Requires: python-numpy
-Requires: python-odil
-Requires: python-nibabel
+Requires: python2-dateutil
+Requires: python2-nibabel
+Requires: python2-numpy
+Requires: python2-odil
 
 %description -n python2-%{name}
 Dicomifier is a set of tools to convert Bruker to DICOM and DICOM to NIfTI. A
@@ -93,7 +89,7 @@ This package contains the command-line application.
 sed -i 's/DESTINATION lib/DESTINATION %{_lib}/g' src/lib/CMakeLists.txt
 mkdir build
 cd build
-%cmake -DBUILD_GUI=OFF ..
+%cmake -DBUILD_GUI=OFF -DPYTHON_EXECUTABLE=/bin/python2.7 ..
 %make_build
 
 %install
@@ -127,5 +123,8 @@ LD_LIBRARY_PATH=%{buildroot}%{_libdir} \
 %postun -p /sbin/ldconfig
 
 %changelog
+* Wed Aug 01 2018 Julien Lamy <lamy@unistra.fr> 1.2.1-1
+- New upstream release
+- Fix dependencies
 * Thu Jul 26 2018 Julien Lamy <lamy@unistra.fr> 1.2.0-1
 - Initial release
