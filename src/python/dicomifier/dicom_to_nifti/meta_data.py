@@ -132,9 +132,12 @@ def get_meta_data(data_sets_frame_idx, cache):
 
         if tag == odil.registry.SpecificCharacterSet:
             if value and isinstance(value[0], list):
-                specific_character_set = [odil.Value.Strings(x) for x in value]
+                specific_character_set = [
+                    odil.Value.Strings([x.encode() for x in item]) 
+                    for item in value]
             else:
-                specific_character_set = odil.Value.Strings(value)
+                specific_character_set = odil.Value.Strings(
+                    [x.encode() for x in value])
         
         tag_name = get_tag_name(tag)
 

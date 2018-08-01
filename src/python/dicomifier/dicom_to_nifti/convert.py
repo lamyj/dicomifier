@@ -62,10 +62,6 @@ def convert(dicom_data_sets, dtype):
             get_element(data_set, odil.registry.StudyID),
             get_element(data_set, odil.registry.StudyDescription)]
         
-        study = [
-            odil.as_unicode(x, data_set.as_string("SpecificCharacterSet"))
-            for x in study if x is not None]
-
         series = [
             get_element(data_set, odil.registry.SeriesNumber),
             get_element(data_set, odil.registry.SeriesDescription)]
@@ -77,9 +73,6 @@ def convert(dicom_data_sets, dtype):
                 series[0] = u"{}:{}".format(*[str(x) for x in divmod(series[0], 2**16)])
             else:
                 series[0] = u"{}".format(series[0])
-        if series[1] is not None:
-            series[1] = odil.as_unicode(
-                series[1], data_set.as_string("SpecificCharacterSet"))
 
         series_instance_uid = data_set.as_string("SeriesInstanceUID")[0]
 
