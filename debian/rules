@@ -40,7 +40,7 @@ override_dh_auto_build-indep:
 	  -DPYTHON_EXECUTABLE=/usr/bin/python$(PYTHON3)
 
 override_dh_makeshlibs-arch:
-	dh_makeshlibs -V'libdicomifier1 (>= 1.2.0-1)'
+	dh_makeshlibs -V'libdicomifier1 (>= 1.2.1-1)'
 
 # WARNING: Python2 and Python3 MUST be tested sequentially since they use the 
 # same build directory
