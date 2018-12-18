@@ -45,6 +45,19 @@ list_sujects(std::string const & path)
     return result_python;
 }
 
+boost::python::list
+get_used_files(
+    dicomifier::bruker::Directory const & directory, 
+    std::string const & reconstruction)
+{
+    boost::python::list list;
+    for(auto const & item: directory.get_used_files(reconstruction))
+    {
+        list.append(item);
+    }
+    return list;
+}
+
 }
 
 void wrap_Directory()
@@ -58,8 +71,7 @@ void wrap_Directory()
         .def(
             "get_dataset", &Directory::get_dataset,
             return_value_policy<copy_const_reference>())
-        .def("get_used_files", &Directory::get_used_files,
-            return_value_policy<copy_const_reference>())
+        .def("get_used_files", get_used_files)
         .def("list_subjects", &list_sujects).staticmethod("list_subjects")
         .def("get_series_and_reco", &get_series_and_reco).staticmethod("get_series_and_reco")
     ;
