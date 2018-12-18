@@ -3,7 +3,7 @@
 Dicomifier is a set of tools to convert Bruker data to DICOM files, and DICOM files to NIfTI. It retains meta-data (e.g. MR parameters such as echo time or subject parameters such as weight or height) throughout the conversion process, storing them in [JSON](https://en.wikipedia.org/wiki/JSON) format, allowing easy access in multiple environments ([command-line](https://stedolan.github.io/jq/), [C++](https://github.com/open-source-parsers/jsoncpp), [MATLAB](http://iso2mesh.sourceforge.net/cgi-bin/index.cgi?jsonlab), [Python](https://docs.python.org/2/library/json.html)). The meta-data from Bruker is aligned on the DICOM dictionary for unified human and animal processing pipelines.
 
 Dicomifier builds and runs on:
-* Linux (Debian 8 and 9, Ubuntu 14.04 through 18.04, all 32 and 64 bits).
+* Linux (Debian 8 and 9, Ubuntu 14.04 through 18.04, CentOS 7).
 * OS X
 
 A [Docker image](https://hub.docker.com/r/lamyj/dicomifier/) is also available.
@@ -12,6 +12,7 @@ A [Docker image](https://hub.docker.com/r/lamyj/dicomifier/) is also available.
 
 Unofficial packages are provided for the Debian and Ubuntu listed above. After following the [instructions to set up the unofficial repository](https://github.com/lamyj/packages), install the `dicomifier-cli` package with the usual tools provided by your distribution, e.g.:
 * Debian/Ubuntu: `sudo apt-get install dicomifier-cli`
+* CentOS: `sudo yum install dicomifier-cli`
 
 If your distribution has no pre-compiled package available, you can either compile it from source (cf. documentation for [Linux](https://github.com/lamyj/dicomifier/wiki/Compiling-on-Debian-or-Ubuntu) and [macOS](https://github.com/lamyj/dicomifier/wiki/Compiling-on-OS-X)) or [ask for packaging](https://github.com/lamyj/dicomifier/issues).
 
