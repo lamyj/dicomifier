@@ -23,8 +23,9 @@ matrix:
       env: { vendor: ubuntu, version: xenial, python: 3 }
     - name: "Ubuntu Xenial, Python 2"
       env: { vendor: ubuntu, version: xenial, python: 2 }
-    - name: "Ubuntu Trusty, Python 3"
-      env: { vendor: ubuntu, version: trusty, python: 3 }
+    # WARNING: python3-nibabel does not exist in trusty
+    # - name: "Ubuntu Trusty, Python 3"
+    #   env: { vendor: ubuntu, version: trusty, python: 3 }
     - name: "Ubuntu Trusty, Python 2"
       env: { vendor: ubuntu, version: trusty, python: 2 }
 
@@ -33,6 +34,7 @@ before_install:
     docker run -di \
       -e Python=${python} -e WORKSPACE=${TRAVIS_BUILD_DIR} \
       -e MAKE_OPTIONS="-j$(nproc)" \
+      -e DEBIAN_FRONTEND=noninteractive \
       -v ${TRAVIS_BUILD_DIR}:${TRAVIS_BUILD_DIR} \
       --name dicomifier --rm \
       ${vendor}:${version}
