@@ -1,30 +1,37 @@
 #!/bin/sh
 
-export Architecture=${Architecture:?}
-export Distribution=${Distribution:?}
+set -ev
+
 export Python=${Python:?}
-export WORKSPACE=${WORKSPACE:?}
 
-APT_GET="sudo apt-get -y"
+apt-get update
+apt-get -y --no-install-recommends install gnupg software-properties-common wget
 
-${APT_GET} update
-${APT_GET} install gnupg lsb-release
+REPOSITORY=http://dl.bintray.com/lamyj/generic
+wget -O - ${REPOSITORY}/gpg.key | apt-key add -
+echo "deb ${REPOSITORY}/apt $(lsb_release -cs) main" >> /etc/apt/sources.list
 
-wget -O - http://dl.bintray.com/lamyj/generic/gpg.key | sudo apt-key add -
-echo "deb http://dl.bintray.com/lamyj/generic/apt $(lsb_release -cs) main" | sudo tee -a /etc/apt/sources.list
+apt-get update
 
-${APT_GET} update
+if [ "${Python}" = "2" ]
+then
+  PYTHON_PREFIX="python"
+elif [ "${Python}" = "3" ]
+then
+  PYTHON_PREFIX="python3"
+fi
 
 # Compilation toolchain
 PACKAGES="build-essential cmake pkg-config python-minimal"
 # Dependencies of C++ lib
-PACKAGES="${PACKAGES} libboost-dev libboost-date-time-dev libboost-regex-dev libboost-filesystem-dev"
-PACKAGES="${PACKAGES} libjsoncpp-dev liblog4cpp5-dev libodil0 libodil-dev zlib1g-dev"
+PACKAGES="${PACKAGES} libboost-date-time-dev libboost-filesystem-dev "
+PACKAGES="${PACKAGES} libboost-regex-dev libboost-system-dev libjsoncpp-dev"
+PACKAGES="${PACKAGES} liblog4cpp5-dev zlib1g-dev"
 # Dependencies of Python lib
-PACKAGES="${PACKAGES} libboost-python-dev python-nibabel python-numpy python-dateutil python-odil"
+PACKAGES="${PACKAGES} libboost-python-dev ${PYTHON_PREFIX}-dateutil"
+PACKAGES="${PACKAGES} ${PYTHON_PREFIX}-nibabel ${PYTHON_PREFIX}-numpy"
+PACKAGES="${PACKAGES} ${PYTHON_PREFIX}-odil"
 # Dependencies of unit tests
-PACKAGES="${PACKAGES} libboost-test-dev python-nose"
-# Coverage and static analysis
-PACKAGES="${PACKAGES} cppcheck lcov"
+PACKAGES="${PACKAGES} libboost-test-dev ${PYTHON_PREFIX}-nose"
 
-${APT_GET} install ${PACKAGES}
+apt-get -y --no-install-recommends install ${PACKAGES}
