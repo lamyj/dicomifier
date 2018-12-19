@@ -19,3 +19,14 @@ export PYTHONPATH=${WORKSPACE}/install${POSTFIX}/$(python${Python} -c "from dist
 cd ${WORKSPACE}/build${POSTFIX}
 
 "${WORKSPACE}/tests/run_tests.sh"
+
+cd ${HOME}
+# WARNING: 467 MB archived, 807 MB unzipped
+wget -qO - https://github.com/fli-iam/dicomifier-data/archive/master.tar.gz ⁠\
+  | tar -x -z -f -
+
+export PATH=${WORKSPACE}/install${POSTFIX}/bin:${PATH}
+python${Python} ./dicomifier-data-master/scripts/diff_bruker2dicom.py
+python${Python} ./dicomifier-data-master/scripts/diff_dicom2nifti.py
+
+rm -rf dicomifier-data-master

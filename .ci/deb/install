@@ -31,7 +31,7 @@ PACKAGES="${PACKAGES} liblog4cpp5-dev zlib1g-dev"
 PACKAGES="${PACKAGES} libboost-python-dev ${PYTHON_PREFIX}-dateutil"
 PACKAGES="${PACKAGES} ${PYTHON_PREFIX}-nibabel ${PYTHON_PREFIX}-numpy"
 PACKAGES="${PACKAGES} ${PYTHON_PREFIX}-odil"
-# Dependencies of unit tests
-PACKAGES="${PACKAGES} libboost-test-dev ${PYTHON_PREFIX}-nose"
+# Dependencies of tests
+PACKAGES="${PACKAGES} libboost-test-dev ${PYTHON_PREFIX}-nose unzip"
 
 apt-get -y --no-install-recommends install ${PACKAGES}
