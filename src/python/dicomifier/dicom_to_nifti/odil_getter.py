@@ -245,7 +245,7 @@ def _frame_group_index_getter(data_set, tag):
         raise Exception("Multiple Frame Group index entries found")
     
     contribution_description = json.loads(
-        frame_group_index_entries[0].as_string("ContributionDescription")[0])
+        frame_group_index_entries[0].as_string("ContributionDescription")[0].decode())
     
     index = tuple(tuple(x) for x in contribution_description)
     return index
