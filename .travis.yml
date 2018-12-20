@@ -23,11 +23,7 @@ matrix:
       env: { vendor: ubuntu, version: xenial, python: 3 }
     - name: "Ubuntu Xenial, Python 2"
       env: { vendor: ubuntu, version: xenial, python: 2 }
-    # WARNING: python3-nibabel does not exist in trusty
-    # - name: "Ubuntu Trusty, Python 3"
-    #   env: { vendor: ubuntu, version: trusty, python: 3 }
-    - name: "Ubuntu Trusty, Python 2"
-      env: { vendor: ubuntu, version: trusty, python: 2 }
+    # WARNING: nibabel in trusty is too old
 
 before_install:
   - |
