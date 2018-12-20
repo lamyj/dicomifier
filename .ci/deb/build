@@ -18,6 +18,7 @@ fi
 PythonNoDot=$(echo ${PYTHON_VERSION} | sed 's|\.||')
 
 TRIPLET=$(dpkg-architecture -qDEB_HOST_MULTIARCH)
+BOOST_PYTHON_LIBRARY=/usr/lib/${TRIPLET}/libboost_python-py${PythonNoDot}.so
 
 cd ${WORKSPACE}
 
@@ -25,10 +26,11 @@ mkdir build${POSTFIX}
 mkdir install${POSTFIX}
 cd build${POSTFIX}
 cmake \
-  -DPython_ADDITIONAL_VERSIONS=${PYTHON_VERSION} ⁠\
+  -DPython_ADDITIONAL_VERSIONS=${PYTHON_VERSION} \
   -DPYTHON_EXECUTABLE=/usr/bin/python${PYTHON_VERSION} \
-  -DBoost_PYTHON_LIBRARY_DEBUG=/usr/lib/*/libboost_python-py${PythonNoDot}.so \
-  -DBoost_PYTHON_LIBRARY_RELEASE=/usr/lib/*/libboost_python-py${PythonNoDot}.so \
+  -DBoost_PYTHON_LIBRARY_DEBUG=${BOOST_PYTHON_LIBRARY} \
+  -DBoost_PYTHON_LIBRARY_RELEASE=${BOOST_PYTHON_LIBRARY} \
   -DCMAKE_INSTALL_PREFIX="${WORKSPACE}/install${POSTFIX}" \
+  ${CMAKE_OPTIONS} \
   ..
 make ${MAKE_OPTIONS} install

@@ -29,8 +29,8 @@ PACKAGES="${PACKAGES} libboost-regex-dev libboost-system-dev libjsoncpp-dev"
 PACKAGES="${PACKAGES} liblog4cpp5-dev zlib1g-dev"
 # Dependencies of Python lib
 PACKAGES="${PACKAGES} libboost-python-dev ${PYTHON_PREFIX}-dateutil"
-PACKAGES="${PACKAGES} ${PYTHON_PREFIX}-nibabel ${PYTHON_PREFIX}-numpy"
-PACKAGES="${PACKAGES} ${PYTHON_PREFIX}-odil"
+PACKAGES="${PACKAGES} ${PYTHON_PREFIX}-dev ${PYTHON_PREFIX}-nibabel"
+PACKAGES="${PACKAGES} ${PYTHON_PREFIX}-numpy ${PYTHON_PREFIX}-odil"
 # Dependencies of tests
 PACKAGES="${PACKAGES} libboost-test-dev ${PYTHON_PREFIX}-nose unzip"
 
