@@ -1,15 +1,36 @@
 #!/bin/sh
 
-export Architecture=${Architecture:?}
-export Distribution=${Distribution:?}
+set -ev
+
 export Python=${Python:?}
 export WORKSPACE=${WORKSPACE:?}
 
-mkdir build
-mkdir install
-cd build
+if [ "${Python}" = "2" ]
+then
+  PYTHON_VERSION="$(pyversions -dv)"
+elif [ "${Python}" = "3" ]
+then
+  PYTHON_VERSION="$(py3versions -dv)"
+else
+  PYTHON_VERSION="UNKOWN"
+fi
+
+PythonNoDot=$(echo ${PYTHON_VERSION} | sed 's|\.||')
+
+TRIPLET=$(dpkg-architecture -qDEB_HOST_MULTIARCH)
+BOOST_PYTHON_LIBRARY=/usr/lib/${TRIPLET}/libboost_python-py${PythonNoDot}.so
+
+cd ${WORKSPACE}
+
+mkdir build${POSTFIX}
+mkdir install${POSTFIX}
+cd build${POSTFIX}
 cmake \
-  -D CMAKE_CXX_FLAGS="--coverage" \
-  -D CMAKE_INSTALL_PREFIX="${WORKSPACE}/install" \
+  -DPython_ADDITIONAL_VERSIONS=${PYTHON_VERSION} \
+  -DPYTHON_EXECUTABLE=/usr/bin/python${PYTHON_VERSION} \
+  -DBoost_PYTHON_LIBRARY_DEBUG=${BOOST_PYTHON_LIBRARY} \
+  -DBoost_PYTHON_LIBRARY_RELEASE=${BOOST_PYTHON_LIBRARY} \
+  -DCMAKE_INSTALL_PREFIX="${WORKSPACE}/install${POSTFIX}" \
+  ${CMAKE_OPTIONS} \
   ..
-make install
+make ${MAKE_OPTIONS} install

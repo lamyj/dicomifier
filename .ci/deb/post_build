@@ -1,34 +1,32 @@
 #!/bin/sh
 
-export Architecture=${Architecture:?}
-export Distribution=${Distribution:?}
+set -ev
+
 export Python=${Python:?}
 export WORKSPACE=${WORKSPACE:?}
 
-rm -rf generatedJUnitFiles/CTest/*
-cd build
-rm -rf Testing/*
-
-if [ ! -d "${WORKSPACE}/generatedJUnitFiles" ]; then
-  mkdir "${WORKSPACE}/generatedJUnitFiles"
+if [ "${Python}" = "2" ]
+then
+  export NOSE="nosetests-2.7"
+elif [ "${Python}" = "3" ]
+then
+  export NOSE="nosetests3"
 fi
 
-sudo wget -O /usr/local/bin/lcov_cobertura https://raw.github.com/eriwen/lcov-to-cobertura-xml/master/lcov_cobertura/lcov_cobertura.py
-sudo chmod a+x /usr/local/bin/lcov_cobertura
+export LD_LIBRARY_PATH=${WORKSPACE}/install${POSTFIX}/lib
+export PYTHONPATH=${WORKSPACE}/install${POSTFIX}/$(python${Python} -c "from distutils.sysconfig import *; print(get_python_lib(True, prefix=''))")
+
+cd ${WORKSPACE}/build${POSTFIX}
 
 "${WORKSPACE}/tests/run_tests.sh"
 
-DIRECTORY=`mktemp -d`
-if [ "${Distribution}" != "ubuntu/precise" -a "${Distribution}" != "debian/wheezy" ]; then
-  lcov --capture --directory "${WORKSPACE}" --output-file ${DIRECTORY}/test.info
-  lcov --remove ${DIRECTORY}/test.info -o ${DIRECTORY}/filtered.info \
-    '/usr/*' 'src/cli/*' 'src/gui/*' 'tests/*' 'build/*'
-else
-  touch ${DIRECTORY}/filtered.info
-fi
-/usr/local/bin/lcov_cobertura ${DIRECTORY}/filtered.info -b "${WORKSPACE}"
-rm -rf ${DIRECTORY}
+cd ${HOME}
+# WARNING: 467 MB archived, 807 MB unzipped
+wget -qO - https://github.com/fli-iam/dicomifier-data/archive/master.tar.gz ⁠\
+  | tar -x -z -f -
 
-cppcheck -q --xml --xml-version=2 --enable=all \
-  "${WORKSPACE}/src/" "${WORKSPACE}/tests/" \
-  2> ${WORKSPACE}/build/cppcheck.xml
+export PATH=${WORKSPACE}/install${POSTFIX}/bin:${PATH}
+python${Python} ./dicomifier-data-master/scripts/diff_bruker2dicom.py
+python${Python} ./dicomifier-data-master/scripts/diff_dicom2nifti.py
+
+rm -rf dicomifier-data-master

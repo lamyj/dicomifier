@@ -1,0 +1,44 @@
+language: minimal
+sudo: required
+services:
+  - docker
+
+matrix:
+  include:
+    # Debian
+    - name: "Debian Stretch, Python 3"
+      env: { vendor: debian, version: stretch, python: 3 }
+    - name: "Debian Stretch, Python 2"
+      env: { vendor: debian, version: stretch, python: 2 }
+    - name: "Debian Jessie, Python 3"
+      env: { vendor: debian, version: jessie, python: 3 }
+    - name: "Debian Jessie, Python 2"
+      env: { vendor: debian, version: jessie, python: 2 }
+    # Ubuntu
+    - name: "Ubuntu Bionic, Python 3"
+      env: { vendor: ubuntu, version: bionic, python: 3 }
+    - name: "Ubuntu Bionic, Python 2"
+      env: { vendor: ubuntu, version: bionic, python: 2 }
+    - name: "Ubuntu Xenial, Python 3"
+      env: { vendor: ubuntu, version: xenial, python: 3 }
+    - name: "Ubuntu Xenial, Python 2"
+      env: { vendor: ubuntu, version: xenial, python: 2 }
+    # WARNING: nibabel in trusty is too old
+
+before_install:
+  - |
+    docker run -di \
+      -e Python=${python} -e WORKSPACE=${TRAVIS_BUILD_DIR} \
+      -e MAKE_OPTIONS="-j$(nproc)" \
+      -e DEBIAN_FRONTEND=noninteractive \
+      -v ${TRAVIS_BUILD_DIR}:${TRAVIS_BUILD_DIR} \
+      --name dicomifier --rm \
+      ${vendor}:${version}
+install:
+  - docker exec dicomifier ${TRAVIS_BUILD_DIR}/.ci/deb/install
+
+script:
+  - docker exec dicomifier ${TRAVIS_BUILD_DIR}/.ci/deb/build
+
+after_success:
+  - docker exec dicomifier ${TRAVIS_BUILD_DIR}/.ci/deb/post_build
