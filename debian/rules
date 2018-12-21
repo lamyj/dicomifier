@@ -24,7 +24,6 @@ override_dh_auto_build-arch:
 	  PythonNoDot=$$(echo $${Python} | sed 's|\.||'); \
 	  mkdir build; \
 	  dh_auto_configure -- \
-	    -DBUILD_GUI=OFF \
 	    -DPython_ADDITIONAL_VERSIONS=$${Python} \
 	    -DPYTHON_EXECUTABLE=/usr/bin/python$${Python} \
 	    -DBoost_PYTHON_LIBRARY_DEBUG=/usr/lib/$(TRIPLET)/libboost_python-py$${PythonNoDot}.so \
@@ -35,22 +34,18 @@ override_dh_auto_build-arch:
 
 override_dh_auto_build-indep:
 	dh_auto_configure --builddirectory=build-indep -- \
-	  -DBUILD_GUI=OFF \
 	  -DPython_ADDITIONAL_VERSIONS=$(PYTHON3) \
 	  -DPYTHON_EXECUTABLE=/usr/bin/python$(PYTHON3)
-
-override_dh_makeshlibs-arch:
-	dh_makeshlibs -V'libdicomifier1 (>= 1.2.1-1)'
 
 # WARNING: Python2 and Python3 MUST be tested sequentially since they use the 
 # same build directory
 override_dh_auto_test-arch:
-	# for Python in $(ALLPY); do \
-	#   ln -s build-py$${Python} build; \
-	#   cd build && ../tests/run_tests.sh; \
-	#   cd ..; \
-	#   rm build; \
-	# done
+	for Python in $(ALLPY); do \
+	  ln -s build-py$${Python} build; \
+	  cd build && ../tests/run_tests.sh; \
+	  cd ..; \
+	  rm build; \
+	done
 
 # WARNING: Python2 and Python3 MUST be installed sequentially since they use the 
 # same build directory
