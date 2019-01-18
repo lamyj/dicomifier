@@ -12,3 +12,5 @@ from . import frame_groups
 from .convert import convert_reconstruction
 from .mr_image_storage import mr_image_storage
 from .enhanced_mr_image_storage import enhanced_mr_image_storage
+from .flat_dicom_writer import FlatDICOMWriter
+from .nested_dicom_writer import NestedDICOMWriter

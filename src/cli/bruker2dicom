@@ -43,12 +43,13 @@ def main():
     convert_parser.add_argument(
         "--transfer-syntax", "-t", type=lambda x: getattr(odil.registry, x),
         default="ImplicitVRLittleEndian",
-        help="Transfer syntax of the output files"
-    )
+        help="Transfer syntax of the output files")
     convert_parser.add_argument(
         "--multiframe", "-m", action="store_true",
-        help="Generate multiframe dicom files"
-    )
+        help="Generate multiframe dicom files")
+    convert_parser.add_argument(
+        "--layout", "-l", choices=["nested", "flat"], default="nested",
+        help="Layout of the DICOM files on the disk")
     convert_parser.add_argument(
         "--dicomdir", "-d", action="store_true", help="Create a DICOMDIR")
     convert_parser.add_argument(
@@ -125,8 +126,8 @@ def list_(source):
                 )
 
 def convert(
-        source, destination, series_and_reconstructions, transfer_syntax, 
-        dicomdir, multiframe):
+        source, destination, series_and_reconstructions, transfer_syntax,
+        layout, dicomdir, multiframe):
     """ Function that converts a source file (bruker) into a destination file (dicom)
 
         :param source: source file
@@ -140,6 +141,11 @@ def convert(
         dicomifier.logger.warning("{} is not empty".format(destination))
 
     subjects = dicomifier.bruker.Directory.list_subjects(source)
+
+    Writers = {
+        "nested": dicomifier.bruker_to_dicom.NestedDICOMWriter,
+        "flat": dicomifier.bruker_to_dicom.FlatDICOMWriter}
+    writer = Writers[layout](destination, True, transfer_syntax)
 
     for subject_source in subjects:
         directory = dicomifier.bruker.Directory()
@@ -172,7 +178,6 @@ def convert(
                 parsed.setdefault(series, []).append(reconstruction)
             _series_and_reconstructions = parsed
 
-        files = []
         # key = (VisuInstanceModality, bool multiframe)
         # value = function to be called
         converters = {
@@ -195,20 +200,18 @@ def convert(
                             "MRI will be used by default".format(
                                 series, reconstruction))
                         converter_key = ("MR", multiframe)
-                    reco_files = dicomifier.bruker_to_dicom.convert_reconstruction(
+                    dicomifier.bruker_to_dicom.convert_reconstruction(
                         directory, series, reconstruction,
-                        converters[converter_key], transfer_syntax,
-                        destination, True)
+                        converters[converter_key], writer)
                 except Exception as e:
                     dicomifier.logger.error(
                         "Could not convert {}:{} - {}".format(
                             series, reconstruction, e))
                     dicomifier.logger.debug("Stack trace", exc_info=True)
-                else:
-                    files.extend(reco_files)
 
-        if dicomdir and files:
-            create_dicomdir(files, destination, [], [], ["SeriesDescription:3"], [])
+        if dicomdir and writer.files:
+            create_dicomdir(
+                writer.files, destination, [], [], ["SeriesDescription:3"], [])
 
 def create_dicomdir(
         names, directory, patient_key, study_key, series_key, image_key):
