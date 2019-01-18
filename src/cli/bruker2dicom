@@ -141,6 +141,9 @@ def convert(
 
     subjects = dicomifier.bruker.Directory.list_subjects(source)
 
+    writer = dicomifier.bruker_to_dicom.NestedDICOMWriter(
+        destination, True, transfer_syntax)
+
     for subject_source in subjects:
         directory = dicomifier.bruker.Directory()
         directory.load(subject_source)
@@ -172,7 +175,6 @@ def convert(
                 parsed.setdefault(series, []).append(reconstruction)
             _series_and_reconstructions = parsed
 
-        files = []
         # key = (VisuInstanceModality, bool multiframe)
         # value = function to be called
         converters = {
@@ -195,20 +197,18 @@ def convert(
                             "MRI will be used by default".format(
                                 series, reconstruction))
                         converter_key = ("MR", multiframe)
-                    reco_files = dicomifier.bruker_to_dicom.convert_reconstruction(
+                    dicomifier.bruker_to_dicom.convert_reconstruction(
                         directory, series, reconstruction,
-                        converters[converter_key], transfer_syntax,
-                        destination, True)
+                        converters[converter_key], writer)
                 except Exception as e:
                     dicomifier.logger.error(
                         "Could not convert {}:{} - {}".format(
                             series, reconstruction, e))
                     dicomifier.logger.debug("Stack trace", exc_info=True)
-                else:
-                    files.extend(reco_files)
 
-        if dicomdir and files:
-            create_dicomdir(files, destination, [], [], ["SeriesDescription:3"], [])
+        if dicomdir and writer.files:
+            create_dicomdir(
+                writer.files, destination, [], [], ["SeriesDescription:3"], [])
 
 def create_dicomdir(
         names, directory, patient_key, study_key, series_key, image_key):

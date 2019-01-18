@@ -7,7 +7,6 @@
 #########################################################################
 
 import json
-import math
 import re
 import os
 
@@ -21,7 +20,7 @@ try:
 except NameError:
     unicode = str
 
-#explicit conversions
+# explicit conversions
 def _convert_date_time(value, format_):
     date_time = dateutil.parser.parse(value.replace(b",", b"."))
     return date_time.strftime(format_)
@@ -39,8 +38,7 @@ vr_converters = {
 
 def convert_reconstruction(
         bruker_directory, series, reconstruction,
-        iod_converter, transfer_syntax,
-        destination, iso_9660):
+        iod_converter, writer):
     """ Convert and save a single reconstruction.
 
         :param bruker_directory: Bruker directory object
@@ -65,28 +63,10 @@ def convert_reconstruction(
     bruker_json["reco_files"] = list(bruker_directory.get_used_files(
         "{}{:04d}".format(series, int(reconstruction))))
 
-    dicom_binaries = iod_converter(bruker_json, transfer_syntax)
+    dicom_data_sets = iod_converter(bruker_json, writer.transfer_syntax)
     
-    files = []
-    for index, dicom_binary in enumerate(dicom_binaries):
-        
-        if iso_9660:
-            filename = "IM{:06d}".format(1+index)
-        else:
-            filename = dicom_binary.as_string("SOPInstanceUID")[0].decode()
-        
-        destination_file = os.path.join(
-            destination, get_series_directory(dicom_binary, iso_9660),
-            reconstruction, filename)
-        
-        if not os.path.isdir(os.path.dirname(destination_file)):
-            os.makedirs(os.path.dirname(destination_file))
-
-        with odil.open(destination_file, "wb") as fd:
-            odil.Writer.write_file(dicom_binary, fd, odil.DataSet(), transfer_syntax)
-        files.append(destination_file)
-    
-    return files
+    for dicom_data_set in dicom_data_sets:
+        writer(dicom_data_set)
 
 def convert_element(
         bruker_data_set, dicom_data_set, 
