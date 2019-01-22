@@ -211,6 +211,21 @@ def get_stacks(data_sets):
                                         ((top_seq_tag, seq, tag), value))
                 stacks.setdefault(tuple(key), []).append((data_set, frame_idx))
     
+    # Normalize the keys so that all stacks have the same key fields
+    key_items = set()
+    for key in stacks.keys():
+        for key_item, _ in key:
+            key_items.add(key_item)
+    normalized_keys = {}
+    for key in stacks.keys():
+        normalized_keys[key] = list(key)
+        for key_item in key_items:
+            if key_item not in [x[0] for x in key]:
+                normalized_keys[key].append((key_item, None))
+    for key, normalized_key in normalized_keys.items():
+        normalized_keys[key] = tuple(normalized_key)
+    stacks = { normalized_keys[key]: value for key, value in stacks.items() }
+    
     # Simplify keys: remove those that have the same value for all stacks
     keys = numpy.asarray(list(stacks.keys())) # stack_id, tag, value
     to_keep = []
