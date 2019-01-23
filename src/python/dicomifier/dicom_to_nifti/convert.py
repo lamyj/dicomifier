@@ -85,11 +85,13 @@ def convert(dicom_data_sets, dtype):
         if stack_index == 0:
             logger.info(
                 u"Converting {} / {}".format(
-                    "-".join(study), "-".join(series)))
+                    "-".join(str(x) for x in study), 
+                    "-".join(str(x) for x in series)))
         if stack_info:
             logger.debug(
                 u"Converting {} / {}{}".format(
-                    "-".join(study), "-".join(series), stack_info))
+                    "-".join(str(x) for x in study), 
+                    "-".join(str(x) for x in series), stack_info))
         stacks_converted[series_instance_uid] += 1
 
         sort(keys, data_sets_frame_idx)
