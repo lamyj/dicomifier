@@ -1,3 +1,9 @@
+dicomifier (1.3.0-2) unstable; urgency=medium
+
+  * Fix package dependencies.
+
+ -- Julien Lamy <lamy@unistra.fr>  Sun, 27 Jan 2019 11:23:43 +0100
+
 dicomifier (1.3.0-1) unstable; urgency=medium
 
   * New upstream release.

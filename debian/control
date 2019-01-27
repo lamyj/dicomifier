@@ -98,7 +98,9 @@ Description: Convert data to and from DICOM (Python 3 modules)
 
 Package: dicomifier-cli
 Architecture: all
-Depends: python3-dicomifier, ${python3:Depends}, ${misc:Depends}
+Depends: python3-dicomifier (>= ${source:Version}), 
+         ${python3:Depends}, 
+         ${misc:Depends}
 Provides: dicomifier
 Conflicts: dicomifier
 Replaces: dicomifier
