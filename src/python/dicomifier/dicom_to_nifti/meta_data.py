@@ -154,7 +154,8 @@ def cleanup(meta_data):
         "InstanceNumber",
     ]
     for x in skipped:
-        del (meta_data[x])
+        if x in meta_data:
+            del (meta_data[x])
 
 
 def get_tag_name(tag):
