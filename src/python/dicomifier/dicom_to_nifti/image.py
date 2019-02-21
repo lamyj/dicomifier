@@ -111,7 +111,11 @@ def get_image(data_sets_frame_idx, dtype, cache):
 
     elif samples_per_pix == 3 and data_sets_frame_idx[0][0].as_string("PhotometricInterpretation")[0] == b"RGB":
         if dtype != numpy.uint8:
-            raise Exception("Invalid dtype {} for RGB".format(dtype))
+            logger.warning("Invalid dtype {} for RGB, re-sampling".format(dtype))
+            min = pixel_data[...,].min((0,1,2))
+            max = pixel_data[...,].max((0,1,2))
+            pixel_data = ((pixel_data-min)/(max-min)*255).round().astype(numpy.uint8)
+            dtype = numpy.uint8
         pixel_data = pixel_data.view(
                 nibabel.nifti1.data_type_codes.dtype["RGB"]
             ).reshape(pixel_data.shape[:3])
