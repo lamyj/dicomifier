@@ -159,6 +159,12 @@ def get_shaped_pixel_data(data_set, linear_pixel_data, frame_idx):
     
     rows = data_set.as_int(odil.registry.Rows)[0]
     cols = data_set.as_int(odil.registry.Columns)[0]
+    
+    def reshape(array, shape):
+        try:
+            return array.reshape(shape)
+        except ValueError:
+            return array[:-1].reshape(shape)
 
     samples_per_pixel = data_set.as_int(odil.registry.SamplesPerPixel)[0]
     if samples_per_pixel == 1:
@@ -166,12 +172,12 @@ def get_shaped_pixel_data(data_set, linear_pixel_data, frame_idx):
                 data_set.has(odil.registry.PerFrameFunctionalGroupsSequence) 
                 and data_set.has(odil.registry.NumberOfFrames)):
             number_of_frames = data_set.as_int(odil.registry.NumberOfFrames)[0]
-            pixel_data = linear_pixel_data.reshape(number_of_frames, rows, cols)
+            pixel_data = reshape(linear_pixel_data, (number_of_frames, rows, cols))
             pixel_data = pixel_data[frame_idx, :]
         else:
-            pixel_data = linear_pixel_data.reshape(rows, cols)
+            pixel_data = reshape(linear_pixel_data, (rows, cols))
     else:
-        pixel_data = linear_pixel_data.reshape(rows, cols, samples_per_pixel)
+        pixel_data = reshape(linear_pixel_data, (rows, cols, samples_per_pixel))
 
     # Mask the data using Bits Stored, cf. PS 3.5, 8.1.1
     bits_stored = data_set.as_int(odil.registry.BitsStored)[0]
