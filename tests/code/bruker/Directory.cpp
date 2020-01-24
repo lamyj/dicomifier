@@ -15,7 +15,7 @@
 #include <boost/filesystem.hpp>
 
 #include "bruker/Directory.h"
-#include "core/DicomifierException.h"
+#include "core/Exception.h"
 
 struct Fixture
 {
@@ -36,14 +36,14 @@ struct Fixture
 BOOST_FIXTURE_TEST_CASE(ListSubjects, Fixture)
 {
     auto && actual = dicomifier::bruker::Directory::list_subjects(path);
-    decltype(actual) const expected{path};
+    decltype(actual) expected{path};
     BOOST_REQUIRE(actual == expected);
 }
 
 BOOST_FIXTURE_TEST_CASE(GetSeriesAndReco, Fixture)
 {
     auto && actual = dicomifier::bruker::Directory::get_series_and_reco(path);
-    decltype(actual) const expected{{"1", {"1"}}};
+    decltype(actual) expected{{"1", {"1"}}};
     BOOST_REQUIRE(actual == expected);
 }
 
@@ -67,8 +67,7 @@ BOOST_FIXTURE_TEST_CASE(GetBadDataset, Fixture)
 {
     dicomifier::bruker::Directory directory;
     directory.load(path);
-    BOOST_REQUIRE_THROW(
-        directory.get_dataset("90009"), dicomifier::DicomifierException);
+    BOOST_REQUIRE_THROW(directory.get_dataset("90009"), dicomifier::Exception);
 }
 
 BOOST_FIXTURE_TEST_CASE(GetUsedFiles, Fixture)

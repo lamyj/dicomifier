@@ -6,14 +6,32 @@
  * for details.
  ************************************************************************/
 
-#ifndef _b6181a9c_09a7_46c9_a514_ff5989ea780b
-#define _b6181a9c_09a7_46c9_a514_ff5989ea780b
+#include "Exception.h"
 
+#include <exception>
 #include <string>
-#include <boost/python.hpp>
 
-/// @brief Create a new Python exception type, in the current scope.
-PyObject * exception_factory(
-    std::string const & name, PyObject * parent=PyExc_Exception);
+namespace dicomifier
+{
 
-#endif // _b6181a9c_09a7_46c9_a514_ff5989ea780b
+Exception
+::Exception(std::string const & message)
+: _message(message) 
+{
+    // Nothing else.
+}
+
+Exception
+::~Exception() noexcept
+{
+    // Nothing to do.
+}
+
+char const * 
+Exception
+::what() const noexcept 
+{
+    return this->_message.c_str();
+}
+
+}

@@ -14,7 +14,7 @@
 #include <boost/date_time/local_time/local_date_time.hpp>
 #include <boost/date_time/posix_time/ptime.hpp>
 
-#include "core/DicomifierException.h"
+#include "core/Exception.h"
 
 namespace dicomifier
 {
@@ -83,7 +83,7 @@ string_to_local_date_time(std::string const & datetime, std::string & format)
     {
         std::stringstream stream;
         stream << "Bad value for Date-Time: " << datetime;
-        throw DicomifierException(stream.str());
+        throw Exception(stream.str());
     }
 
     return ldt;

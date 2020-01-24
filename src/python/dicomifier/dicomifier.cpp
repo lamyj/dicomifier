@@ -6,11 +6,12 @@
  * for details.
  ************************************************************************/
 
-#include <boost/python.hpp>
+#include <pybind11/pybind11.h>
 
-void wrap_DicomifierException();
+#include "core/Exception.h"
 
-BOOST_PYTHON_MODULE(_dicomifier)
+PYBIND11_MODULE(_dicomifier, _dicomifier)
 {
-    wrap_DicomifierException();
+    pybind11::register_exception<dicomifier::Exception>(
+        _dicomifier, "Exception");
 }

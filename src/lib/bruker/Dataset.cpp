@@ -18,7 +18,7 @@
 
 #include "bruker/Field.h"
 #include "bruker/grammar.h"
-#include "core/DicomifierException.h"
+#include "core/Exception.h"
 
 namespace dicomifier
 {
@@ -34,7 +34,7 @@ Dataset
     std::ifstream stream(path);
     if(stream.fail())
     {
-        throw DicomifierException("Could not open file: " + path);
+        throw Exception("Could not open file: " + path);
     }
     _used_files.push_back(path);
     std::string data(
@@ -55,12 +55,12 @@ Dataset
     
     if(!parsed)
     {
-        throw DicomifierException("Could not parse file");
+        throw Exception("Could not parse file");
     }
     
     if(begin != end)
     {
-        throw DicomifierException("File was parsed incompletely");
+        throw Exception("File was parsed incompletely");
     }
 
     // Fill the fields map
@@ -97,7 +97,7 @@ Dataset
     auto const field_it = this->_fields.find(name);
     if(field_it == this->_fields.end())
     {
-        throw DicomifierException("No such field: "+name);
+        throw Exception("No such field: "+name);
     }
     
     return field_it->second;

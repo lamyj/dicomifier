@@ -13,7 +13,7 @@
 
 #include "bruker/grammar.h"
 #include "bruker/Field.h"
-#include "core/DicomifierException.h"
+#include "core/Exception.h"
 
 std::vector<dicomifier::bruker::Field> parse(std::string const & value)
 {

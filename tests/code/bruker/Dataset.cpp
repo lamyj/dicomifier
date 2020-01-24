@@ -13,7 +13,7 @@
 #include <fstream>
 
 #include "bruker/Dataset.h"
-#include "core/DicomifierException.h"
+#include "core/Exception.h"
 
 BOOST_AUTO_TEST_CASE(Constructor)
 {
@@ -79,8 +79,7 @@ BOOST_AUTO_TEST_CASE(FieldAccess)
 BOOST_AUTO_TEST_CASE(InvalidFieldAccess)
 {
     dicomifier::bruker::Dataset data_set;
-    BOOST_REQUIRE_THROW(
-        data_set.get_field("FieldName"), dicomifier::DicomifierException);
+    BOOST_REQUIRE_THROW(data_set.get_field("FieldName"), dicomifier::Exception);
 }
 
 BOOST_AUTO_TEST_CASE(Iterators)

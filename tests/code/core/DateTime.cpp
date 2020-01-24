@@ -10,7 +10,7 @@
 #include <boost/test/unit_test.hpp>
 
 #include "core/DateTime.h"
-#include "core/DicomifierException.h"
+#include "core/Exception.h"
 
 /*************************** TEST Nominal *******************************/
 /**
@@ -82,5 +82,5 @@ BOOST_AUTO_TEST_CASE(Unrecognize_format)
     std::string format = "";
     BOOST_REQUIRE_THROW(
         dicomifier::string_to_local_date_time("BAD_VALUE", format),
-        dicomifier::DicomifierException);
+        dicomifier::Exception);
 }

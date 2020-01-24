@@ -10,7 +10,7 @@
 #include <boost/test/unit_test.hpp>
 
 #include "bruker/Field.h"
-#include "core/DicomifierException.h"
+#include "core/Exception.h"
 
 BOOST_AUTO_TEST_CASE(DefaultConstructor)
 {

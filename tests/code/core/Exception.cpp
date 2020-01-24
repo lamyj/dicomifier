@@ -6,32 +6,24 @@
  * for details.
  ************************************************************************/
 
-#define BOOST_TEST_MODULE ModuleDicomifierException
+#define BOOST_TEST_MODULE Exception
 #include <boost/test/unit_test.hpp>
 
-#include "core/DicomifierException.h"
+#include "core/Exception.h"
 
-/******************************* TEST Nominal **********************************/
-/**
- * Nominal test case: Throw
- */
 BOOST_AUTO_TEST_CASE(Throw)
 {
-    BOOST_REQUIRE_THROW(throw dicomifier::DicomifierException("Error"), 
-                        dicomifier::DicomifierException);
+    BOOST_REQUIRE_THROW(
+        throw dicomifier::Exception("Error"), dicomifier::Exception);
 }
 
-/******************************* TEST Nominal **********************************/
-/**
- * Nominal test case: Message
- */
 BOOST_AUTO_TEST_CASE(Check_Message)
 {
     try
     {
-        throw dicomifier::DicomifierException("Error");
+        throw dicomifier::Exception("Error");
     }
-    catch (dicomifier::DicomifierException& exc)
+    catch(dicomifier::Exception const & exc)
     {
         BOOST_CHECK_EQUAL(exc.what(), "Error");
     }
