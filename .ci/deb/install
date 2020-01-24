@@ -25,7 +25,7 @@ fi
 PACKAGES="build-essential cmake pkg-config python-minimal"
 # Dependencies of C++ lib
 PACKAGES="${PACKAGES} libboost-date-time-dev libboost-filesystem-dev "
-PACKAGES="${PACKAGES} libboost-regex-dev libboost-system-dev libjsoncpp-dev"
+PACKAGES="${PACKAGES} libboost-regex-dev libboost-system-dev "
 PACKAGES="${PACKAGES} liblog4cpp5-dev zlib1g-dev"
 # Dependencies of Python lib
 PACKAGES="${PACKAGES} libboost-python-dev ${PYTHON_PREFIX}-dateutil"

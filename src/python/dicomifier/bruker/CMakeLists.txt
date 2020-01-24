@@ -1,8 +1,6 @@
-find_package(JsonCpp REQUIRED)
 find_package(pybind11 REQUIRED)
 
-include_directories(
-    ${CMAKE_SOURCE_DIR}/src/lib ${JsonCpp_INCLUDE_DIRS} ${PYTHON_INCLUDE_DIRS})
+include_directories(${CMAKE_SOURCE_DIR}/src/lib ${PYTHON_INCLUDE_DIRS})
 
 file(GLOB files "*.cpp")
 pybind11_add_module(pydicomifier_bruker SHARED ${files})
@@ -11,7 +9,7 @@ if(APPLE)
     set_target_properties(pydicomifier_bruker PROPERTIES SUFFIX ".so")
 endif()
 
-target_link_libraries(pydicomifier_bruker libdicomifier ${JsonCpp_LIBRARIES})
+target_link_libraries(pydicomifier_bruker libdicomifier)
 
 execute_process(
     COMMAND ${PYTHON_EXECUTABLE}
