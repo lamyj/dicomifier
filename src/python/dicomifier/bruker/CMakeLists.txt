@@ -1,22 +1,25 @@
-find_package(Boost REQUIRED COMPONENTS python)
 find_package(JsonCpp REQUIRED)
-find_package(PythonLibs 2.7 REQUIRED)
+find_package(pybind11 REQUIRED)
 
 include_directories(
-    ${CMAKE_SOURCE_DIR}/src/lib ${Boost_INCLUDE_DIRS}
-    ${JsonCpp_INCLUDE_DIRS} ${PYTHON_INCLUDE_DIRS})
-link_directories(${Boost_LIBRARY_DIRS})
+    ${CMAKE_SOURCE_DIR}/src/lib ${JsonCpp_INCLUDE_DIRS} ${PYTHON_INCLUDE_DIRS})
 
 file(GLOB files "*.cpp")
-python_add_module(pydicomifier_bruker SHARED ${files})
+pybind11_add_module(pydicomifier_bruker SHARED ${files})
 set_target_properties(pydicomifier_bruker PROPERTIES OUTPUT_NAME bruker)
 if(APPLE)
     set_target_properties(pydicomifier_bruker PROPERTIES SUFFIX ".so")
 endif()
 
-target_link_libraries(
-    pydicomifier_bruker ${Boost_LIBRARIES} libdicomifier ${JsonCpp_LIBRARIES}
-    ${PYTHON_LIBRARIES})
+target_link_libraries(pydicomifier_bruker libdicomifier ${JsonCpp_LIBRARIES})
+
+execute_process(
+    COMMAND ${PYTHON_EXECUTABLE}
+      -c "import os; \
+        from distutils.sysconfig import *; \
+        print(get_python_lib(True, prefix='').replace(os.path.sep, '/'))"
+    OUTPUT_VARIABLE PYTHON_SITE_PACKAGES
+    OUTPUT_STRIP_TRAILING_WHITESPACE)
 
 install(
     TARGETS pydicomifier_bruker
