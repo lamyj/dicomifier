@@ -39,6 +39,7 @@ grammar<TIterator>
     
     using boost::spirit::qi::as_string;
     using boost::spirit::qi::char_;
+    using boost::spirit::qi::eoi;
     using boost::spirit::qi::eol;
     using boost::spirit::qi::int_;
     using boost::spirit::qi::long_;
@@ -59,6 +60,11 @@ grammar<TIterator>
             (shape[at_c<1>(_val) = _1] >> omit[*space] >> value[at_c<2>(_val) = _1]) | 
             structs[at_c<2>(_val) = _1] |
             quoted_string[push_back(at_c<2>(_val), _1)] |
+            // WARNING: for non-shaped, non-struct, unquoted values, the syntax
+            // is ambiguous. To avoid backtracking errors, match scalar reals
+            // and integers only if they consitute the whole value.
+            (real >> &(eol|eoi))[push_back(at_c<2>(_val), _1)] |
+            (long_ >> &(eol|eoi))[push_back(at_c<2>(_val), _1)] |
             unquoted_string[push_back(at_c<2>(_val), _1)]
         );
     

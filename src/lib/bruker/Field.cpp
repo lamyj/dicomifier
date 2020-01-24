@@ -43,35 +43,14 @@ long
 Field
 ::get_int(unsigned int index) const
 {
-    try
-    {
-        return boost::get<long>(this->value[index]);
-    }
-    catch(boost::bad_get const & e)
-    {
-        return std::stol(boost::get<std::string>(this->value[index]));
-    }
+    return boost::get<long>(this->value[index]);
 }
 
 float
 Field
 ::get_float(unsigned int index) const
 {
-    try
-    {
-        return boost::get<float>(this->value[index]);
-    }
-    catch(boost::bad_get const & e)
-    {
-        try
-        {
-            return boost::get<long>(this->value[index]);
-        }
-        catch(boost::bad_get const & e)
-        {
-            return std::stof(boost::get<std::string>(this->value[index]));
-        }
-    }
+    return boost::get<float>(this->value[index]);
 }
 
 Field::Value

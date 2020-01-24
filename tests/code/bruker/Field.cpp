@@ -54,41 +54,11 @@ BOOST_AUTO_TEST_CASE(BadInt)
     BOOST_REQUIRE_THROW(field.get_int(0), std::exception);
 }
 
-BOOST_AUTO_TEST_CASE(IntFromString)
-{
-    dicomifier::bruker::Field const field("name", {}, {"123"});
-    BOOST_REQUIRE_EQUAL(field.get_int(0), 123);
-}
-
-BOOST_AUTO_TEST_CASE(BadIntFromString)
-{
-    dicomifier::bruker::Field const field("name", {}, {"invalid"});
-    BOOST_REQUIRE_THROW(field.get_int(0), std::exception);
-}
-
 BOOST_AUTO_TEST_CASE(Float)
 {
     dicomifier::bruker::Field const field("name", {}, {1.23f});
     BOOST_REQUIRE(field.is_float(0));
     BOOST_REQUIRE_CLOSE(field.get_float(0), 1.23, 1e-3);
-}
-
-BOOST_AUTO_TEST_CASE(FloatFromInt)
-{
-    dicomifier::bruker::Field const field("name", {}, {123L});
-    BOOST_REQUIRE_CLOSE(field.get_float(0), 123, 1e-3);
-}
-
-BOOST_AUTO_TEST_CASE(FloatFromString)
-{
-    dicomifier::bruker::Field const field("name", {}, {"1.23"});
-    BOOST_REQUIRE_CLOSE(field.get_float(0), 1.23, 1e-3);
-}
-
-BOOST_AUTO_TEST_CASE(BadFloatFromString)
-{
-    dicomifier::bruker::Field const field("name", {}, {"invalid"});
-    BOOST_REQUIRE_THROW(field.get_float(0), std::exception);
 }
 
 BOOST_AUTO_TEST_CASE(Struct)
