@@ -7,8 +7,9 @@ apt-get -y --no-install-recommends install gnupg software-properties-common wget
 
 REPOSITORY=http://dl.bintray.com/lamyj/generic
 wget -O - ${REPOSITORY}/gpg.key | apt-key add -
-echo "deb ${REPOSITORY}/apt $(lsb_release -cs) main" >> /etc/apt/sources.list
-
+if wget -q -O /dev/null ${BINTRAY}/dists/$(lsb_release -cs)/Release; then
+  add-apt-repository "deb ${BINTRAY} $(lsb_release -cs) main"
+fi
 apt-get update
 
 apt-get -y --no-install-recommends install \

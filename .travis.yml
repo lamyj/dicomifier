@@ -24,7 +24,7 @@ matrix:
       env: 
         - CI_TYPE=deb
         - WORKSPACE=${TRAVIS_BUILD_DIR}
-        - RUNNER="docker exec -w ${TRAVIS_BUILD_DIR} -e WORKSPACE=${WORKSPACE} ubuntu_bionic"
+        - RUNNER="docker exec -w ${TRAVIS_BUILD_DIR} -e WORKSPACE=${WORKSPACE} -e DEBIAN_FRONTEND=noninteractive ubuntu_bionic"
       before_install:
         - docker run -di -v ${TRAVIS_BUILD_DIR}:${TRAVIS_BUILD_DIR} --name ubuntu_bionic --rm ubuntu:bionic
       after_success:
