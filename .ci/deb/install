@@ -11,17 +11,11 @@ echo "deb ${REPOSITORY}/apt $(lsb_release -cs) main" >> /etc/apt/sources.list
 
 apt-get update
 
-# Compilation toolchain
-PACKAGES="build-essential cmake pkg-config python-minimal"
-# Dependencies of C++ lib
-PACKAGES="${PACKAGES} libboost-date-time-dev libboost-filesystem-dev "
-PACKAGES="${PACKAGES} libboost-regex-dev libboost-system-dev "
-PACKAGES="${PACKAGES} liblog4cpp5-dev zlib1g-dev"
-# Dependencies of Python lib
-PACKAGES="${PACKAGES} python3-dateutil"
-PACKAGES="${PACKAGES} python3-dev python3-nibabel"
-PACKAGES="${PACKAGES} python3-numpy python3-odil"
-# Dependencies of tests
-PACKAGES="${PACKAGES} libboost-test-dev unzip"
-
-apt-get -y --no-install-recommends install ${PACKAGES}
+apt-get -y --no-install-recommends install \
+  build-essential cmake ninja-build pkg-config python3 \
+  libboost-dev libboost-date-time-dev libboost-exception-dev \
+  libboost-filesystem-dev libboost-regex-dev libboost-system-dev \
+  liblog4cpp5-dev zlib1g-dev \
+  pybind11-dev python3-pybind11 python3-dev \
+  python3-dateutil python3-nibabel python3-numpy python3-odil \
+  libboost-test-dev
