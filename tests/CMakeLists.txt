@@ -1,16 +1,9 @@
 find_package(Boost COMPONENTS filesystem system unit_test_framework REQUIRED)
-find_package(JsonCpp REQUIRED)
 
 include_directories(
-    ${CMAKE_CURRENT_SOURCE_DIR}/../src/lib
-    ${Boost_INCLUDE_DIRS} ${JsonCpp_INCLUDE_DIRS})
-add_definitions(
-    -DBOOST_FILESYSTEM_VERSION=3 -DBOOST_TEST_DYN_LINK)
-link_directories(
-    ${Boost_LIBRARY_DIRS})
-
-add_custom_target(
-    Runner ${CMAKE_COMMAND} -E echo "Test runner" SOURCES run_tests.sh)
+    ${CMAKE_CURRENT_SOURCE_DIR}/../src/lib ${Boost_INCLUDE_DIRS})
+add_definitions(-DBOOST_FILESYSTEM_VERSION=3 -DBOOST_TEST_DYN_LINK)
+link_directories(${Boost_LIBRARY_DIRS})
 
 file(GLOB_RECURSE tests *.cpp)
 foreach(test_file ${tests})
