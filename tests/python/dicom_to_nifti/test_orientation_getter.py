@@ -18,7 +18,8 @@ class TestOdilGetter(unittest.TestCase):
         orientationGetter(d2, "ImageOrientationPatient")
         orientations = orientationGetter._orientations
         self.assertEqual(1, len(orientations))
-        self.assertEqual(list(orientations.values()[0]), [1.,0.,0.,0.,1.,0.])
+        self.assertSequenceEqual(
+            list(orientations.values())[0], [1.,0.,0.,0.,1.,0.])
 
     def test_orientation_getter_slightly_diff(self):
         d1 = odil.DataSet()
@@ -32,7 +33,8 @@ class TestOdilGetter(unittest.TestCase):
         self.assertEqual(list(second_ori), [1.,0.,0.,0.,1.,0.])
         orientations = orientationGetter._orientations
         self.assertEqual(1, len(orientations))
-        self.assertEqual(list(orientations.values()[0]), [1.,0.,0.,0.,1.,0.])
+        self.assertSequenceEqual(
+            list(orientations.values())[0], [1.,0.,0.,0.,1.,0.])
 
     def test_orientation_getter_differents(self):
         d1 = odil.DataSet()

@@ -57,7 +57,9 @@ class TestOdilGetter(unittest.TestCase):
         numberOfFrames = data_set.as_int("NumberOfFrames")[0]
         with self.assertRaises(Exception) as context:
             val = list(dicomifier.dicom_to_nifti.odil_getter.check_frame_index(data_set, 1))
-        self.assertTrue("Frame index out of bound ({}/{})".format(frame_idx, numberOfFrames) in context.exception)
+        self.assertTrue(
+            "Frame index out of bound ({}/{})".format(frame_idx, numberOfFrames) 
+            in str(context.exception))
 
     def test_get_position_single_frame(self):
         data_set = odil.DataSet()
@@ -143,7 +145,9 @@ class TestOdilGetter(unittest.TestCase):
         idx = dicomifier.dicom_to_nifti.odil_getter.get_in_stack_position_index(data_set)
         with self.assertRaises(Exception) as context:
             val = list(dicomifier.dicom_to_nifti.odil_getter.get_dimension_index_seq(first_frame, "DimensionIndexValues", idx))
-        self.assertTrue("Dimension Index Values found in Frame content but there is no InStackPosition" in context.exception)
+        self.assertTrue(
+            "Dimension Index Values found in Frame content but there is no InStackPosition" 
+            in str(context.exception))
 
     def test_get_dimension_index_seq(self):
         data_set = odil.DataSet()

@@ -89,13 +89,13 @@ class OrientationGetter(object):
 
     @staticmethod
     def _comparator(o1, o2, epsilon=0.05):
-        if (o1, o2) == ((), ()):
+        if numpy.shape(o1) == (0,) and numpy.shape(o2) == (0,):
             return True
-        elif () in (o1, o2):
+        elif any(numpy.shape(x) == (0,) for x in (o1, o2)):
             return False
         else:
-            return (numpy.linalg.norm(numpy.subtract(o1, o2), numpy.inf) <= epsilon)
-
+            return (
+                numpy.linalg.norm(numpy.subtract(o1, o2), numpy.inf) <= epsilon)
 
 def check_frame_index(data_set, frame_idx):
     if data_set.has("NumberOfFrames"):

@@ -28,10 +28,10 @@ class TestConvert(unittest.TestCase):
         )
 
         # Check first the returned value of the convert_element function
-        self.assertEqual(val, ["Mouse^Mickey"])
+        self.assertEqual(val, [b"Mouse^Mickey"])
         # Check then the content of the dicom_data_set (should contain the correct value...)
         dicom_val = list(dicom_data_set.as_string("PatientName"))
-        self.assertEqual(["Mouse^Mickey"], dicom_val)
+        self.assertEqual([b"Mouse^Mickey"], dicom_val)
 
     def test_convert_element_getter(self):
         bruker_data_set = {}
@@ -48,9 +48,9 @@ class TestConvert(unittest.TestCase):
             frame_index, generator, vr_finder_function
         )
 
-        self.assertEqual(val, ["MONOCHROME"])
+        self.assertEqual(val, [b"MONOCHROME"])
         dicom_val = list(dicom_data_set.as_string("PixelPresentation"))
-        self.assertEqual(["MONOCHROME"], dicom_val)
+        self.assertEqual([b"MONOCHROME"], dicom_val)
 
     def test_convert_element_getter_frame_index(self):
         bruker_data_set = {
@@ -92,7 +92,7 @@ class TestConvert(unittest.TestCase):
                 frame_index, generator, vr_finder_function
             )
 
-        self.assertTrue("PatientName must be present" in context.exception)
+        self.assertTrue("PatientName must be present" in str(context.exception))
 
     def test_convert_element_setter_dict(self):
         bruker_data_set = { "VisuSubjectSex" : ["MALE"]}
@@ -111,9 +111,9 @@ class TestConvert(unittest.TestCase):
             },
             frame_index, generator, vr_finder_function
         )
-        self.assertEqual(val, ["M"])
+        self.assertEqual(val, [b"M"])
         dicom_val = list(dicom_data_set.as_string("PatientSex"))
-        self.assertEqual(["M"], dicom_val)
+        self.assertEqual([b"M"], dicom_val)
 
     def test_convert_element_setter_function(self):
         bruker_data_set = {

@@ -15,7 +15,7 @@ class TestImage(unittest.TestCase):
     default_spacing = numpy.ones((3,)).tolist()
     default_direction = numpy.identity(3)
 
-    def test_get_geometry_default (self):
+    def test_get_geometry_default(self):
         data_set = odil.DataSet()
         # Case 1 : simple data Set => return default
         val = dicomifier.dicom_to_nifti.image.get_geometry([(data_set, 0)])
@@ -23,7 +23,7 @@ class TestImage(unittest.TestCase):
         self.assertEqual(val[1], self.default_spacing)
         numpy.testing.assert_array_equal(val[2], self.default_direction)
 
-    def test_get_geometry_no_orientation (self):
+    def test_get_geometry_no_orientation(self):
         data_set = odil.DataSet()
         shared = odil.DataSet()
         per_frame = []
@@ -39,13 +39,15 @@ class TestImage(unittest.TestCase):
         self.assertEqual(val[1], self.default_spacing)
         numpy.testing.assert_array_equal(val[2], self.default_direction)
 
-    def test_get_geometry_different_spacing (self):
+    def test_get_geometry_different_spacing(self):
         data_set = odil.DataSet()
         shared = odil.DataSet()
         plane_orientation_seq = odil.DataSet()
         plane_orientation_seq.add("ImageOrientationPatient", [1.0, 0.0, 0.0, 0.0, 1.0, 0.0])
         shared.add("PlaneOrientationSequence", [plane_orientation_seq])
+        
         per_frame = []
+        
         first_frame = odil.DataSet()
         plane_position_seq = odil.DataSet()
         plane_position_seq.add("ImagePositionPatient", [-20., -14., -4.5])
@@ -54,15 +56,20 @@ class TestImage(unittest.TestCase):
         pixel_measures_sequence.add("PixelSpacing", [0.2, 0.2])
         first_frame.add("PixelMeasuresSequence",  [pixel_measures_sequence])
         per_frame.append(first_frame)
+        
         second_frame = odil.DataSet()
+        plane_position_seq = odil.DataSet()
         plane_position_seq.add("ImagePositionPatient", [-20., -14., -4.])
         second_frame.add("PlanePositionSequence", [plane_position_seq])
+        pixel_measures_sequence = odil.DataSet()
         pixel_measures_sequence.add("PixelSpacing", [0.2, 0.3])
         second_frame.add("PixelMeasuresSequence",  [pixel_measures_sequence])
         per_frame.append(second_frame)
+        
         data_set.add("SharedFunctionalGroupsSequence", [shared])
         data_set.add("PerFrameFunctionalGroupsSequence", per_frame)
         data_set.add("NumberOfFrames", [len(per_frame)])
+        
         val = dicomifier.dicom_to_nifti.image.get_geometry([(data_set, 0), (data_set, 1)])
         # Here we have two frames with different spacings, so we should only keep the first spacing 
         self.assertEqual(list(val[0]), [-20., -14., -4.5])
@@ -70,22 +77,27 @@ class TestImage(unittest.TestCase):
         direction = numpy.identity(3)
         numpy.testing.assert_array_equal(val[2], direction)
 
-    def test_get_geometry_missing_spacing (self):
+    def test_get_geometry_missing_spacing(self):
         data_set = odil.DataSet()
         shared = odil.DataSet()
         plane_orientation_seq = odil.DataSet()
         plane_orientation_seq.add("ImageOrientationPatient", [1.0, 0.0, 0.0, 0.0, 1.0, 0.0])
         shared.add("PlaneOrientationSequence", [plane_orientation_seq])
+        
         per_frame = []
+        
         first_frame = odil.DataSet()
         plane_position_seq = odil.DataSet()
         plane_position_seq.add("ImagePositionPatient", [-20., -14., -4.5])
         first_frame.add("PlanePositionSequence", [plane_position_seq])
         per_frame.append(first_frame)
+        
         second_frame = odil.DataSet()
+        plane_position_seq = odil.DataSet()
         plane_position_seq.add("ImagePositionPatient", [-20., -14., -4.])
         second_frame.add("PlanePositionSequence", [plane_position_seq])
         per_frame.append(second_frame)
+        
         data_set.add("SharedFunctionalGroupsSequence",[shared])
         data_set.add("PerFrameFunctionalGroupsSequence",per_frame)
         data_set.add("NumberOfFrames", [len(per_frame)])
@@ -96,7 +108,7 @@ class TestImage(unittest.TestCase):
         direction = numpy.identity(3)
         numpy.testing.assert_array_equal(val[2], direction)
 
-    def test_get_geometry_one_frame_with_spacing (self):
+    def test_get_geometry_one_frame_with_spacing(self):
         data_set = odil.DataSet()
         data_set.add("ImageOrientationPatient", [1.0, 0.0, 0.0, 0.0, 1.0, 0.0])
         data_set.add("ImagePositionPatient", [-20., -14., -4.5])
@@ -107,7 +119,7 @@ class TestImage(unittest.TestCase):
         direction = numpy.identity(3)
         numpy.testing.assert_array_equal(val[2], direction)
 
-    def test_get_geometry_same_positions_found (self):
+    def test_get_geometry_same_positions_found(self):
         data_set = odil.DataSet()
         shared = odil.DataSet()
         pixel_measures_sequence = odil.DataSet()
@@ -136,7 +148,7 @@ class TestImage(unittest.TestCase):
         direction = numpy.identity(3)
         numpy.testing.assert_array_equal(val[2], direction)
 
-    def test_get_geometry_multi_normal(self): #normal test multi_frame
+    def test_get_geometry_multi_normal(self):
         data_set = odil.DataSet()
         shared = odil.DataSet()
         pixel_measures_sequence = odil.DataSet()
@@ -145,16 +157,21 @@ class TestImage(unittest.TestCase):
         plane_orientation_seq = odil.DataSet()
         plane_orientation_seq.add("ImageOrientationPatient", [1.0, 0.0, 0.0, 0.0, 1.0, 0.0])
         shared.add("PlaneOrientationSequence", [plane_orientation_seq])
+        
         per_frame = []
+        
         first_frame = odil.DataSet()
         plane_position_seq = odil.DataSet()
         plane_position_seq.add("ImagePositionPatient", [-20., -14., -4.5])
         first_frame.add("PlanePositionSequence", [plane_position_seq])
         per_frame.append(first_frame)
+        
         second_frame = odil.DataSet()
+        plane_position_seq = odil.DataSet()
         plane_position_seq.add("ImagePositionPatient", [-20., -14., -4.])
         second_frame.add("PlanePositionSequence", [plane_position_seq])
         per_frame.append(second_frame)
+        
         data_set.add("SharedFunctionalGroupsSequence", [shared])
         data_set.add("PerFrameFunctionalGroupsSequence", per_frame)
         data_set.add("NumberOfFrames", [len(per_frame)])
@@ -164,7 +181,7 @@ class TestImage(unittest.TestCase):
         direction = numpy.identity(3)
         numpy.testing.assert_array_equal(val[2], direction)
 
-    def test_get_geometry_single_normal(self): #normal test single_frame
+    def test_get_geometry_single_normal(self):
         data_set = odil.DataSet()
         data_set.add("ImageOrientationPatient", [1.0, 0.0, 0.0, 0.0, 1.0, 0.0])
         data_set.add("ImagePositionPatient", [-20., -14., -4.5])
