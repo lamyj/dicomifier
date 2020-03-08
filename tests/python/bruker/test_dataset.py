@@ -13,11 +13,13 @@ class TestDataset(unittest.TestCase):
             ##FieldName=1 Field Value
             ##$OtherName=( 2, 60 )
             <Other> <Values>
+            ##Pi=3.14
             ##$VisuFGOrderDescDim=1
             ##$VisuFGOrderDesc=( 1 )
             (3, <FG_Name>, <FG_Comment>, 0, 2)
             ##$VisuGroupDepVals=( 2 )
             (<Foo>, 0) (<Bar>, 1)""").encode())
+        os.close(fd)
     
     def tearDown(self):
         pathlib.Path(self.path).unlink()
@@ -32,18 +34,23 @@ class TestDataset(unittest.TestCase):
     def test_load(self):
         dataset = dicomifier.bruker.Dataset()
         dataset.load(self.path)
+        
         fields = []
-        for name, value in dataset:
+        for name, value in dataset.items():
             fields.append([name, value])
-        self.assertEqual(len(fields), 5)
+        self.assertEqual([x[0] for x in fields], [x for x in dataset])
         
         expected_fields = [
             ["FieldName", [], ["1 Field Value"]],
             ["OtherName", [2, 60], ["Other", "Values"]],
+            ["Pi", [], [3.14]],
             ["VisuFGOrderDesc", [1], [[3, "FG_Name", "FG_Comment", 0, 2]]],
             ["VisuFGOrderDescDim", [], [1]],
             ["VisuGroupDepVals", [2], [["Foo", 0], ["Bar", 1]]]
         ]
+        
+        self.assertEqual(len(fields), len(expected_fields))
+        
         for field_index, (name, shape, items) in enumerate(expected_fields):
             self.assertTrue(dataset.has_field(name))
             self.assertTrue(name in dataset)
@@ -52,7 +59,6 @@ class TestDataset(unittest.TestCase):
             field = dataset.get_field(name)
             self.assertEqual(field.name, name)
             self.assertEqual(field.shape, shape)
-            self.assertEqual(len(field.value), len(items))
             
             self.assertEqual(field, dataset[name])
             
@@ -60,34 +66,31 @@ class TestDataset(unittest.TestCase):
                 type_info = [
                     ["int", int], ["float", float], ["string", str], 
                     ["struct", list]]
-                
-                for typename, type in type_info:
+                for typename, type_ in type_info:
                     test = "is_{}".format(typename)
                     getter = "get_{}".format(typename)
                     
-                    self.assertEqual(
-                        getattr(field, test)(index), 
-                        isinstance(expected_item, type))
-                    self.assertEqual(
-                        getattr(item, test)(), 
-                        isinstance(expected_item, type))
-                    
-                    if getattr(item, test)():
-                        value = getattr(field, getter)(index)
+                    if getattr(field, test)(index):
+                        internal_item = getattr(field, getter)(index)
                         if typename == "struct":
-                            value = [x.value for x in value]
-                        self.assertEqual(value, expected_item)
-                        
-                        value = getattr(item, getter)()
-                        if typename == "struct":
-                            value = [x.value for x in value]
-                        self.assertEqual(value, expected_item)
+                            internal_item = [x.value for x in internal_item]
+                        self.assertIsInstance(internal_item, type_)
+                        if isinstance(item, float):
+                            self.assertTrue(
+                                abs(internal_item-expected_item)/expected_item 
+                                < 1e4)
+                        else:
+                            self.assertEqual(internal_item, expected_item)
                     else:
                         with self.assertRaises(Exception):
                             getattr(field, getter)(index)
-                        with self.assertRaises(Exception):
-                            getattr(item, getter)()
-                self.assertEqual(item.value, expected_item)
+                
+                self.assertEqual(type(item), type(expected_item))
+                
+                if isinstance(item, float):
+                    self.assertTrue(abs(item-expected_item)/expected_item < 1e4)
+                else:
+                    self.assertEqual(item, expected_item)
         
         self.assertEqual(dataset.get_used_files(), [self.path])
 

@@ -34,6 +34,11 @@ void wrap_Dataset(pybind11::module & m)
             return_value_policy::reference_internal)
         .def(
             "__iter__", 
+            [](Dataset const & d) { 
+                return make_key_iterator(d.begin(), d.end()); },
+            keep_alive<0, 1>())
+        .def(
+            "items", 
             [](Dataset const & d) { return make_iterator(d.begin(), d.end()); },
             keep_alive<0, 1>())
     ;

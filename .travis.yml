@@ -30,7 +30,5 @@ matrix:
       after_success:
         - docker kill ubuntu_bionic
 
-script: |
-  ${RUNNER} ./.ci/${CI_TYPE}/install
-  ${RUNNER} ./.ci/${CI_TYPE}/build
-  ${RUNNER} ./.ci/${CI_TYPE}/post_build
+install: ${RUNNER} ./.ci/${CI_TYPE}/install
+script: ${RUNNER} ./.ci/${CI_TYPE}/build && ${RUNNER} ./.ci/${CI_TYPE}/post_build

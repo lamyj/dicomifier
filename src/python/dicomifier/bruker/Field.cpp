@@ -53,6 +53,16 @@ pybind11::object as_value(dicomifier::bruker::Field::Item const & item)
     }
 }
 
+pybind11::object as_value(dicomifier::bruker::Field const & field)
+{
+    pybind11::list result;
+    for(auto && item: field.value)
+    {
+        result.append(as_value(item));
+    }
+    return result;
+}
+
 }
 
 void wrap_Field(pybind11::module & m)
@@ -63,7 +73,10 @@ void wrap_Field(pybind11::module & m)
     auto field = class_<Field>(m, "Field")
         .def_readonly("name", &Field::name)
         .def_readonly("shape", &Field::shape)
-        .def_readonly("value", &Field::value)
+        // WARNING: the following moves the data. Use as_value instead.
+        // .def_readonly("value", &Field::value)
+        .def_property_readonly(
+            "value", static_cast<object(*)(Field const &)>(&as_value))
         .def("get_string", &Field::get_string)
         .def("get_int", &Field::get_int)
         .def("get_float", &Field::get_float)
@@ -85,6 +98,6 @@ void wrap_Field(pybind11::module & m)
         .def("is_float", &item_is<float>)
         .def("is_string", &item_is<std::string>)
         .def("is_struct", &item_is<Field::Value>)
-        .def_property_readonly("value", &as_value)
+        .def_property_readonly("value", static_cast<object(*)(Field::Item const &)>(&as_value))
     ;
 }
