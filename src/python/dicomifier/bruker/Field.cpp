@@ -6,6 +6,7 @@
  * for details.
  ************************************************************************/
 
+#include <pybind11/operators.h>
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 
@@ -71,6 +72,8 @@ void wrap_Field(pybind11::module & m)
         .def("is_float", &Field::is_float)
         .def("is_string", &Field::is_string)
         .def("is_struct", &Field::is_struct)
+        .def(self == self)
+        .def(self != self)
     ;
     
     class_<Field::Item>(field, "Item")

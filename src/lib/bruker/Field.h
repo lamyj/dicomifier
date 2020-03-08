@@ -76,6 +76,9 @@ public:
 
     /// @brief Test whether item is a struct.
     bool is_struct(unsigned int index) const;
+    
+    bool operator==(Field const & other) const;
+    bool operator!=(Field const & other) const;
 };
 
 } // namespace bruker

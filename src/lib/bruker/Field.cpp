@@ -88,6 +88,23 @@ Field
     return this->value[index].type() == typeid(Field::Value);
 }
 
+bool
+Field
+::operator==(Field const & other) const
+{
+    return (
+        this->name == other.name
+        && this->shape == other.shape
+        && this->value == other.value);
+}
+
+bool
+Field
+::operator!=(Field const & other) const
+{
+    return !this->operator==(other);
+}
+
 } // namespace bruker
 
 } // namespace dicomifier

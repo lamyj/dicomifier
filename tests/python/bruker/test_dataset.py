@@ -53,7 +53,8 @@ class TestDataset(unittest.TestCase):
             self.assertEqual(field.name, name)
             self.assertEqual(field.shape, shape)
             self.assertEqual(len(field.value), len(items))
-            self.assertEqual(field.value, dataset[name].value)
+            
+            self.assertEqual(field, dataset[name])
             
             for index, (item, expected_item) in enumerate(zip(field.value, items)):
                 type_info = [
