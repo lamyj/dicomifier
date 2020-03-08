@@ -20,8 +20,12 @@ void wrap_Directory(pybind11::module & m)
         .def(init<>())
         .def("load", &Directory::load)
         .def("has_dataset", &Directory::has_dataset)
-        .def("get_dataset", &Directory::get_dataset)
-        .def("get_used_files", &Directory::get_used_files)
+        .def(
+            "get_dataset", &Directory::get_dataset, 
+            return_value_policy::reference_internal)
+        .def(
+            "get_used_files", &Directory::get_used_files, 
+            return_value_policy::reference_internal)
         .def_static("list_subjects", &Directory::list_subjects)
         .def_static("get_series_and_reco", &Directory::get_series_and_reco)
     ;
