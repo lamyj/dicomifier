@@ -1,3 +1,5 @@
+cmake_minimum_required(VERSION 3.5)
+
 project(dicomifier)
 set(dicomifier_MAJOR_VERSION 1)
 set(dicomifier_MINOR_VERSION 3)
@@ -5,7 +7,6 @@ set(dicomifier_PATCH_VERSION 0)
 set(dicomifier_VERSION
     ${dicomifier_MAJOR_VERSION}.${dicomifier_MINOR_VERSION}.${dicomifier_PATCH_VERSION})
 
-cmake_minimum_required(VERSION 2.8)
 
 option(BUILD_EXAMPLES "Build the examples directory." ON)
 
@@ -20,6 +21,7 @@ elseif(COMPILER_SUPPORTS_CXX0X)
 endif()
 
 set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}" ${CMAKE_MODULE_PATH})
+set(CMAKE_INSTALL_MESSAGE LAZY)
 
 include(CTest)
 

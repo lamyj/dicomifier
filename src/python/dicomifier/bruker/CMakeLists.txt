@@ -9,7 +9,7 @@ if(APPLE)
     set_target_properties(pydicomifier_bruker PROPERTIES SUFFIX ".so")
 endif()
 
-target_link_libraries(pydicomifier_bruker libdicomifier)
+target_link_libraries(pydicomifier_bruker PUBLIC libdicomifier)
 
 execute_process(
     COMMAND ${PYTHON_EXECUTABLE}
