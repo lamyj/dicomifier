@@ -6,7 +6,6 @@
 # for details.
 #########################################################################
 
-import json
 import re
 import os
 
@@ -52,18 +51,18 @@ def convert_reconstruction(
     
     logger.info("Converting {}:{}".format(series, reconstruction))
     
-    bruker_binary = bruker_directory.get_dataset(
+    bruker_data_set = bruker_directory.get_dataset(
         "{}{:04d}".format(series, int(reconstruction)))
-    bruker_json = json.loads(bruker.as_json(bruker_binary))
+    bruker_dict = {k:v.value for k,v in bruker_data_set.items()}
     logger.info("Found {}:{} - {} ({})".format(
         series, reconstruction, 
-        bruker_json.get("VisuAcquisitionProtocol", ["(none)"])[0],
-        bruker_json.get("RECO_mode", ["none"])[0]
+        bruker_dict.get("VisuAcquisitionProtocol", ["(none)"])[0],
+        bruker_dict.get("RECO_mode", ["none"])[0]
     ))
-    bruker_json["reco_files"] = list(bruker_directory.get_used_files(
+    bruker_dict["reco_files"] = list(bruker_directory.get_used_files(
         "{}{:04d}".format(series, int(reconstruction))))
 
-    dicom_data_sets = iod_converter(bruker_json, writer.transfer_syntax)
+    dicom_data_sets = iod_converter(bruker_dict, writer.transfer_syntax)
     
     for dicom_data_set in dicom_data_sets:
         writer(dicom_data_set)

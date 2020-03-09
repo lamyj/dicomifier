@@ -7,7 +7,6 @@
 #########################################################################
 
 import itertools
-import json
 import os
 
 import dateutil.parser

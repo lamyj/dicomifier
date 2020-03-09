@@ -3,7 +3,6 @@
 from __future__ import print_function
 import argparse
 import itertools
-import json
 import logging
 import math
 import os
@@ -114,14 +113,14 @@ def list_(source):
         for series, reconstructions in series_and_reconstructions:
             directory.load(os.path.join(subject_source, series))
             for reconstruction in reconstructions:
-                bruker_binary = directory.get_dataset(
+                bruker_data_set = directory.get_dataset(
                     "{}{:04d}".format(series, int(reconstruction)))
-                bruker_json = json.loads(dicomifier.bruker.as_json(bruker_binary))
+                bruker_dict = {k:v.value for k,v in bruker_data_set.items()}
                 print(
                     "{}:{} - {} ({})".format(
                         series, reconstruction,
-                        bruker_json.get("VisuAcquisitionProtocol", ["(none)"])[0],
-                        bruker_json.get("RECO_mode", ["none"])[0]
+                        bruker_dict.get("VisuAcquisitionProtocol", ["(none)"])[0],
+                        bruker_dict.get("RECO_mode", ["none"])[0]
                     )
                 )
 
@@ -157,16 +156,17 @@ def convert(
             _series_and_reconstructions = {}
             for series, reconstructions in sorted(everything.items()):
                 for reconstruction in sorted(reconstructions):
-                    bruker_binary = directory.get_dataset(
+                    bruker_data_set = directory.get_dataset(
                         "{}{:04d}".format(series, int(reconstruction)))
-                    bruker_json = json.loads(dicomifier.bruker.as_json(bruker_binary))
-                    type_id = bruker_json.get("VisuSeriesTypeId", ["UNKNOWN"])[0]
+                    bruker_dict = {k:v.value for k,v in bruker_data_set.items()}
+                    
+                    type_id = bruker_dict.get("VisuSeriesTypeId", ["UNKNOWN"])[0]
                     if not type_id.startswith("ACQ_"):
                         dicomifier.logger.warning(
                             "Skipping {}:{} - {} ({}): type is {}".format(
                                 series, reconstruction,
-                                bruker_json.get("VisuAcquisitionProtocol", ["(none)"])[0],
-                                bruker_json.get("RECO_mode", ["none"])[0],
+                                bruker_dict.get("VisuAcquisitionProtocol", ["(none)"])[0],
+                                bruker_dict.get("RECO_mode", ["none"])[0],
                                 type_id
                         ))
                         continue
@@ -181,18 +181,18 @@ def convert(
         # key = (VisuInstanceModality, bool multiframe)
         # value = function to be called
         converters = {
-        ("MR", False) : dicomifier.bruker_to_dicom.mr_image_storage ,
+        ("MR", False) : dicomifier.bruker_to_dicom.mr_image_storage,
         ("MR", True) : dicomifier.bruker_to_dicom.enhanced_mr_image_storage
         }
 
         for series, reconstructions in sorted(_series_and_reconstructions.items()):
             for reconstruction in sorted(reconstructions):
                 try:
-                    bruker_binary = directory.get_dataset(
+                    bruker_data_set = directory.get_dataset(
                         "{}{:04d}".format(series, int(reconstruction)))
-                    bruker_json = json.loads(dicomifier.bruker.as_json(bruker_binary))
-                    if "VisuInstanceModality" in bruker_json:
-                        converter_key = (bruker_json.get("VisuInstanceModality")[0], multiframe)
+                    bruker_dict = {k:v.value for k,v in bruker_data_set.items()}
+                    if "VisuInstanceModality" in bruker_dict:
+                        converter_key = (bruker_dict.get("VisuInstanceModality")[0], multiframe)
                     else:
                         dicomifier.logger.warning(
                             "Warning reconstruction {}:{} - "
