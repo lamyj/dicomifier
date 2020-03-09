@@ -103,10 +103,9 @@ def mr_image_storage(bruker_data_set, transfer_syntax):
                 bruker_data_set, dicom_data_set,
                 bruker_name, dicom_name, type_, getter, setter,
                 frame_index, generator, vr_finder_function)
-
-            for name in ["BitsAllocated", "PixelRepresentation"]:
-                if dicom_name == name:
-                    helper.add(getattr(odil.registry, name), value)
+            
+            if dicom_name in ["BitsAllocated", "PixelRepresentation"]:
+                helper.add(getattr(odil.registry, dicom_name), value)
         
         # FIXME: storing the Bruker meta-data in all instances is rather 
         # inefficient. It can amount to over 50 % of the total size of the

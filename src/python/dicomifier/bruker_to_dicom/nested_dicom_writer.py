@@ -8,6 +8,7 @@ class NestedDICOMWriter(object):
         self.iso_9660 = iso_9660
         self.transfer_syntax = transfer_syntax
         self.files = []
+        self._counts = {}
 
     def __call__(self, data_set):
         directory = os.path.join(self.root, self.get_series_directory(data_set))
@@ -15,7 +16,7 @@ class NestedDICOMWriter(object):
             os.makedirs(directory)
 
         if self.iso_9660:
-            filename = "IM{:06d}".format(1+len(os.listdir(directory)))
+            filename = "IM{:06d}".format(1+self._counts.setdefault(directory, 0))
         else:
             filename = data_set.as_string("SOPInstanceUID")[0].decode()
 
@@ -24,6 +25,7 @@ class NestedDICOMWriter(object):
             odil.Writer.write_file(
                 data_set, fd, odil.DataSet(), self.transfer_syntax)
         self.files.append(destination)
+        self._counts[directory] += 1
 
     def get_series_directory(self, data_set):
         """ Return the directory associated with the patient, study and series

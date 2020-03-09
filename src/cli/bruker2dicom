@@ -183,8 +183,8 @@ def convert(
                     datasets[(series, reconstruction)] = bruker_dict
 
         converters = {
-        ("MR", False) : dicomifier.bruker_to_dicom.mr_image_storage,
-        ("MR", True) : dicomifier.bruker_to_dicom.enhanced_mr_image_storage
+            ("MR", False): dicomifier.bruker_to_dicom.mr_image_storage,
+            ("MR", True): dicomifier.bruker_to_dicom.enhanced_mr_image_storage
         }
 
         for (series, reconstruction), dataset in sorted(datasets.items()):

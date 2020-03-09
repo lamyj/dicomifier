@@ -82,7 +82,7 @@ def _get_pixel_data(data_set, generator, frame_index):
         frame_index = generator.get_linear_index(frame_index)
     frame_data = data_set["PIXELDATA"][frame_index]
     
-    return [frame_data.tostring()]
+    return [bytearray(frame_data.tobytes())]
 
 def _get_direction(data_set):
     return [

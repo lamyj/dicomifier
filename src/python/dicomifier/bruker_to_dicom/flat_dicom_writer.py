@@ -14,7 +14,7 @@ class FlatDICOMWriter(object):
             os.makedirs(self.root)
 
         if self.iso_9660:
-            filename = "{:08d}.dcm".format(1+len(os.listdir(self.root)))
+            filename = "{:08d}.dcm".format(1+len(self.files))
         else:
             filename = data_set.as_string("SOPInstanceUID")[0].decode()
 
