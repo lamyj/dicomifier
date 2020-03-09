@@ -6,14 +6,6 @@ import dicomifier
 import odil
 
 class TestConvert(unittest.TestCase):
-    def test_to_iso_9660(self):
-        self.assertEqual(
-            dicomifier.bruker_to_dicom.convert.to_iso_9660("filenametoolong"), 
-            "FILENAME")
-        self.assertEqual(
-            dicomifier.bruker_to_dicom.convert.to_iso_9660("Subj1&2"), 
-            "SUBJ1_2")
-
     def test_convert_element_getter_none(self):
         bruker_data_set = {"VisuSubjectName" : [b"Mouse^Mickey"]}
         dicom_data_set = odil.DataSet()
