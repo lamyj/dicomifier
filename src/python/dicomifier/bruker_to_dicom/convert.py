@@ -37,6 +37,7 @@ vr_converters = {
 
 def convert_reconstruction(
         bruker_directory, series, reconstruction,
+        bruker_dict,
         iod_converter, writer):
     """ Convert and save a single reconstruction.
 
@@ -49,12 +50,7 @@ def convert_reconstruction(
         :param iso_9660: whether to use ISO-9660 compatible file names
     """
     
-    logger.info("Converting {}:{}".format(series, reconstruction))
-    
-    bruker_data_set = bruker_directory.get_dataset(
-        "{}{:04d}".format(series, int(reconstruction)))
-    bruker_dict = {k:v.value for k,v in bruker_data_set.items()}
-    logger.info("Found {}:{} - {} ({})".format(
+    logger.info("Converting {}:{} - {} ({})".format(
         series, reconstruction, 
         bruker_dict.get("VisuAcquisitionProtocol", ["(none)"])[0],
         bruker_dict.get("RECO_mode", ["none"])[0]
@@ -91,7 +87,6 @@ def convert_element(
     """
     
     value = None
-    index = -1
     if getter is not None:
         value = getter(bruker_data_set, generator, frame_index)
     else:

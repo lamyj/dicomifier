@@ -145,15 +145,16 @@ def convert(
         "nested": dicomifier.bruker_to_dicom.NestedDICOMWriter,
         "flat": dicomifier.bruker_to_dicom.FlatDICOMWriter}
     writer = Writers[layout](destination, True, transfer_syntax)
-
+    
     for subject_source in subjects:
         directory = dicomifier.bruker.Directory()
         directory.load(subject_source)
+        
+        datasets = {}
 
         # Create series and reconstruction if they are not given in parameters
         if series_and_reconstructions is None:
             everything = dicomifier.bruker.Directory.get_series_and_reco(subject_source)
-            _series_and_reconstructions = {}
             for series, reconstructions in sorted(everything.items()):
                 for reconstruction in sorted(reconstructions):
                     bruker_data_set = directory.get_dataset(
@@ -170,44 +171,45 @@ def convert(
                                 type_id
                         ))
                         continue
-                    _series_and_reconstructions.setdefault(series, []).append(reconstruction)
+                    datasets[(series, reconstruction)] = bruker_dict
         else: # Use series & reco given in parameters
             parsed = {}
             for entry in series_and_reconstructions:
                 series, reconstruction = entry.split(":")
-                parsed.setdefault(series, []).append(reconstruction)
-            _series_and_reconstructions = parsed
+                if (series, reconstruction) not in datasets:
+                    bruker_data_set = directory.get_dataset(
+                        "{}{:04d}".format(series, int(reconstruction)))
+                    bruker_dict = {k:v.value for k,v in bruker_data_set.items()}
+                    datasets[(series, reconstruction)] = bruker_dict
 
-        # key = (VisuInstanceModality, bool multiframe)
-        # value = function to be called
         converters = {
         ("MR", False) : dicomifier.bruker_to_dicom.mr_image_storage,
         ("MR", True) : dicomifier.bruker_to_dicom.enhanced_mr_image_storage
         }
 
-        for series, reconstructions in sorted(_series_and_reconstructions.items()):
-            for reconstruction in sorted(reconstructions):
-                try:
-                    bruker_data_set = directory.get_dataset(
-                        "{}{:04d}".format(series, int(reconstruction)))
-                    bruker_dict = {k:v.value for k,v in bruker_data_set.items()}
-                    if "VisuInstanceModality" in bruker_dict:
-                        converter_key = (bruker_dict.get("VisuInstanceModality")[0], multiframe)
-                    else:
-                        dicomifier.logger.warning(
-                            "Warning reconstruction {}:{} - "
-                            "VisuInstanceModality not found in bruker file, "
-                            "MRI will be used by default".format(
-                                series, reconstruction))
-                        converter_key = ("MR", multiframe)
-                    dicomifier.bruker_to_dicom.convert_reconstruction(
-                        directory, series, reconstruction,
-                        converters[converter_key], writer)
-                except Exception as e:
-                    dicomifier.logger.error(
-                        "Could not convert {}:{} - {}".format(
-                            series, reconstruction, e))
-                    dicomifier.logger.debug("Stack trace", exc_info=True)
+        for (series, reconstruction), dataset in sorted(datasets.items()):
+            try:
+                modality = None
+                if "VisuInstanceModality" in dataset:
+                    modality = dataset.get("VisuInstanceModality")[0]
+                else:
+                    dicomifier.logger.info(
+                        "reconstruction {}:{} - "
+                        "VisuInstanceModality not found in bruker file, "
+                        "MRI will be used by default".format(
+                            series, reconstruction))
+                    modality = "MR"
+                
+                dicomifier.bruker_to_dicom.convert_reconstruction(
+                    directory, series, reconstruction,
+                    dataset,
+                    converters[(modality, multiframe)], writer)
+                
+            except Exception as e:
+                dicomifier.logger.error(
+                    "Could not convert {}:{} - {}".format(
+                        series, reconstruction, e))
+                dicomifier.logger.debug("Stack trace", exc_info=True)
 
         if dicomdir and writer.files:
             create_dicomdir(
