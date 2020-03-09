@@ -6,19 +6,22 @@ import dicomifier
 import odil
 
 class TestConvert(unittest.TestCase):
-    #The only function we can test is the to_iso_9660() one,
-    #the others require real data_sets, and frame_iterator..
     def test_to_iso_9660(self):
-        self.assertEqual(dicomifier.bruker_to_dicom.convert.to_iso_9660("filenametoolong"), "FILENAME")
-        self.assertEqual(dicomifier.bruker_to_dicom.convert.to_iso_9660("Subj1&2"), "SUBJ1_2")
+        self.assertEqual(
+            dicomifier.bruker_to_dicom.convert.to_iso_9660("filenametoolong"), 
+            "FILENAME")
+        self.assertEqual(
+            dicomifier.bruker_to_dicom.convert.to_iso_9660("Subj1&2"), 
+            "SUBJ1_2")
 
     def test_convert_element_getter_none(self):
-        bruker_data_set = {"VisuSubjectName" : ["Mouse^Mickey"]}
+        bruker_data_set = {"VisuSubjectName" : [b"Mouse^Mickey"]}
         dicom_data_set = odil.DataSet()
         generator = dicomifier.bruker_to_dicom.FrameIndexGenerator(bruker_data_set)
         frame_index = [0]
         vr_finder_object = odil.VRFinder()
-        vr_finder_function = lambda tag: vr_finder_object(tag, odil.DataSet(), odil.registry.ImplicitVRLittleEndian)
+        vr_finder_function = lambda tag: vr_finder_object(
+            tag, odil.DataSet(), odil.registry.ImplicitVRLittleEndian)
 
         val = dicomifier.bruker_to_dicom.convert.convert_element(
             bruker_data_set, dicom_data_set,
@@ -39,12 +42,13 @@ class TestConvert(unittest.TestCase):
         generator = dicomifier.bruker_to_dicom.FrameIndexGenerator(bruker_data_set)
         frame_index = [0]
         vr_finder_object = odil.VRFinder()
-        vr_finder_function = lambda tag: vr_finder_object(tag, odil.DataSet(), odil.registry.ImplicitVRLittleEndian)
+        vr_finder_function = lambda tag: vr_finder_object(
+            tag, odil.DataSet(), odil.registry.ImplicitVRLittleEndian)
 
         val = dicomifier.bruker_to_dicom.convert.convert_element(
             bruker_data_set, dicom_data_set,
             None, "PixelPresentation", 1,
-            lambda d,g,i : ["MONOCHROME"], None,
+            lambda d,g,i : [b"MONOCHROME"], None,
             frame_index, generator, vr_finder_function
         )
 
@@ -63,7 +67,8 @@ class TestConvert(unittest.TestCase):
         generator = dicomifier.bruker_to_dicom.FrameIndexGenerator(bruker_data_set)
         frame_index = [1]
         vr_finder_object = odil.VRFinder()
-        vr_finder_function = lambda tag: vr_finder_object(tag, odil.DataSet(), odil.registry.ImplicitVRLittleEndian)
+        vr_finder_function = lambda tag: vr_finder_object(
+            tag, odil.DataSet(), odil.registry.ImplicitVRLittleEndian)
 
         val = dicomifier.bruker_to_dicom.convert.convert_element(
             bruker_data_set, dicom_data_set,
@@ -82,7 +87,8 @@ class TestConvert(unittest.TestCase):
         generator = dicomifier.bruker_to_dicom.FrameIndexGenerator(bruker_data_set)
         frame_index = [0]
         vr_finder_object = odil.VRFinder()
-        vr_finder_function = lambda tag: vr_finder_object(tag, odil.DataSet(), odil.registry.ImplicitVRLittleEndian)
+        vr_finder_function = lambda tag: vr_finder_object(
+            tag, odil.DataSet(), odil.registry.ImplicitVRLittleEndian)
 
         with self.assertRaises(Exception) as context:
             val = dicomifier.bruker_to_dicom.convert.convert_element(
@@ -100,15 +106,12 @@ class TestConvert(unittest.TestCase):
         generator = dicomifier.bruker_to_dicom.FrameIndexGenerator(bruker_data_set)
         frame_index = [0]
         vr_finder_object = odil.VRFinder()
-        vr_finder_function = lambda tag: vr_finder_object(tag, odil.DataSet(), odil.registry.ImplicitVRLittleEndian)
+        vr_finder_function = lambda tag: vr_finder_object(
+            tag, odil.DataSet(), odil.registry.ImplicitVRLittleEndian)
         val = dicomifier.bruker_to_dicom.convert.convert_element(
             bruker_data_set, dicom_data_set,
             "VisuSubjectSex", "PatientSex", 1,
-            None,
-            {
-                "MALE": "M", "FEMALE": "F", "UNDEFINED": "O", "UNKNOWN": "O",
-                None: None
-            },
+            None, { "MALE": b"M", "FEMALE": b"F" },
             frame_index, generator, vr_finder_function
         )
         self.assertEqual(val, [b"M"])
@@ -124,7 +127,8 @@ class TestConvert(unittest.TestCase):
         generator = dicomifier.bruker_to_dicom.FrameIndexGenerator(bruker_data_set)
         frame_index = [0]
         vr_finder_object = odil.VRFinder()
-        vr_finder_function = lambda tag: vr_finder_object(tag, odil.DataSet(), odil.registry.ImplicitVRLittleEndian)
+        vr_finder_function = lambda tag: vr_finder_object(
+            tag, odil.DataSet(), odil.registry.ImplicitVRLittleEndian)
 
         val = dicomifier.bruker_to_dicom.convert.convert_element(
             bruker_data_set, dicom_data_set,
