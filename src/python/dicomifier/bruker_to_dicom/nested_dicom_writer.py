@@ -65,12 +65,14 @@ class NestedDICOMWriter(object):
         # Study directory: <SeriesNumber>_<SeriesDescription>, both parts are
         # optional. If both tags are missing or empty, raise an exception
         series_directory = []
+        reconstruction = None
         if has_element("SeriesNumber", data_set.as_int):
             series_number = data_set.as_int("SeriesNumber")[0]
             if series_number > 2**16:
                 # Bruker ID based on experiment number and reconstruction number
                 # is not readable: separate the two values
-                series_directory.append(str(divmod(series_number, 2**16)[0]))
+                experiment, reconstruction = divmod(series_number, 2**16) 
+                series_directory.append(str(experiment))
             else:
                 series_directory.append(str(series_number))
         if not self.iso_9660:
@@ -87,6 +89,10 @@ class NestedDICOMWriter(object):
             patient_directory = self.to_iso_9660(patient_directory)
             study_directory = self.to_iso_9660(study_directory)
             series_directory = self.to_iso_9660(series_directory)
+        
+        if reconstruction is not None:
+            series_directory = os.path.join(
+                series_directory, str(reconstruction))
 
         return os.path.join(patient_directory, study_directory, series_directory)
 
