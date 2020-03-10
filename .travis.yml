@@ -37,11 +37,11 @@ matrix:
         - CI_TYPE=brew 
         - WORKSPACE=${TRAVIS_BUILD_DIR}
         - RUNNER=""
-      cache:
-        directories:
-          - $HOME/Library/Caches/Homebrew
-      before_cache:
-        - brew cleanup
+      # cache:
+      #   directories:
+      #     - $HOME/Library/Caches/Homebrew
+      # before_cache:
+      #   - brew cleanup
 
 script: |
   ${RUNNER} ./.ci/${CI_TYPE}/install && ${RUNNER} ./.ci/${CI_TYPE}/build && ${RUNNER} ./.ci/${CI_TYPE}/post_build
