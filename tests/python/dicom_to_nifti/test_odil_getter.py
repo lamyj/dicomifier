@@ -9,10 +9,10 @@ class TestOdilGetter(unittest.TestCase):
 
     def test_getter_binary(self):
         data_set = odil.DataSet()
-        pixel_data = [bin(42)]
+        pixel_data = odil.Value.Binary([odil.Value.BinaryItem([1, 2, 3])])
         data_set.add("PixelData", pixel_data, odil.VR.OB)
         val = dicomifier.dicom_to_nifti.odil_getter._getter(data_set, odil.registry.PixelData)
-        self.assertEqual((bin(42),), val)
+        self.assertEqual(tuple(pixel_data), val)
 
     def test_getter_data_set(self):
         data_set = odil.DataSet()
@@ -39,12 +39,12 @@ class TestOdilGetter(unittest.TestCase):
         data_set = odil.DataSet()
         data_set.add("PatientName", ["Duck^Donald"])
         val = dicomifier.dicom_to_nifti.odil_getter._getter(data_set, odil.registry.PatientName)
-        self.assertEqual(("Duck^Donald",), val)
+        self.assertEqual((b"Duck^Donald",), val)
 
     def test_default_getter(self):
         #the function should return None when element is not found
         data_set = odil.DataSet()
-        val = dicomifier.dicom_to_nifti.odil_getter._default_getter(data_set, odil.registry.PatientName)
+        val = dicomifier.dicom_to_nifti.odil_getter._getter(data_set, odil.registry.PatientName)
         self.assertEqual(None, val)
 
     def test_check_frame_idx_out_of_bounds(self):

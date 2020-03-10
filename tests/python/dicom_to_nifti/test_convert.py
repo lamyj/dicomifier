@@ -19,7 +19,7 @@ class TestConvert(unittest.TestCase):
         ds[2].add("SOPClassUID", [odil.registry.MRImageStorage])
         ds[2].add("EchoTime", [25.])
         stacks = get_stacks(ds)
-        echoTime_tag = str(odil.Tag("EchoTime"))
+        echoTime_tag = odil.Tag("EchoTime")
         wanted_stacks = { 
             (((None, None, echoTime_tag), (25.,)), ) : [(ds[0], None), (ds[2], None)],
             (((None, None, echoTime_tag), (20.,)), ) : [(ds[1], None)]
@@ -56,14 +56,15 @@ class TestConvert(unittest.TestCase):
         ds.add("SharedFunctionalGroupsSequence", [shared])
         ds.add("NumberOfFrames", [len(per_frame)])
         stacks = get_stacks([ds])
-        inversionTimes_tag = str(odil.Tag("InversionTimes"))
-        mr_modifier_seq_tag = str(odil.Tag("MRModifierSequence"))
-        per_frame_tag = str(odil.Tag("PerFrameFunctionalGroupsSequence"))
+        inversionTimes_tag = odil.Tag("InversionTimes")
+        mr_modifier_seq_tag = odil.Tag("MRModifierSequence")
+        per_frame_tag = odil.Tag("PerFrameFunctionalGroupsSequence")
         wanted_stacks = {
             (((per_frame_tag, mr_modifier_seq_tag, inversionTimes_tag), (300., )), ) : [(ds, 0), (ds, 2)],
             (((per_frame_tag, mr_modifier_seq_tag, inversionTimes_tag), (1000., )), ) : [(ds, 1)],
         }
-        self.assertEqual(wanted_stacks, stacks)
+        self.maxDiff = None
+        self.assertDictEqual(wanted_stacks, stacks)
 
     def test_get_stacks_orientation(self):
         # Test with multi_frame dataSets (one dataSet will have the orientation stored in the
@@ -101,10 +102,10 @@ class TestConvert(unittest.TestCase):
         ds2.add("NumberOfFrames", [len(per_frame)])
         
         stacks = get_stacks([ds, ds2])
-        imageOrientationTag = str(odil.Tag("ImageOrientationPatient"))
-        plane_ori_seq_tag = str(odil.Tag("PlaneOrientationSequence"))
-        per_frame_tag = str(odil.Tag("PerFrameFunctionalGroupsSequence"))
-        shared_tag = str(odil.Tag("SharedFunctionalGroupsSequence"))
+        imageOrientationTag = odil.Tag("ImageOrientationPatient")
+        plane_ori_seq_tag = odil.Tag("PlaneOrientationSequence")
+        per_frame_tag = odil.Tag("PerFrameFunctionalGroupsSequence")
+        shared_tag = odil.Tag("SharedFunctionalGroupsSequence")
         wanted_stacks = {
             (
                 (

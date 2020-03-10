@@ -193,7 +193,6 @@ def get_stacks(data_sets):
                                 key.append(((None, None, tag), value))
                         elif len(tags) == 2:
                             seq, tag = tags
-                            seq = str(seq)
                             if top_seq.has(seq):
                                 data_set_seq = top_seq.as_data_set(seq)[0]
                                 if tag is None:
@@ -229,7 +228,7 @@ def get_stacks(data_sets):
     to_keep = []
     for index in range(keys.shape[1]):
         unique_values = set(keys[:,index,:][:,1])
-        is_orientation = (keys[:,index,:][0][0][2] == str(odil.registry.ImageOrientationPatient))
+        is_orientation = (keys[:,index,:][0][0][2] == odil.registry.ImageOrientationPatient)
         if len(unique_values) > 1 or is_orientation:
             # Key must be kept
             to_keep.append(index)
