@@ -58,13 +58,13 @@ def get_image(data_sets_frame_idx, dtype, cache):
 
     origin, spacing, direction = get_geometry(data_sets_frame_idx)
 
+    data_set = data_sets_frame_idx[0][0]
     image_type = (
-        data_sets_frame_idx[0][0].as_string("ImageType") 
-        if "ImageType" in data_sets_frame_idx[0][0] else [])
-    if len(data_sets_frame_idx) == 1 and b"MOSAIC" in image_type and "00291010" in data_set:
-        data_set = data_sets_frame_idx[0][0]
-
-        siemens_data = data_set.as_binary(odil.Tag("00291010"))[0]
+        data_set.as_string("ImageType") if "ImageType" in data_set else [])
+    if (
+            len(data_sets_frame_idx) == 1 and b"MOSAIC" in image_type 
+            and "00291010" in data_set):
+        siemens_data = data_set.as_binary(odil.Tag(0x0029, 0x1010))[0]
         siemens_header = siemens.parse_csa(
             siemens_data.get_memory_view().tobytes())
 
@@ -84,6 +84,10 @@ def get_image(data_sets_frame_idx, dtype, cache):
             tiles_per_line, rows, tiles_per_line, columns)
         pixel_data = pixel_data.transpose((0, 2, 1, 3))
         pixel_data = pixel_data.reshape(tiles_per_line**2, rows, columns)
+        
+        # Remove the black tiles. WARNING: assume those are /always/ at the end 
+        # of the mosaic
+        pixel_data = pixel_data[:number_of_images_in_mosaic]
 
         # Get the origin of the tiles (i.e. origin of the first tile), cf.
         # http://nipy.org/nibabel/dicom/dicom_mosaic.html
@@ -95,7 +99,7 @@ def get_image(data_sets_frame_idx, dtype, cache):
 
         direction[:, 2] = siemens_header["SliceNormalVector"]
 
-    samples_per_pix = data_sets_frame_idx[0][0].as_int("SamplesPerPixel")[0]
+    samples_per_pix = data_set.as_int("SamplesPerPixel")[0]
 
     if samples_per_pix == 1:
         lps_to_ras = [
@@ -109,7 +113,7 @@ def get_image(data_sets_frame_idx, dtype, cache):
             scanner_transform[:3, :3], numpy.diag(spacing))
         scanner_transform[:3, 3] = numpy.dot(lps_to_ras, origin)
 
-    elif samples_per_pix == 3 and data_sets_frame_idx[0][0].as_string("PhotometricInterpretation")[0] == b"RGB":
+    elif samples_per_pix == 3 and data_set.as_string("PhotometricInterpretation")[0] == b"RGB":
         if dtype != numpy.uint8:
             logger.warning("Invalid dtype {} for RGB, re-sampling".format(dtype))
             min = pixel_data[...,].min((0,1,2))
