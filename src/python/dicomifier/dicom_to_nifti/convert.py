@@ -43,7 +43,7 @@ def convert(dicom_data_sets, dtype):
         stacks_converted[series_instance_uid] = 0
 
     def get_element(data_set, tag):
-        value = odil_getter._default_getter(data_set, tag)
+        value = odil_getter._getter(data_set, tag)
         return value[0] if (value is not None and len(value)>0) else None
 
     meta_data_cache = {}
@@ -156,7 +156,7 @@ def get_stacks(data_sets):
             key = []
             for tags, getter in splitters:
                 if len(tags) == 1:
-                    tag = str(tags[0])
+                    tag = tags[0]
                     value = getter(data_set, tag)
                     if value is not None:
                         key.append(((None, None, tag), value))
@@ -167,7 +167,7 @@ def get_stacks(data_sets):
             stacks.setdefault(tuple(key), []).append((data_set, None))
         # Multiple frame
         else:
-            number_of_frames = data_set.as_int("NumberOfFrames")[0]
+            number_of_frames = data_set.as_int(odil.registry.NumberOfFrames)[0]
             shared = data_set.as_data_set(
                 odil.registry.SharedFunctionalGroupsSequence)[0]
             in_stack_position_idx = odil_getter.get_in_stack_position_index(
@@ -175,22 +175,19 @@ def get_stacks(data_sets):
             for frame_idx in range(number_of_frames):
                 key = []
                 top_seqs = []
-                top_seqs.append(
-                    (data_set.as_data_set(
+                top_seqs.append((
+                    data_set.as_data_set(
                         odil.registry.PerFrameFunctionalGroupsSequence)[frame_idx],
-                     str(odil.registry.PerFrameFunctionalGroupsSequence))
-                )
-                top_seqs.append(
-                    (shared,
-                     str(odil.registry.SharedFunctionalGroupsSequence))
-                )
-                for top_seq, top_seq_tag in top_seqs:  # Only use to make difference between Shared & Per-Frame
-                                                       # We need this if multiple orientations
-                                                       # available for example
+                    odil.registry.PerFrameFunctionalGroupsSequence))
+                top_seqs.append((
+                    shared, odil.registry.SharedFunctionalGroupsSequence))
+                # Only use to make difference between Shared & Per-Frame
+                # We need this if multiple orientations available for example
+                for top_seq, top_seq_tag in top_seqs:  
                     for tags, getter in splitters:
-                        if len(tags) == 1 and top_seq_tag == str(odil.registry.SharedFunctionalGroupsSequence):
+                        if len(tags) == 1 and top_seq_tag == odil.registry.SharedFunctionalGroupsSequence:
                             # "and" case used to append element on key only once
-                            tag = str(tags[0])
+                            tag = tags[0]
                             value = getter(data_set, tag)
                             if value is not None:
                                 key.append(((None, None, tag), value))
@@ -199,10 +196,9 @@ def get_stacks(data_sets):
                             seq = str(seq)
                             if top_seq.has(seq):
                                 data_set_seq = top_seq.as_data_set(seq)[0]
-                                tag = str(tag)
-                                if tag == "None":
+                                if tag is None:
                                     value = getter(top_seq, seq)
-                                elif tag == str(odil.registry.DimensionIndexValues):
+                                elif tag == odil.registry.DimensionIndexValues:
                                     # need to give idx of InStackPosition here
                                     value = getter(
                                         data_set_seq, tag, in_stack_position_idx)
@@ -261,7 +257,7 @@ def sort(keys, data_sets_frame_idx):
         for key in keys:
             for tags, value in keys:
                 top_seq, sub_seq, tag = tags
-                if str(odil.registry.DimensionIndexValues) == tag:
+                if tag == odil.registry.DimensionIndexValues:
                     # sort by In-Stack Position
                     in_stack_position = []
                     for data_set, index in data_sets_frame_idx:
@@ -278,7 +274,7 @@ def sort(keys, data_sets_frame_idx):
                     keydict = dict(zip(data_sets_frame_idx, sorted_in_stack))
                     data_sets_frame_idx.sort(key = keydict.get)
                     return
-                if str(odil.registry.ImageOrientationPatient) == tag:
+                if tag == odil.registry.ImageOrientationPatient:
                     if sort_position(data_sets_frame_idx, value) == True:
                         return
         available_tags = [x[0][2] for x in keys if len(x) > 1]
@@ -296,7 +292,7 @@ def sort_position(data_sets_frame_idx, orientation):
 
     data_set, frame_idx = data_sets_frame_idx[0]
     if odil_getter._get_position(data_set, frame_idx) is not None:
-        normal = numpy.cross(*numpy.reshape(orientation, (2, -1)))
+        normal = numpy.cross(orientation[:3], orientation[3:])
         data_sets_frame_idx.sort(
             key=lambda x: numpy.dot(
                 odil_getter._get_position(x[0], x[1]), normal))
@@ -345,67 +341,99 @@ def _get_splitters(data_sets):
     splitters = {
         "ALL": [
             # Single Frame generic tags
-            ((odil.registry.SeriesInstanceUID,), odil_getter._default_getter),
-            ((odil.registry.ImageType,), odil_getter._default_getter),
-            ((odil.registry.ImageOrientationPatient,),
-             odil_getter.OrientationGetter()),
-            ((odil.registry.SpacingBetweenSlices,), odil_getter._default_getter),
-            ((odil.registry.Rows,), odil_getter._default_getter), 
-            ((odil.registry.Columns,), odil_getter._default_getter), 
-            ((odil.registry.PhotometricInterpretation,), odil_getter._default_getter), 
+            ((odil.registry.SeriesInstanceUID,), odil_getter._getter),
+            ((odil.registry.ImageType,), odil_getter._getter),
+            (
+                (odil.registry.ImageOrientationPatient,), 
+                odil_getter.OrientationGetter()),
+            ((odil.registry.SpacingBetweenSlices,), odil_getter._getter),
+            ((odil.registry.Rows,), odil_getter._getter), 
+            ((odil.registry.Columns,), odil_getter._getter), 
+            (
+                (odil.registry.PhotometricInterpretation,), 
+                odil_getter._getter), 
             # Multiframe generic tags
-            ((odil.registry.FrameContentSequence, odil.registry.DimensionIndexValues),
-             odil_getter.get_dimension_index_seq),
-            ((odil.registry.PlaneOrientationSequence, odil.registry.ImageOrientationPatient),
-             odil_getter.OrientationGetter()),
-            ((odil.registry.PixelMeasuresSequence, odil.registry.SpacingBetweenSlices),
-             odil_getter._default_getter),
-            ((odil.registry.FrameContentSequence, odil.registry.FrameAcquisitionNumber),
-             odil_getter._default_getter),
-            ((odil.registry.FrameContentSequence, odil.registry.FrameLabel),
-             odil_getter._default_getter)
+            (
+                (
+                    odil.registry.FrameContentSequence,
+                    odil.registry.DimensionIndexValues),
+                odil_getter.get_dimension_index_seq),
+            (
+                (
+                    odil.registry.PlaneOrientationSequence, 
+                    odil.registry.ImageOrientationPatient),
+                odil_getter.OrientationGetter()),
+            (
+                (
+                    odil.registry.PixelMeasuresSequence, 
+                    odil.registry.SpacingBetweenSlices),
+                odil_getter._getter),
+            (
+                (
+                    odil.registry.FrameContentSequence, 
+                    odil.registry.FrameAcquisitionNumber),
+                odil_getter._getter),
+            (
+                (odil.registry.FrameContentSequence, odil.registry.FrameLabel),
+                odil_getter._getter)
         ],
         odil.registry.MRImageStorage: [
-            ((odil.registry.AcquisitionNumber,), odil_getter._default_getter),
-            ((odil.registry.RepetitionTime,), odil_getter._default_getter),
-            ((odil.registry.EchoTime,), odil_getter._default_getter),
-            ((odil.registry.InversionTime,), odil_getter._default_getter),
-            ((odil.registry.EchoNumbers,), odil_getter._default_getter),
-            ((odil.registry.MRDiffusionSequence,), odil_getter._diffusion_getter),
+            ((odil.registry.AcquisitionNumber,), odil_getter._getter),
+            ((odil.registry.RepetitionTime,), odil_getter._getter),
+            ((odil.registry.EchoTime,), odil_getter._getter),
+            ((odil.registry.InversionTime,), odil_getter._getter),
+            ((odil.registry.EchoNumbers,), odil_getter._getter),
+            (
+                (odil.registry.MRDiffusionSequence,), 
+                odil_getter._diffusion_getter),
             # Philips Ingenia stores these fields at top-level
-            ((odil.registry.DiffusionGradientOrientation,),
-             odil_getter._default_getter),
-            ((odil.registry.DiffusionBValue,), odil_getter._default_getter),
-            ((odil.registry.TriggerTime,), odil_getter._default_getter),
+            (
+                (odil.registry.DiffusionGradientOrientation,),
+                odil_getter._getter),
+            ((odil.registry.DiffusionBValue,), odil_getter._getter),
+            ((odil.registry.TriggerTime,), odil_getter._getter),
             (
                 (odil.registry.ContributingEquipmentSequence,), 
                 odil_getter._frame_group_index_getter)
         ],
         odil.registry.EnhancedMRImageStorage: [
-            ((odil.registry.MRTimingAndRelatedParametersSequence, odil.registry.RepetitionTime),
-             odil_getter._default_getter),
-            ((odil.registry.MREchoSequence, odil.registry.EffectiveEchoTime),
-             odil_getter._default_getter),
-            ((odil.registry.MRModifierSequence, odil.registry.InversionTimes),
-             odil_getter._default_getter),
-            ((odil.registry.MRImageFrameTypeSequence, odil.registry.FrameType),
-             odil_getter._default_getter),
-            ((odil.registry.MRMetaboliteMapSequence, odil.registry.MetaboliteMapDescription),
-             odil_getter._default_getter),
-            ((odil.registry.MRDiffusionSequence, None),
-             odil_getter._diffusion_getter),
+            (
+                (
+                    odil.registry.MRTimingAndRelatedParametersSequence, 
+                    odil.registry.RepetitionTime),
+                odil_getter._getter),
+            (
+                (odil.registry.MREchoSequence, odil.registry.EffectiveEchoTime),
+                odil_getter._getter),
+            (
+                (odil.registry.MRModifierSequence, odil.registry.InversionTimes),
+                odil_getter._getter),
+            (
+                (odil.registry.MRImageFrameTypeSequence, odil.registry.FrameType),
+                odil_getter._getter),
+            (
+                (
+                    odil.registry.MRMetaboliteMapSequence, 
+                    odil.registry.MetaboliteMapDescription),
+                odil_getter._getter),
+            (
+                (odil.registry.MRDiffusionSequence, None),
+                odil_getter._diffusion_getter),
         ],
         odil.registry.EnhancedPETImageStorage: [
-            ((odil.registry.PETFrameTypeSequence, odil.registry.FrameType),
-             odil_getter._default_getter)
+            (
+                (odil.registry.PETFrameTypeSequence, odil.registry.FrameType),
+                odil_getter._getter)
         ],
         odil.registry.EnhancedCTImageStorage: [
-            ((odil.registry.CTImageFrameTypeSequence, odil.registry.FrameType),
-             odil_getter._default_getter)
+            (
+                (odil.registry.CTImageFrameTypeSequence, odil.registry.FrameType),
+                odil_getter._getter)
         ]
     }
 
-    sop_classes = set(x.as_string("SOPClassUID")[0] for x in data_sets)
+    sop_classes = set(
+        x.as_string(odil.registry.SOPClassUID)[0] for x in data_sets)
 
     return list(itertools.chain(
         splitters["ALL"],

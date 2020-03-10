@@ -11,20 +11,6 @@ import json
 import numpy
 import odil
 
-def _default_getter(data_set, tag):
-    """ Get an element from the dataset, but don't raise any exception if not found
-
-        :param data_set: datast wherein search the element
-        :param tag: tag of the element looked for
-    """
-
-    try:
-        return _getter(data_set, tag)
-    except odil.Exception:
-        pass
-    return None
-
-
 def _getter(data_set, tag):
     """ Get an element from the dataset, 
         raise an exception if element not found, or unrecognized
@@ -36,29 +22,24 @@ def _getter(data_set, tag):
     # List is not hashable, use tuple instead
     result = None
     if data_set.has(tag):
-        if data_set.is_binary(tag):
-            result = tuple(data_set.as_binary(tag))
-        elif data_set.is_data_set(tag):
-            result = tuple(data_set.as_data_set(tag))
-        elif data_set.is_int(tag):
-            result = tuple(data_set.as_int(tag))
-        elif data_set.is_real(tag):
-            result = tuple(data_set.as_real(tag))
-        elif data_set.is_string(tag):
-            specific_character_set = (
-                data_set.as_string("SpecificCharacterSet") 
-                if "SpecificCharacterSet" in data_set
-                else odil.Value.Strings()
-            )
-            result = tuple(
-                odil.as_unicode(x, specific_character_set)
-                for x in data_set.as_string(tag))
-        elif data_set.empty(tag):  # present but empty
+        element = data_set[tag]
+        result = None
+        if element.is_binary():
+            result = tuple(element.as_binary())
+        elif element.is_data_set():
+            result = tuple(element.as_data_set())
+        elif element.is_int():
+            result = tuple(element.as_int())
+        elif element.is_real():
+            result = tuple(element.as_real())
+        elif element.is_string():
+            result = tuple(element.as_string())
+        elif element.empty():
             result = None
         else:
-            raise odil.Exception("Unknown element type")
+            return None
     else:
-        raise odil.Exception("No such element")
+        return None
     return result
 
 
@@ -68,7 +49,7 @@ class OrientationGetter(object):
         self._orientations = {}
 
     def __call__(self, data_set, tag):
-        value = _default_getter(data_set, tag)
+        value = _getter(data_set, tag)
         if value is None:
             return None
         orientation = numpy.reshape(value, (2, -1))
@@ -188,7 +169,7 @@ def get_in_stack_position_index(data_set):
         position = set()
         for i, dimension_index_sequence in enumerate(dimension_index_sequences):
             if dimension_index_sequence.has(odil.registry.DimensionIndexPointer):
-                idx = dimension_index_sequence.as_string("DimensionIndexPointer")[0]
+                idx = dimension_index_sequence.as_string(odil.registry.DimensionIndexPointer)[0]
                 if odil.Tag(idx) == odil.registry.InStackPositionNumber:
                     position.add(i)
         if len(position) == 1:
@@ -206,22 +187,23 @@ def _diffusion_getter(data_set, tag):
         :param tag: tag used to store the diffusion information in the data_set
     """
 
-    value = _default_getter(data_set, tag)
+    value = _getter(data_set, tag)
     if value is not None:
         b_value = _getter(value[0], odil.registry.DiffusionBValue)
         directionality = _getter(
             value[0], odil.registry.DiffusionDirectionality)[0]
         sensitization = None
-        if directionality == "DIRECTIONAL":
+        if directionality == b"DIRECTIONAL":
             item = _getter(
                 value[0], odil.registry.DiffusionGradientDirectionSequence)[0]
             sensitization = _getter(
                 item, odil.registry.DiffusionGradientOrientation)
-        elif directionality == "BMATRIX":
+        elif directionality == b"BMATRIX":
             item = _getter(value[0], odil.registry.DiffusionBMatrixSequence)[0]
-            sensitization = tuple([_getter(item, getattr(odil.registry, "DiffusionBValue{}".format(x)))[0]
-                                   for x in ["XX", "XY", "XZ", "YY", "YZ", "ZZ"]])
-        elif directionality == "ISOTROPIC" or directionality == "NONE":
+            sensitization = tuple(
+                _getter(item, getattr(odil.registry, "DiffusionBValue{}".format(x)))[0]
+                for x in ["XX", "XY", "XZ", "YY", "YZ", "ZZ"])
+        elif directionality == b"ISOTROPIC" or directionality == b"NONE":
             return None
         else:
             raise Exception(
@@ -230,7 +212,7 @@ def _diffusion_getter(data_set, tag):
     return value
 
 def _frame_group_index_getter(data_set, tag):
-    value = _default_getter(data_set, tag)
+    value = _getter(data_set, tag)
     if value is None:
         return value
     

@@ -11,7 +11,6 @@ import base64
 import json
 import odil
 
-from . import odil_getter
 from .. import MetaData
 
 def get_meta_data(data_sets_frame_idx, cache):
@@ -67,10 +66,9 @@ def get_meta_data(data_sets_frame_idx, cache):
             
         cache[sop_instance_uid] = {}
         
-        for tag in data_set:
+        for tag, value in data_set.items():
             if tag in skipped:
                 continue
-            value = data_set[tag]
             cache[sop_instance_uid][tag] = value
         if frame_index is not None:
             functional_groups = data_set.as_data_set(
@@ -100,15 +98,19 @@ def get_meta_data(data_sets_frame_idx, cache):
 
     meta_data = MetaData()
     specific_character_set = odil.Value.Strings()
-
+    
+    # Convert dictionary with possible holes to list: iteration is quicker.
+    tag_values = {
+        tag: [values_dict.get(i) for i in range(len(data_sets_frame_idx))]
+        for tag, values_dict in tag_values.items()}
+    
     # WARNING: we need to process items in tag order since SpecificCharacterSet
     # must be processed before any non-ASCII element is.
-    for tag, values_dict in sorted(tag_values.items()):
+    for tag, values in sorted(tag_values.items()):
         # Check whether all values are the same
         all_equal = True
-        sample = next(iter(values_dict.values()))
-        for i in range(len(data_sets_frame_idx)):
-            value = values_dict.get(i)
+        sample = values[0]
+        for value in values[1:]:
             if value != sample:
                 all_equal = False
                 break
@@ -121,14 +123,12 @@ def get_meta_data(data_sets_frame_idx, cache):
             if (specific_character_set
                     and isinstance(specific_character_set[0], list)):
                 value = [
-                    convert_element(
-                        values_dict.get(idx), specific_character_set[idx])
-                    for idx in range(len(data_sets_frame_idx))]
+                    convert_element(x, specific_character_set[idx]) 
+                    for x in values]
             else:
                 value = [
-                    convert_element(values_dict.get(idx), 
-                        specific_character_set)
-                    for idx in range(len(data_sets_frame_idx))]
+                    convert_element(x, specific_character_set) 
+                    for x in values]
 
         if tag == odil.registry.SpecificCharacterSet:
             if value and isinstance(value[0], list):
@@ -144,10 +144,10 @@ def get_meta_data(data_sets_frame_idx, cache):
         meta_data[tag_name] = value
     return meta_data
 
-
 def cleanup(meta_data):
     """ Clean tags used after the merge
-        for example, InstanceNumber is used to sort nifti_tuple in order to preserve the original stack order
+        for example, InstanceNumber is used to sort nifti_tuple in order to 
+        preserve the original stack order
     """
 
     skipped = [
@@ -189,7 +189,8 @@ def convert_element(element, specific_character_set):
     elif element.vr == odil.VR.PN:
         data_set = odil.DataSet()
         if specific_character_set:
-            data_set.add("SpecificCharacterSet", specific_character_set)
+            data_set.add(
+                odil.registry.SpecificCharacterSet, specific_character_set)
         data_set.add(odil.registry.PersonName, element.as_string(), element.vr)
         json_data_set = json.loads(odil.as_json(data_set))
         result = json_data_set[str(odil.registry.PersonName)]["Value"]
@@ -217,7 +218,8 @@ def convert_data_set(data_set, specific_character_set):
 
     result = {}
     if data_set.has(odil.registry.SpecificCharacterSet):
-        specific_character_set = data_set.as_string("SpecificCharacterSet")
+        specific_character_set = data_set.as_string(
+            odil.registry.SpecificCharacterSet)
     for tag, element in data_set.items():
         name = get_tag_name(tag)
         value = convert_element(element, specific_character_set)

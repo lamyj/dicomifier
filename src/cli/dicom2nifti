@@ -90,9 +90,9 @@ def get_files(dicom):
     for dicom_file in dicom_files:
         try:
             # Read only the header
-            is_not_header = lambda x: (x.group << 16) + x.element > 0x00040000
             with odil.open(dicom_file) as fd:
-                header, _ = odil.Reader.read_file(fd, halt_condition=is_not_header)
+                header, _ = odil.Reader.read_file(
+                    fd, halt_condition=lambda x: x.group > 0x0004)
         except odil.Exception as e:
             dicomifier.logger.warning("Could not read {}: {}".format(dicom_file, e))
             continue
@@ -124,16 +124,13 @@ def split_series(dicom_files):
         "Splitting {} DICOM file{} in series".format(
             len(dicom_files), "s" if len(dicom_files) > 1 else ""))
 
-    def until_series_instance_uid(tag):
-        tag = tag.group * 2**16 + tag.element
-        return (tag > 0x0200010)  # StudyInstanceUID
-
     series = {}
     for file_ in dicom_files:
         try:
             with odil.open(file_) as fd:
                 header, data_set = odil.Reader.read_file(
-                    fd, halt_condition=until_series_instance_uid)
+                    fd, 
+                    halt_condition=lambda x: x>odil.registry.SeriesInstanceUID)
         except odil.Exception as e:
             dicomifier.logger.warning("Could not read {}: {}".format(file_, e))
             continue
@@ -156,11 +153,6 @@ def split_series(dicom_files):
 
 
 def convert_series(series_files, dtype):
-    def binary_as_bytes(data):
-        if "InlineBinary" in data:
-            data["InlineBinary"] = data["InlineBinary"].encode("ascii")
-        return data
-
     dicomifier.logger.info(
         "Reading {} DICOM file{}".format(
             len(series_files), "s" if len(series_files) > 1 else ""))
