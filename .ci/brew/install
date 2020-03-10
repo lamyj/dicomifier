@@ -4,6 +4,8 @@ set -ev
 
 export PYTHON=${PYTHON:-python}
 
+export HOMEBREW_NO_INSTALL_CLEANUP=1
+
 # WARNING The Python environment in Travis is weird: "brew install python" fails
 # when symlinking, due to the presence of python@2.
 brew upgrade python || brew install python || true
@@ -27,7 +29,7 @@ for PACKAGE in boost cmake ninja pkg-config pybind11; do
     fi
 done
 
-python -m pip install --upgrade nibabel numpy dateutil
+python3 -m pip install --upgrade nibabel numpy dateutil
 
 wget https://repo.anaconda.com/miniconda/Miniconda3-latest-MacOSX-x86_64.sh -O miniconda.sh
 bash miniconda.sh -b -p $HOME/miniconda
