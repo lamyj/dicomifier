@@ -37,7 +37,14 @@ class Directory
 public:
 
     /// @brief Return a list of path for each subject found under @arg path
-    static std::vector<std::string> list_subjects (std::string const & path);
+    static std::vector<std::string> list_subjects(std::string const & path);
+    
+    /** 
+     * @brief Return a map from series to their reconstructions found under 
+     * @arg path
+     */
+    static std::map<std::string, std::vector<std::string>> get_series_and_reco(
+        std::string const & path);
 
     /// @brief Load datasets for every reconstruction found under @arg path
     void load(std::string const & path);
@@ -51,11 +58,9 @@ public:
      */
     Dataset const & get_dataset(std::string const & reconstruction) const;
 
-    /// @ return the list of used file associate to the reconstruction
-    std::vector<std::string> const & get_used_files(std::string const & reconstruction) const;
-
-    static std::map<std::string, std::vector<std::string> >
-            get_series_and_reco(std::string const & path);
+    /// @brief Return the list of used file associate to the reconstruction
+    std::vector<std::string> const & get_used_files(
+        std::string const & reconstruction) const;
     
 private:
     typedef boost::filesystem::path Path;

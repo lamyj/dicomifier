@@ -6,21 +6,40 @@
  * for details.
  ************************************************************************/
 
-#include <boost/python.hpp>
-#include <boost/python/suite/indexing/vector_indexing_suite.hpp>
+#include <pybind11/pybind11.h>
+#include <pybind11/operators.h>
+#include <pybind11/stl.h>
 
 #include "bruker/Dataset.h"
 
-void wrap_Dataset()
+void wrap_Dataset(pybind11::module & m)
 {
-    using namespace boost::python;
+    using namespace pybind11;
     using namespace dicomifier::bruker;
     
-    class_<Dataset>("Dataset", init<>())
+    class_<Dataset>(m, "Dataset")
+        .def(init<>())
         .def("load", &Dataset::load)
         .def("has_field", &Dataset::has_field)
         .def(
-            "get_field", &Dataset::get_field,
-            return_value_policy<copy_const_reference>())
+            "get_field", &Dataset::get_field, 
+            return_value_policy::reference_internal)
+        // TODO? set_field
+        .def(
+            "get_used_files", &Dataset::get_used_files, 
+            return_value_policy::reference_internal)
+        .def("__contains__", &Dataset::has_field)
+        .def(
+            "__getitem__", &Dataset::get_field, 
+            return_value_policy::reference_internal)
+        .def(
+            "__iter__", 
+            [](Dataset const & d) { 
+                return make_key_iterator(d.begin(), d.end()); },
+            keep_alive<0, 1>())
+        .def(
+            "items", 
+            [](Dataset const & d) { return make_iterator(d.begin(), d.end()); },
+            keep_alive<0, 1>())
     ;
 }

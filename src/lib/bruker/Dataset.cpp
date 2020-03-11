@@ -18,7 +18,7 @@
 
 #include "bruker/Field.h"
 #include "bruker/grammar.h"
-#include "core/DicomifierException.h"
+#include "core/Exception.h"
 
 namespace dicomifier
 {
@@ -34,7 +34,7 @@ Dataset
     std::ifstream stream(path);
     if(stream.fail())
     {
-        throw DicomifierException("Could not open file: " + path);
+        throw Exception("Could not open file: " + path);
     }
     _used_files.push_back(path);
     std::string data(
@@ -55,12 +55,12 @@ Dataset
     
     if(!parsed)
     {
-        throw DicomifierException("Could not parse file");
+        throw Exception("Could not parse file");
     }
     
     if(begin != end)
     {
-        throw DicomifierException("File was parsed incompletely");
+        throw Exception("File was parsed incompletely");
     }
 
     // Fill the fields map
@@ -97,7 +97,7 @@ Dataset
     auto const field_it = this->_fields.find(name);
     if(field_it == this->_fields.end())
     {
-        throw DicomifierException("No such field: "+name);
+        throw Exception("No such field: "+name);
     }
     
     return field_it->second;
@@ -108,73 +108,6 @@ Dataset
 ::set_field(Field const & field)
 {
     this->_fields[field.name] = field;
-    this->_update_frame_groups();
-}
-
-std::vector<FrameGroup> const &
-Dataset
-::get_frame_groups() const
-{
-    return this->_frame_groups;
-}
-
-void
-Dataset
-::_update_frame_groups()
-{
-    // VisuFGOrderDescDim: number of frame groups
-    // VisuFGOrderDesc: array of frame group descriptions
-    //   - len: number of elements in the frame group (e.g. number of echo or slices)
-    //   - groupId: unique identifier string
-    //   - groupComment: free comment or description
-    //   - valsStart: start offset for the frame group parameters in VisuGroupDepVals
-    //   - valsCnt: count of the frame group parameters
-    // VisuGroupDepVals is an array of parameters which depend on a frame group
-    //   - name: name of the parameter
-    //   - valsStart: start index in the parameter array
-    
-    this->_frame_groups.clear();
-    
-    if(!this->has_field("VisuFGOrderDescDim") || 
-       !this->has_field("VisuFGOrderDesc") ||
-       !this->has_field("VisuGroupDepVals"))
-    {
-        return;
-    }
-
-    for(long fg_index=0; 
-        fg_index < this->get_field("VisuFGOrderDescDim").get_int(0); ++fg_index)
-    {
-        auto const & fg_item = boost::get<std::vector<Field::Item> >(
-            this->get_field("VisuFGOrderDesc").value[fg_index]);
-
-        FrameGroup fg;
-        fg.size = boost::get<long>(fg_item[0]);
-        fg.name = boost::get<std::string>(fg_item[1]);
-        fg.comment = boost::get<std::string>(fg_item[2]);
-
-        long const start = boost::get<long>(fg_item[3]);
-        long const parameters_count = boost::get<long>(fg_item[4]);
-        for(long parameter_index=start; 
-            parameter_index < start+parameters_count; ++parameter_index)
-        {
-            auto fieldvisu = this->get_field("VisuGroupDepVals");
-
-            bruker::Field::Value parameter_item;
-            parameter_item = fieldvisu.get_struct(parameter_index);
-
-            FrameGroup::Parameter parameter;
-            parameter.name = boost::get<std::string>(parameter_item[0]);
-            parameter.start_index = boost::get<long>(parameter_item[1]);
-            
-            fg.parameters.push_back(parameter);
-        }
-
-        // CAUTION: the frame groups are listed in innermost-to-outermost
-        // order, while FrameIndexGenerator uses outermost-to-innermost order.
-        // Invert now, to match the order of FrameIndexGenerator.
-        this->_frame_groups.insert(this->_frame_groups.begin(), fg);
-    }
 }
 
 } // namespace bruker

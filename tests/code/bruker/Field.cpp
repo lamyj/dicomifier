@@ -10,7 +10,7 @@
 #include <boost/test/unit_test.hpp>
 
 #include "bruker/Field.h"
-#include "core/DicomifierException.h"
+#include "core/Exception.h"
 
 BOOST_AUTO_TEST_CASE(DefaultConstructor)
 {
@@ -54,41 +54,11 @@ BOOST_AUTO_TEST_CASE(BadInt)
     BOOST_REQUIRE_THROW(field.get_int(0), std::exception);
 }
 
-BOOST_AUTO_TEST_CASE(IntFromString)
-{
-    dicomifier::bruker::Field const field("name", {}, {"123"});
-    BOOST_REQUIRE_EQUAL(field.get_int(0), 123);
-}
-
-BOOST_AUTO_TEST_CASE(BadIntFromString)
-{
-    dicomifier::bruker::Field const field("name", {}, {"invalid"});
-    BOOST_REQUIRE_THROW(field.get_int(0), std::exception);
-}
-
 BOOST_AUTO_TEST_CASE(Float)
 {
     dicomifier::bruker::Field const field("name", {}, {1.23f});
     BOOST_REQUIRE(field.is_float(0));
     BOOST_REQUIRE_CLOSE(field.get_float(0), 1.23, 1e-3);
-}
-
-BOOST_AUTO_TEST_CASE(FloatFromInt)
-{
-    dicomifier::bruker::Field const field("name", {}, {123L});
-    BOOST_REQUIRE_CLOSE(field.get_float(0), 123, 1e-3);
-}
-
-BOOST_AUTO_TEST_CASE(FloatFromString)
-{
-    dicomifier::bruker::Field const field("name", {}, {"1.23"});
-    BOOST_REQUIRE_CLOSE(field.get_float(0), 1.23, 1e-3);
-}
-
-BOOST_AUTO_TEST_CASE(BadFloatFromString)
-{
-    dicomifier::bruker::Field const field("name", {}, {"invalid"});
-    BOOST_REQUIRE_THROW(field.get_float(0), std::exception);
 }
 
 BOOST_AUTO_TEST_CASE(Struct)
@@ -122,4 +92,20 @@ BOOST_AUTO_TEST_CASE(MixedTypes)
 
     BOOST_REQUIRE(field.is_struct(3));
     BOOST_REQUIRE(field.get_struct(3) == item);
+}
+
+BOOST_AUTO_TEST_CASE(Comparison)
+{
+    dicomifier::bruker::Field const field1("name", {1,2}, {"foo"});
+    dicomifier::bruker::Field const field2("name", {1,2}, {"foo"});
+    dicomifier::bruker::Field const field3("other_name", {1,2}, {"foo"});
+    dicomifier::bruker::Field const field4("name", {3,4,5}, {"foo"});
+    dicomifier::bruker::Field const field5("name", {1,2}, {"bar"});
+    dicomifier::bruker::Field const field6("name", {1,2}, {42L});
+    
+    BOOST_REQUIRE(field1 == field2); BOOST_REQUIRE(!(field1 != field2));
+    BOOST_REQUIRE(field1 != field3); BOOST_REQUIRE(!(field1 == field3));
+    BOOST_REQUIRE(field1 != field4); BOOST_REQUIRE(!(field1 == field4));
+    BOOST_REQUIRE(field1 != field5); BOOST_REQUIRE(!(field1 == field5));
+    BOOST_REQUIRE(field1 != field6); BOOST_REQUIRE(!(field1 == field6));
 }

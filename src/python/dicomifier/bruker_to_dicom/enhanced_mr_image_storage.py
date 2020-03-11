@@ -24,7 +24,7 @@ def enhanced_mr_image_storage(bruker_data_set, transfer_syntax):
     """ Convert bruker_data_set into dicom_data_set by using the correct transfer_syntax
         This function will create one data_set per reconstruction (multiFrame format)
 
-        :param bruker_data_set: Json dataSet containing bruker information
+        :param bruker_data_set: Bruker data set in dictionary form
         :param transfer_syntax: Wanted transfer syntax for the conversion
     """
 

@@ -11,7 +11,7 @@ GeneralStudy = [ # http://dicom.nema.org/medical/dicom/current/output/chtml/part
     ("VisuStudyDate", "StudyDate", 2, None, None),
     ("VisuStudyDate", "StudyTime", 2, None, None),
     ("VisuStudyReferringPhysician", "ReferringPhysicianName", 2, None, None),
-    ("VisuStudyNumber", "StudyID", 2, None, None),
+    ("VisuStudyNumber", "StudyID", 2, None, lambda v: [str(x) for x in v]),
     (None, "AccessionNumber", 2, lambda d,g,i: None, None),
     ("VisuStudyId", "StudyDescription", 3, None, None),
 ]

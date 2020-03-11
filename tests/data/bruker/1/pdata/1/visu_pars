@@ -1,0 +1,8 @@
+##$VISU_param=( 60 )
+<param_value>
+##$VisuFGOrderDescDim=1
+##$VisuFGOrderDesc=( 1 )
+(19, <FG_SLICE>, <>, 0, 2)
+##$VisuGroupDepVals=( 2 )
+(<VisuCoreOrientation>, 0) (<VisuCorePosition>, 0)
+##END=

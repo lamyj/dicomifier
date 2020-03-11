@@ -13,7 +13,7 @@
 #include <fstream>
 
 #include "bruker/Dataset.h"
-#include "core/DicomifierException.h"
+#include "core/Exception.h"
 
 BOOST_AUTO_TEST_CASE(Constructor)
 {
@@ -79,8 +79,7 @@ BOOST_AUTO_TEST_CASE(FieldAccess)
 BOOST_AUTO_TEST_CASE(InvalidFieldAccess)
 {
     dicomifier::bruker::Dataset data_set;
-    BOOST_REQUIRE_THROW(
-        data_set.get_field("FieldName"), dicomifier::DicomifierException);
+    BOOST_REQUIRE_THROW(data_set.get_field("FieldName"), dicomifier::Exception);
 }
 
 BOOST_AUTO_TEST_CASE(Iterators)
@@ -106,44 +105,4 @@ BOOST_AUTO_TEST_CASE(Iterators)
         BOOST_REQUIRE(field.shape == fields[i].shape);
         BOOST_REQUIRE(field.value == fields[i].value);
     }
-}
-
-struct FGFixture
-{
-    std::string filepath;
-
-    FGFixture()
-    : filepath("./test_Dataset_fg.txt")
-    {
-        std::ofstream myfile;
-        myfile.open(filepath);
-        myfile << "##$VisuFGOrderDescDim=1\n";
-        myfile << "##$VisuFGOrderDesc=( 1 )\n";
-        myfile << "(3, <FG_Name>, <FG_Comment>, 0, 2)\n";
-        myfile << "##$VisuGroupDepVals=( 2 )\n";
-        myfile << "(<Foo>, 0) (<Bar>, 1)\n";
-    }
-
-    ~FGFixture()
-    {
-        std::remove(filepath.c_str());
-    }
-};
-
-BOOST_FIXTURE_TEST_CASE(FrameGroups, FGFixture)
-{
-    dicomifier::bruker::Dataset data_set;
-    data_set.load(filepath);
-
-    auto const frame_groups = data_set.get_frame_groups();
-    BOOST_REQUIRE_EQUAL(frame_groups.size(), 1);
-    BOOST_REQUIRE_EQUAL(frame_groups[0].size, 3);
-    BOOST_REQUIRE_EQUAL(frame_groups[0].name, "FG_Name");
-    BOOST_REQUIRE_EQUAL(frame_groups[0].comment, "FG_Comment");
-
-    BOOST_REQUIRE_EQUAL(frame_groups[0].parameters.size(), 2);
-    BOOST_REQUIRE_EQUAL(frame_groups[0].parameters[0].name, "Foo");
-    BOOST_REQUIRE_EQUAL(frame_groups[0].parameters[0].start_index, 0);
-    BOOST_REQUIRE_EQUAL(frame_groups[0].parameters[1].name, "Bar");
-    BOOST_REQUIRE_EQUAL(frame_groups[0].parameters[1].start_index, 1);
 }

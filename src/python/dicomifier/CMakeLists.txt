@@ -1,22 +1,26 @@
-find_package(Boost REQUIRED COMPONENTS python)
-find_package(PythonLibs 2.7 REQUIRED)
+find_package(pybind11 REQUIRED)
 
 add_subdirectory(bruker)
 
-include_directories(
-    ${CMAKE_SOURCE_DIR}/src/lib ${Boost_INCLUDE_DIRS}
-    ${PYTHON_INCLUDE_DIRS})
-link_directories(${Boost_LIBRARY_DIRS})
+include_directories(${CMAKE_SOURCE_DIR}/src/lib ${PYTHON_INCLUDE_DIRS})
 
 file(GLOB files "*.cpp")
-python_add_module(pydicomifier_dicomifier SHARED ${files})
+pybind11_add_module(pydicomifier_dicomifier SHARED ${files})
 set_target_properties(pydicomifier_dicomifier PROPERTIES OUTPUT_NAME _dicomifier)
 if(APPLE)
     set_target_properties(pydicomifier_dicomifier PROPERTIES SUFFIX ".so")
 endif()
 
 target_link_libraries(
-    pydicomifier_dicomifier ${Boost_LIBRARIES} libdicomifier ${PYTHON_LIBRARIES})
+    pydicomifier_dicomifier PUBLIC libdicomifier PUBLIC ${PYTHON_LIBRARIES})
+
+execute_process(
+    COMMAND ${PYTHON_EXECUTABLE}
+      -c "import os; \
+        from distutils.sysconfig import *; \
+        print(get_python_lib(True, prefix='').replace(os.path.sep, '/'))"
+    OUTPUT_VARIABLE PYTHON_SITE_PACKAGES
+    OUTPUT_STRIP_TRAILING_WHITESPACE)
 
 install(
     TARGETS pydicomifier_dicomifier

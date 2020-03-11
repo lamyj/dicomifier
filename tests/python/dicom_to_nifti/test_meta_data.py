@@ -1,12 +1,10 @@
-# -*- coding: utf-8 -*-
+import base64
 import unittest
 
 import numpy
 
 import dicomifier
 import odil
-
-
 
 class TestMetaData(unittest.TestCase):
 
@@ -39,18 +37,19 @@ class TestMetaData(unittest.TestCase):
     def test_convert_element_string_without_charset(self):
         # Note : \x03\x91 corresponds to greek's Aplha Capital letter
         ds = odil.DataSet()
-        ds.add("PatientName", ["\x03\x91"])
+        ds.add("PatientName", [b"\x03\x91"])
         elem = ds["PatientName"]
-        res = dicomifier.dicom_to_nifti.meta_data.convert_element(elem, ["ISO_IR 126"])
+        res = dicomifier.dicom_to_nifti.meta_data.convert_element(
+            elem, ["ISO_IR 126"])
         self.assertEqual(res, [{u"Alphabetic" : u"\x03\x91"}])
         
     def test_convert_element_binary(self):
         ds = odil.DataSet()
-        pixel_data = [bin(42)]
+        pixel_data = [odil.Value.BinaryItem(b"\01\x02\x03\x04")]
         ds.add("PixelData", pixel_data, odil.VR.OB)
         elem = ds["PixelData"]
         res = dicomifier.dicom_to_nifti.meta_data.convert_element(elem, [])
-        self.assertEqual(res, [bin(42)])
+        self.assertEqual(res, [base64.b64encode(b"\01\x02\x03\x04").decode()])
 
     def test_convert_element_data_set(self):
         ds = odil.DataSet()
@@ -84,7 +83,9 @@ class TestMetaData(unittest.TestCase):
         mr_echo_seq.add("EffectiveEchoTime", [25.])
         shared.add("MREchoSequence", [mr_echo_seq])
         ds.add("SharedFunctionalGroupsSequence", [shared])
+        
         per_frame = []
+        
         first_frame = odil.DataSet()
         frame_content_seq = odil.DataSet()
         frame_content_seq.add("FrameAcquisitionNumber", [12])
@@ -93,12 +94,16 @@ class TestMetaData(unittest.TestCase):
         plane_pos_seq.add("ImagePositionPatient", [10., -10., 0.])
         first_frame.add("PlanePositionSequence", [plane_pos_seq])
         per_frame.append(first_frame)
+        
         second_frame = odil.DataSet()
+        frame_content_seq = odil.DataSet()
         frame_content_seq.add("FrameAcquisitionNumber", [23])
         second_frame.add("FrameContentSequence", [frame_content_seq])
+        plane_pos_seq = odil.DataSet()
         plane_pos_seq.add("ImagePositionPatient", [10., -10., 1.])
         second_frame.add("PlanePositionSequence", [plane_pos_seq])
         per_frame.append(second_frame)
+        
         ds.add("PerFrameFunctionalGroupsSequence", per_frame)
         ds.add("NumberOfFrames", [len(per_frame)])
         ds.add("SOPInstanceUID", ["1.2.826.0.1.3680043.9.5560.999599"])

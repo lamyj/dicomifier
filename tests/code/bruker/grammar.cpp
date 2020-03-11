@@ -13,7 +13,7 @@
 
 #include "bruker/grammar.h"
 #include "bruker/Field.h"
-#include "core/DicomifierException.h"
+#include "core/Exception.h"
 
 std::vector<dicomifier::bruker::Field> parse(std::string const & value)
 {
@@ -62,6 +62,28 @@ BOOST_AUTO_TEST_CASE(QuotedStrings)
         fields[0].value == dicomifier::bruker::Field::Value({"foo", "bar"}));
 }
 
+BOOST_AUTO_TEST_CASE(Real)
+{
+    std::string const value = "##FieldName=1.23";
+    auto const fields = parse(value);
+
+    BOOST_REQUIRE_EQUAL(fields.size(), 1);
+    BOOST_REQUIRE_EQUAL(fields[0].name, "FieldName");
+    BOOST_REQUIRE(
+        fields[0].value == dicomifier::bruker::Field::Value{1.23f});
+}
+
+BOOST_AUTO_TEST_CASE(NotReal)
+{
+    std::string const value = "##FieldName=1.23 foo";
+    auto const fields = parse(value);
+
+    BOOST_REQUIRE_EQUAL(fields.size(), 1);
+    BOOST_REQUIRE_EQUAL(fields[0].name, "FieldName");
+    BOOST_REQUIRE(
+        fields[0].value == dicomifier::bruker::Field::Value{"1.23 foo"});
+}
+
 BOOST_AUTO_TEST_CASE(Reals)
 {
     std::string const value = "##FieldName=( 2 )\n1.23 -4.56";
@@ -72,6 +94,28 @@ BOOST_AUTO_TEST_CASE(Reals)
     BOOST_REQUIRE(fields[0].shape == dicomifier::bruker::Field::Shape({2}));
     BOOST_REQUIRE(
         fields[0].value == dicomifier::bruker::Field::Value({1.23f, -4.56f}));
+}
+
+BOOST_AUTO_TEST_CASE(Integer)
+{
+    std::string const value = "##FieldName=123";
+    auto const fields = parse(value);
+
+    BOOST_REQUIRE_EQUAL(fields.size(), 1);
+    BOOST_REQUIRE_EQUAL(fields[0].name, "FieldName");
+    BOOST_REQUIRE(
+        fields[0].value == dicomifier::bruker::Field::Value{123L});
+}
+
+BOOST_AUTO_TEST_CASE(NotInteger)
+{
+    std::string const value = "##FieldName=123 foo";
+    auto const fields = parse(value);
+
+    BOOST_REQUIRE_EQUAL(fields.size(), 1);
+    BOOST_REQUIRE_EQUAL(fields[0].name, "FieldName");
+    BOOST_REQUIRE(
+        fields[0].value == dicomifier::bruker::Field::Value{"123 foo"});
 }
 
 BOOST_AUTO_TEST_CASE(Integers)

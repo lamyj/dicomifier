@@ -8,6 +8,7 @@ class NestedDICOMWriter(object):
         self.iso_9660 = iso_9660
         self.transfer_syntax = transfer_syntax
         self.files = []
+        self._counts = {}
 
     def __call__(self, data_set):
         directory = os.path.join(self.root, self.get_series_directory(data_set))
@@ -15,7 +16,7 @@ class NestedDICOMWriter(object):
             os.makedirs(directory)
 
         if self.iso_9660:
-            filename = "IM{:06d}".format(1+len(os.listdir(directory)))
+            filename = "IM{:06d}".format(1+self._counts.setdefault(directory, 0))
         else:
             filename = data_set.as_string("SOPInstanceUID")[0].decode()
 
@@ -24,6 +25,7 @@ class NestedDICOMWriter(object):
             odil.Writer.write_file(
                 data_set, fd, odil.DataSet(), self.transfer_syntax)
         self.files.append(destination)
+        self._counts[directory] += 1
 
     def get_series_directory(self, data_set):
         """ Return the directory associated with the patient, study and series
@@ -63,12 +65,14 @@ class NestedDICOMWriter(object):
         # Study directory: <SeriesNumber>_<SeriesDescription>, both parts are
         # optional. If both tags are missing or empty, raise an exception
         series_directory = []
+        reconstruction = None
         if has_element("SeriesNumber", data_set.as_int):
             series_number = data_set.as_int("SeriesNumber")[0]
             if series_number > 2**16:
                 # Bruker ID based on experiment number and reconstruction number
                 # is not readable: separate the two values
-                series_directory.append(str(divmod(series_number, 2**16)[0]))
+                experiment, reconstruction = divmod(series_number, 2**16) 
+                series_directory.append(str(experiment))
             else:
                 series_directory.append(str(series_number))
         if not self.iso_9660:
@@ -85,6 +89,10 @@ class NestedDICOMWriter(object):
             patient_directory = self.to_iso_9660(patient_directory)
             study_directory = self.to_iso_9660(study_directory)
             series_directory = self.to_iso_9660(series_directory)
+        
+        if reconstruction is not None:
+            series_directory = os.path.join(
+                series_directory, str(reconstruction))
 
         return os.path.join(patient_directory, study_directory, series_directory)
 

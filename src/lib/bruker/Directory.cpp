@@ -17,7 +17,7 @@
 #include <iostream>
 
 #include "Dataset.h"
-#include "core/DicomifierException.h"
+#include "core/Exception.h"
 
 namespace dicomifier
 {
@@ -109,7 +109,7 @@ Directory
     auto const dataset_it = this->_datasets.find(reconstruction);
     if(dataset_it == this->_datasets.end())
     {
-        throw DicomifierException("No such reconstruction: "+reconstruction);
+        throw Exception("No such reconstruction: "+reconstruction);
     }
     
     return dataset_it->second;
@@ -122,7 +122,7 @@ Directory
     auto const dataset_it = this->_datasets.find(reconstruction);
     if(dataset_it == this->_datasets.end())
     {
-        throw DicomifierException("No such reconstruction: "+reconstruction);
+        throw Exception("No such reconstruction: "+reconstruction);
     }
 
     return dataset_it->second.get_used_files();

@@ -6,158 +6,82 @@
  * for details.
  ************************************************************************/
 
-#include <fstream>
-
 #define BOOST_TEST_MODULE ModuleDirectory
 #include <boost/test/unit_test.hpp>
 
+#include <set>
+#include <string>
+
+#include <boost/filesystem.hpp>
+
 #include "bruker/Directory.h"
-#include "core/DicomifierException.h"
+#include "core/Exception.h"
 
-/******************************* TEST Nominal **********************************/
-/**
- * Nominal test case: Constructor and load directory
- */
-struct TestDataOK01
+struct Fixture
 {
-    std::string directorypath;
-    std::vector<std::string> filestoremove;
+    std::string path;
 
-    TestDataOK01() : directorypath("./test_ModuleDirectory_load_dir")
+    Fixture()
     {
-        boost::filesystem::create_directory(
-                    boost::filesystem::path(directorypath.c_str()));
-
-        std::string file = directorypath + "/subject";
-        std::ofstream myfile;
-        myfile.open(file);
-        myfile << "##TITLE=Parameter List, ParaVision 6.0\n";
-        myfile << "##JCAMPDX=4.24\n";
-        myfile << "##DATATYPE=Parameter Values\n";
-        myfile << "##ORIGIN=Bruker BioSpin MRI GmbH\n";
-        myfile << "##$SUBJECT_id=( 60 )\n";
-        myfile << "<Rat>\n";
-        myfile << "##END=\n";
-        myfile.close();
-        filestoremove.push_back(file);
-
-        std::string seriespath = directorypath + "/1";
-        boost::filesystem::create_directory(
-                    boost::filesystem::path(seriespath.c_str()));
-
-        file = seriespath + "/acqp";
-        myfile.open(file);
-        myfile << "##$ACQP_param=( 60 )\n";
-        myfile << "<param_value>\n";
-        myfile << "##END=\n";
-        myfile.close();
-        filestoremove.push_back(file);
-
-        std::string pdatapath = seriespath + "/pdata";
-        boost::filesystem::create_directory(
-                    boost::filesystem::path(pdatapath.c_str()));
-        std::string recopath = pdatapath + "/1";
-        boost::filesystem::create_directory(
-                    boost::filesystem::path(recopath.c_str()));
-
-        file = recopath + "/visu_pars";
-        myfile.open(file);
-        myfile << "##$VISU_param=( 60 )\n";
-        myfile << "<param_value>\n";
-        myfile << "##$VisuFGOrderDescDim=1\n";
-        myfile << "##$VisuFGOrderDesc=( 1 )\n";
-        myfile << "(19, <FG_SLICE>, <>, 0, 2)\n";
-        myfile << "##$VisuGroupDepVals=( 2 )\n";
-        myfile << "(<VisuCoreOrientation>, 0) (<VisuCorePosition>, 0)\n";
-        myfile << "##END=\n";
-        myfile.close();
-        filestoremove.push_back(file);
-
-        file = recopath + "/id";
-        myfile.open(file);
-        myfile << "##TITLE=Parameter List, ParaVision 6.0\n";
-        myfile << "##JCAMPDX=4.24\n";
-        myfile << "##ORIGIN=Bruker BioSpin MRI GmbH\n";
-        myfile << "##$DATASET_KEY=( 65 )\n";
-        myfile << "<2.16.756.5.5.100.1333920868.10495.1568850965.987\n";
-        myfile << "##END=\n";
-        myfile.close();
-        filestoremove.push_back(file);
-
-        file = recopath + "/2dseq";
-        myfile.open(file);
-        myfile << "\0\0\0\0\0\0\0\0\n";
-        myfile.close();
-        filestoremove.push_back(file);
-    }
-
-    ~TestDataOK01()
-    {
-        for (auto file : filestoremove)
+        std::string const root(getenv("DICOMIFIER_TEST_DATA")?getenv("DICOMIFIER_TEST_DATA"):"");
+        if(root.empty())
         {
-            remove(file.c_str());
+            throw std::runtime_error("DICOMIFIER_TEST_DATA is undefined");
         }
-
-        boost::filesystem::remove_all(
-                    boost::filesystem::path(directorypath.c_str()));
+        
+        this->path = root+"/bruker";
     }
 };
 
-BOOST_FIXTURE_TEST_CASE(Load, TestDataOK01)
+BOOST_FIXTURE_TEST_CASE(ListSubjects, Fixture)
 {
-    dicomifier::bruker::Directory* directory =
-            new dicomifier::bruker::Directory();
-    BOOST_CHECK_EQUAL(directory != NULL, true);
-
-    directory->load(directorypath);
-
-    BOOST_CHECK_EQUAL(directory->has_dataset("10001"), true);
-
-    delete directory;
+    auto && actual = dicomifier::bruker::Directory::list_subjects(path);
+    decltype(actual) expected{path};
+    BOOST_REQUIRE(actual == expected);
 }
 
-/******************************* TEST Nominal **********************************/
-/**
- * Nominal test case: Get dataset
- */
-BOOST_FIXTURE_TEST_CASE(GetDataset, TestDataOK01)
+BOOST_FIXTURE_TEST_CASE(GetSeriesAndReco, Fixture)
+{
+    auto && actual = dicomifier::bruker::Directory::get_series_and_reco(path);
+    decltype(actual) expected{{"1", {"1"}}};
+    BOOST_REQUIRE(actual == expected);
+}
+
+BOOST_FIXTURE_TEST_CASE(Load, Fixture)
 {
     dicomifier::bruker::Directory directory;
-    directory.load(directorypath);
-
+    directory.load(path);
     BOOST_CHECK_EQUAL(directory.has_dataset("10001"), true);
+}
 
-    auto dataset = directory.get_dataset("10001");
+BOOST_FIXTURE_TEST_CASE(GetDataset, Fixture)
+{
+    dicomifier::bruker::Directory directory;
+    directory.load(path);
+
+    auto && dataset = directory.get_dataset("10001");
     BOOST_CHECK_EQUAL(dataset.has_field("VISU_param"), true);
 }
 
-/******************************* TEST Nominal **********************************/
-/**
- * Nominal test case: get_series_and_reco
- */
-BOOST_FIXTURE_TEST_CASE(GetSeriesAndReco, TestDataOK01)
-{
-    std::map<std::string, std::vector<std::string> > available_item =
-            dicomifier::bruker::Directory::get_series_and_reco(directorypath);
-
-    BOOST_REQUIRE_EQUAL(available_item.size(), 1);
-
-    for (auto it = available_item.begin(); it != available_item.end(); ++it)
-    {
-        BOOST_CHECK_EQUAL(it->first, "1");
-        BOOST_REQUIRE_EQUAL(available_item["1"].size(), 1);
-        BOOST_CHECK_EQUAL(available_item["1"][0], "1");
-    }
-}
-
-/******************************* TEST Error ************************************/
-/**
- * Error test case: No dataset
- */
-BOOST_FIXTURE_TEST_CASE(GetBadDataset, TestDataOK01)
+BOOST_FIXTURE_TEST_CASE(GetBadDataset, Fixture)
 {
     dicomifier::bruker::Directory directory;
-    directory.load(directorypath);
-    BOOST_REQUIRE_THROW(directory.get_dataset("90009"),
-                        dicomifier::DicomifierException);
+    directory.load(path);
+    BOOST_REQUIRE_THROW(directory.get_dataset("90009"), dicomifier::Exception);
+}
+
+BOOST_FIXTURE_TEST_CASE(GetUsedFiles, Fixture)
+{
+    dicomifier::bruker::Directory directory;
+    directory.load(path);
+
+    auto && actual = directory.get_used_files("10001");
+    decltype(actual) expected{
+        boost::filesystem::canonical(path+"/subject").native(),
+        boost::filesystem::canonical(path+"/1/acqp").native(),
+        boost::filesystem::canonical(path+"/1/pdata/1/visu_pars").native(),
+    };
+    BOOST_REQUIRE(
+        std::set<std::string>(actual.begin(), actual.end())
+        == std::set<std::string>(expected.begin(), expected.end()));
 }

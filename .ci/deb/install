@@ -2,36 +2,20 @@
 
 set -ev
 
-export Python=${Python:?}
-
 apt-get update
 apt-get -y --no-install-recommends install gnupg software-properties-common wget
 
 REPOSITORY=http://dl.bintray.com/lamyj/generic
 wget -O - ${REPOSITORY}/gpg.key | apt-key add -
-echo "deb ${REPOSITORY}/apt $(lsb_release -cs) main" >> /etc/apt/sources.list
-
+if wget -q -O /dev/null ${REPOSITORY}/apt/dists/$(lsb_release -cs)/Release; then
+  add-apt-repository "deb ${REPOSITORY}/apt $(lsb_release -cs) main"
+fi
 apt-get update
 
-if [ "${Python}" = "2" ]
-then
-  PYTHON_PREFIX="python"
-elif [ "${Python}" = "3" ]
-then
-  PYTHON_PREFIX="python3"
-fi
-
-# Compilation toolchain
-PACKAGES="build-essential cmake pkg-config python-minimal"
-# Dependencies of C++ lib
-PACKAGES="${PACKAGES} libboost-date-time-dev libboost-filesystem-dev "
-PACKAGES="${PACKAGES} libboost-regex-dev libboost-system-dev libjsoncpp-dev"
-PACKAGES="${PACKAGES} liblog4cpp5-dev zlib1g-dev"
-# Dependencies of Python lib
-PACKAGES="${PACKAGES} libboost-python-dev ${PYTHON_PREFIX}-dateutil"
-PACKAGES="${PACKAGES} ${PYTHON_PREFIX}-dev ${PYTHON_PREFIX}-nibabel"
-PACKAGES="${PACKAGES} ${PYTHON_PREFIX}-numpy ${PYTHON_PREFIX}-odil"
-# Dependencies of tests
-PACKAGES="${PACKAGES} libboost-test-dev ${PYTHON_PREFIX}-nose unzip"
-
-apt-get -y --no-install-recommends install ${PACKAGES}
+apt-get -y --no-install-recommends install \
+  build-essential cmake ninja-build pkg-config python3 \
+  libboost-dev libboost-date-time-dev libboost-exception-dev \
+  libboost-filesystem-dev libboost-regex-dev libboost-system-dev zlib1g-dev \
+  pybind11-dev python3-pybind11 python3-dev \
+  python3-dateutil python3-nibabel python3-numpy python3-odil \
+  libboost-test-dev

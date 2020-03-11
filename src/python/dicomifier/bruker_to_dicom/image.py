@@ -70,18 +70,17 @@ def _get_pixel_data(data_set, generator, frame_index):
         if len(non_slice) == 0:
             slices_per_frame = data_set["VisuCoreFrameCount"][0]
         else:
-            slices_per_frame = (
+            slices_per_frame = int(
                 data_set["VisuCoreFrameCount"][0]
                 / numpy.cumprod([x[0] for x in non_slice])[-1])
         frame_index = generator.get_linear_index(frame_index)
-        volume = int(frame_index / slices_per_frame)
-        slice_index = frame_index % slices_per_frame
+        volume, slice_index = divmod(frame_index, slices_per_frame)
         frame_index = volume*slices_per_frame+(slices_per_frame-slice_index-1)
     else:
         frame_index = generator.get_linear_index(frame_index)
     frame_data = data_set["PIXELDATA"][frame_index]
     
-    return [frame_data.tostring()]
+    return [bytearray(frame_data.tobytes())]
 
 def _get_direction(data_set):
     return [

@@ -2,31 +2,29 @@
 
 set -ev
 
-export Python=${Python:?}
 export WORKSPACE=${WORKSPACE:?}
+export BUILD_DIR="${WORKSPACE}/${BUILD_DIR:-build}"
+export INSTALL_DIR="${WORKSPACE}/${INSTALL_DIR:-install}"
 
-if [ "${Python}" = "2" ]
-then
-  export NOSE="nosetests-2.7"
-elif [ "${Python}" = "3" ]
-then
-  export NOSE="nosetests3"
-fi
+PYTHON=$(awk -F= '$0 ~ /^PYTHON_EXECUTABLE:/ { print $2 }' ${BUILD_DIR}/CMakeCache.txt)
 
-export LD_LIBRARY_PATH=${WORKSPACE}/install${POSTFIX}/lib
-export PYTHONPATH=${WORKSPACE}/install${POSTFIX}/$(python${Python} -c "from distutils.sysconfig import *; print(get_python_lib(True, prefix=''))")
+export LD_LIBRARY_PATH=${INSTALL_DIR}/lib
+export PYTHONPATH=${INSTALL_DIR}/$(${PYTHON} -c "from distutils.sysconfig import *; print(get_python_lib(True, prefix=''))")
 
-cd ${WORKSPACE}/build${POSTFIX}
+export DICOMIFIER_TEST_DATA=${WORKSPACE}/tests/data
 
-"${WORKSPACE}/tests/run_tests.sh"
+cd "${BUILD_DIR}"
+
+ctest -T Test
+${PYTHON} -m unittest discover -s ${WORKSPACE}/tests/python/
 
 cd ${HOME}
 # WARNING: 467 MB archived, 807 MB unzipped
 wget -qO - https://github.com/fli-iam/dicomifier-data/archive/master.tar.gz ⁠\
   | tar -x -z -f -
 
-export PATH=${WORKSPACE}/install${POSTFIX}/bin:${PATH}
-python${Python} ./dicomifier-data-master/scripts/diff_bruker2dicom.py
-python${Python} ./dicomifier-data-master/scripts/diff_dicom2nifti.py
+export PATH=${INSTALL_DIR}/bin:${PATH}
+${PYTHON} ./dicomifier-data-master/scripts/diff_bruker2dicom.py
+${PYTHON} ./dicomifier-data-master/scripts/diff_dicom2nifti.py
 
 rm -rf dicomifier-data-master

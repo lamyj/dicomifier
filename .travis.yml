@@ -1,44 +1,34 @@
 language: minimal
-sudo: required
-services:
-  - docker
 
 matrix:
   include:
-    # Debian
-    - name: "Debian Stretch, Python 3"
-      env: { vendor: debian, version: stretch, python: 3 }
-    - name: "Debian Stretch, Python 2"
-      env: { vendor: debian, version: stretch, python: 2 }
-    - name: "Debian Jessie, Python 3"
-      env: { vendor: debian, version: jessie, python: 3 }
-    - name: "Debian Jessie, Python 2"
-      env: { vendor: debian, version: jessie, python: 2 }
-    # Ubuntu
-    - name: "Ubuntu Bionic, Python 3"
-      env: { vendor: ubuntu, version: bionic, python: 3 }
-    - name: "Ubuntu Bionic, Python 2"
-      env: { vendor: ubuntu, version: bionic, python: 2 }
-    - name: "Ubuntu Xenial, Python 3"
-      env: { vendor: ubuntu, version: xenial, python: 3 }
-    - name: "Ubuntu Xenial, Python 2"
-      env: { vendor: ubuntu, version: xenial, python: 2 }
-    # WARNING: nibabel in trusty is too old
+    - name: "Debian 10 (Buster)"
+      os: linux
+      sudo: required
+      services:
+        - docker
+      env: 
+        - CI_TYPE=deb
+        - WORKSPACE=${TRAVIS_BUILD_DIR}
+        - RUNNER="docker exec -w ${TRAVIS_BUILD_DIR} -e WORKSPACE=${WORKSPACE} debian_buster"
+      before_install:
+        - docker run -di -v ${TRAVIS_BUILD_DIR}:${TRAVIS_BUILD_DIR} --name debian_buster --rm debian:buster
+      after_success:
+        - docker kill debian_buster
+    
+    - name: "Ubuntu 18.04 (Bionic)"
+      os: linux
+      sudo: required
+      services:
+        - docker
+      env: 
+        - CI_TYPE=deb
+        - WORKSPACE=${TRAVIS_BUILD_DIR}
+        - RUNNER="docker exec -w ${TRAVIS_BUILD_DIR} -e WORKSPACE=${WORKSPACE} -e DEBIAN_FRONTEND=noninteractive ubuntu_bionic"
+      before_install:
+        - docker run -di -v ${TRAVIS_BUILD_DIR}:${TRAVIS_BUILD_DIR} --name ubuntu_bionic --rm ubuntu:bionic
+      after_success:
+        - docker kill ubuntu_bionic
 
-before_install:
-  - |
-    docker run -di \
-      -e Python=${python} -e WORKSPACE=${TRAVIS_BUILD_DIR} \
-      -e MAKE_OPTIONS="-j$(nproc)" \
-      -e DEBIAN_FRONTEND=noninteractive \
-      -v ${TRAVIS_BUILD_DIR}:${TRAVIS_BUILD_DIR} \
-      --name dicomifier --rm \
-      ${vendor}:${version}
-install:
-  - docker exec dicomifier ${TRAVIS_BUILD_DIR}/.ci/deb/install
-
-script:
-  - docker exec dicomifier ${TRAVIS_BUILD_DIR}/.ci/deb/build
-
-after_success:
-  - docker exec dicomifier ${TRAVIS_BUILD_DIR}/.ci/deb/post_build
+script: |
+  ${RUNNER} ./.ci/${CI_TYPE}/install && ${RUNNER} ./.ci/${CI_TYPE}/build && ${RUNNER} ./.ci/${CI_TYPE}/post_build
