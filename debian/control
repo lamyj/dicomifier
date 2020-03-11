@@ -1,34 +1,29 @@
 Source: dicomifier
 Maintainer: Julien Lamy <lamy@unistra.fr>
 Section: science
+Testsuite: autopkgtest-pkg-python
 Priority: optional
-Build-Depends: debhelper (>= 10), 
+Build-Depends: debhelper-compat (= 12),
                d-shlibs,
                dh-python,
                cmake,
+               g++ (>= 4:7),
                pkg-config,
-               libboost-date-time-dev, 
-               libboost-filesystem-dev, 
-               libboost-regex-dev, 
-               libboost-system-dev, 
-               libjsoncpp-dev, 
-               liblog4cpp5-dev, 
-               libboost-python-dev, 
-               python-dateutil,
+               libboost-date-time-dev,
+               libboost-exception-dev,
+               libboost-filesystem-dev,
+               libboost-regex-dev,
+               libboost-system-dev,
+               pybind11-dev,
+               python3-all-dev,
                python3-dateutil,
-               python-dev,
-               python3-dev,
-               python-numpy,
-               python3-numpy,
-               python-odil (>= 0.10.0),
-               python3-odil (>= 0.10.0),
-               python-nibabel,
                python3-nibabel,
+               python3-numpy,
+               python3-odil (>= 0.11.0),
+               python3-pybind11,
                zlib1g-dev,
-               libboost-test-dev,
-               python-nose,
-               python3-nose
-Standards-Version: 4.1.4
+               libboost-test-dev
+Standards-Version: 4.5.0
 Vcs-Browser: https://github.com/lamyj/dicomifier
 Vcs-Git: https://github.com/lamyj/dicomifier.git
 Homepage: https://github.com/lamyj/dicomifier
@@ -59,33 +54,15 @@ Description: Convert data to and from DICOM (development files)
  .
  This package contains the development files.
 
-Package: python-dicomifier
-Architecture: any
-Section: python
-Depends: libdicomifier1 (= ${binary:Version}),
-         python-dateutil, 
-         python-numpy,
-         python-odil (>= 0.10.0),
-         ${shlibs:Depends}, 
-         ${python:Depends},
-         ${misc:Depends}
-Multi-Arch: foreign
-Description: Convert data to and from DICOM (Python modules)
- Dicomifier is a set of tools to convert Bruker to DICOM and DICOM to NIfTI. A
- set of mapping rules is provided, allowing the conservation of meta-data upon
- conversion.
- .
- This package contains the Python modules.
-
 Package: python3-dicomifier
 Architecture: any
 Section: python
 Depends: libdicomifier1 (= ${binary:Version}),
-         python3-dateutil, 
+         python3-dateutil,
          python3-nibabel,
          python3-numpy,
-         python3-odil (>= 0.10.0),
-         ${shlibs:Depends}, 
+         python3-odil (>= 0.11.0),
+         ${shlibs:Depends},
          ${python3:Depends},
          ${misc:Depends}
 Multi-Arch: foreign
@@ -98,8 +75,8 @@ Description: Convert data to and from DICOM (Python 3 modules)
 
 Package: dicomifier-cli
 Architecture: all
-Depends: python3-dicomifier (>= ${source:Version}), 
-         ${python3:Depends}, 
+Depends: python3-dicomifier (>= ${source:Version}),
+         ${python3:Depends},
          ${misc:Depends}
 Provides: dicomifier
 Conflicts: dicomifier

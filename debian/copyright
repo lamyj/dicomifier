@@ -1,9 +1,10 @@
-Format: http://dep.debian.net/deps/dep5
+Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
 Upstream-Name: dicomifier
+Upstream-Contact: Julien Lamy <lamy@unistra.fr>
 Source: https://github.com/lamyj/dicomifier
 
 Files: *
-Copyright: 2018 Julien Lamy <lamy@unistra.fr>
+Copyright: 2020 Julien Lamy <lamy@unistra.fr>
 License: CeCILL-B
  CeCILL-B FREE SOFTWARE LICENSE AGREEMENT
  .
