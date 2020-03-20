@@ -3,7 +3,10 @@ find_package(pybind11 REQUIRED)
 include_directories(${CMAKE_SOURCE_DIR}/src/lib ${PYTHON_INCLUDE_DIRS})
 
 file(GLOB files "*.cpp")
+add_definitions(-DBOOST_ALL_DYN_LINK)
+
 pybind11_add_module(pydicomifier_bruker SHARED ${files})
+
 set_target_properties(pydicomifier_bruker PROPERTIES OUTPUT_NAME bruker)
 if(APPLE)
     set_target_properties(pydicomifier_bruker PROPERTIES SUFFIX ".so")

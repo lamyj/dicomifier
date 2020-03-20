@@ -5,14 +5,16 @@ add_subdirectory(bruker)
 include_directories(${CMAKE_SOURCE_DIR}/src/lib ${PYTHON_INCLUDE_DIRS})
 
 file(GLOB files "*.cpp")
+add_definitions(-DBOOST_ALL_DYN_LINK)
+
 pybind11_add_module(pydicomifier_dicomifier SHARED ${files})
+
 set_target_properties(pydicomifier_dicomifier PROPERTIES OUTPUT_NAME _dicomifier)
 if(APPLE)
     set_target_properties(pydicomifier_dicomifier PROPERTIES SUFFIX ".so")
 endif()
 
-target_link_libraries(
-    pydicomifier_dicomifier PUBLIC libdicomifier PUBLIC ${PYTHON_LIBRARIES})
+target_link_libraries(pydicomifier_dicomifier PUBLIC libdicomifier)
 
 execute_process(
     COMMAND ${PYTHON_EXECUTABLE}

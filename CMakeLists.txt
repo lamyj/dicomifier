@@ -8,6 +8,7 @@ set(dicomifier_MAJOR_VERSION "${CMAKE_MATCH_1}")
 set(dicomifier_MINOR_VERSION "${CMAKE_MATCH_2}")
 set(dicomifier_PATCH_VERSION "${CMAKE_MATCH_3}")
 
+option(BUILD_SHARED_LIBS "Build Dicomifier with shared libraries." ON)
 option(BUILD_EXAMPLES "Build the examples directory." ON)
 
 # Add the C++0x or C++11 flag
