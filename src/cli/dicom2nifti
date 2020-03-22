@@ -1,10 +1,9 @@
 #!${PYTHON_EXECUTABLE}
 
 import argparse
-import glob
 import logging
 import json
-import math
+import multiprocessing
 import os
 import sys
 import unicodedata
@@ -30,11 +29,22 @@ def main():
         "--pretty-print", "-p", action="store_true",
         help="Pretty-print JSON files")
     parser.add_argument(
+        "--parallel", "-j", nargs="?", const="auto",
+        help="Parallelize the conversion of each series")
+    parser.add_argument(
         "--verbosity", "-v",
         choices=["warning", "info", "debug"], default="warning")
 
     arguments = vars(parser.parse_args())
-
+    if arguments["parallel"]:
+        if arguments["parallel"] == "auto":
+            arguments["parallel"] = os.cpu_count()
+        else:
+            try:
+                arguments["parallel"] = int(arguments["parallel"])
+            except ValueError as e:
+                parser.error("Parallel option must be int or \"auto\"")
+    
     verbosity = arguments.pop("verbosity")
     logging.basicConfig(
         level=verbosity.upper(), 
@@ -49,7 +59,14 @@ def main():
             parser.error(e)
 
 
-def convert(dicom, destination, dtype, pretty_print, zip):
+def convert_single(series_files, dtype, destination, pretty_print, zip):
+    nifti_data = convert_series(series_files, dtype)
+    if nifti_data is None:
+        dicomifier.logger.info("No image in the series")
+        return
+    write_nifti(nifti_data, destination, pretty_print, zip)
+
+def convert(dicom, destination, dtype, pretty_print, zip, parallel):
 
     if os.path.isdir(destination) and len(os.listdir(destination)) > 0:
         dicomifier.logger.warning("{} is not empty".format(destination))
@@ -59,13 +76,13 @@ def convert(dicom, destination, dtype, pretty_print, zip):
 
     dicomifier.logger.info("{} series found".format(len(series)))
 
-    for series_files in series.values():
-        nifti_data = convert_series(series_files, dtype)
-        if nifti_data is None:
-            dicomifier.logger.info("No image in the series")
-            continue
-        write_nifti(nifti_data, destination, pretty_print, zip)
-
+    with multiprocessing.Pool(parallel) as pool:
+        for series_files in series.values():
+            pool.apply_async(
+                convert_single, 
+                [series_files, dtype, destination, pretty_print, zip])
+        pool.close()
+        pool.join()
 
 def get_files(dicom):
     dicom_files = set()
