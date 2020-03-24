@@ -13,19 +13,18 @@ import odil
 
 from .. import MetaData
 
-def get_meta_data(data_sets_frame_idx, cache):
-    """ Get the meta data of the current stack 
+def get_meta_data(stack, cache=None):
+    """ Get the meta-data of the current stack 
 
         will keep the priority order for repeting element with the following rules:
         low_priority = per_frame_seq
         high_priority = top_level (data_set)
         (if the same element is present in both shared and per_frame,
          we will keep the element of the shared seq)
-
-        :param data_sets_frame_idx: List containing the data sets of the frame 
-                                    with the corresponding frame when it's a multiframe data set
-        :param cache: dict used to store (tag,elem) for top priority sequences (top level & shared)
-                      in order to parse them only once per data_set
+        
+        :param stack: collection of data set and an associated frame number for
+            multi-frame datasets
+        :param cache: optional cache of meta-data for multi-frame data sets
     """
 
     skipped = [
@@ -48,18 +47,21 @@ def get_meta_data(data_sets_frame_idx, cache):
         "SharedFunctionalGroupsSequence",
         "PerFrameFunctionalGroupsSequence",
     ]
-
     skipped = [getattr(odil.registry, x) for x in skipped]
-
-    # Must get directly this sequence (otherwise test fails)
-    direct_sequences = [
+    
+    # Multi-frame groups to keep as-as in the meta-data (the elements of other
+    # multi-frame groups are set at top-level).
+    no_recurse = [
         "MRDiffusionSequence"
     ]
-    direct_sequences = [getattr(odil.registry, x) for x in direct_sequences]
+    no_recurse = [getattr(odil.registry, x) for x in no_recurse]
+    
+    if cache is None:
+        cache = {}
 
-    # Populate the Odil cache with the elements at top-level and in shared 
+    # Populate the cache with the elements at top-level and in shared 
     # functional groups
-    for data_set, frame_index in data_sets_frame_idx:
+    for data_set, frame_index in stack:
         sop_instance_uid = data_set.as_string(odil.registry.SOPInstanceUID)[0]
         if sop_instance_uid in cache:
             continue
@@ -71,60 +73,55 @@ def get_meta_data(data_sets_frame_idx, cache):
                 continue
             cache[sop_instance_uid][tag] = value
         if frame_index is not None:
-            functional_groups = data_set.as_data_set(
+            shared_functional_groups = data_set.as_data_set(
                 odil.registry.SharedFunctionalGroupsSequence)[0]
-            _process_functional_groups(
-                functional_groups, 
+            _fill_meta_data_dictionary(
+                shared_functional_groups, 
                 lambda tag, value: 
                     cache[sop_instance_uid].__setitem__(tag, value), 
-                skipped, direct_sequences)
+                skipped, no_recurse)
 
     # Get the values of all (data_set, frame_index)
-    tag_values = {}
-    for list_index, (data_set, frame_index) in enumerate(data_sets_frame_idx):
+    elements = {}
+    for list_index, (data_set, frame_index) in enumerate(stack):
         sop_instance_uid = data_set.as_string(odil.registry.SOPInstanceUID)[0]
         # Fetch non-frame-specific elements from cache
         for tag, element in cache[sop_instance_uid].items():
-            tag_values.setdefault(tag, {})[list_index] = element
+            elements.setdefault(tag, {})[list_index] = element
         if frame_index is not None:
             # Fetch frame-specific elements
-            functional_groups = data_set.as_data_set(
+            frame_functional_groups = data_set.as_data_set(
                 odil.registry.PerFrameFunctionalGroupsSequence)[frame_index]
-            _process_functional_groups(
-                functional_groups, 
+            _fill_meta_data_dictionary(
+                frame_functional_groups, 
                 lambda tag, value: 
-                    tag_values.setdefault(tag, {}).__setitem__(list_index, value), 
-                skipped, direct_sequences)
-
+                    elements.setdefault(tag, {}).__setitem__(list_index, value), 
+                skipped, no_recurse)
+    
+    # Convert dictionary with possible holes to list: iteration is quicker.
+    elements = {
+        tag: [values.get(i) for i in range(len(stack))]
+        for tag, values in elements.items()}
+        
     meta_data = MetaData()
     specific_character_set = odil.Value.Strings()
     
-    # Convert dictionary with possible holes to list: iteration is quicker.
-    tag_values = {
-        tag: [values_dict.get(i) for i in range(len(data_sets_frame_idx))]
-        for tag, values_dict in tag_values.items()}
-    
     # WARNING: we need to process items in tag order since SpecificCharacterSet
     # must be processed before any non-ASCII element is.
-    for tag, values in sorted(tag_values.items()):
+    for tag, values in sorted(elements.items()):
         # Check whether all values are the same
-        all_equal = True
-        sample = values[0]
-        for value in values[1:]:
-            if value != sample:
-                all_equal = False
-                break
+        all_equal = (values.count(values[0]) == len(values))
         if all_equal:
             # Only use the unique value.
-            value = convert_element(sample, specific_character_set)
+            value = convert_element(values[0], specific_character_set)
         else:
             # Convert each value. If we have multiple values of Specific
             # Character Set, use the one from the corresponding data set.
             if (specific_character_set
                     and isinstance(specific_character_set[0], list)):
                 value = [
-                    convert_element(x, specific_character_set[idx]) 
-                    for x in values]
+                    convert_element(x, specific_character_set[i]) 
+                    for i, x in enumerate(values)]
             else:
                 value = [
                     convert_element(x, specific_character_set) 
@@ -140,23 +137,9 @@ def get_meta_data(data_sets_frame_idx, cache):
                     [x.encode() for x in value])
         
         tag_name = get_tag_name(tag)
-
         meta_data[tag_name] = value
+    
     return meta_data
-
-def cleanup(meta_data):
-    """ Clean tags used after the merge
-        for example, InstanceNumber is used to sort nifti_tuple in order to 
-        preserve the original stack order
-    """
-
-    skipped = [
-        "InstanceNumber",
-    ]
-    for x in skipped:
-        if x in meta_data:
-            del (meta_data[x])
-
 
 def get_tag_name(tag):
     """ Convert a DICOM tag to its NIfTI+JSON representation: the tag keyword
@@ -168,7 +151,6 @@ def get_tag_name(tag):
     except odil.Exception as e:
         tag_name = str(tag)
     return tag_name
-
 
 def convert_element(element, specific_character_set):
     """ Convert a DICOM element to its NIfTI+JSON representation: the "Value"
@@ -211,7 +193,6 @@ def convert_element(element, specific_character_set):
 
     return result
 
-
 def convert_data_set(data_set, specific_character_set):
     """ Convert a DICOM data set to its NIfTI+JSON representation.
     """
@@ -227,26 +208,17 @@ def convert_data_set(data_set, specific_character_set):
 
     return result
 
-def _process_functional_groups(functional_groups, function, skipped, direct_sequences):
-    """ Utility function used in get_meta_data: apply a function on each item
-        of functional_groups depending on their status (skipped or direct 
-        sequence)
-    """
-    for sequence_tag in functional_groups:
-        if sequence_tag in skipped:
+def _fill_meta_data_dictionary(data_set, function, skipped, no_recurse):
+    for tag, value in data_set.items():
+        if tag in skipped:
             continue
-        functional_group = functional_groups[sequence_tag]
-        if sequence_tag in direct_sequences:
-            # Nothing to do, use value as is.
-            function(sequence_tag, functional_group)
-        elif not functional_group.is_data_set():
-            # Seen in a private functional group, but should not happen
-            if sequence_tag in skipped:
-                continue
-            function(sequence_tag, functional_group)
-        elif not functional_group.empty():
-            item = functional_group.as_data_set()[0]
-            for item_tag, value in item.items():
-                if item_tag in skipped:
-                    continue
-                function(item_tag, value)
+        elif value.is_data_set():
+            if tag in no_recurse:
+                function(tag, value)
+            else:
+                item = data_set.as_data_set(tag)[0]
+                for item_tag, value in item.items():
+                    if item_tag not in skipped:
+                        function(item_tag, value)
+        else:
+            function(tag, value)

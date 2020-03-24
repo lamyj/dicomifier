@@ -2,19 +2,12 @@
 
 import argparse
 import logging
-import json
-import multiprocessing
 import os
 import sys
-import traceback
-import unicodedata
 
-import nibabel
 import numpy
-import odil
 
 import dicomifier
-
 
 def main():
     parser = argparse.ArgumentParser(description="Convert DICOM to NIfTI")
@@ -28,9 +21,6 @@ def main():
         help="Pixel type")
     parser.add_argument(
         "--zip", "-z", action="store_true", help="Compress NIfTI files")
-    parser.add_argument(
-        "--pretty-print", "-p", action="store_true",
-        help="Pretty-print JSON files")
     parser.add_argument(
         "--parallel", "-j", default=None, 
         help="Parallelize the conversion of each series")
@@ -54,217 +44,12 @@ def main():
         format="%(levelname)s - %(name)s: %(message)s")
 
     try:
-        convert(**arguments)
+        dicomifier.dicom_to_nifti.convert.convert_paths(**arguments)
     except Exception as e:
         if verbosity == "debug":
             raise
         else:
             parser.error(e)
-
-
-def convert_single(finder, series_files, dtype, destination, pretty_print, zip):
-    try:
-        nifti_data = convert_series(finder, series_files, dtype)
-        if nifti_data is None:
-            dicomifier.logger.info("No image in the series")
-            return
-        write_nifti(nifti_data, destination, pretty_print, zip)
-    except Exception as e:
-        traceback.print_exc()
-
-
-def convert(dicom, destination, dtype, pretty_print, zip, parallel):
-
-    if os.path.isdir(destination) and len(os.listdir(destination)) > 0:
-        dicomifier.logger.warning("{} is not empty".format(destination))
-
-    dicom_files = get_files(dicom)
-    series = dicomifier.dicom_to_nifti.series.split_series(dicom_files)
-
-    dicomifier.logger.info("{} series found".format(len(series)))
-
-    with multiprocessing.Pool(parallel) as pool:
-        for finder, series_files in series.items():
-            pool.apply_async(
-                convert_single, 
-                [finder, series_files, dtype, destination, pretty_print, zip])
-        pool.close()
-        pool.join()
-
-def get_files(dicom):
-    dicom_files = set()
-    for entry in dicom:
-        entry = os.path.abspath(entry)
-
-        if os.path.isdir(entry):
-            for dirpath, dirnames, filenames in os.walk(entry):
-                for filename in filenames:
-                    if filename.upper() == "DICOMDIR":
-                        dicom_files.update(
-                            get_dicomdir_files(os.path.join(dirpath, filename)))
-                    else:
-                        dicom_files.add(os.path.join(dirpath, filename))
-        elif os.path.basename(entry).upper() == "DICOMDIR":
-            dicom_files.update(get_dicomdir_files(entry))
-        else:
-            dicom_files.add(entry)
-    
-    # Make sure we do not have the same file saved under multiple names
-    sop_instance_uids = {}
-    for dicom_file in dicom_files:
-        try:
-            # Read only the header
-            with odil.open(dicom_file) as fd:
-                header, _ = odil.Reader.read_file(
-                    fd, halt_condition=lambda x: x.group > 0x0004)
-        except odil.Exception as e:
-            dicomifier.logger.warning("Could not read {}: {}".format(dicom_file, e))
-            continue
-        sop_instance_uids.setdefault(
-                header.as_string("MediaStorageSOPInstanceUID")[0], []
-            ).append(dicom_file)
-    if any(len(x) > 1 for x in sop_instance_uids.values()):
-        dicomifier.logger.warning(
-            "Multiple files with the same SOP instance UID")
-    return [x[0] for x in sop_instance_uids.values()]
-
-
-def get_dicomdir_files(path):
-    dicom_files = []
-    with odil.open(path) as fd:
-        _, dicomdir = odil.Reader.read_file(fd)
-    for record in dicomdir.as_data_set("DirectoryRecordSequence"):
-        if record.as_string("DirectoryRecordType")[0] == b"IMAGE":
-            dicom_files.append(
-                os.path.join(
-                    os.path.dirname(path),
-                    *[x.decode() for x in record.as_string("ReferencedFileID")]))
-
-    return dicom_files
-
-
-def convert_series(finder, series_files, dtype):
-    dicomifier.logger.info(
-        "Reading {} DICOM file{}".format(
-            len(series_files), "s" if len(series_files) > 1 else ""))
-    data_sets = []
-    for series_file in series_files:
-        with odil.open(series_file) as fd:
-            data_sets.append(odil.Reader.read_file(fd)[1])
-
-    if not isinstance(finder, dicomifier.dicom_to_nifti.series.DefaultSeriesFinder):
-        dicomifier.logger.debug("Setting Series Instance UID to {}".format(
-            finder.series_instance_uid))
-        for data_set in data_sets:
-            data_set.remove(odil.registry.SeriesInstanceUID)
-            data_set.add(
-                odil.registry.SeriesInstanceUID, [finder.series_instance_uid])
-    
-    # Get only data_sets containing correct PixelData field
-    data_sets = [x for x in data_sets if "PixelData" in x]
-
-    if len(data_sets) == 0:
-        dicomifier.logger.warning("No Pixel Data found")
-        return None
-    nifti_data = dicomifier.dicom_to_nifti.convert(data_sets, dtype)
-
-    return nifti_data
-
-
-def write_nifti(
-        nifti_data, destination, pretty_print, zip):
-
-    # Write one nii+json per stack
-    for index, (image, meta_data) in enumerate(nifti_data):
-        destination_directory = os.path.join(
-            destination, get_series_directory(meta_data))
-
-        if not os.path.isdir(destination_directory):
-            os.makedirs(destination_directory)
-
-        destination_root = os.path.join(destination_directory, str(1 + index))
-
-        suffix = ".nii"
-        if zip:
-            suffix += ".gz"
-        nibabel.save(image, destination_root + suffix)
-
-        kwargs = {"sort_keys": True, "indent": 4} if pretty_print else {}
-        json.dump(
-            meta_data, open(destination_root + ".json", "w"),
-            cls=dicomifier.MetaData.JSONEncoder, **kwargs)
-
-
-def get_series_directory(meta_data):
-    """ Return the directory associated with the patient, study and series of
-        the NIfTI meta-data.
-    """
-
-    # Patient directory: <PatientName> or <PatientID> or <StudyInstanceUID>.
-    patient_directory = None
-    if "PatientName" in meta_data and meta_data["PatientName"]:
-        patient_directory = meta_data["PatientName"][0]["Alphabetic"]
-    elif "PatientID" in meta_data and meta_data["PatientID"]:
-        patient_directory = meta_data["PatientID"][0]
-    elif "StudyInstanceUID" in meta_data and meta_data["StudyInstanceUID"]:
-        patient_directory = meta_data["StudyInstanceUID"][0]
-    else:
-        raise Exception("Cannot determine patient directory")
-
-    # Study directory: <StudyID>_<StudyDescription>, both parts are
-    # optional. If both tags are missing or empty, raise an exception
-    study_directory = []
-    if "StudyID" in meta_data and meta_data["StudyID"]:
-        study_directory.append(numpy.ravel([x for x in meta_data["StudyID"] if x])[0])
-    if "StudyDescription" in meta_data and meta_data["StudyDescription"]:
-        study_directory.append(numpy.ravel([x for x in meta_data["StudyDescription"] if x])[0])
-
-    if not study_directory:
-        if "StudyInstanceUID" in meta_data and meta_data["StudyInstanceUID"]:
-            study_directory = [meta_data["StudyInstanceUID"][0]]
-        else:
-            raise Exception("Cannot determine study directory")
-
-    study_directory = "_".join(study_directory).replace(os.path.sep, "_")
-
-    # Study directory: <SeriesNumber>_<SeriesDescription>, both
-    # parts are optional. If both tags are missing or empty, raise an exception
-    series_directory = []
-    if "SeriesNumber" in meta_data and meta_data["SeriesNumber"]:
-        series_number = numpy.ravel([x for x in meta_data["SeriesNumber"] if x])[0]
-        if (
-                meta_data.get("SoftwareVersions", [""])[0] == "ParaVision" 
-                and series_number > 2**16):
-            # Bruker ID based on experiment number and reconstruction number is
-            # not readable: separate the two values
-            series_directory.extend(
-                str(x) for x in divmod(series_number, 2**16))
-        else:
-            series_directory.append(str(series_number))
-    if ("SeriesDescription" in meta_data and meta_data["SeriesDescription"]):
-        series_directory.append(numpy.ravel([x for x in meta_data["SeriesDescription"] if x])[0])
-
-    if not series_directory:
-        if "SeriesInstanceUID" in meta_data and meta_data["SeriesInstanceUID"]:
-            series_directory = [meta_data["SeriesInstanceUID"][0]]
-        else:
-            raise Exception("Cannot determine series directory")
-
-    series_directory = "_".join(series_directory).replace(os.path.sep, "_")
-    
-    path = os.path.join(patient_directory, study_directory, series_directory)
-    if isinstance(path, unicode if sys.version_info.major <= 2 else str):
-        path = strip_accents(path)
-    return path
-
-def strip_accents(string):
-    """ Remove accents from a unicode object. 
-        cf. https://stackoverflow.com/a/518232
-    """
-    
-    return u"".join(
-        c for c in unicodedata.normalize("NFD", string)
-        if unicodedata.category(c) != "Mn")
 
 if __name__ == "__main__":
     sys.exit(main())

@@ -18,10 +18,10 @@ def parse_csa(csa):
               "4s" # \x04\x03\x02\x01
               "I"  # Number of items
               "I"  # Unknown
-             )
+        )
     size = struct.calcsize(format)
 
-    version, unknown_1, number_of_elements, unknown_2 = struct.unpack(format, csa[:size])
+    version, _, number_of_elements, _ = struct.unpack(format, csa[:size])
 
     start = size
     content = {}
@@ -43,10 +43,10 @@ def parse_element(csa, start):
               "I"   # Syngo datatype
               "I"   # Number of items
               "I"   # Unknown
-            )
+        )
     size = struct.calcsize(format)
 
-    name, vm, vr, unknown_1, syngo_datatype, number_of_items, unknown_2 = struct.unpack(
+    name, vm, vr, _, syngo_datatype, number_of_items, _ = struct.unpack(
         format, csa[start:start+size])
     name = name.split(b"\x00")[0].decode()
 
@@ -81,7 +81,8 @@ def parse_item(csa, start):
               "{1}s" # Padding (?)
              ).format(length[1], (4-length[1]%4)%4)
     content_size = struct.calcsize(format)
-    content, padding = struct.unpack(format, csa[start+header_size:start+header_size+content_size])
+    content, padding = struct.unpack(
+        format, csa[start+header_size:start+header_size+content_size])
 
     return content, header_size+content_size
 
