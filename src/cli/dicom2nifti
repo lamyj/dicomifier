@@ -19,10 +19,12 @@ import dicomifier
 def main():
     parser = argparse.ArgumentParser(description="Convert DICOM to NIfTI")
     parser.add_argument(
-        "dicom", nargs="+", help="DICOM file, directory or DICOMDIR")
+        "paths", nargs="+", 
+        help="DICOM file, directory or DICOMDIR", metavar="path")
     parser.add_argument("destination", help="Output directory")
     parser.add_argument(
-        "--dtype", "-d", default=None, type=lambda x: None if x is None else getattr(numpy, x),
+        "--dtype", "-d", default=None, 
+        type=lambda x: None if x is None else getattr(numpy, x),
         help="Pixel type")
     parser.add_argument(
         "--zip", "-z", action="store_true", help="Compress NIfTI files")
@@ -30,15 +32,15 @@ def main():
         "--pretty-print", "-p", action="store_true",
         help="Pretty-print JSON files")
     parser.add_argument(
-        "--parallel", "-j", nargs="?", const="auto",
+        "--parallel", "-j", default=None, 
         help="Parallelize the conversion of each series")
     parser.add_argument(
         "--verbosity", "-v",
         choices=["warning", "info", "debug"], default="warning")
 
     arguments = vars(parser.parse_args())
-    if arguments["parallel"]:
-        if arguments["parallel"] == "auto":
+    if arguments["parallel"] is not None:
+        if arguments["parallel"] in ["auto", "0", ""]:
             arguments["parallel"] = os.cpu_count()
         else:
             try:
