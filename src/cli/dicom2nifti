@@ -77,15 +77,15 @@ def convert(dicom, destination, dtype, pretty_print, zip, parallel):
         dicomifier.logger.warning("{} is not empty".format(destination))
 
     dicom_files = get_files(dicom)
-    series = split_series(dicom_files)
+    series = dicomifier.dicom_to_nifti.series.split_series(dicom_files)
 
     dicomifier.logger.info("{} series found".format(len(series)))
 
     with multiprocessing.Pool(parallel) as pool:
-        for series_files in series.values():
+        for finder, series_files in series.items():
             pool.apply_async(
                 convert_single, 
-                [series_files, dtype, destination, pretty_print, zip])
+                [finder, series_files, dtype, destination, pretty_print, zip])
         pool.close()
         pool.join()
 
@@ -141,55 +141,30 @@ def get_dicomdir_files(path):
     return dicom_files
 
 
-def split_series(dicom_files):
-    dicomifier.logger.info(
-        "Splitting {} DICOM file{} in series".format(
-            len(dicom_files), "s" if len(dicom_files) > 1 else ""))
-
-    series = {}
-    for file_ in dicom_files:
-        try:
-            with odil.open(file_) as fd:
-                header, data_set = odil.Reader.read_file(
-                    fd, 
-                    halt_condition=lambda x: x>odil.registry.SeriesInstanceUID)
-        except odil.Exception as e:
-            dicomifier.logger.warning("Could not read {}: {}".format(file_, e))
-            continue
-        
-        uncompressed_ts = [
-            getattr(odil.registry, x) for x in [
-                "ImplicitVRLittleEndian",
-                "ExplicitVRLittleEndian",
-                "ExplicitVRBigEndian_Retired"
-            ]]
-        if header.as_string("TransferSyntaxUID")[0] not in uncompressed_ts:
-            dicomifier.logger.warning(
-                "Could not read {}: compressed transfer syntax".format(file_))
-            continue
-        
-        series_instance_uid = data_set.as_string("SeriesInstanceUID")[0]
-        series.setdefault(series_instance_uid, []).append(file_)
-
-    return series
-
-
-def convert_series(series_files, dtype):
+def convert_series(finder, series_files, dtype):
     dicomifier.logger.info(
         "Reading {} DICOM file{}".format(
             len(series_files), "s" if len(series_files) > 1 else ""))
-    dicom_data_sets = []
+    data_sets = []
     for series_file in series_files:
         with odil.open(series_file) as fd:
-            dicom_data_sets.append(odil.Reader.read_file(fd)[1])
+            data_sets.append(odil.Reader.read_file(fd)[1])
 
+    if not isinstance(finder, dicomifier.dicom_to_nifti.series.DefaultSeriesFinder):
+        dicomifier.logger.debug("Setting Series Instance UID to {}".format(
+            finder.series_instance_uid))
+        for data_set in data_sets:
+            data_set.remove(odil.registry.SeriesInstanceUID)
+            data_set.add(
+                odil.registry.SeriesInstanceUID, [finder.series_instance_uid])
+    
     # Get only data_sets containing correct PixelData field
-    dicom_data_sets = [x for x in dicom_data_sets if "PixelData" in x]
+    data_sets = [x for x in data_sets if "PixelData" in x]
 
-    if len(dicom_data_sets) == 0:
+    if len(data_sets) == 0:
         dicomifier.logger.warning("No Pixel Data found")
         return None
-    nifti_data = dicomifier.dicom_to_nifti.convert(dicom_data_sets, dtype)
+    nifti_data = dicomifier.dicom_to_nifti.convert(data_sets, dtype)
 
     return nifti_data
 

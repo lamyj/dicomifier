@@ -7,3 +7,4 @@
 #########################################################################
 
 from .convert import convert
+from . import series
