@@ -6,6 +6,7 @@ import json
 import multiprocessing
 import os
 import sys
+import traceback
 import unicodedata
 
 import nibabel
@@ -59,12 +60,16 @@ def main():
             parser.error(e)
 
 
-def convert_single(series_files, dtype, destination, pretty_print, zip):
-    nifti_data = convert_series(series_files, dtype)
-    if nifti_data is None:
-        dicomifier.logger.info("No image in the series")
-        return
-    write_nifti(nifti_data, destination, pretty_print, zip)
+def convert_single(finder, series_files, dtype, destination, pretty_print, zip):
+    try:
+        nifti_data = convert_series(finder, series_files, dtype)
+        if nifti_data is None:
+            dicomifier.logger.info("No image in the series")
+            return
+        write_nifti(nifti_data, destination, pretty_print, zip)
+    except Exception as e:
+        traceback.print_exc()
+
 
 def convert(dicom, destination, dtype, pretty_print, zip, parallel):
 
