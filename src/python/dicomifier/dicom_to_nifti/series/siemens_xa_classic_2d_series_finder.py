@@ -8,7 +8,9 @@
 
 import odil
 
-class SiemensXAClassic2DSeriesFinder(object):
+from .series_finder import SeriesFinder
+
+class SiemensXAClassic2DSeriesFinder(SeriesFinder):
     """ Siemens MRI scanners with version XA have an export option which causes
         multi-volume series (e.g. fMRI or diffusion) to be exported as separate
         series with differente Series Instance UIDs, but with the same Series
@@ -16,7 +18,7 @@ class SiemensXAClassic2DSeriesFinder(object):
     """
     
     def __init__(self):
-        self.series_instance_uid = None
+        SeriesFinder.__init__(self)
     
     def __call__(self, data_set):
         self.series_instance_uid = None
@@ -30,7 +32,7 @@ class SiemensXAClassic2DSeriesFinder(object):
             value = data_set.as_string(odil.registry.ImageType)
             data[1] = (value[-1] == b"MFSPLIT")
         
-        if data[0].startswith(b"syngo MR XA") and data[1]:
+        if data[0] and data[0].startswith(b"syngo MR XA") and data[1]:
             for item in data_set.as_data_set(odil.registry.RelatedSeriesSequence):
                 # Look for Alternate SOP Class instance
                 # http://dicom.nema.org/medical/dicom/current/output/chtml/part16/chapter_D.html#DCM_121326
@@ -46,9 +48,3 @@ class SiemensXAClassic2DSeriesFinder(object):
                     break
         
         return self.series_instance_uid
-    
-    def __eq__(self, other):
-        return self.series_instance_uid == other.series_instance_uid
-    
-    def __hash__(self):
-        return hash(self.series_instance_uid)

@@ -6,16 +6,12 @@
 # for details.
 #########################################################################
 
-import base64
 import math
-import itertools
 
 import nibabel
 import numpy
 import odil
 
-from . import odil_getter
-from . import meta_data
 from .. import logger
 from . import siemens
 
@@ -300,11 +296,11 @@ def get_spacing(stack):
                 position = get_origin(stack)
                 other_position = container.as_real(
                     odil.registry.ImagePositionPatient)
-                difference = numpy.subtract(other_position, origin)
+                difference = numpy.subtract(other_position, position)
                 
                 orientation = get_orientation(stack)
                 spacing_between_slices = abs(numpy.dot(
-                    difference, direction[:, 2]))
+                    difference, orientation[:, 2]))
                 spacing.append(spacing_between_slices)
         else:
             container = find_element(

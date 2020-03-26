@@ -6,6 +6,7 @@
 # for details.
 #########################################################################
 
+from .series_finder import SeriesFinder
 from .default_series_finder import DefaultSeriesFinder
 from .siemens_xa_classic_2d_series_finder import SiemensXAClassic2DSeriesFinder
 

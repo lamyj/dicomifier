@@ -7,7 +7,6 @@
 #########################################################################
 
 import collections
-import itertools
 import logging
 import multiprocessing
 import os
@@ -17,9 +16,9 @@ import nibabel
 import numpy
 import odil
 
-from . import image, io, meta_data, odil_getter
+from . import get_dicom_element, image, io, meta_data, odil_getter
 from .series import DefaultSeriesFinder, split_series
-from .stacks import get_stacks
+from .stacks import get_stacks, sort
 
 from .. import logger, MetaData
 
@@ -90,7 +89,7 @@ class SeriesContext(logging.Filter):
             
             series = [
                 SeriesContext._get_element(data_set, x)
-                for x in [odil.registry.StudyID, odil.registry.SeriesDescription]]
+                for x in [odil.registry.SeriesNumber, odil.registry.SeriesDescription]]
             if series[0] is not None:
                 software = SeriesContext._get_element(
                     data_set, odil.registry.SoftwareVersions)
@@ -121,7 +120,7 @@ class SeriesContext(logging.Filter):
     
     @staticmethod
     def _get_element(data_set, tag):
-        value = odil_getter.getter(data_set, tag)
+        value = get_dicom_element(data_set, tag)
         if value:
             value = value[0]
             if (
@@ -266,58 +265,6 @@ def convert_series_data_sets(data_sets, dtype=None):
                 merged_stacks.append(stack[0])
     
     return merged_stacks
-
-def sort(key, stack):
-    """ Sort the elements of a stack according to the items present in the 
-        stack key.
-        
-        :param key: key of the stack
-        :param stack: collection of data set and an associated frame number for
-            multi-frame datasets
-    """
-
-    if len(stack) == 1:
-        # WARNING : Can cause some problem when opening .nii file with Slicer
-        logger.debug("Only one frame in the current stack")
-        return
-    
-    ordering = None
-    for (top_seq, sub_seq, tag), value in key:
-        if tag == odil.registry.DimensionIndexValues:
-            # sort by In-Stack Position
-            in_stack_position = []
-            for data_set, index in stack:
-                in_stack_position_idx = odil_getter.get_in_stack_position_index(
-                    data_set)
-                frame = data_set.as_data_set(
-                    odil.registry.PerFrameFunctionalGroupsSequence)[index]
-                frame_content_seq = frame.as_data_set(
-                    odil.registry.FrameContentSequence)[0]
-                in_stack_position.append(frame_content_seq.as_int(
-                    odil.registry.DimensionIndexValues)[in_stack_position_idx])
-            sorted_in_stack = sorted(
-                range(len(in_stack_position)), key=lambda k: in_stack_position[k])
-            keydict = dict(zip(stack, sorted_in_stack))
-            ordering = keydict.get
-            break
-        if tag == odil.registry.ImageOrientationPatient:
-            data_set, frame_idx = stack[0]
-            if odil_getter.get_position(data_set, frame_idx) is not None:
-                normal = numpy.cross(value[:3], value[3:])
-                ordering = lambda x: numpy.dot(
-                    odil_getter.get_position(x[0], x[1]), normal)
-                break
-            else:
-                logger.warning(
-                    "Orientation found but no position available to sort frames")
-    
-    if ordering is not None:
-        stack.sort(key=ordering)
-    else:
-        available_tags = [x[0][2] for x in key if len(x) > 1]
-        logger.warning(
-            "Cannot sort frames for the moment, available tags : {}".format(
-                [x.get_name() for x in available_tags]))
 
 def merge_images_and_meta_data(images_and_meta_data):
     """ Merge the pixel and meta-data of geometrically coherent images.

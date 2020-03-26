@@ -8,13 +8,15 @@
 
 import odil
 
-class DefaultSeriesFinder(object):
+from .series_finder import SeriesFinder
+
+class DefaultSeriesFinder(SeriesFinder):
     def __init__(self):
-        self.series_instance_uid = None
+        SeriesFinder.__init__(self)
     
     def __call__(self, data_set):
         self.series_instance_uid = None
-        if odil.registry.SeriesInstanceUID in data_set:
+        if data_set.has(odil.registry.SeriesInstanceUID):
             value = data_set.as_string(odil.registry.SeriesInstanceUID)
             if len(value) == 0:
                 raise Exception(
@@ -26,9 +28,3 @@ class DefaultSeriesFinder(object):
             else:
                 self.series_instance_uid = value[0]
         return self.series_instance_uid
-    
-    def __eq__(self, other):
-        return self.series_instance_uid == other.series_instance_uid
-    
-    def __hash__(self):
-        return hash(self.series_instance_uid)
