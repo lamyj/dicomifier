@@ -50,7 +50,8 @@ def get_files(paths):
             logger.warning("Could not read {}: {}".format(dicom_file, e))
             continue
         sop_instance_uids.setdefault(
-                header.as_string("MediaStorageSOPInstanceUID")[0], []
+                header.as_string(odil.registry.MediaStorageSOPInstanceUID)[0], 
+                []
             ).append(dicom_file)
     if any(len(x) > 1 for x in sop_instance_uids.values()):
         logger.warning(

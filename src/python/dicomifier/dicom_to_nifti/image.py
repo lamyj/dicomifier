@@ -51,7 +51,7 @@ def get_image(stack, dtype, cache=None):
         else:
             # WARNING: Assume all data sets have the same type
             dtype = pixel_data_list[0].dtype
-        logger.debug("dtype deduced to be: {}".format(dtype))
+        logger.debug("dtype set to: {}".format(dtype))
 
     pixel_data = numpy.ndarray(
         (len(stack),) + pixel_data_list[0].shape, dtype=dtype)
@@ -115,7 +115,8 @@ def get_image(stack, dtype, cache=None):
 
     elif samples_per_pix == 3 and data_set.as_string("PhotometricInterpretation")[0] == b"RGB":
         if dtype != numpy.uint8:
-            logger.warning("Invalid dtype {} for RGB, re-sampling".format(dtype))
+            logger.warning(
+                "Invalid dtype {} for RGB, re-sampling".format(dtype))
             min = pixel_data.min((0,1,2))
             max = pixel_data.max((0,1,2))
             pixel_data = ((pixel_data-min)/(max-min)*255).round().astype(numpy.uint8)

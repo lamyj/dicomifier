@@ -8,6 +8,7 @@
 
 import collections
 import itertools
+import logging
 import multiprocessing
 import os
 import traceback
@@ -64,12 +65,74 @@ def convert_and_write_series(
     
     try:
         nifti_data = convert_series(series_files, dtype, finder)
-        if nifti_data is None:
-            logger.info("No image in the series")
-            return
-        io.write_nifti(nifti_data, destination, zip)
+        if nifti_data is not None:
+            io.write_nifti(nifti_data, destination, zip)
     except Exception as e:
         traceback.print_exc()
+
+class SeriesContext(logging.Filter):
+    """ Add series context to logger. 
+    """
+    
+    def __init__(self, data_set):
+        logging.Filter.__init__(self)
+        
+        try:
+            patient = SeriesContext._get_element(
+                data_set, odil.registry.PatientName)
+            if not patient:
+                patient = SeriesContext._get_element(
+                    data_set, odil.registry.PatientID)
+            
+            study = [
+                SeriesContext._get_element(data_set, x)
+                for x in [odil.registry.StudyID, odil.registry.StudyDescription]]
+            
+            series = [
+                SeriesContext._get_element(data_set, x)
+                for x in [odil.registry.StudyID, odil.registry.SeriesDescription]]
+            if series[0] is not None:
+                software = SeriesContext._get_element(
+                    data_set, odil.registry.SoftwareVersions)
+                if (software and software == "ParaVision" and series[0] > 2**16):
+                    # Bruker ID based on experiment number and reconstruction 
+                    # number is not readable: separate the two values
+                    series[0] = "{}:{}".format(
+                        *[str(x) for x in divmod(series[0], 2**16)])
+                else:
+                    series[0] = "{}".format(series[0])
+            
+            elements = []
+            if patient:
+                elements.append(patient)
+            if any(study):
+                elements.append("-".join(x for x in study if x))
+                if any(series):
+                    elements.append("-".join(x for x in series if x))
+            
+            self.prefix = "{}: ".format(" / ".join(elements))
+        except Exception as e:
+            logger.debug("Series context configuration error: \"{}\"".format(e))
+            self.prefix = ""
+        
+    def filter(self, record):
+        record.msg = "{}{}".format(self.prefix, record.msg)
+        return True
+    
+    @staticmethod
+    def _get_element(data_set, tag):
+        value = odil_getter.getter(data_set, tag)
+        if value:
+            value = value[0]
+            if (
+                    isinstance(value, bytes) 
+                    and data_set.has(odil.registry.SpecificCharacterSet)):
+                value = odil.as_unicode(
+                    value, data_set.as_string(
+                        odil.registry.SpecificCharacterSet))
+        else:
+            value = None
+        return value
 
 def convert_series(series_files, dtype=None, finder=None):
     """ Return the NIfTI image and meta-data from the files containing a single
@@ -88,9 +151,13 @@ def convert_series(series_files, dtype=None, finder=None):
         with odil.open(series_file) as fd:
             data_sets.append(odil.Reader.read_file(fd)[1])
 
+    # Add series context to the logging as soon as we can
+    series_context = SeriesContext(data_sets[0])
+    logger.addFilter(series_context)
+    
     if not isinstance(finder, DefaultSeriesFinder):
         logger.debug("Setting Series Instance UID to {}".format(
-            finder.series_instance_uid))
+            finder.series_instance_uid.decode()))
         for data_set in data_sets:
             data_set.remove(odil.registry.SeriesInstanceUID)
             data_set.add(
@@ -100,22 +167,25 @@ def convert_series(series_files, dtype=None, finder=None):
     data_sets = [x for x in data_sets if "PixelData" in x]
 
     if len(data_sets) == 0:
-        logger.warning("No Pixel Data found")
+        logger.warning("No image in series")
         return None
     nifti_data = convert_series_data_sets(data_sets, dtype)
-
+    
+    # Restore the logging
+    logger.removeFilter(series_context)
+    
     return nifti_data
 
-def convert_series_data_sets(dicom_data_sets, dtype=None):
+def convert_series_data_sets(data_sets, dtype=None):
     """ Convert a list of dicom data sets into Nfiti
 
-        :param dicom_data_sets: list of dicom data sets to convert
+        :param data_sets: list of dicom data sets to convert
         :param dtype: if not None, force the dtype of the result image
     """
-
+    
     nifti_data = []
 
-    stacks = get_stacks(dicom_data_sets)
+    stacks = get_stacks(data_sets)
     logger.info(
         "Found {} stack{}".format(len(stacks), "s" if len(stacks) > 1 else ""))
 
@@ -128,17 +198,6 @@ def convert_series_data_sets(dicom_data_sets, dtype=None):
         stacks_count[series_instance_uid] += 1
         stacks_converted[series_instance_uid] = 0
 
-    def get_element(data_set, tag):
-        value = odil_getter.getter(data_set, tag)
-        if value:
-            value = value[0]
-            if isinstance(value, bytes) and data_set.has(odil.registry.SpecificCharacterSet):
-                value = odil.as_unicode(
-                    value, data_set.as_string(odil.registry.SpecificCharacterSet))
-        else:
-            value = None
-        return value
-
     meta_data_cache = {}
     pixel_data_cache = {}
     # Try to preserve the original stacks order (multi-frame)
@@ -150,41 +209,17 @@ def convert_series_data_sets(dicom_data_sets, dtype=None):
     )
     for stack_index, (key, stack) in enumerate(stacks):
         data_set = stack[0][0]
-
-        study = [
-            get_element(data_set, odil.registry.StudyID),
-            get_element(data_set, odil.registry.StudyDescription)]
         
-        series = [
-            get_element(data_set, odil.registry.SeriesNumber),
-            get_element(data_set, odil.registry.SeriesDescription)]
-        if series[0] is not None:
-            software = get_element(data_set, odil.registry.SoftwareVersions)
-            if (software and software == "ParaVision" and series[0] > 2**16):
-                # Bruker ID based on experiment number and reconstruction number is
-                # not readable: separate the two values
-                series[0] = "{}:{}".format(*[str(x) for x in divmod(series[0], 2**16)])
-            else:
-                series[0] = "{}".format(series[0])
-
+        # Update progress information
         series_instance_uid = data_set.as_string("SeriesInstanceUID")[0]
-
         if stacks_count[series_instance_uid] > 1:
-            stack_info = " (stack {}/{})".format(
+            stack_info = "{}/{}".format(
                 1 + stacks_converted[series_instance_uid],
                 stacks_count[series_instance_uid])
         else:
             stack_info = ""
-        if stack_index == 0:
-            logger.info(
-                u"Converting {} / {}".format(
-                    "-".join(str(x) for x in study), 
-                    "-".join(str(x) for x in series)))
         if stack_info:
-            logger.debug(
-                u"Converting {} / {}{}".format(
-                    "-".join(str(x) for x in study), 
-                    "-".join(str(x) for x in series), stack_info))
+            logger.debug("Converting stack {}".format(stack_info))
         stacks_converted[series_instance_uid] += 1
 
         sort(key, stack)
@@ -229,6 +264,7 @@ def convert_series_data_sets(dicom_data_sets, dtype=None):
                 merged_stacks.append(merged)
             else:
                 merged_stacks.append(stack[0])
+    
     return merged_stacks
 
 def sort(key, stack):
