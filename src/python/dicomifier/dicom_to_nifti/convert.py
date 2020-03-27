@@ -16,7 +16,7 @@ import nibabel
 import numpy
 import odil
 
-from . import get_dicom_element, image, io, meta_data, odil_getter
+from . import get_dicom_element, image, io, meta_data
 from .series import DefaultSeriesFinder, split_series
 from .stacks import get_stacks, sort
 
