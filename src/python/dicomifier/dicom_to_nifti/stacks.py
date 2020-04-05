@@ -12,7 +12,6 @@ import itertools
 import numpy
 import odil
 
-from . import get_dicom_element
 from .. import logger
 
 def get_stacks(data_sets):
@@ -33,8 +32,8 @@ def get_stacks(data_sets):
         if getter is get_dimension_index:
             original_getter = getter
             getter = lambda d,t: original_getter(d, t, in_stack_position)
-        if group is not None and data_set.has(group):
-            value = getter(data_set.as_data_set(group)[0], tag)
+        if group is not None and group in data_set:
+            value = getter(data_set[group][0], tag)
         else:
             value = getter(data_set, tag)
         if value is not None:
@@ -45,15 +44,13 @@ def get_stacks(data_sets):
         
         frames = []
         in_stack_position = None
-        if not data_set.has(odil.registry.SharedFunctionalGroupsSequence):
+        if odil.registry.SharedFunctionalGroupsSequence not in data_set:
             frames.append([(data_set,), None, [None]])
         else:
             in_stack_position = get_in_stack_position_index(data_set)
             
-            shared_groups = data_set.as_data_set(
-                odil.registry.SharedFunctionalGroupsSequence)[0]
-            frames_groups = data_set.as_data_set(
-                odil.registry.PerFrameFunctionalGroupsSequence)
+            shared_groups = data_set[odil.registry.SharedFunctionalGroupsSequence][0]
+            frames_groups = data_set[odil.registry.PerFrameFunctionalGroupsSequence]
             
             group_sequences = [
                 odil.registry.SharedFunctionalGroupsSequence,
@@ -131,16 +128,11 @@ def sort(key, frames):
             position = []
             for data_set, frame_index in frames:
                 position_index = get_in_stack_position_index(data_set)
-                frame = data_set.as_data_set(
-                        odil.registry.PerFrameFunctionalGroupsSequence
-                    )[frame_index]
-                frame_content = frame.as_data_set(
-                        odil.registry.FrameContentSequence
-                    )[0]
+                frame = data_set[
+                    odil.registry.PerFrameFunctionalGroupsSequence][frame_index]
+                frame_content = frame[odil.registry.FrameContentSequence][0]
                 position.append(
-                    frame_content.as_int(
-                        odil.registry.DimensionIndexValues
-                    )[position_index])
+                    frame_content[odil.registry.DimensionIndexValues][position_index])
             
             keydict = dict(zip(frames, numpy.argsort(position)))
             ordering = keydict.get
@@ -166,19 +158,17 @@ def get_frame_position(data_set, frame_index):
     """ Get the position of the specified frame.
     """
 
-    if data_set.has(odil.registry.PerFrameFunctionalGroupsSequence):
-        frame = data_set.as_data_set(
-            odil.registry.PerFrameFunctionalGroupsSequence)[frame_index]
-        if frame.has(odil.registry.PlanePositionSequence):
-            plane_position_seq = frame.as_data_set(
-                odil.registry.PlanePositionSequence)[0]
+    if odil.registry.PerFrameFunctionalGroupsSequence in data_set:
+        frame = data_set[odil.registry.PerFrameFunctionalGroupsSequence][frame_index]
+        if odil.registry.PlanePositionSequence in frame:
+            plane_position_seq = frame[odil.registry.PlanePositionSequence][0]
         else:
             return None
     else:
         plane_position_seq = data_set
-    if not plane_position_seq.has(odil.registry.ImagePositionPatient):
+    if odil.registry.ImagePositionPatient not in plane_position_seq:
         return None
-    return plane_position_seq.as_real(odil.registry.ImagePositionPatient)
+    return plane_position_seq[odil.registry.ImagePositionPatient]
 
 def get_in_stack_position_index(data_set):
     """ Return the position of In Stack Position element inside the Dimension
@@ -186,14 +176,13 @@ def get_in_stack_position_index(data_set):
     """
 
     if (
-            data_set.has(odil.registry.DimensionIndexSequence)
+            odil.registry.DimensionIndexSequence in data_set
             and not data_set.empty(odil.registry.DimensionIndexSequence)):
-        dimension_indices = data_set.as_data_set(
-            odil.registry.DimensionIndexSequence)
+        dimension_indices = data_set[odil.registry.DimensionIndexSequence]
         position = set()
         for i, dimension_index in enumerate(dimension_indices):
-            if dimension_index.has(odil.registry.DimensionIndexPointer):
-                idx = dimension_index.as_string(odil.registry.DimensionIndexPointer)[0]
+            if odil.registry.DimensionIndexPointer in dimension_index:
+                idx = dimension_index[odil.registry.DimensionIndexPointer][0]
                 if odil.Tag(idx) == odil.registry.InStackPositionNumber:
                     position.add(i)
         if len(position) == 1:
@@ -212,7 +201,7 @@ class OrientationGetter(object):
         self._orientations = {}
 
     def __call__(self, data_set, tag):
-        value = get_dicom_element(data_set, tag)
+        value = data_set.get(tag)
         if value is None:
             return None
         orientation = numpy.reshape(value, (2, -1))
@@ -253,7 +242,7 @@ def get_dimension_index(data_set, tag, in_stack_position_index):
             within the Dimension Index tuple
     """
 
-    value = get_dicom_element(data_set, tag)
+    value = data_set.get(tag)
     if value is not None:
         value = list(value)
         if in_stack_position_index is not None:
@@ -268,24 +257,18 @@ def get_diffusion(data_set, tag):
     """ Get b-value and gradient diffusion from the data_set.
     """
 
-    value = get_dicom_element(data_set, tag)
+    value = data_set.get(tag)
     if value is not None:
-        b_value = tuple(get_dicom_element(value[0], odil.registry.DiffusionBValue))
-        directionality = get_dicom_element(
-            value[0], odil.registry.DiffusionDirectionality)[0]
+        b_value = value[0][odil.registry.DiffusionBValue][0]
+        directionality = value[0][odil.registry.DiffusionDirectionality][0]
         sensitization = None
         if directionality == b"DIRECTIONAL":
-            item = get_dicom_element(
-                value[0], odil.registry.DiffusionGradientDirectionSequence)[0]
-            sensitization = tuple(get_dicom_element(
-                item, odil.registry.DiffusionGradientOrientation))
+            item = value[0][odil.registry.DiffusionGradientDirectionSequence][0]
+            sensitization = tuple(item[odil.registry.DiffusionGradientOrientation])
         elif directionality == b"BMATRIX":
-            item = get_dicom_element(value[0], odil.registry.DiffusionBMatrixSequence)[0]
+            item = value[0][odil.registry.DiffusionBMatrixSequence][0]
             sensitization = tuple(
-                get_dicom_element(
-                        item, 
-                        getattr(odil.registry, "DiffusionBValue{}".format(x))
-                    )[0]
+                item[getattr(odil.registry, "DiffusionBValue{}".format(x))][0]
                 for x in ["XX", "XY", "XZ", "YY", "YZ", "ZZ"])
         elif directionality == b"ISOTROPIC" or directionality == b"NONE":
             return None
@@ -299,22 +282,23 @@ def frame_group_index_getter(data_set, tag):
     """ Return bruker_to_dicom-specific frame group information.
     """
     
-    value = get_dicom_element(data_set, tag)
+    value = data_set.get(tag)
     if value is None:
         return value
     
     frame_group_index_entries = [
         x for x in value 
         if (
-            x.as_string("Manufacturer")[0] == b"Dicomifier"
-            and x.as_string("ManufacturerModelName")[0] == b"Bruker Frame Group index")]
+            x[odil.registry.Manufacturer][0] == b"Dicomifier"
+            and x[odil.registry.ManufacturerModelName][0] == b"Bruker Frame Group index")]
     if not frame_group_index_entries:
         return None
     elif len(frame_group_index_entries) > 1:
         raise Exception("Multiple Frame Group index entries found")
     
     contribution_description = json.loads(
-        frame_group_index_entries[0].as_string("ContributionDescription")[0].decode())
+        frame_group_index_entries[0][
+            odil.registry.ContributionDescription][0].decode())
     
     index = tuple(tuple(x) for x in contribution_description)
     return index
@@ -326,22 +310,22 @@ def _get_splitters(data_sets):
 
         :param data_sets: Data sets of the current stack 
     """
-
+    
+    default_getter = lambda d,t: d.get(t)
+    
     splitters = {
         "ALL": [
             # Single Frame generic tags
-            ((None, odil.registry.SeriesInstanceUID), get_dicom_element),
-            ((None, odil.registry.ImageType), get_dicom_element),
+            ((None, odil.registry.SeriesInstanceUID), default_getter),
+            ((None, odil.registry.ImageType), default_getter),
             (
                 (None, odil.registry.ImageOrientationPatient), 
                 OrientationGetter()),
-            ((None, odil.registry.SpacingBetweenSlices), get_dicom_element),
-            ((None, odil.registry.Rows), get_dicom_element), 
-            ((None, odil.registry.Columns), get_dicom_element), 
+            ((None, odil.registry.SpacingBetweenSlices), default_getter),
+            ((None, odil.registry.Rows), default_getter), 
+            ((None, odil.registry.Columns), default_getter), 
             # FIXME: PixelSpacing; both X and Y must be close
-            (
-                (None, odil.registry.PhotometricInterpretation), 
-                get_dicom_element), 
+            ((None, odil.registry.PhotometricInterpretation), default_getter), 
             # Multiframe generic tags
             (
                 (
@@ -357,29 +341,27 @@ def _get_splitters(data_sets):
                 (
                     odil.registry.PixelMeasuresSequence, 
                     odil.registry.SpacingBetweenSlices),
-                get_dicom_element),
+                default_getter),
             (
                 (
                     odil.registry.FrameContentSequence, 
                     odil.registry.FrameAcquisitionNumber),
-                get_dicom_element),
+                default_getter),
             (
                 (odil.registry.FrameContentSequence, odil.registry.FrameLabel),
-                get_dicom_element)
+                default_getter)
         ],
         odil.registry.MRImageStorage: [
-            ((None, odil.registry.AcquisitionNumber), get_dicom_element),
-            ((None, odil.registry.RepetitionTime), get_dicom_element),
-            ((None, odil.registry.EchoTime), get_dicom_element),
-            ((None, odil.registry.InversionTime), get_dicom_element),
-            ((None, odil.registry.EchoNumbers), get_dicom_element),
+            ((None, odil.registry.AcquisitionNumber), default_getter),
+            ((None, odil.registry.RepetitionTime), default_getter),
+            ((None, odil.registry.EchoTime), default_getter),
+            ((None, odil.registry.InversionTime), default_getter),
+            ((None, odil.registry.EchoNumbers), default_getter),
             ((None, odil.registry.MRDiffusionSequence), get_diffusion),
             # Philips Ingenia stores these fields at top-level
-            (
-                (None, odil.registry.DiffusionGradientOrientation),
-                get_dicom_element),
-            ((None, odil.registry.DiffusionBValue), get_dicom_element),
-            ((None, odil.registry.TriggerTime), get_dicom_element),
+            ((None, odil.registry.DiffusionGradientOrientation), default_getter),
+            ((None, odil.registry.DiffusionBValue), default_getter),
+            ((None, odil.registry.TriggerTime), default_getter),
             (
                 (None, odil.registry.ContributingEquipmentSequence), 
                 frame_group_index_getter)
@@ -389,37 +371,36 @@ def _get_splitters(data_sets):
                 (
                     odil.registry.MRTimingAndRelatedParametersSequence, 
                     odil.registry.RepetitionTime),
-                get_dicom_element),
+                default_getter),
             (
                 (odil.registry.MREchoSequence, odil.registry.EffectiveEchoTime),
-                get_dicom_element),
+                default_getter),
             (
                 (odil.registry.MRModifierSequence, odil.registry.InversionTimes),
-                get_dicom_element),
+                default_getter),
             (
                 (odil.registry.MRImageFrameTypeSequence, odil.registry.FrameType),
-                get_dicom_element),
+                default_getter),
             (
                 (
                     odil.registry.MRMetaboliteMapSequence, 
                     odil.registry.MetaboliteMapDescription),
-                get_dicom_element),
+                default_getter),
             ((None, odil.registry.MRDiffusionSequence), get_diffusion),
         ],
         odil.registry.EnhancedPETImageStorage: [
             (
                 (odil.registry.PETFrameTypeSequence, odil.registry.FrameType),
-                get_dicom_element)
+                default_getter)
         ],
         odil.registry.EnhancedCTImageStorage: [
             (
                 (odil.registry.CTImageFrameTypeSequence, odil.registry.FrameType),
-                get_dicom_element)
+                default_getter)
         ]
     }
 
-    sop_classes = set(
-        x.as_string(odil.registry.SOPClassUID)[0] for x in data_sets)
+    sop_classes = set(x[odil.registry.SOPClassUID][0] for x in data_sets)
 
     return list(itertools.chain(
         splitters["ALL"],

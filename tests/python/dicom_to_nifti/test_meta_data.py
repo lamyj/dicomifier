@@ -1,5 +1,4 @@
 import base64
-import json
 import unittest
 
 import numpy
@@ -9,18 +8,10 @@ import odil
 
 class TestMetaData(unittest.TestCase):
     def test_get_meta_data(self):
-        data_set_1 = odil.from_json(json.dumps({
-            str(odil.registry.SOPInstanceUID): {
-                "vr": "UI", "Value": ["1.2.3.4"]},
-            str(odil.registry.EchoTime): {"vr": "DS", "Value": [10]},
-            str(odil.registry.RepetitionTime): {"vr": "DS", "Value": [20]}
-        }))
-        data_set_2 = odil.from_json(json.dumps({
-            str(odil.registry.SOPInstanceUID): {
-                "vr": "UI", "Value": ["1.2.3.5"]},
-            str(odil.registry.EchoTime): {"vr": "DS", "Value": [10]},
-            str(odil.registry.RepetitionTime): {"vr": "DS", "Value": [30]}
-        }))
+        data_set_1 = odil.DataSet(
+            SOPInstanceUID=["1.2.3.4"], EchoTime=[10], RepetitionTime=[20])
+        data_set_2 = odil.DataSet(
+            SOPInstanceUID=["1.2.3.5"], EchoTime=[10], RepetitionTime=[30])
         self.assertDictEqual(
             dicomifier.dicom_to_nifti.meta_data.get_meta_data(
                 [(data_set_1, None), (data_set_2, None)]

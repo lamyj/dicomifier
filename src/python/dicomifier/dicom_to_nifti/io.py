@@ -43,14 +43,13 @@ def get_files(paths):
     for dicom_file in dicom_files:
         try:
             # Read only the header
-            with odil.open(dicom_file) as fd:
-                header, _ = odil.Reader.read_file(
-                    fd, halt_condition=lambda x: x.group > 0x0004)
+            header, _ = odil.Reader.read_file(
+                dicom_file, halt_condition=lambda x: x.group > 0x0004)
         except odil.Exception as e:
             logger.warning("Could not read {}: {}".format(dicom_file, e))
             continue
         sop_instance_uids.setdefault(
-                header.as_string(odil.registry.MediaStorageSOPInstanceUID)[0], 
+                header[odil.registry.MediaStorageSOPInstanceUID][0], 
                 []
             ).append(dicom_file)
     if any(len(x) > 1 for x in sop_instance_uids.values()):
@@ -63,14 +62,13 @@ def get_dicomdir_files(path):
     """
     
     dicom_files = []
-    with odil.open(path) as fd:
-        _, dicomdir = odil.Reader.read_file(fd)
-    for record in dicomdir.as_data_set("DirectoryRecordSequence"):
-        if record.as_string("DirectoryRecordType")[0] == b"IMAGE":
+    dicomdir = odil.Reader.read_file(path)[1]
+    for record in dicomdir[odil.registry.DirectoryRecordSequence]:
+        if record[odil.registry.DirectoryRecordType][0] == b"IMAGE":
             dicom_files.append(
                 os.path.join(
                     os.path.dirname(path),
-                    *[x.decode() for x in record.as_string("ReferencedFileID")]))
+                    *[x.decode() for x in record[odil.registry.ReferencedFileID]]))
 
     return dicom_files
 

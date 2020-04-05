@@ -15,15 +15,15 @@ class NestedDICOMWriter(object):
         if not os.path.isdir(directory):
             os.makedirs(directory)
 
+        self._counts.setdefault(directory, 0)
         if self.iso_9660:
-            filename = "IM{:06d}".format(1+self._counts.setdefault(directory, 0))
+            filename = "IM{:06d}".format(1+self._counts[directory])
         else:
-            filename = data_set.as_string("SOPInstanceUID")[0].decode()
+            filename = data_set[odil.registry.SOPInstanceUID][0].decode()
 
         destination = os.path.join(directory, filename)
-        with odil.open(destination, "wb") as fd:
-            odil.Writer.write_file(
-                data_set, fd, odil.DataSet(), self.transfer_syntax)
+        odil.Writer.write_file(
+            data_set, destination, odil.DataSet(), self.transfer_syntax)
         self.files.append(destination)
         self._counts[directory] += 1
 
@@ -35,27 +35,28 @@ class NestedDICOMWriter(object):
         def has_element(tag, getter):
             return tag in data_set and getter(tag)
 
+        specific_character_set = (
+            data_set.as_string(odil.registry.SpecificCharacterSet)
+            if odil.registry.SpecificCharacterSet in data_set
+            else odil.Value.Strings())
         def decode(value):
-            return odil.as_unicode(
-                value,
-                data_set.as_string("SpecificCharacterSet")
-                if "SpecificCharacterSet" in data_set else odil.Value.Strings())
+            return odil.as_unicode(value, specific_character_set)
 
         # Patient directory: <PatientName> or <PatientID>.
-        patient_directory = None
-        if has_element("PatientName", data_set.as_string):
-            patient_directory = decode(data_set.as_string("PatientName")[0])
-        else:
-            patient_directory = decode(data_set.as_string("PatientID")[0])
+        patient_directory = decode(
+            data_set.get(
+                odil.registry.PatientName, 
+                data_set.get(odil.registry.PatientID))[0])
 
         # Study directory: <StudyID>_<StudyDescription>, both parts are
         # optional. If both tags are missing or empty, raise an exception
         study_directory = []
-        if has_element("StudyID", data_set.as_string):
-            study_directory.append(decode(data_set.as_string("StudyID")[0]))
-        if has_element("StudyDescription", data_set.as_string):
-            study_directory.append(
-                decode(data_set.as_string("StudyDescription")[0]))
+        study_id = data_set.get(odil.registry.StudyID)
+        if study_id:
+            study_directory.append(decode(study_id[0]))
+        study_description = data_set.get(odil.registry.StudyDescription)
+        if study_description:
+            study_directory.append(decode(study_description[0]))
 
         if not study_directory:
             raise Exception("Study ID and Study Description are both missing")
@@ -66,8 +67,9 @@ class NestedDICOMWriter(object):
         # optional. If both tags are missing or empty, raise an exception
         series_directory = []
         reconstruction = None
-        if has_element("SeriesNumber", data_set.as_int):
-            series_number = data_set.as_int("SeriesNumber")[0]
+        series_number = data_set.get(odil.registry.SeriesNumber)
+        if series_number:
+            series_number = series_number[0]
             if series_number > 2**16:
                 # Bruker ID based on experiment number and reconstruction number
                 # is not readable: separate the two values
@@ -76,12 +78,13 @@ class NestedDICOMWriter(object):
             else:
                 series_directory.append(str(series_number))
         if not self.iso_9660:
-            if has_element("SeriesDescription", data_set.as_string):
-                series_directory.append(
-                    decode(data_set.as_string("SeriesDescription")[0]))
+            series_description = data_set.get(odil.registry.SeriesDescription)
+            if series_description:
+                series_directory.append(decode(series_description[0]))
 
         if not series_directory:
-            raise Exception("Series Number and Series Description are both missing")
+            raise Exception(
+                "Series Number and Series Description are both missing")
 
         series_directory = "_".join(series_directory)
 

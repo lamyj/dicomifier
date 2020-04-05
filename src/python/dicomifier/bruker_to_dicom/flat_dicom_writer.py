@@ -16,10 +16,9 @@ class FlatDICOMWriter(object):
         if self.iso_9660:
             filename = "{:08d}.dcm".format(1+len(self.files))
         else:
-            filename = data_set.as_string("SOPInstanceUID")[0].decode()
+            filename = data_set[odil.registry.SOPInstanceUID][0].decode()
 
         destination = os.path.join(self.root, filename)
-        with odil.open(destination, "wb") as fd:
-            odil.Writer.write_file(
-                data_set, fd, odil.DataSet(), self.transfer_syntax)
+        odil.Writer.write_file(
+            data_set, destination, odil.DataSet(), self.transfer_syntax)
         self.files.append(destination)

@@ -16,8 +16,8 @@ class DefaultSeriesFinder(SeriesFinder):
     
     def __call__(self, data_set):
         self.series_instance_uid = None
-        if data_set.has(odil.registry.SeriesInstanceUID):
-            value = data_set.as_string(odil.registry.SeriesInstanceUID)
+        if odil.registry.SeriesInstanceUID in data_set:
+            value = data_set[odil.registry.SeriesInstanceUID]
             if len(value) == 0:
                 raise Exception(
                     "Invalid DICOM data set: SeriesInstanceUID is empty")

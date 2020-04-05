@@ -1,4 +1,3 @@
-import json
 import unittest
 
 import numpy
@@ -9,20 +8,14 @@ import dicomifier
 class TestStacks(unittest.TestCase):
     def test_single_frame_single_stack(self):
         # Same series, different echo time but not MR
-        data_set_1 = odil.from_json(json.dumps({
-            str(odil.registry.SOPClassUID): {
-                "vr": "UI", "Value": [odil.registry.CTImageStorage.decode()]},
-            str(odil.registry.EchoTime): {"vr": "DS", "Value": [10]},
-            str(odil.registry.SeriesInstanceUID): 
-                {"vr": "UI", "Value": ["1.2.3.4"]}
-        }))
-        data_set_2 = odil.from_json(json.dumps({
-            str(odil.registry.SOPClassUID): {
-                "vr": "UI", "Value": [odil.registry.CTImageStorage.decode()]},
-            str(odil.registry.EchoTime): {"vr": "DS", "Value": [20]},
-            str(odil.registry.SeriesInstanceUID): 
-                {"vr": "UI", "Value": ["1.2.3.4"]}
-        }))
+        data_set_1 = odil.DataSet(
+            SOPClassUID=[odil.registry.CTImageStorage.decode()],
+            EchoTime=[10],
+            SeriesInstanceUID=["1.2.3.4"])
+        data_set_2 = odil.DataSet(
+            SOPClassUID=[odil.registry.CTImageStorage.decode()],
+            EchoTime=[20],
+            SeriesInstanceUID=["1.2.3.4"])
         
         stacks = dicomifier.dicom_to_nifti.stacks.get_stacks(
             [data_set_1, data_set_2])
@@ -31,20 +24,14 @@ class TestStacks(unittest.TestCase):
     
     def test_single_frame_two_stacks(self):
         # Same series, different echo time, MR
-        data_set_1 = odil.from_json(json.dumps({
-            str(odil.registry.SOPClassUID): {
-                "vr": "UI", "Value": [odil.registry.MRImageStorage.decode()]},
-            str(odil.registry.EchoTime): {"vr": "DS", "Value": [10]},
-            str(odil.registry.SeriesInstanceUID): 
-                {"vr": "UI", "Value": ["1.2.3.4"]}
-        }))
-        data_set_2 = odil.from_json(json.dumps({
-            str(odil.registry.SOPClassUID): {
-                "vr": "UI", "Value": [odil.registry.MRImageStorage.decode()]},
-            str(odil.registry.EchoTime): {"vr": "DS", "Value": [20]},
-            str(odil.registry.SeriesInstanceUID): 
-                {"vr": "UI", "Value": ["1.2.3.4"]}
-        }))
+        data_set_1 = odil.DataSet(
+            SOPClassUID=[odil.registry.MRImageStorage.decode()],
+            EchoTime=[10],
+            SeriesInstanceUID=["1.2.3.4"])
+        data_set_2 = odil.DataSet(
+            SOPClassUID=[odil.registry.MRImageStorage.decode()],
+            EchoTime=[20],
+            SeriesInstanceUID=["1.2.3.4"])
         
         stacks = dicomifier.dicom_to_nifti.stacks.get_stacks(
             [data_set_1, data_set_2])
@@ -58,82 +45,36 @@ class TestStacks(unittest.TestCase):
     
     def test_multi_frame_single_stack(self):
         # Same series, different echo time but not MR
-        data_set = odil.from_json(json.dumps({
-            str(odil.registry.SOPClassUID): {
-                "vr": "UI", "Value": [odil.registry.EnhancedCTImageStorage.decode()]},
-            str(odil.registry.SharedFunctionalGroupsSequence): {
-                "vr": "SQ", "Value": [{
-                    str(odil.registry.MRImageFrameTypeSequence): { 
-                        "vr": "SQ", "Value":[{
-                            str(odil.registry.FrameType): {
-                                "vr": "CS", "Value": ["ORIGINAL", "PRIMARY"]
-                            }
-                        }]
-                    }
-                }]
-            },
-            str(odil.registry.PerFrameFunctionalGroupsSequence): {
-                "vr": "SQ", 
-                "Value": [{
-                    str(odil.registry.MREchoSequence): {
-                        "vr": "SQ", "Value": [{
-                            str(odil.registry.EffectiveEchoTime): {
-                                "vr": "FD", "Value": [10]
-                            }
-                        }]
-                    }
-                }, {
-                    str(odil.registry.MREchoSequence): {
-                        "vr": "SQ", "Value": [{
-                            str(odil.registry.EffectiveEchoTime): {
-                                "vr": "FD", "Value": [20]
-                            }
-                        }]
-                    }
-                }]
-            }
-        }))
+        data_set = odil.DataSet(
+            SOPClassUID=[odil.registry.EnhancedCTImageStorage.decode()],
+            SharedFunctionalGroupsSequence=[
+                odil.DataSet(MRImageFrameTypeSequence=[
+                    odil.DataSet(FrameType=["ORIGINAL", "PRIMARY"])
+                ])
+            ],
+            PerFrameFunctionalGroupsSequence=[
+                odil.DataSet(
+                    MREchoSequence=[odil.DataSet(EffectiveEchoTime=[10])]),
+                odil.DataSet(
+                    MREchoSequence=[odil.DataSet(EffectiveEchoTime=[20])])
+            ]
+        )
         
         stacks = dicomifier.dicom_to_nifti.stacks.get_stacks([data_set])
         self.assertDictEqual(stacks, {(): [(data_set, 0), (data_set, 1)]})
     
     def test_multi_frame_two_stacks(self):
-        # Same series, different echo time but not MR
-        data_set = odil.from_json(json.dumps({
-            str(odil.registry.SOPClassUID): {
-                "vr": "UI", "Value": [odil.registry.EnhancedMRImageStorage.decode()]},
-            str(odil.registry.SharedFunctionalGroupsSequence): {
-                "vr": "SQ", "Value": [{
-                    str(odil.registry.MRImageFrameTypeSequence): { 
-                        "vr": "SQ", "Value":[{
-                            str(odil.registry.FrameType): {
-                                "vr": "CS", "Value": ["ORIGINAL", "PRIMARY"]
-                            }
-                        }]
-                    }
-                }]
-            },
-            str(odil.registry.PerFrameFunctionalGroupsSequence): {
-                "vr": "SQ", 
-                "Value": [{
-                    str(odil.registry.MREchoSequence): {
-                        "vr": "SQ", "Value": [{
-                            str(odil.registry.EffectiveEchoTime): {
-                                "vr": "FD", "Value": [10]
-                            }
-                        }]
-                    }
-                }, {
-                    str(odil.registry.MREchoSequence): {
-                        "vr": "SQ", "Value": [{
-                            str(odil.registry.EffectiveEchoTime): {
-                                "vr": "FD", "Value": [20]
-                            }
-                        }]
-                    }
-                }]
-            }
-        }))
+        # Same series, different echo times
+        data_set = odil.DataSet(
+            SOPClassUID=[odil.registry.EnhancedMRImageStorage.decode()],
+            SharedFunctionalGroupsSequence=[odil.DataSet(
+                MRImageFrameTypeSequence=[
+                    odil.DataSet(FrameType=["ORIGINAL", "PRIMARY"])]
+            )],
+            PerFrameFunctionalGroupsSequence=[
+                odil.DataSet(MREchoSequence=[odil.DataSet(EffectiveEchoTime=[10])]),
+                odil.DataSet(MREchoSequence=[odil.DataSet(EffectiveEchoTime=[20])])
+            ])
         
         stacks = dicomifier.dicom_to_nifti.stacks.get_stacks([data_set])
         selector = (
@@ -148,57 +89,26 @@ class TestStacks(unittest.TestCase):
         )
     
     def test_sort_index(self):
-        data_set = odil.from_json(json.dumps({
-            str(odil.registry.SOPClassUID): {
-                "vr": "UI", "Value": [odil.registry.MRImageStorage.decode()]},
-            str(odil.registry.DimensionIndexSequence): {
-                "vr": "SQ", "Value": [{
-                    str(odil.registry.DimensionIndexPointer): {
-                        "vr": "AT", "Value": [str(odil.registry.StackID)]
-                    }
-                }, {
-                    str(odil.registry.DimensionIndexPointer): {
-                        "vr": "AT", "Value": [str(odil.registry.InStackPositionNumber)]
-                    }
-                }]
-            },
-            str(odil.registry.SharedFunctionalGroupsSequence): {
-                "vr": "SQ", "Value": [{
-                    str(odil.registry.PixelMeasuresSequence): { 
-                        "vr": "SQ", "Value":[{
-                            str(odil.registry.PixelSpacing): {
-                                "vr": "DS", "Value": [1, 1]
-                            }
-                        }]
-                    }
-                }]
-            },
-            str(odil.registry.PerFrameFunctionalGroupsSequence): {
-                "vr": "SQ", "Value": [{
-                    str(odil.registry.FrameContentSequence): {
-                        "vr": "SQ", "Value": [{
-                            str(odil.registry.DimensionIndexValues): {
-                                "vr": "UL", "Value": [1, 1]}
-                        }]
-                    }
-                }, {
-                    str(odil.registry.FrameContentSequence): {
-                        "vr": "SQ", "Value": [{
-                            str(odil.registry.DimensionIndexValues): {
-                                "vr": "UL", "Value": [1, 3]}
-                        }]
-                    }
-                },
-                {
-                    str(odil.registry.FrameContentSequence): {
-                        "vr": "SQ", "Value": [{
-                            str(odil.registry.DimensionIndexValues): {
-                                "vr": "UL", "Value": [1, 2]}
-                        }]
-                    }
-                }]
-            }
-        }))
+        data_set = odil.DataSet(
+            SOPClassUID=[odil.registry.MRImageStorage.decode()],
+            DimensionIndexSequence=[
+                odil.DataSet(
+                    DimensionIndexPointer=[str(odil.registry.StackID)]),
+                odil.DataSet(
+                    DimensionIndexPointer=[str(odil.registry.InStackPositionNumber)])
+            ],
+            SharedFunctionalGroupsSequence=[odil.DataSet(
+                PixelMeasuresSequence=[odil.DataSet(PixelSpacing=[1, 1])]
+            )],
+            PerFrameFunctionalGroupsSequence=[
+                odil.DataSet(
+                    FrameContentSequence=[odil.DataSet(DimensionIndexValues=[1,1])]),
+                odil.DataSet(
+                    FrameContentSequence=[odil.DataSet(DimensionIndexValues=[1,3])]),
+                odil.DataSet(
+                    FrameContentSequence=[odil.DataSet(DimensionIndexValues=[1,2])])
+            ]
+        )
         
         stacks = dicomifier.dicom_to_nifti.stacks.get_stacks([data_set])
         stack = next(iter(stacks.items()))
@@ -217,26 +127,16 @@ class TestStacks(unittest.TestCase):
         )
     
     def test_sort_position(self):
-        data_set_1 = odil.from_json(json.dumps({
-            str(odil.registry.SOPClassUID): {
-                "vr": "UI", "Value": [odil.registry.MRImageStorage.decode()]},
-            str(odil.registry.SeriesInstanceUID): 
-                {"vr": "UI", "Value": ["1.2.3.4"]},
-            str(odil.registry.ImagePositionPatient): {
-                "vr": "DS", "Value": [0,0,2]},
-            str(odil.registry.ImageOrientationPatient): {
-                "vr": "DS", "Value": [1,0,0,0,1,0]},
-        }))
-        data_set_2 = odil.from_json(json.dumps({
-            str(odil.registry.SOPClassUID): {
-                "vr": "UI", "Value": [odil.registry.MRImageStorage.decode()]},
-            str(odil.registry.SeriesInstanceUID): 
-                {"vr": "UI", "Value": ["1.2.3.4"]},
-            str(odil.registry.ImagePositionPatient): {
-                "vr": "DS", "Value": [0,0,1]},
-            str(odil.registry.ImageOrientationPatient): {
-                "vr": "DS", "Value": [1,0,0,0,1,0]},
-        }))
+        data_set_1 = odil.DataSet(
+            SOPClassUID=[odil.registry.MRImageStorage.decode()],
+            SeriesInstanceUID=["1.2.3.4"],
+            ImagePositionPatient=[0,0,2], 
+            ImageOrientationPatient=[1,0,0,0,1,0])
+        data_set_2 = odil.DataSet(
+            SOPClassUID=[odil.registry.MRImageStorage.decode()],
+            SeriesInstanceUID=["1.2.3.4"],
+            ImagePositionPatient=[0,0,1],
+            ImageOrientationPatient=[1,0,0,0,1,0])
         
         stacks = dicomifier.dicom_to_nifti.stacks.get_stacks(
             [data_set_1, data_set_2])
@@ -251,71 +151,45 @@ class TestStacks(unittest.TestCase):
         )
 
     def test_get_frame_position(self):
-        data_set = odil.from_json(json.dumps({
-            str(odil.registry.ImagePositionPatient): {
-                "vr": "DS", "Value": [0,0,1]},
-        }))
+        data_set = odil.DataSet(ImagePositionPatient=[0,0,1])
         
         self.assertSequenceEqual(
             dicomifier.dicom_to_nifti.stacks.get_frame_position(data_set, None),
             [0, 0, 1])
         
-        data_set = odil.from_json(json.dumps({
-            str(odil.registry.PerFrameFunctionalGroupsSequence): {
-                "vr": "SQ", "Value": [{
-                    str(odil.registry.PlanePositionSequence): {
-                        "vr": "SQ", "Value": [{
-                            str(odil.registry.ImagePositionPatient): {
-                                "vr": "DS", "Value": [0,0,1]}
-                        }]
-                    }
-                }, {
-                    str(odil.registry.PlanePositionSequence): {
-                        "vr": "SQ", "Value": [{
-                            str(odil.registry.ImagePositionPatient): {
-                                "vr": "DS", "Value": [0,0,2]}
-                        }]
-                    }
-                }]
-            }
-        }))
+        data_set = odil.DataSet(
+            PerFrameFunctionalGroupsSequence=[
+                odil.DataSet(
+                    PlanePositionSequence=[
+                        odil.DataSet(ImagePositionPatient=[0,0,1])]),
+                odil.DataSet(
+                    PlanePositionSequence=[
+                        odil.DataSet(ImagePositionPatient=[0,0,2])])
+            ]
+        )
         
         self.assertSequenceEqual(
             dicomifier.dicom_to_nifti.stacks.get_frame_position(data_set, 1),
             [0, 0, 2])
     
     def test_get_in_stack_position_index(self):
-        data_set = odil.from_json(json.dumps({
-            str(odil.registry.DimensionIndexSequence): {
-                "vr": "SQ", "Value": [{
-                    str(odil.registry.DimensionIndexPointer): {
-                        "vr": "AT", "Value": [str(odil.registry.StackID)]
-                    }
-                }, {
-                    str(odil.registry.DimensionIndexPointer): {
-                        "vr": "AT", "Value": [str(odil.registry.InStackPositionNumber)]
-                    }
-                }]
-            }
-        }))
+        data_set = odil.DataSet(
+            DimensionIndexSequence=[
+                odil.DataSet(
+                    DimensionIndexPointer=[str(odil.registry.StackID)]),
+                odil.DataSet(
+                    DimensionIndexPointer=[str(odil.registry.InStackPositionNumber)])
+            ]
+        )
         
         self.assertEqual(
             dicomifier.dicom_to_nifti.stacks.get_in_stack_position_index(data_set),
             1)
     
     def test_orientation_getter(self):
-        data_set_1 = odil.from_json(json.dumps({
-            str(odil.registry.ImageOrientationPatient): {
-                "vr": "DS", "Value": [1, 0, 0, 0, 1, 0]},
-        }))
-        data_set_2 = odil.from_json(json.dumps({
-            str(odil.registry.ImageOrientationPatient): {
-                "vr": "DS", "Value": [1, 0, 0, 0, 1, 0.02]},
-        }))
-        data_set_3 = odil.from_json(json.dumps({
-            str(odil.registry.ImageOrientationPatient): {
-                "vr": "DS", "Value": [1, 0, 0, 0, 0, 1]},
-        }))
+        data_set_1 = odil.DataSet(ImageOrientationPatient=[1, 0, 0, 0, 1, 0])
+        data_set_2 = odil.DataSet(ImageOrientationPatient=[1, 0, 0, 0, 1, 0.02])
+        data_set_3 = odil.DataSet(ImageOrientationPatient=[1, 0, 0, 0, 0, 1])
 
         getter = dicomifier.dicom_to_nifti.stacks.OrientationGetter()
         getter(data_set_1, odil.registry.ImageOrientationPatient)

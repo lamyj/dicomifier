@@ -1,4 +1,3 @@
-import json
 import unittest
 
 import numpy
@@ -8,10 +7,7 @@ import dicomifier
 
 class TestDefaultSeriesFinder(unittest.TestCase):
     def test_valid_data_set(self):
-        data_set = odil.from_json(json.dumps({
-            str(odil.registry.SeriesInstanceUID): 
-                {"vr": "UI", "Value": ["1.2.3.4"]}
-        }))
+        data_set = odil.DataSet(SeriesInstanceUID=["1.2.3.4"])
         
         finder = dicomifier.dicom_to_nifti.series.DefaultSeriesFinder()
         series_instance_uid = finder(data_set)
@@ -31,16 +27,14 @@ class TestDefaultSeriesFinder(unittest.TestCase):
         self.assertEqual(hash(finder), hash(None))
     
     def test_empty_series_instance_uid(self):
-        data_set = odil.DataSet()
-        data_set.add(odil.registry.SeriesInstanceUID, [])
+        data_set = odil.DataSet(SeriesInstanceUID=[])
         
         finder = dicomifier.dicom_to_nifti.series.DefaultSeriesFinder()
         with self.assertRaises(Exception):
             finder(data_set)
     
     def test_multiple_series_instance_uid(self):
-        data_set = odil.DataSet()
-        data_set.add(odil.registry.SeriesInstanceUID, ["1", "2"])
+        data_set = odil.DataSet(SeriesInstanceUID=["1", "2"])
         
         finder = dicomifier.dicom_to_nifti.series.DefaultSeriesFinder()
         with self.assertRaises(Exception):

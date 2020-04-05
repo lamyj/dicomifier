@@ -31,14 +31,14 @@ def get_image(stack, dtype, cache=None):
     # Cache the linear pixel data since this is a time-consuming operation for
     # large data sets and needs to be repeated for multi-frame data sets.
     for data_set, _ in stack:
-        if data_set.as_string("SOPInstanceUID")[0] not in cache:
+        if data_set[odil.registry.SOPInstanceUID][0] not in cache:
             linear_array = get_linear_pixel_data(data_set)
-            cache[data_set.as_string("SOPInstanceUID")[0]] = linear_array
+            cache[data_set[odil.registry.SOPInstanceUID][0]] = linear_array
     
     pixel_data_list = [
         get_shaped_pixel_data(
             data_set, frame_index, 
-            cache[data_set.as_string("SOPInstanceUID")[0]])
+            cache[data_set[odil.registry.SOPInstanceUID][0]])
         for data_set, frame_index in stack]
 
     if dtype is None:
@@ -59,13 +59,10 @@ def get_image(stack, dtype, cache=None):
     origin, spacing, direction = get_geometry(stack)
 
     data_set = stack[0][0]
-    image_type = (
-        data_set.as_string("ImageType") if "ImageType" in data_set else [])
+    image_type = data_set.get(odil.registry.ImageType, [])
     if len(stack) == 1 and b"MOSAIC" in image_type and "00291010" in data_set:
         siemens_data = siemens.parse_csa(
-            data_set.as_binary(
-                    odil.Tag(0x0029, 0x1010)
-                )[0].get_memory_view().tobytes())
+            data_set[odil.Tag(0x0029, 0x1010)][0].get_memory_view().tobytes())
 
         number_of_tiles = siemens_data["NumberOfImagesInMosaic"][0]
         tiles_per_line = int(math.ceil(math.sqrt(number_of_tiles)))
@@ -95,9 +92,12 @@ def get_image(stack, dtype, cache=None):
 
         direction[:, 2] = siemens_data["SliceNormalVector"]
 
-    samples_per_pix = data_set.as_int("SamplesPerPixel")[0]
-
-    if samples_per_pix == 1:
+    samples = data_set[odil.registry.SamplesPerPixel][0]
+    is_rgb = (
+        samples == 3 
+        and data_set[odil.registry.PhotometricInterpretation][0] == b"RGB")
+    
+    if samples == 1:
         lps_to_ras = [
             [-1,  0, 0],
             [0, -1, 0],
@@ -108,8 +108,7 @@ def get_image(stack, dtype, cache=None):
         scanner_transform[:3, :3] = numpy.dot(
             scanner_transform[:3, :3], numpy.diag(spacing))
         scanner_transform[:3, 3] = numpy.dot(lps_to_ras, origin)
-
-    elif samples_per_pix == 3 and data_set.as_string("PhotometricInterpretation")[0] == b"RGB":
+    elif is_rgb:
         if dtype != numpy.uint8:
             logger.warning(
                 "Invalid dtype {} for RGB, re-sampling".format(dtype))
@@ -127,17 +126,10 @@ def get_image(stack, dtype, cache=None):
 def get_linear_pixel_data(data_set):
     """Return a linear numpy array containing the pixel data."""
     
-    high_bit = data_set.as_int(odil.registry.HighBit)[0]
+    byte_order = ">" if data_set[odil.registry.HighBit][0] == 0 else "<"
+    is_unsigned = (data_set.get(odil.registry.PixelRepresentation, [0])[0] == 0)
 
-    byte_order = ">" if high_bit == 0 else "<"
-
-    pixel_representation = 0
-    if data_set.has(odil.registry.PixelRepresentation):
-        pixel_representation = data_set.as_int(
-            odil.registry.PixelRepresentation)[0]
-    is_unsigned = (pixel_representation == 0)
-
-    bits_allocated = data_set.as_int(odil.registry.BitsAllocated)[0]
+    bits_allocated = data_set[odil.registry.BitsAllocated][0]
     if bits_allocated % 8 != 0:
         raise NotImplementedError("Cannot handle non-byte types")
 
@@ -145,8 +137,14 @@ def get_linear_pixel_data(data_set):
         "{}{}{}".format(
             byte_order, "u" if is_unsigned else "i", int(bits_allocated / 8)))
 
-    view = data_set.as_binary(odil.registry.PixelData)[0].get_memory_view()
+    pixel_data = data_set[odil.registry.PixelData][0]
+    view = pixel_data.get_memory_view()
     linear_array = numpy.frombuffer(view.tobytes(), byte_order + dtype.char)
+    
+    # Mask the data using Bits Stored, cf. PS 3.5, 8.1.1
+    bits_stored = data_set[odil.registry.BitsStored][0]
+    linear_array = numpy.bitwise_and(linear_array, 2**bits_stored - 1)
+    
     return linear_array
 
 def get_shaped_pixel_data(data_set, frame_index, linear_pixel_data):
@@ -154,8 +152,8 @@ def get_shaped_pixel_data(data_set, frame_index, linear_pixel_data):
         frame) shaped according to numer of rows, columns and frames.
     """
     
-    rows = data_set.as_int(odil.registry.Rows)[0]
-    cols = data_set.as_int(odil.registry.Columns)[0]
+    rows = data_set[odil.registry.Rows][0]
+    cols = data_set[odil.registry.Columns][0]
     
     def reshape(array, shape):
         try:
@@ -163,12 +161,12 @@ def get_shaped_pixel_data(data_set, frame_index, linear_pixel_data):
         except ValueError:
             return array[:-1].reshape(shape)
 
-    samples_per_pixel = data_set.as_int(odil.registry.SamplesPerPixel)[0]
+    samples_per_pixel = data_set[odil.registry.SamplesPerPixel][0]
     if samples_per_pixel == 1:
         if (
-                data_set.has(odil.registry.PerFrameFunctionalGroupsSequence) 
-                and data_set.has(odil.registry.NumberOfFrames)):
-            number_of_frames = data_set.as_int(odil.registry.NumberOfFrames)[0]
+                odil.registry.PerFrameFunctionalGroupsSequence in data_set
+                and odil.registry.NumberOfFrames in data_set):
+            number_of_frames = data_set[odil.registry.NumberOfFrames][0]
             pixel_data = reshape(linear_pixel_data, (number_of_frames, rows, cols))
             pixel_data = pixel_data[frame_index, :]
         else:
@@ -176,27 +174,16 @@ def get_shaped_pixel_data(data_set, frame_index, linear_pixel_data):
     else:
         pixel_data = reshape(linear_pixel_data, (rows, cols, samples_per_pixel))
 
-    # Mask the data using Bits Stored, cf. PS 3.5, 8.1.1
-    bits_stored = data_set.as_int(odil.registry.BitsStored)[0]
-    pixel_data = numpy.bitwise_and(
-        pixel_data, 2**bits_stored - 1).astype(pixel_data.dtype)
-
     # Rescale: look for Pixel Value Transformation sequence then Rescale Slope
     # and Rescale Intercept
-    transformation = data_set
-    if data_set.has(odil.registry.SharedFunctionalGroupsSequence):
-        transformation = data_set.as_data_set(
-            odil.registry.SharedFunctionalGroupsSequence)[0]
-    if transformation.has(odil.registry.PixelValueTransformationSequence):
-        transformation = transformation.as_data_set(
-            odil.registry.PixelValueTransformationSequence)[0]
+    rescale = data_set
+    if odil.registry.SharedFunctionalGroupsSequence in data_set:
+        rescale = data_set[odil.registry.SharedFunctionalGroupsSequence][0]
+    if odil.registry.PixelValueTransformationSequence in rescale:
+        rescale = rescale[odil.registry.PixelValueTransformationSequence][0]
     
-    slope = None
-    intercept = None
-    if transformation.has(odil.registry.RescaleSlope):
-        slope = transformation.as_real(odil.registry.RescaleSlope)[0]
-    if transformation.has(odil.registry.RescaleIntercept):
-        intercept = transformation.as_real(odil.registry.RescaleIntercept)[0]
+    slope = rescale.get(odil.registry.RescaleSlope, [None])[0]
+    intercept = rescale.get(odil.registry.RescaleIntercept, [None])[0]
     if None not in [slope, intercept] and not numpy.allclose([slope, intercept], [1, 0]):
         pixel_data = pixel_data * numpy.float32(slope) + numpy.float32(intercept)
 
@@ -207,22 +194,19 @@ def find_element(data_set, frame_index, tag, sequence):
         sequence, which contain the given tag.
     """
     
-    shared_fg = odil.registry.SharedFunctionalGroupsSequence
-    per_frame_fg = odil.registry.PerFrameFunctionalGroupsSequence
-    
     container = None
     
-    if data_set.has(shared_fg):
-        shared = data_set.as_data_set(shared_fg)[0]
-        frame = data_set.as_data_set(per_frame_fg)[frame_index]
-        if frame.has(sequence):
-            container = frame.as_data_set(sequence)[0]
-        elif shared.has(sequence):
-            container = shared.as_data_set(sequence)[0]
+    if odil.registry.SharedFunctionalGroupsSequence in data_set:
+        shared = data_set[odil.registry.SharedFunctionalGroupsSequence][0]
+        frame = data_set[odil.registry.PerFrameFunctionalGroupsSequence][frame_index]
+        if sequence in frame:
+            container = frame[sequence][0]
+        elif sequence in shared:
+            container = shared[sequence][0]
     else:
         container = data_set
     
-    if container is not None and not container.has(tag):
+    if container is not None and tag not in container:
         container = None
     
     return container
@@ -239,7 +223,7 @@ def get_origin(stack):
 
     origin = None
     if container is not None:
-        origin = container.as_real(odil.registry.ImagePositionPatient)
+        origin = tuple(container[odil.registry.ImagePositionPatient])
     
     return origin
 
@@ -256,7 +240,7 @@ def get_orientation(stack):
 
     orientation = None
     if container is not None:
-        orientation = container.as_real(odil.registry.ImageOrientationPatient)
+        orientation = container[odil.registry.ImageOrientationPatient]
         orientation = numpy.transpose(numpy.array([
             orientation[:3],
             orientation[3:],
@@ -276,7 +260,7 @@ def get_spacing(stack):
     
     spacing = None
     if container is not None:
-        spacing = list(container.as_real(odil.registry.PixelSpacing))
+        spacing = list(container[odil.registry.PixelSpacing])
         
         # Look for SpacingBetweenSlices
         container = find_element(
@@ -284,8 +268,7 @@ def get_spacing(stack):
             odil.registry.SpacingBetweenSlices, 
             odil.registry.PixelMeasuresSequence)
         if container:
-            spacing.append(
-                container.as_real(odil.registry.SpacingBetweenSlices)[0])
+            spacing.append(container[odil.registry.SpacingBetweenSlices][0])
         elif len(stack)>1:
             other_data_set, other_index = stack[1]
             container = find_element(
@@ -294,8 +277,7 @@ def get_spacing(stack):
                 odil.registry.PlanePositionSequence)
             if container:
                 position = get_origin(stack)
-                other_position = container.as_real(
-                    odil.registry.ImagePositionPatient)
+                other_position = container[odil.registry.ImagePositionPatient]
                 difference = numpy.subtract(other_position, position)
                 
                 orientation = get_orientation(stack)
@@ -308,7 +290,7 @@ def get_spacing(stack):
                 odil.registry.SliceThickness, 
                 odil.registry.PixelMeasuresSequence)
             if container:
-                spacing.append(container.as_real(odil.registry.SliceThickness)[0])
+                spacing.append(container[odil.registry.SliceThickness][0])
     
     if spacing and len(spacing) == 2:
         logger.warning("No slice thickness, using default")

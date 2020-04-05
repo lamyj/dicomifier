@@ -61,8 +61,8 @@ def get_meta_data(stack, cache=None):
 
     # Populate the cache with the elements at top-level and in shared 
     # functional groups
-    for data_set, frame_index in stack:
-        sop_instance_uid = data_set.as_string(odil.registry.SOPInstanceUID)[0]
+    for data_set, frame in stack:
+        sop_instance_uid = data_set[odil.registry.SOPInstanceUID][0]
         if sop_instance_uid in cache:
             continue
             
@@ -72,30 +72,27 @@ def get_meta_data(stack, cache=None):
             if tag in skipped:
                 continue
             cache[sop_instance_uid][tag] = value
-        if frame_index is not None:
-            shared_functional_groups = data_set.as_data_set(
-                odil.registry.SharedFunctionalGroupsSequence)[0]
+        if frame is not None:
+            groups = data_set[odil.registry.SharedFunctionalGroupsSequence][0]
             _fill_meta_data_dictionary(
-                shared_functional_groups, 
-                lambda tag, value: 
-                    cache[sop_instance_uid].__setitem__(tag, value), 
+                groups, 
+                lambda tag, value: cache[sop_instance_uid].update({tag: value}), 
                 skipped, no_recurse)
 
     # Get the values of all (data_set, frame_index)
     elements = {}
-    for list_index, (data_set, frame_index) in enumerate(stack):
-        sop_instance_uid = data_set.as_string(odil.registry.SOPInstanceUID)[0]
+    for i, (data_set, frame) in enumerate(stack):
+        sop_instance_uid = data_set[odil.registry.SOPInstanceUID][0]
         # Fetch non-frame-specific elements from cache
         for tag, element in cache[sop_instance_uid].items():
-            elements.setdefault(tag, {})[list_index] = element
-        if frame_index is not None:
+            elements.setdefault(tag, {})[i] = element
+        if frame is not None:
             # Fetch frame-specific elements
-            frame_functional_groups = data_set.as_data_set(
-                odil.registry.PerFrameFunctionalGroupsSequence)[frame_index]
+            groups = data_set[odil.registry.PerFrameFunctionalGroupsSequence][frame]
             _fill_meta_data_dictionary(
-                frame_functional_groups, 
+                groups, 
                 lambda tag, value: 
-                    elements.setdefault(tag, {}).__setitem__(list_index, value), 
+                    elements.setdefault(tag, {}).update({i: value}), 
                 skipped, no_recurse)
     
     # Convert dictionary with possible holes to list: iteration is quicker.
@@ -164,30 +161,24 @@ def convert_element(element, specific_character_set):
         result = None
     elif element.empty():
         result = None
-    elif element.is_int():
-        result = list(element.as_int())
-    elif element.is_real():
-        result = list(element.as_real())
+    elif element.is_int() or element.is_real():
+        result = list(element)
     elif element.vr == odil.VR.PN:
         data_set = odil.DataSet()
         if specific_character_set:
             data_set.add(
                 odil.registry.SpecificCharacterSet, specific_character_set)
-        data_set.add(odil.registry.PersonName, element.as_string(), element.vr)
+        data_set.add(odil.registry.PersonName, element, element.vr)
         json_data_set = json.loads(odil.as_json(data_set))
         result = json_data_set[str(odil.registry.PersonName)]["Value"]
     elif element.is_string():
-        result = list(
-            odil.as_unicode(x, specific_character_set)
-            for x in element.as_string())
+        result = [odil.as_unicode(x, specific_character_set) for x in element]
     elif element.is_data_set():
-        result = [
-            convert_data_set(x, specific_character_set)
-            for x in element.as_data_set()]
+        result = [convert_data_set(x, specific_character_set) for x in element]
     elif element.is_binary():
         result = [
             base64.b64encode(x.get_memory_view().tobytes()).decode()
-            for x in element.as_binary()]
+            for x in element]
     else:
         raise Exception("Unknown element type")
 
@@ -198,9 +189,8 @@ def convert_data_set(data_set, specific_character_set):
     """
 
     result = {}
-    if data_set.has(odil.registry.SpecificCharacterSet):
-        specific_character_set = data_set.as_string(
-            odil.registry.SpecificCharacterSet)
+    if odil.registry.SpecificCharacterSet in data_set:
+        specific_character_set = data_set[odil.registry.SpecificCharacterSet]
     for tag, element in data_set.items():
         name = get_tag_name(tag)
         value = convert_element(element, specific_character_set)
@@ -216,7 +206,7 @@ def _fill_meta_data_dictionary(data_set, function, skipped, no_recurse):
             if tag in no_recurse:
                 function(tag, value)
             else:
-                item = data_set.as_data_set(tag)[0]
+                item = data_set[tag][0]
                 for item_tag, value in item.items():
                     if item_tag not in skipped:
                         function(item_tag, value)

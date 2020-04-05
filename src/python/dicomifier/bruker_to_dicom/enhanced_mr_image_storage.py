@@ -21,8 +21,10 @@ from .convert import convert_element
 
 
 def enhanced_mr_image_storage(bruker_data_set, transfer_syntax):
-    """ Convert bruker_data_set into dicom_data_set by using the correct transfer_syntax
-        This function will create one data_set per reconstruction (multiFrame format)
+    """ Convert bruker_data_set into dicom_data_set by using the correct 
+        transfer_syntax.
+        This function will create one data_set per reconstruction 
+        (multiFrame format)
 
         :param bruker_data_set: Bruker data set in dictionary form
         :param transfer_syntax: Wanted transfer syntax for the conversion
@@ -32,25 +34,23 @@ def enhanced_mr_image_storage(bruker_data_set, transfer_syntax):
         to_2d(bruker_data_set)
 
     vr_finder_object = odil.VRFinder()
-    vr_finder_function = lambda tag: vr_finder_object(tag, helper, transfer_syntax)
+    vr_finder_function = lambda tag: vr_finder_object(
+        tag, helper, transfer_syntax)
 
     helper = odil.DataSet()
     generator = FrameIndexGenerator(bruker_data_set)
-    dicom_data_set = odil.DataSet()
-
-    number_of_frames = generator._get_frames_count()
-    dicom_data_set.add("SpecificCharacterSet", ["ISO_IR 192"])
-
-    shared = [odil.DataSet()]
-    dicom_data_set.add(odil.registry.SharedFunctionalGroupsSequence, shared)
-    
-    per_frame = [odil.DataSet() for x in range(number_of_frames) ]
+    dicom_data_set = odil.DataSet(
+        SpecificCharacterSet=["ISO_IR 192"],
+        SharedFunctionalGroupsSequence=[odil.DataSet()],
+        PerFrameFunctionalGroupsSequence=[
+            odil.DataSet() for _ in range(generator._get_frames_count())])
 
     # Modules factory
     modules = [
         patient.Patient,
         study.GeneralStudy, study.PatientStudy,
-        series.GeneralSeries + [(None, "Modality", 1, lambda d,g,i: ["MR"], None)] ,
+        series.GeneralSeries + [
+            (None, "Modality", 1, lambda d,g,i: ["MR"], None)],
         frame_of_reference.FrameOfReference,
         equipment.GeneralEquipment, equipment.EnhancedGeneralEquipment,
         image.MutliFrameFunctionalGroups,
@@ -58,7 +58,9 @@ def enhanced_mr_image_storage(bruker_data_set, transfer_syntax):
         image.AcquisitionContext,
         image.EnhancedMRImage,
         image.MRPulseSequence,
-        image.SOPCommon + [(None, "SOPClassUID", 1, lambda d,g,i: [odil.registry.EnhancedMRImageStorage], None)],
+        image.SOPCommon + [(
+            None, "SOPClassUID", 1, 
+            lambda d,g,i: [odil.registry.EnhancedMRImageStorage], None)],
         image.ImagePixel,
     ]
 
@@ -83,7 +85,8 @@ def enhanced_mr_image_storage(bruker_data_set, transfer_syntax):
 
     # parse here classical modules
     for i, frame_index in enumerate(generator):
-        for bruker_name, dicom_name, type_, getter, setter in itertools.chain(*modules):
+        generator = itertools.chain(*modules)
+        for bruker_name, dicom_name, type_, getter, setter in generator:
             value = convert_element(
                 bruker_data_set, dicom_data_set,
                 bruker_name, dicom_name, type_, getter, setter,
@@ -96,16 +99,16 @@ def enhanced_mr_image_storage(bruker_data_set, transfer_syntax):
         for frame_g in framegroups :
             fg_modules = frame_g.values()
             d = odil.DataSet()
-            for bruker_name, dicom_name, type_, getter, setter in itertools.chain(*fg_modules):
+            generator = itertools.chain(*fg_modules)
+            for bruker_name, dicom_name, type_, getter, setter in generator:
                 value = convert_element(
                     bruker_data_set, d,
                     bruker_name, dicom_name, type_, getter, setter,
                     frame_index, generator, vr_finder_function
                 )
-            per_frame[i].add(next(iter(frame_g.keys()))[0], [d])
-
-
-    dicom_data_set.add(odil.registry.PerFrameFunctionalGroupsSequence, per_frame)
+            dicom_data_set[PerFrameFunctionalGroupsSequence][i].add(
+                next(iter(frame_g.keys()))[0], [d])
+    
     regroup_shared_data(dicom_data_set, framegroups)
 
 
@@ -135,18 +138,20 @@ def regroup_shared_data(dicom_data_set, framegroups):
         using framegroups arg in order to know if the framegroup can be move or no
     """
 
-    per_frame = dicom_data_set.as_data_set(odil.registry.PerFrameFunctionalGroupsSequence)
-    shared = dicom_data_set.as_data_set(odil.registry.SharedFunctionalGroupsSequence)[0]
-    number_of_frames = dicom_data_set.as_int(odil.registry.NumberOfFrames)[0]
+    per_frame = dicom_data_set[odil.registry.PerFrameFunctionalGroupsSequence]
+    shared = dicom_data_set[odil.registry.SharedFunctionalGroupsSequence][0]
+    number_of_frames = dicom_data_set[odil.registry.NumberOfFrames][0]
 
-    top_sequences = [x[0] for x in [next(iter(y.keys())) for y in framegroups] if x[1] is False]
+    top_sequences = [
+        x[0] for x in [next(iter(y.keys())) for y in framegroups] 
+        if x[1] is False]
 
     seq_data_sets = {}
     for i in range(number_of_frames):
         current_data_set = per_frame[i]
         for tag, elem in current_data_set.items():
             if tag.get_name() in top_sequences:
-                seq_data_sets.setdefault(tag.get_name(), {})[i] = current_data_set.as_data_set(tag)[0]
+                seq_data_sets.setdefault(tag.get_name(), {})[i] = current_data_set[tag][0]
 
     for name, data_sets in seq_data_sets.items():
         # Check whether all values are the same

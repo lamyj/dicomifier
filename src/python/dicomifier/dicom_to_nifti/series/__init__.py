@@ -24,10 +24,9 @@ def split_series(files):
     series = {}
     for file_ in files:
         try:
-            with odil.open(file_) as fd:
-                header, data_set = odil.Reader.read_file(
-                    fd, 
-                    halt_condition=lambda x: x>odil.registry.SeriesInstanceUID)
+            header, data_set = odil.Reader.read_file(
+                file_,  
+                halt_condition=lambda x: x>odil.registry.SeriesInstanceUID)
         except odil.Exception as e:
             dicomifier.logger.warning("Could not read {}: {}".format(file_, e))
             continue
@@ -38,7 +37,7 @@ def split_series(files):
                 "ExplicitVRLittleEndian",
                 "ExplicitVRBigEndian_Retired"
             ]]
-        if header.as_string("TransferSyntaxUID")[0] not in uncompressed_ts:
+        if header[odil.registry.TransferSyntaxUID][0] not in uncompressed_ts:
             dicomifier.logger.warning(
                 "Could not read {}: compressed transfer syntax".format(file_))
             continue
@@ -51,7 +50,8 @@ def split_series(files):
             try:
                 series_instance_uid = finder(data_set)
             except Exception as e:
-                logger.warning("Could not run {}: {}".format(finder_class.__name__, e))
+                logger.warning(
+                    "Could not run {}: {}".format(finder_class.__name__, e))
                 continue
             if series_instance_uid is not None:
                 break

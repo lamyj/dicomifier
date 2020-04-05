@@ -23,28 +23,18 @@ class SiemensXAClassic2DSeriesFinder(SeriesFinder):
     def __call__(self, data_set):
         self.series_instance_uid = None
         
-        data = [None, None]
-        if data_set.has(odil.registry.SoftwareVersions):
-            value = data_set.as_string(odil.registry.SoftwareVersions)
-            if value:
-                data[0] = value[0]
-        if data_set.has(odil.registry.ImageType):
-            value = data_set.as_string(odil.registry.ImageType)
-            data[1] = (value[-1] == b"MFSPLIT")
+        software = data_set.get(odil.registry.SoftwareVersions, [b""])[0]
+        is_mfsplit = data_set.get(odil.registry.ImageType, [b""])[0]
         
-        if data[0] and data[0].startswith(b"syngo MR XA") and data[1]:
-            for item in data_set.as_data_set(odil.registry.RelatedSeriesSequence):
+        if software.startswith(b"syngo MR XA") and is_mfsplit:
+            for item in data_set[odil.registry.RelatedSeriesSequence]:
                 # Look for Alternate SOP Class instance
                 # http://dicom.nema.org/medical/dicom/current/output/chtml/part16/chapter_D.html#DCM_121326
-                purpose = item.as_data_set(
-                    odil.registry.PurposeOfReferenceCodeSequence)[0]
-                designator = purpose.as_string(
-                    odil.registry.CodingSchemeDesignator)[0]
-                code_value = purpose.as_string(
-                    odil.registry.CodeValue)[0]
+                purpose = item[odil.registry.PurposeOfReferenceCodeSequence][0]
+                designator = purpose[odil.registry.CodingSchemeDesignator][0]
+                code_value = purpose[odil.registry.CodeValue][0]
                 if (designator, code_value) == (b"DCM", b"121326"):
-                    self.series_instance_uid = item.as_string(
-                        odil.registry.SeriesInstanceUID)[0]
+                    self.series_instance_uid = item[odil.registry.SeriesInstanceUID][0]
                     break
         
         return self.series_instance_uid

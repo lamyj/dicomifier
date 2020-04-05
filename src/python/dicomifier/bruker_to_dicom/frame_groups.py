@@ -30,7 +30,7 @@ Model for frame groups
 def _get_frame_label(bruker_data_set, generator, frame_index):
     contributing_equipment = _get_frame_index(
         bruker_data_set, generator, frame_index)
-    return [x for x in contributing_equipment.as_string("ContributionDescription")]
+    return list(contributing_equipment[odil.registry.ContributionDescription])
 
 PixelMeasures = { # http://dicom.nema.org/medical/dicom/current/output/chtml/part03/sect_C.7.6.16.2.html#sect_C.7.6.16.2.1
     ("PixelMeasuresSequence", False) :
@@ -58,11 +58,7 @@ FrameContent = { # http://dicom.nema.org/medical/dicom/current/output/chtml/part
     ("FrameContentSequence", True) :
     [
         (None, "FrameAcquisitionNumber", 3, _get_acquisition_number, None),
-        (
-            None, "FrameLabel", 3, 
-            _get_frame_label, #lambda d,g,i: ["start"]+["foo" for x in _get_frame_index(d,g,i).as_string("ContributionDescription")],
-            None
-        )
+        (None, "FrameLabel", 3, _get_frame_label, None)
     ]
 }
 

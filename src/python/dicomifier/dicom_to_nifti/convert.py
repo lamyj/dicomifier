@@ -16,7 +16,7 @@ import nibabel
 import numpy
 import odil
 
-from . import get_dicom_element, image, io, meta_data
+from . import image, io, meta_data
 from .series import DefaultSeriesFinder, split_series
 from .stacks import get_stacks, sort
 
@@ -120,15 +120,14 @@ class SeriesContext(logging.Filter):
     
     @staticmethod
     def _get_element(data_set, tag):
-        value = get_dicom_element(data_set, tag)
+        value = data_set.get(tag)
         if value:
             value = value[0]
             if (
                     isinstance(value, bytes) 
-                    and data_set.has(odil.registry.SpecificCharacterSet)):
+                    and odil.registry.SpecificCharacterSet in data_set):
                 value = odil.as_unicode(
-                    value, data_set.as_string(
-                        odil.registry.SpecificCharacterSet))
+                    value, data_set[odil.registry.SpecificCharacterSet])
         else:
             value = None
         return value
@@ -145,10 +144,7 @@ def convert_series(series_files, dtype=None, finder=None):
     logger.info(
         "Reading {} DICOM file{}".format(
             len(series_files), "s" if len(series_files) > 1 else ""))
-    data_sets = []
-    for series_file in series_files:
-        with odil.open(series_file) as fd:
-            data_sets.append(odil.Reader.read_file(fd)[1])
+    data_sets = [odil.Reader.read_file(x)[1] for x in series_files]
 
     # Add series context to the logging as soon as we can
     series_context = SeriesContext(data_sets[0])
@@ -158,9 +154,7 @@ def convert_series(series_files, dtype=None, finder=None):
         logger.debug("Setting Series Instance UID to {}".format(
             finder.series_instance_uid.decode()))
         for data_set in data_sets:
-            data_set.remove(odil.registry.SeriesInstanceUID)
-            data_set.add(
-                odil.registry.SeriesInstanceUID, [finder.series_instance_uid])
+            data_set[odil.registry.SeriesInstanceUID][0] = finder.series_instance_uid
     
     # Get only data_sets containing correct PixelData field
     data_sets = [x for x in data_sets if "PixelData" in x]
@@ -191,8 +185,8 @@ def convert_series_data_sets(data_sets, dtype=None):
     # Set up progress information
     stacks_count = {}
     stacks_converted = {}
-    for key, data_sets_frame_idx in stacks.items():
-        series_instance_uid = data_sets_frame_idx[0][0].as_string("SeriesInstanceUID")[0]
+    for key, frames in stacks.items():
+        series_instance_uid = frames[0][0][odil.registry.SeriesInstanceUID][0]
         stacks_count.setdefault(series_instance_uid, 0)
         stacks_count[series_instance_uid] += 1
         stacks_converted[series_instance_uid] = 0
@@ -210,7 +204,7 @@ def convert_series_data_sets(data_sets, dtype=None):
         data_set = stack[0][0]
         
         # Update progress information
-        series_instance_uid = data_set.as_string("SeriesInstanceUID")[0]
+        series_instance_uid = data_set[odil.registry.SeriesInstanceUID][0]
         if stacks_count[series_instance_uid] > 1:
             stack_info = "{}/{}".format(
                 1 + stacks_converted[series_instance_uid],
