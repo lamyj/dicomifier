@@ -6,5 +6,4 @@
 # for details.
 #########################################################################
 
-from .frame_index_generator import FrameIndexGenerator
-from . import convert, frame_groups, io, iods, modules
+from . import equipment, frame_of_reference, image, patient, series, study

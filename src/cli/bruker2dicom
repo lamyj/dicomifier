@@ -37,7 +37,7 @@ def main():
     convert_parser.add_argument("destination", help="Output directory")
     convert_parser.add_argument(
         "--reconstruction", "-r", action="append",
-        dest="series_and_reconstructions",
+        dest="reconstructions",
         help="Series and reconstruction to convert (format seriesNumber:reconstructionNumber)")
     convert_parser.add_argument(
         "--transfer-syntax", "-t", type=lambda x: getattr(odil.registry, x),
@@ -125,13 +125,13 @@ def list_(source):
                 )
 
 def convert(
-        source, destination, series_and_reconstructions, transfer_syntax,
+        source, destination, reconstructions, transfer_syntax,
         layout, dicomdir, multiframe):
     """ Function that converts a source file (bruker) into a destination file (dicom)
 
         :param source: source file
         :param destination: destination file
-        :param series_and_reconstructions: series and reconstruction to convert inside the source file
+        :param reconstructions: series and reconstruction to convert inside the source file
         :param transfer_syntax: target transfer syntax
         :param dicomdir: Create a dicomdir or no
         :param multiframe: Whether generate dicom multiframe files or no
@@ -139,112 +139,20 @@ def convert(
     if os.path.isdir(destination) and len(os.listdir(destination)) > 0:
         dicomifier.logger.warning("{} is not empty".format(destination))
 
-    subjects = dicomifier.bruker.Directory.list_subjects(source)
+    directories = dicomifier.bruker.Directory.list_subjects(source)
+    
+    if reconstructions:
+        reconstructions = [
+            [int(x) for x in r.split(":")] for r in reconstructions]
 
     Writers = {
-        "nested": dicomifier.bruker_to_dicom.NestedDICOMWriter,
-        "flat": dicomifier.bruker_to_dicom.FlatDICOMWriter}
+        "nested": dicomifier.bruker_to_dicom.io.NestedDICOMWriter,
+        "flat": dicomifier.bruker_to_dicom.io.FlatDICOMWriter}
     writer = Writers[layout](destination, True, transfer_syntax)
     
-    for subject_source in subjects:
-        directory = dicomifier.bruker.Directory()
-        directory.load(subject_source)
-        
-        datasets = {}
-
-        # Create series and reconstruction if they are not given in parameters
-        if series_and_reconstructions is None:
-            everything = dicomifier.bruker.Directory.get_series_and_reco(subject_source)
-            for series, reconstructions in sorted(everything.items()):
-                for reconstruction in sorted(reconstructions):
-                    bruker_data_set = directory.get_dataset(
-                        "{}{:04d}".format(series, int(reconstruction)))
-                    bruker_dict = {k:v.value for k,v in bruker_data_set.items()}
-                    
-                    type_id = bruker_dict.get("VisuSeriesTypeId", ["UNKNOWN"])[0]
-                    if not type_id.startswith("ACQ_"):
-                        dicomifier.logger.warning(
-                            "Skipping {}:{} - {} ({}): type is {}".format(
-                                series, reconstruction,
-                                bruker_dict.get("VisuAcquisitionProtocol", ["(none)"])[0],
-                                bruker_dict.get("RECO_mode", ["none"])[0],
-                                type_id
-                        ))
-                        continue
-                    datasets[(series, reconstruction)] = bruker_dict
-        else: # Use series & reco given in parameters
-            parsed = {}
-            for entry in series_and_reconstructions:
-                series, reconstruction = entry.split(":")
-                if (series, reconstruction) not in datasets:
-                    bruker_data_set = directory.get_dataset(
-                        "{}{:04d}".format(series, int(reconstruction)))
-                    bruker_dict = {k:v.value for k,v in bruker_data_set.items()}
-                    datasets[(series, reconstruction)] = bruker_dict
-
-        converters = {
-            ("MR", False): dicomifier.bruker_to_dicom.mr_image_storage,
-            ("MR", True): dicomifier.bruker_to_dicom.enhanced_mr_image_storage
-        }
-
-        for (series, reconstruction), dataset in sorted(datasets.items()):
-            try:
-                modality = None
-                if "VisuInstanceModality" in dataset:
-                    modality = dataset.get("VisuInstanceModality")[0]
-                else:
-                    dicomifier.logger.info(
-                        "reconstruction {}:{} - "
-                        "VisuInstanceModality not found in bruker file, "
-                        "MRI will be used by default".format(
-                            series, reconstruction))
-                    modality = "MR"
-                
-                dicomifier.bruker_to_dicom.convert_reconstruction(
-                    directory, series, reconstruction,
-                    dataset,
-                    converters[(modality, multiframe)], writer)
-                
-            except Exception as e:
-                dicomifier.logger.error(
-                    "Could not convert {}:{} - {}".format(
-                        series, reconstruction, e))
-                dicomifier.logger.debug("Stack trace", exc_info=True)
-
-        if dicomdir and writer.files:
-            create_dicomdir(
-                writer.files, destination, [], [], ["SeriesDescription:3"], [])
-
-def create_dicomdir(
-        names, directory, patient_key, study_key, series_key, image_key):
-    files = []
-    for name in names:
-        if os.path.isfile(name):
-            files.append(os.path.abspath(name))
-        elif os.path.isdir(name):
-            for dirpath, _, filenames in os.walk(name):
-                dirpath = os.path.abspath(dirpath)
-                files.extend(os.path.join(dirpath, x) for x in filenames)
-
-    directory = os.path.abspath(directory)
-    if not all(x.startswith(directory) for x in files):
-        raise Exception("All files must be under {}".format(directory))
-
-    files = [x[len(directory)+1:] for x in files]
-
-    keys = {}
-    for level in ["patient", "study", "series", "image"]:
-        for entry in locals()["{}_key".format(level)]:
-            if ":" in entry:
-                tag, type_ = entry.split(":")
-            else:
-                tag, type_ = entry, "3"
-            tag = getattr(odil.registry, tag)
-            type_ = int(type_)
-            keys.setdefault(level.upper(), []).append((tag, type_))
-    
-    creator = odil.BasicDirectoryCreator(directory, files, keys)
-    creator()
+    for path in directories:
+        dicomifier.bruker_to_dicom.convert.convert_directory(
+            path, destination, reconstructions, dicomdir, multiframe, writer)
 
 if __name__ == "__main__": 
     sys.exit(main())

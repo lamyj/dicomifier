@@ -7,63 +7,78 @@
 #########################################################################
 
 import datetime
+import itertools
 import re
 
 import dateutil
 import odil
 
 from .. import bruker, logger
+from . import io
 
-try:
-    unicode
-except NameError:
-    unicode = str
-
-# explicit conversions
-def _convert_date_time(value, format_):
-    expressions = [
-        r"^(?P<year>\d{4})-(?P<month>\d{2})-(?P<day>\d{2})"
-            r"[ T]"
-            r"(?P<hour>\d{2}):(?P<minute>\d{2}):(?P<second>\d{2})"
-            r"(?:[.,](?P<microsecond>\d{,6}))?"
-            r"(?P<tzinfo>\+\w+)?", 
-        r"(?P<year>\d{4})(?P<month>\d{2})(?P<day>\d{2})",
-    ]
-    date_time = None
-    for expression in expressions:
-        match = re.match(expression, value)
-        if match:
-            groups = match.groupdict()
-            
-            if "microsecond" in groups:
-                groups["microsecond"] += (6-len(groups["microsecond"]))*"0"
-            elements = {
-                g: int(v) for g,v in groups.items()
-                if v is not None and g != "tzinfo" }
-            tzinfo = groups.get("tzinfo")
-            
-            if tzinfo:
-                elements["tzinfo"] = datetime.datetime.strptime(tzinfo, "%z").tzinfo
-            
-            date_time = datetime.datetime(**elements)
-            
-            break
-    if date_time is None:
-        date_time = dateutil.parser.parse(value.replace(",", "."))
+def convert_directory(
+        source, destination, reconstructions, dicomdir, multiframe, writer):
     
-    return date_time.strftime(format_)
+    # NOTE import the IODs module later to avoid cross-dependence
+    from . import iods
+    
+    directory = bruker.Directory()
+    directory.load(source)
+    
+    # Create series and reconstruction if they are not given in parameters
+    if reconstructions is None:
+        everything = bruker.Directory.get_series_and_reco(source)
+        reconstructions = list(
+            itertools.chain.from_iterable(
+                itertools.product([int(s)], r) for s,r in everything.items()))
 
-vr_converters = {
-    odil.VR.DA: lambda x: _convert_date_time(x, "%Y%m%d") if x else x,
-    odil.VR.DS: lambda x: float(x),
-    odil.VR.DT: lambda x: _convert_date_time(x, "%Y%m%d%H%M%S") if x else x,
-    odil.VR.FD: lambda x: float(x),
-    odil.VR.FL: lambda x: float(x),
-    odil.VR.IS: lambda x: int(x),
-    odil.VR.SS: lambda x: int(x),
-    odil.VR.TM: lambda x: _convert_date_time(x, "%H%M%S") if x else x,
-    odil.VR.US: lambda x: int(x),
-}
+    datasets = {}
+    for series, reconstruction in sorted(reconstructions):
+        dataset = directory.get_dataset(
+            "{}{:04d}".format(series, int(reconstruction)))
+        dataset = {k: v.value for k,v in dataset.items()}
+            
+        type_id = dataset.get("VisuSeriesTypeId", [""])[0]
+        if not type_id.startswith("ACQ_"):
+            logger.warning(
+                "Skipping {}:{} - {} ({}): type is {}".format(
+                    series, reconstruction,
+                    dataset.get("VisuAcquisitionProtocol", ["(none)"])[0],
+                    dataset.get("RECO_mode", ["none"])[0],
+                    type_id))
+            continue
+        datasets[(series, reconstruction)] = dataset
+
+    converters = {
+        ("MR", False): iods.mr_image_storage,
+        ("MR", True): iods.enhanced_mr_image_storage
+    }
+
+    for (series, reconstruction), dataset in sorted(datasets.items()):
+        try:
+            modality = dataset.get("VisuInstanceModality", [None])[0]
+            if not modality:
+                logger.info(
+                    "reconstruction {}:{} - "
+                    "VisuInstanceModality not found in bruker file, "
+                    "MRI will be used by default".format(
+                        series, reconstruction))
+                modality = "MR"
+            
+            convert_reconstruction(
+                directory, series, reconstruction,
+                dataset,
+                converters[(modality, multiframe)], writer)
+            
+        except Exception as e:
+            logger.error(
+                "Could not convert {}:{} - {}".format(
+                    series, reconstruction, e))
+            logger.debug("Stack trace", exc_info=True)
+
+    if dicomdir and writer.files:
+        io.create_dicomdir(
+            writer.files, destination, [], [], ["SeriesDescription:3"], [])
 
 def convert_reconstruction(
         bruker_directory, series, reconstruction,
@@ -145,11 +160,51 @@ def convert_element(
             value = [setter[x] for x in value]
         elif setter is not None:
             value = setter(value)
-
-        vr_converter = vr_converters.get(vr)
-        if vr_converter is not None :
-            value = [vr_converter(x) for x in value]
+        
+        if odil.is_int(vr):
+            value = [int(x) for x in value]
+        elif odil.is_real(vr):
+            value = [float(x) for x in value]
+        elif vr == odil.VR.DA:
+            value = [_convert_date_time(x, "%Y%m%d") for x in value]
+        elif vr == odil.VR.DT:
+            value = [_convert_date_time(x, "%Y%m%d%H%M%S") for x in value]
+        elif vr == odil.VR.TM:
+            value = [_convert_date_time(x, "%H%M%S") for x in value]
         
         dicom_data_set.add(tag, value, vr)
     
     return value
+
+def _convert_date_time(value, format_):
+    expressions = [
+        r"^(?P<year>\d{4})-(?P<month>\d{2})-(?P<day>\d{2})"
+            r"[ T]"
+            r"(?P<hour>\d{2}):(?P<minute>\d{2}):(?P<second>\d{2})"
+            r"(?:[.,](?P<microsecond>\d{,6}))?"
+            r"(?P<tzinfo>\+\w+)?", 
+        r"(?P<year>\d{4})(?P<month>\d{2})(?P<day>\d{2})",
+    ]
+    date_time = None
+    for expression in expressions:
+        match = re.match(expression, value)
+        if match:
+            groups = match.groupdict()
+            
+            if "microsecond" in groups:
+                groups["microsecond"] += (6-len(groups["microsecond"]))*"0"
+            elements = {
+                g: int(v) for g,v in groups.items()
+                if v is not None and g != "tzinfo" }
+            tzinfo = groups.get("tzinfo")
+            
+            if tzinfo:
+                elements["tzinfo"] = datetime.datetime.strptime(tzinfo, "%z").tzinfo
+            
+            date_time = datetime.datetime(**elements)
+            
+            break
+    if date_time is None:
+        date_time = dateutil.parser.parse(value.replace(",", "."))
+    
+    return date_time.strftime(format_)
