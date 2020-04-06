@@ -1,3 +1,11 @@
+#########################################################################
+# Dicomifier - Copyright (C) Universite de Strasbourg
+# Distributed under the terms of the CeCILL-B license, as published by
+# the CEA-CNRS-INRIA. Refer to the LICENSE file or to
+# http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html
+# for details.
+#########################################################################
+
 from .flat_dicom_writer import FlatDICOMWriter
 from .nested_dicom_writer import NestedDICOMWriter
 
@@ -5,13 +13,23 @@ import os
 import odil
 
 def create_dicomdir(
-        names, directory, patient_key, study_key, series_key, image_key):
+        paths, directory, patient_key, study_key, series_key, image_key):
+    """ Create a DICOMDIR from all files found in paths.
+        
+        :param paths: list of DICOM files and directories storing DICOM files
+        :param directory: destination directory of the DICOMDIR
+        :param patient_key: patient-level keys to add to the DICOMDIR
+        :param study_key: study-level keys to add to the DICOMDIR
+        :param series_key: series-level keys to add to the DICOMDIR
+        :param image_key: image-level keys to add to the DICOMDIR
+    """
+    
     files = []
-    for name in names:
-        if os.path.isfile(name):
-            files.append(os.path.abspath(name))
-        elif os.path.isdir(name):
-            for dirpath, _, filenames in os.walk(name):
+    for path in paths:
+        if os.path.isfile(path):
+            files.append(os.path.abspath(path))
+        elif os.path.isdir(path):
+            for dirpath, _, filenames in os.walk(path):
                 dirpath = os.path.abspath(dirpath)
                 files.extend(os.path.join(dirpath, x) for x in filenames)
 

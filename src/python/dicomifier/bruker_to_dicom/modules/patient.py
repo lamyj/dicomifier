@@ -6,7 +6,7 @@
 # for details.
 #########################################################################
 
-Patient= [ # http://dicom.nema.org/medical/dicom/current/output/chtml/part03/sect_C.7.html#sect_C.7.1.1
+Patient= [ # PS 3.3, C.7.1.1
     ("VisuSubjectName", "PatientName", 2, None, None),
     ("VisuSubjectId", "PatientID", 2, None, None),
     ("VisuSubjectBirthDate", "PatientBirthDate", 2, None, None),

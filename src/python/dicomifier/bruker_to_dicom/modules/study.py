@@ -6,7 +6,7 @@
 # for details.
 #########################################################################
 
-GeneralStudy = [ # http://dicom.nema.org/medical/dicom/current/output/chtml/part03/sect_C.7.2.html#sect_C.7.2.1
+GeneralStudy = [ # PS 3.3, C.7.2.1
     ("VisuStudyUid", "StudyInstanceUID", 1, None, None),
     ("VisuStudyDate", "StudyDate", 2, None, None),
     ("VisuStudyDate", "StudyTime", 2, None, None),
@@ -16,7 +16,7 @@ GeneralStudy = [ # http://dicom.nema.org/medical/dicom/current/output/chtml/part
     ("VisuStudyId", "StudyDescription", 3, None, None),
 ]
 
-PatientStudy = [ # http://dicom.nema.org/medical/dicom/current/output/chtml/part03/sect_C.7.2.2.html
+PatientStudy = [ # PS 3.3, C.7.2.2.html
     ("VisuSubjectWeight", "PatientWeight", 3, None, None),
     (None, "PatientSexNeutered", 2, lambda d,g,i: None, None),
 ]

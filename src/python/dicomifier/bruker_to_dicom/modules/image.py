@@ -13,7 +13,7 @@ import re
 import numpy
 import odil
 
-def _get_acquisition_number(data_set, generator, frame_index):
+def get_acquisition_number(data_set, generator, frame_index):
     index = [
         x for g, x in zip(generator.frame_groups, frame_index)
         if g[1] != "FG_SLICE"]
@@ -24,7 +24,7 @@ def _get_acquisition_number(data_set, generator, frame_index):
 
     return [acquisition_number]
 
-def _get_pixel_data(data_set, generator, frame_index):
+def get_pixel_data(data_set, generator, frame_index):
     """ Read the pixel data and return the given frame.
         This function MUST be called before converting VisuCoreDataOffs and 
         VisuCoreDataSlope.
@@ -82,142 +82,28 @@ def _get_pixel_data(data_set, generator, frame_index):
     
     return [bytearray(frame_data.tobytes())]
 
-def _get_direction(data_set):
-    return [
-        _get_direction_and_b_value(data_set, x)[0] 
-        for x in numpy.reshape(data_set["PVM_DwBMat"], (-1, 3, 3))]
-
-def _get_b_value(data_set):
-    return [
-        _get_direction_and_b_value(data_set, x)[1] 
-        for x in numpy.reshape(data_set["PVM_DwBMat"], (-1, 3, 3))]
-
-def _get_direction_and_b_value(data_set, b_matrix):
-    # Adapted from https://github.com/BRAINSia/BRAINSTools/blob/92cbbec97a8100a38bc019b30591f7c0f9a26951/DWIConvert/SiemensDWIConverter.h
-    # FIXME: find a reference to support this
-    
-    ideal_b_values = set(data_set["PVM_DwBvalEach"])
-    ideal_b_values.add(0)
-    ideal_b_values = list(ideal_b_values)
-    
-    b_value = numpy.trace(b_matrix)
-    b_value_distances = [abs(b_value - x) for x in ideal_b_values]
-    ideal_b_value = ideal_b_values[numpy.argmin(b_value_distances)]
-    
-    direction = numpy.linalg.eigh(b_matrix)[1][:,-1]
-    if ideal_b_value == 0:
-        ideal_direction = direction
-    else:
-        ideal_directions = numpy.reshape(data_set["PVM_DwDir"], [-1, 3])
-        direction_dot = [
-            numpy.abs(numpy.dot(direction, x)) for x in ideal_directions]
-        ideal_direction = ideal_directions[numpy.argmax(direction_dot)]
-    
-    return ideal_direction.astype(float), float(ideal_b_value)
-
-def _set_diffusion_gradient(value):
-    """ Return an odil DataSet containing the DiffusionGradientDiffusion element
-        required for the DiffusionGradientDirectionSequence
-    """
-    
-    result = odil.DataSet()
-    result.add("DiffusionGradientOrientation", value)
-    return result
-
-def _set_diffusion_b_matrix(matrix):
-    """ Return an odil DataSet containing all required elements for
-        the Diffusion B-Matrix Sequence
-    """
-    result = odil.DataSet()
-    result.add("DiffusionBValueXX", [matrix[0][0, 0]])
-    result.add("DiffusionBValueXY", [matrix[0][0, 1]])
-    result.add("DiffusionBValueXZ", [matrix[0][0, 2]])
-    result.add("DiffusionBValueYY", [matrix[0][1, 1]])
-    result.add("DiffusionBValueYZ", [matrix[0][1, 2]])
-    result.add("DiffusionBValueZZ", [matrix[0][2, 2]])
-    return result
-
-def _get_echo_time (data_set):
-    echo_time = None
-    # WARNING : keep this order to have the main priority for the visu_pars file
-    values = [
-        data_set.get("PVM_EchoTime", None),
-        data_set.get("VisuAcqEchoTime", None),
-    ]
-    for i, v in enumerate(values):
-        if v is not None:
-            echo_time = v
-    return echo_time
-
-def _get_repetition_time (data_set):
-    rep_time = None
-    # WARNING : keep this order to have the main priority for the visu_pars file
-    values = [
-        data_set.get("MultiRepTime", None),
-        data_set.get("PVM_RepetitionTime", None),
-        data_set.get("VisuAcqRepetitionTime", None),
-    ]
-    for i, v in enumerate(values):
-        if v is not None:
-            rep_time = v
-    return rep_time
-
-def _get_echo_pulse_sequence (data_set, generator, frame_index):
-    if "VisuAcqEchoSequenceType" in data_set:
-        return [data_set["VisuAcqEchoSequenceType"][0].replace("Echo","").upper()]
-    else:
-        return None
-
-def _get_time_of_flight_contrast(data_set, generator, frame_index):
-    if "VisuAcqHasTimeOfFlightContrast" in data_set:
-        return [data_set["VisuAcqHasTimeOfFlightContrast"][0].upper()]
-    else:
-        return None
-
-def _get_echo_planar_pulse_seq(data_set, generator, frame_index):
-    if "VisuAcqIsEpiSequence" in data_set:
-        return [data_set["VisuAcqIsEpiSequence"][0].upper()]
-    else:
-        return None
-
-def _get_spectrally_selected_suppression(data_set, generator, frame_index):
-    if "VisuAcqSpectralSuppression" in data_set:
-        return [data_set["VisuAcqSpectralSuppression"][0].replace("Suppression","").upper()]
-    else:
-        return None
-
-def _get_geometry_of_kSpace_traversal(data_set, generator, frame_index):
-    if "VisuAcqKSpaceTraversal" in data_set:
-        return [data_set["VisuAcqKSpaceTraversal"][0].replace("Transversal","").upper()]
-    else:
-        return None
-
-def _get_frame_index(bruker_data_set, generator, frame_index):
-    purpose = odil.DataSet()
-    purpose.add("CodeValue", ["109102"])
-    purpose.add("CodingSchemeDesignator", ["DCM"])
-    purpose.add("CodeMeaning", ["Processing Equipment"])
-    
-    data_set = odil.DataSet()
-    data_set.add("PurposeOfReferenceCodeSequence", [purpose])
-    data_set.add("Manufacturer", ["Dicomifier"])
-    data_set.add("ManufacturerModelName", ["Bruker Frame Group index"])
+def get_frame_index(generator, frame_index):
     contribution = [
         [fg[1], frame_index[i]]
         for i, fg in enumerate(generator.frame_groups) 
         if fg[1] != 'FG_SLICE']
-    data_set.add("ContributionDescription", [json.dumps(contribution)])
-    
-    return data_set
+        
+    return odil.DataSet(
+        PurposeOfReferenceCodeSequence=[odil.DataSet(
+            CodeValue=["109102"], CodingSchemeDesignator=["DCM"],
+            CodeMeaning=["Processing Equipment"])],
+        Manufacturer=["Dicomifier"], 
+        ManufacturerModelName=["Bruker Frame Group index"],
+        ContributionDescription=[json.dumps(contribution)])
 
-GeneralImage = [ # http://dicom.nema.org/medical/dicom/current/output/chtml/part03/sect_C.7.6.html#sect_C.7.6.1
+GeneralImage = [ # PS 3.3, C.7.6.1
     (None, "InstanceNumber", 2, lambda d,g,i: [1+g.get_linear_index(i)], None),
     (
         None, "ImageType", 3, 
         lambda d,g,i: [
             b"ORIGINAL", b"PRIMARY", b"", 
             d["RECO_image_type"][0].encode("utf-8")], None),
-    (None, "AcquisitionNumber", 3, _get_acquisition_number, None),
+    (None, "AcquisitionNumber", 3, get_acquisition_number, None),
     ("VisuAcqDate", "AcquisitionDate", 3, None, None),
     ("VisuAcqDate", "AcquisitionTime", 3, None, None),
     (
@@ -230,7 +116,7 @@ GeneralImage = [ # http://dicom.nema.org/medical/dicom/current/output/chtml/part
     ),
 ]
 
-ImagePlane = [ # http://dicom.nema.org/medical/dicom/current/output/chtml/part03/sect_C.7.6.2.html
+ImagePlane = [ # PS 3.3, C.7.6.2
     (
         None, "PixelSpacing", 1,
         lambda d,g,i: numpy.divide(
@@ -252,7 +138,7 @@ ImagePlane = [ # http://dicom.nema.org/medical/dicom/current/output/chtml/part03
     ("VisuCoreFrameThickness", "SliceThickness", 2, None, None)
 ]
 
-ImagePixel = [ # http://dicom.nema.org/medical/dicom/current/output/chtml/part03/sect_C.7.6.3.html
+ImagePixel = [ # PS 3.3, C.7.6.3
     (None, "SamplesPerPixel", 1, lambda d,g,i: [1], None),
     (None, "PhotometricInterpretation", 1, lambda d,g,i: ["MONOCHROME2"], None),
     ("VisuCoreSize", "Rows", 1, lambda d,g,i: [d["VisuCoreSize"][1]], None),
@@ -288,7 +174,7 @@ ImagePixel = [ # http://dicom.nema.org/medical/dicom/current/output/chtml/part03
             "_32BIT_FLOAT": 0, # mapped to uint32 
             "_32BIT_SGN_INT": 1, "_16BIT_SGN_INT": 1, "_8BIT_UNSGN_INT": 0}
     ),
-    (None, "PixelData", 1, _get_pixel_data, None),
+    (None, "PixelData", 1, get_pixel_data, None),
     # WARNING SmallestImagePixelValue and LargestImagePixelValue are either US
     # or SS and thus cannot accomodate 32 bits values. Use WindowCenter and
     # WindowWidth instead.
@@ -311,36 +197,7 @@ ImagePixel = [ # http://dicom.nema.org/medical/dicom/current/output/chtml/part03
     ),
 ]
 
-MRImage = [ # http://dicom.nema.org/medical/dicom/current/output/chtml/part03/sect_C.8.3.html#sect_C.8.3.1
-    (None, "ScanningSequence", 1, lambda d,g,i: ["RM"], None),
-    (None, "SequenceVariant", 1, lambda d,g,i: ["NONE"], None),
-    (None, "ScanOptions", 2, lambda d,g,i: None, None),
-    ("PVM_SpatDimEnum", "MRAcquisitionType", 2, None, None),
-    ("VisuAcqRepetitionTime", "RepetitionTime", 2, lambda d,g,i: _get_repetition_time(d), None),
-    ("VisuAcqEchoTime", "EchoTime", 2, None, None),
-    ("VisuAcqEchoTrainLength", "EchoTrainLength", 2, None, None),
-    ("VisuAcqInversionTime", "InversionTime", 3, None, None),
-    ("VisuAcqSequenceName", "SequenceName", 3, None, None),
-    ("VisuAcqNumberOfAverages", "NumberOfAverages", 3, None, None),
-    ("VisuAcqImagingFrequency", "ImagingFrequency", 3, None, None),
-    ("VisuAcqImagedNucleus", "ImagedNucleus", 3, None, None),
-    (
-        "VisuAcqImagingFrequency", "MagneticFieldStrength", 3, None,
-        lambda x: [float(x[0])/42.577480610]
-    ),
-    (
-        None, "SpacingBetweenSlices", 3,
-        lambda d,g,i: [numpy.linalg.norm(
-            numpy.subtract(d["VisuCorePosition"][3:6], d["VisuCorePosition"][0:3]
-        ))] if len(d["VisuCorePosition"]) >= 6 else None, 
-        None
-    ),
-    ("VisuAcqPhaseEncSteps", "NumberOfPhaseEncodingSteps", 3, None, None),
-    ("VisuAcqPixelBandwidth", "PixelBandwidth", 3, None, None),
-    ("VisuAcqFlipAngle", "FlipAngle", 3, None, None),
-]
-
-PixelValueTransformation = [ # http://dicom.nema.org/medical/dicom/current/output/chtml/part03/sect_C.7.6.16.2.html#sect_C.7.6.16.2.9
+PixelValueTransformation = [ # PS 3.3, C.7.6.16.2.9
     (
         "VisuCoreDataOffs", "RescaleIntercept", 1,
         lambda d,g,i: [d["VisuCoreDataOffs"][g.get_linear_index(i)]], None
@@ -352,93 +209,111 @@ PixelValueTransformation = [ # http://dicom.nema.org/medical/dicom/current/outpu
     (None, "RescaleType", 1, lambda d,g,i: ["US"], None),
 ]
 
-
-MRDiffusion = [ # http://dicom.nema.org/medical/dicom/current/output/chtml/part03/sect_C.8.13.5.9.html
-    (
-        "VisuAcqDiffusionBMatrix", "DiffusionBValue", 1,
-        lambda d,g,i: _get_b_value(d), None
-    ),
-    (None, "DiffusionDirectionality", 1, lambda d,g,i: ["BMATRIX"], None),
-    (
-        "VisuAcqDiffusionBMatrix", "DiffusionGradientDirectionSequence", 1,
-        lambda d,g,i: _get_direction(d), 
-        lambda x: [_set_diffusion_gradient(numpy.asarray(x).ravel().tolist())]
-    ),
-    (
-        "VisuAcqDiffusionBMatrix", "DiffusionBMatrixSequence", 1,
-        lambda d,g,i: numpy.reshape(d["PVM_DwBMat"], (-1, 3, 3)),
-        lambda x: [_set_diffusion_b_matrix(x)]
-    )
-]
-
-SOPCommon = [ # http://dicom.nema.org/medical/dicom/current/output/chtml/part03/sect_C.12.html#sect_C.12.1
+SOPCommon = [ # PS 3.3, C.12.1
     (None, "SOPInstanceUID", 1, lambda d,g,i: [odil.generate_uid()], None),
     #SpecificCharacterSet
-    (None, "InstanceCreationDate", 3, lambda d,g,i: [str(datetime.datetime.now())], None),
-    (None, "InstanceCreationTime", 3, lambda d,g,i: [str(datetime.datetime.now())], None),
+    (
+        None, "InstanceCreationDate", 3, 
+        lambda d,g,i: [str(datetime.datetime.now())], None),
+    (
+        None, "InstanceCreationTime", 3, 
+        lambda d,g,i: [str(datetime.datetime.now())], None),
 ]
 
-
-# Below -> new image modules for enhanced image storage
-
-MutliFrameFunctionalGroups = [#http://dicom.nema.org/medical/dicom/current/output/chtml/part03/sect_C.7.6.16.html
+MutliFrameFunctionalGroups = [ # PS 3.3, C.7.6.16
     ("VisuCoreFrameCount", "NumberOfFrames", 1, None, None),
     (None, "ContentDate", 1, lambda d,g,i: [str(datetime.datetime.now())], None),
     (None, "ContentTime", 1, lambda d,g,i: [str(datetime.datetime.now())], None),
-    (None, "InstanceNumber", 1, lambda d,g,i: [1], None), # Same as in GeneralImage but type 1 here
+    (None, "InstanceNumber", 1, lambda d,g,i: [1], None),
 ]
 
-MultiFrameDimension = [#http://dicom.nema.org/medical/dicom/current/output/chtml/part03/sect_C.7.6.17.html
+MultiFrameDimension = [ # PS 3.3, C.7.6.17
     (None, "DimensionOrganizationSequence", 1, lambda d,g,i: [], None),
     (None, "DimensionIndexSequence", 1, lambda d,g,i: [], None),
 ]
 
-AcquisitionContext = [#http://dicom.nema.org/medical/dicom/current/output/chtml/part03/sect_C.7.6.14.html
+AcquisitionContext = [ # PS 3.3, C.7.6.14
     (None, "AcquisitionContextSequence", 1, lambda d,g,i: [], None),
 ]
 
-EnhancedMRImage = [#http://dicom.nema.org/medical/dicom/current/output/chtml/part03/sect_C.8.13.html#sect_C.8.13.1
-    (None, "ImageType", 3, # Same as in GeneralImage but type is 1 here
-    lambda d,g,i: [
-        b"ORIGINAL", b"PRIMARY", b"", 
-        d["RECO_image_type"][0].encode("ascii")], None),
-    (None, "PixelPresentation", 1, lambda d,g,i: ["MONOCHROME"], None),
-    (None, "VolumetricProperties", 1, lambda d,g,i: ["VOLUME"], None),
-    (None, "VolumeBasedCalculationTechnique", 1, lambda d,g,i : ["NONE"], None),
-    ("VisuAcqImagedNucleus", "ResonantNucleus", 3, None, None),
-    ("VisuAcqDate", "AcquisitionDateTime", 3, None, None),
-    (
-        "VisuAcqImagingFrequency", "MagneticFieldStrength", 3, None,
-        lambda x: [float(x[0])/42.577480610]
-    ),
+PixelMeasures = [ # PS 3.3, C.7.6.16.2.1
+    "PixelMeasuresSequence", False,
+    [
+        (
+            None, "PixelSpacing", 3,
+                    lambda d,g,i: numpy.divide(
+                        numpy.asarray(d["VisuCoreExtent"], float),
+                        numpy.asarray(d["VisuCoreSize"], float)
+                    ).tolist(),
+            None
+        ),
+        ("VisuCoreFrameThickness", "SliceThickness", 3, None, None),
+        (
+            None, "SpacingBetweenSlices", 3,
+            lambda d,g,i: [
+                numpy.linalg.norm(
+                    numpy.subtract(
+                        d["VisuCorePosition"][3:6], d["VisuCorePosition"][0:3]))]
+                if len(d["VisuCorePosition"]) >= 6 else None,
+            None
+        ),
+    ]
 ]
 
-MRPulseSequence = [#http://dicom.nema.org/medical/dicom/current/output/chtml/part03/sect_C.8.13.4.html
-    ("PVM_SpatDimEnum", "MRAcquisitionType", 3, None, None),
-    ("VisuAcqEchoSequenceType", "EchoPulseSequence", 3,
-        _get_echo_pulse_sequence, None
-    ),
-    # (None, "MultipleSpinEcho", 3, None, None),
-    # (None, "MultiPlanarExcitation", 3, None, None),
-    # (None, "PhaseContrast", 3, None, None),
-    ("VisuAcqHasTimeOfFlightContrast", "TimeOfFlightContrast", 3,
-        _get_time_of_flight_contrast, None
-    ),
-    # (None, "ArterialSpinLabelingContrast", 3, None, None),
-    # (None, "SteadyStatePulseSequence", 3, None, None),
-    ("VisuAcqIsEpiSequence", "EchoPlanarPulseSequence", 3,
-        _get_echo_planar_pulse_seq, None
-    ),
-    # (None, "SaturationRecovery", 3, None, None),
-    ("VisuAcqSpectralSuppression", "SpectrallySelectedSuppression", 3,
-        _get_spectrally_selected_suppression, None
-    ),
-    # (None, "OversamplingPhase", 3, None, None),
-    ("VisuAcqKSpaceTraversal", "GeometryOfKSpaceTraversal", 3,
-        _get_geometry_of_kSpace_traversal, None
-    ),
-    # (None, "RectilinearPhaseEncodeReordering", 3, None, None),
-    # (None, "SegmentedKSpaceTraversal", 3, None, None),
-    # (None, "CoverageOfKSpace", 3, None, None),
-    ("VisuAcqKSpaceTrajectoryCnt", "NumberOfKSpaceTrajectories", 3, None, None),
+FrameContent = [ # PS 3.3, C.7.6.16.2.2
+    "FrameContentSequence", True,
+    [
+        (None, "FrameAcquisitionNumber", 3, get_acquisition_number, None),
+        (
+            None, "FrameLabel", 3, 
+            lambda d, g, i: 
+                get_frame_index(g, i)[odil.registry.ContributionDescription], 
+            None)
+    ]
+]
+
+PlanePosition = [ # PS 3.3, C.7.6.16.2.3
+    "PlanePositionSequence", False,
+    [
+        (
+            "VisuCorePosition", "ImagePositionPatient", 1,
+            lambda d,g,i: numpy.reshape(d["VisuCorePosition"], (-1, 3)),
+            lambda x: x[0].tolist()
+        ),
+    ]
+]
+
+PlaneOrientation = [ # PS 3.3, C.7.6.16.2.4
+    "PlaneOrientationSequence", False,
+    [
+        (
+            "VisuCoreOrientation", "ImageOrientationPatient", 1,
+            lambda d,g,i: numpy.reshape(d["VisuCoreOrientation"], (-1, 9)),
+            lambda x: x[0][:6].tolist()
+        ),
+    ]
+]
+
+FrameAnatomy = [ # PS 3.3, C.7.6.16.2.8
+    "FrameAnatomySequence", False,
+    [
+        #WARNING FrameLaterality not handled correctly for the moment
+        (None, "FrameLaterality", 1, lambda d,g,i: ["U"], None),
+        (None, "AnatomicRegionSequence", 1, lambda d,g,i: [], None),
+    ]
+]
+
+PixelValueTransformation = [ # PS 3.3, C.7.6.16.2.9
+    "PixelValueTransformationSequence", False,
+    [
+        (
+            "VisuCoreDataOffs", "RescaleIntercept", 1,
+            lambda d,g,i: [d["VisuCoreDataOffs"][g.get_linear_index(i)]], None
+        ),
+        (
+            "VisuCoreDataSlope", "RescaleSlope", 1,
+            lambda d,g,i: [d["VisuCoreDataSlope"][g.get_linear_index(i)]], None
+        ),
+        (None, "RescaleType", 1, lambda d,g,i: ["US"], None),
+    ]
 ]

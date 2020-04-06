@@ -8,7 +8,7 @@
 
 import functools
 
-GeneralEquipment = [ # http://dicom.nema.org/medical/dicom/current/output/chtml/part03/sect_C.7.5.html#sect_C.7.5.1
+GeneralEquipment = [ # PS 3.3, C.7.5.1
     ("ORIGIN", "Manufacturer", 2, None, None),
     ("VisuInstitution", "InstitutionName", 3, None, None),
     ("VisuStation", "StationName", 3, None, None),
@@ -24,12 +24,11 @@ GeneralEquipment = [ # http://dicom.nema.org/medical/dicom/current/output/chtml/
     ("VisuSystemOrderNumber", "DeviceSerialNumber", 3, None, None),
 ]
 
-# below -> new modules for enhanced image storage
-
-EnhancedGeneralEquipment = [
-    ("ORIGIN", "Manufacturer", 1, None, None), # Same as in GeneralEquipment but type 1 now
+EnhancedGeneralEquipment = [ # PS 3.3, C.7.5.2
+    ("ORIGIN", "Manufacturer", 1, None, None),
     ("VisuStation", "ManufacturerModelName", 1, None, None),
-    # WARNING : the device number seems to be missing in Paravision 5.1 it was consequently changed into type 2
+    # WARNING : the device number seems to be missing in Paravision 5.1 it was
+    # consequently changed into type 2
     ("VisuSystemOrderNumber", "DeviceSerialNumber", 2, None, None),
     (
         None, "SoftwareVersions", 1,

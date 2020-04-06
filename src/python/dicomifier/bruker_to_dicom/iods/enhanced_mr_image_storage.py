@@ -13,11 +13,10 @@ import os
 
 import odil
 
-from .. import patient, study, series, frame_of_reference, equipment, image
-from .. import frame_groups as fg
-from ..frame_index_generator import FrameIndexGenerator
-from ..convert import convert_element
-from .mr_image_storage import to_2d
+from ..modules import (
+    patient, study, series, frame_of_reference, equipment, image, mr)
+from .. import FrameIndexGenerator
+from .. import convert
 
 def enhanced_mr_image_storage(bruker_data_set, transfer_syntax):
     """ Convert bruker_data_set into dicom_data_set by using the correct 
@@ -30,19 +29,19 @@ def enhanced_mr_image_storage(bruker_data_set, transfer_syntax):
     """
 
     if int(bruker_data_set.get("VisuCoreDim", [0])[0]) == 3:
-        to_2d(bruker_data_set)
+        convert.to_2d(bruker_data_set)
 
-    vr_finder_object = odil.VRFinder()
-    vr_finder_function = lambda tag: vr_finder_object(
-        tag, helper, transfer_syntax)
-
-    helper = odil.DataSet()
     generator = FrameIndexGenerator(bruker_data_set)
     dicom_data_set = odil.DataSet(
         SpecificCharacterSet=["ISO_IR 192"],
         SharedFunctionalGroupsSequence=[odil.DataSet()],
         PerFrameFunctionalGroupsSequence=[
-            odil.DataSet() for _ in range(generator._get_frames_count())])
+            odil.DataSet() for _ in range(generator.frames_count)])
+    
+    vr_finder_object = odil.VRFinder()
+    vr_finder_function = lambda tag: vr_finder_object(
+        tag, dicom_data_set, transfer_syntax)
+    
 
     # Modules factory
     modules = [
@@ -55,66 +54,56 @@ def enhanced_mr_image_storage(bruker_data_set, transfer_syntax):
         image.MutliFrameFunctionalGroups,
         image.MultiFrameDimension,
         image.AcquisitionContext,
-        image.EnhancedMRImage,
-        image.MRPulseSequence,
+        mr.EnhancedMRImage,
+        mr.MRPulseSequence,
         image.SOPCommon + [(
             None, "SOPClassUID", 1, 
             lambda d,g,i: [odil.registry.EnhancedMRImageStorage], None)],
         image.ImagePixel,
     ]
 
-    framegroups = [
-        fg.PixelMeasures,
-        fg.FrameContent,
-        fg.PlanePosition,
-        fg.PlaneOrientation,
-        fg.FrameAnatomy,
-        fg.PixelValueTransformation,
-        fg.MRImageFrameType,
-        fg.MRTimingAndRelatedParameters,
-        fg.MREcho,
-        fg.MRModifier,
-        fg.MRImagingModifier,
-        fg.MRFOVGeometry,
-        fg.MRAverages
+    groups = [
+        image.PixelMeasures,
+        image.FrameContent,
+        image.PlanePosition,
+        image.PlaneOrientation,
+        image.FrameAnatomy,
+        image.PixelValueTransformation,
+        mr.MRImageFrameType,
+        mr.MRTimingAndRelatedParameters,
+        mr.MREcho,
+        mr.MRModifier,
+        mr.MRImagingModifier,
+        mr.MRFOVGeometry,
+        mr.MRAverages
     ]
 
     if "FG_DIFFUSION" in [x[1] for x in generator.frame_groups]:
-        framegroups.append(fg.MRDiffusion)
+        groups.append(mr.MRDiffusion)
 
-    # parse here classical modules
     for i, frame_index in enumerate(generator):
-        generator = itertools.chain(*modules)
-        for bruker_name, dicom_name, type_, getter, setter in generator:
-            value = convert_element(
-                bruker_data_set, dicom_data_set,
-                bruker_name, dicom_name, type_, getter, setter,
-                frame_index, generator, vr_finder_function
-            )
-            if dicom_name in ["BitsAllocated", "PixelRepresentation"]:
-                helper.add(getattr(odil.registry, dicom_name), value)
-
-        # parse here frame groups
-        for frame_g in framegroups :
-            fg_modules = frame_g.values()
-            d = odil.DataSet()
-            generator = itertools.chain(*fg_modules)
-            for bruker_name, dicom_name, type_, getter, setter in generator:
-                value = convert_element(
-                    bruker_data_set, d,
-                    bruker_name, dicom_name, type_, getter, setter,
-                    frame_index, generator, vr_finder_function
-                )
-            dicom_data_set[PerFrameFunctionalGroupsSequence][i].add(
-                next(iter(frame_g.keys()))[0], [d])
+        for module in modules:
+            convert.convert_module(
+                bruker_data_set, dicom_data_set, module,
+                frame_index, generator, vr_finder_function)
+        
+        for tag, _, module in groups:
+            child = odil.DataSet()
+            
+            convert.convert_module(
+                bruker_data_set, child, module,
+                frame_index, generator, vr_finder_function)
+            
+            dicom_data_set[
+                    odil.registry.PerFrameFunctionalGroupsSequence
+                ][i].add(tag, [child])
     
-    regroup_shared_data(dicom_data_set, framegroups)
-
-
+    merge_shared_groups(dicom_data_set, groups)
+    
     pixel_data_list = []
     for i, frame_index in enumerate(generator):
         pixel_data_list.append(
-            image._get_pixel_data(bruker_data_set, generator, frame_index)[0]
+            image.get_pixel_data(bruker_data_set, generator, frame_index)[0]
         )
 
     dicom_data_set.add(
@@ -132,41 +121,29 @@ def enhanced_mr_image_storage(bruker_data_set, transfer_syntax):
 
     return [dicom_data_set]
 
-def regroup_shared_data(dicom_data_set, framegroups):
-    """ Regroup data from the perFrame functional groups into SharedFunctionalGroups
-        using framegroups arg in order to know if the framegroup can be move or no
+def merge_shared_groups(dicom_data_set, groups):
+    """ Merge the per-frame groups which are identical across all frame and
+        store them in the shared-functional groups.
     """
 
     per_frame = dicom_data_set[odil.registry.PerFrameFunctionalGroupsSequence]
-    shared = dicom_data_set[odil.registry.SharedFunctionalGroupsSequence][0]
     number_of_frames = dicom_data_set[odil.registry.NumberOfFrames][0]
 
-    top_sequences = [
-        x[0] for x in [next(iter(y.keys())) for y in framegroups] 
-        if x[1] is False]
+    shared_sequences = [
+        tag for tag, per_frame_only, _ in groups
+        if not per_frame_only]
 
-    seq_data_sets = {}
+    groups_data_sets = {}
     for i in range(number_of_frames):
-        current_data_set = per_frame[i]
-        for tag, elem in current_data_set.items():
-            if tag.get_name() in top_sequences:
-                seq_data_sets.setdefault(tag.get_name(), {})[i] = current_data_set[tag][0]
+        data_set = per_frame[i]
+        for tag, elem in data_set.items():
+            if tag.get_name() in shared_sequences:
+                groups_data_sets.setdefault(tag, []).append(data_set[tag][0])
 
-    for name, data_sets in seq_data_sets.items():
-        # Check whether all values are the same
-        all_equal = True
-        sample = data_sets[0]
-        for i in range(number_of_frames):
-            value = data_sets.get(i)
-            if value != sample:
-                all_equal = False
-                break
-
+    shared = dicom_data_set[odil.registry.SharedFunctionalGroupsSequence][0]
+    for name, data_sets in groups_data_sets.items():
+        all_equal = (data_sets.count(data_sets[0]) == len(data_sets))
         if all_equal :
-            shared.add(name,[sample])
-            # delete tag in the corresponding PerFrame elements
+            shared.add(name, [data_sets[0]])
             for data_set in per_frame:
                 data_set.remove(name)
-        else :
-            #Nothing to do
-            continue

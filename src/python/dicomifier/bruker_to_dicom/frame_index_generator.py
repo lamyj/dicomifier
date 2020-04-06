@@ -15,23 +15,28 @@ class FrameIndexGenerator(object):
     """
     
     def __init__(self, data_set):
-        """ Constructor.
-        """
-        
-        self.frame_groups = FrameIndexGenerator._get_frame_groups(data_set)
+        frame_groups = []
+        for description in data_set.get("VisuFGOrderDesc", []):
+            frame_count, name, _, begin, fields_count = description
+            fields = [
+                x[0] for x in 
+                data_set["VisuGroupDepVals"][begin:begin+fields_count]]
+            frame_groups.append([frame_count, name, fields])
+        # WARNING: the frame groups are listed in innermost-to-outermost
+        # order, while FrameIndexGenerator uses outermost-to-innermost order.
+        # Invert now, to match the order of FrameIndexGenerator.
+        self.frame_groups =  frame_groups[::-1]
     
     def __iter__(self):
-        """ Iterate through the frame groups.
-        """
-        
-        return itertools.product(*[range(x[0]) for x in self.frame_groups])
+        return itertools.product(
+            *[range(count) for count, _, _ in self.frame_groups])
     
     def get_linear_index(self, index):
         """ Return the linear index associated to the multi-dimensional index.
         """
         
         index = index[::-1]
-        shape = [x[0] for x in self.frame_groups[::-1]]
+        shape = [count for count, _, _ in self.frame_groups[::-1]]
         
         factor = 1
         linear_index = 0
@@ -41,36 +46,17 @@ class FrameIndexGenerator(object):
         
         return linear_index
     
-    def _get_frames_count(self):
-        """ Return the total number of frames.
+    @property
+    def frames_count(self):
+        """ Total number of frames.
         """
         
-        return functools.reduce(lambda x,y: x*y[0], self.frame_groups, 1)
-    frames_count = property(_get_frames_count)
+        shape = [count for count, _, _ in self.frame_groups]
+        return functools.reduce(lambda x,y: x*y, shape, 1)
     
-    def _get_dependent_fields(self):
-        """ Return the name of fields mentioned in the frame groups.
+    @property
+    def dependent_fields(self):
+        """ Names of all fields mentioned in the frame groups.
         """
         
-        return itertools.chain(*[x[2] for x in self.frame_groups])
-    dependent_fields = property(_get_dependent_fields)
-    
-    @staticmethod
-    def _get_frame_groups(data_set):
-        """ Return the frame groups, as a list of [count, name, fields].
-        """
-        
-        frame_groups = []
-        for description in data_set.get("VisuFGOrderDesc", []):
-            frame_count, name, _, begin, fields_count = description
-            if fields_count == 0:
-                fields = []
-            else:
-                fields = [
-                    x[0] for x in 
-                    data_set["VisuGroupDepVals"][begin:begin+fields_count]]
-            frame_groups.append([frame_count, name]+[fields])
-        # CAUTION: the frame groups are listed in innermost-to-outermost
-        # order, while FrameIndexGenerator uses outermost-to-innermost order.
-        # Invert now, to match the order of FrameIndexGenerator.
-        return frame_groups[::-1]
+        return itertools.chain(*[fields for _, _, fields in self.frame_groups])

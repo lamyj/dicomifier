@@ -97,11 +97,6 @@ def main():
         shutil.rmtree(extractdir)
 
 def list_(source):
-    """ List series and reconstructions information for the directory/archive given in parameter
-
-        :param source: path of the element to browse
-    """
-
     directory = dicomifier.bruker.Directory()
 
     subjects = dicomifier.bruker.Directory.list_subjects(source)
@@ -127,15 +122,7 @@ def list_(source):
 def convert(
         source, destination, reconstructions, transfer_syntax,
         layout, dicomdir, multiframe):
-    """ Function that converts a source file (bruker) into a destination file (dicom)
-
-        :param source: source file
-        :param destination: destination file
-        :param reconstructions: series and reconstruction to convert inside the source file
-        :param transfer_syntax: target transfer syntax
-        :param dicomdir: Create a dicomdir or no
-        :param multiframe: Whether generate dicom multiframe files or no
-    """
+    
     if os.path.isdir(destination) and len(os.listdir(destination)) > 0:
         dicomifier.logger.warning("{} is not empty".format(destination))
 

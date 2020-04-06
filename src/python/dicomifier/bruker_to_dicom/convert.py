@@ -12,25 +12,24 @@ import logging
 import re
 
 import dateutil
+import numpy
 import odil
 
 from .. import bruker, logger
 from . import io
 
-class ReconstructionContext(logging.Filter):
-    """ Add reconstruction context to logger. 
-    """
-    
-    def __init__(self, series, reconstruction):
-        logging.Filter.__init__(self)
-        self.prefix = "Reconstruction {}:{} - ".format(series, reconstruction)
-        
-    def filter(self, record):
-        record.msg = "{}{}".format(self.prefix, record.msg)
-        return True
-
 def convert_directory(
         source, destination, reconstructions, dicomdir, multiframe, writer):
+    """ Convert a Bruker directory to DICOM and write the files.
+        
+        :param source: source directory
+        :param destination: destination directory
+        :param reconstructions: list of reconstructions to convert, or None
+            to convert all
+        :param dicomdir: whether to create a DICOMDIR
+        :param multiframe: whether to create multi-frame DICOM objects
+        :param writer: writer object from the io module
+    """
     
     # NOTE import the IODs module late to avoid cross-dependence
     from . import iods
@@ -43,7 +42,8 @@ def convert_directory(
         everything = bruker.Directory.get_series_and_reco(source)
         reconstructions = list(
             itertools.chain.from_iterable(
-                itertools.product([int(s)], r) for s,r in everything.items()))
+                itertools.product([int(s)], [int(x) for x in r]) 
+                for s,r in everything.items()))
 
     datasets = {}
     for series, reconstruction in sorted(reconstructions):
@@ -57,7 +57,7 @@ def convert_directory(
         type_id = dataset.get("VisuSeriesTypeId", [""])[0]
         if not type_id.startswith("ACQ_"):
             logger.warning(
-                "Skipping {} ({}): type is {}".format(
+                "Skipping {} ({}): type is \"{}\"".format(
                     dataset.get("VisuAcquisitionProtocol", ["(none)"])[0],
                     dataset.get("RECO_mode", ["none"])[0],
                     type_id))
@@ -70,8 +70,9 @@ def convert_directory(
         ("MR", False): iods.mr_image_storage,
         ("MR", True): iods.enhanced_mr_image_storage
     }
-
+    
     for (series, reconstruction), dataset in sorted(datasets.items()):
+        # TODO: parallelize (easy since dataset is a dict)
         logger_context = ReconstructionContext(series, reconstruction)
         logger.addFilter(logger_context)
         
@@ -99,53 +100,68 @@ def convert_directory(
             writer.files, destination, [], [], ["SeriesDescription:3"], [])
 
 def convert_reconstruction(
-        bruker_directory, series, reconstruction,
-        bruker_dict,
-        iod_converter, writer):
+        directory, series, reconstruction, data_set, iod_converter, writer):
     """ Convert and save a single reconstruction.
 
-        :param bruker_directory: Bruker directory object
+        :param directory: Bruker directory object
         :param series: series number in the Bruker directory
         :param reconstruction: reconstruction number in the series
         :param iod_converter: conversion function
-        :param transfer_syntax: target transfer syntax
-        :param destination: destination directory
-        :param iso_9660: whether to use ISO-9660 compatible file names
+        :param writer: writer object from the io module
     """
     
     logger.info("Converting {} ({})".format(
-        bruker_dict.get("VisuAcquisitionProtocol", ["(none)"])[0],
-        bruker_dict.get("RECO_mode", ["none"])[0]
+        data_set.get("VisuAcquisitionProtocol", ["(none)"])[0],
+        data_set.get("RECO_mode", ["none"])[0]
     ))
-    bruker_dict["reco_files"] = list(bruker_directory.get_used_files(
-        "{}{:04d}".format(series, int(reconstruction))))
+    data_set["reco_files"] = directory.get_used_files(
+        "{}{:04d}".format(series, reconstruction))
 
-    dicom_data_sets = iod_converter(bruker_dict, writer.transfer_syntax)
+    dicom_data_sets = iod_converter(data_set, writer.transfer_syntax)
     
     for dicom_data_set in dicom_data_sets:
         writer(dicom_data_set)
+
+def convert_module(
+        bruker_data_set, dicom_data_set, module,
+        frame_index, generator, vr_finder):
+    """ Convert a DICOM module..
+
+        :param bruker_data_set: source Bruker data set
+        :param dicom_data_set: destination DICOM data set
+        :param module: sequence of 5-element tuples describing the conversions
+            (Bruker name, DICOM name, DICOM type, getter and setter)
+        :param frame_index: index in a frame group
+        :param generator: object that will manage the frame_index
+        :param vr_finder: function to find the VR knowing only the dicom_name
+    """
+
+    for bruker_name, dicom_name, type_, getter, setter in module:
+        convert_element(
+            bruker_data_set, dicom_data_set, 
+            bruker_name, dicom_name, type_, getter, setter,
+            frame_index, generator, vr_finder)
+    return dicom_data_set
 
 def convert_element(
         bruker_data_set, dicom_data_set, 
         bruker_name, dicom_name, type_, getter, setter,
         frame_index, generator, vr_finder):
-    """ Convert a specific element of a bruker_data_set into its
-        corresponding equivalent in a odil.DataSet object : 
-        dicom_data_set [ dicom_name ] = bruker_data_set [ bruker_name ]
+    """ Convert a Bruker element to a DICOM element.
 
-        :param burker_data_set: data set containing the element we want to convert
-        :param dicom_data_set: destination odil.DataSet object 
-        :param bruker_name: name of the element to convert
-        :param dicom_name: corresponding dicom name of the element in the dicom_data_set
-        :param type_: Specify the element's requirement in the dicom_data_set
-        :param getter: Either a string (to directly give the element to store in the dicom_data_set)
-                       or a function (to get a specific frame in a frame group for example)
-                       or None (to directly use the get() function on the bruker_data_set object)
-        :param setter: Either a dict (in order to directly choose the value to store)
-                       or a function (see image.py for examples)
+        :param bruker_data_set: source Bruker data set
+        :param dicom_data_set: destination DICOM data set
+        :param bruker_name: Bruker name of the element
+        :param dicom_name: DICOM name of the element
+        :param type_: DICOM type of the element (PS 3.5, 7.4)
+        :param getter: function returning the value using the Bruker data set,
+            the generator and the frame index or None (direct access)
+        :param setter: mapping or function transforming the Bruker value 
+            to a DICOM value, or None (no transformation performed)
         :param frame_index: index in frame group 
-        :param generator: object that will manage the frame_index
-        :param vr_finder: function to find the VR knowing only the dicom_name
+        :param generator: FrameIndexGenerator associated with the 
+            Bruker data set
+        :param vr_finder: function returning the DICOM VR from the dicom_name
     """
     
     value = None
@@ -155,10 +171,10 @@ def convert_element(
         value = bruker_data_set.get(bruker_name)
 
     if bruker_name in generator.dependent_fields:
-    # index of the first FG containing the bruker_name element
+        # Frame-dependent value: get the correct item from the frame_index
         group_index = [
-            index for index, x in enumerate(generator.frame_groups) 
-            if bruker_name in x[2]][0]
+            index for index, (_, _, fields) in enumerate(generator.frame_groups) 
+            if bruker_name in fields][0]
         value = [ value[frame_index[group_index]] ]
 
     tag = getattr(odil.registry, dicom_name)
@@ -169,9 +185,6 @@ def convert_element(
             raise Exception("{} must be present".format(dicom_name))
         elif type_ == 2:
             dicom_data_set.add(tag)
-    elif vr == odil.VR.SQ and not value:
-        # Type of empty value must be explicit
-        dicom_data_set.add(tag, odil.Value.DataSets(), vr)
     else:
         if isinstance(setter, dict):
             value = [setter[x] for x in value]
@@ -183,17 +196,20 @@ def convert_element(
         elif odil.is_real(vr):
             value = [float(x) for x in value]
         elif vr == odil.VR.DA:
-            value = [_convert_date_time(x, "%Y%m%d") for x in value]
+            value = [_convert_date_time(x, "%Y%m%d") for x in value if x]
         elif vr == odil.VR.DT:
-            value = [_convert_date_time(x, "%Y%m%d%H%M%S") for x in value]
+            value = [_convert_date_time(x, "%Y%m%d%H%M%S") for x in value if x]
         elif vr == odil.VR.TM:
-            value = [_convert_date_time(x, "%H%M%S") for x in value]
+            value = [_convert_date_time(x, "%H%M%S") for x in value if x]
         
         dicom_data_set.add(tag, value, vr)
     
     return value
 
 def _convert_date_time(value, format_):
+    """ Parse the date and time in value, and return it formatted as specified.
+    """
+    
     expressions = [
         r"^(?P<year>\d{4})-(?P<month>\d{2})-(?P<day>\d{2})"
             r"[ T]"
@@ -225,3 +241,73 @@ def _convert_date_time(value, format_):
         date_time = dateutil.parser.parse(value.replace(",", "."))
     
     return date_time.strftime(format_)
+
+def to_2d(data_set):
+    """ Convert the Bruker data set from 3D to 2D.
+    """
+    
+    origin = data_set["VisuCorePosition"]
+    z = numpy.asarray(data_set["VisuCoreOrientation"][6:9])
+    dz = numpy.divide(
+        numpy.asarray(data_set["VisuCoreExtent"][2], dtype=float),
+        numpy.asarray(data_set["VisuCoreSize"][2], dtype=float))
+    
+    frame_count = int(data_set.get("VisuCoreFrameCount", [1])[0])
+    slice_count = int(data_set["VisuCoreSize"][2])
+    
+    # Constant fields
+    data_set["VisuCoreDim"] = [2]
+    data_set["VisuCoreFrameCount"] = [frame_count*slice_count]
+
+    # Frame groups
+    groups = data_set.get("VisuFGOrderDesc", [])
+    fields = data_set.get("VisuGroupDepVals", [])
+
+    groups = [[slice_count, "FG_SLICE", "", 0, 2]] + [
+        [count, name, comment, 2+start, length]
+        for count, name, comment, start, length in groups]
+    fields = [["VisuCoreOrientation", 0], ["VisuCorePosition", 0] ] + fields
+
+    data_set["VisuFGOrderDescDim"] = [len(groups)]
+    data_set["VisuFGOrderDesc"] = groups
+    data_set["VisuGroupDepVals"] = fields
+
+    # Sliced fields: subsets of original fields
+    sliced_fields = [
+        "VisuCoreSize", "VisuCoreDimDesc", "VisuCoreExtent", "VisuCoreUnits"]
+    for name in sliced_fields:
+        data_set[name] = data_set[name][0:2]
+
+    # Repeated fields: repeat the same value for each slice
+    repeated_fields = [
+        ("VisuCoreDataMin", (1,)), ("VisuCoreDataMax", (1,)),
+        ("VisuCoreDataOffs", (1,)), ("VisuCoreDataSlope", (1,)),
+        ("VisuCoreOrientation", (9,))
+    ]
+    for name, shape in repeated_fields:
+        if name not in data_set:
+            continue
+
+        value = numpy.reshape(data_set[name], (-1,)+shape)
+        data_set[name] = list(
+            itertools.chain(*
+                [slice_count*x.tolist() for x in value]
+            )
+        )
+    
+    # Special case: position, depending on origin, dz and z
+    data_set["VisuCorePosition"] = list(itertools.chain(*[
+        (origin+i*dz*z).tolist() for i in range(slice_count)
+    ]))
+
+class ReconstructionContext(logging.Filter):
+    """ Add reconstruction context to logger. 
+    """
+    
+    def __init__(self, series, reconstruction):
+        logging.Filter.__init__(self)
+        self.prefix = "Reconstruction {}:{} - ".format(series, reconstruction)
+        
+    def filter(self, record):
+        record.msg = "{}{}".format(self.prefix, record.msg)
+        return True

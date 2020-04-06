@@ -6,4 +6,4 @@
 # for details.
 #########################################################################
 
-from . import equipment, frame_of_reference, image, patient, series, study
+from . import equipment, frame_of_reference, image, mr, patient, series, study
