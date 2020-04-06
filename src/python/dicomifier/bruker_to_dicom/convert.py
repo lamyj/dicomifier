@@ -8,6 +8,7 @@
 
 import datetime
 import itertools
+import logging
 import re
 
 import dateutil
@@ -16,10 +17,22 @@ import odil
 from .. import bruker, logger
 from . import io
 
+class ReconstructionContext(logging.Filter):
+    """ Add reconstruction context to logger. 
+    """
+    
+    def __init__(self, series, reconstruction):
+        logging.Filter.__init__(self)
+        self.prefix = "Reconstruction {}:{} - ".format(series, reconstruction)
+        
+    def filter(self, record):
+        record.msg = "{}{}".format(self.prefix, record.msg)
+        return True
+
 def convert_directory(
         source, destination, reconstructions, dicomdir, multiframe, writer):
     
-    # NOTE import the IODs module later to avoid cross-dependence
+    # NOTE import the IODs module late to avoid cross-dependence
     from . import iods
     
     directory = bruker.Directory()
@@ -34,6 +47,9 @@ def convert_directory(
 
     datasets = {}
     for series, reconstruction in sorted(reconstructions):
+        logger_context = ReconstructionContext(series, reconstruction)
+        logger.addFilter(logger_context)
+        
         dataset = directory.get_dataset(
             "{}{:04d}".format(series, int(reconstruction)))
         dataset = {k: v.value for k,v in dataset.items()}
@@ -41,13 +57,14 @@ def convert_directory(
         type_id = dataset.get("VisuSeriesTypeId", [""])[0]
         if not type_id.startswith("ACQ_"):
             logger.warning(
-                "Skipping {}:{} - {} ({}): type is {}".format(
-                    series, reconstruction,
+                "Skipping {} ({}): type is {}".format(
                     dataset.get("VisuAcquisitionProtocol", ["(none)"])[0],
                     dataset.get("RECO_mode", ["none"])[0],
                     type_id))
-            continue
-        datasets[(series, reconstruction)] = dataset
+        else:
+            datasets[(series, reconstruction)] = dataset
+        
+        logger.removeFilter(logger_context)
 
     converters = {
         ("MR", False): iods.mr_image_storage,
@@ -55,14 +72,13 @@ def convert_directory(
     }
 
     for (series, reconstruction), dataset in sorted(datasets.items()):
+        logger_context = ReconstructionContext(series, reconstruction)
+        logger.addFilter(logger_context)
+        
         try:
             modality = dataset.get("VisuInstanceModality", [None])[0]
             if not modality:
-                logger.info(
-                    "reconstruction {}:{} - "
-                    "VisuInstanceModality not found in bruker file, "
-                    "MRI will be used by default".format(
-                        series, reconstruction))
+                logger.info("Modality not found in data set, defaulting to MR")
                 modality = "MR"
             
             convert_reconstruction(
@@ -75,6 +91,8 @@ def convert_directory(
                 "Could not convert {}:{} - {}".format(
                     series, reconstruction, e))
             logger.debug("Stack trace", exc_info=True)
+        
+        logger.removeFilter(logger_context)
 
     if dicomdir and writer.files:
         io.create_dicomdir(
@@ -95,8 +113,7 @@ def convert_reconstruction(
         :param iso_9660: whether to use ISO-9660 compatible file names
     """
     
-    logger.info("Converting {}:{} - {} ({})".format(
-        series, reconstruction, 
+    logger.info("Converting {} ({})".format(
         bruker_dict.get("VisuAcquisitionProtocol", ["(none)"])[0],
         bruker_dict.get("RECO_mode", ["none"])[0]
     ))
