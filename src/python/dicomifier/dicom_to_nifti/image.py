@@ -143,7 +143,8 @@ def get_linear_pixel_data(data_set):
     
     # Mask the data using Bits Stored, cf. PS 3.5, 8.1.1
     bits_stored = data_set[odil.registry.BitsStored][0]
-    linear_array = numpy.bitwise_and(linear_array, 2**bits_stored - 1)
+    linear_array = numpy.bitwise_and(
+        linear_array, 2**bits_stored - 1, dtype=linear_array.dtype)
     
     return linear_array
 
