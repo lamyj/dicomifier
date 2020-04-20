@@ -143,10 +143,18 @@ def get_series_directory(meta_data):
             # not readable: separate the two values
             series_directory.extend(
                 str(x) for x in divmod(series_number, 2**16))
+        elif (
+                meta_data.get("SoftwareVersions", [""])[0].startswith("ParaVision") 
+                and series_number > 10000):
+            # Same processing for Bruker-generated DICOM
+            series_directory.extend(
+                str(x) for x in divmod(series_number, 10000))
         else:
             series_directory.append(str(series_number))
     if ("SeriesDescription" in meta_data and meta_data["SeriesDescription"]):
         series_directory.append(numpy.ravel([x for x in meta_data["SeriesDescription"] if x])[0])
+    elif ("ProtocolName" in meta_data and meta_data["ProtocolName"]):
+        series_directory.append(numpy.ravel([x for x in meta_data["ProtocolName"] if x])[0])
 
     if not series_directory:
         if "SeriesInstanceUID" in meta_data and meta_data["SeriesInstanceUID"]:

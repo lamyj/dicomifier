@@ -93,13 +93,21 @@ class SeriesContext(logging.Filter):
             if series[0] is not None:
                 software = SeriesContext._get_element(
                     data_set, odil.registry.SoftwareVersions)
-                if (software and software == "ParaVision" and series[0] > 2**16):
+                if software and software == "ParaVision" and series[0] > 2**16:
                     # Bruker ID based on experiment number and reconstruction 
                     # number is not readable: separate the two values
                     series[0] = "{}:{}".format(
                         *[str(x) for x in divmod(series[0], 2**16)])
+                elif software.startswith("ParaVision") and series[0] > 10000:
+                    # Same processing for Bruker-generated DICOM
+                    series[0] = "{}:{}".format(
+                        *[str(x) for x in divmod(series[0], 10000)])
                 else:
                     series[0] = "{}".format(series[0])
+            
+            if series[1] is None:
+                series[1] = SeriesContext._get_element(
+                    data_set, odil.registry.ProtocolName) or ""
             
             elements = []
             if patient:
@@ -123,11 +131,10 @@ class SeriesContext(logging.Filter):
         value = data_set.get(tag)
         if value:
             value = value[0]
-            if (
-                    isinstance(value, bytes) 
-                    and odil.registry.SpecificCharacterSet in data_set):
+            if isinstance(value, bytes):
                 value = odil.as_unicode(
-                    value, data_set[odil.registry.SpecificCharacterSet])
+                    value, data_set.get(
+                        odil.registry.SpecificCharacterSet, odil.Value.Strings()))
         else:
             value = None
         return value
