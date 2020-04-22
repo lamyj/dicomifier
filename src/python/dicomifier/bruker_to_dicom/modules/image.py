@@ -65,7 +65,6 @@ def get_pixel_data(data_set, generator, frame_index):
     if data_set.get("VisuCoreDiskSliceOrder", [None])[0] == "disk_reverse_slice_order":
         # Volumes are always in order, but slice order depends on
         # VisuCoreDiskSliceOrder
-        #fg_slice = [g for g in generator.frame_groups if g[1] == "FG_SLICE"]
         non_slice = [g for g in generator.frame_groups if g[1] != "FG_SLICE"]
         if len(non_slice) == 0:
             slices_per_frame = data_set["VisuCoreFrameCount"][0]

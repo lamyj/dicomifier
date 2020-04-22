@@ -43,9 +43,6 @@ class NestedDICOMWriter(object):
             of the DICOM data set.
         """
 
-        def has_element(tag, getter):
-            return tag in data_set and getter(tag)
-
         specific_character_set = (
             data_set.as_string(odil.registry.SpecificCharacterSet)
             if odil.registry.SpecificCharacterSet in data_set
