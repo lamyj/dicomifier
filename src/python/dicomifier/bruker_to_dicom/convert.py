@@ -77,11 +77,8 @@ def convert_directory(source, destination, dicomdir, multiframe, writer):
             
             convert_reconstruction(
                 data_set, converters[(modality, multiframe)], writer)
-            
         except Exception as e:
-            logger.error(
-                "Could not convert {}:{} - {}".format(
-                    series, reconstruction, e))
+            logger.error("Could not convert: {}".format(e))
             logger.debug("Stack trace", exc_info=True)
         
         logger.removeFilter(logger_context)

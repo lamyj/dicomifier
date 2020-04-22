@@ -23,10 +23,11 @@ def get_bruker_info(directory):
     """
     
     bruker_data_set = bruker.Dataset()
-    for file_ in ["visu_pars", "id", "reco"]:
-        file_ = directory/file_
-        if file_.is_file():
-            bruker_data_set.load(str(file_))
+    for name in ["visu_pars", "id", "reco"]:
+        for directory in list(directory.parents)[:2][::-1]+[directory]:
+            file_ = directory/name
+            if file_.is_file():
+                bruker_data_set.load(str(file_))
     bruker_data_set = {k:v.value for k,v in bruker_data_set.items()}
     
     dicom_data_set = odil.DataSet()
