@@ -6,19 +6,14 @@
 # for details.
 #########################################################################
 
-import functools
-
 GeneralEquipment = [ # PS 3.3, C.7.5.1
     ("ORIGIN", "Manufacturer", 2, None, None),
     ("VisuInstitution", "InstitutionName", 3, None, None),
     ("VisuStation", "StationName", 3, None, None),
     (
         None, "SoftwareVersions", 3, 
-        lambda d,g,i: functools.reduce(
-            lambda e1, e2: e1+e2,
-            [d.get(name, []) for name in ["VisuCreator", "VisuCreatorVersion"]], 
-            []
-        ),
+        lambda d,g,i: d.setdefault("__SoftwareVersions",
+            d.get("VisuCreator", [])+d.get("VisuCreatorVersion", [])),
         None
     ),
     ("VisuSystemOrderNumber", "DeviceSerialNumber", 3, None, None),
@@ -32,11 +27,8 @@ EnhancedGeneralEquipment = [ # PS 3.3, C.7.5.2
     ("VisuSystemOrderNumber", "DeviceSerialNumber", 2, None, None),
     (
         None, "SoftwareVersions", 1,
-        lambda d,g,i: functools.reduce(
-            lambda e1, e2: e1+e2,
-            [d.get(name, []) for name in ["VisuCreator", "VisuCreatorVersion"]],
-            []
-        ),
+        lambda d,g,i: d.setdefault("__SoftwareVersions",
+            d.get("VisuCreator", [])+d.get("VisuCreatorVersion", [])),
         None
     ),
 ]

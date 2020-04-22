@@ -9,6 +9,8 @@
 import numpy
 import odil
 
+from . import cached
+
 MRImage = [ # PS 3.3, C.8.3.1
     (None, "ScanningSequence", 1, lambda d,g,i: ["RM"], None),
     (None, "SequenceVariant", 1, lambda d,g,i: ["NONE"], None),
@@ -16,9 +18,10 @@ MRImage = [ # PS 3.3, C.8.3.1
     ("PVM_SpatDimEnum", "MRAcquisitionType", 2, None, None),
     (
         "VisuAcqRepetitionTime", "RepetitionTime", 2, 
-        lambda d,g,i: d.get(
-            "VisuAcqRepetitionTime", d.get(
-                "PVM_RepetitionTime", d.get("MultiRepTime", None))), 
+        cached("__RepetitionTime")(
+            lambda d,g,i: d.get(
+                "VisuAcqRepetitionTime", d.get(
+                    "PVM_RepetitionTime", d.get("MultiRepTime", None)))), 
         None),
     ("VisuAcqEchoTime", "EchoTime", 2, None, None),
     ("VisuAcqEchoTrainLength", "EchoTrainLength", 2, None, None),
@@ -28,14 +31,19 @@ MRImage = [ # PS 3.3, C.8.3.1
     ("VisuAcqImagingFrequency", "ImagingFrequency", 3, None, None),
     ("VisuAcqImagedNucleus", "ImagedNucleus", 3, None, None),
     (
-        "VisuAcqImagingFrequency", "MagneticFieldStrength", 3, None,
-        lambda x: [float(x[0])/42.577480610]
+        "VisuAcqImagingFrequency", "MagneticFieldStrength", 3, 
+        cached("__MagneticFieldStrength")(
+            lambda d,g,i: [d["VisuAcqImagingFrequency"][0]/42.577480610]),
+        None
     ),
     (
         None, "SpacingBetweenSlices", 3,
-        lambda d,g,i: [numpy.linalg.norm(
-            numpy.subtract(d["VisuCorePosition"][3:6], d["VisuCorePosition"][0:3]
-        ))] if len(d["VisuCorePosition"]) >= 6 else None, 
+        cached("__SpacingBetweenSlices")(
+            lambda d,g,i: [
+                numpy.linalg.norm(
+                    numpy.subtract(
+                        d["VisuCorePosition"][3:6], d["VisuCorePosition"][0:3]))]
+                if len(d["VisuCorePosition"]) >= 6 else None), 
         None
     ),
     ("VisuAcqPhaseEncSteps", "NumberOfPhaseEncodingSteps", 3, None, None),
@@ -44,28 +52,34 @@ MRImage = [ # PS 3.3, C.8.3.1
 ]
 
 EnhancedMRImage = [ # PS 3.3, C.8.13.1
-    (None, "ImageType", 3,
-    lambda d,g,i: [
-        b"ORIGINAL", b"PRIMARY", b"", 
-        d["RECO_image_type"][0].encode("ascii")], None),
+    (
+        None, "ImageType", 3,
+        cached("__ImageType")(
+            lambda d,g,i: [
+                b"ORIGINAL", b"PRIMARY", b"", 
+                d["RECO_image_type"][0].encode("ascii")]), 
+        None),
     (None, "PixelPresentation", 1, lambda d,g,i: ["MONOCHROME"], None),
     (None, "VolumetricProperties", 1, lambda d,g,i: ["VOLUME"], None),
     (None, "VolumeBasedCalculationTechnique", 1, lambda d,g,i : ["NONE"], None),
     ("VisuAcqImagedNucleus", "ResonantNucleus", 3, None, None),
     ("VisuAcqDate", "AcquisitionDateTime", 3, None, None),
     (
-        "VisuAcqImagingFrequency", "MagneticFieldStrength", 3, None,
-        lambda x: [float(x[0])/42.577480610]
+        "VisuAcqImagingFrequency", "MagneticFieldStrength", 3, 
+        cached("__MagneticFieldStrength")(
+            lambda d,g,i: [d["VisuAcqImagingFrequency"][0]/42.577480610]),
+        None
     ),
 ]
 
 MRPulseSequence = [ # PS 3.3, C.8.13.4
     ("PVM_SpatDimEnum", "MRAcquisitionType", 3, None, None),
     ("VisuAcqEchoSequenceType", "EchoPulseSequence", 3,
-        lambda d,g,i: [
-            d.get(
-                "VisuAcqEchoSequenceType", [""]
-            )[0].replace("Echo","").upper() or None],
+        cached("__EchoPulseSequence")(
+            lambda d,g,i: [
+                d.get(
+                    "VisuAcqEchoSequenceType", [""]
+                )[0].replace("Echo","").upper() or None]),
         None
         
     ),
@@ -73,31 +87,35 @@ MRPulseSequence = [ # PS 3.3, C.8.13.4
     # (None, "MultiPlanarExcitation", 3, None, None),
     # (None, "PhaseContrast", 3, None, None),
     ("VisuAcqHasTimeOfFlightContrast", "TimeOfFlightContrast", 3,
-        lambda d,g,i: [
-            d.get("VisuAcqHasTimeOfFlightContrast", [""])[0].upper() or None],
+        cached("__TimeOfFlightContrast")(
+            lambda d,g,i: [
+                d.get("VisuAcqHasTimeOfFlightContrast", [""])[0].upper() or None]),
         None
     ),
     # (None, "ArterialSpinLabelingContrast", 3, None, None),
     # (None, "SteadyStatePulseSequence", 3, None, None),
     ("VisuAcqIsEpiSequence", "EchoPlanarPulseSequence", 3,
-        lambda d,g,i: [
-            d.get("VisuAcqIsEpiSequence", [""])[0].upper() or None],
+        cached("__EchoPlanarPulseSequence")(
+            lambda d,g,i: [
+                d.get("VisuAcqIsEpiSequence", [""])[0].upper() or None]),
         None
     ),
     # (None, "SaturationRecovery", 3, None, None),
     ("VisuAcqSpectralSuppression", "SpectrallySelectedSuppression", 3,
-        lambda d,g,i: [
-            d.get(
-                "VisuAcqSpectralSuppression", [""]
-            )[0].replace("Suppression","").upper() or None],
+        cached("__SpectrallySelectedSuppression")(
+            lambda d,g,i: [
+                d.get(
+                    "VisuAcqSpectralSuppression", [""]
+                )[0].replace("Suppression","").upper() or None]),
         None
     ),
     # (None, "OversamplingPhase", 3, None, None),
     ("VisuAcqKSpaceTraversal", "GeometryOfKSpaceTraversal", 3,
-        lambda d,g,i: [
-            d.get(
-                "VisuAcqKSpaceTraversal", [""]
-            )[0].replace("Traversal","").upper() or None],
+        cached("__GeometryOfKSpaceTraversal")(
+            lambda d,g,i: [
+                d.get(
+                    "VisuAcqKSpaceTraversal", [""]
+                )[0].replace("Traversal","").upper() or None]),
         None
     ),
     # (None, "RectilinearPhaseEncodeReordering", 3, None, None),
@@ -124,9 +142,10 @@ MRTimingAndRelatedParameters = [ # PS 3.3, C.8.13.5.2
         # WARNING : First argument cannot be None if present if FG
         (
             "VisuAcqRepetitionTime", "RepetitionTime", 1, 
-            lambda d,g,i: d.get(
-                "VisuAcqRepetitionTime", d.get(
-                    "PVM_RepetitionTime", d.get("MultiRepTime", None))), 
+            cached("__RepetitionTime")(
+                lambda d,g,i: d.get(
+                    "VisuAcqRepetitionTime", d.get(
+                        "PVM_RepetitionTime", d.get("MultiRepTime", None)))), 
             None),
         ("VisuAcqEchoTrainLength", "EchoTrainLength", 1, None, None),
         ("VisuAcqFlipAngle", "FlipAngle", 1, None, None),
@@ -147,7 +166,9 @@ MREcho = [ # PS 3.3, C.8.13.5.4
     [
         (
             "VisuAcqEchoTime", "EffectiveEchoTime", 1, 
-            lambda d,g,i: d.get("VisuAcqEchoTime", d.get("PVM_EchoTime", None)), 
+            cached("__EffectiveEchoTime")(
+                lambda d,g,i: 
+                    d.get("VisuAcqEchoTime", d.get("PVM_EchoTime", None))), 
             None),
     ]
 ]
@@ -196,22 +217,25 @@ MRDiffusion = [ # PS 3.3, C.8.13.5.9
     [
         (
             "VisuAcqDiffusionBMatrix", "DiffusionBValue", 1,
-            lambda d,g,i: [
-                get_direction_and_b_value(d, x)[1] 
-                for x in numpy.reshape(d["PVM_DwBMat"], (-1, 3, 3))],
+            cached("__DiffusionBValue")(
+                lambda d,g,i: [ 
+                    get_direction_and_b_value(d, x)[1] 
+                    for x in numpy.reshape(d["PVM_DwBMat"], (-1, 3, 3))]),
             None
         ),
         (None, "DiffusionDirectionality", 1, lambda d,g,i: ["BMATRIX"], None),
         (
             "VisuAcqDiffusionBMatrix", "DiffusionGradientDirectionSequence", 1,
-            lambda d,g,i: [
-                get_direction_and_b_value(d, x)[0] 
-                for x in numpy.reshape(d["PVM_DwBMat"], (-1, 3, 3))],
+            cached("__DiffusionGradientDirectionSequence")(
+                lambda d,g,i: [
+                    get_direction_and_b_value(d, x)[0] 
+                    for x in numpy.reshape(d["PVM_DwBMat"], (-1, 3, 3))]),
             lambda x: [odil.DataSet(DiffusionGradientOrientation=numpy.ravel(x))]
         ),
         (
             "VisuAcqDiffusionBMatrix", "DiffusionBMatrixSequence", 1,
-            lambda d,g,i: numpy.reshape(d["PVM_DwBMat"], (-1, 3, 3)),
+            cached("__DiffusionBMatrixSequence")(
+                lambda d,g,i: numpy.reshape(d["PVM_DwBMat"], (-1, 3, 3))),
             lambda m: [
                 odil.DataSet(**dict(zip(
                     [

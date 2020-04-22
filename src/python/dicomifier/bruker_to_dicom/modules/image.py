@@ -13,6 +13,8 @@ import re
 import numpy
 import odil
 
+from . import cached
+
 def get_acquisition_number(data_set, generator, frame_index):
     index = [
         x for g, x in zip(generator.frame_groups, frame_index)
@@ -99,18 +101,21 @@ GeneralImage = [ # PS 3.3, C.7.6.1
     (None, "InstanceNumber", 2, lambda d,g,i: [1+g.get_linear_index(i)], None),
     (
         None, "ImageType", 3, 
-        lambda d,g,i: [
-            b"ORIGINAL", b"PRIMARY", b"", 
-            d.get("RECO_image_type", [""])[0].encode("utf-8")], None),
+        cached("__ImageType")(
+            lambda d,g,i: [
+                b"ORIGINAL", b"PRIMARY", b"", 
+                d.get("RECO_image_type", [""])[0].encode("utf-8")]),
+        None),
     (None, "AcquisitionNumber", 3, get_acquisition_number, None),
     ("VisuAcqDate", "AcquisitionDate", 3, None, None),
     ("VisuAcqDate", "AcquisitionTime", 3, None, None),
     (
         "VisuCoreFrameCount", "ImagesInAcquisition", 3,
-        lambda d,g,i:
-            [int(d["VisuCoreFrameCount"])[0]*d["VisuCoreSize"][2]]
-            if d["VisuCoreDim"]==3
-            else [int(x) for x in d["VisuCoreFrameCount"]],
+        cached("__ImagesInAcquisition")(
+            lambda d,g,i: 
+                [int(d["VisuCoreFrameCount"])[0]*d["VisuCoreSize"][2]]
+                if d["VisuCoreDim"]==3
+                else [int(x) for x in d["VisuCoreFrameCount"]]),
         None
     ),
 ]
@@ -118,21 +123,22 @@ GeneralImage = [ # PS 3.3, C.7.6.1
 ImagePlane = [ # PS 3.3, C.7.6.2
     (
         None, "PixelSpacing", 1,
-        lambda d,g,i: numpy.divide(
-                numpy.asarray(d["VisuCoreExtent"], float),
-                numpy.asarray(d["VisuCoreSize"], float)
-            ).tolist(),
+        cached("__PixelSpacing")(
+            lambda d, g, i,: numpy.asarray(d["VisuCoreExtent"], float)
+                / numpy.asarray(d["VisuCoreSize"], float)),
         None
     ),
     (
         "VisuCoreOrientation", "ImageOrientationPatient", 1,
-        lambda d,g,i: numpy.reshape(d["VisuCoreOrientation"], (-1, 9)),
-        lambda x: x[0][:6].tolist()
+        cached("__ImageOrientationPatient")(
+            lambda d,g,i: numpy.reshape(d["VisuCoreOrientation"], (-1, 9))),
+        lambda x: x[0][:6]
     ),
     (
         "VisuCorePosition", "ImagePositionPatient", 1,
-        lambda d,g,i: numpy.reshape(d["VisuCorePosition"], (-1, 3)),
-        lambda x: x[0].tolist()
+        cached("__ImagePositionPatient")(
+            lambda d,g,i: numpy.reshape(d["VisuCorePosition"], (-1, 3))),
+        lambda x: x[0]
     ),
     ("VisuCoreFrameThickness", "SliceThickness", 2, None, None)
 ]
@@ -144,34 +150,33 @@ ImagePixel = [ # PS 3.3, C.7.6.3
     ("VisuCoreSize", "Columns", 1, lambda d,g,i: [d["VisuCoreSize"][0]], None),
     (
         "VisuCoreWordType", "BitsAllocated", 1, 
-        None, {
-            "_32BIT_FLOAT": 32, 
-            "_32BIT_SGN_INT": 32, "_16BIT_SGN_INT": 16, "_8BIT_UNSGN_INT": 8
-        }
+        cached("__BitsAllocated")(
+            lambda d,g,i: [{
+                "_32BIT_FLOAT": 32, 
+                "_32BIT_SGN_INT": 32, "_16BIT_SGN_INT": 16, "_8BIT_UNSGN_INT": 8
+            }[d["VisuCoreWordType"][0]]]),
+        None
     ),
     (
         "VisuCoreWordType", "BitsStored", 1, 
-        None, {
-            "_32BIT_FLOAT": 32, 
-            "_32BIT_SGN_INT": 32, "_16BIT_SGN_INT": 16, "_8BIT_UNSGN_INT": 8
-        }
+        lambda d,g,i: d["__BitsAllocated"], None, 
     ),
     (
         "VisuCoreByteOrder", "HighBit", 1, 
-        lambda d,g,i: [
-            {
-                "_32BIT_FLOAT": 32, 
-                "_32BIT_SGN_INT": 32, "_16BIT_SGN_INT": 16, "_8BIT_UNSGN_INT": 8
-            }[d["VisuCoreWordType"][0]]-1 
-            if d["VisuCoreByteOrder"][0]=="littleEndian" else 0
-        ],
+        cached("__HighBit")(
+            lambda d,g,i: [
+                d["__BitsAllocated"][0]-1 
+                if d["VisuCoreByteOrder"][0] == "littleEndian" else 0]),
         None
     ),
     (
         "VisuCoreWordType", "PixelRepresentation", 1, 
-        None, {
-            "_32BIT_FLOAT": 0, # mapped to uint32 
-            "_32BIT_SGN_INT": 1, "_16BIT_SGN_INT": 1, "_8BIT_UNSGN_INT": 0}
+        cached("__PixelRepresentation")(
+            lambda d,g,i: [{
+                "_32BIT_FLOAT": 0, # mapped to uint32 
+                "_32BIT_SGN_INT": 1, "_16BIT_SGN_INT": 1, "_8BIT_UNSGN_INT": 0
+            }[d["VisuCoreWordType"][0]]]),
+        None, 
     ),
     (None, "PixelData", 1, get_pixel_data, None),
     # WARNING SmallestImagePixelValue and LargestImagePixelValue are either US
@@ -240,20 +245,20 @@ PixelMeasures = [ # PS 3.3, C.7.6.16.2.1
     [
         (
             None, "PixelSpacing", 3,
-                    lambda d,g,i: numpy.divide(
-                        numpy.asarray(d["VisuCoreExtent"], float),
-                        numpy.asarray(d["VisuCoreSize"], float)
-                    ).tolist(),
+            cached("__PixelSpacing")(
+                lambda d,g,i: numpy.asarray(d["VisuCoreExtent"], float)
+                    / numpy.asarray(d["VisuCoreSize"], float)),
             None
         ),
         ("VisuCoreFrameThickness", "SliceThickness", 3, None, None),
         (
             None, "SpacingBetweenSlices", 3,
-            lambda d,g,i: [
-                numpy.linalg.norm(
-                    numpy.subtract(
-                        d["VisuCorePosition"][3:6], d["VisuCorePosition"][0:3]))]
-                if len(d["VisuCorePosition"]) >= 6 else None,
+            cached("__SpacingBetweenSlices")(
+                lambda d,g,i: [
+                    numpy.linalg.norm(
+                        numpy.subtract(
+                            d["VisuCorePosition"][3:6], d["VisuCorePosition"][0:3]))]
+                    if len(d["VisuCorePosition"]) >= 6 else None),
             None
         ),
     ]
@@ -276,7 +281,8 @@ PlanePosition = [ # PS 3.3, C.7.6.16.2.3
     [
         (
             "VisuCorePosition", "ImagePositionPatient", 1,
-            lambda d,g,i: numpy.reshape(d["VisuCorePosition"], (-1, 3)),
+            cached("__ImagePositionPatient")(
+                lambda d,g,i: numpy.reshape(d["VisuCorePosition"], (-1, 3))),
             lambda x: x[0].tolist()
         ),
     ]
@@ -287,7 +293,8 @@ PlaneOrientation = [ # PS 3.3, C.7.6.16.2.4
     [
         (
             "VisuCoreOrientation", "ImageOrientationPatient", 1,
-            lambda d,g,i: numpy.reshape(d["VisuCoreOrientation"], (-1, 9)),
+            cached("__ImageOrientationPatient")(
+                lambda d,g,i: numpy.reshape(d["VisuCoreOrientation"], (-1, 9))),
             lambda x: x[0][:6].tolist()
         ),
     ]

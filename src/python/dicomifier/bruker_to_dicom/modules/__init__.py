@@ -6,4 +6,16 @@
 # for details.
 #########################################################################
 
+def cached(key):
+    """ Cache the results of a conversion in the data set.
+    """
+    def wrapper(function):
+        def wrapped(d,g,i):
+            if key not in d:
+                d[key] = function(d,g,i)
+            return d[key]
+        return wrapped
+    return wrapper
+
+
 from . import equipment, frame_of_reference, image, mr, patient, series, study

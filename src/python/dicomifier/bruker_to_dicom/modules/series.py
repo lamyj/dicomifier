@@ -6,6 +6,8 @@
 # for details.
 #########################################################################
 
+from . import cached
+
 def _get_series_number(data_set, generator, index):
     if "VisuSeriesNumber" in data_set:
         series_number = int(data_set["VisuSeriesNumber"][0])
@@ -21,15 +23,17 @@ GeneralSeries = [ # PS 3.3, C.7.3.1
     # Modality is added by the specific IOD converter.
     # (None, "Modality", 1, lambda d,g,i: ["MR"], None),
     ("VisuUid", "SeriesInstanceUID", 1, None, None),
-    (None, "SeriesNumber", 2, _get_series_number, None),
+    (None, "SeriesNumber", 2, cached("__SeriesNumber")(_get_series_number), None),
     (
         None, "SeriesDate", 3,
-        lambda d,g,i: d.get("VisuSeriesDate") or d.get("VisuAcqDate"),
+        cached("__SeriesDate")(
+            lambda d,g,i: d.get("VisuSeriesDate") or d.get("VisuAcqDate")),
         None
     ),
     (
         None, "SeriesTime", 3,
-        lambda d,g,i: d.get("VisuSeriesDate") or d.get("VisuAcqDate"),
+        cached("__SeriesTime")(
+            lambda d,g,i: d.get("VisuSeriesDate") or d.get("VisuAcqDate")),
         None
     ),
     ("OWNER", "PerformingPhysicianName", 3, None, None),
