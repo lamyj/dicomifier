@@ -46,11 +46,11 @@ Field
     return boost::get<long>(this->value[index]);
 }
 
-float
+double
 Field
-::get_float(unsigned int index) const
+::get_real(unsigned int index) const
 {
-    return boost::get<float>(this->value[index]);
+    return boost::get<double>(this->value[index]);
 }
 
 Field::Value
@@ -69,9 +69,9 @@ Field
 
 bool
 Field
-::is_float(unsigned int index) const
+::is_real(unsigned int index) const
 {
-    return this->value[index].type() == typeid(float);
+    return this->value[index].type() == typeid(double);
 }
 
 bool

@@ -31,7 +31,7 @@ class Field
 public:
     /// @brief Variant-typed field item.
     typedef boost::make_recursive_variant<
-        long, float, std::string,
+        long, double, std::string,
         std::vector<boost::recursive_variant_>
     >::type Item;
     
@@ -59,8 +59,8 @@ public:
     /// @brief Return a int-convertible item, throw an exception if not convertible.
     long get_int(unsigned int index) const;
 
-    /// @brief Return a float-convertible item, throw an exception if not convertible.
-    float get_float(unsigned int index) const;
+    /// @brief Return a real-convertible item, throw an exception if not convertible.
+    double get_real(unsigned int index) const;
 
     /// @brief Return a struct item, throw an exception if not struct-typed.
     Value get_struct(unsigned int index) const;
@@ -68,8 +68,8 @@ public:
     /// @brief Test whether item is an int.
     bool is_int(unsigned int index) const;
 
-    /// @brief Test whether item is a float.
-    bool is_float(unsigned int index) const;
+    /// @brief Test whether item is a real.
+    bool is_real(unsigned int index) const;
 
     /// @brief Test whether item is a string.
     bool is_string(unsigned int index) const;

@@ -34,9 +34,9 @@ pybind11::object as_value(dicomifier::bruker::Field::Item const & item)
     {
         return pybind11::cast(boost::get<long>(item));
     }
-    else if(type == typeid(float))
+    else if(type == typeid(double))
     {
-        return pybind11::cast(boost::get<float>(item));
+        return pybind11::cast(boost::get<double>(item));
     }
     else if(type == typeid(std::string))
     {
@@ -79,10 +79,10 @@ void wrap_Field(pybind11::module & m)
             "value", static_cast<object(*)(Field const &)>(&as_value))
         .def("get_string", &Field::get_string)
         .def("get_int", &Field::get_int)
-        .def("get_float", &Field::get_float)
+        .def("get_real", &Field::get_real)
         .def("get_struct", &Field::get_struct)
         .def("is_int", &Field::is_int)
-        .def("is_float", &Field::is_float)
+        .def("is_real", &Field::is_real)
         .def("is_string", &Field::is_string)
         .def("is_struct", &Field::is_struct)
         .def(self == self)
@@ -91,11 +91,11 @@ void wrap_Field(pybind11::module & m)
     
     class_<Field::Item>(field, "Item")
         .def("get_int", &item_get<long>)
-        .def("get_float", &item_get<float>)
+        .def("get_real", &item_get<double>)
         .def("get_string", &item_get<std::string>)
         .def("get_struct", &item_get<Field::Value>)
         .def("is_int", &item_is<long>)
-        .def("is_float", &item_is<float>)
+        .def("is_real", &item_is<double>)
         .def("is_string", &item_is<std::string>)
         .def("is_struct", &item_is<Field::Value>)
         .def_property_readonly("value", static_cast<object(*)(Field::Item const &)>(&as_value))
