@@ -102,7 +102,7 @@ GeneralImage = [ # PS 3.3, C.7.6.1
         None, "ImageType", 3, 
         lambda d,g,i: [
             b"ORIGINAL", b"PRIMARY", b"", 
-            d["RECO_image_type"][0].encode("utf-8")], None),
+            d.get("RECO_image_type", [""])[0].encode("utf-8")], None),
     (None, "AcquisitionNumber", 3, get_acquisition_number, None),
     ("VisuAcqDate", "AcquisitionDate", 3, None, None),
     ("VisuAcqDate", "AcquisitionTime", 3, None, None),

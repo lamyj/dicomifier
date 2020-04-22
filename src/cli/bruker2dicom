@@ -1,12 +1,8 @@
 #!${PYTHON_EXECUTABLE}
 
-from __future__ import print_function
 import argparse
-import itertools
 import logging
-import math
-import os
-import re
+import pathlib
 import sys
 import tempfile
 import shutil
@@ -24,7 +20,8 @@ def main():
     list_parser = subparsers.add_parser(
         "list", help="List series and reconstructions in a Bruker directory")
     list_parser.add_argument(
-        "source", help="Directory containing the Bruker data")
+        "sources", type=pathlib.Path, nargs="+",
+        metavar="source", help="Directory containing the Bruker data")
     list_parser.add_argument(
         "--verbosity", "-v",
         choices=["warning", "info", "debug"], default="warning")
@@ -33,12 +30,11 @@ def main():
     convert_parser = subparsers.add_parser(
         "convert", help="Convert Bruker images")
     convert_parser.add_argument(
-        "source", help="Directory containing the Bruker data")
-    convert_parser.add_argument("destination", help="Output directory")
+        "sources", type=pathlib.Path, nargs="+", 
+        metavar="source", 
+        help="Directories or PvDataset archives containing the Bruker data")
     convert_parser.add_argument(
-        "--reconstruction", "-r", action="append",
-        dest="reconstructions",
-        help="Series and reconstruction to convert (format seriesNumber:reconstructionNumber)")
+        "destination", type=pathlib.Path, help="Output directory")
     convert_parser.add_argument(
         "--transfer-syntax", "-t", type=lambda x: getattr(odil.registry, x),
         default="ImplicitVRLittleEndian",
@@ -67,79 +63,71 @@ def main():
         format="%(levelname)s - %(name)s: %(message)s")
 
     function = arguments.pop("function")
-    source = arguments.pop("source")
 
-    #create tmp directory in the system tmp location
-    extractdir = tempfile.mkdtemp()
+    # Unzip pvdataset archives as needed
+    directory = pathlib.Path(tempfile.mkdtemp())
     try:
-        # try to extract the archive
-        zip_obj = zipfile.ZipFile(source)
-        zip_obj.extractall(extractdir)
-    except:
-        # source is not a pvDataSet archive, so it should be a "normal" directory
-        arguments["source"] = source
-    else:
-        # get directories in the extract area
-        namelist = os.listdir(extractdir)
-        for element in namelist :
-            elementpath = os.path.join(".",extractdir,element)
-            if (os.path.isdir(elementpath)):
-                arguments["source"] = elementpath
+        for index, source in enumerate(arguments["sources"]):
+            if zipfile.is_zipfile(source):
+                with zipfile.ZipFile(source) as archive:
+                    archive.extractall(directory/source.name)
+                    arguments["sources"][index] = directory/source.name
+        function(**arguments)
+    except Exception as e:
+        if verbosity == "debug":
+            raise
+        else:
+            parser.error(e)
     finally:
-        try:
-            function(**arguments)
-        except Exception as e:
-            if verbosity == "debug":
-                raise
-            else:
-                parser.error(e)
-        #delete directory here
-        shutil.rmtree(extractdir)
+        shutil.rmtree(directory)
 
-def list_(source):
-    directory = dicomifier.bruker.Directory()
-
-    subjects = dicomifier.bruker.Directory.list_subjects(source)
-    for subject_source in subjects :
-        series_and_reconstructions = sorted(
-            directory.get_series_and_reco(subject_source).items(),
-            key=lambda x: (int(x[0]), [int(y) for y in x[1]]))
-
-        for series, reconstructions in series_and_reconstructions:
-            directory.load(os.path.join(subject_source, series))
-            for reconstruction in reconstructions:
-                bruker_data_set = directory.get_dataset(
-                    "{}{:04d}".format(series, int(reconstruction)))
-                bruker_dict = {k:v.value for k,v in bruker_data_set.items()}
+def list_(sources):
+    
+    for source in sources:
+        print(source)
+        # Look for 2dseq as it contains the pixel data
+        infos = [
+            (x, dicomifier.bruker_to_dicom.io.get_bruker_info(x.parent))
+            for x in source.rglob("2dseq")]
+        # Sort by series/reco, keep data sets missing this information at the 
+        # end
+        infos.sort(
+            key=lambda x: (divmod(x[1].get("SeriesNumber", [1e30])[0], 2**16)))
+        for path, info in infos:
+            if "SeriesNumber" in info:
+                subject = odil.as_unicode(
+                    info.get("PatientName", [b"(no subject name)"])[0],
+                    odil.Value.Strings(["ISO_IR 192"]))
+                study_description = odil.as_unicode(
+                    info.get("StudyDescription", [b"(no study description)"])[0],
+                    odil.Value.Strings(["ISO_IR 192"]))
+                series_number = divmod(info.get("SeriesNumber")[0], 2**16)
+                series_description = odil.as_unicode(
+                    info.get("SeriesDescription", [b"(no series description)"])[0],
+                    odil.Value.Strings(["ISO_IR 192"]))
                 print(
-                    "{}:{} - {} ({})".format(
-                        series, reconstruction,
-                        bruker_dict.get("VisuAcquisitionProtocol", ["(none)"])[0],
-                        bruker_dict.get("RECO_mode", ["none"])[0]
-                    )
-                )
+                    "  {}: {} / {} / {}:{} {}".format(
+                        path.parent.relative_to(source), subject, 
+                        study_description, series_number[0], series_number[1], 
+                        series_description))
+            else:
+                print(
+                    "  {}: unknown Bruker data".format(
+                        path.parent.relative_to(source)))
 
-def convert(
-        source, destination, reconstructions, transfer_syntax,
-        layout, dicomdir, multiframe):
+def convert(sources, destination, transfer_syntax, layout, dicomdir, multiframe):
     
-    if os.path.isdir(destination) and len(os.listdir(destination)) > 0:
+    if destination.is_dir() and list(destination.iterdir()):
         dicomifier.logger.warning("{} is not empty".format(destination))
-
-    directories = dicomifier.bruker.Directory.list_subjects(source)
     
-    if reconstructions:
-        reconstructions = [
-            [int(x) for x in r.split(":")] for r in reconstructions]
-
     Writers = {
         "nested": dicomifier.bruker_to_dicom.io.NestedDICOMWriter,
         "flat": dicomifier.bruker_to_dicom.io.FlatDICOMWriter}
     writer = Writers[layout](destination, True, transfer_syntax)
     
-    for path in directories:
+    for source in sources:
         dicomifier.bruker_to_dicom.convert.convert_directory(
-            path, destination, reconstructions, dicomdir, multiframe, writer)
+            source, destination, dicomdir, multiframe, writer)
 
 if __name__ == "__main__": 
     sys.exit(main())

@@ -18,14 +18,11 @@ import odil
 from .. import bruker, logger
 from . import io
 
-def convert_directory(
-        source, destination, reconstructions, dicomdir, multiframe, writer):
+def convert_directory(source, destination, dicomdir, multiframe, writer):
     """ Convert a Bruker directory to DICOM and write the files.
         
         :param source: source directory
         :param destination: destination directory
-        :param reconstructions: list of reconstructions to convert, or None
-            to convert all
         :param dicomdir: whether to create a DICOMDIR
         :param multiframe: whether to create multi-frame DICOM objects
         :param writer: writer object from the io module
@@ -34,58 +31,52 @@ def convert_directory(
     # NOTE import the IODs module late to avoid cross-dependence
     from . import iods
     
-    directory = bruker.Directory()
-    directory.load(source)
+    known_files = [
+        "subject", "acqp", "method", "imnd", "isa", "d3proc", "reco", 
+        "visu_pars"]
     
-    # Create series and reconstruction if they are not given in parameters
-    if reconstructions is None:
-        everything = bruker.Directory.get_series_and_reco(source)
-        reconstructions = list(
-            itertools.chain.from_iterable(
-                itertools.product([int(s)], [int(x) for x in r]) 
-                for s,r in everything.items()))
-
-    datasets = {}
-    for series, reconstruction in sorted(reconstructions):
-        logger_context = ReconstructionContext(series, reconstruction)
-        logger.addFilter(logger_context)
+    # Look for 2dseq as it contains the pixel data
+    data_sets = {}
+    for path in source.rglob("2dseq"):
+        data_set = bruker.Dataset()
+        for name in known_files:
+            for directory in list(path.parents)[:3][::-1]:
+                file_ = directory/name
+                if file_.is_file():
+                    try:
+                        data_set.load(str(file_))
+                    except Exception as e:
+                        logger.info("Could not load {}: {}".format(file_, e))
         
-        dataset = directory.get_dataset(
-            "{}{:04d}".format(series, int(reconstruction)))
-        dataset = {k: v.value for k,v in dataset.items()}
-            
-        type_id = dataset.get("VisuSeriesTypeId", [""])[0]
-        if not type_id.startswith("ACQ_"):
-            logger.warning(
-                "Skipping {} ({}): type is \"{}\"".format(
-                    dataset.get("VisuAcquisitionProtocol", ["(none)"])[0],
-                    dataset.get("RECO_mode", ["none"])[0],
-                    type_id))
-        else:
-            datasets[(series, reconstruction)] = dataset
+        reco_files = data_set.get_used_files()    
+        data_set = {k:v.value for k,v in data_set.items()}
+        data_set["PIXELDATA"] = [path]
+        data_set["reco_files"] = reco_files
         
-        logger.removeFilter(logger_context)
-
+        if not all(x in data_set for x in ["VisuStudyUid", "VisuUid"]):
+            logger.info("Skipping {}: missing UIDs".format(path.parent))
+            continue
+        
+        data_sets[path.parent] = data_set
+    
     converters = {
         ("MR", False): iods.mr_image_storage,
         ("MR", True): iods.enhanced_mr_image_storage
     }
     
-    for (series, reconstruction), dataset in sorted(datasets.items()):
+    for path, data_set in sorted(data_sets.items()):
         # TODO: parallelize (easy since dataset is a dict)
-        logger_context = ReconstructionContext(series, reconstruction)
+        logger_context = ReconstructionContext(path)
         logger.addFilter(logger_context)
         
         try:
-            modality = dataset.get("VisuInstanceModality", [None])[0]
+            modality = data_set.get("VisuInstanceModality", [None])[0]
             if not modality:
                 logger.info("Modality not found in data set, defaulting to MR")
                 modality = "MR"
             
             convert_reconstruction(
-                directory, series, reconstruction,
-                dataset,
-                converters[(modality, multiframe)], writer)
+                data_set, converters[(modality, multiframe)], writer)
             
         except Exception as e:
             logger.error(
@@ -99,13 +90,9 @@ def convert_directory(
         io.create_dicomdir(
             writer.files, destination, [], [], ["SeriesDescription:3"], [])
 
-def convert_reconstruction(
-        directory, series, reconstruction, data_set, iod_converter, writer):
+def convert_reconstruction(data_set, iod_converter, writer):
     """ Convert and save a single reconstruction.
 
-        :param directory: Bruker directory object
-        :param series: series number in the Bruker directory
-        :param reconstruction: reconstruction number in the series
         :param iod_converter: conversion function
         :param writer: writer object from the io module
     """
@@ -114,9 +101,7 @@ def convert_reconstruction(
         data_set.get("VisuAcquisitionProtocol", ["(none)"])[0],
         data_set.get("RECO_mode", ["none"])[0]
     ))
-    data_set["reco_files"] = directory.get_used_files(
-        "{}{:04d}".format(series, reconstruction))
-
+    
     dicom_data_sets = iod_converter(data_set, writer.transfer_syntax)
     
     for dicom_data_set in dicom_data_sets:
@@ -304,9 +289,9 @@ class ReconstructionContext(logging.Filter):
     """ Add reconstruction context to logger. 
     """
     
-    def __init__(self, series, reconstruction):
+    def __init__(self, path):
         logging.Filter.__init__(self)
-        self.prefix = "Reconstruction {}:{} - ".format(series, reconstruction)
+        self.prefix = "{} - ".format(path)
         
     def filter(self, record):
         record.msg = "{}{}".format(self.prefix, record.msg)
