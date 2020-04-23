@@ -57,7 +57,7 @@ EnhancedMRImage = [ # PS 3.3, C.8.13.1
         cached("__ImageType")(
             lambda d,g,i: [
                 b"ORIGINAL", b"PRIMARY", b"", 
-                d["RECO_image_type"][0].encode("ascii")]), 
+                d.get("RECO_image_type", [""])[0].encode("ascii")]), 
         None),
     (None, "PixelPresentation", 1, lambda d,g,i: ["MONOCHROME"], None),
     (None, "VolumetricProperties", 1, lambda d,g,i: ["VOLUME"], None),
