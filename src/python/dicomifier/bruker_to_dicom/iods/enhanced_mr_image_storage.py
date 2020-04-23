@@ -48,8 +48,7 @@ def enhanced_mr_image_storage(bruker_data_set, transfer_syntax):
     frame_independent_modules = [
         patient.Patient,
         study.GeneralStudy, study.PatientStudy,
-        series.GeneralSeries + [
-            (None, "Modality", 1, lambda d,g,i: ["MR"], None)],
+        series.GeneralSeries + [(None, "Modality", 1, lambda d,g,i: ["MR"])],
         frame_of_reference.FrameOfReference,
         equipment.GeneralEquipment, equipment.EnhancedGeneralEquipment,
         image.MutliFrameFunctionalGroups,
@@ -59,7 +58,7 @@ def enhanced_mr_image_storage(bruker_data_set, transfer_syntax):
         mr.MRPulseSequence,
         image.SOPCommon + [(
             None, "SOPClassUID", 1, 
-            lambda d,g,i: [odil.registry.EnhancedMRImageStorage], None)],
+            lambda d,g,i: [odil.registry.EnhancedMRImageStorage])],
     ]
     
     # Run image.ImagePixel without PixelData, which is done later.

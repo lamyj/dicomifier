@@ -32,8 +32,7 @@ def mr_image_storage(bruker_data_set, transfer_syntax):
     modules = [
         patient.Patient,
         study.GeneralStudy, study.PatientStudy,
-        series.GeneralSeries + [
-            (None, "Modality", 1, lambda d,g,i: ["MR"], None)],
+        series.GeneralSeries + [(None, "Modality", 1, lambda d,g,i: ["MR"])],
         frame_of_reference.FrameOfReference,
         equipment.GeneralEquipment, 
         image.GeneralImage, image.ImagePlane, image.ImagePixel, 
@@ -47,9 +46,7 @@ def mr_image_storage(bruker_data_set, transfer_syntax):
                         # NOTE: mr.MRDiffusion is a functional group, we use 
                         # its module only
                         image.PixelValueTransformation[2],
-                        frame_index, generator, vr_finder_function)],
-                None
-            )
+                        frame_index, generator, vr_finder_function)])
         ],
         [
             (
@@ -61,17 +58,15 @@ def mr_image_storage(bruker_data_set, transfer_syntax):
                         bruker_data_set,odil.DataSet(), mr.MRDiffusion[2],
                         frame_index, generator, vr_finder_function)] 
                     if "FG_DIFFUSION" in [x[1] for x in generator.frame_groups]
-                    else None,
-                None
-            )
+                    else None)
         ],
         image.SOPCommon + [
             (
                 None, "SOPClassUID", 1, 
-                lambda d, g, i: [odil.registry.MRImageStorage], None),
+                lambda d, g, i: [odil.registry.MRImageStorage]),
             (
                 None, "ContributingEquipmentSequence", 3, 
-                lambda d, g, i: [image.get_frame_index(g, i)], None)]
+                lambda d, g, i: [image.get_frame_index(g, i)])]
     ]
 
     vr_finder_object = odil.VRFinder()

@@ -21,24 +21,20 @@ def _get_series_number(data_set, generator, index):
 
 GeneralSeries = [ # PS 3.3, C.7.3.1
     # Modality is added by the specific IOD converter.
-    # (None, "Modality", 1, lambda d,g,i: ["MR"], None),
-    ("VisuUid", "SeriesInstanceUID", 1, None, None),
-    (None, "SeriesNumber", 2, cached("__SeriesNumber")(_get_series_number), None),
+    # (None, "Modality", 1, lambda d,g,i: ["MR"]),
+    ("VisuUid", "SeriesInstanceUID", 1, None),
+    (None, "SeriesNumber", 2, cached("__SeriesNumber")(_get_series_number)),
     (
         None, "SeriesDate", 3,
         cached("__SeriesDate")(
-            lambda d,g,i: d.get("VisuSeriesDate") or d.get("VisuAcqDate")),
-        None
-    ),
+            lambda d,g,i: d.get("VisuSeriesDate") or d.get("VisuAcqDate"))),
     (
         None, "SeriesTime", 3,
         cached("__SeriesTime")(
-            lambda d,g,i: d.get("VisuSeriesDate") or d.get("VisuAcqDate")),
-        None
-    ),
-    ("OWNER", "PerformingPhysicianName", 3, None, None),
-    ("VisuAcquisitionProtocol", "ProtocolName", 3, None, None),
-    ("VisuAcquisitionProtocol", "SeriesDescription", 3, None, None),
+            lambda d,g,i: d.get("VisuSeriesDate") or d.get("VisuAcqDate"))),
+    ("OWNER", "PerformingPhysicianName", 3, None),
+    ("VisuAcquisitionProtocol", "ProtocolName", 3, None),
+    ("VisuAcquisitionProtocol", "SeriesDescription", 3, None),
     (
         "VisuSubjectPosition", "PatientPosition", 2,
         cached("__PatientPosition")(
@@ -47,7 +43,6 @@ GeneralSeries = [ # PS 3.3, C.7.3.1
                     "Head_Left" : "HFDL", "Head_Right": "HFDR",
                     "Foot_Supine": "FFS", "Foot_Prone": "FFP",
                     "Foot_Left": "FFDL", "Foot_Right": "FFDR" 
-                }[d["VisuSubjectPosition"][0]]]),
-        None),
-    ("VisuSubjectType", "AnatomicalOrientationType", 3, None, None),
+                }[d["VisuSubjectPosition"][0]]])),
+    ("VisuSubjectType", "AnatomicalOrientationType", 3, None),
 ]

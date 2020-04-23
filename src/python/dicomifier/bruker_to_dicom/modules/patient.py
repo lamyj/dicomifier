@@ -9,21 +9,20 @@
 from . import cached
 
 Patient= [ # PS 3.3, C.7.1.1
-    ("VisuSubjectName", "PatientName", 2, None, None),
-    ("VisuSubjectId", "PatientID", 2, None, None),
-    ("VisuSubjectBirthDate", "PatientBirthDate", 2, None, None),
+    ("VisuSubjectName", "PatientName", 2, None),
+    ("VisuSubjectId", "PatientID", 2, None),
+    ("VisuSubjectBirthDate", "PatientBirthDate", 2, None),
     (
         "VisuSubjectSex", "PatientSex", 2,
         cached("__PatientSex")(
             lambda d,g,i: [{
                     "MALE": "M", "FEMALE": "F", "UNDEFINED": "O", "UNKNOWN": "O", 
                     None: None 
-                }[d["VisuSubjectSex"][0]]]),
-        None),
-    ("VisuSubjectComment", "PatientComments", 3, None, None),
-    (None, "PatientBreedDescription", 2, lambda d,g,i: None, None),
-    (None, "PatientBreedCodeSequence", 2, lambda d,g,i: None, None),
-    (None, "BreedRegistrationSequence", 2, lambda d,g,i: None, None),
-    (None, "ResponsiblePerson", 2, lambda d,g,i: None, None),
-    (None, "ResponsibleOrganization", 2, lambda d,g,i: None, None) 
+                }[d["VisuSubjectSex"][0]]])),
+    ("VisuSubjectComment", "PatientComments", 3, None),
+    (None, "PatientBreedDescription", 2, lambda d,g,i: None),
+    (None, "PatientBreedCodeSequence", 2, lambda d,g,i: None),
+    (None, "BreedRegistrationSequence", 2, lambda d,g,i: None),
+    (None, "ResponsiblePerson", 2, lambda d,g,i: None),
+    (None, "ResponsibleOrganization", 2, lambda d,g,i: None) 
 ]

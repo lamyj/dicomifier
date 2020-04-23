@@ -111,23 +111,23 @@ def convert_module(
 
         :param bruker_data_set: source Bruker data set
         :param dicom_data_set: destination DICOM data set
-        :param module: sequence of 5-element tuples describing the conversions
-            (Bruker name, DICOM name, DICOM type, getter and setter)
+        :param module: sequence of 4-element tuples describing the conversions
+            (Bruker name, DICOM name, DICOM type, getter)
         :param frame_index: index in a frame group
         :param generator: object that will manage the frame_index
         :param vr_finder: function to find the VR knowing only the dicom_name
     """
 
-    for bruker_name, dicom_name, type_, getter, setter in module:
+    for bruker_name, dicom_name, type_, getter, in module:
         convert_element(
             bruker_data_set, dicom_data_set, 
-            bruker_name, dicom_name, type_, getter, setter,
+            bruker_name, dicom_name, type_, getter,
             frame_index, generator, vr_finder)
     return dicom_data_set
 
 def convert_element(
         bruker_data_set, dicom_data_set, 
-        bruker_name, dicom_name, type_, getter, setter,
+        bruker_name, dicom_name, type_, getter,
         frame_index, generator, vr_finder):
     """ Convert a Bruker element to a DICOM element.
 
@@ -138,8 +138,6 @@ def convert_element(
         :param type_: DICOM type of the element (PS 3.5, 7.4)
         :param getter: function returning the value using the Bruker data set,
             the generator and the frame index or None (direct access)
-        :param setter: mapping or function transforming the Bruker value 
-            to a DICOM value, or None (no transformation performed)
         :param frame_index: index in frame group 
         :param generator: FrameIndexGenerator associated with the 
             Bruker data set
@@ -157,7 +155,10 @@ def convert_element(
         group_index = [
             index for index, (_, _, fields) in enumerate(generator.frame_groups) 
             if bruker_name in fields][0]
-        value = [ value[frame_index[group_index]] ]
+        
+        value = value[frame_index[group_index]]
+        if not isinstance(value, (list, numpy.ndarray)):
+            value = [value]
 
     tag = getattr(odil.registry, dicom_name)
     vr = vr_finder(tag)
@@ -168,11 +169,6 @@ def convert_element(
         elif type_ == 2:
             dicom_data_set.add(tag)
     else:
-        if isinstance(setter, dict):
-            value = [setter[x] for x in value]
-        elif setter is not None:
-            value = setter(value)
-        
         if odil.is_int(vr):
             value = [int(x) for x in value]
         elif odil.is_real(vr):

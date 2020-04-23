@@ -98,26 +98,23 @@ def get_frame_index(generator, frame_index):
         ContributionDescription=[json.dumps(contribution)])
 
 GeneralImage = [ # PS 3.3, C.7.6.1
-    (None, "InstanceNumber", 2, lambda d,g,i: [1+g.get_linear_index(i)], None),
+    (None, "InstanceNumber", 2, lambda d,g,i: [1+g.get_linear_index(i)]),
     (
         None, "ImageType", 3, 
         cached("__ImageType")(
             lambda d,g,i: [
                 b"ORIGINAL", b"PRIMARY", b"", 
-                d.get("RECO_image_type", [""])[0].encode("utf-8")]),
-        None),
-    (None, "AcquisitionNumber", 3, get_acquisition_number, None),
-    ("VisuAcqDate", "AcquisitionDate", 3, None, None),
-    ("VisuAcqDate", "AcquisitionTime", 3, None, None),
+                d.get("RECO_image_type", [""])[0].encode("utf-8")])),
+    (None, "AcquisitionNumber", 3, get_acquisition_number),
+    ("VisuAcqDate", "AcquisitionDate", 3, None),
+    ("VisuAcqDate", "AcquisitionTime", 3, None),
     (
         "VisuCoreFrameCount", "ImagesInAcquisition", 3,
         cached("__ImagesInAcquisition")(
             lambda d,g,i: 
                 [int(d["VisuCoreFrameCount"])[0]*d["VisuCoreSize"][2]]
                 if d["VisuCoreDim"]==3
-                else [int(x) for x in d["VisuCoreFrameCount"]]),
-        None
-    ),
+                else [int(x) for x in d["VisuCoreFrameCount"]])),
 ]
 
 ImagePlane = [ # PS 3.3, C.7.6.2
@@ -125,60 +122,47 @@ ImagePlane = [ # PS 3.3, C.7.6.2
         None, "PixelSpacing", 1,
         cached("__PixelSpacing")(
             lambda d, g, i,: numpy.asarray(d["VisuCoreExtent"], float)
-                / numpy.asarray(d["VisuCoreSize"], float)),
-        None
-    ),
+                / numpy.asarray(d["VisuCoreSize"], float))),
     (
         "VisuCoreOrientation", "ImageOrientationPatient", 1,
         cached("__ImageOrientationPatient")(
-            lambda d,g,i: numpy.reshape(d["VisuCoreOrientation"], (-1, 9))),
-        lambda x: x[0][:6]
-    ),
+            lambda d,g,i: numpy.squeeze(
+                numpy.reshape(d["VisuCoreOrientation"], (-1, 9))[:,:6]))),
     (
         "VisuCorePosition", "ImagePositionPatient", 1,
         cached("__ImagePositionPatient")(
-            lambda d,g,i: numpy.reshape(d["VisuCorePosition"], (-1, 3))),
-        lambda x: x[0]
-    ),
-    ("VisuCoreFrameThickness", "SliceThickness", 2, None, None)
+            lambda d,g,i: numpy.squeeze(
+                numpy.reshape(d["VisuCorePosition"], (-1, 3))))),
+    ("VisuCoreFrameThickness", "SliceThickness", 2, None)
 ]
 
 ImagePixel = [ # PS 3.3, C.7.6.3
-    (None, "SamplesPerPixel", 1, lambda d,g,i: [1], None),
-    (None, "PhotometricInterpretation", 1, lambda d,g,i: ["MONOCHROME2"], None),
-    ("VisuCoreSize", "Rows", 1, lambda d,g,i: [d["VisuCoreSize"][1]], None),
-    ("VisuCoreSize", "Columns", 1, lambda d,g,i: [d["VisuCoreSize"][0]], None),
+    (None, "SamplesPerPixel", 1, lambda d,g,i: [1]),
+    (None, "PhotometricInterpretation", 1, lambda d,g,i: ["MONOCHROME2"]),
+    ("VisuCoreSize", "Rows", 1, lambda d,g,i: [d["VisuCoreSize"][1]]),
+    ("VisuCoreSize", "Columns", 1, lambda d,g,i: [d["VisuCoreSize"][0]]),
     (
         "VisuCoreWordType", "BitsAllocated", 1, 
         cached("__BitsAllocated")(
             lambda d,g,i: [{
                 "_32BIT_FLOAT": 32, 
                 "_32BIT_SGN_INT": 32, "_16BIT_SGN_INT": 16, "_8BIT_UNSGN_INT": 8
-            }[d["VisuCoreWordType"][0]]]),
-        None
-    ),
-    (
-        "VisuCoreWordType", "BitsStored", 1, 
-        lambda d,g,i: d["__BitsAllocated"], None, 
-    ),
+            }[d["VisuCoreWordType"][0]]])),
+    ("VisuCoreWordType", "BitsStored", 1, lambda d,g,i: d["__BitsAllocated"]),
     (
         "VisuCoreByteOrder", "HighBit", 1, 
         cached("__HighBit")(
             lambda d,g,i: [
                 d["__BitsAllocated"][0]-1 
-                if d["VisuCoreByteOrder"][0] == "littleEndian" else 0]),
-        None
-    ),
+                if d["VisuCoreByteOrder"][0] == "littleEndian" else 0])),
     (
         "VisuCoreWordType", "PixelRepresentation", 1, 
         cached("__PixelRepresentation")(
             lambda d,g,i: [{
                 "_32BIT_FLOAT": 0, # mapped to uint32 
                 "_32BIT_SGN_INT": 1, "_16BIT_SGN_INT": 1, "_8BIT_UNSGN_INT": 0
-            }[d["VisuCoreWordType"][0]]]),
-        None, 
-    ),
-    (None, "PixelData", 1, get_pixel_data, None),
+            }[d["VisuCoreWordType"][0]]])),
+    (None, "PixelData", 1, get_pixel_data),
     # WARNING SmallestImagePixelValue and LargestImagePixelValue are either US
     # or SS and thus cannot accomodate 32 bits values. Use WindowCenter and
     # WindowWidth instead.
@@ -188,56 +172,50 @@ ImagePixel = [ # PS 3.3, C.7.6.3
             0.5*(
                 d["VisuCoreDataMin"][g.get_linear_index(i)]
                 +d["VisuCoreDataMax"][g.get_linear_index(i)])
-        ], 
-        None
-    ),
+        ]),
     (
         None, "WindowWidth", 3, 
         lambda d,g,i: [
             d["VisuCoreDataMax"][g.get_linear_index(i)]
             -d["VisuCoreDataMax"][g.get_linear_index(i)]
-        ],
-        None
-    ),
+        ]),
 ]
 
 PixelValueTransformation = [ # PS 3.3, C.7.6.16.2.9
     (
         "VisuCoreDataOffs", "RescaleIntercept", 1,
-        lambda d,g,i: [d["VisuCoreDataOffs"][g.get_linear_index(i)]], None
-    ),
+        lambda d,g,i: [d["VisuCoreDataOffs"][g.get_linear_index(i)]]),
     (
         "VisuCoreDataSlope", "RescaleSlope", 1,
-        lambda d,g,i: [d["VisuCoreDataSlope"][g.get_linear_index(i)]], None
-    ),
-    (None, "RescaleType", 1, lambda d,g,i: ["US"], None),
+        lambda d,g,i: [d["VisuCoreDataSlope"][g.get_linear_index(i)]]),
+    (None, "RescaleType", 1, lambda d,g,i: ["US"]),
 ]
 
 SOPCommon = [ # PS 3.3, C.12.1
-    (None, "SOPInstanceUID", 1, lambda d,g,i: [odil.generate_uid()], None),
+    (None, "SOPInstanceUID", 1, lambda d,g,i: [odil.generate_uid()]),
     #SpecificCharacterSet
     (
         None, "InstanceCreationDate", 3, 
-        lambda d,g,i: [str(datetime.datetime.now())], None),
+        lambda d,g,i: [str(datetime.datetime.now())]),
     (
         None, "InstanceCreationTime", 3, 
-        lambda d,g,i: [str(datetime.datetime.now())], None),
+        lambda d,g,i: [str(datetime.datetime.now())]),
 ]
 
 MutliFrameFunctionalGroups = [ # PS 3.3, C.7.6.16
-    ("VisuCoreFrameCount", "NumberOfFrames", 1, None, None),
-    (None, "ContentDate", 1, lambda d,g,i: [str(datetime.datetime.now())], None),
-    (None, "ContentTime", 1, lambda d,g,i: [str(datetime.datetime.now())], None),
-    (None, "InstanceNumber", 1, lambda d,g,i: [1], None),
+    ("VisuCoreFrameCount", "NumberOfFrames", 1, None),
+    (None, "ContentDate", 1, lambda d,g,i: [str(datetime.datetime.now())]),
+    (None, "ContentTime", 1, lambda d,g,i: [str(datetime.datetime.now())]),
+    (None, "InstanceNumber", 1, lambda d,g,i: [1]),
 ]
 
 MultiFrameDimension = [ # PS 3.3, C.7.6.17
-    (None, "DimensionOrganizationSequence", 1, lambda d,g,i: [], None),
-    (None, "DimensionIndexSequence", 1, lambda d,g,i: [], None),
+    (None, "DimensionOrganizationSequence", 1, lambda d,g,i: []),
+    (None, "DimensionIndexSequence", 1, lambda d,g,i: []),
 ]
 
 AcquisitionContext = [ # PS 3.3, C.7.6.14
-    (None, "AcquisitionContextSequence", 1, lambda d,g,i: [], None),
+    (None, "AcquisitionContextSequence", 1, lambda d,g,i: []),
 ]
 
 PixelMeasures = [ # PS 3.3, C.7.6.16.2.1
@@ -247,32 +225,28 @@ PixelMeasures = [ # PS 3.3, C.7.6.16.2.1
             None, "PixelSpacing", 3,
             cached("__PixelSpacing")(
                 lambda d,g,i: numpy.asarray(d["VisuCoreExtent"], float)
-                    / numpy.asarray(d["VisuCoreSize"], float)),
-            None
-        ),
-        ("VisuCoreFrameThickness", "SliceThickness", 3, None, None),
+                    / numpy.asarray(d["VisuCoreSize"], float))),
+        ("VisuCoreFrameThickness", "SliceThickness", 3, None),
         (
             None, "SpacingBetweenSlices", 3,
             cached("__SpacingBetweenSlices")(
                 lambda d,g,i: [
                     numpy.linalg.norm(
                         numpy.subtract(
-                            d["VisuCorePosition"][3:6], d["VisuCorePosition"][0:3]))]
-                    if len(d["VisuCorePosition"]) >= 6 else None),
-            None
-        ),
+                            d["VisuCorePosition"][3:6], 
+                            d["VisuCorePosition"][0:3]))]
+                    if len(d["VisuCorePosition"]) >= 6 else None)),
     ]
 ]
 
 FrameContent = [ # PS 3.3, C.7.6.16.2.2
     "FrameContentSequence", True,
     [
-        (None, "FrameAcquisitionNumber", 3, get_acquisition_number, None),
+        (None, "FrameAcquisitionNumber", 3, get_acquisition_number),
         (
             None, "FrameLabel", 3, 
             lambda d, g, i: 
-                get_frame_index(g, i)[odil.registry.ContributionDescription], 
-            None)
+                get_frame_index(g, i)[odil.registry.ContributionDescription])
     ]
 ]
 
@@ -282,9 +256,8 @@ PlanePosition = [ # PS 3.3, C.7.6.16.2.3
         (
             "VisuCorePosition", "ImagePositionPatient", 1,
             cached("__ImagePositionPatient")(
-                lambda d,g,i: numpy.reshape(d["VisuCorePosition"], (-1, 3))),
-            lambda x: x[0].tolist()
-        ),
+                lambda d,g,i: numpy.squeeze(
+                    numpy.reshape(d["VisuCorePosition"], (-1, 3))))),
     ]
 ]
 
@@ -294,9 +267,8 @@ PlaneOrientation = [ # PS 3.3, C.7.6.16.2.4
         (
             "VisuCoreOrientation", "ImageOrientationPatient", 1,
             cached("__ImageOrientationPatient")(
-                lambda d,g,i: numpy.reshape(d["VisuCoreOrientation"], (-1, 9))),
-            lambda x: x[0][:6].tolist()
-        ),
+                lambda d,g,i: numpy.squeeze(
+                    numpy.reshape(d["VisuCoreOrientation"], (-1, 9))[:,:6]))),
     ]
 ]
 
@@ -304,8 +276,8 @@ FrameAnatomy = [ # PS 3.3, C.7.6.16.2.8
     "FrameAnatomySequence", False,
     [
         #WARNING FrameLaterality not handled correctly for the moment
-        (None, "FrameLaterality", 1, lambda d,g,i: ["U"], None),
-        (None, "AnatomicRegionSequence", 1, lambda d,g,i: [], None),
+        (None, "FrameLaterality", 1, lambda d,g,i: ["U"]),
+        (None, "AnatomicRegionSequence", 1, lambda d,g,i: []),
     ]
 ]
 
@@ -314,12 +286,10 @@ PixelValueTransformation = [ # PS 3.3, C.7.6.16.2.9
     [
         (
             "VisuCoreDataOffs", "RescaleIntercept", 1,
-            lambda d,g,i: [d["VisuCoreDataOffs"][g.get_linear_index(i)]], None
-        ),
+            lambda d,g,i: [d["VisuCoreDataOffs"][g.get_linear_index(i)]]),
         (
             "VisuCoreDataSlope", "RescaleSlope", 1,
-            lambda d,g,i: [d["VisuCoreDataSlope"][g.get_linear_index(i)]], None
-        ),
-        (None, "RescaleType", 1, lambda d,g,i: ["US"], None),
+            lambda d,g,i: [d["VisuCoreDataSlope"][g.get_linear_index(i)]]),
+        (None, "RescaleType", 1, lambda d,g,i: ["US"]),
     ]
 ]

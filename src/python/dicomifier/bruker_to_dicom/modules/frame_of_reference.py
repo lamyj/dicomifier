@@ -7,6 +7,6 @@
 #########################################################################
 
 FrameOfReference = [ # PS 3.3, C.7.4.1
-    ("VisuUid", "FrameOfReferenceUID", 1, None, None),
-    (None, "PositionReferenceIndicator", 2, lambda d,g,i: None, None),
+    ("VisuUid", "FrameOfReferenceUID", 1, None),
+    (None, "PositionReferenceIndicator", 2, lambda d,g,i: None),
 ]

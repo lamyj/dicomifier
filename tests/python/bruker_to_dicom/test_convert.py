@@ -17,8 +17,7 @@ class TestConvert(unittest.TestCase):
 
         val = dicomifier.bruker_to_dicom.convert.convert_element(
             bruker_data_set, dicom_data_set,
-            "VisuSubjectName", "PatientName", 1,
-            None, None,
+            "VisuSubjectName", "PatientName", 1, None,
             frame_index, generator, vr_finder_function
         )
 
@@ -39,8 +38,7 @@ class TestConvert(unittest.TestCase):
 
         val = dicomifier.bruker_to_dicom.convert.convert_element(
             bruker_data_set, dicom_data_set,
-            None, "PixelPresentation", 1,
-            lambda d,g,i : [b"MONOCHROME"], None,
+            None, "PixelPresentation", 1, lambda d,g,i : [b"MONOCHROME"], 
             frame_index, generator, vr_finder_function
         )
 
@@ -64,8 +62,7 @@ class TestConvert(unittest.TestCase):
 
         val = dicomifier.bruker_to_dicom.convert.convert_element(
             bruker_data_set, dicom_data_set,
-            "VisuAcqEchoTime", "EchoTime", 1,
-            None, None,
+            "VisuAcqEchoTime", "EchoTime", 1, None,
             frame_index, generator, vr_finder_function
         )
 
@@ -85,53 +82,11 @@ class TestConvert(unittest.TestCase):
         with self.assertRaises(Exception) as context:
             val = dicomifier.bruker_to_dicom.convert.convert_element(
                 bruker_data_set, dicom_data_set,
-                "VisuSubjectName", "PatientName", 1,
-                None, None,
+                "VisuSubjectName", "PatientName", 1, None,
                 frame_index, generator, vr_finder_function
             )
 
         self.assertTrue("PatientName must be present" in str(context.exception))
-
-    def test_convert_element_setter_dict(self):
-        bruker_data_set = { "VisuSubjectSex" : ["MALE"]}
-        dicom_data_set = odil.DataSet()
-        generator = dicomifier.bruker_to_dicom.FrameIndexGenerator(bruker_data_set)
-        frame_index = [0]
-        vr_finder_object = odil.VRFinder()
-        vr_finder_function = lambda tag: vr_finder_object(
-            tag, odil.DataSet(), odil.registry.ImplicitVRLittleEndian)
-        val = dicomifier.bruker_to_dicom.convert.convert_element(
-            bruker_data_set, dicom_data_set,
-            "VisuSubjectSex", "PatientSex", 1,
-            None, { "MALE": b"M", "FEMALE": b"F" },
-            frame_index, generator, vr_finder_function
-        )
-        self.assertEqual(val, [b"M"])
-        dicom_val = list(dicom_data_set.as_string("PatientSex"))
-        self.assertEqual([b"M"], dicom_val)
-
-    def test_convert_element_setter_function(self):
-        bruker_data_set = {
-            # Here we make a simple example with only one frame => only one position
-            "VisuCorePosition" : [-20., -20., -2.]
-        }
-        dicom_data_set = odil.DataSet()
-        generator = dicomifier.bruker_to_dicom.FrameIndexGenerator(bruker_data_set)
-        frame_index = [0]
-        vr_finder_object = odil.VRFinder()
-        vr_finder_function = lambda tag: vr_finder_object(
-            tag, odil.DataSet(), odil.registry.ImplicitVRLittleEndian)
-
-        val = dicomifier.bruker_to_dicom.convert.convert_element(
-            bruker_data_set, dicom_data_set,
-            "VisuCorePosition", "ImagePositionPatient", 1,
-            lambda d,g,i: numpy.reshape(d["VisuCorePosition"], (-1, 3)),
-            lambda x: x[0].tolist(),
-            frame_index, generator, vr_finder_function
-        )
-        self.assertEqual(val, [-20., -20., -2.])
-        dicom_val = list(dicom_data_set.as_real("ImagePositionPatient"))
-        self.assertEqual([-20., -20., -2.], dicom_val)
 
 if __name__ == "__main__":
     unittest.main()
