@@ -40,7 +40,7 @@ def convert_directory(source, destination, dicomdir, multiframe, writer):
     for path in source.rglob("2dseq"):
         data_set = bruker.Dataset()
         for name in known_files:
-            for directory in list(path.parents)[:3][::-1]:
+            for directory in list(path.parents)[:4][::-1]:
                 file_ = directory/name
                 if file_.is_file():
                     try:

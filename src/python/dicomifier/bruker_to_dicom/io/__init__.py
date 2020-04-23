@@ -24,7 +24,7 @@ def get_bruker_info(directory):
     
     bruker_data_set = bruker.Dataset()
     for name in ["visu_pars", "id", "reco"]:
-        for directory in list(directory.parents)[:2][::-1]+[directory]:
+        for directory in list(directory.parents)[:3][::-1]+[directory]:
             file_ = directory/name
             if file_.is_file():
                 bruker_data_set.load(str(file_))
