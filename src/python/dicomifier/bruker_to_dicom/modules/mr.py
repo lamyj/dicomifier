@@ -187,61 +187,67 @@ MRImagingModifier = [ # PS 3.3, C.8.13.5.6
     ]
 ]
 
-def get_direction_and_b_value(data_set, b_matrix):
-    # The "ideal" direction is defined as the eigenvector associated with the
-    # largest eigenvalue of the b-matrix. This assumes that the b-value is
-    # large enough to mostly depend on the diffusion-sensitization gradient and
-    # not on the imaging gradients.
+def get_diffusion_data(data_set, what):
+    if "__Diffusion" not in data_set:
+        # Cache the "ideal" diffusion direction and b-values.
+        # The ideal direction is defined as the eigenvector associated with the
+        # largest eigenvalue of the b-matrix. This assumes that the b-value is
+        # large enough to mostly depend on the diffusion-sensitization gradient
+        # and not on the imaging gradients.
+        data_set["__Diffusion"] = ([], [], [])
+        
+        ideal_b_values = set(data_set["PVM_DwBvalEach"])
+        ideal_b_values.add(0)
+        ideal_b_values = list(ideal_b_values)
+        
+        b_matrices = numpy.reshape(data_set["PVM_DwBMat"], (-1, 3, 3))
+        for index, b_matrix in enumerate(b_matrices):
+            b_value = numpy.trace(b_matrix)
+            closest = numpy.argmin([abs(b_value - x) for x in ideal_b_values])
+            ideal_b_value = float(ideal_b_values[closest])
+            
+            direction = numpy.linalg.eigh(b_matrix)[1][:,-1]
+            if ideal_b_value == 0:
+                ideal_direction = direction
+            else:
+                ideal_directions = numpy.reshape(data_set["PVM_DwDir"], [-1, 3])
+                closest = numpy.argmax([
+                    numpy.abs(numpy.dot(direction, x)) 
+                    for x in ideal_directions])
+                ideal_direction = ideal_directions[closest].astype(float)
+            
+            b_matrix = odil.DataSet(**dict(zip(
+                [
+                    "DiffusionBValue{}".format(x) 
+                    for x in ["XX", "XY", "XZ", "YY", "YZ", "ZZ"]], 
+                [[x] for x in b_matrix[numpy.triu_indices(3)]])))
+            
+            data_set["__Diffusion"][0].append(ideal_b_value)
+            data_set["__Diffusion"][1].append(
+                odil.DataSet(
+                    DiffusionGradientOrientation=ideal_direction.tolist()))
+            data_set["__Diffusion"][2].append(b_matrix)
     
-    ideal_b_values = set(data_set["PVM_DwBvalEach"])
-    ideal_b_values.add(0)
-    ideal_b_values = list(ideal_b_values)
-    
-    b_value = numpy.trace(b_matrix)
-    b_value_distances = [abs(b_value - x) for x in ideal_b_values]
-    ideal_b_value = ideal_b_values[numpy.argmin(b_value_distances)]
-    
-    direction = numpy.linalg.eigh(b_matrix)[1][:,-1]
-    if ideal_b_value == 0:
-        ideal_direction = direction
-    else:
-        ideal_directions = numpy.reshape(data_set["PVM_DwDir"], [-1, 3])
-        direction_dot = [
-            numpy.abs(numpy.dot(direction, x)) for x in ideal_directions]
-        ideal_direction = ideal_directions[numpy.argmax(direction_dot)]
-    
-    return ideal_direction.astype(float), float(ideal_b_value)
+    return data_set["__Diffusion"][what]
 
 MRDiffusion = [ # PS 3.3, C.8.13.5.9
     "MRDiffusionSequence", False,
     [
         (
             "VisuAcqDiffusionBMatrix", "DiffusionBValue", 1,
-            cached("__DiffusionBValue")(
-                lambda d,g,i: [ 
-                    get_direction_and_b_value(d, x)[1] 
-                    for x in numpy.reshape(d["PVM_DwBMat"], (-1, 3, 3))]),
+            lambda d, g, i: get_diffusion_data(d, 0),
             None
         ),
         (None, "DiffusionDirectionality", 1, lambda d,g,i: ["BMATRIX"], None),
         (
             "VisuAcqDiffusionBMatrix", "DiffusionGradientDirectionSequence", 1,
-            cached("__DiffusionGradientDirectionSequence")(
-                lambda d,g,i: [
-                    get_direction_and_b_value(d, x)[0] 
-                    for x in numpy.reshape(d["PVM_DwBMat"], (-1, 3, 3))]),
-            lambda x: [odil.DataSet(DiffusionGradientOrientation=numpy.ravel(x))]
+            lambda d, g, i: get_diffusion_data(d, 1),
+            None
         ),
         (
             "VisuAcqDiffusionBMatrix", "DiffusionBMatrixSequence", 1,
-            cached("__DiffusionBMatrixSequence")(
-                lambda d,g,i: numpy.reshape(d["PVM_DwBMat"], (-1, 3, 3))),
-            lambda m: [
-                odil.DataSet(**dict(zip(
-                    [
-                        "DiffusionBValue{}".format(x) 
-                        for x in ["XX", "XY", "XZ", "YY", "YZ", "ZZ"]], 
-                    [[x] for x in m[0][numpy.triu_indices(3)]])))]
+            lambda d, g, i: get_diffusion_data(d, 2),
+            None
         )
     ]
 ]

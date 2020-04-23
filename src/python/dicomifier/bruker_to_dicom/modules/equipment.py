@@ -6,14 +6,16 @@
 # for details.
 #########################################################################
 
+from . import cached
+
 GeneralEquipment = [ # PS 3.3, C.7.5.1
     ("ORIGIN", "Manufacturer", 2, None, None),
     ("VisuInstitution", "InstitutionName", 3, None, None),
     ("VisuStation", "StationName", 3, None, None),
     (
         None, "SoftwareVersions", 3, 
-        lambda d,g,i: d.setdefault("__SoftwareVersions",
-            d.get("VisuCreator", [])+d.get("VisuCreatorVersion", [])),
+        cached("__SoftwareVersions")(
+            lambda d,g,i: d.get("VisuCreator", [])+d.get("VisuCreatorVersion", [])),
         None
     ),
     ("VisuSystemOrderNumber", "DeviceSerialNumber", 3, None, None),
@@ -27,8 +29,8 @@ EnhancedGeneralEquipment = [ # PS 3.3, C.7.5.2
     ("VisuSystemOrderNumber", "DeviceSerialNumber", 2, None, None),
     (
         None, "SoftwareVersions", 1,
-        lambda d,g,i: d.setdefault("__SoftwareVersions",
-            d.get("VisuCreator", [])+d.get("VisuCreatorVersion", [])),
+        cached("__SoftwareVersions")(
+            lambda d,g,i: d.get("VisuCreator", [])+d.get("VisuCreatorVersion", [])),
         None
     ),
 ]

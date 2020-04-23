@@ -6,17 +6,20 @@
 # for details.
 #########################################################################
 
+from . import cached
+
 Patient= [ # PS 3.3, C.7.1.1
     ("VisuSubjectName", "PatientName", 2, None, None),
     ("VisuSubjectId", "PatientID", 2, None, None),
     ("VisuSubjectBirthDate", "PatientBirthDate", 2, None, None),
     (
-        "VisuSubjectSex", "PatientSex", 2, None, 
-        {
-            "MALE": "M", "FEMALE": "F", "UNDEFINED": "O", "UNKNOWN": "O", 
-            None: None 
-        }
-    ),
+        "VisuSubjectSex", "PatientSex", 2,
+        cached("__PatientSex")(
+            lambda d,g,i: [{
+                    "MALE": "M", "FEMALE": "F", "UNDEFINED": "O", "UNKNOWN": "O", 
+                    None: None 
+                }[d["VisuSubjectSex"][0]]]),
+        None),
     ("VisuSubjectComment", "PatientComments", 3, None, None),
     (None, "PatientBreedDescription", 2, lambda d,g,i: None, None),
     (None, "PatientBreedCodeSequence", 2, lambda d,g,i: None, None),

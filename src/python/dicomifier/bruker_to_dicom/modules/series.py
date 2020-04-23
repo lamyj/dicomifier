@@ -40,13 +40,14 @@ GeneralSeries = [ # PS 3.3, C.7.3.1
     ("VisuAcquisitionProtocol", "ProtocolName", 3, None, None),
     ("VisuAcquisitionProtocol", "SeriesDescription", 3, None, None),
     (
-        "VisuSubjectPosition", "PatientPosition", 2, None,
-        {
-            "Head_Supine": "HFS", "Head_Prone": "HFP",
-            "Head_Left" : "HFDL", "Head_Right": "HFDR",
-            "Foot_Supine": "FFS", "Foot_Prone": "FFP",
-            "Foot_Left": "FFDL", "Foot_Right": "FFDR" 
-        }
-    ),
+        "VisuSubjectPosition", "PatientPosition", 2,
+        cached("__PatientPosition")(
+            lambda d,g,i: [{
+                    "Head_Supine": "HFS", "Head_Prone": "HFP",
+                    "Head_Left" : "HFDL", "Head_Right": "HFDR",
+                    "Foot_Supine": "FFS", "Foot_Prone": "FFP",
+                    "Foot_Left": "FFDL", "Foot_Right": "FFDR" 
+                }[d["VisuSubjectPosition"][0]]]),
+        None),
     ("VisuSubjectType", "AnatomicalOrientationType", 3, None, None),
 ]
