@@ -64,7 +64,7 @@ class TestDataset(unittest.TestCase):
             
             for index, (item, expected_item) in enumerate(zip(field.value, items)):
                 type_info = [
-                    ["int", int], ["float", float], ["string", str], 
+                    ["int", int], ["real", float], ["string", str], 
                     ["struct", list]]
                 for typename, type_ in type_info:
                     test = "is_{}".format(typename)
