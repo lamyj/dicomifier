@@ -6,6 +6,7 @@
 # for details.
 #########################################################################
 
+import copy
 import itertools
 import json
 import numpy
@@ -44,7 +45,7 @@ def enhanced_mr_image_storage(bruker_data_set, transfer_syntax):
     
 
     # Modules factory
-    modules = [
+    frame_independent_modules = [
         patient.Patient,
         study.GeneralStudy, study.PatientStudy,
         series.GeneralSeries + [
@@ -59,7 +60,13 @@ def enhanced_mr_image_storage(bruker_data_set, transfer_syntax):
         image.SOPCommon + [(
             None, "SOPClassUID", 1, 
             lambda d,g,i: [odil.registry.EnhancedMRImageStorage], None)],
-        image.ImagePixel,
+    ]
+    
+    # Run image.ImagePixel without PixelData, which is done later.
+    image_pixel = copy.copy(image.ImagePixel)
+    image_pixel = [x for x in image_pixel if x[1] != "PixelData"]
+    frame_dependent_modules = [
+        image_pixel
     ]
 
     groups = [
@@ -81,8 +88,12 @@ def enhanced_mr_image_storage(bruker_data_set, transfer_syntax):
     if "FG_DIFFUSION" in [x[1] for x in generator.frame_groups]:
         groups.append(mr.MRDiffusion)
 
+    for module in frame_independent_modules:
+        convert.convert_module(
+            bruker_data_set, dicom_data_set, module,
+            None, generator, vr_finder_function)
     for i, frame_index in enumerate(generator):
-        for module in modules:
+        for module in frame_dependent_modules:
             convert.convert_module(
                 bruker_data_set, dicom_data_set, module,
                 frame_index, generator, vr_finder_function)
@@ -103,9 +114,8 @@ def enhanced_mr_image_storage(bruker_data_set, transfer_syntax):
     pixel_data_list = []
     for i, frame_index in enumerate(generator):
         pixel_data_list.append(
-            image.get_pixel_data(bruker_data_set, generator, frame_index)[0]
-        )
-
+            image.get_pixel_data(bruker_data_set, generator, frame_index)[0])
+    
     dicom_data_set.add(
         odil.registry.PixelData, [b"".join(pixel_data_list)], 
         vr_finder_function("PixelData"))
