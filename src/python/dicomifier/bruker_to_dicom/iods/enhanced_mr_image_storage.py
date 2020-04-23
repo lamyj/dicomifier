@@ -67,6 +67,9 @@ def enhanced_mr_image_storage(bruker_data_set, transfer_syntax):
     frame_dependent_modules = [
         image_pixel
     ]
+    
+    # Dummy call to set up the intensity intercept and slope.
+    image.get_pixel_data(bruker_data_set, generator, next(iter(generator)))
 
     groups = [
         image.PixelMeasures,
