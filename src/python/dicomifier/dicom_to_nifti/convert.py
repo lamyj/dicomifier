@@ -22,7 +22,7 @@ from .stacks import get_stacks, sort
 
 from .. import logger, MetaData
 
-def convert_paths(paths, destination, zip, dtype=None, parallel=1):
+def convert_paths(paths, destination, zip, dtype=None):
     """ Convert the DICOM files found in a collection of paths (files, 
         directories, or DICOMDIR) and save the result in the given destination.
         
@@ -30,7 +30,6 @@ def convert_paths(paths, destination, zip, dtype=None, parallel=1):
         :param destination: Destination directory
         :param zip: whether to zip the NIfTI files
         :param dtype: if not None, force the dtype of the result image
-        :param parallel: number of series to convert in parallel
     """
     
     if os.path.isdir(destination) and len(os.listdir(destination)) > 0:
@@ -41,13 +40,8 @@ def convert_paths(paths, destination, zip, dtype=None, parallel=1):
 
     logger.info("{} series found".format(len(series)))
 
-    with multiprocessing.Pool(parallel) as pool:
-        for finder, series_files in series.items():
-            pool.apply_async(
-                convert_and_write_series, 
-                [series_files, destination, zip, dtype, finder])
-        pool.close()
-        pool.join()
+    for finder, series_files in series.items():
+        convert_and_write_series(series_files, destination, zip, dtype, finder)
 
 def convert_and_write_series(
         series_files, destination, zip, dtype=None, finder=None):
@@ -164,7 +158,7 @@ def convert_series(series_files, dtype=None, finder=None):
             data_set[odil.registry.SeriesInstanceUID][0] = finder.series_instance_uid
     
     # Get only data_sets containing correct PixelData field
-    data_sets = [x for x in data_sets if "PixelData" in x]
+    data_sets = [x for x in data_sets if odil.registry.PixelData in x]
 
     if len(data_sets) == 0:
         logger.warning("No image in series")

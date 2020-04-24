@@ -65,7 +65,6 @@ def convert_directory(source, destination, dicomdir, multiframe, writer):
     }
     
     for path, data_set in sorted(data_sets.items()):
-        # TODO: parallelize (easy since dataset is a dict)
         logger_context = ReconstructionContext(path)
         logger.addFilter(logger_context)
         

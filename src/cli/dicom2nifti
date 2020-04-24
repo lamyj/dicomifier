@@ -22,22 +22,10 @@ def main():
     parser.add_argument(
         "--zip", "-z", action="store_true", help="Compress NIfTI files")
     parser.add_argument(
-        "--parallel", "-j", default=None, 
-        help="Parallelize the conversion of each series")
-    parser.add_argument(
         "--verbosity", "-v",
         choices=["warning", "info", "debug"], default="warning")
 
     arguments = vars(parser.parse_args())
-    if arguments["parallel"] is not None:
-        if arguments["parallel"] in ["auto", "0", ""]:
-            arguments["parallel"] = os.cpu_count()
-        else:
-            try:
-                arguments["parallel"] = int(arguments["parallel"])
-            except ValueError as e:
-                parser.error("Parallel option must be int or \"auto\"")
-    
     verbosity = arguments.pop("verbosity")
     logging.basicConfig(
         level=verbosity.upper(), 
