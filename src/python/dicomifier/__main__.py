@@ -33,6 +33,9 @@ def main():
         command_parsers[command.action] = subparser
     
     arguments = vars(parser.parse_args())
+    if "action" not in arguments:
+        parser.print_help()
+        return 1
     
     verbosity = arguments.pop("verbosity")
     logging.basicConfig(
