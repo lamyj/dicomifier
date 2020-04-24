@@ -63,7 +63,7 @@ class FrameIndexGenerator(object):
         """ Total number of frames.
         """
         
-        return self._frames_count
+        return max(1, self._frames_count)
     
     @property
     def dependent_fields(self):

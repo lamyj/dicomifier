@@ -43,7 +43,6 @@ def enhanced_mr_image_storage(bruker_data_set, transfer_syntax):
     vr_finder_function = lambda tag: vr_finder_object(
         tag, dicom_data_set, transfer_syntax)
     
-
     # Modules factory
     frame_independent_modules = [
         patient.Patient,
