@@ -6,4 +6,4 @@
 # for details.
 #########################################################################
 
-from . import to_dicom
+from . import to_dicom, to_nifti
