@@ -46,7 +46,7 @@ def get_files(paths):
             header, _ = odil.Reader.read_file(
                 dicom_file, halt_condition=lambda x: x.group > 0x0004)
         except odil.Exception as e:
-            logger.warning("Could not read {}: {}".format(dicom_file, e))
+            logger.info("Could not read {}: {}".format(dicom_file, e))
             continue
         sop_instance_uids.setdefault(
                 header[odil.registry.MediaStorageSOPInstanceUID][0], 

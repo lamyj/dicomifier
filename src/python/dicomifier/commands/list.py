@@ -28,10 +28,11 @@ def setup(subparsers):
 
 def action(sources):
     for source in sources:
-        list_bruker(source)
-        list_pvdatasets(source)
+        source_printed = list_bruker(source)
+        list_pvdatasets(source, source_printed)
+        list_dicom(source, source_printed)
 
-def list_bruker(source, label=None):
+def list_bruker(source, label=None, source_printed=False):
     entries = []
     for path in source.rglob("2dseq"):
         info = dicomifier.bruker_to_dicom.io.get_bruker_info(path.parent)
@@ -44,7 +45,20 @@ def list_bruker(source, label=None):
             if isinstance(value, odil.DataSet) 
             else (0, name))
     
-    def format(info):
+    if not entries:
+        return
+    
+    entries.sort(
+        key=lambda x: (
+            x[1].get("PatientName", [""])[0], 
+            x[1].get("StudyDate", ["9999999"])[0], 
+            divmod(x[1].get("SeriesNumber", [1e30])[0], 2**16)))
+    
+    if not source_printed:
+        print(label or source)
+    
+    print("  Bruker")
+    for path, info in entries:
         if "SeriesNumber" in info:
             subject = odil.as_unicode(
                 info.get("PatientName", [b"(no subject name)"])[0],
@@ -56,27 +70,18 @@ def list_bruker(source, label=None):
             series_description = odil.as_unicode(
                 info.get("SeriesDescription", [b"(no series description)"])[0],
                 odil.Value.Strings(["ISO_IR 192"]))
-            return (
+            message = (
                 "{} / {} / {}:{} {}".format(
                     subject, 
                     study_description, series_number[0], series_number[1], 
                     series_description))
         else:
-            return "unknown Bruker data"
+            message = "unknown Bruker data"
+        print("    {}: {}".format(path, message))
     
-    if not entries:
-        return
-    
-    print(label or source)
-    entries.sort(
-        key=lambda x: (
-            x[1].get("PatientName", [""])[0], 
-            x[1].get("StudyDate", ["9999999"])[0], 
-            divmod(x[1].get("SeriesNumber", [1e30])[0], 2**16)))
-    for path, info in entries:
-        print("  {}: {}".format(path, format(info)))
+    return True
 
-def list_pvdatasets(source):
+def list_pvdatasets(source, source_printed):
     if source.is_file() and zipfile.is_zipfile(source):
         directory = pathlib.Path(tempfile.mkdtemp())
         try:
@@ -86,3 +91,72 @@ def list_pvdatasets(source):
                 shutil.rmtree(directory/source.name)
         finally:
             shutil.rmtree(directory)
+
+def list_dicom(source, source_printed):
+    series = {}
+    for dirpath, dirnames, filenames in os.walk(source):
+        dicomdir = [x for x in filenames if x.upper() == "DICOMDIR"]
+        if dicomdir:
+            filenames = dicomifier.dicom_to_nifti.io.get_dicomdir_files(
+                os.path.join(dirpath, dicomdir[0]))
+            # Don't recurse
+            dirnames[:] = []
+        
+        for file_ in filenames:
+            try:
+                header, data_set = odil.Reader.read_file(
+                    os.path.join(dirpath, file_),
+                    halt_condition=lambda x: x > odil.registry.SeriesNumber)
+            except odil.Exception:
+                continue
+            series_instance_uid = data_set[odil.registry.SeriesInstanceUID][0]
+            series[series_instance_uid] = data_set
+    
+    def get_series_number(data_set):
+        series_number = data_set.get("SeriesNumber", [0])[0]
+        software = data_set.get(odil.registry.SoftwareVersions, [""])[0]
+        if software and software == b"ParaVision" and series_number > 2**16:
+            # Bruker ID based on experiment number and reconstruction 
+            # number is not readable: separate the two values
+            series_number = divmod(series_number, 2**16)
+        elif software.startswith(b"ParaVision") and series_number > 10000:
+            # Same processing for Bruker-generated DICOM
+            series_number = divmod(series_number, 10000)
+        return series_number
+    
+    if not series:
+        return
+    
+    series = sorted(
+        series.values(),
+        key=lambda x: (
+            x.get("PatientName", [""])[0], 
+            x.get("StudyDate", ["9999999"])[0], 
+            get_series_number(x)))
+    
+    if not source_printed:
+        print(source)
+    
+    print("  DICOM")
+    for data_set in series:
+        subject = odil.as_unicode(
+            data_set.get("PatientName", [b"(no subject name)"])[0],
+            odil.Value.Strings(["ISO_IR 192"]))
+        study_description = odil.as_unicode(
+            data_set.get("StudyDescription", [b"(no study description)"])[0],
+            odil.Value.Strings(["ISO_IR 192"]))
+        
+        series_number = get_series_number(data_set)
+        
+        series_description = odil.as_unicode(
+            data_set.get("SeriesDescription", [b"(no series description)"])[0],
+            odil.Value.Strings(["ISO_IR 192"]))
+            
+        print(
+            "    {} / {} / {} {}".format(
+                subject, study_description, 
+                "{}:{}".format(*series_number) 
+                    if isinstance(series_number, tuple) 
+                    else series_number, 
+                series_description))
+        
