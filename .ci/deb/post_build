@@ -18,13 +18,10 @@ cd "${BUILD_DIR}"
 ctest -T Test
 ${PYTHON} -m unittest discover -s ${WORKSPACE}/tests/python/
 
-cd ${HOME}
-# WARNING: 467 MB archived, 807 MB unzipped
-wget -qO - https://github.com/fli-iam/dicomifier-data/archive/master.tar.gz ⁠\
-  | tar -x -z -f -
-
+cd ${WORKSPACE}
+./tests/download_data
 export PATH=${INSTALL_DIR}/bin:${PATH}
-${PYTHON} ./dicomifier-data-master/scripts/diff_bruker2dicom.py
-${PYTHON} ./dicomifier-data-master/scripts/diff_dicom2nifti.py
+${PYTHON} ./tests/diff/to_dicom.py
+${PYTHON} ./tests/diff/to_nifti.py
 
 rm -rf dicomifier-data-master
