@@ -1,6 +1,6 @@
 #!/bin/sh
 
-set -ev
+set -v
 
 export WORKSPACE=${WORKSPACE:?}
 export BUILD_DIR="${WORKSPACE}/${BUILD_DIR:-build}"
@@ -16,7 +16,10 @@ export DICOMIFIER_TEST_DATA=${WORKSPACE}/tests/data
 cd "${BUILD_DIR}"
 
 ctest -T Test
+R1=$?
+
 ${PYTHON} -m unittest discover -s ${WORKSPACE}/tests/python/
+R2=$?
 
 cd ${WORKSPACE}
 ./tests/download_data
@@ -24,4 +27,5 @@ export PATH=${INSTALL_DIR}/bin:${PATH}
 ${PYTHON} ./tests/diff/to_dicom.py
 ${PYTHON} ./tests/diff/to_nifti.py
 
-rm -rf dicomifier-data-master
+RETURNCODE=$(if test ${R2} -gt ${R1}; then echo ${R2} ; else echo ${R1}; fi)
+exit ${RETURNCODE}
