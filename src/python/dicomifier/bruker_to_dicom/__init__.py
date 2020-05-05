@@ -7,4 +7,4 @@
 #########################################################################
 
 from .frame_index_generator import FrameIndexGenerator
-from . import convert, frame_groups, io, iods, modules
+from . import convert, io, iods, modules
