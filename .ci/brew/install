@@ -33,4 +33,4 @@ for PACKAGE in boost cmake ninja odil pkg-config pybind11; do
     fi
 done
 
-python3 -m pip install --upgrade nibabel numpy py-dateutil
+python3 -m pip install --upgrade nibabel numpy py-dateutil requests
