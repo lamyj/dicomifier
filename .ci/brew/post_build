@@ -13,11 +13,27 @@ export PYTHONPATH=${INSTALL_DIR}/$(${PYTHON} -c "from distutils.sysconfig import
 
 export DICOMIFIER_TEST_DATA=${WORKSPACE}/tests/data
 
+cd "${BUILD_DIR}"
+
+RETURNCODES=()
+
 ctest -T Test
-R1=$?
+RETURNCODES[${#RETURNCODES[*]}]=$?
 
-python3 -m unittest discover -s ../tests/python/
-R2=$?
+${PYTHON} -m unittest discover -s ${WORKSPACE}/tests/python/
+RETURNCODES[${#RETURNCODES[*]}]=$?
 
-RETURNCODE=$(if test ${R2} -gt ${R1}; then echo ${R2} ; else echo ${R1}; fi)
+cd ${WORKSPACE}
+if [ ! -d tests/data/input ]; then
+  ./tests/download_data
+fi
+export PATH=${INSTALL_DIR}/bin:${PATH}
+
+${PYTHON} ./tests/diff/to_dicom.py
+RETURNCODES[${#RETURNCODES[*]}]=$?
+
+${PYTHON} ./tests/diff/to_nifti.py
+RETURNCODES[${#RETURNCODES[*]}]=$?
+
+RETURNCODE=$(printf "%s\n" ${RETURNCODES[*]} | sort -n | tail -n 1)
 exit ${RETURNCODE}

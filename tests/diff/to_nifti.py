@@ -9,6 +9,7 @@ import sys
 import tempfile
 
 import nibabel
+import numpy
 
 import diff
 
@@ -28,6 +29,7 @@ def main():
         ],
     ]
     
+    different = False
     for case_input, case_baseline in tests:
         case_output = tempfile.mkdtemp()
         try:
@@ -38,11 +40,18 @@ def main():
                 print(e.output)
                 return
             
-            diff_directories(case_baseline, case_output)
+            different = different or diff_directories(case_baseline, case_output)
         finally:
             shutil.rmtree(case_output)
+    
+    if different:
+        return 1
+    else:
+        return 0
         
 def diff_directories(baseline, test):
+    different = False
+    
     for pathname, dirnames, filenames in os.walk(baseline):
         relative_pathname = pathname[len(os.path.join(baseline, "")):]
         test_pathname = os.path.join(test, relative_pathname)
@@ -62,6 +71,7 @@ def diff_directories(baseline, test):
                     differences = diff.diff(
                         *meta_data, exclusions=["EncapsulatedDocument"])
                     if differences:
+                        different = True
                         print(
                             "Meta-data differences in {}".format(
                                 relative_filename))
@@ -75,6 +85,7 @@ def diff_directories(baseline, test):
                     for documents in zip(*encaspulated_documents):
                         differences = diff.diff(*documents)
                         if differences:
+                            different = True
                             print(
                                 "Encapsulated document differences in {}".format(
                                     relative_filename))
@@ -90,12 +101,14 @@ def diff_directories(baseline, test):
                         for x in images]
                     differences = diff.diff(*meta_data)
                     if differences:
+                        different = True
                         print(
                             "Geometry differences in {}".format(
                                 relative_filename))
                         diff.print_differences(differences, 1)
                     pixel_data = [x.get_data().ravel().tolist() for x in images]
                     if not numpy.allclose(*[x.get_data().ravel() for x in images]):
+                        different = True
                         print(
                             "Pixel data differences in {}".format(
                                 relative_filename))
@@ -105,6 +118,7 @@ def diff_directories(baseline, test):
                             ["diff", baseline_filename, test_filename],
                             stderr=subprocess.STDOUT)
                     except subprocess.CalledProcessError as e:
+                        different = True
                         print("Differences on {}".format(
                             os.path.join(relative_pathname, filename)))
     
@@ -115,8 +129,11 @@ def diff_directories(baseline, test):
         baseline_pathname = os.path.join(baseline, relative_pathname)
         for filename in filenames:
             if not os.path.isfile(os.path.join(baseline_pathname, filename)):
+                different = True
                 print("{} missing in baseline".format(
                     os.path.join(relative_pathname, filename)))
+    
+    return different
 
 if __name__ == "__main__":
     sys.exit(main())

@@ -37,6 +37,7 @@ def main():
         ]
     ]
     
+    different = False
     for arguments, case_input, case_baseline in tests:
         case_output = tempfile.mkdtemp()
         try:
@@ -49,9 +50,14 @@ def main():
                 print(e.output)
                 return
             
-            diff_directories(case_baseline, case_output)
+            different = different or diff_directories(case_baseline, case_output)
         finally:
             shutil.rmtree(case_output)
+    
+    if different:
+        return 1
+    else:
+        return 0
 
 def diff_directories(baseline, test):
     exclusions = [
@@ -61,6 +67,7 @@ def diff_directories(baseline, test):
             "SpecificCharacterSet", "ContentDate",
             "ContentTime", "EncapsulatedDocument"]]
     
+    different = False
     for pathname, dirnames, filenames in os.walk(baseline):
         relative_pathname = pathname[len(os.path.join(baseline, "")):]
         test_pathname = os.path.join(test, relative_pathname)
@@ -81,6 +88,7 @@ def diff_directories(baseline, test):
                     *[json.loads(odil.as_json(x[0])) for x in [d1, d2]],
                     exclusions)
                 if differences:
+                    different = True
                     print("Header differences in {}".format(relative_filename))
                     diff.print_differences(differences, 1)
                 
@@ -88,6 +96,7 @@ def diff_directories(baseline, test):
                     *[json.loads(odil.as_json(x[1])) for x in [d1, d2]],
                     exclusions)
                 if differences:
+                    different = True
                     print("Data set differences in {}".format(relative_filename))
                     diff.print_differences(differences, 1)
                     
@@ -99,6 +108,7 @@ def diff_directories(baseline, test):
                 if any(x is not None for x in [baseline_bruker, test_bruker]):
                     differences = diff.diff(baseline_bruker, test_bruker)
                     if differences:
+                        different = True
                         print(
                             "Encapsulated document differences in {}".format(
                                 relative_filename))
@@ -111,8 +121,11 @@ def diff_directories(baseline, test):
         baseline_pathname = os.path.join(baseline, relative_pathname)
         for filename in filenames:
             if not os.path.isfile(os.path.join(baseline_pathname, filename)):
+                different = True
                 print("{} missing in baseline".format(
                     os.path.join(relative_pathname, filename)))
+    
+    return different
 
 def get_encapsulated_document(path):
     with odil.open(path, "rb") as fd:
