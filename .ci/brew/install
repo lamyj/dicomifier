@@ -6,24 +6,26 @@ export PYTHON=${PYTHON:-python}
 
 export HOMEBREW_NO_INSTALL_CLEANUP=1
 
+brew tap lamyj/odil
+
 # WARNING The Python environment in Travis is weird: "brew install python" fails
 # when symlinking, due to the presence of python@2.
 # brew upgrade python || brew install python || true
 brew install python || true
 brew link --overwrite python || true
 
-for PACKAGE in boost cmake ninja pkg-config pybind11; do
+for PACKAGE in boost cmake ninja odil pkg-config pybind11; do
     VERSIONS=$(brew ls --versions ${PACKAGE} || true)
     COMMAND=""
     if [ -z "${VERSIONS}" ]; then
         COMMAND="install"
-    # else
-    #     OUTDATED=$(brew outdated ${PACKAGE} || true)
-    #     if [ -z "${OUTDATED}" ]; then
-    #         COMMAND=""
-    #     else
-    #         COMMAND="upgrade"
-    #     fi
+    else
+        OUTDATED=$(brew outdated ${PACKAGE} || true)
+        if [ -z "${OUTDATED}" ]; then
+            COMMAND=""
+        else
+            COMMAND="upgrade"
+        fi
     fi
     
     if [ -n "${COMMAND}" ]; then
@@ -32,12 +34,3 @@ for PACKAGE in boost cmake ninja pkg-config pybind11; do
 done
 
 python3 -m pip install --upgrade nibabel numpy py-dateutil
-
-wget https://repo.anaconda.com/miniconda/Miniconda3-latest-MacOSX-x86_64.sh -O miniconda.sh
-bash miniconda.sh -b -p $HOME/miniconda
-source $HOME/miniconda/bin/activate
-conda init
-hash -r
-
-conda update -q conda
-conda install -c conda-forge odil 
