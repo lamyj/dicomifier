@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+    
+  
+  
+  <title>Diffusion-related meta data in Bruker files</title>
+  <link rel="stylesheet" href="style.css">
+  
+  
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js" type="text/javascript"></script>
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
+  </head>
+<body>
+  <article class="markdown-body">
+            <header>
+      <h1 class="title">Diffusion-related meta data in Bruker files</h1>
+      
+            
+      
+    </header>
+            <hr>
+    <nav id="TOC">
+      <h1 class="toc-title">Contents</h1>
+      <ul>
+      <li><a href="#data-sets">Data sets</a></li>
+      <li><a href="#units-and-coordinate-systems">Units and coordinate systems</a></li>
+      <li><a href="#conversion-to-subject-coordinates">Conversion to subject coordinates</a></li>
+      <li><a href="#validation">Validation</a>
+      <ul>
+      <li><a href="#qualitative">Qualitative</a></li>
+      <li><a href="#quantitative">Quantitative</a></li>
+      </ul></li>
+      </ul>
+    </nav>
+    <hr>
+        
+    <p>As with many other vendors, the diffusion-related meta data (b-values and direction of diffusion-encoding gradient) is barely specified in the official documentation, the two major problems being the unit in which the b-value is expressed and the coordinate system which defines the direction of the diffusion gradient. While the former is usually easy to determine (e.g. in neuro-imaging, a b-value of around <span class="math inline">\(1000\ s/mm^2\)</span> is customary), the latter is more complicated. An error in the frame of reference will remain unnoticed for some applications (e.g. a map of fractional anisotropy) but will yield radical changes in the output of direction-dependent metrics like tractography.</p>
+    <h1 id="data-sets">Data sets</h1>
+    <p>We have two <a href="https://osf.io/6mp34/files/">data sets</a> which have been acquired to the intent of determining the precise semantics of the diffusion-related parameters stored in Bruker files. They both comprise acquisitions with similar field of views, but with different slice geometry, both in the slice direction (axial, coronal, sagittal or oblique) and in the direction of the readout gradient within the slice plane (e.g. left-right or antero-posterior for an axial slice). The usual abbreviations for the human anatomical directions (LR, AP, HF) will be used in this document; even though the terms “head” and “feet” might be confusing for animals and readily replaced with respectively “rostral” and “caudal”, we will stick with the Bruker nomenclature and use “head” and “feet”.</p>
+    <p>The first data set is a phantom composed of three pieces of a strand of climbing rope (courtesy of Lucas Soustelle, ICube, University of Strasbourg-CNRS), each piece angled slightly differently. Three different acquisitions were performed, one sagittal, one coronal and one axial.</p>
+    <table>
+    <thead>
+    <tr class="header">
+    <th>Series</th>
+    <th>Orientation</th>
+    <th>Readout</th>
+    <th>Phase</th>
+    <th>Slice</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr class="odd">
+    <td>5</td>
+    <td>Sagittal</td>
+    <td>HF</td>
+    <td>AP</td>
+    <td>LR</td>
+    </tr>
+    <tr class="even">
+    <td>6</td>
+    <td>Coronal</td>
+    <td>HF</td>
+    <td>LR</td>
+    <td>AP</td>
+    </tr>
+    <tr class="odd">
+    <td>7</td>
+    <td>Axial</td>
+    <td>LR</td>
+    <td>AP</td>
+    <td>HF</td>
+    </tr>
+    </tbody>
+    </table>
+    <p>The second data set is a rat head (courtesy of Chrystelle Po, ICube, University of Strasbourg-CNRS), with a total of seven acquisitions: two axial, two sagittal and two coronal, each set with two different readout directions, and an oblique slice prescription, close to axial.</p>
+    <table>
+    <thead>
+    <tr class="header">
+    <th>Series</th>
+    <th>Orientation</th>
+    <th>Readout</th>
+    <th>Phase</th>
+    <th>Slice</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr class="odd">
+    <td>6</td>
+    <td>Axial (<span class="math inline">\(\approx\)</span>)</td>
+    <td>LR</td>
+    <td>AP</td>
+    <td>HF</td>
+    </tr>
+    <tr class="even">
+    <td>8</td>
+    <td>Axial (<span class="math inline">\(\approx\)</span>)</td>
+    <td>AP</td>
+    <td>LR</td>
+    <td>HF</td>
+    </tr>
+    <tr class="odd">
+    <td>9</td>
+    <td>Sagittal</td>
+    <td>HF</td>
+    <td>AP</td>
+    <td>LR</td>
+    </tr>
+    <tr class="even">
+    <td>10</td>
+    <td>Sagittal</td>
+    <td>AP</td>
+    <td>HF</td>
+    <td>LR</td>
+    </tr>
+    <tr class="odd">
+    <td>11</td>
+    <td>Coronal</td>
+    <td>HF</td>
+    <td>LR</td>
+    <td>AP</td>
+    </tr>
+    <tr class="even">
+    <td>12</td>
+    <td>Coronal</td>
+    <td>LR</td>
+    <td>HF</td>
+    <td>AP</td>
+    </tr>
+    <tr class="odd">
+    <td>13</td>
+    <td>Oblique (close to axial)</td>
+    <td>LR</td>
+    <td>AP</td>
+    <td>HF</td>
+    </tr>
+    </tbody>
+    </table>
+    <p>All meta-data are loaded from the <em>method</em> files in each series directory.</p>
+    <h1 id="units-and-coordinate-systems">Units and coordinate systems</h1>
+    <p>According to the official documentation of <code>STB_InitDiffusionPreparation</code>, <code>PVM_DwDir</code> and <code>PVM_DwBvalEach</code> are input parameters on which the user has control, while <code>PVM_DwGradVec</code> and <code>PVM_DwEffBval</code> are computed by Paravision.</p>
+    <p>The input parameters (<code>PVM_DwDir</code> and <code>PVM_DwBvalEach</code>) do not contain the actual diffusion scheme: the series number 5 of the rope data set has 13 volumes (including <span class="math inline">\(b=0\)</span>), but <code>PVM_DwDir</code> only contains 12 values, and the full value of <code>PVM_DwBvalEach</code> is <code>[1500]</code> – obviously expressed in <span class="math inline">\(s/mm^2\)</span>.</p>
+    <p>On the other hand, the output parameters contain the actual diffusion scheme, including the <span class="math inline">\(b=0\)</span> acquisition. However, the b-value is the effective one (i.e. taking into account the diffusion brought by the imaging gradients), which may confuse software expecting “exact” shells. Also note that the items in <code>PVM_DwGradVec</code> are not unit length: they are gradient amplitude, relative to the maximum gradient amplitude allowed by the system. Even though the norm of <code>PVM_DwDir</code> and <code>PVM_DwGradVec</code> differ, they are colinear.</p>
+    <p>The parameters of series number 5 of the rope data set is summarized below.</p>
+    <table>
+    <thead>
+    <tr class="header">
+    <th style="text-align: left;">DwEffBval</th>
+    <th style="text-align: left;">DwGradVec</th>
+    <th style="text-align: left;">Norm</th>
+    <th style="text-align: left;">DwDir</th>
+    <th style="text-align: left;">Norm</th>
+    <th style="text-align: left;">Colinear?</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr class="odd">
+    <td style="text-align: left;">36</td>
+    <td style="text-align: left;">[0.0, 0.0, 0.0]</td>
+    <td style="text-align: left;">0</td>
+    <td style="text-align: left;"></td>
+    <td style="text-align: left;">nan</td>
+    <td style="text-align: left;">N/A</td>
+    </tr>
+    <tr class="even">
+    <td style="text-align: left;">1512</td>
+    <td style="text-align: left;">[0.05, 0.01, 0.2]</td>
+    <td style="text-align: left;">0.21</td>
+    <td style="text-align: left;">[0.26, 0.07, 0.96]</td>
+    <td style="text-align: left;">1</td>
+    <td style="text-align: left;">True</td>
+    </tr>
+    <tr class="odd">
+    <td style="text-align: left;">1507</td>
+    <td style="text-align: left;">[-0.09, 0.03, 0.19]</td>
+    <td style="text-align: left;">0.21</td>
+    <td style="text-align: left;">[-0.43, 0.14, 0.89]</td>
+    <td style="text-align: left;">1</td>
+    <td style="text-align: left;">True</td>
+    </tr>
+    <tr class="even">
+    <td style="text-align: left;">1509</td>
+    <td style="text-align: left;">[-0.03, -0.12, 0.17]</td>
+    <td style="text-align: left;">0.21</td>
+    <td style="text-align: left;">[-0.12, -0.56, 0.82]</td>
+    <td style="text-align: left;">1</td>
+    <td style="text-align: left;">True</td>
+    </tr>
+    <tr class="odd">
+    <td style="text-align: left;">1500</td>
+    <td style="text-align: left;">[0.15, -0.06, 0.13]</td>
+    <td style="text-align: left;">0.21</td>
+    <td style="text-align: left;">[0.74, -0.27, 0.61]</td>
+    <td style="text-align: left;">1</td>
+    <td style="text-align: left;">True</td>
+    </tr>
+    <tr class="even">
+    <td style="text-align: left;">1500</td>
+    <td style="text-align: left;">[0.08, 0.14, 0.13]</td>
+    <td style="text-align: left;">0.21</td>
+    <td style="text-align: left;">[0.4, 0.66, 0.64]</td>
+    <td style="text-align: left;">1</td>
+    <td style="text-align: left;">True</td>
+    </tr>
+    <tr class="odd">
+    <td style="text-align: left;">1500</td>
+    <td style="text-align: left;">[-0.08, 0.16, 0.11]</td>
+    <td style="text-align: left;">0.21</td>
+    <td style="text-align: left;">[-0.37, 0.75, 0.55]</td>
+    <td style="text-align: left;">1</td>
+    <td style="text-align: left;">True</td>
+    </tr>
+    <tr class="even">
+    <td style="text-align: left;">1511</td>
+    <td style="text-align: left;">[-0.18, -0.02, 0.09]</td>
+    <td style="text-align: left;">0.21</td>
+    <td style="text-align: left;">[-0.89, -0.09, 0.45]</td>
+    <td style="text-align: left;">1</td>
+    <td style="text-align: left;">True</td>
+    </tr>
+    <tr class="odd">
+    <td style="text-align: left;">1500</td>
+    <td style="text-align: left;">[-0.13, -0.15, 0.07]</td>
+    <td style="text-align: left;">0.21</td>
+    <td style="text-align: left;">[-0.61, -0.72, 0.32]</td>
+    <td style="text-align: left;">1</td>
+    <td style="text-align: left;">True</td>
+    </tr>
+    <tr class="even">
+    <td style="text-align: left;">1500</td>
+    <td style="text-align: left;">[0.08, -0.18, 0.08]</td>
+    <td style="text-align: left;">0.21</td>
+    <td style="text-align: left;">[0.37, -0.85, 0.37]</td>
+    <td style="text-align: left;">1</td>
+    <td style="text-align: left;">True</td>
+    </tr>
+    <tr class="odd">
+    <td style="text-align: left;">1500</td>
+    <td style="text-align: left;">[0.19, 0.07, 0.05]</td>
+    <td style="text-align: left;">0.21</td>
+    <td style="text-align: left;">[0.91, 0.32, 0.26]</td>
+    <td style="text-align: left;">1</td>
+    <td style="text-align: left;">True</td>
+    </tr>
+    <tr class="even">
+    <td style="text-align: left;">1519</td>
+    <td style="text-align: left;">[0.03, 0.21, 0.02]</td>
+    <td style="text-align: left;">0.21</td>
+    <td style="text-align: left;">[0.13, 0.99, 0.08]</td>
+    <td style="text-align: left;">1</td>
+    <td style="text-align: left;">True</td>
+    </tr>
+    <tr class="odd">
+    <td style="text-align: left;">1511</td>
+    <td style="text-align: left;">[-0.18, 0.1, 0.02]</td>
+    <td style="text-align: left;">0.21</td>
+    <td style="text-align: left;">[-0.86, 0.5, 0.08]</td>
+    <td style="text-align: left;">1</td>
+    <td style="text-align: left;">True</td>
+    </tr>
+    </tbody>
+    </table>
+    <p>Both for the rope and for the rat data set, the diffusion scheme is the same for all slice orientations. This, and the fact that <code>PVM_DwGradVec</code> are gradient amplitudes used directly in the pulse program, indicates that the diffusion gradient directions are expressed in slice coordinates (i.e. <span class="math inline">\((1,0,0)\)</span> is the readout axis, and <span class="math inline">\((0,0,1)\)</span> is the slice-selection axis, or slice normal).</p>
+    <h1 id="conversion-to-subject-coordinates">Conversion to subject coordinates</h1>
+    <p>In order to convert this data to subject coordinates (among others, used in DICOM and MRtrix), we need the coordinates of the imaging gradients in subject coordinates. The documentation of <code>STB_UpdateTraj</code> states that the parameter <code>PVM_SPackArrGradOrient</code> contains those values:</p>
+    <blockquote>
+    <p>gradOrient: Gradient orientation matrix transferring between RPS (slice) and XYZ (object) coordinate system (note: XYZ represents AP-LR-HF)</p>
+    </blockquote>
+    <p>However, looking at the values of <code>PVM_SPackArrGradOrient</code>, it seems that the XYZ coordinate system is instead the usual LR-AP-HF system. On the rope data set, the series 5, 6, and 7 are respectively sagittal, coronal and axial, and their respective gradient orientation matrices are:</p>
+    <ul>
+    <li>5: <span class="math inline">\(\left(\begin{array}{rrr}0 &amp; 0 &amp; 1 \\ 0 &amp; 1 &amp; 0 \\ 1 &amp; 0 &amp; 0\end{array}\right)\)</span></li>
+    <li>6: <span class="math inline">\(\left(\begin{array}{rrr}0 &amp; 0 &amp; 1 \\ 1 &amp; 0 &amp; 0 \\ 0 &amp; 1 &amp; 0\end{array}\right)\)</span></li>
+    <li>7: <span class="math inline">\(\left(\begin{array}{rrr}1.0 &amp; -0.0 &amp; -0.0 \\ 0.0 &amp; 1.0 &amp; -0.0 \\ 0.0 &amp; 0.0 &amp; 1.0\end{array}\right)\)</span></li>
+    </ul>
+    <p>It also seems that the matrix is either the transpose of the aforementioned transform for column-vectors, or is designed to be used with row-vectors.</p>
+    <p>With those two remarks, it is possible to define the directions of the diffusion gradient in subject coordinates by multiplying the transpose of <code>PVM_SPackArrGradOrient</code> by each normalized entry of <code>PVM_DwGradVec</code>.</p>
+    <h1 id="validation">Validation</h1>
+    <p>We validate the transformation using a simple MRtrix-based pipeline:</p>
+    <ol type="1">
+    <li>Create a scheme file following MRtrix format</li>
+    <li>Estimate the diffusion tensors from the diffusion-weighted image and the scheme</li>
+    <li>Extract the first eigenvector from the tensor map</li>
+    </ol>
+    <h2 id="qualitative">Qualitative</h2>
+    <p>The following images show that the hue, indicating the principal direction of the direction tensor, is similar for the different series.</p>
+    <table>
+    <tbody>
+    <tr class="odd">
+    <td><img src="rope_5.png" style="width:100.0%" /></td>
+    <td><img src="rope_6.png" style="width:100.0%" /></td>
+    <td><img src="rope_7.png" style="width:100.0%" /></td>
+    </tr>
+    </tbody>
+    </table>
+    <table>
+    <tbody>
+    <tr class="odd">
+    <td><img src="rat_6.png" style="width:100.0%" /></td>
+    <td><img src="rat_8.png" style="width:100.0%" /></td>
+    <td><img src="rat_13.png" style="width:100.0%" /></td>
+    </tr>
+    <tr class="even">
+    <td><img src="rat_9.png" style="width:100.0%" /></td>
+    <td><img src="rat_10.png" style="width:100.0%" /></td>
+    <td></td>
+    </tr>
+    <tr class="odd">
+    <td><img src="rat_11.png" style="width:100.0%" /></td>
+    <td><img src="rat_12.png" style="width:100.0%" /></td>
+    <td></td>
+    </tr>
+    </tbody>
+    </table>
+    <h2 id="quantitative">Quantitative</h2>
+    <p>It is possible to go one step further and compute the angle between the principal eigenvector of a reference series (5 for the rope data set, 6, 9, and 11 for the rat data set) and the principal eigenvector of subsequent series (6 and 7 for the rope data set and respectively (8, 13), 10 and 12 for the rat data set). Due to some limitations in the data sets (one-dimensional object in the rope data set, high anisotropy of the voxels in the rat data set), we only focus on angles larger than 45 °; however, since the fields of view of the acquisitions are orthogonal to one another, any error would show as 90 ° angles between an image and its reference, and would appear at every voxel.</p>
+    <p>The following images show that, although there are large differences remaining, most of the object show similar principal directions, which validates the transform.</p>
+    <table>
+    <tbody>
+    <tr class="odd">
+    <td></td>
+    <td><img src="rope/6_in_5_angle.png" style="width:100.0%" /></td>
+    <td><img src="rope/7_in_5_angle.png" style="width:100.0%" /></td>
+    <td></td>
+    </tr>
+    <tr class="even">
+    <td><img src="rat/8_in_6_angle.png" style="width:100.0%" /></td>
+    <td><img src="rat/13_in_6_angle.png" style="width:100.0%" /></td>
+    <td><img src="rat/10_in_9_angle.png" style="width:100.0%" /></td>
+    <td><img src="rat/12_in_11_angle.png" style="width:100.0%" /></td>
+    </tr>
+    </tbody>
+    </table>
+    
+      </article>
+</body>
+</html>
