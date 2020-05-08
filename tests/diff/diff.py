@@ -8,13 +8,11 @@ class Differences(object):
 
 def diff(v1, v2, exclusions=None):
     result = None
-    if type(v1) != type(v2):
-        raise NotImplementedError("TODO")
-    elif isinstance(v1, dict):
+    if isinstance(v1, dict) and isinstance(v2, dict):
         differences = diff_mappings(v1, v2, exclusions)
         if differences:
             result = differences
-    elif isinstance(v1, list):
+    elif isinstance(v1, list) and isinstance(v2, list):
         differences = diff_sequences(v1, v2, exclusions)
         if differences:
             result = differences
@@ -60,7 +58,7 @@ def diff_sequences(s1, s2, exclusions=set()):
     return result if any([result.insert, result.remove, result.update]) else None
 
 def diff_scalars(s1, s2):
-    if isinstance(s1, float):
+    if isinstance(s1, float) or isinstance(s2, float):
         if not numpy.isclose(s1, s2):
             return s2
         else:
