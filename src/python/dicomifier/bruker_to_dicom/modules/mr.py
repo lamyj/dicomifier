@@ -171,44 +171,44 @@ MRImagingModifier = [ # PS 3.3, C.8.13.5.6
 
 def get_diffusion_data(data_set, what):
     if "__Diffusion" not in data_set:
-        # Cache the "ideal" diffusion direction and b-values.
-        # The ideal direction is defined as the eigenvector associated with the
-        # largest eigenvalue of the b-matrix. This assumes that the b-value is
-        # large enough to mostly depend on the diffusion-sensitization gradient
-        # and not on the imaging gradients.
-        data_set["__Diffusion"] = ([], [], [])
+        # Cache the "ideal" b-values, directions of diffusion gradient, and
+        # b-matrices. This assumes that the b-values are large enough to mostly
+        # depend on the diffusion-sensitization gradient and not on the imaging
+        # gradients.
+        data_set["__Diffusion"] = [[], [], []]
         
         ideal_b_values = set(data_set["PVM_DwBvalEach"])
         ideal_b_values.add(0)
         ideal_b_values = list(ideal_b_values)
         
+        # Map the effective b-values to the ideal b-values
+        b_values = numpy.array(data_set["PVM_DwEffBval"])
+        closest = numpy.argmin([abs(b_values - x) for x in ideal_b_values], 0)
+        individual_b_values = numpy.array(ideal_b_values)[closest]
+        data_set["__Diffusion"][0] = individual_b_values
+        
+        # Normalize the directions, avoid divide-by-zero
+        directions = numpy.reshape(data_set["PVM_DwGradVec"], (-1, 3))
+        directions /= numpy.maximum(
+            1e-20, numpy.linalg.norm(directions, axis=1))[:,None]
+        # Convert to patient coordinates
+        orientation = numpy.reshape(data_set["PVM_SPackArrGradOrient"], (3,3))
+        directions = [orientation.T @ d for d in directions]
+        # Store in cache
+        data_set["__Diffusion"][1] = [
+            odil.DataSet(DiffusionGradientOrientation=x) for x in directions]
+        
         b_matrices = numpy.reshape(data_set["PVM_DwBMat"], (-1, 3, 3))
-        for index, b_matrix in enumerate(b_matrices):
-            b_value = numpy.trace(b_matrix)
-            closest = numpy.argmin([abs(b_value - x) for x in ideal_b_values])
-            ideal_b_value = float(ideal_b_values[closest])
-            
-            direction = numpy.linalg.eigh(b_matrix)[1][:,-1]
-            if ideal_b_value == 0:
-                ideal_direction = direction
-            else:
-                ideal_directions = numpy.reshape(data_set["PVM_DwDir"], [-1, 3])
-                closest = numpy.argmax([
-                    numpy.abs(numpy.dot(direction, x)) 
-                    for x in ideal_directions])
-                ideal_direction = ideal_directions[closest].astype(float)
-            
-            b_matrix = odil.DataSet(**dict(zip(
+        # Convert to patient coordinates
+        b_matrices = [orientation.T @ m @ orientation for m in b_matrices]
+        # Store in cache
+        data_set["__Diffusion"][2] = [
+            odil.DataSet(**dict(zip(
                 [
                     "DiffusionBValue{}".format(x) 
-                    for x in ["XX", "XY", "XZ", "YY", "YZ", "ZZ"]], 
-                [[x] for x in b_matrix[numpy.triu_indices(3)]])))
-            
-            data_set["__Diffusion"][0].append(ideal_b_value)
-            data_set["__Diffusion"][1].append(
-                odil.DataSet(
-                    DiffusionGradientOrientation=ideal_direction.tolist()))
-            data_set["__Diffusion"][2].append(b_matrix)
+                    for x in ["XX", "XY", "XZ", "YY", "YZ", "ZZ"]],
+                [[x] for x in m[numpy.triu_indices(3)]])))
+            for m in b_matrices]
     
     return data_set["__Diffusion"][what]
 
@@ -218,7 +218,7 @@ MRDiffusion = [ # PS 3.3, C.8.13.5.9
         (
             "VisuAcqDiffusionBMatrix", "DiffusionBValue", 1,
             lambda d, g, i: get_diffusion_data(d, 0)),
-        (None, "DiffusionDirectionality", 1, lambda d,g,i: ["BMATRIX"]),
+        (None, "DiffusionDirectionality", 1, lambda d,g,i: ["DIRECTIONAL"]),
         (
             "VisuAcqDiffusionBMatrix", "DiffusionGradientDirectionSequence", 1,
             lambda d, g, i: get_diffusion_data(d, 1)),
