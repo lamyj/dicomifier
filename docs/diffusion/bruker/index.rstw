@@ -1,45 +1,49 @@
----
-title: Diffusion-related meta data in Bruker files
----
+Diffusion-related meta data in Bruker files
+===========================================
 
-As with many other vendors, the diffusion-related meta data (b-values and direction of diffusion-encoding gradient) is barely specified in the official documentation, the two major problems being the unit in which the b-value is expressed and the coordinate system which defines the direction of the diffusion gradient. While the former is usually easy to determine (e.g. in neuro-imaging, a b-value of around $1000\ s/mm^2$ is customary), the latter is more complicated. An error in the frame of reference will remain unnoticed for some applications (e.g. a map of fractional anisotropy) but will yield radical changes in the output of direction-dependent metrics like tractography.
+As with many other vendors, the diffusion-related meta data (b-values and direction of diffusion-encoding gradient) is barely specified in the official documentation, the two major problems being the unit in which the b-value is expressed and the coordinate system which defines the direction of the diffusion gradient. While the former is usually easy to determine (e.g. in neuro-imaging, a b-value of around :math:`1000\ s/mm^2` is customary), the latter is more complicated. An error in the frame of reference will remain unnoticed for some applications (e.g. a map of fractional anisotropy) but will yield radical changes in the output of direction-dependent metrics like tractography.
 
-# Data sets
+Data sets
+---------
 
-We have two [data sets](https://osf.io/6mp34/files/) which have been acquired to the intent of determining the precise semantics of the diffusion-related parameters stored in Bruker files. They both comprise acquisitions with similar field of views, but with different slice geometry, both in the slice direction (axial, coronal, sagittal or oblique) and in the direction of the readout gradient within the slice plane (e.g. left-right or antero-posterior for an axial slice). The usual abbreviations for the human anatomical directions (LR, AP, HF) will be used in this document; even though the terms "head" and "feet" might be confusing for animals and readily replaced with respectively "rostral" and "caudal", we will stick with the Bruker nomenclature and use "head" and "feet".
+We have two `data sets <https://osf.io/6mp34/files/>`_ which have been acquired to the intent of determining the precise semantics of the diffusion-related parameters stored in Bruker files. They both comprise acquisitions with similar field of views, but with different slice geometry, both in the slice direction (axial, coronal, sagittal or oblique) and in the direction of the readout gradient within the slice plane (e.g. left-right or antero-posterior for an axial slice). The usual abbreviations for the human anatomical directions (LR, AP, HF) will be used in this document; even though the terms "head" and "feet" might be confusing for animals and readily replaced with respectively "rostral" and "caudal", we will stick with the Bruker nomenclature and use "head" and "feet".
 
 The first data set is a phantom composed of three pieces of a strand of climbing rope (courtesy of Lucas Soustelle, ICube, University of Strasbourg-CNRS), each piece angled slightly differently. Three different acquisitions were performed, one sagittal, one coronal and one axial.
 
-| Series | Orientation | Readout | Phase | Slice |
-| ------ | ----------- | ------- | ----- | ----- |
-| 5      | Sagittal    | HF      | AP    | LR    |
-| 6      | Coronal     | HF      | LR    | AP    |
-| 7      | Axial       | LR      | AP    | HF    |
+====== =========== ======= ===== =====
+Series Orientation Readout Phase Slice
+====== =========== ======= ===== =====
+5      Sagittal    HF      AP    LR
+6      Coronal     HF      LR    AP
+7      Axial       LR      AP    HF
+====== =========== ======= ===== =====
 
 The second data set is a rat head (courtesy of Chrystelle Po, ICube, University of Strasbourg-CNRS), with a total of seven acquisitions: two axial, two sagittal and two coronal, each set with two different readout directions, and an oblique slice prescription, close to axial.
 
-| Series | Orientation       | Readout | Phase | Slice |
-| ------ | ----------------- | ------- | ----- | ----- |
-| 6      | Axial ($\approx$) | LR      | AP    | HF    |
-| 8      | Axial ($\approx$) | AP      | LR    | HF    |
-| 9      | Sagittal          | HF      | AP    | LR    |
-| 10     | Sagittal          | AP      | HF    | LR    |
-| 11     | Coronal           | HF      | LR    | AP    |
-| 12     | Coronal           | LR      | HF    | AP    |
-| 13     | Oblique (close to axial) | LR | AP  | HF    |
+====== ======================== ======= ===== =====
+Series Orientation              Readout Phase Slice
+====== ======================== ======= ===== =====
+6      Axial (≈)                LR      AP    HF
+8      Axial (≈)                AP      LR    HF
+9      Sagittal                 HF      AP    LR
+10     Sagittal                 AP      HF    LR
+11     Coronal                  HF      LR    AP
+12     Coronal                  LR      HF    AP
+13     Oblique (close to axial) LR      AP    HF
+====== ======================== ======= ===== =====
 
 All meta-data are loaded from the *method* files in each series directory.
 
-```python load_data, echo=False
+<<>>=
 import glob
 import os
 import subprocess
 
 import dicomifier
-import IPython.display
 import nibabel
 import numpy
 import pandas
+import tabulate
 
 if not os.path.isdir("../../../tests/data/input"):
     subprocess.call(["../../../tests/download_data"])
@@ -58,19 +62,20 @@ for name in series:
         data_set = dicomifier.bruker.Dataset()
         data_set.load(os.path.join(bruker_paths[name], str(s), "method"))
         data[name][s] = data_set
-```
+@
 
-# Units and coordinate systems
+Units and coordinate systems
+----------------------------
 
-According to the official documentation of `STB_InitDiffusionPreparation`, `PVM_DwDir` and `PVM_DwBvalEach` are input parameters on which the user has control, while `PVM_DwGradVec` and `PVM_DwEffBval` are computed by Paravision.
+According to the official documentation of ``STB_InitDiffusionPreparation``, ``PVM_DwDir`` and ``PVM_DwBvalEach`` are input parameters on which the user has control, while ``PVM_DwGradVec`` and ``PVM_DwEffBval`` are computed by Paravision.
 
-The input parameters (`PVM_DwDir` and `PVM_DwBvalEach`) do not contain the actual diffusion scheme: the series number 5 of the rope data set has <% data["rope"][5]["PVM_DwNDiffExp"].value[0] %> volumes (including $b=0$), but `PVM_DwDir` only contains <% data["rope"][5]["PVM_DwDir"].shape[0] %> values, and the full value of `PVM_DwBvalEach` is `<% data["rope"][5]["PVM_DwBvalEach"].value %>` -- obviously expressed in $s/mm^2$.
+The input parameters (``PVM_DwDir`` and ``PVM_DwBvalEach``) do not contain the actual diffusion scheme: the series number 5 of the rope data set has <% data["rope"][5]["PVM_DwNDiffExp"].value[0] %> volumes (including :math:`b=0`), but `PVM_DwDir` only contains <% data["rope"][5]["PVM_DwDir"].shape[0] %> values, and the full value of `PVM_DwBvalEach` is ```<% data["rope"][5]["PVM_DwBvalEach"].value %>`` -- obviously expressed in :math:`s/mm^2`.
 
-On the other hand, the output parameters contain the actual diffusion scheme, including the $b=0$ acquisition. However, the b-value is the effective one (i.e. taking into account the diffusion brought by the imaging gradients), which may confuse software expecting "exact" shells. Also note that the items in `PVM_DwGradVec` are not unit length: they are gradient amplitude, relative to the maximum gradient amplitude allowed by the system. Even though the norm of `PVM_DwDir` and `PVM_DwGradVec` differ, they are colinear.
+On the other hand, the output parameters contain the actual diffusion scheme, including the :math:`b=0` acquisition. However, the b-value is the effective one (i.e. taking into account the diffusion brought by the imaging gradients), which may confuse software expecting "exact" shells. Also note that the items in ``PVM_DwGradVec`` are not unit length: they are gradient amplitude, relative to the maximum gradient amplitude allowed by the system. Even though the norm of ``PVM_DwDir`` and ``PVM_DwGradVec`` differ, they are colinear.
 
 The parameters of series number 5 of the rope data set is summarized below.
 
-```python echo=False, results="md"
+<<echo=False, results="rst">>=
 get_array = lambda field: numpy.reshape(field.value, field.shape)
 dw_dir = get_array(data["rope"][5]["PVM_DwDir"])
 effective_b_values = get_array(data["rope"][5]["PVM_DwEffBval"])
@@ -86,46 +91,38 @@ df = pandas.DataFrame({
     "Norm ": [None]+numpy.round(numpy.linalg.norm(dw_dir, axis=1), 2).tolist(),
     "Colinear?": ["N/A"]+numpy.isclose(cosines, 1).tolist()
 })
-print(df.to_markdown(showindex=False, numalign="left", stralign="left"))
-```
+print(
+    tabulate.tabulate(
+        df, tablefmt="rst", headers="keys", showindex=False,
+        numalign="left", stralign="left"))
+@
 
-Both for the rope and for the rat data set, the diffusion scheme is the same for all slice orientations. This, and the fact that `PVM_DwGradVec` are gradient amplitudes used directly in the pulse program, indicates that the diffusion gradient directions are expressed in slice coordinates (i.e. $(1,0,0)$ is the readout axis, and $(0,0,1)$ is the slice-selection axis, or slice normal).
+Both for the rope and for the rat data set, the diffusion scheme is the same for all slice orientations. This, and the fact that ``PVM_DwGradVec`` are gradient amplitudes used directly in the pulse program, indicates that the diffusion gradient directions are expressed in slice coordinates (i.e. :math:`(1,0,0)` is the readout axis, and :math:`(0,0,1)` is the slice-selection axis, or slice normal).
 
-```python echo=False, results="md"
-# grad_vec = {
-#     name: [get_array(x["PVM_DwGradVec"]) for x in data[name].values()] 
-#     for name in data}
-# df = pandas.DataFrame({
-#     "Constant scheme": {
-#         k.capitalize(): numpy.allclose(v[0], v, 1e-30) 
-#         for k,v in grad_vec.items()}})
-# print(df.to_markdown())
-```
+Conversion to subject coordinates
+---------------------------------
 
-# Conversion to subject coordinates
+In order to convert this data to subject coordinates (among others, used in DICOM and MRtrix), we need the coordinates of the imaging gradients in subject coordinates. The documentation of ``STB_UpdateTraj`` states that the parameter ``PVM_SPackArrGradOrient`` contains those values:
 
-In order to convert this data to subject coordinates (among others, used in DICOM and MRtrix), we need the coordinates of the imaging gradients in subject coordinates. The documentation of `STB_UpdateTraj` states that the parameter `PVM_SPackArrGradOrient` contains those values:
+    gradOrient: Gradient orientation matrix transferring between RPS (slice) and XYZ (object) coordinate system (note: XYZ represents AP-LR-HF)
 
-> gradOrient: Gradient orientation matrix transferring between RPS (slice) and 
-> XYZ (object) coordinate system (note: XYZ represents AP-LR-HF)
+However, looking at the values of ``PVM_SPackArrGradOrient``, it seems that the XYZ coordinate system is instead the usual LR-AP-HF system. On the rope data set, the series 5, 6, and 7 are respectively <% print(data["rope"][5]["PVM_SPackArrSliceOrient"].value[0]) %>, <% print(data["rope"][6]["PVM_SPackArrSliceOrient"].value[0]) %> and <% print(data["rope"][7]["PVM_SPackArrSliceOrient"].value[0]) %>, and their respective gradient orientation matrices are:
 
-However, looking at the values of `PVM_SPackArrGradOrient`, it seems that the XYZ coordinate system is instead the usual LR-AP-HF system. On the rope data set, the series 5, 6, and 7 are respectively <% print(data["rope"][5]["PVM_SPackArrSliceOrient"].value[0]) %>, <% print(data["rope"][6]["PVM_SPackArrSliceOrient"].value[0]) %> and <% print(data["rope"][7]["PVM_SPackArrSliceOrient"].value[0]) %>, and their respective gradient orientation matrices are:
-
-```python echo=False, results="md"
+<<echo=False, results="md">>=
 for s, d in data["rope"].items():
     m = get_array(d["PVM_SPackArrGradOrient"])[0].round(1)
     print(
         "- {}: {}".format(
             s, 
-            r"$\left(\begin{{array}}{{rrr}}{}\end{{array}}\right)$".format(
+            r":math:`\left(\begin{{array}}{{rrr}}{}\end{{array}}\right)`".format(
                 r" \\ ".join([" & ".join([str(x) for x in r]) for r in m]))))
-```
+@
 
 It also seems that the matrix is either the transpose of the aforementioned transform for column-vectors, or is designed to be used with row-vectors.
 
-With those two remarks, it is possible to define the directions of the diffusion gradient in subject coordinates by multiplying the transpose of `PVM_SPackArrGradOrient` by each normalized entry of `PVM_DwGradVec`.
+With those two remarks, it is possible to define the directions of the diffusion gradient in subject coordinates by multiplying the transpose of ``PVM_SPackArrGradOrient`` by each normalized entry of ``PVM_DwGradVec``.
 
-```python echo=False
+<<>>=
 directions_subject = {"rope": {}, "rat": {}}
 
 for name, series in data.items():
@@ -139,9 +136,10 @@ for name, series in data.items():
         # NOTE: use transpose, cf. previous remark
         directions_subject[name][s] = numpy.einsum(
             "ij,kj->ki", orientation.T, grad_vec)
-```
+@
 
-# Validation
+Validation
+----------
 
 We validate the transformation using a simple MRtrix-based pipeline:
 
@@ -149,7 +147,7 @@ We validate the transformation using a simple MRtrix-based pipeline:
 2. Estimate the diffusion tensors from the diffusion-weighted image and the scheme
 3. Extract the first eigenvector from the tensor map
 
-```python echo=False
+<<echo=False>>=
 nifti_paths = {
     "rope": os.path.join(
         root, "baseline", "20180818_175759_Rope_ChosenOne_1_2.nii"),
@@ -200,27 +198,31 @@ for name, series in data.items():
 for name in ["scheme", "dt.mif.gz", "e1.nii.gz"]:
     if os.path.isfile(name):
         os.unlink(name)
-```
+@
 
-## Qualitative
+Qualitative
+-----------
 
 The following images show that the hue, indicating the principal direction of the direction tensor, is similar for the different series.
 
-|     |     |     |
-| --- | --- | --- |
-| ![](rope_5.png){width=100%} | ![](rope_6.png){width=100%} | ![](rope_7.png){width=100%} |
++-----------------------+-----------------------+-----------------------+
+|                       |                       |                       |
++=======================+=======================+=======================+
+| .. image:: rope_5.png | .. image:: rope_6.png | .. image:: rope_7.png |
++-----------------------+-----------------------+-----------------------+
+| .. image:: rat_6.png  | .. image:: rat_8.png  | .. image:: rat_13.png |
++-----------------------+-----------------------+-----------------------+
+| .. image:: rat_9.png  | .. image:: rat_10.png |                       |
++-----------------------+-----------------------+-----------------------+
+| .. image:: rat_11.png | .. image:: rat_12.png |                       |
++-----------------------+-----------------------+-----------------------+
 
-|     |     |     |
-| --- | --- | --- |
-| ![](rat_6.png){width=100%} | ![](rat_8.png){width=100%} | ![](rat_13.png){width=100%} |
-| ![](rat_9.png){width=100%} | ![](rat_10.png){width=100%} | |
-| ![](rat_11.png){width=100%} | ![](rat_12.png){width=100%} | |
-
-## Quantitative
+Quantitative
+------------
 
 It is possible to go one step further and compute the angle between the principal eigenvector of a reference series (5 for the rope data set, 6, 9, and 11 for the rat data set) and the principal eigenvector of subsequent series (6 and 7 for the rope data set and respectively (8, 13), 10 and 12 for the rat data set). Due to some limitations in the data sets (one-dimensional object in the rope data set, high anisotropy of the voxels in the rat data set), we only focus on angles larger than 45 °; however, since the fields of view of the acquisitions are orthogonal to one another, any error would show as 90 ° angles between an image and its reference, and would appear at every voxel.
 
-```python echo=False
+<<echo=False>>=
 comparisons = {"rope": {5: [6, 7]}, "rat": {6: [8, 13], 9: [10], 11: [12]}}
 
 def register(fixed, moving, destination):
@@ -313,11 +315,16 @@ for name in comparisons:
                 "-noannotations", "-mode", "1", "-capture.grab", "-exit"])
             os.rename(
                 "screenshot0000.png", "{}_angle.png".format(moving_in_fixed))
-```
+@
 
 The following images show that, although there are large differences remaining, most of the object show similar principal directions, which validates the transform.
 
-|     |     |     |     |
-| --- | --- | --- | --- |
-| | ![](rope/6_in_5_angle.png){width=100%} | ![](rope/7_in_5_angle.png){width=100%} |
-| ![](rat/8_in_6_angle.png){width=100%} | ![](rat/13_in_6_angle.png){width=100%} | ![](rat/10_in_9_angle.png){width=100%} | ![](rat/12_in_11_angle.png){width=100%} |
++----------------------------------+-----------------------------------+
+|                                  |                                   |
++==================================+===================================+
+| .. image:: rope/6_in_5_angle.png | .. image:: rope/7_in_5_angle.png  |
++----------------------------------+-----------------------------------+
+| .. image:: rat/8_in_6_angle.png  | .. image:: rat/13_in_6_angle.png  |
++----------------------------------+-----------------------------------+
+| .. image:: rat/10_in_9_angle.png | .. image:: rat/12_in_11_angle.png |
++----------------------------------+-----------------------------------+
