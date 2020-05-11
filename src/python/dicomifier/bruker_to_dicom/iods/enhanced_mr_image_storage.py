@@ -118,7 +118,8 @@ def enhanced_mr_image_storage(bruker_data_set, transfer_syntax):
             image.get_pixel_data(bruker_data_set, generator, frame_index)[0])
     
     dicom_data_set.add(
-        odil.registry.PixelData, [b"".join(pixel_data_list)], 
+        odil.registry.PixelData, 
+        [odil.Value.BinaryItem(b"".join(pixel_data_list))], 
         vr_finder_function("PixelData"))
 
     # Add the raw Bruker meta-data, convert paths to Unicode if needed
@@ -127,7 +128,9 @@ def enhanced_mr_image_storage(bruker_data_set, transfer_syntax):
         for x in bruker_data_set["reco_files"]
     ]
     bruker_files = { os.path.basename(x): open(x).read() for x in paths }
-    dicom_data_set.add("EncapsulatedDocument", [json.dumps(bruker_files)])
+    dicom_data_set.add(
+        "EncapsulatedDocument", 
+        [odil.Value.BinaryItem(json.dumps(bruker_files).encode())])
     dicom_data_set.add("MIMETypeOfEncapsulatedDocument", ["application/json"])
 
     return [dicom_data_set]
