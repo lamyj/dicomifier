@@ -72,7 +72,7 @@ MRPulseSequence = [ # PS 3.3, C.8.13.4
             lambda d,g,i: [
                 d.get(
                     "VisuAcqEchoSequenceType", [""]
-                )[0].replace("Echo","").upper() or None])),
+                )[0].replace("Echo","").upper()])),
     # (None, "MultipleSpinEcho", 3, None),
     # (None, "MultiPlanarExcitation", 3, None),
     # (None, "PhaseContrast", 3, None),
@@ -80,14 +80,14 @@ MRPulseSequence = [ # PS 3.3, C.8.13.4
         "VisuAcqHasTimeOfFlightContrast", "TimeOfFlightContrast", 3,
         cached("__TimeOfFlightContrast")(
             lambda d,g,i: [
-                d.get("VisuAcqHasTimeOfFlightContrast", [""])[0].upper() or None])),
+                d.get("VisuAcqHasTimeOfFlightContrast", [""])[0].upper()])),
     # (None, "ArterialSpinLabelingContrast", 3, None),
     # (None, "SteadyStatePulseSequence", 3, None),
     (
         "VisuAcqIsEpiSequence", "EchoPlanarPulseSequence", 3,
         cached("__EchoPlanarPulseSequence")(
             lambda d,g,i: [
-                d.get("VisuAcqIsEpiSequence", [""])[0].upper() or None])),
+                d.get("VisuAcqIsEpiSequence", [""])[0].upper()])),
     # (None, "SaturationRecovery", 3, None),
     (
         "VisuAcqSpectralSuppression", "SpectrallySelectedSuppression", 3,
@@ -95,7 +95,7 @@ MRPulseSequence = [ # PS 3.3, C.8.13.4
             lambda d,g,i: [
                 d.get(
                     "VisuAcqSpectralSuppression", [""]
-                )[0].replace("Suppression","").upper() or None])),
+                )[0].replace("Suppression","").upper()])),
     # (None, "OversamplingPhase", 3, None),
     (
         "VisuAcqKSpaceTraversal", "GeometryOfKSpaceTraversal", 3,
@@ -103,7 +103,7 @@ MRPulseSequence = [ # PS 3.3, C.8.13.4
             lambda d,g,i: [
                 d.get(
                     "VisuAcqKSpaceTraversal", [""]
-                )[0].replace("Traversal","").upper() or None])),
+                )[0].replace("Traversal","").upper()])),
     # (None, "RectilinearPhaseEncodeReordering", 3, None),
     # (None, "SegmentedKSpaceTraversal", 3, None),
     # (None, "CoverageOfKSpace", 3, None),
