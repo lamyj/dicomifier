@@ -14,28 +14,22 @@ def main():
     input_ = os.path.join(root, "input")
     baseline = os.path.join(root, "baseline")
     
-    tests = [
-        [
-            [],
-            os.path.join(input_, "20160718_115906_plateforme_fantome_nouille_other_1_7"),
-            os.path.join(baseline, "20160718_115906_plateforme_fantome_nouille_other_1_7.dcm")
-        ],
-        [
-            ["-m"],
-            os.path.join(input_, "20160718_115906_plateforme_fantome_nouille_other_1_7"),
-            os.path.join(baseline, "20160718_115906_plateforme_fantome_nouille_other_1_7.dcm.multi")
-        ],
-        [
-            [],
-            os.path.join(input_, "lb_140721.Bq1"),
-            os.path.join(baseline, "lb_140721.Bq1.dcm")
-        ],
-        [
-            [],
-            os.path.join(input_, "lb_140721.Bx1"),
-            os.path.join(baseline, "lb_140721.Bx1.dcm")
-        ]
+    inputs = [
+        "20160718_115906_plateforme_fantome_nouille_other_1_7",
+        "20171114_094354_Plateforme_R17_06_1_2", 
+        "20180818_175759_Rope_ChosenOne_1_2",
+        "lb_140721.Bq1", 
+        "lb_140721.Bx1"
     ]
+    
+    
+    tests = []
+    for path in inputs:
+        for options, suffix in[[[], ".dcm"], [["-m"], ".dcm.multi"]]:
+            tests.append([
+                options, 
+                os.path.join(input_, path), 
+                os.path.join(baseline, "{}{}".format(path, suffix))])
     
     different = False
     for arguments, case_input, case_baseline in tests:
