@@ -79,7 +79,7 @@ def diff_directories(baseline, test):
                     
                     encaspulated_documents = [
                         [
-                            json.loads(base64.b64decode(x)) 
+                            json.loads(base64.b64decode(x).strip(b"\x00")) 
                             for x in m.get("EncapsulatedDocument", [])]
                         for m in meta_data]
                     for documents in zip(*encaspulated_documents):
