@@ -22,10 +22,9 @@ def main():
         "lb_140721.Bx1"
     ]
     
-    
     tests = []
     for path in inputs:
-        for options, suffix in[[[], ".dcm"], [["-m"], ".dcm.multi"]]:
+        for options, suffix in [[[], ".dcm"], [["-m"], ".dcm.multi"]]:
             tests.append([
                 options, 
                 os.path.join(input_, path), 
