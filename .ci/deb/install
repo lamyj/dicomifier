@@ -3,7 +3,8 @@
 set -ev
 
 apt-get update
-apt-get -y --no-install-recommends install gnupg software-properties-common wget
+apt-get -y --no-install-recommends install curl gnupg \
+  software-properties-common unzip wget
 
 REPOSITORY=http://dl.bintray.com/lamyj/generic
 wget -O - ${REPOSITORY}/gpg.key | apt-key add -
