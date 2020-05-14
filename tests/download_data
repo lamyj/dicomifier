@@ -1,39 +1,8 @@
-#!/usr/bin/env python3
+#!/bin/sh
 
-import io
-import os
-import zipfile
-
-import requests
-
-here = os.path.dirname(__file__)
-
-api = "https://api.osf.io/v2"
-project_id = "6mp34"
-
-storage_url = os.path.join(api, "nodes", project_id, "files/osfstorage/")
-storage = requests.get(storage_url).json()
-data = [x for x in storage["data"] if x["attributes"]["name"] == "data"][0]
-
-stack = [data]
-while stack:
-    current = stack.pop()
-    url = current["relationships"]["files"]["links"]["related"]["href"]
-    entries = requests.get(url).json()["data"]
-    
-    files = [x for x in entries if x["attributes"]["kind"] == "file"]
-    for file in files:
-        print(file["attributes"]["materialized_path"])
-        response = requests.get(file["links"]["download"])
-        os.path.dirname(here+file["attributes"]["materialized_path"])
-        with zipfile.ZipFile(io.BytesIO(response.content)) as archive:
-            archive.extractall(
-                os.path.dirname(here+file["attributes"]["materialized_path"]))
-    
-    directories = [x for x in entries if x["attributes"]["kind"] == "folder"]
-    for directory in directories:
-        destination = here+directory["attributes"]["materialized_path"]
-        if not os.path.isdir(destination):
-            os.makedirs(destination)
-        print(directory["attributes"]["materialized_path"])
-        stack.append(directory)
+cd $(dirname $0)
+curl -L -o dicomifier-data.zip https://iris.icube.unistra.fr/nextcloud/s/i3qr65kmB5zEZMZ/download
+unzip -q dicomifier-data.zip
+mv dicomifier-data/* ./data/
+rmdir dicomifier-data/
+rm dicomifier-data.zip
