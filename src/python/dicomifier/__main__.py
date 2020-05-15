@@ -21,9 +21,7 @@ def main():
     
     subparsers = parser.add_subparsers(help="Available commands")
     command_parsers = {}
-    for name in dir(commands):
-        if name.startswith("__"):
-            continue
+    for name in ["list", "to_dicom", "to_nifti", "diffusion_scheme"]:
         command = getattr(commands, name)
         subparser = command.setup(subparsers)
         subparser.add_argument(
