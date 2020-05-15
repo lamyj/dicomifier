@@ -10,7 +10,8 @@ import odil
 import diff
 
 def main():
-    root = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "data"))
+    root = os.path.abspath(
+        os.path.join(os.path.dirname(__file__), "..", "data"))
     input_ = os.path.join(root, "input")
     baseline = os.path.join(root, "baseline")
     
@@ -32,6 +33,8 @@ def main():
     
     different = False
     for arguments, case_input, case_baseline in tests:
+        print("Checking {}".format(case_baseline))
+        
         case_output = tempfile.mkdtemp()
         try:
             try:
@@ -43,7 +46,7 @@ def main():
                 print(e.output)
                 return
             
-            different = different or diff_directories(case_baseline, case_output)
+            different |= diff_directories(case_baseline, case_output)
         finally:
             shutil.rmtree(case_output)
     
@@ -65,50 +68,22 @@ def diff_directories(baseline, test):
         relative_pathname = pathname[len(os.path.join(baseline, "")):]
         test_pathname = os.path.join(test, relative_pathname)
         for filename in filenames:
-            if filename == "DICOMDIR":
-                continue
-            
             baseline_filename = os.path.join(pathname, filename)
             test_filename = os.path.join(test_pathname, filename)
             relative_filename = os.path.join(relative_pathname, filename)
             
             if not os.path.isfile(os.path.join(test_pathname, filename)):
                 print("{} missing in test".format(relative_filename))
+            elif filename == "DICOMDIR":
+                different |= check_dicomdir(
+                    baseline_filename, test_filename, relative_filename)
             else:
-                d1 = odil.Reader.read_file(baseline_filename)
-                d2 = odil.Reader.read_file(test_filename)
-                differences = diff.diff(
-                    *[json.loads(odil.as_json(x[0])) for x in [d1, d2]],
-                    exclusions)
-                if differences:
-                    different = True
-                    print("Header differences in {}".format(relative_filename))
-                    diff.print_differences(differences, 1)
-                
-                differences = diff.diff(
-                    *[json.loads(odil.as_json(x[1])) for x in [d1, d2]],
-                    exclusions)
-                if differences:
-                    different = True
-                    print("Data set differences in {}".format(relative_filename))
-                    diff.print_differences(differences, 1)
-                    
-                # EncapsulatedDocument may contain different binary 
-                # representation of the same Bruker data set: process 
-                # separately
-                baseline_bruker = get_encapsulated_document(baseline_filename)
-                test_bruker = get_encapsulated_document(test_filename)
-                if any(x is not None for x in [baseline_bruker, test_bruker]):
-                    differences = diff.diff(baseline_bruker, test_bruker)
-                    if differences:
-                        different = True
-                        print(
-                            "Encapsulated document differences in {}".format(
-                                relative_filename))
-                        diff.print_differences(differences, 1)
+                different |= check_file(
+                    baseline_filename, test_filename, 
+                    exclusions, relative_filename)
+                different |= check_encapsulated_document(
+                    baseline_filename, test_filename, relative_filename)
     
-    # Walk the test to find files missing in baseline (the difference between 
-    # files has already been tested).
     for pathname, dirnames, filenames in os.walk(test):
         relative_pathname = pathname[len(os.path.join(test, "")):]
         baseline_pathname = os.path.join(baseline, relative_pathname)
@@ -120,12 +95,113 @@ def diff_directories(baseline, test):
     
     return different
 
+def check_file(baseline, test, exclusions, relative):
+    different = False
+    
+    d1 = odil.Reader.read_file(baseline)
+    d2 = odil.Reader.read_file(test)
+    
+    differences = diff.diff(
+        *[json.loads(odil.as_json(x[0])) for x in [d1, d2]], exclusions)
+    if differences:
+        different = True
+        print("Header differences in {}".format(relative))
+        diff.print_differences(differences, 1)
+    
+    differences = diff.diff(
+        *[json.loads(odil.as_json(x[1])) for x in [d1, d2]], exclusions)
+    if differences:
+        different = True
+        print("Data set differences in {}".format(relative))
+        diff.print_differences(differences, 1)
+    
+    return different
+
+def check_dicomdir(baseline, test, relative):
+    different = False
+    
+    d1 = odil.Reader.read_file(baseline)
+    d2 = odil.Reader.read_file(test)
+    
+    exclusions = [
+        str(getattr(odil.registry, x)) for x in [
+            "MediaStorageSOPInstanceUID", "SOPInstanceUID", 
+            "SpecificCharacterSet", "DirectoryRecordSequence"]]
+    
+    differences = diff.diff(
+        *[json.loads(odil.as_json(x[0])) for x in [d1, d2]], exclusions)
+    if differences:
+        different = True
+        print("Header differences in {}".format(relative))
+        diff.print_differences(differences, 1)
+    
+    differences = diff.diff(
+        *[json.loads(odil.as_json(x[1])) for x in [d1, d2]], exclusions)
+    if differences:
+        different = True
+        print("Data set differences in {}".format(relative))
+        diff.print_differences(differences, 1)
+        
+    tested = [
+        "DirectoryRecordType", 
+        "PatientName", "PatientID", 
+        "StudyDate", "StudyTime", "AccessionNumber", "StudyDescription",
+            "StudyInstanceUID", "StudyID",
+        "Modality", "SeriesDescription", "SeriesInstanceUID", "SeriesNumber",
+        "ReferencedFileID", "ReferencedSOPClassUIDInFile",
+            "ReferencedTransferSyntaxUIDInFile", "InstanceNumber"]
+    tested = [getattr(odil.registry, x) for x in tested]
+    
+    sort_keys = [
+        "DirectoryRecordType", "PatientName", "PatientID", "StudyInstanceUID",
+        "SeriesInstanceUID", "ReferencedFileID"]
+    sort_keys = [getattr(odil.registry, x) for x in sort_keys]
+    sort_key = lambda r: [list(r[t]) for t in sort_keys if t in r]
+    
+    records = []
+    for data_set in [d1, d2]:
+        simplified_records = [
+            odil.DataSet(**{
+                tag.get_name(): record[tag] for tag in tested if tag in record}) 
+            for record in data_set[1]["DirectoryRecordSequence"]]
+        simplified_records.sort(key=sort_key)
+        simplified_records = [
+            json.loads(odil.as_json(r)) for r in simplified_records]
+        records.append(simplified_records)
+    
+    differences = diff.diff(*records)
+    if differences:
+        different = True
+        print("Record differences in {}".format(relative))
+        diff.print_differences(differences, 1)
+    
+    return different
+
+def check_encapsulated_document(baseline, test, relative):
+    different = False
+    
+    # EncapsulatedDocument may contain different binary 
+    # representation of the same Bruker data set: process 
+    # separately
+    baseline_bruker = get_encapsulated_document(baseline)
+    test_bruker = get_encapsulated_document(test)
+    if any(x is not None for x in [baseline_bruker, test_bruker]):
+        differences = diff.diff(baseline_bruker, test_bruker)
+        if differences:
+            different = True
+            print("Encapsulated document differences in {}".format(relative))
+            diff.print_differences(differences, 1)
+    
+    return different
+
 def get_encapsulated_document(path):
     with odil.open(path, "rb") as fd:
         data_set = odil.Reader.read_file(fd)[1]
     if "EncapsulatedDocument" in data_set:
-        data = data_set.as_binary("EncapsulatedDocument")[0].get_memory_view().tobytes()
-        return json.loads(data.decode())
+        data = data_set.as_binary(
+                "EncapsulatedDocument"
+            )[0].get_memory_view().tobytes()
+        return json.loads(data.decode().strip("\x00"))
     else:
         return None
 
