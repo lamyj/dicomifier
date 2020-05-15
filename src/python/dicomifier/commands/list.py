@@ -38,13 +38,6 @@ def list_bruker(source, label=None, source_printed=False):
         info = dicomifier.bruker_to_dicom.io.get_bruker_info(path.parent)
         entries.append((path.relative_to(source), info))
     
-    def sort(x):
-        name, value = x
-        return (
-            (1, divmod(value.get("SeriesNumber", [1e30])[0], 2**16))
-            if isinstance(value, odil.DataSet) 
-            else (0, name))
-    
     if not entries:
         return
     
@@ -104,7 +97,7 @@ def list_dicom(source, source_printed):
         
         for file_ in filenames:
             try:
-                header, data_set = odil.Reader.read_file(
+                _, data_set = odil.Reader.read_file(
                     os.path.join(dirpath, file_),
                     halt_condition=lambda x: x > odil.registry.SeriesNumber)
             except odil.Exception:

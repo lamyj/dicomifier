@@ -14,8 +14,8 @@ import odil
 
 def setup(subparsers):
     parser = subparsers.add_parser(
-        "to-nifti", description="Convert DICOM to NIfTI", 
-        help="Convert to NIfTI")
+        "to-nifti", aliases=["nifti", "nii"], 
+        description="Convert DICOM to NIfTI", help="Convert to NIfTI")
     
     parser.add_argument(
         "sources", nargs="+", type=pathlib.Path,

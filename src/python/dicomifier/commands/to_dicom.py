@@ -16,8 +16,8 @@ import odil
 
 def setup(subparsers):
     parser = subparsers.add_parser(
-        "to-dicom", description="Convert Bruker data to DICOM",
-        help="Convert to DICOM")
+        "to-dicom", aliases=["dicom", "dcm"], 
+        description="Convert Bruker data to DICOM", help="Convert to DICOM")
     
     parser.add_argument(
         "sources", nargs="+", type=pathlib.Path,
