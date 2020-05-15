@@ -6,9 +6,9 @@ As with many other vendors, the diffusion-related meta data (b-values and direct
 Data sets
 ---------
 
-We have two `data sets <https://osf.io/6mp34/files/>`_ which have been acquired to the intent of determining the precise semantics of the diffusion-related parameters stored in Bruker files. They both comprise acquisitions with similar field of views, but with different slice geometry, both in the slice direction (axial, coronal, sagittal or oblique) and in the direction of the readout gradient within the slice plane (e.g. left-right or antero-posterior for an axial slice). The usual abbreviations for the human anatomical directions (LR, AP, HF) will be used in this document; even though the terms "head" and "feet" might be confusing for animals and readily replaced with respectively "rostral" and "caudal", we will stick with the Bruker nomenclature and use "head" and "feet".
+We have two `data sets <https://iris.icube.unistra.fr/nextcloud/s/i3qr65kmB5zEZMZ?path=%2Finput>`_ which have been acquired to the intent of determining the precise semantics of the diffusion-related parameters stored in Bruker files. They both comprise acquisitions with similar field of views, but with different slice geometry, both in the slice direction (axial, coronal, sagittal or oblique) and in the direction of the readout gradient within the slice plane (e.g. left-right or antero-posterior for an axial slice). The usual abbreviations for the human anatomical directions (LR, AP, HF) will be used in this document; even though the terms "head" and "feet" might be confusing for animals and readily replaced with respectively "rostral" and "caudal", we will stick with the Bruker nomenclature and use "head" and "feet".
 
-The first data set is a phantom composed of three pieces of a strand of climbing rope (courtesy of Lucas Soustelle, ICube, University of Strasbourg-CNRS), each piece angled slightly differently. Three different acquisitions were performed, one sagittal, one coronal and one axial.
+The `first data set <https://iris.icube.unistra.fr/nextcloud/s/i3qr65kmB5zEZMZ?path=%2Finput%2F20180818_175759_Rope_ChosenOne_1_2>`_ is a phantom composed of three pieces of a strand of climbing rope (courtesy of Lucas Soustelle, ICube, University of Strasbourg-CNRS), each piece angled slightly differently. Three different acquisitions were performed, one sagittal, one coronal and one axial.
 
 ====== =========== ======= ===== =====
 Series Orientation Readout Phase Slice
@@ -18,7 +18,7 @@ Series Orientation Readout Phase Slice
 7      Axial       LR      AP    HF
 ====== =========== ======= ===== =====
 
-The second data set is a rat head (courtesy of Chrystelle Po, ICube, University of Strasbourg-CNRS), with a total of seven acquisitions: two axial, two sagittal and two coronal, each set with two different readout directions, and an oblique slice prescription, close to axial.
+The `second data set <https://iris.icube.unistra.fr/nextcloud/s/i3qr65kmB5zEZMZ?path=%2Finput%2F20171114_094354_Plateforme_R17_06_1_2>`_ is a rat head (courtesy of Chrystelle Po, ICube, University of Strasbourg-CNRS), with a total of seven acquisitions: two axial, two sagittal and two coronal, each set with two different readout directions, and an oblique slice prescription, close to axial.
 
 ====== ======================== ======= ===== =====
 Series Orientation              Readout Phase Slice
@@ -69,7 +69,7 @@ Units and coordinate systems
 
 According to the official documentation of ``STB_InitDiffusionPreparation``, ``PVM_DwDir`` and ``PVM_DwBvalEach`` are input parameters on which the user has control, while ``PVM_DwGradVec`` and ``PVM_DwEffBval`` are computed by Paravision.
 
-The input parameters (``PVM_DwDir`` and ``PVM_DwBvalEach``) do not contain the actual diffusion scheme: the series number 5 of the rope data set has <% data["rope"][5]["PVM_DwNDiffExp"].value[0] %> volumes (including :math:`b=0`), but `PVM_DwDir` only contains <% data["rope"][5]["PVM_DwDir"].shape[0] %> values, and the full value of `PVM_DwBvalEach` is ```<% data["rope"][5]["PVM_DwBvalEach"].value %>`` -- obviously expressed in :math:`s/mm^2`.
+The input parameters (``PVM_DwDir`` and ``PVM_DwBvalEach``) do not contain the actual diffusion scheme: the series number 5 of the rope data set has <% data["rope"][5]["PVM_DwNDiffExp"].value[0] %> volumes (including :math:`b=0`), but `PVM_DwDir` only contains <% data["rope"][5]["PVM_DwDir"].shape[0] %> values, and the full value of `PVM_DwBvalEach` is ``<% data["rope"][5]["PVM_DwBvalEach"].value %>`` -- obviously expressed in :math:`s/mm^2`.
 
 On the other hand, the output parameters contain the actual diffusion scheme, including the :math:`b=0` acquisition. However, the b-value is the effective one (i.e. taking into account the diffusion brought by the imaging gradients), which may confuse software expecting "exact" shells. Also note that the items in ``PVM_DwGradVec`` are not unit length: they are gradient amplitude, relative to the maximum gradient amplitude allowed by the system. Even though the norm of ``PVM_DwDir`` and ``PVM_DwGradVec`` differ, they are colinear.
 
@@ -285,7 +285,6 @@ for name in comparisons:
             
             if os.path.isfile("{}_angle.png".format(moving_in_fixed)):
                 continue
-            
             
             register(fixed, moving, "{}.nii.gz".format(moving_in_fixed))
             
