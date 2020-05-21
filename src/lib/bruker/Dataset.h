@@ -37,8 +37,8 @@ public:
     void set_field(Field const & field);
     
     /**
-     * @brief Function used to return a set of files used to create the dataset 
-     * (expect the PixelData file)
+     * @brief Return a set of files used to create the dataset 
+     * (except the PixelData file)
      */
     std::vector<std::string> const & get_used_files() const;
 
