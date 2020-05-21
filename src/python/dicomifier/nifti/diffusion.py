@@ -6,14 +6,19 @@
 # for details.
 #########################################################################
 
+"""
+Extract diffusion-related information from JSON meta-data and convert it to 
+other formats. Unless otherwise specified, all b-values extracted from meta-data
+are expressed in :math:`s/m^2` (i.e. SI units).
+"""
+
 import numpy
 
-"""
-All diffusion schemes are stored with the b-value expressed in s/m^2 
-(i.e. SI units)
-"""
-
 def from_standard(data):
+    """ Extract diffusion gradient direction and b-value from standard DICOM
+        elements (MR Diffusion Sequence).
+    """
+    
     diffusion_data = data["MRDiffusionSequence"]
     
     scheme = []
@@ -40,6 +45,9 @@ def from_standard(data):
     return scheme
 
 def to_mrtrix(scheme, fd):
+    """ Save a diffusion scheme in MRtrix format to a file-like object.
+    """
+    
     # https://mrtrix.readthedocs.io/en/latest/concepts/dw_scheme.html
     # > the direction vectors are assumed to be provided with respect to real 
     # > or scanner coordinates. This is the same convention as is used in the 

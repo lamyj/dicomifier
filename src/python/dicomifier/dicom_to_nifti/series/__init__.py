@@ -17,6 +17,9 @@ import odil
 from ... import logger
 
 def split_series(files):
+    """ Split specified DICOM files in series.
+    """
+    
     logger.info(
         "Splitting {} DICOM file{} in series".format(
             len(files), "s" if len(files) > 1 else ""))

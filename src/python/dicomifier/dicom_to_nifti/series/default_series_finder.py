@@ -11,6 +11,9 @@ import odil
 from .series_finder import SeriesFinder
 
 class DefaultSeriesFinder(SeriesFinder):
+    """ Simple series finder based on Series Instance UID.
+    """
+    
     def __init__(self):
         SeriesFinder.__init__(self)
     
