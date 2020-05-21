@@ -6,6 +6,7 @@ Dicomifier -- A medical image converter
    :caption: Contents
    :titlesonly:
 
+   commands/index.rst
    api_reference/index.rst
    diffusion/index.rst
 

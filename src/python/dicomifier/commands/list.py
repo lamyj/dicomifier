@@ -17,12 +17,13 @@ import odil
 
 def setup(subparsers):
     parser = subparsers.add_parser(
-        "list", aliases=["ls"], description="List convertible data", 
-        help="List Bruker and DICOM data which can be converted")
+        "list", aliases=["ls"], help="List convertible data", 
+        description="List Bruker and DICOM data which can be converted")
     
     parser.add_argument(
         "sources", nargs="+", type=pathlib.Path,
-        help="DICOM file, directory or DICOMDIR", metavar="source")
+        help="Bruker directory, DICOM file, directory or DICOMDIR", 
+        metavar="source")
     
     return parser
 

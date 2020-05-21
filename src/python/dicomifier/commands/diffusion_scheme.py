@@ -21,8 +21,7 @@ def setup(subparsers):
     
     parser.add_argument("source", type=pathlib.Path, help="Source JSON file")
     parser.add_argument("format", choices=["mrtrix"], help="Output format")
-    parser.add_argument(
-        "destination", type=pathlib.Path, help="Output directory")
+    parser.add_argument("destination", type=pathlib.Path, help="Output file")
     
     return parser
 
