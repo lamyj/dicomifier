@@ -61,6 +61,6 @@ def action(sources, destination, transfer_syntax, layout, dicomdir, multiframe):
                     archive.extractall(directory/source.name)
                     source = directory/source.name
             dicomifier.bruker_to_dicom.convert.convert_directory(
-                source, destination, dicomdir, multiframe, writer)
+                source, dicomdir, multiframe, writer)
     finally:
         shutil.rmtree(directory)

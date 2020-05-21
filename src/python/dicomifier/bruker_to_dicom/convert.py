@@ -18,11 +18,10 @@ import odil
 from .. import bruker, logger
 from . import io
 
-def convert_directory(source, destination, dicomdir, multiframe, writer):
+def convert_directory(source, dicomdir, multiframe, writer):
     """ Convert a Bruker directory to DICOM and write the files.
         
         :param source: source directory
-        :param destination: destination directory
         :param dicomdir: whether to create a DICOMDIR
         :param multiframe: whether to create multi-frame DICOM objects
         :param writer: writer object from the io module
@@ -84,7 +83,7 @@ def convert_directory(source, destination, dicomdir, multiframe, writer):
 
     if dicomdir and writer.files:
         io.create_dicomdir(
-            writer.files, destination, [], [], ["SeriesDescription:3"], [])
+            writer.files, writer.root, [], [], ["SeriesDescription:3"], [])
 
 def convert_reconstruction(data_set, iod_converter, writer):
     """ Convert and save a single reconstruction.
