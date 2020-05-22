@@ -35,6 +35,8 @@ def main():
     
     different = False
     for case_input, case_baseline in tests:
+        print("Checking {}".format(case_baseline))
+        
         case_output = tempfile.mkdtemp()
         try:
             try:
