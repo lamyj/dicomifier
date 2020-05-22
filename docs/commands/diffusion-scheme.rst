@@ -14,7 +14,7 @@ Arguments
   
   Source JSON file
 
-.. options:: format
+.. option:: format
   
   Output format, among:
   

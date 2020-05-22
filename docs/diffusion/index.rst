@@ -1,3 +1,5 @@
+.. _diffusion:
+
 Diffusion meta-data
 ===================
 
