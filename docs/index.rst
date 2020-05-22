@@ -9,7 +9,7 @@ Need to know more about your options and arguments? The :ref:`commands reference
 
 Want to find out how it works? The :ref:`API reference <api-reference>` is a good place to start, followed by the `source code <https://github.com/lamyj/dicomifier>`_.
 
-Interested in how the vendors store diffusion MRI meta-data? There is :ref:`section <diffusion>` just for you.
+Interested in how the vendors store diffusion MRI meta-data? There is a :ref:`section <diffusion>` just for you.
 
 .. toctree::
    :maxdepth: 2
