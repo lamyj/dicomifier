@@ -29,4 +29,4 @@ Options
 
 .. option:: -v <level>, --verbose <level>
   
-  Verbosity level Verbosity level (*warning*, *info*, or *debug*)
+  Verbosity level (*warning*, *info*, or *debug*)

@@ -1,0 +1,4 @@
+dicomifier.dicom_to_nifti.convert
+=================================
+
+@autodoc(dicomifier.dicom_to_nifti.convert)@

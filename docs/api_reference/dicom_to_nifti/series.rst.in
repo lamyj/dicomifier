@@ -1,0 +1,8 @@
+dicomifier.dicom_to_nifti.series
+================================
+
+@autodoc(dicomifier.dicom_to_nifti.series, "DefaultSeriesFinder")@
+
+@autodoc(dicomifier.dicom_to_nifti.series, "SiemensXAClassic2DSeriesFinder")@
+
+@autodoc(dicomifier.dicom_to_nifti.series)@

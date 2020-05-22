@@ -10,6 +10,6 @@ dicomifier.dicom_to_nifti
    image.rst
    io.rst
    meta_data.rst
-   siemens.rst
    series.rst
+   siemens.rst
    stacks.rst

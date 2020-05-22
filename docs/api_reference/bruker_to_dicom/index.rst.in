@@ -10,7 +10,4 @@ dicomifier.bruker_to_dicom
    io.rst
    iods.rst
 
-.. py:class:: dicomifier.bruker_to_dicom.FrameIndexGenerator(data_set)
-  
-  Generate the indices to iterate through the frame groups of a Bruker
-  data set.
+@autodoc(dicomifier.bruker_to_dicom, "FrameIndexGenerator")@
