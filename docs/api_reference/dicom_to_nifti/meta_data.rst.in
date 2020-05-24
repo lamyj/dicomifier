@@ -1,4 +1,4 @@
 dicomifier.dicom_to_nifti.meta_data
 ===================================
 
-@autodoc(dicomifier.dicom_to_nifti.meta_data)@
+{{ autodoc("module", "dicomifier.dicom_to_nifti.meta_data") }}

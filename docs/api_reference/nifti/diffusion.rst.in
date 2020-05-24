@@ -1,4 +1,4 @@
 dicomifier.nifti.diffusion
 ==========================
 
-@autodoc(dicomifier.nifti.diffusion)@
+{{ autodoc("module", "dicomifier.nifti.diffusion") }}

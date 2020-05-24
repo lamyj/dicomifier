@@ -1,8 +1,8 @@
 dicomifier.dicom_to_nifti.series
 ================================
 
-@autodoc(dicomifier.dicom_to_nifti.series, "DefaultSeriesFinder")@
+{{ autodoc("class", "dicomifier.dicom_to_nifti.series.DefaultSeriesFinder") }}
 
-@autodoc(dicomifier.dicom_to_nifti.series, "SiemensXAClassic2DSeriesFinder")@
+{{ autodoc("class", "dicomifier.dicom_to_nifti.series.SiemensXAClassic2DSeriesFinder") }}
 
-@autodoc(dicomifier.dicom_to_nifti.series)@
+{{ autodoc("module", "dicomifier.dicom_to_nifti.series") }}

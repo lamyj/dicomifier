@@ -1,4 +1,4 @@
 dicomifier.dicom_to_nifti.convert
 =================================
 
-@autodoc(dicomifier.dicom_to_nifti.convert)@
+{{ autodoc("module", "dicomifier.dicom_to_nifti.convert") }}

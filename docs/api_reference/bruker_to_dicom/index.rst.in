@@ -10,4 +10,4 @@ dicomifier.bruker_to_dicom
    io.rst
    iods.rst
 
-@autodoc(dicomifier.bruker_to_dicom, "FrameIndexGenerator")@
+{{ autodoc("class", "dicomifier.bruker_to_dicom.FrameIndexGenerator") }}

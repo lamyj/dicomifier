@@ -1,4 +1,4 @@
 dicomifier.bruker_to_dicom.convert
 ==================================
 
-@autodoc(dicomifier.bruker_to_dicom.convert)@
+{{ autodoc("module", "dicomifier.bruker_to_dicom.convert") }}
