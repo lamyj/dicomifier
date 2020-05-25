@@ -168,6 +168,7 @@ for name, series in data.items():
         # Write the diffusion scheme in MRtrix format
         directions = directions_subject[name][s]
         b_values = d["PVM_DwEffBval"].value
+        b_values = [100*int(x/100) for x in b_values]
         with open("scheme", "w") as fd:
             for direction, b_value in zip(directions, b_values):
                 fd.write(" ".join(str(x) for x in list(direction)+[b_value]))
@@ -177,8 +178,7 @@ for name, series in data.items():
         subprocess.check_call([
             "dwi2tensor", "-force", "-quiet", "-grad", "scheme",
             glob.glob(
-                  os.path.join(
-                      nifti_paths[name], "*/*/{}*/1.nii.gz".format(s))
+                    os.path.join(nifti_paths[name], "*/*/{}*/1.nii".format(s))
                 )[0],
             "dt.mif.gz"
         ])
@@ -250,7 +250,8 @@ def register(fixed, moving, destination):
 def estimate_tensors(image, directions, b_values, prefix):
     if os.path.isfile("{}_e1.nii.gz".format(prefix)):
         return
-  
+    
+    b_values = [100*int(x/100) for x in b_values]
     with open("scheme", "w") as fd:
         for direction, b_value in zip(directions, b_values):
             fd.write(" ".join(str(x) for x in list(direction)+[b_value])+"\n")
@@ -270,7 +271,7 @@ for name in comparisons:
         os.makedirs(results)
     
     for fixed_series in comparisons[name]:
-        fixed = glob.glob("{}/*/*/{}*/1.nii.gz".format(nifti, fixed_series))[0]
+        fixed = glob.glob("{}/*/*/{}*/1.nii".format(nifti, fixed_series))[0]
         estimate_tensors(
             fixed, directions_subject[name][fixed_series],
             data[name][fixed_series]["PVM_DwEffBval"].value,
@@ -279,7 +280,7 @@ for name in comparisons:
         
         for moving_series in comparisons[name][fixed_series]:
             moving = glob.glob(
-                "{}/*/*/{}*/1.nii.gz".format(nifti, moving_series))[0]
+                "{}/*/*/{}*/1.nii".format(nifti, moving_series))[0]
             moving_in_fixed = "{}/{}_in_{}".format(
                 results, moving_series, fixed_series)
             
