@@ -10,6 +10,7 @@ import json
 import pathlib
 
 import dicomifier
+import nibabel
 import numpy
 import odil
 
@@ -20,12 +21,20 @@ def setup(subparsers):
         help="Convert dMRI meta-data")
     
     parser.add_argument("source", type=pathlib.Path, help="Source JSON file")
-    parser.add_argument("format", choices=["mrtrix"], help="Output format")
-    parser.add_argument("destination", type=pathlib.Path, help="Output file")
+    parser.add_argument(
+        "format", choices=["mrtrix", "fsl"], 
+        help="Output format. MRtrix expects a single scheme file, FSL expects "
+            "two files (bvecs and bvals, in that order)")
+    parser.add_argument(
+        "destinations", nargs="+", type=pathlib.Path, 
+        metavar="destination", help="Output file")
+    parser.add_argument(
+        "--image", "-i", type=pathlib.Path, 
+        help="Image file for formats using image-based direction coordinates")
     
     return parser
 
-def action(source, format, destination):
+def action(source, format, destinations, image):
     with open(source) as fd:
         data = json.load(fd)
     
@@ -33,6 +42,17 @@ def action(source, format, destination):
     if "MRDiffusionSequence" in data:
         scheme = dicomifier.nifti.diffusion.from_standard(data)
     
-    writer = getattr(dicomifier.nifti.diffusion, "to_{}".format(format))
-    with destination.open("w") as fd:
-        writer(scheme, fd)
+    globals()["to_{}".format(format)](scheme, destinations, image)
+
+def to_mrtrix(scheme, destinations, image):
+    with destinations[0].open("w") as fd:
+        dicomifier.nifti.diffusion.to_mrtrix(scheme, fd)
+
+def to_fsl(scheme, destinations, image):
+    if len(destinations) != 2:
+        raise Exception("Destinations must contain bvecs and bvals files")
+    
+    image = nibabel.load(str(image))
+    with destinations[0].open("w") as bvecs_fd, destinations[1].open("w") as bvals_fd:
+        dicomifier.nifti.diffusion.to_fsl(
+            scheme, image.affine[:3,:3], bvecs_fd, bvals_fd)

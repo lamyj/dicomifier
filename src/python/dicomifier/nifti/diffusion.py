@@ -57,3 +57,33 @@ def to_mrtrix(scheme, fd):
         # Convert from s/m^2 to s/mm^2
         b_value /= 1e6
         print(*direction, b_value, file=fd)
+
+def to_fsl(scheme, image, bvecs_fd, bvals_fd):
+    """ Save a diffusion scheme in FSL bvecs+bvals format. A reference nibabel
+        image is required as the bvecs are store in image coordinates, not in 
+        patient coordinates.
+    """
+    
+    # https://fsl.fmrib.ox.ac.uk/fsl/fslwiki/FDT/UserGuide#Diffusion_data_in_FSL
+    # https://fsl.fmrib.ox.ac.uk/fsl/fslwiki/FDT/FAQ#What_conventions_do_the_bvecs_use.3F
+    
+    transform = image.affine[:3,:3]
+    
+    directions = numpy.array([direction for b_value, direction in scheme])
+    # Convert from patient coordinates to image coordinates
+    # WARNING: for highly anisotropic images and non axis-aligned transforms,
+    # this seem to introduce a slight bias in the directions.
+    bvecs = numpy.array([numpy.linalg.inv(transform) @ d for d in directions])
+    
+    if numpy.linalg.det(transform)>0:
+        bvecs[:,0] *= -1
+    
+    # Re-normalize (not required by FSL)
+    norm = numpy.maximum(1e-20, numpy.linalg.norm(bvecs, axis=1))
+    bvecs /= norm[:,None]
+    
+    numpy.savetxt(bvecs_fd, bvecs.T, "%g")
+    
+    # Convert from s/m^2 to s/mm^2
+    b_values = numpy.array([b_value for b_value, direction in scheme]) / 1e6
+    numpy.savetxt(bvals_fd, b_values[None,:], "%g")

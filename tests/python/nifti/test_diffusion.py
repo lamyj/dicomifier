@@ -67,3 +67,55 @@ class TestDiffusion(unittest.TestCase):
                 0 0 1 1.0
                 0 1 0 1.0
             """))
+    
+    def test_to_fsl_positive_determinant(self):
+        scheme = [
+            [0, [0,0,0]],
+            [1e6, [0,0,1]],
+            [2e6, [0,1,0]],
+            [3e6, [-1,0,0]]]
+        transform = numpy.array([
+            [0, 1, 0],
+            [0, 0, 1],
+            [1, 0, 0]])
+        
+        bvecs_stream = io.StringIO()
+        bvals_stream = io.StringIO()
+        dicomifier.nifti.diffusion.to_fsl(
+            scheme, transform, bvecs_stream, bvals_stream)
+        self.assertEqual(
+            bvecs_stream.getvalue(),
+            textwrap.dedent("""\
+                0 -1 0 0
+                0 0 0 -1
+                0 0 1 0
+            """))
+        
+        self.assertEqual(bvals_stream.getvalue().strip(), "0 1 2 3")
+    
+    def test_to_fsl_negative_determinant(self):
+        scheme = [
+            [0, [0,0,0]],
+            [1e6, [0,0,1]],
+            [2e6, [0,1,0]],
+            [3e6, [-1,0,0]]]
+        transform = numpy.array([
+            [0, -1, 0],
+            [0,  0, 1],
+            [1,  0, 0]])
+        
+        bvecs_stream = io.StringIO()
+        bvals_stream = io.StringIO()
+        dicomifier.nifti.diffusion.to_fsl(
+            scheme, transform, bvecs_stream, bvals_stream)
+        self.assertEqual(
+            bvecs_stream.getvalue(),
+            textwrap.dedent("""\
+                0 1 0 0
+                0 0 0 1
+                0 0 1 0
+            """))
+        self.assertEqual(bvals_stream.getvalue().strip(), "0 1 2 3")
+
+if __name__ == "__main__":
+    unittest.main()

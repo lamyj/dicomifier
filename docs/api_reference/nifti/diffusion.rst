@@ -16,6 +16,16 @@ are expressed in :math:`s/m^2` (i.e. SI units).
    elements (MR Diffusion Sequence).
 
 
+.. py:function:: to_fsl(scheme, transform, bvecs_fd, bvals_fd)
+   :module: dicomifier.nifti.diffusion
+
+   Save a diffusion scheme in FSL bvecs+bvals format. A reference 
+   transform is required as the bvecs are store in image coordinates, not 
+   in patient coordinates. This transform must correspond to an 
+   image-to-patient transform, e.g. what is stored in the *affine* member
+   of nibabel images.
+
+
 .. py:function:: to_mrtrix(scheme, fd)
    :module: dicomifier.nifti.diffusion
 
