@@ -17,6 +17,10 @@ Arguments
 Options
 -------
 
+.. option:: -j, --json
+  
+  Display contents in JSON format
+
 .. option:: -v <level>, --verbose <level>
   
   Verbosity level (*warning*, *info*, or *debug*)

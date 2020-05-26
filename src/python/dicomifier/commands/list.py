@@ -6,6 +6,7 @@
 # for details.
 #########################################################################
 
+import json
 import os
 import pathlib
 import shutil
@@ -24,26 +25,40 @@ def setup(subparsers):
         "sources", nargs="+", type=pathlib.Path,
         help="Bruker directory, DICOM file, directory or DICOMDIR", 
         metavar="source")
+    parser.add_argument(
+        "--json", "-j", action="store_true", dest="use_json",
+        help="Display contents in JSON format")
     
     return parser
 
-def action(sources):
+def action(sources, use_json):
+    contents = {}
+    
     for source in sources:
-        print(source)
-        data = []
-        data.extend([("Bruker", x) for x in list_bruker(source)])
-        data.extend([("Bruker archive", x) for x in list_pvdatasets(source)])
-        data.extend([("DICOM", x) for x in list_dicom(source)])
-        for format, item in data:
-            print(
-                "  {} / {} / {} {} ({}, {})".format(
-                    item["subject"], 
-                    item["StudyDescription"], 
-                    "{}:{}".format(*item["SeriesNumber"]) 
-                        if isinstance(item["SeriesNumber"], tuple) 
-                        else item["SeriesNumber"],
-                    item["SeriesDescription"],
-                    item["directory"], format))
+        directory_contents = []
+        directory_contents.extend([("Bruker", x) for x in list_bruker(source)])
+        directory_contents.extend(
+            [("Bruker archive", x) for x in list_pvdatasets(source)])
+        directory_contents.extend([("DICOM", x) for x in list_dicom(source)])
+        if use_json:
+            for format, item in directory_contents:
+                item["format"] = format
+            contents[str(source)] = [item for _, item in directory_contents]
+        else:
+            print(source)
+            for format, item in directory_contents:
+                print(
+                    "  {} / {} / {} {} ({}, {})".format(
+                        item["subject"], 
+                        item["StudyDescription"], 
+                        "{}:{}".format(*item["SeriesNumber"]) 
+                            if isinstance(item["SeriesNumber"], tuple) 
+                            else item["SeriesNumber"],
+                        item["SeriesDescription"],
+                        item["directory"], format))
+    
+    if use_json:
+        print(json.dumps(contents))
 
 def list_bruker(source):
     entries = []
@@ -76,7 +91,7 @@ def list_bruker(source):
                 "subject": subject, "StudyDescription": study_description, 
                 "SeriesNumber": series_number, 
                 "SeriesDescription": series_description,
-                "directory": path.parent})
+                "directory": str(path.parent)})
     
     return result
 
