@@ -83,9 +83,9 @@ def to_fsl(scheme, transform, bvecs_fd, bvals_fd):
     # Re-normalize (not required by FSL)
     norm = numpy.maximum(1e-20, numpy.linalg.norm(bvecs, axis=1))
     bvecs /= norm[:,None]
-    
-    numpy.savetxt(bvecs_fd, bvecs.T, "%g")
+    for row in bvecs.T:
+        print(*row, file=bvecs_fd)
     
     # Convert from s/m^2 to s/mm^2
     b_values = numpy.array([b_value for b_value, direction in scheme]) / 1e6
-    numpy.savetxt(bvals_fd, b_values[None,:], "%g")
+    print(*b_values, file=bvals_fd)
