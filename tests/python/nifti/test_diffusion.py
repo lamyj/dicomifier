@@ -60,13 +60,14 @@ class TestDiffusion(unittest.TestCase):
             [1e6, [0,1,0]]]
         stream = io.StringIO()
         dicomifier.nifti.diffusion.to_mrtrix(scheme, stream)
-        self.assertEqual(
-            stream.getvalue(),
-            textwrap.dedent("""\
-                0 0 0 0.0
-                0 0 1 1.0
-                0 1 0 1.0
-            """))
+        
+        stream.seek(0)
+        saved_scheme = numpy.loadtxt(stream)
+        expected_scheme = [
+            [0, 0, 0, 0],
+            [0, 0, 1, 1],
+            [0, 1, 0, 1]]
+        numpy.testing.assert_almost_equal(saved_scheme, expected_scheme)
     
     def test_to_fsl_positive_determinant(self):
         scheme = [
@@ -83,15 +84,19 @@ class TestDiffusion(unittest.TestCase):
         bvals_stream = io.StringIO()
         dicomifier.nifti.diffusion.to_fsl(
             scheme, transform, bvecs_stream, bvals_stream)
-        self.assertEqual(
-            bvecs_stream.getvalue(),
-            textwrap.dedent("""\
-                0 -1 0 0
-                0 0 0 -1
-                0 0 1 0
-            """))
         
-        self.assertEqual(bvals_stream.getvalue().strip(), "0 1 2 3")
+        bvecs_stream.seek(0)
+        saved_bvecs = numpy.loadtxt(bvecs_stream)
+        expected_bvecs = [
+            [0, -1, 0, 0],
+            [0,  0, 0, -1],
+            [0,  0, 1,  0]]
+        numpy.testing.assert_almost_equal(saved_bvecs, expected_bvecs)
+        
+        bvals_stream.seek(0)
+        saved_bvals = numpy.loadtxt(bvals_stream)
+        expected_bvals = [0, 1, 2, 3]
+        numpy.testing.assert_almost_equal(saved_bvals, expected_bvals)
     
     def test_to_fsl_negative_determinant(self):
         scheme = [
@@ -108,14 +113,19 @@ class TestDiffusion(unittest.TestCase):
         bvals_stream = io.StringIO()
         dicomifier.nifti.diffusion.to_fsl(
             scheme, transform, bvecs_stream, bvals_stream)
-        self.assertEqual(
-            bvecs_stream.getvalue(),
-            textwrap.dedent("""\
-                0 1 0 0
-                0 0 0 1
-                0 0 1 0
-            """))
-        self.assertEqual(bvals_stream.getvalue().strip(), "0 1 2 3")
+        
+        bvecs_stream = io.StringIO()
+        bvals_stream = io.StringIO()
+        dicomifier.nifti.diffusion.to_fsl(
+            scheme, transform, bvecs_stream, bvals_stream)
+        
+        bvecs_stream.seek(0)
+        saved_bvecs = numpy.loadtxt(bvecs_stream)
+        expected_bvecs = [
+            [0, 1, 0, 0],
+            [0, 0, 0, 1],
+            [0, 0, 1, 0]]
+        numpy.testing.assert_almost_equal(saved_bvecs, expected_bvecs)
 
 if __name__ == "__main__":
     unittest.main()
