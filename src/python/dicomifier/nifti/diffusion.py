@@ -12,7 +12,14 @@ other formats. Unless otherwise specified, all b-values extracted from meta-data
 are expressed in :math:`s/m^2` (i.e. SI units).
 """
 
+import base64
+import binascii
+import re
+
 import numpy
+
+from .. import dicom_to_nifti
+from .. import logger
 
 def from_standard(data):
     """ Extract diffusion gradient direction and b-value from standard DICOM
@@ -42,6 +49,47 @@ def from_standard(data):
         
         scheme.append((b_value, direction))
     
+    return scheme
+
+def from_siemens_csa(data):
+    logger.warning(
+        "The coordinate system of the gradient direction is unspecified. "
+        "Results may be wrong on non-axial images.")
+    
+    scheme = []
+    
+    element = None
+    for tag, item in data.items():
+        match = re.match(r"([\da-f]{4})00([\da-f]{2})", tag)
+        if match:
+            try:
+                item = [base64.b64decode(item[0]).decode()]
+            except binascii.Error:
+                pass
+            except UnicodeDecodeError:
+                pass
+            if item[0] == "SIEMENS CSA HEADER":
+                element = match.group(1)+match.group(2)+"10"
+                break
+    if element is None:
+        return None
+    
+    item = data[element]
+    for entry in numpy.ravel(item):
+        siemens_data = dicom_to_nifti.siemens.parse_csa(base64.b64decode(entry))
+        
+        b_value = siemens_data["B_value"][0]
+        # Convert from s/mm^2 to s/m^2
+        b_value *= 1e6
+        
+        direction = siemens_data["DiffusionGradientDirection"]
+        if len(direction) == 0:
+            direction = [0,0,0]
+        norm = numpy.linalg.norm(direction)
+        if norm > 0:
+            direction /= norm
+        
+        scheme.append((b_value, direction))
     return scheme
 
 def to_mrtrix(scheme, fd):

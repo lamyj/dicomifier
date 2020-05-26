@@ -11,8 +11,6 @@ import pathlib
 
 import dicomifier
 import nibabel
-import numpy
-import odil
 
 def setup(subparsers):
     parser = subparsers.add_parser(
@@ -41,7 +39,11 @@ def action(source, format, destinations, image):
     scheme = None
     if "MRDiffusionSequence" in data:
         scheme = dicomifier.nifti.diffusion.from_standard(data)
+    elif data["Manufacturer"][0].upper() == "SIEMENS":
+        scheme = dicomifier.nifti.diffusion.from_siemens_csa(data)
     
+    if scheme is None:
+        raise NotImplementedError("Could not read diffusion data")
     globals()["to_{}".format(format)](scheme, destinations, image)
 
 def to_mrtrix(scheme, destinations, image):
