@@ -95,11 +95,12 @@ def list_dicom(source, source_printed):
                 os.path.join(dirpath, dicomdir[0]))
             # Don't recurse
             dirnames[:] = []
-        
+        else:
+            filenames = [os.path.join(dirpath, file_) for file_ in filenames]
         for file_ in filenames:
             try:
                 _, data_set = odil.Reader.read_file(
-                    os.path.join(dirpath, file_),
+                    file_,
                     halt_condition=lambda x: x > odil.registry.SeriesNumber)
             except odil.Exception:
                 continue
