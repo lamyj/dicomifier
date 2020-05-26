@@ -1,6 +1,7 @@
 # Dicomifier
 
-[![Build Status (Travis)](https://travis-ci.org/lamyj/dicomifier.svg?branch=master)](https://travis-ci.org/lamyj/dicomifier)
+[![Conda Version](https://img.shields.io/conda/v/conda-forge/dicomifier.svg)](https://anaconda.org/conda-forge/dicomifier)
+
 
 Dicomifier is a set of tools to convert Bruker data to DICOM files, and DICOM files to NIfTI. It retains meta-data (e.g. MR parameters such as echo time or subject parameters such as weight or height) throughout the conversion process, and aligns the meta-data from Bruker on the DICOM dictionary for unified processing pipelines.
 
