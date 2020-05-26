@@ -29,18 +29,27 @@ def setup(subparsers):
 
 def action(sources):
     for source in sources:
-        source_printed = list_bruker(source)
-        list_pvdatasets(source, source_printed)
-        list_dicom(source, source_printed)
+        print(source)
+        data = []
+        data.extend([("Bruker", x) for x in list_bruker(source)])
+        data.extend([("Bruker archive", x) for x in list_pvdatasets(source)])
+        data.extend([("DICOM", x) for x in list_dicom(source)])
+        for format, item in data:
+            print(
+                "  {} / {} / {} {} ({}, {})".format(
+                    item["subject"], 
+                    item["StudyDescription"], 
+                    "{}:{}".format(*item["SeriesNumber"]) 
+                        if isinstance(item["SeriesNumber"], tuple) 
+                        else item["SeriesNumber"],
+                    item["SeriesDescription"],
+                    item["directory"], format))
 
-def list_bruker(source, label=None, source_printed=False):
+def list_bruker(source):
     entries = []
     for path in source.rglob("2dseq"):
         info = dicomifier.bruker_to_dicom.io.get_bruker_info(path.parent)
         entries.append((path.relative_to(source), info))
-    
-    if not entries:
-        return
     
     entries.sort(
         key=lambda x: (
@@ -48,10 +57,8 @@ def list_bruker(source, label=None, source_printed=False):
             x[1].get("StudyDate", ["9999999"])[0], 
             divmod(x[1].get("SeriesNumber", [1e30])[0], 2**16)))
     
-    if not source_printed:
-        print(label or source)
+    result = []
     
-    print("  Bruker")
     for path, info in entries:
         if "SeriesNumber" in info:
             subject = odil.as_unicode(
@@ -64,30 +71,31 @@ def list_bruker(source, label=None, source_printed=False):
             series_description = odil.as_unicode(
                 info.get("SeriesDescription", [b"(no series description)"])[0],
                 odil.Value.Strings(["ISO_IR 192"]))
-            message = (
-                "{} / {} / {}:{} {}".format(
-                    subject, 
-                    study_description, series_number[0], series_number[1], 
-                    series_description))
-        else:
-            message = "unknown Bruker data"
-        print("    {}: {}".format(path, message))
+            
+            result.append({
+                "subject": subject, "StudyDescription": study_description, 
+                "SeriesNumber": series_number, 
+                "SeriesDescription": series_description,
+                "directory": path.parent})
     
-    return True
+    return result
 
-def list_pvdatasets(source, source_printed):
+def list_pvdatasets(source):
+    result = []
     if source.is_file() and zipfile.is_zipfile(source):
         directory = pathlib.Path(tempfile.mkdtemp())
         try:
             with zipfile.ZipFile(source) as archive:
                 archive.extractall(directory/source.name)
-                list_bruker(directory/source.name, source)
+                result.append(list_bruker(directory/source.name))
                 shutil.rmtree(directory/source.name)
         finally:
             shutil.rmtree(directory)
+    return result
 
-def list_dicom(source, source_printed):
+def list_dicom(source):
     series = {}
+    series_files = {}
     for dirpath, dirnames, filenames in os.walk(source):
         dicomdir = [x for x in filenames if x.upper() == "DICOMDIR"]
         if dicomdir:
@@ -106,6 +114,13 @@ def list_dicom(source, source_printed):
                 continue
             series_instance_uid = data_set[odil.registry.SeriesInstanceUID][0]
             series[series_instance_uid] = data_set
+            series_files.setdefault(series_instance_uid, set()).add(file_)
+    
+    series_directories = {
+        uid: os.path.relpath(
+            os.path.commonpath([os.path.dirname(f) for f in files]), 
+            source) 
+        for uid, files in series_files.items()}
     
     def get_series_number(data_set):
         series_number = data_set.get("SeriesNumber", [0])[0]
@@ -119,8 +134,7 @@ def list_dicom(source, source_printed):
             series_number = divmod(series_number, 10000)
         return series_number
     
-    if not series:
-        return
+    result = []
     
     series = sorted(
         series.values(),
@@ -129,10 +143,6 @@ def list_dicom(source, source_printed):
             x.get("StudyDate", ["9999999"])[0], 
             get_series_number(x)))
     
-    if not source_printed:
-        print(source)
-    
-    print("  DICOM")
     for data_set in series:
         subject = odil.as_unicode(
             data_set.get("PatientName", [b"(no subject name)"])[0],
@@ -146,12 +156,13 @@ def list_dicom(source, source_printed):
         series_description = odil.as_unicode(
             data_set.get("SeriesDescription", [b"(no series description)"])[0],
             odil.Value.Strings(["ISO_IR 192"]))
-            
-        print(
-            "    {} / {} / {} {}".format(
-                subject, study_description, 
-                "{}:{}".format(*series_number) 
-                    if isinstance(series_number, tuple) 
-                    else series_number, 
-                series_description))
         
+        series_instance_uid = data_set[odil.registry.SeriesInstanceUID][0]
+        
+        result.append({
+            "subject": subject, "StudyDescription": study_description, 
+            "SeriesNumber": series_number, 
+            "SeriesDescription": series_description,
+            "directory": series_directories[series_instance_uid]})
+    
+    return result
