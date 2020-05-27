@@ -83,7 +83,7 @@ def get_stacks(data_sets):
     # Normalize the keys so that all stacks have the same key fields
     key_items = set()
     for key in stacks.keys():
-        key_items.union(x[0] for x in key)
+        key_items.update(x[0] for x in key)
     normalized_keys = {}
     for key in stacks.keys():
         normalized_keys[key] = list(key)
@@ -95,7 +95,7 @@ def get_stacks(data_sets):
     stacks = { normalized_keys[key]: value for key, value in stacks.items() }
     
     # Simplify keys: remove those that have the same value for all stacks
-    keys = numpy.asarray(list(stacks.keys())) # stack_id, tag, value
+    keys = numpy.asarray(list(stacks.keys()))
     to_keep = []
     for index in range(keys.shape[1]):
         unique_values = set(keys[:,index,:][:,1])
