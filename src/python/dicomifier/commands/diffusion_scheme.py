@@ -37,10 +37,14 @@ def action(source, format, destinations, image):
         data = json.load(fd)
     
     scheme = None
-    if "MRDiffusionSequence" in data:
-        scheme = dicomifier.nifti.diffusion.from_standard(data)
-    elif data["Manufacturer"][0].upper() == "SIEMENS":
-        scheme = dicomifier.nifti.diffusion.from_siemens_csa(data)
+    for name in ["standard", "siemens_csa"]:
+        try:
+            getter = getattr(dicomifier.nifti.diffusion, "from_{}".format(name))
+            scheme = getter(data)
+        except:
+            pass
+        if scheme is not None:
+            break
     
     if scheme is None:
         raise NotImplementedError("Could not read diffusion data")

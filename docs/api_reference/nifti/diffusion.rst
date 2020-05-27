@@ -9,6 +9,13 @@ other formats. Unless otherwise specified, all b-values extracted from meta-data
 are expressed in :math:`s/m^2` (i.e. SI units).
 
 
+.. py:function:: from_siemens_csa(data)
+   :module: dicomifier.nifti.diffusion
+
+   Extract diffusion gradient direction and b-value from Siemens-specific
+   elements (CSA Image Header Info (0029,xx10)).
+
+
 .. py:function:: from_standard(data)
    :module: dicomifier.nifti.diffusion
 

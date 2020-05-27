@@ -52,12 +52,18 @@ def from_standard(data):
     return scheme
 
 def from_siemens_csa(data):
+    """ Extract diffusion gradient direction and b-value from Siemens-specific
+        elements (CSA Image Header Info (0029,xx10)).
+    """
+    
     logger.warning(
         "The coordinate system of the gradient direction is unspecified. "
         "Results may be wrong on non-axial images.")
     
     scheme = []
     
+    # Look for "SIEMENS CSA HEADER" private creator and get the concrete tag
+    # of CSA Image Header Info (0029,xx10)
     element = None
     for tag, item in data.items():
         match = re.match(r"([\da-f]{4})00([\da-f]{2})", tag)
@@ -71,8 +77,6 @@ def from_siemens_csa(data):
             if item[0] == "SIEMENS CSA HEADER":
                 element = match.group(1)+match.group(2)+"10"
                 break
-    if element is None:
-        return None
     
     item = data[element]
     for entry in numpy.ravel(item):
