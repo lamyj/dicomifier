@@ -50,10 +50,10 @@ def diff_sequences(s1, s2, exclusions=set()):
     
     if length == len(s1):
         for index in range(length, len(s2)):
-            result.insert[index] = s2[idx]
+            result.insert[index] = s2[index]
     else:
         for index in range(length, len(s1)):
-            result.remove[index] = s1[idx]
+            result.remove[index] = s1[index]
     
     return result if any([result.insert, result.remove, result.update]) else None
 
