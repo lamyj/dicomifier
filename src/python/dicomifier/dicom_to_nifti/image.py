@@ -61,8 +61,8 @@ def get_image(stack, dtype, cache=None):
     data_set = stack[0][0]
     image_type = data_set.get(odil.registry.ImageType, [])
     if len(stack) == 1 and b"MOSAIC" in image_type and "00291010" in data_set:
-        siemens_data = siemens.parse_csa(
-            data_set[odil.Tag(0x0029, 0x1010)][0].get_memory_view().tobytes())
+        item = data_set[odil.Tag(0x0029, 0x1010)][0]
+        siemens_data = siemens.parse_csa(item.get_memory_view().tobytes())
 
         number_of_tiles = siemens_data["NumberOfImagesInMosaic"][0]
         tiles_per_line = int(math.ceil(math.sqrt(number_of_tiles)))
