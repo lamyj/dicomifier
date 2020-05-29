@@ -303,6 +303,37 @@ def frame_group_index_getter(data_set, tag):
     index = tuple(tuple(x) for x in contribution_description)
     return index
 
+def ge_diffusion_getter(data_set, tag):
+    """ Return GE-specific diffusion data.
+    """
+    
+    if data_set[odil.registry.Manufacturer][0] != b"GE MEDICAL SYSTEMS":
+        return None
+    
+    # Look for "GEMS_ACQU_01" and GEMS_PARM_01 private creators and build base
+    # tags.
+    gems_acq = None
+    gems_parm = None
+    for tag, item in data_set.items():
+        if tag.group == 0x0019 and tag.element >> 8 == 0x00:
+            if item[0] == b"GEMS_ACQU_01":
+                gems_acq = 0x00190000 + ((tag.element & 0xff)<<8)
+        if tag.group == 0x0043 and tag.element >> 8 == 0x00:
+            if item[0] == b"GEMS_PARM_01":
+                gems_parm = 0x00430000 + ((tag.element & 0xff)<<8)
+        if tag>odil.Tag(0x004300ff) or None not in [gems_acq, gems_parm]:
+            break
+    
+    direction = None
+    if gems_acq is not None:
+        direction = tuple(
+            data_set.get(odil.Tag(gems_acq+x), [None])[0]
+            for x in [0xbb, 0xbc, 0xbd])
+    b_value = data_set.get(odil.Tag(gems_parm+0x39), [None])[0]
+    if b_value is None:
+        b_value = data_set.get(odil.registry.DiffusionBValue, [None])[0]
+    
+    return direction, b_value
 
 def _get_splitters(data_sets):
     """ Return a list of splitters (tag and getter) depending on the SOPClassUID
@@ -402,7 +433,12 @@ def _get_splitters(data_sets):
 
     sop_classes = set(x[odil.registry.SOPClassUID][0] for x in data_sets)
 
-    return list(itertools.chain(
+    splitters = list(itertools.chain(
         splitters["ALL"],
         *[splitters.get(x, []) for x in sop_classes]
     ))
+    
+    if any(d[odil.registry.Manufacturer][0] == b"GE MEDICAL SYSTEMS" for d in data_sets):
+        splitters.append(((None, None), ge_diffusion_getter))
+    
+    return splitters

@@ -1,3 +1,5 @@
+.. _diffusion_siemens:
+
 Diffusion-related meta data in Siemens files
 ============================================
 

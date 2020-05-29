@@ -13,4 +13,5 @@ These documents attempt to describe how the diffusion-related meta data is store
    :titlesonly:
 
    Bruker <bruker/index.rst>
+   GE <ge/index.rst>
    Siemens <siemens/index.rst>
