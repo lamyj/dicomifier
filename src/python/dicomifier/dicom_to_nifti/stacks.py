@@ -438,7 +438,7 @@ def _get_splitters(data_sets):
         *[splitters.get(x, []) for x in sop_classes]
     ))
     
-    if any(d[odil.registry.Manufacturer][0] == b"GE MEDICAL SYSTEMS" for d in data_sets):
+    if any(d.get(odil.registry.Manufacturer, [None])[0] == b"GE MEDICAL SYSTEMS" for d in data_sets):
         splitters.append(((None, None), ge_diffusion_getter))
     
     return splitters
