@@ -1,4 +1,5 @@
 import pathlib
+import subprocess
 import sys
 
 import docutils.parsers.rst.states
@@ -7,7 +8,7 @@ import sphinx.ext.autodoc.directive
 
 def main():
     here = pathlib.Path(__file__).parent
-    docs = here/"docs"
+    docs = here
     
     documenter = Autodocumenter(docs)
 
@@ -21,6 +22,9 @@ def main():
         
         destination = path.parent/path.stem
         destination.write_text(contents)
+    
+    for path in docs.rglob("*.rstw"):
+        subprocess.check_call(["pweave", path.name], cwd=path.parent)
 
 class Autodocumenter(object):
     def __init__(self, docs):

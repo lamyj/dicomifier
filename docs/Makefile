@@ -13,6 +13,14 @@ help:
 
 .PHONY: help Makefile
 
+# NOTE: on macOS, LD_LIBRARY_PATH is not propagated to subprocess due to
+# System Integrity Protection
+ifeq ($(origin _LD_LIBRARY_PATH), undefined)
+  _LD_LIBRARY_PATH = $(LD_LIBRARY_PATH)
+endif
+intermediate:
+	LD_LIBRARY_PATH=$(_LD_LIBRARY_PATH) python3 ./generate_doc.py
+
 # Catch-all target: route all unknown targets to Sphinx using the new
 # "make mode" option.  $(O) is meant as a shortcut for $(SPHINXOPTS).
 %: Makefile
