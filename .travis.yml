@@ -30,14 +30,17 @@ matrix:
       after_success:
         - docker kill ubuntu_bionic
     
-    - name: "macOS 10.14 (Mojave)"
-      os: osx
-      osx_image: xcode11
-      env: 
-        - CI_TYPE=brew 
-        - CMAKE_OPTIONS="-DBoost_NO_BOOST_CMAKE=ON"
-        - WORKSPACE=${TRAVIS_BUILD_DIR}
-        - RUNNER=""
+    # The current build depends on Odil obtained through homebrew. Since this is
+    # in a non-official tap, any upgrade of a dependency of Odil will break the
+    # whole build.
+    # - name: "macOS 10.14 (Mojave)"
+    #   os: osx
+    #   osx_image: xcode11
+    #   env: 
+    #     - CI_TYPE=brew 
+    #     - CMAKE_OPTIONS="-DBoost_NO_BOOST_CMAKE=ON"
+    #     - WORKSPACE=${TRAVIS_BUILD_DIR}
+    #     - RUNNER=""
     
 script: |
   ${RUNNER} ./.ci/${CI_TYPE}/install && ${RUNNER} ./.ci/${CI_TYPE}/build && ${RUNNER} ./.ci/${CI_TYPE}/post_build
