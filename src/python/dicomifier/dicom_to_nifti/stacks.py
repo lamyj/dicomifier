@@ -310,7 +310,7 @@ def ge_diffusion_getter(data_set, tag):
     if data_set[odil.registry.Manufacturer][0] != b"GE MEDICAL SYSTEMS":
         return None
     
-    # Look for "GEMS_ACQU_01" and GEMS_PARM_01 private creators and build base
+    # Look for "GEMS_ACQU_01" and "GEMS_PARM_01" private creators and build base
     # tags.
     gems_acq = None
     gems_parm = None

@@ -96,6 +96,44 @@ def from_siemens_csa(data):
         scheme.append((b_value, direction))
     return scheme
 
+def from_ge_private(data):
+    """ Extract diffusion gradient direction and b-value from GE-specific
+        elements (0019,xxbb, 0019,xxbc, 0019,xxbd, and 0043,xx39).
+    """
+    
+    # Look for "GEMS_ACQU_01" and "GEMS_PARM_01" private creators and build base
+    # tags.
+    gems_acq = None
+    gems_parm = None
+    for tag, item in sorted(data.items()):
+        if tag[:4] == "0019" and tag[-4:-2] == "00":
+            if item and item[0] == "GEMS_ACQU_01":
+                gems_acq = "0019"+tag[-2:]
+        if tag[:4] == "0043" and tag[-4:-2] == "00":
+            if item and item[0] == "GEMS_PARM_01":
+                gems_parm = "0043"+tag[-2:]
+        if tag>"004300ff" or None not in [gems_acq, gems_parm]:
+            break
+    
+    directions = None
+    if gems_acq is not None:
+        directions = numpy.squeeze(
+            numpy.transpose([data[gems_acq+x] for x in ["bb", "bc", "bd"]]))
+        norm = numpy.maximum(1e-30, numpy.linalg.norm(directions, axis=1))
+        directions /= norm[:,None]
+    
+    b_values = None
+    if gems_parm is not None:
+        b_values = data.get(gems_parm+"39")
+        if b_values is not None:
+            b_values = [x[0] for x in b_values]
+    if b_values is None:
+        b_values = [x[0] if x else 0 for x in data.get("DiffusionBValue")]
+    # Convert from s/mm^2 to s/m^2
+    b_values = [x*1e6 for x in b_values]
+    
+    return list(zip(b_values, directions))
+
 def to_mrtrix(scheme, fd):
     """ Save a diffusion scheme in MRtrix format to a file-like object.
     """

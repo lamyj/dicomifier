@@ -37,7 +37,7 @@ def action(source, format, destinations, image):
         data = json.load(fd)
     
     scheme = None
-    for name in ["standard", "siemens_csa"]:
+    for name in ["standard", "siemens_csa", "ge_private"]:
         try:
             getter = getattr(dicomifier.nifti.diffusion, "from_{}".format(name))
             scheme = getter(data)
