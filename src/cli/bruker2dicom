@@ -13,6 +13,10 @@ import odil
 import dicomifier
 
 def main():
+    print(
+      "WARNING: bruker2dicom is deprecated. "
+      "Use 'dicomifier to-dicom' instead.")
+    
     parser = argparse.ArgumentParser(
         description="Convert Bruker images to DICOM")
     subparsers = parser.add_subparsers(help="Sub-commands help")
@@ -63,71 +67,21 @@ def main():
         format="%(levelname)s - %(name)s: %(message)s")
 
     function = arguments.pop("function")
-
-    # Unzip pvdataset archives as needed
-    directory = pathlib.Path(tempfile.mkdtemp())
     try:
-        for index, source in enumerate(arguments["sources"]):
-            if zipfile.is_zipfile(source):
-                with zipfile.ZipFile(source) as archive:
-                    archive.extractall(directory/source.name)
-                    arguments["sources"][index] = directory/source.name
-        function(**arguments)
+      function(**arguments)
     except Exception as e:
         if verbosity == "debug":
             raise
         else:
             parser.error(e)
-    finally:
-        shutil.rmtree(directory)
 
 def list_(sources):
-    
-    for source in sources:
-        print(source)
-        # Look for 2dseq as it contains the pixel data
-        infos = [
-            (x, dicomifier.bruker_to_dicom.io.get_bruker_info(x.parent))
-            for x in source.rglob("2dseq")]
-        # Sort by series/reco, keep data sets missing this information at the 
-        # end
-        infos.sort(
-            key=lambda x: (divmod(x[1].get("SeriesNumber", [1e30])[0], 2**16)))
-        for path, info in infos:
-            if "SeriesNumber" in info:
-                subject = odil.as_unicode(
-                    info.get("PatientName", [b"(no subject name)"])[0],
-                    odil.Value.Strings(["ISO_IR 192"]))
-                study_description = odil.as_unicode(
-                    info.get("StudyDescription", [b"(no study description)"])[0],
-                    odil.Value.Strings(["ISO_IR 192"]))
-                series_number = divmod(info.get("SeriesNumber")[0], 2**16)
-                series_description = odil.as_unicode(
-                    info.get("SeriesDescription", [b"(no series description)"])[0],
-                    odil.Value.Strings(["ISO_IR 192"]))
-                print(
-                    "  {}: {} / {} / {}:{} {}".format(
-                        path.parent.relative_to(source), subject, 
-                        study_description, series_number[0], series_number[1], 
-                        series_description))
-            else:
-                print(
-                    "  {}: unknown Bruker data".format(
-                        path.parent.relative_to(source)))
+    return dicomifier.commands.list.action(sources, False)
 
 def convert(sources, destination, transfer_syntax, layout, dicomdir, multiframe):
-    
-    if destination.is_dir() and list(destination.iterdir()):
-        dicomifier.logger.warning("{} is not empty".format(destination))
-    
-    Writers = {
-        "nested": dicomifier.bruker_to_dicom.io.NestedDICOMWriter,
-        "flat": dicomifier.bruker_to_dicom.io.FlatDICOMWriter}
-    writer = Writers[layout](destination, True, transfer_syntax)
-    
-    for source in sources:
-        dicomifier.bruker_to_dicom.convert.convert_directory(
-            source, destination, dicomdir, multiframe, writer)
+    layout = dicomifier.commands.to_dicom.writer_from_name(layout)
+    return dicomifier.commands.to_dicom.action(
+        sources, destination, transfer_syntax, layout, dicomdir, multiframe)
 
 if __name__ == "__main__": 
     sys.exit(main())

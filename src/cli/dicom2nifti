@@ -3,6 +3,7 @@
 import argparse
 import logging
 import os
+import pathlib
 import sys
 
 import numpy
@@ -10,11 +11,16 @@ import numpy
 import dicomifier
 
 def main():
+    print(
+      "WARNING: dicom2nifti is deprecated. "
+      "Use 'dicomifier to-nifti' instead.")
+    
     parser = argparse.ArgumentParser(description="Convert DICOM to NIfTI")
     parser.add_argument(
-        "paths", nargs="+", 
+        "sources", nargs="+", type=pathlib.Path,
         help="DICOM file, directory or DICOMDIR", metavar="path")
-    parser.add_argument("destination", help="Output directory")
+    parser.add_argument(
+        "destination", type=pathlib.Path, help="Output directory")
     parser.add_argument(
         "--dtype", "-d", default=None, 
         type=lambda x: None if x is None else getattr(numpy, x),
@@ -32,7 +38,7 @@ def main():
         format="%(levelname)s - %(name)s: %(message)s")
 
     try:
-        dicomifier.dicom_to_nifti.convert.convert_paths(**arguments)
+        dicomifier.commands.to_nifti.action(**arguments)
     except Exception as e:
         if verbosity == "debug":
             raise
