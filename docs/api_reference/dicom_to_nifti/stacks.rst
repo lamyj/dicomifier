@@ -24,6 +24,13 @@ dicomifier.dicom_to_nifti.stacks
 
 
 
+.. py:function:: ge_diffusion_getter(data_set, tag)
+   :module: dicomifier.dicom_to_nifti.stacks
+
+   Return GE-specific diffusion data.
+
+
+
 .. py:function:: get_diffusion(data_set, tag)
    :module: dicomifier.dicom_to_nifti.stacks
 

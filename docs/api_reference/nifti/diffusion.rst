@@ -9,6 +9,13 @@ other formats. Unless otherwise specified, all b-values extracted from meta-data
 are expressed in :math:`s/m^2` (i.e. SI units).
 
 
+.. py:function:: from_ge_private(data)
+   :module: dicomifier.nifti.diffusion
+
+   Extract diffusion gradient direction and b-value from GE-specific
+   elements (0019,xxbb, 0019,xxbc, 0019,xxbd, and 0043,xx39).
+
+
 .. py:function:: from_siemens_csa(data)
    :module: dicomifier.nifti.diffusion
 
