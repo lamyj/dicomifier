@@ -182,20 +182,23 @@ def convert_element(
     
     return value
 
+_date_time_expressions = [
+    r"^(?P<year>\d{4})-(?P<month>\d{2})-(?P<day>\d{2})"
+        r"[ T]"
+        r"(?P<hour>\d{2}):(?P<minute>\d{2}):(?P<second>\d{2})"
+        r"(?:[.,](?P<microsecond>\d{,6}))?"
+        r"(?P<tzinfo>\+\w+)?", 
+    r"(?P<year>\d{4})(?P<month>\d{2})(?P<day>\d{2})",
+]
+_date_time_expressions = [re.compile(x) for x in _date_time_expressions]
+_tz_cache = {}
+
 def _convert_date_time(value, format_):
     """ Parse the date and time in value, and return it formatted as specified.
     """
     
-    expressions = [
-        r"^(?P<year>\d{4})-(?P<month>\d{2})-(?P<day>\d{2})"
-            r"[ T]"
-            r"(?P<hour>\d{2}):(?P<minute>\d{2}):(?P<second>\d{2})"
-            r"(?:[.,](?P<microsecond>\d{,6}))?"
-            r"(?P<tzinfo>\+\w+)?", 
-        r"(?P<year>\d{4})(?P<month>\d{2})(?P<day>\d{2})",
-    ]
     date_time = None
-    for expression in expressions:
+    for expression in _date_time_expressions:
         match = re.match(expression, value)
         if match:
             groups = match.groupdict()
@@ -208,7 +211,9 @@ def _convert_date_time(value, format_):
             tzinfo = groups.get("tzinfo")
             
             if tzinfo:
-                elements["tzinfo"] = datetime.datetime.strptime(tzinfo, "%z").tzinfo
+                if tzinfo not in _tz_cache:
+                    _tz_cache[tzinfo] = datetime.datetime.strptime(tzinfo, "%z").tzinfo
+                elements["tzinfo"] = _tz_cache[tzinfo]
             
             date_time = datetime.datetime(**elements)
             
