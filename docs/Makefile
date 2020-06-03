@@ -18,8 +18,12 @@ help:
 ifeq ($(origin _LD_LIBRARY_PATH), undefined)
   _LD_LIBRARY_PATH = $(LD_LIBRARY_PATH)
 endif
-intermediate:
+intermediate: $(shell find . -name "*.rst.in" -o -name "*.rstw")
 	LD_LIBRARY_PATH=$(_LD_LIBRARY_PATH) python3 ./generate_doc.py
+
+# Avoid catching these files in Sphinx rules
+%.rst.in:
+%.rstw:
 
 # Catch-all target: route all unknown targets to Sphinx using the new
 # "make mode" option.  $(O) is meant as a shortcut for $(SPHINXOPTS).

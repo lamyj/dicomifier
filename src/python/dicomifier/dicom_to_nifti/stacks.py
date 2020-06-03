@@ -204,6 +204,7 @@ class OrientationGetter(object):
         value = data_set.get(tag)
         if value is None:
             return None
+        # WARNING: a rotating plane will yield the same normal
         orientation = [value[:3], value[3:]]
         normal = numpy.cross(*orientation)
 
