@@ -204,7 +204,7 @@ class OrientationGetter(object):
         value = data_set.get(tag)
         if value is None:
             return None
-        orientation = numpy.reshape(value, (2, -1))
+        orientation = [value[:3], value[3:]]
         normal = numpy.cross(*orientation)
 
         closest = None
