@@ -1,0 +1,13 @@
+dicomifier.bruker_to_dicom
+==========================
+
+.. toctree::
+   :maxdepth: 2
+   :caption: Modules
+   :titlesonly:
+
+   convert.rst
+   io.rst
+   iods.rst
+
+{{ autodoc("class", "dicomifier.bruker_to_dicom.FrameIndexGenerator") }}

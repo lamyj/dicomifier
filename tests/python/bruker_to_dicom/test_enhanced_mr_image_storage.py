@@ -2,13 +2,13 @@ import unittest
 
 import numpy
 
-from dicomifier.bruker_to_dicom.enhanced_mr_image_storage import regroup_shared_data
+from dicomifier.bruker_to_dicom.iods.enhanced_mr_image_storage import merge_shared_groups
 import dicomifier
 import odil
 
 class TestEnhancedMrImageStorage(unittest.TestCase):
 
-    def test_regroup_shared_data(self):
+    def test_merge_shared_groups(self):
         data_set = odil.DataSet()
         data_set.add("NumberOfFrames", [2])
 
@@ -35,10 +35,10 @@ class TestEnhancedMrImageStorage(unittest.TestCase):
         data_set.add("SharedFunctionalGroupsSequence",[shared])
 
         fg = [
-            dicomifier.bruker_to_dicom.frame_groups.PlanePosition,
-            dicomifier.bruker_to_dicom.frame_groups.PlaneOrientation
+            dicomifier.bruker_to_dicom.modules.image.PlanePosition,
+            dicomifier.bruker_to_dicom.modules.image.PlaneOrientation
         ]
-        regroup_shared_data(data_set, fg)
+        merge_shared_groups(data_set, fg)
         for frame_idx in range (2):
             currentFrame = data_set.as_data_set("PerFrameFunctionalGroupsSequence")[frame_idx]
             self.assertFalse(currentFrame.has("PlaneOrientationSequence"))

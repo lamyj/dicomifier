@@ -1,11 +1,8 @@
-configure_file("bruker2dicom" "${CMAKE_CURRENT_BINARY_DIR}/bruker2dicom")
-configure_file("dicom2nifti" "${CMAKE_CURRENT_BINARY_DIR}/dicom2nifti")
-install(
-    PROGRAMS 
-        ${CMAKE_CURRENT_BINARY_DIR}/bruker2dicom 
-        ${CMAKE_CURRENT_BINARY_DIR}/dicom2nifti
-    DESTINATION bin
-)
+set(tools "bruker2dicom" "dicom2nifti" "dicomifier")
+foreach(tool ${tools})
+    configure_file(${tool} ${tool})
+    install(PROGRAMS ${CMAKE_CURRENT_BINARY_DIR}/${tool} DESTINATION bin)
+endforeach()
 
 file(GLOB_RECURSE files "*")
 add_custom_target(

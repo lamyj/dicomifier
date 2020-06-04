@@ -3,7 +3,8 @@
 set -ev
 
 apt-get update
-apt-get -y --no-install-recommends install gnupg software-properties-common wget
+apt-get -y --no-install-recommends install curl gnupg \
+  software-properties-common unzip wget
 
 REPOSITORY=http://dl.bintray.com/lamyj/generic
 wget -O - ${REPOSITORY}/gpg.key | apt-key add -
@@ -17,5 +18,5 @@ apt-get -y --no-install-recommends install \
   libboost-dev libboost-date-time-dev libboost-exception-dev \
   libboost-filesystem-dev libboost-regex-dev libboost-system-dev zlib1g-dev \
   pybind11-dev python3-pybind11 python3-dev \
-  python3-dateutil python3-nibabel python3-numpy python3-odil \
+  python3-dateutil python3-nibabel python3-numpy python3-odil python3-requests \
   libboost-test-dev

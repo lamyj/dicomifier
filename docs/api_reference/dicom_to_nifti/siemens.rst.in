@@ -1,0 +1,4 @@
+dicomifier.dicom_to_nifti.siemens
+=================================
+
+{{ autodoc("module", "dicomifier.dicom_to_nifti.siemens") }}

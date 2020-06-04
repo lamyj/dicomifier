@@ -61,7 +61,7 @@ private:
     
     boost::spirit::qi::rule<TIterator, std::string()> atom;
 
-    boost::spirit::qi::real_parser<float, strict_real_policies<float> > real;
+    boost::spirit::qi::real_parser<double, strict_real_policies<double> > real;
 };
 
 } // namespace bruker
@@ -71,4 +71,3 @@ private:
 #include "grammar.txx"
 
 #endif // _16f1fd3a_de17_4351_9ce9_6cadd35bcdd5
-

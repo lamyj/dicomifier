@@ -9,12 +9,10 @@
 #include <pybind11/pybind11.h>
 
 void wrap_Dataset(pybind11::module &);
-void wrap_Directory(pybind11::module &);
 void wrap_Field(pybind11::module &);
 
 PYBIND11_MODULE(bruker, bruker)
 {
     wrap_Dataset(bruker);
-    wrap_Directory(bruker);
     wrap_Field(bruker);
 }

@@ -1,6 +1,6 @@
-#!/bin/sh
+#!/bin/bash
 
-set -ev
+set -v
 
 export WORKSPACE=${WORKSPACE:?}
 export BUILD_DIR="${WORKSPACE}/${BUILD_DIR:-build}"
@@ -15,16 +15,25 @@ export DICOMIFIER_TEST_DATA=${WORKSPACE}/tests/data
 
 cd "${BUILD_DIR}"
 
+RETURNCODES=()
+
 ctest -T Test
+RETURNCODES[${#RETURNCODES[*]}]=$?
+
 ${PYTHON} -m unittest discover -s ${WORKSPACE}/tests/python/
+RETURNCODES[${#RETURNCODES[*]}]=$?
 
-cd ${HOME}
-# WARNING: 467 MB archived, 807 MB unzipped
-wget -qO - https://github.com/fli-iam/dicomifier-data/archive/master.tar.gz ⁠\
-  | tar -x -z -f -
-
+cd ${WORKSPACE}
+if [ ! -d tests/data/input ]; then
+  ./tests/download_data
+fi
 export PATH=${INSTALL_DIR}/bin:${PATH}
-${PYTHON} ./dicomifier-data-master/scripts/diff_bruker2dicom.py
-${PYTHON} ./dicomifier-data-master/scripts/diff_dicom2nifti.py
 
-rm -rf dicomifier-data-master
+${PYTHON} ./tests/diff/to_dicom.py
+RETURNCODES[${#RETURNCODES[*]}]=$?
+
+${PYTHON} ./tests/diff/to_nifti.py
+RETURNCODES[${#RETURNCODES[*]}]=$?
+
+RETURNCODE=$(printf "%s\n" ${RETURNCODES[*]} | sort -n | tail -n 1)
+exit ${RETURNCODE}

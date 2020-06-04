@@ -69,8 +69,9 @@ BOOST_AUTO_TEST_CASE(Real)
 
     BOOST_REQUIRE_EQUAL(fields.size(), 1);
     BOOST_REQUIRE_EQUAL(fields[0].name, "FieldName");
+    BOOST_REQUIRE_EQUAL(fields[0].value.size(), 1);
     BOOST_REQUIRE(
-        fields[0].value == dicomifier::bruker::Field::Value{1.23f});
+        abs((boost::get<double const>(fields[0].value[0]) - 1.23f)/1.23f) < 1e-6);
 }
 
 BOOST_AUTO_TEST_CASE(NotReal)
@@ -92,8 +93,11 @@ BOOST_AUTO_TEST_CASE(Reals)
     BOOST_REQUIRE_EQUAL(fields.size(), 1);
     BOOST_REQUIRE_EQUAL(fields[0].name, "FieldName");
     BOOST_REQUIRE(fields[0].shape == dicomifier::bruker::Field::Shape({2}));
+    BOOST_REQUIRE_EQUAL(fields[0].value.size(), 2);
     BOOST_REQUIRE(
-        fields[0].value == dicomifier::bruker::Field::Value({1.23f, -4.56f}));
+        abs((boost::get<double const>(fields[0].value[0]) - 1.23f)/1.23f) < 1e-6);
+    BOOST_REQUIRE(
+        abs((boost::get<double const>(fields[0].value[1]) - -4.56f)/4.56f) < 1e-6);
 }
 
 BOOST_AUTO_TEST_CASE(Integer)

@@ -7,44 +7,190 @@
 #########################################################################
 
 import collections
-import itertools
+import logging
+import multiprocessing
+import os
+import traceback
 
 import nibabel
 import numpy
 import odil
 
-from . import meta_data
-from . import image
-from . import odil_getter
+from . import image, io, meta_data
+from .series import DefaultSeriesFinder, split_series
+from .stacks import get_stacks, sort
 
 from .. import logger, MetaData
 
+def convert_paths(paths, destination, zip, dtype=None):
+    """ Convert the DICOM files found in a collection of paths (files, 
+        directories, or DICOMDIR) and save the result in the given destination.
+        
+        :param paths: Collection of paths to scan for DICOM files
+        :param destination: Destination directory
+        :param zip: whether to zip the NIfTI files
+        :param dtype: if not None, force the dtype of the result image
+    """
+    
+    if os.path.isdir(destination) and len(os.listdir(destination)) > 0:
+        logger.warning("{} is not empty".format(destination))
 
-def convert(dicom_data_sets, dtype):
+    dicom_files = io.get_files(paths)
+    series = split_series(dicom_files)
+
+    logger.info("{} series found".format(len(series)))
+
+    for finder, series_files in series.items():
+        convert_and_write_series(series_files, destination, zip, dtype, finder)
+
+def convert_and_write_series(
+        series_files, destination, zip, dtype=None, finder=None):
+    """ Convert the files containing a single series and save the result in the
+        given destination.
+    
+        :param series_files: Collection of paths to scan for DICOM files
+        :param destination: Destination directory
+        :param zip: whether to zip the NIfTI files
+        :param dtype: if not None, force the dtype of the result image
+        :param finder: if not None, series finder object to overwrite the Series
+            Instance UID
+    """
+    
+    try:
+        nifti_data = convert_series(series_files, dtype, finder)
+        if nifti_data is not None:
+            io.write_nifti(nifti_data, destination, zip)
+    except Exception as e:
+        traceback.print_exc()
+
+class SeriesContext(logging.Filter):
+    """ Add series context to logger. 
+    """
+    
+    def __init__(self, data_set):
+        logging.Filter.__init__(self)
+        
+        try:
+            patient = SeriesContext._get_element(
+                data_set, odil.registry.PatientName)
+            if not patient:
+                patient = SeriesContext._get_element(
+                    data_set, odil.registry.PatientID)
+            
+            study = [
+                SeriesContext._get_element(data_set, x)
+                for x in [odil.registry.StudyID, odil.registry.StudyDescription]]
+            
+            series = [
+                SeriesContext._get_element(data_set, x)
+                for x in [odil.registry.SeriesNumber, odil.registry.SeriesDescription]]
+            if series[0] is not None:
+                software = SeriesContext._get_element(
+                    data_set, odil.registry.SoftwareVersions)
+                if software and software == "ParaVision" and series[0] > 2**16:
+                    # Bruker ID based on experiment number and reconstruction 
+                    # number is not readable: separate the two values
+                    series[0] = "{}:{}".format(
+                        *[str(x) for x in divmod(series[0], 2**16)])
+                elif software.startswith("ParaVision") and series[0] > 10000:
+                    # Same processing for Bruker-generated DICOM
+                    series[0] = "{}:{}".format(
+                        *[str(x) for x in divmod(series[0], 10000)])
+                else:
+                    series[0] = "{}".format(series[0])
+            
+            if series[1] is None:
+                series[1] = SeriesContext._get_element(
+                    data_set, odil.registry.ProtocolName) or ""
+            
+            elements = []
+            if patient:
+                elements.append(patient)
+            if any(study):
+                elements.append("-".join(x for x in study if x))
+                if any(series):
+                    elements.append("-".join(x for x in series if x))
+            
+            self.prefix = "{}: ".format(" / ".join(elements))
+        except Exception as e:
+            logger.debug("Series context configuration error: \"{}\"".format(e))
+            self.prefix = ""
+        
+    def filter(self, record):
+        record.msg = "{}{}".format(self.prefix, record.msg)
+        return True
+    
+    @staticmethod
+    def _get_element(data_set, tag):
+        value = data_set.get(tag)
+        if value:
+            value = value[0]
+            if isinstance(value, bytes):
+                value = odil.as_unicode(
+                    value, data_set.get(
+                        odil.registry.SpecificCharacterSet, odil.Value.Strings()))
+        else:
+            value = None
+        return value
+
+def convert_series(series_files, dtype=None, finder=None):
+    """ Return the NIfTI image and meta-data from the files containing a single
+        series.
+        
+        :param dtype: if not None, force the dtype of the result image
+        :param finder: if not None, series finder object to overwrite the Series
+            Instance UID
+    """
+    
+    logger.info(
+        "Reading {} DICOM file{}".format(
+            len(series_files), "s" if len(series_files) > 1 else ""))
+    data_sets = [odil.Reader.read_file(x)[1] for x in series_files]
+
+    # Add series context to the logging as soon as we can
+    series_context = SeriesContext(data_sets[0])
+    logger.addFilter(series_context)
+    
+    if not isinstance(finder, DefaultSeriesFinder):
+        logger.debug("Setting Series Instance UID to {}".format(
+            finder.series_instance_uid.decode()))
+        for data_set in data_sets:
+            data_set[odil.registry.SeriesInstanceUID][0] = finder.series_instance_uid
+    
+    # Get only data_sets containing correct PixelData field
+    data_sets = [x for x in data_sets if odil.registry.PixelData in x]
+
+    if len(data_sets) == 0:
+        logger.warning("No image in series")
+        return None
+    nifti_data = convert_series_data_sets(data_sets, dtype)
+    
+    # Restore the logging
+    logger.removeFilter(series_context)
+    
+    return nifti_data
+
+def convert_series_data_sets(data_sets, dtype=None):
     """ Convert a list of dicom data sets into Nfiti
 
-        :param dicom_data_sets: list of dicom data sets to convert
-        :param dtype: type to use when converting images
+        :param data_sets: list of dicom data sets to convert
+        :param dtype: if not None, force the dtype of the result image
     """
-
+    
     nifti_data = []
 
-    stacks = get_stacks(dicom_data_sets)
+    stacks = get_stacks(data_sets)
     logger.info(
         "Found {} stack{}".format(len(stacks), "s" if len(stacks) > 1 else ""))
 
     # Set up progress information
     stacks_count = {}
     stacks_converted = {}
-    for key, data_sets_frame_idx in stacks.items():
-        series_instance_uid = data_sets_frame_idx[0][0].as_string("SeriesInstanceUID")[0]
+    for key, frames in stacks.items():
+        series_instance_uid = frames[0][0][odil.registry.SeriesInstanceUID][0]
         stacks_count.setdefault(series_instance_uid, 0)
         stacks_count[series_instance_uid] += 1
         stacks_converted[series_instance_uid] = 0
-
-    def get_element(data_set, tag):
-        value = odil_getter._getter(data_set, tag)
-        return value[0] if (value is not None and len(value)>0) else None
 
     meta_data_cache = {}
     pixel_data_cache = {}
@@ -55,50 +201,24 @@ def convert(dicom_data_sets, dtype):
         # the frame index will always be positive
         key=lambda item: numpy.min([x[1] if x[1] is not None else -1 for x in item[1]])
     )
-    for stack_index, (keys, data_sets_frame_idx) in enumerate(stacks):
-        data_set = data_sets_frame_idx[0][0]
-
-        study = [
-            get_element(data_set, odil.registry.StudyID),
-            get_element(data_set, odil.registry.StudyDescription)]
+    for stack_index, (key, stack) in enumerate(stacks):
+        data_set = stack[0][0]
         
-        series = [
-            get_element(data_set, odil.registry.SeriesNumber),
-            get_element(data_set, odil.registry.SeriesDescription)]
-        if series[0] is not None:
-            software = get_element(data_set, odil.registry.SoftwareVersions)
-            if (software and software == "ParaVision" and series[0] > 2**16):
-                # Bruker ID based on experiment number and reconstruction number is
-                # not readable: separate the two values
-                series[0] = u"{}:{}".format(*[str(x) for x in divmod(series[0], 2**16)])
-            else:
-                series[0] = u"{}".format(series[0])
-
-        series_instance_uid = data_set.as_string("SeriesInstanceUID")[0]
-
+        # Update progress information
+        series_instance_uid = data_set[odil.registry.SeriesInstanceUID][0]
         if stacks_count[series_instance_uid] > 1:
-            stack_info = " (stack {}/{})".format(
+            stack_info = "{}/{}".format(
                 1 + stacks_converted[series_instance_uid],
                 stacks_count[series_instance_uid])
         else:
             stack_info = ""
-        if stack_index == 0:
-            logger.info(
-                u"Converting {} / {}".format(
-                    "-".join(str(x) for x in study), 
-                    "-".join(str(x) for x in series)))
         if stack_info:
-            logger.debug(
-                u"Converting {} / {}{}".format(
-                    "-".join(str(x) for x in study), 
-                    "-".join(str(x) for x in series), stack_info))
+            logger.debug("Converting stack {}".format(stack_info))
         stacks_converted[series_instance_uid] += 1
 
-        sort(keys, data_sets_frame_idx)
-        nifti_img = image.get_image(
-            data_sets_frame_idx, dtype, pixel_data_cache)
-        nifti_meta_data = meta_data.get_meta_data(
-            data_sets_frame_idx, meta_data_cache)
+        sort(key, stack)
+        nifti_img = image.get_image(stack, dtype, pixel_data_cache)
+        nifti_meta_data = meta_data.get_meta_data(stack, meta_data_cache)
         nifti_data.append((nifti_img, nifti_meta_data))
 
     # Try to preserve the original stacks order (single-frame)
@@ -106,7 +226,12 @@ def convert(dicom_data_sets, dtype):
         key=lambda x: numpy.ravel(x[1].get("InstanceNumber", [None])).min())
 
     for nifti_img, nifti_meta_data in nifti_data:
-        meta_data.cleanup(nifti_meta_data)
+        skipped = [
+            "InstanceNumber",
+        ]
+        for x in skipped:
+            if x in nifti_meta_data:
+                del nifti_meta_data[x]
 
     series = {}
     for nitfi_img, nifti_meta_data in nifti_data:
@@ -133,174 +258,8 @@ def convert(dicom_data_sets, dtype):
                 merged_stacks.append(merged)
             else:
                 merged_stacks.append(stack[0])
+    
     return merged_stacks
-
-
-def get_stacks(data_sets):
-    """ Return a dict containing, a tuple of key = ((tag,...),value) 
-        associated with the corresponding datasets
-        :param data_sets: List of data_set for which we will get the stacks
-
-        :return stacks = {
-        (keys,keys,keys...) : [dataset_i, dataset_a, dataset_c, ...],
-        (keys,keys,...)     : [dataset_k, dataset_z, dataset_b, ...] 
-        ...
-        } 
-    """
-
-    splitters = _get_splitters(data_sets)
-    stacks = {}
-    for data_set in data_sets:
-        # Single Frame
-        if not data_set.has(odil.registry.SharedFunctionalGroupsSequence):
-            key = []
-            for tags, getter in splitters:
-                if len(tags) == 1:
-                    tag = tags[0]
-                    value = getter(data_set, tag)
-                    if value is not None:
-                        key.append(((None, None, tag), value))
-                else:
-                    continue
-                    # Nothing to do (we can only use direct splitters for
-                    # single frame dicom files)
-            stacks.setdefault(tuple(key), []).append((data_set, None))
-        # Multiple frame
-        else:
-            number_of_frames = data_set.as_int(odil.registry.NumberOfFrames)[0]
-            shared = data_set.as_data_set(
-                odil.registry.SharedFunctionalGroupsSequence)[0]
-            in_stack_position_idx = odil_getter.get_in_stack_position_index(
-                data_set)
-            for frame_idx in range(number_of_frames):
-                key = []
-                top_seqs = []
-                top_seqs.append((
-                    data_set.as_data_set(
-                        odil.registry.PerFrameFunctionalGroupsSequence)[frame_idx],
-                    odil.registry.PerFrameFunctionalGroupsSequence))
-                top_seqs.append((
-                    shared, odil.registry.SharedFunctionalGroupsSequence))
-                # Only use to make difference between Shared & Per-Frame
-                # We need this if multiple orientations available for example
-                for top_seq, top_seq_tag in top_seqs:  
-                    for tags, getter in splitters:
-                        if len(tags) == 1 and top_seq_tag == odil.registry.SharedFunctionalGroupsSequence:
-                            # "and" case used to append element on key only once
-                            tag = tags[0]
-                            value = getter(data_set, tag)
-                            if value is not None:
-                                key.append(((None, None, tag), value))
-                        elif len(tags) == 2:
-                            seq, tag = tags
-                            if top_seq.has(seq):
-                                data_set_seq = top_seq.as_data_set(seq)[0]
-                                if tag is None:
-                                    value = getter(top_seq, seq)
-                                elif tag == odil.registry.DimensionIndexValues:
-                                    # need to give idx of InStackPosition here
-                                    value = getter(
-                                        data_set_seq, tag, in_stack_position_idx)
-                                else:
-                                    value = getter(data_set_seq, tag)
-                                if value is not None:
-                                    key.append(
-                                        ((top_seq_tag, seq, tag), value))
-                stacks.setdefault(tuple(key), []).append((data_set, frame_idx))
-    
-    # Normalize the keys so that all stacks have the same key fields
-    key_items = set()
-    for key in stacks.keys():
-        for key_item, _ in key:
-            key_items.add(key_item)
-    normalized_keys = {}
-    for key in stacks.keys():
-        normalized_keys[key] = list(key)
-        for key_item in key_items:
-            if key_item not in [x[0] for x in key]:
-                normalized_keys[key].append((key_item, None))
-    for key, normalized_key in normalized_keys.items():
-        normalized_keys[key] = tuple(normalized_key)
-    stacks = { normalized_keys[key]: value for key, value in stacks.items() }
-    
-    # Simplify keys: remove those that have the same value for all stacks
-    keys = numpy.asarray(list(stacks.keys())) # stack_id, tag, value
-    to_keep = []
-    for index in range(keys.shape[1]):
-        unique_values = set(keys[:,index,:][:,1])
-        is_orientation = (keys[:,index,:][0][0][2] == odil.registry.ImageOrientationPatient)
-        if len(unique_values) > 1 or is_orientation:
-            # Key must be kept
-            to_keep.append(index)
-    stacks = {
-        tuple(v for (i, v) in enumerate(stack_key) if i in to_keep): stack_value
-        for stack_key, stack_value in stacks.items()
-    }
-    
-    return stacks
-
-
-def sort(keys, data_sets_frame_idx):
-    """ Sort current stack frames/datasets depending on their common keys
-        :param keys: Keys shared by all element of the stack
-        :param data_sets_frame_idx: List containing the data sets of the frame 
-                                    with the corresponding frame when it's a multiframe data set
-    """
-
-    number_of_frames = len(data_sets_frame_idx)
-    if number_of_frames == 1:
-        # WARNING : Can cause some problem when opening .nii file with Slicer
-        logger.debug("Only one frame in the current stack")
-        return
-    else:
-        for key in keys:
-            for tags, value in keys:
-                top_seq, sub_seq, tag = tags
-                if tag == odil.registry.DimensionIndexValues:
-                    # sort by In-Stack Position
-                    in_stack_position = []
-                    for data_set, index in data_sets_frame_idx:
-                        in_stack_position_idx = odil_getter.get_in_stack_position_index(
-                            data_set)
-                        frame = data_set.as_data_set(
-                            odil.registry.PerFrameFunctionalGroupsSequence)[index]
-                        frame_content_seq = frame.as_data_set(
-                            odil.registry.FrameContentSequence)[0]
-                        in_stack_position.append(frame_content_seq.as_int(
-                            odil.registry.DimensionIndexValues)[in_stack_position_idx])
-                    sorted_in_stack = sorted(
-                        range(len(in_stack_position)), key=lambda k: in_stack_position[k])
-                    keydict = dict(zip(data_sets_frame_idx, sorted_in_stack))
-                    data_sets_frame_idx.sort(key = keydict.get)
-                    return
-                if tag == odil.registry.ImageOrientationPatient:
-                    if sort_position(data_sets_frame_idx, value) == True:
-                        return
-        available_tags = [x[0][2] for x in keys if len(x) > 1]
-        logger.warning(
-            "Cannot sort frames for the moment, available tags : {}".format(
-                [odil.Tag(x).get_name() for x in available_tags]))
-
-
-def sort_position(data_sets_frame_idx, orientation):
-    """ Sort frames/datasets of the current stack depending on their orientation
-        :param data_sets_frame_idx: List containing the data sets of the frame 
-                                    with the corresponding frame when it's a multiframe data set
-        :param orientation: Orientation shared by all the element of the stack
-    """
-
-    data_set, frame_idx = data_sets_frame_idx[0]
-    if odil_getter._get_position(data_set, frame_idx) is not None:
-        normal = numpy.cross(orientation[:3], orientation[3:])
-        data_sets_frame_idx.sort(
-            key=lambda x: numpy.dot(
-                odil_getter._get_position(x[0], x[1]), normal))
-        return True
-    else:
-        logger.warning(
-            "Orientation found but no position available to sort frames")
-        return False
-
 
 def merge_images_and_meta_data(images_and_meta_data):
     """ Merge the pixel and meta-data of geometrically coherent images.
@@ -328,113 +287,3 @@ def merge_images_and_meta_data(images_and_meta_data):
         merged_meta_data[key] = value
 
     return merged_image, merged_meta_data
-
-
-def _get_splitters(data_sets):
-    """ Return a list of splitters (tag and getter) depending on the SOPClassUID
-        of each dataset
-
-        :param data_sets: Data sets of the current stack 
-    """
-
-    splitters = {
-        "ALL": [
-            # Single Frame generic tags
-            ((odil.registry.SeriesInstanceUID,), odil_getter._getter),
-            ((odil.registry.ImageType,), odil_getter._getter),
-            (
-                (odil.registry.ImageOrientationPatient,), 
-                odil_getter.OrientationGetter()),
-            ((odil.registry.SpacingBetweenSlices,), odil_getter._getter),
-            ((odil.registry.Rows,), odil_getter._getter), 
-            ((odil.registry.Columns,), odil_getter._getter), 
-            (
-                (odil.registry.PhotometricInterpretation,), 
-                odil_getter._getter), 
-            # Multiframe generic tags
-            (
-                (
-                    odil.registry.FrameContentSequence,
-                    odil.registry.DimensionIndexValues),
-                odil_getter.get_dimension_index_seq),
-            (
-                (
-                    odil.registry.PlaneOrientationSequence, 
-                    odil.registry.ImageOrientationPatient),
-                odil_getter.OrientationGetter()),
-            (
-                (
-                    odil.registry.PixelMeasuresSequence, 
-                    odil.registry.SpacingBetweenSlices),
-                odil_getter._getter),
-            (
-                (
-                    odil.registry.FrameContentSequence, 
-                    odil.registry.FrameAcquisitionNumber),
-                odil_getter._getter),
-            (
-                (odil.registry.FrameContentSequence, odil.registry.FrameLabel),
-                odil_getter._getter)
-        ],
-        odil.registry.MRImageStorage: [
-            ((odil.registry.AcquisitionNumber,), odil_getter._getter),
-            ((odil.registry.RepetitionTime,), odil_getter._getter),
-            ((odil.registry.EchoTime,), odil_getter._getter),
-            ((odil.registry.InversionTime,), odil_getter._getter),
-            ((odil.registry.EchoNumbers,), odil_getter._getter),
-            (
-                (odil.registry.MRDiffusionSequence,), 
-                odil_getter._diffusion_getter),
-            # Philips Ingenia stores these fields at top-level
-            (
-                (odil.registry.DiffusionGradientOrientation,),
-                odil_getter._getter),
-            ((odil.registry.DiffusionBValue,), odil_getter._getter),
-            ((odil.registry.TriggerTime,), odil_getter._getter),
-            (
-                (odil.registry.ContributingEquipmentSequence,), 
-                odil_getter._frame_group_index_getter)
-        ],
-        odil.registry.EnhancedMRImageStorage: [
-            (
-                (
-                    odil.registry.MRTimingAndRelatedParametersSequence, 
-                    odil.registry.RepetitionTime),
-                odil_getter._getter),
-            (
-                (odil.registry.MREchoSequence, odil.registry.EffectiveEchoTime),
-                odil_getter._getter),
-            (
-                (odil.registry.MRModifierSequence, odil.registry.InversionTimes),
-                odil_getter._getter),
-            (
-                (odil.registry.MRImageFrameTypeSequence, odil.registry.FrameType),
-                odil_getter._getter),
-            (
-                (
-                    odil.registry.MRMetaboliteMapSequence, 
-                    odil.registry.MetaboliteMapDescription),
-                odil_getter._getter),
-            (
-                (odil.registry.MRDiffusionSequence, None),
-                odil_getter._diffusion_getter),
-        ],
-        odil.registry.EnhancedPETImageStorage: [
-            (
-                (odil.registry.PETFrameTypeSequence, odil.registry.FrameType),
-                odil_getter._getter)
-        ],
-        odil.registry.EnhancedCTImageStorage: [
-            (
-                (odil.registry.CTImageFrameTypeSequence, odil.registry.FrameType),
-                odil_getter._getter)
-        ]
-    }
-
-    sop_classes = set(
-        x.as_string(odil.registry.SOPClassUID)[0] for x in data_sets)
-
-    return list(itertools.chain(
-        splitters["ALL"],
-        *[splitters.get(x, []) for x in sop_classes]
-    ))

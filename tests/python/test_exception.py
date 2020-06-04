@@ -13,11 +13,11 @@ class TestException(unittest.TestCase):
 
     def test_cpp_generic(self):
         with self.assertRaises(Exception):
-            dicomifier.bruker.Directory().get_dataset("foo")
+            dicomifier.bruker.Dataset().get_field("foo")
     
     def test_cpp_specific(self):
         with self.assertRaises(dicomifier.Exception):
-            dicomifier.bruker.Directory().get_dataset("foo")
+            dicomifier.bruker.Dataset().get_field("foo")
 
 if __name__ == "__main__":
     unittest.main()

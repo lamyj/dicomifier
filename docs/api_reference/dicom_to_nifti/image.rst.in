@@ -1,0 +1,4 @@
+dicomifier.dicom_to_nifti.image
+===============================
+
+{{ autodoc("module", "dicomifier.dicom_to_nifti.image") }}
