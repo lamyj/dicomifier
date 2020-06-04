@@ -30,6 +30,20 @@ matrix:
       after_success:
         - docker kill ubuntu_bionic
     
+    - name: "Ubuntu 20.04 (Focal)"
+      os: linux
+      sudo: required
+      services:
+        - docker
+      env: 
+        - CI_TYPE=deb
+        - WORKSPACE=${TRAVIS_BUILD_DIR}
+        - RUNNER="docker exec -w ${TRAVIS_BUILD_DIR} -e WORKSPACE=${WORKSPACE} -e DEBIAN_FRONTEND=noninteractive ubuntu_focal"
+      before_install:
+        - docker run -di -v ${TRAVIS_BUILD_DIR}:${TRAVIS_BUILD_DIR} --name ubuntu_focal --rm ubuntu:focal
+      after_success:
+        - docker kill ubuntu_focal
+    
     # The current build depends on Odil obtained through homebrew. Since this is
     # in a non-official tap, any upgrade of a dependency of Odil will break the
     # whole build.
