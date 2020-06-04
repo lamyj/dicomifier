@@ -28,7 +28,7 @@ Vcs-Browser: https://github.com/lamyj/dicomifier
 Vcs-Git: https://github.com/lamyj/dicomifier.git
 Homepage: https://github.com/lamyj/dicomifier
 
-Package: libdicomifier1
+Package: libdicomifier2
 Architecture: any
 Section: libs
 Depends: ${shlibs:Depends}, ${misc:Depends}
@@ -43,7 +43,7 @@ Description: Convert data to and from DICOM (shared libraries)
 Package: libdicomifier-dev
 Architecture: any
 Section: libdevel
-Depends: libdicomifier1 (= ${binary:Version}),
+Depends: libdicomifier2 (= ${binary:Version}),
          ${devlibs:Depends},
          ${misc:Depends}
 Multi-Arch: same
@@ -57,7 +57,7 @@ Description: Convert data to and from DICOM (development files)
 Package: python3-dicomifier
 Architecture: any
 Section: python
-Depends: libdicomifier1 (= ${binary:Version}),
+Depends: libdicomifier2 (= ${binary:Version}),
          python3-dateutil,
          python3-nibabel,
          python3-numpy,
