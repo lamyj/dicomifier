@@ -1,3 +1,1 @@
-usr/lib/python3*/dist-packages/dicomifier/*so
-usr/lib/python3*/dist-packages/dicomifier/*py
-usr/lib/python3*/dist-packages/dicomifier/*/*py
+usr/lib/python3*/dist-packages/dicomifier

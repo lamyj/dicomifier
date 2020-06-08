@@ -3,7 +3,7 @@ Maintainer: Julien Lamy <lamy@unistra.fr>
 Section: science
 Testsuite: autopkgtest-pkg-python
 Priority: optional
-Build-Depends: debhelper-compat (= 12),
+Build-Depends: debhelper (>= 9),
                d-shlibs,
                dh-python,
                cmake,
@@ -19,7 +19,7 @@ Build-Depends: debhelper-compat (= 12),
                python3-dateutil,
                python3-nibabel,
                python3-numpy,
-               python3-odil (>= 0.11.0),
+               python3-odil (>= 0.12.0),
                python3-pybind11,
                zlib1g-dev,
                libboost-test-dev
