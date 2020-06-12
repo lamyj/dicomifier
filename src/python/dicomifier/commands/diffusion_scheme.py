@@ -33,7 +33,7 @@ def setup(subparsers):
     return parser
 
 def action(source, format, destinations, image):
-    with open(source) as fd:
+    with source.open() as fd:
         data = json.load(fd)
     
     scheme = None
