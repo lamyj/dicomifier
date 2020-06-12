@@ -35,5 +35,8 @@ RETURNCODES[${#RETURNCODES[*]}]=$?
 ${PYTHON} ./tests/diff/to_nifti.py
 RETURNCODES[${#RETURNCODES[*]}]=$?
 
+${PYTHON} ./tests/diff/list.py
+RETURNCODES[${#RETURNCODES[*]}]=$?
+
 RETURNCODE=$(printf "%s\n" ${RETURNCODES[*]} | sort -n | tail -n 1)
 exit ${RETURNCODE}
