@@ -1,3 +1,9 @@
+dicomifier (2.0.1-1) unstable; urgency=medium
+
+  * New upstream release.
+
+ -- Julien Lamy <lamy@unistra.fr>  Fri, 12 Jun 2020 15:22:30 +0200
+
 dicomifier (2.0.0-2) unstable; urgency=medium
 
   * Fix missing installed files.
