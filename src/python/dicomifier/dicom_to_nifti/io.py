@@ -23,7 +23,7 @@ def get_files(paths):
     
     dicom_files = set()
     for entry in paths:
-        entry = os.path.abspath(entry)
+        entry = os.path.abspath(str(entry))
 
         if os.path.isdir(entry):
             for dirpath, dirnames, filenames in os.walk(entry):
@@ -83,7 +83,7 @@ def write_nifti(nifti_data, destination, zip):
     # Write one nii+json per stack
     for index, (image, meta_data) in enumerate(nifti_data):
         destination_directory = os.path.join(
-            destination, get_series_directory(meta_data))
+            str(destination), get_series_directory(meta_data))
 
         if not os.path.isdir(destination_directory):
             os.makedirs(destination_directory)

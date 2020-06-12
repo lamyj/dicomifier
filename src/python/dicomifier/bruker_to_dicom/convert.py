@@ -204,7 +204,11 @@ def _convert_date_time(value, format_):
             groups = match.groupdict()
             
             if "microsecond" in groups:
-                groups["microsecond"] += (6-len(groups["microsecond"]))*"0"
+                value = groups["microsecond"]
+                if value:
+                    groups["microsecond"] += (6-len(value))*"0"
+                else:
+                    del groups["microsecond"]
             elements = {
                 g: int(v) for g,v in groups.items()
                 if v is not None and g != "tzinfo" }

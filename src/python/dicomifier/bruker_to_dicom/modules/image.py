@@ -41,7 +41,7 @@ def get_pixel_data(data_set, generator, frame_index):
         }[data_set["VisuCoreWordType"][0]]
         
         # Read the file
-        with open(data_set["PIXELDATA"][0], "rb") as fd:
+        with open(str(data_set["PIXELDATA"][0]), "rb") as fd:
             pixel_data = numpy.fromfile(fd, dtype)
             data_set["PIXELDATA"] = pixel_data.reshape(
                 -1, data_set["VisuCoreSize"][0]*data_set["VisuCoreSize"][1])

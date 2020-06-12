@@ -1,0 +1,18 @@
+#!/bin/sh
+
+set -ev
+
+MINICONDA=Miniconda3-latest-MacOSX-x86_64.sh
+wget http://repo.continuum.io/miniconda/${MINICONDA} -O miniconda.sh
+bash miniconda.sh -b -p ${HOME}/miniconda
+source "$HOME/miniconda/etc/profile.d/conda.sh"
+
+hash -r
+
+conda config --set always_yes yes --set changeps1 no
+conda update -q conda
+conda info -a
+
+conda create --name dicomifier -c conda-forge \
+  boost cmake nibabel ninja numpy odil pkg-config pybind11 python-dateutil \
+  requests

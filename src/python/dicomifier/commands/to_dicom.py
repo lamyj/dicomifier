@@ -56,11 +56,11 @@ def action(sources, destination, transfer_syntax, layout, dicomdir, multiframe):
     directory = pathlib.Path(tempfile.mkdtemp())
     try:
         for source in sources:
-            if zipfile.is_zipfile(source):
-                with zipfile.ZipFile(source) as archive:
-                    archive.extractall(directory/source.name)
+            if zipfile.is_zipfile(str(source)):
+                with zipfile.ZipFile(str(source)) as archive:
+                    archive.extractall(str(directory/source.name))
                     source = directory/source.name
             dicomifier.bruker_to_dicom.convert.convert_directory(
                 source, dicomdir, multiframe, writer)
     finally:
-        shutil.rmtree(directory)
+        shutil.rmtree(str(directory))

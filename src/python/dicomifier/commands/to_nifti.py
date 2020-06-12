@@ -61,4 +61,4 @@ def action(sources, destination, dtype, zip):
         dicomifier.dicom_to_nifti.convert.convert_paths(
             dicom_sources, destination, zip, dtype)
     finally:
-        shutil.rmtree(directory)
+        shutil.rmtree(str(directory))
