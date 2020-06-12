@@ -2,6 +2,20 @@ language: minimal
 
 matrix:
   include:
+    - name: "Debian 9 (Stretch)"
+      os: linux
+      sudo: required
+      services:
+        - docker
+      env: 
+        - CI_TYPE=deb
+        - WORKSPACE=${TRAVIS_BUILD_DIR}
+        - RUNNER="docker exec -w ${TRAVIS_BUILD_DIR} -e WORKSPACE=${WORKSPACE} debian_stretch"
+      before_install:
+        - docker run -di -v ${TRAVIS_BUILD_DIR}:${TRAVIS_BUILD_DIR} --name debian_stretch --rm debian:stretch
+      after_success:
+        - docker kill debian_stretch
+    
     - name: "Debian 10 (Buster)"
       os: linux
       sudo: required
