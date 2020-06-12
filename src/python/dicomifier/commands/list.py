@@ -111,7 +111,7 @@ def list_pvdatasets(source):
 def list_dicom(source):
     series = {}
     series_files = {}
-    for dirpath, dirnames, filenames in os.walk(source):
+    for dirpath, dirnames, filenames in os.walk(str(source)):
         dicomdir = [x for x in filenames if x.upper() == "DICOMDIR"]
         if dicomdir:
             filenames = dicomifier.dicom_to_nifti.io.get_dicomdir_files(
@@ -134,7 +134,7 @@ def list_dicom(source):
     series_directories = {
         uid: os.path.relpath(
             os.path.commonpath([os.path.dirname(f) for f in files]), 
-            source) 
+            str(source)) 
         for uid, files in series_files.items()}
     
     def get_series_number(data_set):

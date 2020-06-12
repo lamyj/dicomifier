@@ -73,11 +73,11 @@ def print_differences(differences, indent=0):
         for action in ["insert", "remove", "update"]:
             if not getattr(differences, action):
                 continue
-            print(f"{indent*'  '}{action}")
+            print("{}{}".format(indent*"  ", action))
             print_differences(getattr(differences, action), 1+indent)
     elif isinstance(differences, dict):
         for key in sorted(differences):
-            print(f"{indent*'  '}{key}")
+            print("{}{}".format(indent*"  ", key))
             print_differences(differences[key], 1+indent)
     else: 
-        print(f"{indent*'  '}{differences}")
+        print("{}{}".format(indent*"  ", differences))

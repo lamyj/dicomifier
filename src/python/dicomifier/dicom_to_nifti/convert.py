@@ -32,7 +32,7 @@ def convert_paths(paths, destination, zip, dtype=None):
         :param dtype: if not None, force the dtype of the result image
     """
     
-    if os.path.isdir(destination) and len(os.listdir(destination)) > 0:
+    if os.path.isdir(str(destination)) and len(os.listdir(str(destination))) > 0:
         logger.warning("{} is not empty".format(destination))
 
     dicom_files = io.get_files(paths)

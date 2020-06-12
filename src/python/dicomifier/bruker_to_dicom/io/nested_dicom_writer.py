@@ -15,7 +15,7 @@ class NestedDICOMWriter(object):
     """
     
     def __init__(self, root, iso_9660, transfer_syntax):
-        self.root = root
+        self.root = str(root)
         self.iso_9660 = iso_9660
         self.transfer_syntax = transfer_syntax
         self.files = []
