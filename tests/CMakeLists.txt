@@ -1,4 +1,5 @@
-find_package(Boost COMPONENTS filesystem system unit_test_framework REQUIRED)
+find_package(
+    Boost 1.58 COMPONENTS filesystem system unit_test_framework REQUIRED)
 
 include_directories(
     ${CMAKE_CURRENT_SOURCE_DIR}/../src/lib ${Boost_INCLUDE_DIRS})
