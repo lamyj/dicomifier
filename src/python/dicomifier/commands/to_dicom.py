@@ -27,7 +27,7 @@ def setup(subparsers):
     parser.add_argument(
         "--dicomdir", "-d", action="store_true", help="Create a DICOMDIR")
     parser.add_argument(
-        "--layout", "-l", choices=["nested", "flat"], type=writer_from_name,
+        "--layout", "-l", choices=["nested", "flat"], 
         default="nested", help="Layout of the DICOM files on the disk")
     parser.add_argument(
         "--multiframe", "-m", action="store_true",
@@ -51,7 +51,7 @@ def action(sources, destination, transfer_syntax, layout, dicomdir, multiframe):
     if destination.is_dir() and list(destination.iterdir()):
         dicomifier.logger.warning("{} is not empty".format(destination))
     
-    writer = layout(destination, True, transfer_syntax)
+    writer = writer_from_name(layout)(destination, True, transfer_syntax)
     
     directory = pathlib.Path(tempfile.mkdtemp())
     try:
