@@ -41,27 +41,9 @@ def convert_paths(paths, destination, zip, dtype=None):
     logger.info("{} series found".format(len(series)))
 
     for finder, series_files in series.items():
-        convert_and_write_series(series_files, destination, zip, dtype, finder)
-
-def convert_and_write_series(
-        series_files, destination, zip, dtype=None, finder=None):
-    """ Convert the files containing a single series and save the result in the
-        given destination.
-    
-        :param series_files: Collection of paths to scan for DICOM files
-        :param destination: Destination directory
-        :param zip: whether to zip the NIfTI files
-        :param dtype: if not None, force the dtype of the result image
-        :param finder: if not None, series finder object to overwrite the Series
-            Instance UID
-    """
-    
-    try:
         nifti_data = convert_series(series_files, dtype, finder)
         if nifti_data is not None:
             io.write_nifti(nifti_data, destination, zip)
-    except Exception as e:
-        traceback.print_exc()
 
 class SeriesContext(logging.Filter):
     """ Add series context to logger. 
@@ -162,8 +144,9 @@ def convert_series(series_files, dtype=None, finder=None):
 
     if len(data_sets) == 0:
         logger.warning("No image in series")
-        return None
-    nifti_data = convert_series_data_sets(data_sets, dtype)
+        nifti_data = None
+    else:
+        nifti_data = convert_series_data_sets(data_sets, dtype)
     
     # Restore the logging
     logger.removeFilter(series_context)

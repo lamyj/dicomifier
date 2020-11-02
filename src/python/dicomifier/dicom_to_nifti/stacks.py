@@ -330,9 +330,14 @@ def ge_diffusion_getter(data_set, tag):
         direction = tuple(
             data_set.get(odil.Tag(gems_acq+x), [None])[0]
             for x in [0xbb, 0xbc, 0xbd])
+    if direction and not(isinstance(direction[0], (int, float))):
+        return None
+    
     b_value = data_set.get(odil.Tag(gems_parm+0x39), [None])[0]
     if b_value is None:
         b_value = data_set.get(odil.registry.DiffusionBValue, [None])[0]
+    if b_value and not(isinstance(b_value, (int, float))):
+        return None
     
     return direction, b_value
 

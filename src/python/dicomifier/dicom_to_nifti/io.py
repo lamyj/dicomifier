@@ -103,11 +103,16 @@ def get_series_directory(meta_data):
     """ Return the directory associated with the patient, study and series of
         the NIfTI meta-data.
     """
-
+    
+    def get_first_item(item):
+        while isinstance(item, list):
+            item = item[0]
+        return item
+    
     # Patient directory: <PatientName> or <PatientID> or <StudyInstanceUID>.
     patient_directory = None
     if "PatientName" in meta_data and meta_data["PatientName"]:
-        patient_directory = meta_data["PatientName"][0]["Alphabetic"]
+        patient_directory = get_first_item(meta_data["PatientName"])["Alphabetic"]
     elif "PatientID" in meta_data and meta_data["PatientID"]:
         patient_directory = meta_data["PatientID"][0]
     elif "StudyInstanceUID" in meta_data and meta_data["StudyInstanceUID"]:

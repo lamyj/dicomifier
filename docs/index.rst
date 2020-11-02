@@ -11,6 +11,8 @@ Want to find out how it works? The :ref:`API reference <api-reference>` is a goo
 
 Interested in how the vendors store diffusion MRI meta-data? There is a :ref:`section <diffusion>` just for you.
 
+Using the software? No citation is mandatory, but it is always appreciated. See the entry on `Zenodo <https://doi.org/10.5281/zenodo.4094629>`_ for details.
+
 .. toctree::
    :maxdepth: 2
    :caption: Contents

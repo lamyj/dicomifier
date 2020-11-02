@@ -1,4 +1,5 @@
-find_package(pybind11 REQUIRED)
+find_package(PythonInterp 3.5 REQUIRED)
+find_package(pybind11 2.0 REQUIRED)
 
 include_directories(${CMAKE_SOURCE_DIR}/src/lib ${PYTHON_INCLUDE_DIRS})
 
