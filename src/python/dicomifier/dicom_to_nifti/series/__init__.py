@@ -31,7 +31,7 @@ def split_series(files):
                 file_,  
                 halt_condition=lambda x: x>odil.registry.SeriesInstanceUID)
         except odil.Exception as e:
-            dicomifier.logger.warning("Could not read {}: {}".format(file_, e))
+            logger.warning("Could not read {}: {}".format(file_, e))
             continue
         
         uncompressed_ts = [
@@ -41,7 +41,7 @@ def split_series(files):
                 "ExplicitVRBigEndian_Retired"
             ]]
         if header[odil.registry.TransferSyntaxUID][0] not in uncompressed_ts:
-            dicomifier.logger.warning(
+            logger.warning(
                 "Could not read {}: compressed transfer syntax".format(file_))
             continue
         
