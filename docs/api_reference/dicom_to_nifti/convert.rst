@@ -21,20 +21,6 @@ dicomifier.dicom_to_nifti.convert
       yes. If deemed appropriate, the record may be modified in-place.
 
 
-.. py:function:: convert_and_write_series(series_files, destination, zip, dtype=None, finder=None)
-   :module: dicomifier.dicom_to_nifti.convert
-
-   Convert the files containing a single series and save the result in the
-   given destination.
-
-   :param series_files: Collection of paths to scan for DICOM files
-   :param destination: Destination directory
-   :param zip: whether to zip the NIfTI files
-   :param dtype: if not None, force the dtype of the result image
-   :param finder: if not None, series finder object to overwrite the Series
-       Instance UID
-
-
 .. py:function:: convert_paths(paths, destination, zip, dtype=None)
    :module: dicomifier.dicom_to_nifti.convert
 
