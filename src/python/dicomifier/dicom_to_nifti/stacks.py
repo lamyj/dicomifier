@@ -13,6 +13,7 @@ import numpy
 import odil
 
 from .. import logger
+from . import siemens
 
 def get_stacks(data_sets):
     """ Return the stacks contained in the data sets. The result is a dictionary
@@ -311,19 +312,9 @@ def ge_diffusion_getter(data_set, tag):
     if data_set[odil.registry.Manufacturer][0] != b"GE MEDICAL SYSTEMS":
         return None
     
-    # Look for "GEMS_ACQU_01" and "GEMS_PARM_01" private creators and build base
-    # tags.
-    gems_acq = None
-    gems_parm = None
-    for tag, item in data_set.items():
-        if tag.group == 0x0019 and tag.element >> 8 == 0x00:
-            if item[0] == b"GEMS_ACQU_01":
-                gems_acq = 0x00190000 + ((tag.element & 0xff)<<8)
-        if tag.group == 0x0043 and tag.element >> 8 == 0x00:
-            if item[0] == b"GEMS_PARM_01":
-                gems_parm = 0x00430000 + ((tag.element & 0xff)<<8)
-        if tag>odil.Tag(0x004300ff) or None not in [gems_acq, gems_parm]:
-            break
+    # GEMS_ACQU_01 contains directions, GEMS_PARM_01 contains b-value
+    gems_acq = _find_private_creator(data_set, b"GEMS_ACQU_01", 0x0019)
+    gems_parm = _find_private_creator(data_set, b"GEMS_PARM_01", 0x0043)
     
     direction = None
     if gems_acq is not None:
@@ -340,6 +331,24 @@ def ge_diffusion_getter(data_set, tag):
         return None
     
     return direction, b_value
+
+def siemens_coil_getter(data_set, tag):
+    """ Return Siemens-specific coil identifier.
+    """
+    
+    if data_set[odil.registry.Manufacturer][0] != b"SIEMENS":
+        return None
+    
+    csa_header = _find_private_creator(data_set, b"SIEMENS CSA HEADER", 0x0029)
+    if csa_header is None:
+        return None
+    
+    item = data_set.get(odil.Tag(csa_header + 0x10), [None])[0]
+    if item is None:
+        return None
+    
+    siemens_data = siemens.parse_csa(item.get_memory_view().tobytes())
+    return siemens_data.get("ImaCoilString", [b""])[0].strip(b"\x00")
 
 def _get_splitters(data_sets):
     """ Return a list of splitters (tag and getter) depending on the SOPClassUID
@@ -446,5 +455,21 @@ def _get_splitters(data_sets):
     
     if any(d.get(odil.registry.Manufacturer, [None])[0] == b"GE MEDICAL SYSTEMS" for d in data_sets):
         splitters.append(((None, None), ge_diffusion_getter))
+    if any(d.get(odil.registry.Manufacturer, [None])[0] == b"SIEMENS" for d in data_sets):
+        splitters.append(((None, None), siemens_coil_getter))
     
     return splitters
+
+def _find_private_creator(data_set, private_creator, group):
+    """ Return the private group (as an integer) corresponding to the given
+        private creator and root group, or None.
+    """
+    
+    tag = odil.Tag(group, 0x0000)
+    private_group = None
+    for element in range(0, 256):
+        tag.element = element
+        if data_set.get(tag, [None])[0] == private_creator:
+            private_group = (group << 16) + (element << 8)
+            break
+    return private_group
