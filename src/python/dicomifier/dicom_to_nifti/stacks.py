@@ -8,6 +8,7 @@
 
 import json
 import itertools
+import pickle
 
 import numpy
 import odil
@@ -357,7 +358,14 @@ def _get_splitters(data_sets):
         :param data_sets: Data sets of the current stack 
     """
     
-    default_getter = lambda d,t: d.get(t)
+    def default_getter(data_set, tag):
+        element = data_set.get(tag)
+        if element is not None and element.is_binary():
+            # WARNING: random error either with odil wrappers or with 
+            # numpy.array when simplifying keys. Fix by pickling the binary
+            # DICOM elements.
+            element = pickle.dumps(element)
+        return element
     
     splitters = {
         "ALL": [
