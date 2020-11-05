@@ -73,6 +73,13 @@ dicomifier.dicom_to_nifti.stacks
    None for single-frame data sets), and a value.
 
 
+.. py:function:: siemens_coil_getter(data_set, tag)
+   :module: dicomifier.dicom_to_nifti.stacks
+
+   Return Siemens-specific coil identifier.
+
+
+
 .. py:function:: sort(key, frames)
    :module: dicomifier.dicom_to_nifti.stacks
 
