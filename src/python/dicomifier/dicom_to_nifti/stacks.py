@@ -96,7 +96,7 @@ def get_stacks(data_sets):
     stacks = { normalized_keys[key]: value for key, value in stacks.items() }
     
     # Simplify keys: remove those that have the same value for all stacks
-    keys = numpy.asarray(list(stacks.keys()))
+    keys = numpy.asarray(list(stacks.keys()), dtype=object)
     to_keep = []
     for index in range(keys.shape[1]):
         unique_values = set(keys[:,index,:][:,1])
