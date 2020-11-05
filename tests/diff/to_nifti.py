@@ -41,7 +41,8 @@ def main():
         try:
             try:
                 subprocess.check_call([
-                    "dicomifier", "to-nifti", case_input, case_output])
+                    "dicomifier", "-v", "debug", "to-nifti", 
+                    case_input, case_output])
             except subprocess.CalledProcessError as e:
                 print(e.output)
                 return
