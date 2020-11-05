@@ -42,7 +42,7 @@ def get_image(stack, dtype, cache=None):
         for data_set, frame_index in stack]
 
     if dtype is None:
-        if any(x.dtype.kind == "f" for x in pixel_data_list):
+        if any(numpy.dtype(x.dtype).kind == "f" for x in pixel_data_list):
             dtype = numpy.float32
         else:
             # WARNING: Assume all data sets have the same type

@@ -41,7 +41,8 @@ def main():
         try:
             try:
                 subprocess.check_call([
-                    "dicomifier", "to-nifti", case_input, case_output])
+                    "dicomifier", "-v", "debug", "to-nifti", 
+                    case_input, case_output])
             except subprocess.CalledProcessError as e:
                 print(e.output)
                 return
@@ -101,9 +102,7 @@ def diff_directories(baseline, test):
                         nibabel.load(x)
                         for x in [baseline_filename, test_filename]]
                     meta_data = [
-                        [
-                            x.affine.shape, x.affine.ravel().tolist(), 
-                            x.get_data().shape] 
+                        [x.affine.shape, x.affine.ravel().tolist(), x.shape] 
                         for x in images]
                     differences = diff.diff(*meta_data)
                     if differences:
@@ -112,8 +111,8 @@ def diff_directories(baseline, test):
                             "Geometry differences in {}".format(
                                 relative_filename))
                         diff.print_differences(differences, 1)
-                    pixel_data = [x.get_data().ravel().tolist() for x in images]
-                    if not numpy.allclose(*[x.get_data().ravel() for x in images]):
+                    pixel_data = [numpy.asanyarray(x.dataobj) for x in images]
+                    if not numpy.allclose(*pixel_data):
                         different = True
                         print(
                             "Pixel data differences in {}".format(
