@@ -82,7 +82,11 @@ def get_meta_data(stack, cache=None):
     # Get the values of all (data_set, frame_index)
     elements = {}
     for i, (data_set, frame) in enumerate(stack):
-        sop_instance_uid = data_set[odil.registry.SOPInstanceUID][0]
+        try:
+            sop_instance_uid = data_set[odil.registry.SOPInstanceUID][0]
+        except Exception as e:
+            print(odil.as_xml(data_set, True))
+            raise
         # Fetch non-frame-specific elements from cache
         for tag, element in cache[sop_instance_uid].items():
             elements.setdefault(tag, {})[i] = element

@@ -49,7 +49,9 @@ jobs:
         run: |
           echo "WORKSPACE=${GITHUB_WORKSPACE}" >> $GITHUB_ENV
           echo "CMAKE_OPTIONS=${{ matrix.cmake_options }}" >> $GITHUB_ENV
-        # echo "PYTHON=${{ matrix.python }}" >> $GITHUB_ENV
+      - name: Debian-specific environement
+        run: echo "DEBIAN_FRONTEND=noninteractive" >> $GITHUB_ENV
+        if: ${{ matrix.ci_type == 'deb' }}
       - name: Checkout latest revision
         uses: actions/checkout@v2
       - name: Start the worker
