@@ -18,7 +18,9 @@ def main():
     for path in cases:
         print("Checking {}".format(path))
         data = subprocess.check_output([
-            "dicomifier", "-v", "debug", "list", "--json", str(path)])
+            "dicomifier", 
+            # "-v", "debug", 
+            "list", "--json", str(path)])
         case_output = json.loads(data.decode())
         case_baseline = json.loads((baseline/"{}.json".format(path.name)).read_text())
         differences = diff.diff(case_baseline, case_output)

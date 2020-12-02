@@ -39,7 +39,10 @@ def main():
         try:
             try:
                 subprocess.check_call(
-                    ["dicomifier", "-v", "debug", "to-dicom", "--dicomdir"]
+                    [
+                        "dicomifier", 
+                        # "-v", "debug", 
+                        "to-dicom", "--dicomdir"]
                     +arguments
                     +[case_input, case_output])
             except subprocess.CalledProcessError as e:
