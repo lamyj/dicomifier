@@ -4,4 +4,3 @@ cd $(dirname $0)
 curl --silent --location \
     https://gitlab.com/lamyj/dicomifier-data/-/archive/2020-12-01/dicomifier-data-2020-12-01.tar.bz2 \
   | tar -x -j -C data --strip-components=1
-rm dicomifier-data-2020-12-01.tar.bz2
