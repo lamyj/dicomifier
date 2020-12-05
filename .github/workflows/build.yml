@@ -55,7 +55,7 @@ jobs:
         run: ${{ matrix.start_worker }}
       - name: Configure the build
         run: ${{ matrix.worker }} ./.ci/${{ matrix.ci_type}}/install
-      - name: Build Sycomore
+      - name: Build
         run: ${{ matrix.worker }} ./.ci/${{ matrix.ci_type}}/build
       - name: Run tests
         run: ${{ matrix.worker }} ./.ci/${{ matrix.ci_type}}/post_build

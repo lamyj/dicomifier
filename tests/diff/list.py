@@ -8,6 +8,8 @@ import diff
 
 def main():
     root = pathlib.Path(__file__).parents[1]/"data"
+    if root.is_absolute():
+        root = root.relative_to(pathlib.Path.cwd())
     input_ = root/"input"
     baseline = root/"baseline"
     
@@ -23,6 +25,7 @@ def main():
             "list", "--json", str(path)])
         case_output = json.loads(data.decode())
         case_baseline = json.loads((baseline/"{}.json".format(path.name)).read_text())
+        
         differences = diff.diff(case_baseline, case_output)
         if differences:
             diff.print_differences(differences)
