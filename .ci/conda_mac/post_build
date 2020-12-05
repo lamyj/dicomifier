@@ -22,7 +22,7 @@ RETURNCODES=()
 ctest -T Test
 RETURNCODES[${#RETURNCODES[*]}]=$?
 
-${PYTHON} -m unittest discover -s ${WORKSPACE}/tests/python/
+${PYTHON} -m unittest discover -v -s ${WORKSPACE}/tests/python/
 RETURNCODES[${#RETURNCODES[*]}]=$?
 
 cd ${WORKSPACE}
