@@ -1,6 +1,8 @@
 #!/bin/sh
 
 cd $(dirname $0)
-curl --silent --location \
-    https://gitlab.com/lamyj/dicomifier-data/-/archive/2020-12-01/dicomifier-data-2020-12-01.tar.bz2 \
-  | tar -x -j -C data --strip-components=1
+curl -L -o dicomifier-data.zip https://iris.icube.unistra.fr/nextcloud/s/qGD3XgXoLbF9D8w/download
+unzip -q dicomifier-data.zip
+mv dicomifier-data/* ./data/
+rmdir dicomifier-data/
+rm dicomifier-data.zip
