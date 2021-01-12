@@ -12,6 +12,14 @@ add_library(libdicomifier ${files} ${headers} ${templates})
 
 target_link_libraries(libdicomifier ${Boost_LIBRARIES})
 
+if(APPLE)
+    # WARNING: Boost::regex may add -licudata  -licui18n  -licuu, which cause 
+    # problems with macOS/brew
+    find_package(ICU REQUIRED COMPONENTS uc)
+    get_filename_component(ICU_FOUND_DIRECTORY "${ICU_UC_LIBRARY}" DIRECTORY)
+    target_link_libraries(libdicomifier "-L${ICU_FOUND_DIRECTORY}")
+endif()
+
 set_target_properties(
     libdicomifier PROPERTIES 
     OUTPUT_NAME dicomifier
