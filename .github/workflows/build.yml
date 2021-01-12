@@ -42,6 +42,7 @@ jobs:
             start_worker: ""
             worker: ""
             stop_worker: ""
+            skip_conversion_tests: "yes"
             # python: python
             # cmake_options: "-DPYTHON_EXECUTABLE=/usr/local/bin/python3"
     steps:
@@ -49,6 +50,7 @@ jobs:
         run: |
           echo "WORKSPACE=${GITHUB_WORKSPACE}" >> $GITHUB_ENV
           echo "CMAKE_OPTIONS=${{ matrix.cmake_options }}" >> $GITHUB_ENV
+          echo "DICOMIFIER_SKIP_CONVERSION_TESTS=${{ matrix.skip_conversion_tests }}" >> $GITHUB_ENV
       - name: Checkout latest revision
         uses: actions/checkout@v2
       - name: Start the worker
