@@ -26,7 +26,7 @@ RETURNCODES[${#RETURNCODES[*]}]=$?
 ${PYTHON} -m unittest discover -v -s ${WORKSPACE}/tests/python/
 RETURNCODES[${#RETURNCODES[*]}]=$?
 
-if [ -n "${DICOMIFIER_SKIP_CONVERSION_TESTS}" ]; then
+if [ -z "${DICOMIFIER_SKIP_CONVERSION_TESTS}" ]; then
   cd ${WORKSPACE}
   if [ ! -d tests/data/input ]; then
     ./tests/download_data
