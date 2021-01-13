@@ -136,8 +136,8 @@ def sort(key, frames):
                 position.append(
                     frame_content[odil.registry.DimensionIndexValues][position_index])
             
-            keydict = dict(zip(frames, numpy.argsort(position)))
-            ordering = keydict.get
+            keydict = dict(zip((id(x) for x in frames), numpy.argsort(position)))
+            ordering = lambda x: keydict[id(x)]
             break
         if tag == odil.registry.ImageOrientationPatient:
             data_set, frame_idx = frames[0]
