@@ -1,8 +1,9 @@
 #!/bin/sh
 
-cd $(dirname $0)
-curl -L -o dicomifier-data.zip https://iris.icube.unistra.fr/nextcloud/s/i3qr65kmB5zEZMZ/download
+set -ev
+
+cd $(dirname $0)/data
+curl -L -o dicomifier-data.zip --silent --show-error \
+  https://iris.icube.unistra.fr/nextcloud/s/qGD3XgXoLbF9D8w/download
 unzip -q dicomifier-data.zip
-mv dicomifier-data/* ./data/
-rmdir dicomifier-data/
 rm dicomifier-data.zip

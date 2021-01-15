@@ -215,6 +215,9 @@ def get_diffusion_data(data_set, what):
 MRDiffusion = [ # PS 3.3, C.8.13.5.9
     "MRDiffusionSequence", False,
     [
+        # NOTE: VisuAcqDiffusionBMatrix does not exist in PV5. However, the 
+        # diffusion frame group is normalized in order to include it in its
+        # dependent fields.
         (
             "VisuAcqDiffusionBMatrix", "DiffusionBValue", 1,
             lambda d, g, i: get_diffusion_data(d, 0)),

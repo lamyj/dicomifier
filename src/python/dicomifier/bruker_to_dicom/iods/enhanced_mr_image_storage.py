@@ -152,7 +152,7 @@ def merge_shared_groups(dicom_data_set, groups):
         data_set = per_frame[i]
         for tag, elem in data_set.items():
             if tag.get_name() in shared_sequences:
-                groups_data_sets.setdefault(tag, []).append(data_set[tag][0])
+                groups_data_sets.setdefault(tag, []).append(elem[0])
 
     shared = dicom_data_set[odil.registry.SharedFunctionalGroupsSequence][0]
     for name, data_sets in groups_data_sets.items():

@@ -23,7 +23,7 @@ class FrameIndexGenerator(object):
         
         frame_groups = []
         for description in data_set.get("VisuFGOrderDesc", []):
-            frame_count, name, _, begin, fields_count = description
+            frame_count, name, label, begin, fields_count = description
             if fields_count == 0:
                 # This may happen with Paravision 5
                 fields = []
@@ -31,6 +31,12 @@ class FrameIndexGenerator(object):
                 fields = [
                     x[0] for x in 
                     data_set["VisuGroupDepVals"][begin:begin+fields_count]]
+            if (
+                    name == "FG_MOVIE" and label == "diffusion" 
+                    and data_set["VisuCreatorVersion"][0] < "6"):
+                # Normalize diffusion frame group of PV < 6
+                name = "FG_DIFFUSION"
+                fields += ["VisuAcqDiffusionBMatrix"]
             frame_groups.append([frame_count, name, fields])
         # WARNING: the frame groups are listed in innermost-to-outermost
         # order, while FrameIndexGenerator uses outermost-to-innermost order.

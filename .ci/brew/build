@@ -15,6 +15,7 @@ cmake \
   -G Ninja \
   -D CMAKE_INSTALL_PREFIX="${INSTALL_DIR}" \
   -D PYTHON_EXECUTABLE=/usr/local/bin/python3 \
+  -D ICU_ROOT=/usr/local/opt/icu4c/ \
   ${CMAKE_OPTIONS} \
   ..
 cmake --build . --target install

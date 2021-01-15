@@ -2,6 +2,7 @@
 
 set -v
 
+source "$HOME/miniconda/etc/profile.d/conda.sh"
 conda activate dicomifier
 
 export WORKSPACE=${WORKSPACE:?}
@@ -22,23 +23,25 @@ RETURNCODES=()
 ctest -T Test
 RETURNCODES[${#RETURNCODES[*]}]=$?
 
-${PYTHON} -m unittest discover -s ${WORKSPACE}/tests/python/
+${PYTHON} -m unittest discover -v -s ${WORKSPACE}/tests/python/
 RETURNCODES[${#RETURNCODES[*]}]=$?
 
-cd ${WORKSPACE}
-if [ ! -d tests/data/input ]; then
-  ./tests/download_data
+if [ -z "${DICOMIFIER_SKIP_CONVERSION_TESTS}" ]; then
+  cd ${WORKSPACE}
+  if [ ! -d tests/data/input ]; then
+    ./tests/download_data
+  fi
+  export PATH=${INSTALL_DIR}/bin:${PATH}
+
+  ${PYTHON} ./tests/diff/to_dicom.py
+  RETURNCODES[${#RETURNCODES[*]}]=$?
+
+  ${PYTHON} ./tests/diff/to_nifti.py
+  RETURNCODES[${#RETURNCODES[*]}]=$?
+
+  ${PYTHON} ./tests/diff/list.py
+  RETURNCODES[${#RETURNCODES[*]}]=$?
 fi
-export PATH=${INSTALL_DIR}/bin:${PATH}
-
-${PYTHON} ./tests/diff/to_dicom.py
-RETURNCODES[${#RETURNCODES[*]}]=$?
-
-${PYTHON} ./tests/diff/to_nifti.py
-RETURNCODES[${#RETURNCODES[*]}]=$?
-
-${PYTHON} ./tests/diff/list.py
-RETURNCODES[${#RETURNCODES[*]}]=$?
 
 conda remove --name dicomifier --all
 

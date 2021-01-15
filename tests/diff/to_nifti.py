@@ -41,11 +41,12 @@ def main():
         try:
             try:
                 subprocess.check_call([
-                    "dicomifier", "-v", "debug", "to-nifti", 
+                    "dicomifier", 
+                    # "-v", "debug", 
+                    "to-nifti", 
                     case_input, case_output])
             except subprocess.CalledProcessError as e:
-                print(e.output)
-                return
+                return 1
             
             different = different or diff_directories(case_baseline, case_output)
         finally:
