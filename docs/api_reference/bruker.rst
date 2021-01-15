@@ -32,7 +32,7 @@ dicomifier.bruker
       Test if dataset contains a given field.
 
 
-   .. py:method:: Dataset.items(self: dicomifier.bruker.Dataset) -> iterator
+   .. py:method:: Dataset.items(self: dicomifier.bruker.Dataset) -> Iterator
       :module: dicomifier.bruker
 
       Iterate on fields
