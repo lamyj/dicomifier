@@ -46,8 +46,7 @@ def main():
                     +arguments
                     +[case_input, case_output])
             except subprocess.CalledProcessError as e:
-                print(e.output)
-                return
+                return 1
             
             different |= diff_directories(case_baseline, case_output)
         finally:
