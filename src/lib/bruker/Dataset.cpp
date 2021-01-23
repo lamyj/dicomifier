@@ -42,9 +42,9 @@ Dataset
         (std::istreambuf_iterator<typename std::string::value_type>()));
     stream.close();
 
-    // Join the lines
-    data = boost::regex_replace(data, boost::regex("\\\\?\\R(?!##|\\$\\$)"), "");
-
+    // Join multi-line elements
+    data = boost::regex_replace(data, boost::regex(R"(\\?\R(?!##|\$\$))"), "");
+    
     // Parse the data
     std::string::const_iterator begin = data.begin();
     std::string::const_iterator const end = data.end();

@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.5)
 
 project(dicomifier)
 
-set(dicomifier_VERSION 2.0.4)
+set(dicomifier_VERSION 2.0.5)
 string(REGEX MATCH "^([0-9]+)\\.([0-9]+)\\.([0-9]+)" _ "${dicomifier_VERSION}")
 set(dicomifier_MAJOR_VERSION "${CMAKE_MATCH_1}")
 set(dicomifier_MINOR_VERSION "${CMAKE_MATCH_2}")

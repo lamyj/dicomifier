@@ -127,7 +127,9 @@ def enhanced_mr_image_storage(bruker_data_set, transfer_syntax):
         x.decode() if hasattr(x, "decode") else x
         for x in bruker_data_set["reco_files"]
     ]
-    bruker_files = { os.path.basename(x): open(x).read() for x in paths }
+    bruker_files = { 
+        os.path.basename(x): open(x, "rb").read().decode("iso-8859-15") 
+        for x in paths }
     dicom_data_set.add(
         "EncapsulatedDocument", 
         [odil.Value.BinaryItem(json.dumps(bruker_files).encode())])

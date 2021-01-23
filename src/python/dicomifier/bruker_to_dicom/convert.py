@@ -47,7 +47,7 @@ def convert_directory(source, dicomdir, multiframe, writer):
                     except Exception as e:
                         logger.info("Could not load {}: {}".format(file_, e))
         
-        reco_files = data_set.get_used_files()    
+        reco_files = data_set.get_used_files()
         data_set = {k:v.value for k,v in data_set.items()}
         data_set["PIXELDATA"] = [path]
         data_set["reco_files"] = reco_files

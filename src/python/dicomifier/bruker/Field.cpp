@@ -40,7 +40,9 @@ pybind11::object as_value(dicomifier::bruker::Field::Item const & item)
     }
     else if(type == typeid(std::string))
     {
-        return pybind11::cast(boost::get<std::string>(item));
+        auto const s = boost::get<std::string>(item);
+        return pybind11::str(
+            PyUnicode_Decode(s.data(), s.length(), "iso-8859-15", nullptr));
     }
     else
     {
