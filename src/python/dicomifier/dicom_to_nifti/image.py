@@ -291,7 +291,9 @@ def get_spacing(stack):
                 odil.registry.SliceThickness, 
                 odil.registry.PixelMeasuresSequence)
             if container:
-                spacing.append(container[odil.registry.SliceThickness][0])
+                slice_thickness = container[odil.registry.SliceThickness]
+                if slice_thickness:
+                    spacing.append(slice_thickness[0])
     
     if spacing and len(spacing) == 2:
         logger.warning("No slice thickness, using default")
