@@ -340,6 +340,9 @@ def siemens_coil_getter(data_set, tag):
     if data_set[odil.registry.Manufacturer][0] != b"SIEMENS":
         return None
     
+    if data_set[odil.registry.Modality][0] != b"MR":
+        return None
+    
     csa_header = _find_private_creator(data_set, b"SIEMENS CSA HEADER", 0x0029)
     if csa_header is None:
         return None
