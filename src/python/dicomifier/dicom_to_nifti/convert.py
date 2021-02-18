@@ -69,12 +69,12 @@ class SeriesContext(logging.Filter):
             if series[0] is not None:
                 software = SeriesContext._get_element(
                     data_set, odil.registry.SoftwareVersions)
-                if software and software == "ParaVision" and series[0] > 2**16:
+                if software == "ParaVision" and series[0] > 2**16:
                     # Bruker ID based on experiment number and reconstruction 
                     # number is not readable: separate the two values
                     series[0] = "{}:{}".format(
                         *[str(x) for x in divmod(series[0], 2**16)])
-                elif software.startswith("ParaVision") and series[0] > 10000:
+                elif software and software.startswith("ParaVision") and series[0] > 10000:
                     # Same processing for Bruker-generated DICOM
                     series[0] = "{}:{}".format(
                         *[str(x) for x in divmod(series[0], 10000)])
