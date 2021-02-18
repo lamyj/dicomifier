@@ -139,8 +139,8 @@ def list_dicom(source):
     
     def get_series_number(data_set):
         series_number = data_set.get("SeriesNumber", [0])[0]
-        software = data_set.get(odil.registry.SoftwareVersions, [""])[0]
-        if software and software == b"ParaVision" and series_number > 2**16:
+        software = data_set.get(odil.registry.SoftwareVersions, [b""])[0]
+        if software == b"ParaVision" and series_number > 2**16:
             # Bruker ID based on experiment number and reconstruction 
             # number is not readable: separate the two values
             series_number = divmod(series_number, 2**16)
@@ -154,8 +154,8 @@ def list_dicom(source):
     series = sorted(
         series.values(),
         key=lambda x: (
-            x.get("PatientName", [""])[0], 
-            x.get("StudyDate", ["9999999"])[0], 
+            x.get("PatientName", [b""])[0], 
+            x.get("StudyDate", [b"9999999"])[0], 
             get_series_number(x)))
     
     for data_set in series:
