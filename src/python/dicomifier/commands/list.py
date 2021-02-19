@@ -161,16 +161,16 @@ def list_dicom(source):
     for data_set in series:
         subject = odil.as_unicode(
             data_set.get("PatientName", [b"(no subject name)"])[0],
-            odil.Value.Strings(["ISO_IR 192"]))
+            data_set.get("SpecificCharacterSet", odil.Value.Strings()))
         study_description = odil.as_unicode(
             data_set.get("StudyDescription", [b"(no study description)"])[0],
-            odil.Value.Strings(["ISO_IR 192"]))
+            data_set.get("SpecificCharacterSet", odil.Value.Strings()))
         
         series_number = get_series_number(data_set)
         
         series_description = odil.as_unicode(
             data_set.get("SeriesDescription", [b"(no series description)"])[0],
-            odil.Value.Strings(["ISO_IR 192"]))
+            data_set.get("SpecificCharacterSet", odil.Value.Strings()))
         
         series_instance_uid = data_set[odil.registry.SeriesInstanceUID][0]
         
