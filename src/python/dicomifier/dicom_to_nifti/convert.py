@@ -39,11 +39,36 @@ def convert_paths(paths, destination, zip, dtype=None):
     series = split_series(dicom_files)
 
     logger.info("{} series found".format(len(series)))
-
+    
+    # Look for duplicate output directories. This may happen with data having 
+    # the same Series Number and Series Description, as seen on a Siemens 
+    # Biograph Vision.
+    series_directories = {}
+    directories_series = {}
+    for finder, series_files in series.items():
+        path = series_files[0]
+        # NOTE: don't read the whole data set. This should be adjusted when
+        # io.get_series_directory changes.
+        data_set = odil.Reader.read_file(
+            path, halt_condition=lambda x:x>odil.registry.SeriesNumber)[1]
+        data_set = meta_data.convert_data_set(
+            data_set, data_set.get("SpecificCharacterSet", odil.Value.Strings()))
+        directory = io.get_series_directory(data_set)
+        
+        series_directories[finder] = directory
+        directories_series.setdefault(directory, []).append(finder)
+    
+    # Add suffix to duplicate directories
+    for directory, finders in directories_series.items():
+        if len(finders) > 1:
+            for i, finder in enumerate(finders):
+                series_directories[finder] += "_{}".format(1+i)
+    
     for finder, series_files in series.items():
         nifti_data = convert_series(series_files, dtype, finder)
         if nifti_data is not None:
-            io.write_nifti(nifti_data, destination, zip)
+            io.write_nifti(
+                nifti_data, destination, zip, series_directories[finder])
 
 class SeriesContext(logging.Filter):
     """ Add series context to logger. 
