@@ -6,4 +6,4 @@
 # for details.
 #########################################################################
 
-from . import list, to_dicom, to_nifti, diffusion_scheme
+from . import diffusion_scheme, list, search, to_dicom, to_nifti
