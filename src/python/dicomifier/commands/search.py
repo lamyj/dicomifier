@@ -83,8 +83,6 @@ class SearchTerm(object):
                         self.pattern = self.pattern.replace("?", ".")
                         self.pattern = re.compile(self.pattern.encode())
                     
-                    print(self.pattern, element[0])
-                        
                     result = any(self.pattern.search(x) for x in element)
         except Exception as e:
             dicomifier.logger.info(e)
@@ -102,10 +100,14 @@ def action(sources, search_terms, use_pipe):
         for file in sorted(files):
             data_set = odil.Reader.read_file(
                 file, halt_condition=halt_condition)[1]
+            
+            is_match = True
             for search_term in search_terms:
-                if search_term.match(data_set):
-                    matches.append(file)
+                if not search_term.match(data_set):
+                    is_match = False
                     break
+            if is_match:
+                matches.append(file)
     for file in matches:
         print(file, end="\0" if use_pipe else "\n")
 
