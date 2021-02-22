@@ -17,8 +17,8 @@ dicomifier.bruker_to_dicom.convert
 
       Determine if the specified record is to be logged.
 
-      Returns True if the record should be logged, or False otherwise.
-      If deemed appropriate, the record may be modified in-place.
+      Is the specified record to be logged? Returns 0 for no, nonzero for
+      yes. If deemed appropriate, the record may be modified in-place.
 
 
 .. py:function:: convert_directory(source, dicomdir, multiframe, writer)

@@ -26,7 +26,7 @@ dicomifier.dicom_to_nifti.io
    the NIfTI meta-data.
 
 
-.. py:function:: write_nifti(nifti_data, destination, zip)
+.. py:function:: write_nifti(nifti_data, destination, zip, series_directory=None)
    :module: dicomifier.dicom_to_nifti.io
 
    Write the NIfTI image and meta-data in the given destination.
@@ -34,3 +34,5 @@ dicomifier.dicom_to_nifti.io
    :param nifti_data: Pair of NIfTI image and meta-data
    :param destination: Destination directory
    :param zip: whether to zip the NIfTI files
+   :param series_directory: if provided, override the automated 
+       series-based output directory name

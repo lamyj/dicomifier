@@ -43,7 +43,7 @@ class Autodocumenter(object):
         DocumenterClass = self.app.registry.documenters[object_type]
         
         options = (
-            {"members": True, "undoc-members": True} 
+            {"members": None, "undoc-members": None} 
             if object_type in ["class", "module"] else {})
         options = sphinx.ext.autodoc.directive.process_documenter_options(
             DocumenterClass, self.environment.config, options)

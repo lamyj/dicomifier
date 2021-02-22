@@ -21,14 +21,19 @@ import odil
 def setup(subparsers):
     parser = subparsers.add_parser(
         "search", help="Search for DICOM data", 
-        description="Search for DICOM data matching the specified criteria")
+        description="Search for DICOM data matching the supplied search terms. "
+            "Search terms can be specified either as a tag name or tag number, "
+            "and may be followed by a value. Value-less search terms match "
+            "files where the tag is present, while valued search terms match "
+            "elements following the DICOM rules (match any value in the "
+            "element, '?' and '*' wildcards for strings).")
     
     parser.add_argument(
         "sources", nargs="+", type=pathlib.Path,
         help="DICOM file, directory or DICOMDIR", metavar="source")
     parser.add_argument(
         "--match", "-m", action="append", default=[], type=SearchTerm, 
-        dest="search_terms", help="Search criteria")
+        dest="search_terms", metavar="search_term", help="Search criteria")
     parser.add_argument(
         "--pipe", "-p", action="store_true", dest="use_pipe",
         help="Format data to be sent to dicomifier to-nifti")
@@ -62,7 +67,9 @@ class SearchTerm(object):
             result = False
             if self.tag in data_set:
                 element = list(data_set[self.tag])
-                if isinstance(element[0], int):
+                if self.value is None:
+                    result = len(element) != 0
+                elif isinstance(element[0], int):
                     if self.int_value is None:
                         self.int_value = int(self.value)
                     result = self.int_value in element
