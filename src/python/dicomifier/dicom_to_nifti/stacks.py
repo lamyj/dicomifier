@@ -9,6 +9,7 @@
 import json
 import itertools
 import pickle
+import re
 
 import numpy
 import odil
@@ -354,6 +355,53 @@ def siemens_coil_getter(data_set, tag):
     siemens_data = siemens.parse_csa(item.get_memory_view().tobytes())
     return siemens_data.get("ImaCoilString", [b""])[0].strip(b"\x00")
 
+def canon_getter(data_set, tag):
+    """ Return Canon-specific diffusion information.
+    """
+    
+    if data_set[odil.registry.Manufacturer][0] != b"CANON_MEC":
+        return None
+    
+    if data_set[odil.registry.SOPClassUID][0] != odil.registry.MRImageStorage:
+        # NOTE Enhanced MR Image Storage use the standard fields
+        return None
+    
+    if odil.registry.DiffusionBValue not in data_set:
+        return None
+    b_value_element = data_set[odil.registry.DiffusionBValue][0]
+    
+    if odil.registry.ImageComments not in data_set:
+        if b_value_element != 0:
+            logger.debug("No ImageComments, b-value={}".format(b_value_element))
+            return None
+        else:
+            x,y,z = [0,0,0]
+            image_comments = b"b=0(0,0,0)"
+    else:
+        image_comments = data_set[odil.registry.ImageComments][0]
+    
+    match = re.match(
+        br"^b=([\d.]+)\("
+            br"(-?[\d.]+),(-?[\d.]+),(-?[\d.]+)"
+        br"\)$",
+        image_comments)
+    if not match:
+        logger.debug("ImageComments not matched: '{}'".format(image_comments))
+        return None
+    
+    try:
+        b_value_comment, x, y, z = [float(x) for x in match.groups()]
+    except ValueError:
+        logger.debug(
+            "b-value discrepancy: {} != {}".format(
+                b_value_element, b_value_comment))
+        return None
+    
+    if not numpy.isclose(b_value_element, b_value_comment):
+        return None
+    
+    return image_comments
+
 def _get_splitters(data_sets):
     """ Return a list of splitters (tag and getter) depending on the SOPClassUID
         of each dataset
@@ -468,6 +516,8 @@ def _get_splitters(data_sets):
         splitters.append(((None, None), ge_diffusion_getter))
     if any(d.get(odil.registry.Manufacturer, [None])[0] == b"SIEMENS" for d in data_sets):
         splitters.append(((None, None), siemens_coil_getter))
+    if any(d.get(odil.registry.Manufacturer, [None])[0] == b"CANON_MEC" for d in data_sets):
+        splitters.append(((None, None), canon_getter))
     
     return splitters
 
