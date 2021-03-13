@@ -38,7 +38,11 @@ def from_standard(data):
         b_value *= 1e6
         
         if "DiffusionGradientDirectionSequence" not in entry:
-            raise Exception("Missing direction")
+            if b_value != 0:
+                raise Exception("Missing direction")
+            else:
+                entry["DiffusionGradientDirectionSequence"] = [{
+                    "DiffusionGradientOrientation": [0,0,0]}]
         direction = entry["DiffusionGradientDirectionSequence"][0]
         if "DiffusionGradientOrientation" not in direction:
             raise Exception("Missing direction")
