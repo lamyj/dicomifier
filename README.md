@@ -4,7 +4,7 @@
 
 Dicomifier is a set of tools to convert Bruker data to DICOM files, and DICOM files to NIfTI. It retains meta-data (e.g. MR parameters such as echo time or subject parameters such as weight or height) throughout the conversion process, and aligns the meta-data from Bruker on the DICOM dictionary for unified processing pipelines.
 
-Getting started? Have a look at the [installation instructions and basic usage] (https://dicomifier.readthedocs.io/en/latest/getting_started.html). If you're in a hurry and have [Anaconda](https://anaconda.org) installed, `conda install -c conda-forge dicomifier` should get you going.
+Getting started? Have a look at the [installation instructions and basic usage](https://dicomifier.readthedocs.io/en/latest/getting_started.html). If you're in a hurry and have [Miniconda](https://conda.io/en/master/miniconda.html) or [Anaconda](https://anaconda.org) installed, `conda install -c conda-forge dicomifier` should get you going.
 
 Need to know more about your options and arguments? The [commands reference](https://dicomifier.readthedocs.io/en/latest/commands/index.html) is for you.
 
