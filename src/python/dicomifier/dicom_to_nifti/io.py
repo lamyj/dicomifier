@@ -72,18 +72,22 @@ def get_dicomdir_files(path):
 
     return dicom_files
 
-def write_nifti(nifti_data, destination, zip):
+def write_nifti(nifti_data, destination, zip, series_directory=None):
     """ Write the NIfTI image and meta-data in the given destination.
     
         :param nifti_data: Pair of NIfTI image and meta-data
         :param destination: Destination directory
         :param zip: whether to zip the NIfTI files
+        :param series_directory: if provided, override the automated 
+            series-based output directory name
     """
 
     # Write one nii+json per stack
     for index, (image, meta_data) in enumerate(nifti_data):
         destination_directory = os.path.join(
-            str(destination), get_series_directory(meta_data))
+            str(destination), 
+            series_directory if series_directory is not None 
+                else get_series_directory(meta_data))
 
         if not os.path.isdir(destination_directory):
             os.makedirs(destination_directory)
@@ -140,25 +144,22 @@ def get_series_directory(meta_data):
     # parts are optional. If both tags are missing or empty, raise an exception
     series_directory = []
     if "SeriesNumber" in meta_data and meta_data["SeriesNumber"]:
+        software = meta_data.get("SoftwareVersions", [""])[0]
         series_number = numpy.ravel([x for x in meta_data["SeriesNumber"] if x])[0]
-        if (
-                meta_data.get("SoftwareVersions", [""])[0] == "ParaVision" 
-                and series_number > 2**16):
+        if software == "ParaVision" and series_number > 2**16:
             # Bruker ID based on experiment number and reconstruction number is
             # not readable: separate the two values
             series_directory.extend(
                 str(x) for x in divmod(series_number, 2**16))
-        elif (
-                meta_data.get("SoftwareVersions", [""])[0].startswith("ParaVision") 
-                and series_number > 10000):
+        elif software.startswith("ParaVision") and series_number > 10000:
             # Same processing for Bruker-generated DICOM
             series_directory.extend(
                 str(x) for x in divmod(series_number, 10000))
         else:
             series_directory.append(str(series_number))
-    if ("SeriesDescription" in meta_data and meta_data["SeriesDescription"]):
+    if "SeriesDescription" in meta_data and meta_data["SeriesDescription"]:
         series_directory.append(numpy.ravel([x for x in meta_data["SeriesDescription"] if x])[0])
-    elif ("ProtocolName" in meta_data and meta_data["ProtocolName"]):
+    elif "ProtocolName" in meta_data and meta_data["ProtocolName"]:
         series_directory.append(numpy.ravel([x for x in meta_data["ProtocolName"] if x])[0])
 
     if not series_directory:

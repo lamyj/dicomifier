@@ -209,7 +209,10 @@ def _fill_meta_data_dictionary(data_set, function, skipped, no_recurse):
             if tag in no_recurse:
                 function(tag, value)
             else:
-                item = data_set[tag][0]
+                element = data_set[tag]
+                if not element:
+                    continue
+                item = element[0]
                 for item_tag, value in item.items():
                     if item_tag not in skipped:
                         function(item_tag, value)

@@ -9,6 +9,7 @@
 import pathlib
 import shutil
 import tempfile
+import sys
 
 import dicomifier
 import numpy
@@ -22,7 +23,7 @@ def setup(subparsers):
     
     parser.add_argument(
         "sources", nargs="+", type=pathlib.Path,
-        help="Bruker directory, DICOM file, directory or DICOMDIR", 
+        help="Bruker directory, DICOM file, directory or DICOMDIR, or '-'", 
         metavar="source")
     parser.add_argument(
         "destination", type=pathlib.Path, help="Output directory")
@@ -39,7 +40,10 @@ def action(sources, destination, dtype, zip):
     bruker_sources = []
     dicom_sources = []
     for source in sources:
-        if source.is_dir() and list(source.rglob("2dseq")):
+        if str(source) == "-":
+            paths = [x for x in sys.stdin.read().split("\0") if x]
+            dicom_sources.extend(paths)
+        elif source.is_dir() and list(source.rglob("2dseq")):
             bruker_sources.append(source)
         else:
             dicom_sources.append(source)

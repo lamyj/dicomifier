@@ -17,6 +17,7 @@ To list all available commands, run ``dicomifier --help``; to get help about a s
    :titlesonly:
 
    list.rst
+   search.rst
    to-dicom.rst
    to-nifti.rst
    diffusion-scheme.rst
