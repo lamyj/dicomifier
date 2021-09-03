@@ -1,3 +1,9 @@
+dicomifier (2.2.0-1) unstable; urgency=medium
+
+  * New upstream release.
+
+ -- Julien Lamy <lamy@unistra.fr>  Fri, 03 Sep 2021 12:40:51 +0200
+
 dicomifier (2.1.0-1) unstable; urgency=medium
 
   * New upstream release.
