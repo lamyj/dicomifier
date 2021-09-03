@@ -530,7 +530,15 @@ def _find_private_creator(data_set, private_creator, group):
     private_group = None
     for element in range(0, 256):
         tag.element = element
-        if data_set.get(tag, [None])[0] == private_creator:
+        
+        # Get the content of the potential private creator. It may be stored as
+        # a binary item (e.g. when VR=UN), in that case convert it to a byte
+        # string.
+        content = data_set.get(tag, [None])[0]
+        if isinstance(content, odil.Value.BinaryItem):
+            content = content.get_memory_view().tobytes()
+        
+        if content == private_creator:
             private_group = (group << 16) + (element << 8)
             break
     return private_group

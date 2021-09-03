@@ -32,6 +32,62 @@ def parse_csa(csa):
 
     return content
 
+def parse_ascconv(mr_phoenix_protocol):
+    """ Return the acquisition settings stored in the ASCCONV section of the
+        MrPhoenixProtocol field stored in the CSA headers.
+    """
+    
+    ascconv = re.search(
+            b"### ASCCONV BEGIN ###\s*(.*?)\s*### ASCCONV END ###", 
+            mr_phoenix_protocol, flags=re.DOTALL
+        ).group(1)
+    ascconv = re.findall(
+        b"^(\S+)\s*=\s*(.+)$\s*", mr_phoenix_protocol, flags=re.MULTILINE)
+    
+    def parse_value(value, name):
+        integers = ["c", "s", "l", "i", "n"]
+        integers.extend(["u"+x for x in integers])
+        if any(name.startswith(x) for x in integers):
+            return int(value, 0)
+        elif any(name.startswith(x) for x in ["d", "fl"]):
+            return float(value)
+        elif name.startswith("b"):
+            return bool(int(value, 0))
+        elif name.startswith("t"):
+            return value[2:-2].decode()
+        elif name.startswith("a"):
+            return parse_value(value, name[1:])
+        else:
+            print(name, value)
+            return value.decode()
+    
+    data = {}
+    for key, value in ascconv:
+        key = key.decode()
+        path = re.split(r"(\.)|\[(\d+)\]", key)
+        
+        object = data
+        leaf = None
+        for index in range(len(path)//3):
+            child, dot, child_index = path[index*3:(index+1)*3]
+            if dot and child:
+                object = object.setdefault(child, {})
+            elif child_index is not None:
+                object = object.setdefault(child, {})
+                
+                child_index = int(child_index)
+                if (index+1)*3 == len(path)-1:
+                    leaf = child_index, child
+                else:
+                    object = object.setdefault(child_index, {})
+        
+        if leaf is not None:
+            object[leaf[0]] = parse_value(value, leaf[1])
+        else:
+            object[path[-1]] = parse_value(value, path[-1])
+    
+    return data
+
 def parse_element(csa, start):
     """ Return a pair (name, items), total_size
     """
