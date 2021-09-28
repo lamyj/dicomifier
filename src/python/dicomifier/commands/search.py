@@ -7,13 +7,9 @@
 #########################################################################
 
 import argparse
-import json
 import os
 import pathlib
 import re
-import shutil
-import tempfile
-import zipfile
 
 import dicomifier
 import odil

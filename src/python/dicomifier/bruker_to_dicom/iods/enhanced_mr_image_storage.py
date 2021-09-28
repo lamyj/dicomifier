@@ -7,9 +7,7 @@
 #########################################################################
 
 import copy
-import itertools
 import json
-import numpy
 import os
 
 import odil
