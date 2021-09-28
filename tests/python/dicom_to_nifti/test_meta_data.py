@@ -53,7 +53,7 @@ class TestMetaData(unittest.TestCase):
                 element, odil.Value.Strings()), 
             ["FOO"])
         
-        # Note : \x03\x91 corresponds to greek's Aplha Capital letter
+        # Note : \x03\x91 corresponds to greek's Alpha Capital letter
         element = odil.Element([b"\x03\x91"], odil.VR.PN)
         self.assertEqual(
             dicomifier.dicom_to_nifti.meta_data.convert_element(

@@ -150,7 +150,7 @@ def get_linear_pixel_data(data_set):
 
 def get_shaped_pixel_data(data_set, frame_index, linear_pixel_data):
     """ Return the pixel data located in a dataset (and possibly one of its 
-        frame) shaped according to numer of rows, columns and frames.
+        frame) shaped according to number of rows, columns and frames.
     """
     
     rows = data_set[odil.registry.Rows][0]
