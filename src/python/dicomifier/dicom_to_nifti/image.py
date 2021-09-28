@@ -309,8 +309,6 @@ def get_geometry(stack):
     default_spacing = numpy.ones((3,)).tolist()
     default_orientation = numpy.identity(3)
 
-    data_set, first_idx = stack[0]
-
     origin = get_origin(stack)
     if origin is None:
         logger.warning("No position found, using default")
