@@ -24,24 +24,24 @@ Once parsed, the *CSA Image Header Info* has four fields obviously related to di
 
     meta_data = [
         {
-            'B_value': [0], 
-            'DiffusionGradientDirection': [], 
-            'B_matrix': [], 
+            'B_value': [0],
+            'DiffusionGradientDirection': [],
+            'B_matrix': [],
             'DiffusionDirectionality': [b'DIRECTIONAL\x00'] },
         {
-            'B_value': [1000], 
-            'DiffusionGradientDirection': [0.1977423, 0.17195807, -0.96505374], 
-            'B_matrix': [39.0, 34.0, -191.0, 30.0, -166.0, 932.0], 
+            'B_value': [1000],
+            'DiffusionGradientDirection': [0.1977423, 0.17195807, -0.96505374],
+            'B_matrix': [39.0, 34.0, -191.0, 30.0, -166.0, 932.0],
             'DiffusionDirectionality': [b'DIRECTIONAL\x00'] },
         {
-            'B_value': [1000], 
-            'DiffusionGradientDirection': [-0.32412839, -0.94072425, 0.09989204], 
-            'B_matrix': [105.0, 305.0, -32.0, 885.0, -94.0, 11.0], 
+            'B_value': [1000],
+            'DiffusionGradientDirection': [-0.32412839, -0.94072425, 0.09989204],
+            'B_matrix': [105.0, 305.0, -32.0, 885.0, -94.0, 11.0],
             'DiffusionDirectionality': [b'DIRECTIONAL\x00'] },
         {
-            'B_value': [1000], 
-            'DiffusionGradientDirection': [-0.97839409, -0.17072155, 0.11661573], 
-            'B_matrix': [957.0, 167.0, -114.0, 29.0, -20.0, 14.0], 
+            'B_value': [1000],
+            'DiffusionGradientDirection': [-0.97839409, -0.17072155, 0.11661573],
+            'B_matrix': [957.0, 167.0, -114.0, 29.0, -20.0, 14.0],
             'DiffusionDirectionality': [b'DIRECTIONAL\x00'] }
     ]
 
@@ -56,7 +56,7 @@ The b-matrix has only six elements, and can thus be assumed to be the upper or t
 .. code:: python
 
     import numpy
-    
+
     def from_upper(linear):
         return numpy.array([
             [linear[0], linear[1], linear[2]],
@@ -67,21 +67,21 @@ The b-matrix has only six elements, and can thus be assumed to be the upper or t
             [linear[0], linear[1], linear[3]],
             [linear[1], linear[2], linear[4]],
             [linear[3], linear[4], linear[5]]])
-    
+
     for item in meta_data:
         if not item["B_matrix"]:
             continue
-        
+
         upper_eigensystem = numpy.linalg.eigh(from_upper(item["B_matrix"]))
         lower_eigensystem = numpy.linalg.eigh(from_lower(item["B_matrix"]))
-        
+
         direction = item["DiffusionGradientDirection"]
-        
+
         print(
-            "Upper triangular matrix: ", 
-            upper_eigensystem[0].astype(int), 
+            "Upper triangular matrix: ",
+            upper_eigensystem[0].astype(int),
             numpy.dot(direction, upper_eigensystem[1][:,-1]),
-            "\nLower triangular matrix: ", 
+            "\nLower triangular matrix: ",
             lower_eigensystem[0].astype(int),
             numpy.dot(direction, lower_eigensystem[1][:,-1]),
             "\n")
@@ -91,13 +91,13 @@ The b-matrix has only six elements, and can thus be assumed to be the upper or t
 
     Upper triangular matrix:  [   0    0 1000] -1.0000001580676756
     Lower triangular matrix:  [-220   43  956] -0.9739920011521168
-    
+
     Upper triangular matrix:  [   0    1 1000] 0.999999873698694
     Lower triangular matrix:  [-916   31  969] 0.3232097831549061
-    
+
     Upper triangular matrix:  [  0   0 999] 1.0000000357323802
     Lower triangular matrix:  [-143   17  983] 0.9894968101548527
-    
+
 
 
 

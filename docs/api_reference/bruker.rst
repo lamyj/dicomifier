@@ -8,7 +8,7 @@ dicomifier.bruker
 .. py:class:: Dataset
    :module: dicomifier.bruker
 
-   A Bruker dataset. This objects implements part of the mapping 
+   A Bruker dataset. This objects implements part of the mapping
    protocol: ``"foo" in d``, ``d["foo"]`` and ``for x in d``
    are valid constructs.
 
@@ -22,7 +22,7 @@ dicomifier.bruker
    .. py:method:: Dataset.get_used_files(self: dicomifier.bruker.Dataset) -> List[str]
       :module: dicomifier.bruker
 
-      Return a set of files used to create the dataset 
+      Return a set of files used to create the dataset
       (except the PixelData file)
 
 

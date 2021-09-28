@@ -8,7 +8,7 @@ dicomifier.bruker_to_dicom.convert
 .. py:class:: ReconstructionContext(path)
    :module: dicomifier.bruker_to_dicom.convert
 
-   Add reconstruction context to logger. 
+   Add reconstruction context to logger.
 
 
 
@@ -44,8 +44,8 @@ dicomifier.bruker_to_dicom.convert
    :param type_: DICOM type of the element (PS 3.5, 7.4)
    :param getter: function returning the value using the Bruker data set,
        the generator and the frame index or None (direct access)
-   :param frame_index: index in frame group 
-   :param generator: FrameIndexGenerator associated with the 
+   :param frame_index: index in frame group
+   :param generator: FrameIndexGenerator associated with the
        Bruker data set
    :param vr_finder: function returning the DICOM VR from the dicom_name
 
@@ -77,4 +77,3 @@ dicomifier.bruker_to_dicom.convert
    :module: dicomifier.bruker_to_dicom.convert
 
    Convert the Bruker data set from 3D to 2D.
-

@@ -17,7 +17,7 @@
 
 namespace dicomifier
 {
-    
+
 namespace bruker
 {
 
@@ -26,18 +26,18 @@ class Dataset
 public:
     /// @brief Load dataset from file, update any existing field.
     void load(std::string const & path);
-    
+
     /// @brief Test if dataset contains a given field.
     bool has_field(std::string const & name) const;
-    
+
     /// @brief Return the field, throw an exception if field is missing.
     Field const & get_field(std::string const & name) const;
-    
+
     /// @brief Add a field to the dataset or modify an existing field.
     void set_field(Field const & field);
-    
+
     /**
-     * @brief Return a set of files used to create the dataset 
+     * @brief Return a set of files used to create the dataset
      * (except the PixelData file)
      */
     std::vector<std::string> const & get_used_files() const;

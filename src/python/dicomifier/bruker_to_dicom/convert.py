@@ -20,20 +20,20 @@ from . import io
 
 def convert_directory(source, dicomdir, multiframe, writer):
     """ Convert a Bruker directory to DICOM and write the files.
-        
+
         :param source: source directory
         :param dicomdir: whether to create a DICOMDIR
         :param multiframe: whether to create multi-frame DICOM objects
         :param writer: writer object from the io module
     """
-    
+
     # NOTE import the IODs module late to avoid cross-dependence
     from . import iods
-    
+
     known_files = [
-        "subject", "acqp", "method", "imnd", "isa", "d3proc", "reco", 
+        "subject", "acqp", "method", "imnd", "isa", "d3proc", "reco",
         "visu_pars"]
-    
+
     # Look for 2dseq as it contains the pixel data
     data_sets = {}
     for path in source.rglob("2dseq"):
@@ -46,39 +46,39 @@ def convert_directory(source, dicomdir, multiframe, writer):
                         data_set.load(str(file_))
                     except Exception as e:
                         logger.info("Could not load {}: {}".format(file_, e))
-        
+
         reco_files = data_set.get_used_files()
         data_set = {k:v.value for k,v in data_set.items()}
         data_set["PIXELDATA"] = [path]
         data_set["reco_files"] = reco_files
-        
+
         if not all(x in data_set for x in ["VisuStudyUid", "VisuUid"]):
             logger.info("Skipping {}: missing UIDs".format(path.parent))
             continue
-        
+
         data_sets[path.parent] = data_set
-    
+
     converters = {
         ("MR", False): iods.mr_image_storage,
         ("MR", True): iods.enhanced_mr_image_storage
     }
-    
+
     for path, data_set in sorted(data_sets.items()):
         logger_context = ReconstructionContext(path)
         logger.addFilter(logger_context)
-        
+
         try:
             modality = data_set.get("VisuInstanceModality", [None])[0]
             if not modality:
                 logger.info("Modality not found in data set, defaulting to MR")
                 modality = "MR"
-            
+
             convert_reconstruction(
                 data_set, converters[(modality, multiframe)], writer)
         except Exception as e:
             logger.error("Could not convert: {}".format(e))
             logger.debug("Stack trace", exc_info=True)
-        
+
         logger.removeFilter(logger_context)
 
     if dicomdir and writer.files:
@@ -91,14 +91,14 @@ def convert_reconstruction(data_set, iod_converter, writer):
         :param iod_converter: conversion function
         :param writer: writer object from the io module
     """
-    
+
     logger.info("Converting {} ({})".format(
         data_set.get("VisuAcquisitionProtocol", ["(none)"])[0],
         data_set.get("RECO_mode", ["none"])[0]
     ))
-    
+
     dicom_data_sets = iod_converter(data_set, writer.transfer_syntax)
-    
+
     for dicom_data_set in dicom_data_sets:
         writer(dicom_data_set)
 
@@ -118,13 +118,13 @@ def convert_module(
 
     for bruker_name, dicom_name, type_, getter, in module:
         convert_element(
-            bruker_data_set, dicom_data_set, 
+            bruker_data_set, dicom_data_set,
             bruker_name, dicom_name, type_, getter,
             frame_index, generator, vr_finder)
     return dicom_data_set
 
 def convert_element(
-        bruker_data_set, dicom_data_set, 
+        bruker_data_set, dicom_data_set,
         bruker_name, dicom_name, type_, getter,
         frame_index, generator, vr_finder):
     """ Convert a Bruker element to a DICOM element.
@@ -136,12 +136,12 @@ def convert_element(
         :param type_: DICOM type of the element (PS 3.5, 7.4)
         :param getter: function returning the value using the Bruker data set,
             the generator and the frame index or None (direct access)
-        :param frame_index: index in frame group 
-        :param generator: FrameIndexGenerator associated with the 
+        :param frame_index: index in frame group
+        :param generator: FrameIndexGenerator associated with the
             Bruker data set
         :param vr_finder: function returning the DICOM VR from the dicom_name
     """
-    
+
     value = None
     if getter is not None:
         value = getter(bruker_data_set, generator, frame_index)
@@ -151,16 +151,16 @@ def convert_element(
     if bruker_name in generator.dependent_fields:
         # Frame-dependent value: get the correct item from the frame_index
         group_index = [
-            index for index, (_, _, fields) in enumerate(generator.frame_groups) 
+            index for index, (_, _, fields) in enumerate(generator.frame_groups)
             if bruker_name in fields][0]
-        
+
         value = value[frame_index[group_index]]
         if not isinstance(value, (list, numpy.ndarray)):
             value = [value]
 
     tag = getattr(odil.registry, dicom_name)
     vr = vr_finder(tag)
-    
+
     if value is None:
         if type_ == 1:
             raise Exception("{} must be present".format(dicom_name))
@@ -177,9 +177,9 @@ def convert_element(
             value = [_convert_date_time(x, "%Y%m%d%H%M%S") for x in value if x]
         elif vr == odil.VR.TM:
             value = [_convert_date_time(x, "%H%M%S") for x in value if x]
-        
+
         dicom_data_set.add(tag, value, vr)
-    
+
     return value
 
 _date_time_expressions = [
@@ -187,7 +187,7 @@ _date_time_expressions = [
         r"[ T]"
         r"(?P<hour>\d{2}):(?P<minute>\d{2}):(?P<second>\d{2})"
         r"(?:[.,](?P<microsecond>\d{,6}))?"
-        r"(?P<tzinfo>\+\w+)?", 
+        r"(?P<tzinfo>\+\w+)?",
     r"(?P<year>\d{4})(?P<month>\d{2})(?P<day>\d{2})",
 ]
 _date_time_expressions = [re.compile(x) for x in _date_time_expressions]
@@ -196,13 +196,13 @@ _tz_cache = {}
 def _convert_date_time(value, format_):
     """ Parse the date and time in value, and return it formatted as specified.
     """
-    
+
     date_time = None
     for expression in _date_time_expressions:
         match = re.match(expression, value)
         if match:
             groups = match.groupdict()
-            
+
             if "microsecond" in groups:
                 value = groups["microsecond"]
                 if value:
@@ -213,33 +213,33 @@ def _convert_date_time(value, format_):
                 g: int(v) for g,v in groups.items()
                 if v is not None and g != "tzinfo" }
             tzinfo = groups.get("tzinfo")
-            
+
             if tzinfo:
                 if tzinfo not in _tz_cache:
                     _tz_cache[tzinfo] = datetime.datetime.strptime(tzinfo, "%z").tzinfo
                 elements["tzinfo"] = _tz_cache[tzinfo]
-            
+
             date_time = datetime.datetime(**elements)
-            
+
             break
     if date_time is None:
         date_time = dateutil.parser.parse(value.replace(",", "."))
-    
+
     return date_time.strftime(format_)
 
 def to_2d(data_set):
     """ Convert the Bruker data set from 3D to 2D.
     """
-    
+
     origin = data_set["VisuCorePosition"]
     z = numpy.asarray(data_set["VisuCoreOrientation"][6:9])
     dz = numpy.divide(
         numpy.asarray(data_set["VisuCoreExtent"][2], dtype=float),
         numpy.asarray(data_set["VisuCoreSize"][2], dtype=float))
-    
+
     frame_count = int(data_set.get("VisuCoreFrameCount", [1])[0])
     slice_count = int(data_set["VisuCoreSize"][2])
-    
+
     # Constant fields
     data_set["VisuCoreDim"] = [2]
     data_set["VisuCoreFrameCount"] = [frame_count*slice_count]
@@ -279,20 +279,20 @@ def to_2d(data_set):
                 [slice_count*x.tolist() for x in value]
             )
         )
-    
+
     # Special case: position, depending on origin, dz and z
     data_set["VisuCorePosition"] = list(itertools.chain(*[
         (origin+i*dz*z).tolist() for i in range(slice_count)
     ]))
 
 class ReconstructionContext(logging.Filter):
-    """ Add reconstruction context to logger. 
+    """ Add reconstruction context to logger.
     """
-    
+
     def __init__(self, path):
         logging.Filter.__init__(self)
         self.prefix = "{} - ".format(path)
-        
+
     def filter(self, record):
         record.msg = "{}{}".format(self.prefix, record.msg)
         return True

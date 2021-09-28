@@ -27,7 +27,7 @@ dicomifier.dicom_to_nifti.image
    :param stack: collection of data set and an associated frame number for
        multi-frame datasets
    :param dtype: if not None, force the dtype of the result image
-   :param cache: optional cache of linear pixel data for multi-frame data 
+   :param cache: optional cache of linear pixel data for multi-frame data
        sets
 
 
@@ -52,7 +52,7 @@ dicomifier.dicom_to_nifti.image
 .. py:function:: get_shaped_pixel_data(data_set, frame_index, linear_pixel_data)
    :module: dicomifier.dicom_to_nifti.image
 
-   Return the pixel data located in a dataset (and possibly one of its 
+   Return the pixel data located in a dataset (and possibly one of its
    frame) shaped according to numer of rows, columns and frames.
 
 

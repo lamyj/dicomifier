@@ -20,9 +20,9 @@ from .. import FrameIndexGenerator
 from .. import convert
 
 def enhanced_mr_image_storage(bruker_data_set, transfer_syntax):
-    """ Convert bruker_data_set into dicom_data_set by using the correct 
+    """ Convert bruker_data_set into dicom_data_set by using the correct
         transfer_syntax.
-        This function will create one data_set per reconstruction 
+        This function will create one data_set per reconstruction
         (multiFrame format)
 
         :param bruker_data_set: Bruker data set in dictionary form
@@ -38,11 +38,11 @@ def enhanced_mr_image_storage(bruker_data_set, transfer_syntax):
         SharedFunctionalGroupsSequence=[odil.DataSet()],
         PerFrameFunctionalGroupsSequence=[
             odil.DataSet() for _ in range(generator.frames_count)])
-    
+
     vr_finder_object = odil.VRFinder()
     vr_finder_function = lambda tag: vr_finder_object(
         tag, dicom_data_set, transfer_syntax)
-    
+
     # Modules factory
     frame_independent_modules = [
         patient.Patient,
@@ -56,17 +56,17 @@ def enhanced_mr_image_storage(bruker_data_set, transfer_syntax):
         mr.EnhancedMRImage,
         mr.MRPulseSequence,
         image.SOPCommon + [(
-            None, "SOPClassUID", 1, 
+            None, "SOPClassUID", 1,
             lambda d,g,i: [odil.registry.EnhancedMRImageStorage])],
     ]
-    
+
     # Run image.ImagePixel without PixelData, which is done later.
     image_pixel = copy.copy(image.ImagePixel)
     image_pixel = [x for x in image_pixel if x[1] != "PixelData"]
     frame_dependent_modules = [
         image_pixel
     ]
-    
+
     # Dummy call to set up the intensity intercept and slope.
     image.get_pixel_data(bruker_data_set, generator, next(iter(generator)))
 
@@ -98,28 +98,28 @@ def enhanced_mr_image_storage(bruker_data_set, transfer_syntax):
             convert.convert_module(
                 bruker_data_set, dicom_data_set, module,
                 frame_index, generator, vr_finder_function)
-        
+
         for tag, _, module in groups:
             child = odil.DataSet()
-            
+
             convert.convert_module(
                 bruker_data_set, child, module,
                 frame_index, generator, vr_finder_function)
-            
+
             dicom_data_set[
                     odil.registry.PerFrameFunctionalGroupsSequence
                 ][i].add(tag, [child])
-    
+
     merge_shared_groups(dicom_data_set, groups)
-    
+
     pixel_data_list = []
     for i, frame_index in enumerate(generator):
         pixel_data_list.append(
             image.get_pixel_data(bruker_data_set, generator, frame_index)[0])
-    
+
     dicom_data_set.add(
-        odil.registry.PixelData, 
-        [odil.Value.BinaryItem(b"".join(pixel_data_list))], 
+        odil.registry.PixelData,
+        [odil.Value.BinaryItem(b"".join(pixel_data_list))],
         vr_finder_function("PixelData"))
 
     # Add the raw Bruker meta-data, convert paths to Unicode if needed
@@ -127,11 +127,11 @@ def enhanced_mr_image_storage(bruker_data_set, transfer_syntax):
         x.decode() if hasattr(x, "decode") else x
         for x in bruker_data_set["reco_files"]
     ]
-    bruker_files = { 
-        os.path.basename(x): open(x, "rb").read().decode("iso-8859-15") 
+    bruker_files = {
+        os.path.basename(x): open(x, "rb").read().decode("iso-8859-15")
         for x in paths }
     dicom_data_set.add(
-        "EncapsulatedDocument", 
+        "EncapsulatedDocument",
         [odil.Value.BinaryItem(json.dumps(bruker_files).encode())])
     dicom_data_set.add("MIMETypeOfEncapsulatedDocument", ["application/json"])
 

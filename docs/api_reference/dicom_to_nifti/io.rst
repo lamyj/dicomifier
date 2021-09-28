@@ -15,7 +15,7 @@ dicomifier.dicom_to_nifti.io
 .. py:function:: get_files(paths)
    :module: dicomifier.dicom_to_nifti.io
 
-   Return the DICOM files found in the paths. Each path can be a single 
+   Return the DICOM files found in the paths. Each path can be a single
    file, a directory (scanned recursively), or a DICOMDIR file.
 
 
@@ -34,5 +34,5 @@ dicomifier.dicom_to_nifti.io
    :param nifti_data: Pair of NIfTI image and meta-data
    :param destination: Destination directory
    :param zip: whether to zip the NIfTI files
-   :param series_directory: if provided, override the automated 
+   :param series_directory: if provided, override the automated
        series-based output directory name

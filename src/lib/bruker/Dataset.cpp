@@ -22,7 +22,7 @@
 
 namespace dicomifier
 {
-    
+
 namespace bruker
 {
 
@@ -44,20 +44,20 @@ Dataset
 
     // Join multi-line elements
     data = boost::regex_replace(data, boost::regex(R"(\\?\R(?!##|\$\$))"), "");
-    
+
     // Parse the data
     std::string::const_iterator begin = data.begin();
     std::string::const_iterator const end = data.end();
-    
+
     std::vector<Field> fields;
     grammar<std::string::const_iterator> g;
     bool const parsed = boost::spirit::qi::parse(begin, end, g, fields);
-    
+
     if(!parsed)
     {
         throw Exception("Could not parse file");
     }
-    
+
     if(begin != end)
     {
         throw Exception("File was parsed incompletely");
@@ -99,7 +99,7 @@ Dataset
     {
         throw Exception("No such field: "+name);
     }
-    
+
     return field_it->second;
 }
 

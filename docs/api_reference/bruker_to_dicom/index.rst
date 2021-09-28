@@ -43,4 +43,3 @@ dicomifier.bruker_to_dicom
       :module: dicomifier.bruker_to_dicom
 
       Return the linear index associated to the multi-dimensional index.
-

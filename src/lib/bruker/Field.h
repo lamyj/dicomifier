@@ -17,7 +17,7 @@
 
 namespace dicomifier
 {
-    
+
 namespace bruker
 {
 
@@ -34,10 +34,10 @@ public:
         long, double, std::string,
         std::vector<boost::recursive_variant_>
     >::type Item;
-    
+
     typedef std::vector<int> Shape;
     typedef std::vector<Item> Value;
-    
+
     /// @brief Name of the field.
     std::string name;
 
@@ -46,13 +46,13 @@ public:
 
     /// @brief Value of the field.
     Value value;
-    
+
     /// @brief Create an empty, un-named, field.
     Field();
 
     /// @brief Creator.
     Field(std::string const & name, Shape const & shape, Value const & value);
-    
+
     /// @brief Return a string item, throw an exception if not string-typed.
     std::string const & get_string(unsigned int index) const;
 
@@ -76,7 +76,7 @@ public:
 
     /// @brief Test whether item is a struct.
     bool is_struct(unsigned int index) const;
-    
+
     bool operator==(Field const & other) const;
     bool operator!=(Field const & other) const;
 };
@@ -86,7 +86,7 @@ public:
 } // namespace dicomifier
 
 BOOST_FUSION_ADAPT_STRUCT(
-    dicomifier::bruker::Field, 
+    dicomifier::bruker::Field,
     (std::string, name)
     (std::vector<int>, shape)
     (std::vector<dicomifier::bruker::Field::Item>, value)

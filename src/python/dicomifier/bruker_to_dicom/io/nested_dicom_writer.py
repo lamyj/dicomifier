@@ -13,7 +13,7 @@ import odil
 class NestedDICOMWriter(object):
     """ Write DICOM files in a patient/study/series/reconstruction hierarchy.
     """
-    
+
     def __init__(self, root, iso_9660, transfer_syntax):
         self.root = str(root)
         self.iso_9660 = iso_9660
@@ -53,7 +53,7 @@ class NestedDICOMWriter(object):
         # Patient directory: <PatientName> or <PatientID>.
         patient_directory = decode(
             data_set.get(
-                odil.registry.PatientName, 
+                odil.registry.PatientName,
                 data_set.get(odil.registry.PatientID))[0])
 
         # Study directory: <StudyID>_<StudyDescription>, both parts are
@@ -81,7 +81,7 @@ class NestedDICOMWriter(object):
             if series_number > 2**16:
                 # Bruker ID based on experiment number and reconstruction number
                 # is not readable: separate the two values
-                experiment, reconstruction = divmod(series_number, 2**16) 
+                experiment, reconstruction = divmod(series_number, 2**16)
                 series_directory.append(str(experiment))
             else:
                 series_directory.append(str(series_number))
@@ -100,7 +100,7 @@ class NestedDICOMWriter(object):
             patient_directory = self.to_iso_9660(patient_directory)
             study_directory = self.to_iso_9660(study_directory)
             series_directory = self.to_iso_9660(series_directory)
-        
+
         if reconstruction is not None:
             series_directory = os.path.join(
                 series_directory, str(reconstruction))

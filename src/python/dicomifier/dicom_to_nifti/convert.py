@@ -23,15 +23,15 @@ from .stacks import get_stacks, sort
 from .. import logger, MetaData
 
 def convert_paths(paths, destination, zip, dtype=None):
-    """ Convert the DICOM files found in a collection of paths (files, 
+    """ Convert the DICOM files found in a collection of paths (files,
         directories, or DICOMDIR) and save the result in the given destination.
-        
+
         :param paths: Collection of paths to scan for DICOM files
         :param destination: Destination directory
         :param zip: whether to zip the NIfTI files
         :param dtype: if not None, force the dtype of the result image
     """
-    
+
     if os.path.isdir(str(destination)) and len(os.listdir(str(destination))) > 0:
         logger.warning("{} is not empty".format(destination))
 
@@ -39,9 +39,9 @@ def convert_paths(paths, destination, zip, dtype=None):
     series = split_series(dicom_files)
 
     logger.info("{} series found".format(len(series)))
-    
-    # Look for duplicate output directories. This may happen with data having 
-    # the same Series Number and Series Description, as seen on a Siemens 
+
+    # Look for duplicate output directories. This may happen with data having
+    # the same Series Number and Series Description, as seen on a Siemens
     # Biograph Vision.
     series_directories = {}
     directories_series = {}
@@ -54,16 +54,16 @@ def convert_paths(paths, destination, zip, dtype=None):
         data_set = meta_data.convert_data_set(
             data_set, data_set.get("SpecificCharacterSet", odil.Value.Strings()))
         directory = io.get_series_directory(data_set)
-        
+
         series_directories[finder] = directory
         directories_series.setdefault(directory, []).append(finder)
-    
+
     # Add suffix to duplicate directories
     for directory, finders in directories_series.items():
         if len(finders) > 1:
             for i, finder in enumerate(finders):
                 series_directories[finder] += "_{}".format(1+i)
-    
+
     for finder, series_files in series.items():
         nifti_data = convert_series(series_files, dtype, finder)
         if nifti_data is not None:
@@ -71,23 +71,23 @@ def convert_paths(paths, destination, zip, dtype=None):
                 nifti_data, destination, zip, series_directories[finder])
 
 class SeriesContext(logging.Filter):
-    """ Add series context to logger. 
+    """ Add series context to logger.
     """
-    
+
     def __init__(self, data_set):
         logging.Filter.__init__(self)
-        
+
         try:
             patient = SeriesContext._get_element(
                 data_set, odil.registry.PatientName)
             if not patient:
                 patient = SeriesContext._get_element(
                     data_set, odil.registry.PatientID)
-            
+
             study = [
                 SeriesContext._get_element(data_set, x)
                 for x in [odil.registry.StudyID, odil.registry.StudyDescription]]
-            
+
             series = [
                 SeriesContext._get_element(data_set, x)
                 for x in [odil.registry.SeriesNumber, odil.registry.SeriesDescription]]
@@ -95,7 +95,7 @@ class SeriesContext(logging.Filter):
                 software = SeriesContext._get_element(
                     data_set, odil.registry.SoftwareVersions)
                 if software == "ParaVision" and series[0] > 2**16:
-                    # Bruker ID based on experiment number and reconstruction 
+                    # Bruker ID based on experiment number and reconstruction
                     # number is not readable: separate the two values
                     series[0] = "{}:{}".format(
                         *[str(x) for x in divmod(series[0], 2**16)])
@@ -105,11 +105,11 @@ class SeriesContext(logging.Filter):
                         *[str(x) for x in divmod(series[0], 10000)])
                 else:
                     series[0] = "{}".format(series[0])
-            
+
             if series[1] is None:
                 series[1] = SeriesContext._get_element(
                     data_set, odil.registry.ProtocolName) or ""
-            
+
             elements = []
             if patient:
                 elements.append(patient)
@@ -117,16 +117,16 @@ class SeriesContext(logging.Filter):
                 elements.append("-".join(x for x in study if x))
                 if any(series):
                     elements.append("-".join(x for x in series if x))
-            
+
             self.prefix = "{}: ".format(" / ".join(elements))
         except Exception as e:
             logger.debug("Series context configuration error: \"{}\"".format(e))
             self.prefix = ""
-        
+
     def filter(self, record):
         record.msg = "{}{}".format(self.prefix, record.msg)
         return True
-    
+
     @staticmethod
     def _get_element(data_set, tag):
         value = data_set.get(tag)
@@ -143,12 +143,12 @@ class SeriesContext(logging.Filter):
 def convert_series(series_files, dtype=None, finder=None):
     """ Return the NIfTI image and meta-data from the files containing a single
         series.
-        
+
         :param dtype: if not None, force the dtype of the result image
         :param finder: if not None, series finder object to overwrite the Series
             Instance UID
     """
-    
+
     logger.info(
         "Reading {} DICOM file{}".format(
             len(series_files), "s" if len(series_files) > 1 else ""))
@@ -157,13 +157,13 @@ def convert_series(series_files, dtype=None, finder=None):
     # Add series context to the logging as soon as we can
     series_context = SeriesContext(data_sets[0])
     logger.addFilter(series_context)
-    
+
     if not isinstance(finder, DefaultSeriesFinder):
         logger.debug("Setting Series Instance UID to {}".format(
             finder.series_instance_uid.decode()))
         for data_set in data_sets:
             data_set[odil.registry.SeriesInstanceUID][0] = finder.series_instance_uid
-    
+
     # Get only data_sets containing correct PixelData field
     data_sets = [x for x in data_sets if odil.registry.PixelData in x]
 
@@ -172,10 +172,10 @@ def convert_series(series_files, dtype=None, finder=None):
         nifti_data = None
     else:
         nifti_data = convert_series_data_sets(data_sets, dtype)
-    
+
     # Restore the logging
     logger.removeFilter(series_context)
-    
+
     return nifti_data
 
 def convert_series_data_sets(data_sets, dtype=None):
@@ -184,7 +184,7 @@ def convert_series_data_sets(data_sets, dtype=None):
         :param data_sets: list of dicom data sets to convert
         :param dtype: if not None, force the dtype of the result image
     """
-    
+
     nifti_data = []
 
     stacks = get_stacks(data_sets)
@@ -211,7 +211,7 @@ def convert_series_data_sets(data_sets, dtype=None):
     )
     for stack_index, (key, stack) in enumerate(stacks):
         data_set = stack[0][0]
-        
+
         # Update progress information
         series_instance_uid = data_set[odil.registry.SeriesInstanceUID][0]
         if stacks_count[series_instance_uid] > 1:
@@ -266,7 +266,7 @@ def convert_series_data_sets(data_sets, dtype=None):
                 merged_stacks.append(merged)
             else:
                 merged_stacks.append(stack[0])
-    
+
     return merged_stacks
 
 def merge_images_and_meta_data(images_and_meta_data):
@@ -282,7 +282,7 @@ def merge_images_and_meta_data(images_and_meta_data):
         pixel_data[...,i] = image.dataobj
 
     merged_image = nibabel.Nifti1Image(pixel_data, images[0].affine)
-    
+
     meta_data = [x[1] for x in images_and_meta_data]
     merged_meta_data = MetaData()
     keys = set()

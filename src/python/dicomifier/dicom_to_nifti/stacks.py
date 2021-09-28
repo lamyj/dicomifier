@@ -21,14 +21,14 @@ def get_stacks(data_sets):
     """ Return the stacks contained in the data sets. The result is a dictionary
         in which the values are pairs of (data_set, frame_index) (in the case
         of single-frame data sets, frame_index is None), and in which the keys
-        are tuples of selectors. In this context, a selector is defined a 
+        are tuples of selectors. In this context, a selector is defined a
         a pair of (group sequence, group, tag) (group sequence and group being
         None for single-frame data sets), and a value.
     """
 
     splitters = _get_splitters(data_sets)
     stacks = {}
-    
+
     def build_selector(
             data_set, getter, group_sequence, group, tag, in_stack_position):
         selector = None
@@ -42,27 +42,27 @@ def get_stacks(data_sets):
         if value is not None:
             selector = ((group_sequence, group, tag), tuple(value))
         return selector
-    
+
     for data_set in data_sets:
-        
+
         frames = []
         in_stack_position = None
         if odil.registry.SharedFunctionalGroupsSequence not in data_set:
             frames.append([(data_set,), None, [None]])
         else:
             in_stack_position = get_in_stack_position_index(data_set)
-            
+
             shared_groups = data_set[odil.registry.SharedFunctionalGroupsSequence][0]
             frames_groups = data_set[odil.registry.PerFrameFunctionalGroupsSequence]
-            
+
             group_sequences = [
                 odil.registry.SharedFunctionalGroupsSequence,
                 odil.registry.PerFrameFunctionalGroupsSequence
             ]
             frames.extend([
-                [(shared_groups, frame_groups), i, group_sequences] 
+                [(shared_groups, frame_groups), i, group_sequences]
                 for i, frame_groups in enumerate(frames_groups)])
-        
+
         for frame_infos, frame_index, group_sequences in frames:
             key = []
             for (group, tag), getter in splitters:
@@ -72,17 +72,17 @@ def get_stacks(data_sets):
                 elif frame_index is not None and group is None:
                     # Use frame group tags only for multi-frame data sets
                     continue
-                
+
                 for frame_info, group_sequence in zip(frame_infos, group_sequences):
                     selector = build_selector(
                         frame_info, getter, group_sequence, group, tag,
                         in_stack_position)
-                    
+
                     if selector is not None:
                         key.append(selector)
-            
+
             stacks.setdefault(tuple(key), []).append((data_set, frame_index))
-    
+
     # Normalize the keys so that all stacks have the same key fields
     key_items = set()
     for key in stacks.keys():
@@ -96,7 +96,7 @@ def get_stacks(data_sets):
     for key, normalized_key in normalized_keys.items():
         normalized_keys[key] = tuple(normalized_key)
     stacks = { normalized_keys[key]: value for key, value in stacks.items() }
-    
+
     # Simplify keys: remove those that have the same value for all stacks
     keys = numpy.asarray(list(stacks.keys()), dtype=object)
     to_keep = []
@@ -113,17 +113,17 @@ def get_stacks(data_sets):
         tuple(v for (i, v) in enumerate(stack_key) if i in to_keep): stack_value
         for stack_key, stack_value in stacks.items()
     }
-    
+
     return stacks
 
 def sort(key, frames):
-    """ Sort the frames of a stack according to the items present in the 
+    """ Sort the frames of a stack according to the items present in the
         stack key.
     """
-    
+
     if len(frames) <= 1:
         return
-    
+
     ordering = None
     for (_, _, tag), value in key:
         if tag == odil.registry.DimensionIndexValues:
@@ -136,7 +136,7 @@ def sort(key, frames):
                 frame_content = frame[odil.registry.FrameContentSequence][0]
                 position.append(
                     frame_content[odil.registry.DimensionIndexValues][position_index])
-            
+
             keydict = dict(zip((id(x) for x in frames), numpy.argsort(position)))
             ordering = lambda x: keydict[id(x)]
             break
@@ -149,7 +149,7 @@ def sort(key, frames):
             else:
                 logger.warning(
                     "Orientation found but no position available to sort frames")
-    
+
     if ordering is not None:
         frames.sort(key=ordering)
     else:
@@ -199,7 +199,7 @@ class OrientationGetter(object):
     """ Return the ideal orientation of a data set, i.e. allow small variations
         in the actual orientation.
     """
-    
+
     def __init__(self):
         self._orientations = {}
 
@@ -223,7 +223,7 @@ class OrientationGetter(object):
             value = closest
 
         return tuple(value)
-    
+
     @property
     def orientations(self):
         return self._orientations
@@ -239,10 +239,10 @@ class OrientationGetter(object):
                 numpy.linalg.norm(numpy.subtract(o1, o2), numpy.inf) <= epsilon)
 
 def get_dimension_index(data_set, tag, in_stack_position_index):
-    """ Return the dimension index pointer without InStackPosition in order to 
+    """ Return the dimension index pointer without InStackPosition in order to
         find the different volumes
 
-        :param in_stack_position_index: index of the In Stack Position element 
+        :param in_stack_position_index: index of the In Stack Position element
             within the Dimension Index tuple
     """
 
@@ -285,13 +285,13 @@ def get_diffusion(data_set, tag):
 def frame_group_index_getter(data_set, tag):
     """ Return bruker_to_dicom-specific frame group information.
     """
-    
+
     value = data_set.get(tag)
     if value is None:
         return value
-    
+
     frame_group_index_entries = [
-        x for x in value 
+        x for x in value
         if (
             x[odil.registry.Manufacturer][0] == b"Dicomifier"
             and x[odil.registry.ManufacturerModelName][0] == b"Bruker Frame Group index")]
@@ -299,25 +299,25 @@ def frame_group_index_getter(data_set, tag):
         return None
     elif len(frame_group_index_entries) > 1:
         raise Exception("Multiple Frame Group index entries found")
-    
+
     contribution_description = json.loads(
         frame_group_index_entries[0][
             odil.registry.ContributionDescription][0].decode())
-    
+
     index = tuple(tuple(x) for x in contribution_description)
     return index
 
 def ge_diffusion_getter(data_set, tag):
     """ Return GE-specific diffusion data.
     """
-    
+
     if data_set[odil.registry.Manufacturer][0] != b"GE MEDICAL SYSTEMS":
         return None
-    
+
     # GEMS_ACQU_01 contains directions, GEMS_PARM_01 contains b-value
     gems_acq = _find_private_creator(data_set, b"GEMS_ACQU_01", 0x0019)
     gems_parm = _find_private_creator(data_set, b"GEMS_PARM_01", 0x0043)
-    
+
     direction = None
     if gems_acq is not None:
         direction = tuple(
@@ -325,51 +325,51 @@ def ge_diffusion_getter(data_set, tag):
             for x in [0xbb, 0xbc, 0xbd])
     if direction and not(isinstance(direction[0], (int, float))):
         return None
-    
+
     b_value = data_set.get(odil.Tag(gems_parm+0x39), [None])[0]
     if b_value is None:
         b_value = data_set.get(odil.registry.DiffusionBValue, [None])[0]
     if b_value and not(isinstance(b_value, (int, float))):
         return None
-    
+
     return direction, b_value
 
 def siemens_coil_getter(data_set, tag):
     """ Return Siemens-specific coil identifier.
     """
-    
+
     if data_set[odil.registry.Manufacturer][0] != b"SIEMENS":
         return None
-    
+
     if data_set[odil.registry.Modality][0] != b"MR":
         return None
-    
+
     csa_header = _find_private_creator(data_set, b"SIEMENS CSA HEADER", 0x0029)
     if csa_header is None:
         return None
-    
+
     item = data_set.get(odil.Tag(csa_header + 0x10), [None])[0]
     if item is None:
         return None
-    
+
     siemens_data = siemens.parse_csa(item.get_memory_view().tobytes())
     return siemens_data.get("ImaCoilString", [b""])[0].strip(b"\x00")
 
 def canon_getter(data_set, tag):
     """ Return Canon-specific diffusion information.
     """
-    
+
     if data_set[odil.registry.Manufacturer][0] != b"CANON_MEC":
         return None
-    
+
     if data_set[odil.registry.SOPClassUID][0] != odil.registry.MRImageStorage:
         # NOTE Enhanced MR Image Storage use the standard fields
         return None
-    
+
     if odil.registry.DiffusionBValue not in data_set:
         return None
     b_value_element = data_set[odil.registry.DiffusionBValue][0]
-    
+
     if odil.registry.ImageComments not in data_set:
         if b_value_element != 0:
             logger.debug("No ImageComments, b-value={}".format(b_value_element))
@@ -379,7 +379,7 @@ def canon_getter(data_set, tag):
             image_comments = b"b=0(0,0,0)"
     else:
         image_comments = data_set[odil.registry.ImageComments][0]
-    
+
     match = re.match(
         br"^b=([\d.]+)\("
             br"(-?[\d.]+),(-?[\d.]+),(-?[\d.]+)"
@@ -388,7 +388,7 @@ def canon_getter(data_set, tag):
     if not match:
         logger.debug("ImageComments not matched: '{}'".format(image_comments))
         return None
-    
+
     try:
         b_value_comment, x, y, z = [float(x) for x in match.groups()]
     except ValueError:
@@ -396,41 +396,41 @@ def canon_getter(data_set, tag):
             "b-value discrepancy: {} != {}".format(
                 b_value_element, b_value_comment))
         return None
-    
+
     if not numpy.isclose(b_value_element, b_value_comment):
         return None
-    
+
     return image_comments
 
 def _get_splitters(data_sets):
     """ Return a list of splitters (tag and getter) depending on the SOPClassUID
         of each dataset
 
-        :param data_sets: Data sets of the current stack 
+        :param data_sets: Data sets of the current stack
     """
-    
+
     def default_getter(data_set, tag):
         element = data_set.get(tag)
         if element is not None and element.is_binary():
-            # WARNING: random error either with odil wrappers or with 
+            # WARNING: random error either with odil wrappers or with
             # numpy.array when simplifying keys. Fix by pickling the binary
             # DICOM elements.
             element = pickle.dumps(element)
         return element
-    
+
     splitters = {
         "ALL": [
             # Single Frame generic tags
             ((None, odil.registry.SeriesInstanceUID), default_getter),
             ((None, odil.registry.ImageType), default_getter),
             (
-                (None, odil.registry.ImageOrientationPatient), 
+                (None, odil.registry.ImageOrientationPatient),
                 OrientationGetter()),
             ((None, odil.registry.SpacingBetweenSlices), default_getter),
-            ((None, odil.registry.Rows), default_getter), 
-            ((None, odil.registry.Columns), default_getter), 
+            ((None, odil.registry.Rows), default_getter),
+            ((None, odil.registry.Columns), default_getter),
             # FIXME: PixelSpacing; both X and Y must be close
-            ((None, odil.registry.PhotometricInterpretation), default_getter), 
+            ((None, odil.registry.PhotometricInterpretation), default_getter),
             # Multiframe generic tags
             (
                 (
@@ -439,17 +439,17 @@ def _get_splitters(data_sets):
                 get_dimension_index),
             (
                 (
-                    odil.registry.PlaneOrientationSequence, 
+                    odil.registry.PlaneOrientationSequence,
                     odil.registry.ImageOrientationPatient),
                 OrientationGetter()),
             (
                 (
-                    odil.registry.PixelMeasuresSequence, 
+                    odil.registry.PixelMeasuresSequence,
                     odil.registry.SpacingBetweenSlices),
                 default_getter),
             (
                 (
-                    odil.registry.FrameContentSequence, 
+                    odil.registry.FrameContentSequence,
                     odil.registry.FrameAcquisitionNumber),
                 default_getter),
             (
@@ -468,13 +468,13 @@ def _get_splitters(data_sets):
             ((None, odil.registry.DiffusionBValue), default_getter),
             ((None, odil.registry.TriggerTime), default_getter),
             (
-                (None, odil.registry.ContributingEquipmentSequence), 
+                (None, odil.registry.ContributingEquipmentSequence),
                 frame_group_index_getter)
         ],
         odil.registry.EnhancedMRImageStorage: [
             (
                 (
-                    odil.registry.MRTimingAndRelatedParametersSequence, 
+                    odil.registry.MRTimingAndRelatedParametersSequence,
                     odil.registry.RepetitionTime),
                 default_getter),
             (
@@ -488,7 +488,7 @@ def _get_splitters(data_sets):
                 default_getter),
             (
                 (
-                    odil.registry.MRMetaboliteMapSequence, 
+                    odil.registry.MRMetaboliteMapSequence,
                     odil.registry.MetaboliteMapDescription),
                 default_getter),
             ((None, odil.registry.MRDiffusionSequence), get_diffusion),
@@ -511,33 +511,33 @@ def _get_splitters(data_sets):
         splitters["ALL"],
         *[splitters.get(x, []) for x in sop_classes]
     ))
-    
+
     if any(d.get(odil.registry.Manufacturer, [None])[0] == b"GE MEDICAL SYSTEMS" for d in data_sets):
         splitters.append(((None, None), ge_diffusion_getter))
     if any(d.get(odil.registry.Manufacturer, [None])[0] == b"SIEMENS" for d in data_sets):
         splitters.append(((None, None), siemens_coil_getter))
     if any(d.get(odil.registry.Manufacturer, [None])[0] == b"CANON_MEC" for d in data_sets):
         splitters.append(((None, None), canon_getter))
-    
+
     return splitters
 
 def _find_private_creator(data_set, private_creator, group):
     """ Return the private group (as an integer) corresponding to the given
         private creator and root group, or None.
     """
-    
+
     tag = odil.Tag(group, 0x0000)
     private_group = None
     for element in range(0, 256):
         tag.element = element
-        
+
         # Get the content of the potential private creator. It may be stored as
         # a binary item (e.g. when VR=UN), in that case convert it to a byte
         # string.
         content = data_set.get(tag, [None])[0]
         if isinstance(content, odil.Value.BinaryItem):
             content = content.get_memory_view().tobytes()
-        
+
         if content == private_creator:
             private_group = (group << 16) + (element << 8)
             break

@@ -14,7 +14,7 @@ GeneralStudy = [ # PS 3.3, C.7.2.1
     ("VisuStudyDate", "StudyTime", 2, None),
     ("VisuStudyReferringPhysician", "ReferringPhysicianName", 2, None),
     (
-        "VisuStudyNumber", "StudyID", 2, 
+        "VisuStudyNumber", "StudyID", 2,
         cached("__StudyID")(
             lambda d,g,i: [str(x) for x in d["VisuStudyNumber"]])),
     (None, "AccessionNumber", 2, lambda d,g,i: None),

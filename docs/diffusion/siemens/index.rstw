@@ -22,24 +22,24 @@ Once parsed, the *CSA Image Header Info* has four fields obviously related to di
 <<>>=
 meta_data = [
     {
-        'B_value': [0], 
-        'DiffusionGradientDirection': [], 
-        'B_matrix': [], 
+        'B_value': [0],
+        'DiffusionGradientDirection': [],
+        'B_matrix': [],
         'DiffusionDirectionality': [b'DIRECTIONAL\x00'] },
     {
-        'B_value': [1000], 
-        'DiffusionGradientDirection': [0.1977423, 0.17195807, -0.96505374], 
-        'B_matrix': [39.0, 34.0, -191.0, 30.0, -166.0, 932.0], 
+        'B_value': [1000],
+        'DiffusionGradientDirection': [0.1977423, 0.17195807, -0.96505374],
+        'B_matrix': [39.0, 34.0, -191.0, 30.0, -166.0, 932.0],
         'DiffusionDirectionality': [b'DIRECTIONAL\x00'] },
     {
-        'B_value': [1000], 
-        'DiffusionGradientDirection': [-0.32412839, -0.94072425, 0.09989204], 
-        'B_matrix': [105.0, 305.0, -32.0, 885.0, -94.0, 11.0], 
+        'B_value': [1000],
+        'DiffusionGradientDirection': [-0.32412839, -0.94072425, 0.09989204],
+        'B_matrix': [105.0, 305.0, -32.0, 885.0, -94.0, 11.0],
         'DiffusionDirectionality': [b'DIRECTIONAL\x00'] },
     {
-        'B_value': [1000], 
-        'DiffusionGradientDirection': [-0.97839409, -0.17072155, 0.11661573], 
-        'B_matrix': [957.0, 167.0, -114.0, 29.0, -20.0, 14.0], 
+        'B_value': [1000],
+        'DiffusionGradientDirection': [-0.97839409, -0.17072155, 0.11661573],
+        'B_matrix': [957.0, 167.0, -114.0, 29.0, -20.0, 14.0],
         'DiffusionDirectionality': [b'DIRECTIONAL\x00'] }
 ]
 @
@@ -65,17 +65,17 @@ def from_lower(linear):
 for item in meta_data:
     if not item["B_matrix"]:
         continue
-    
+
     upper_eigensystem = numpy.linalg.eigh(from_upper(item["B_matrix"]))
     lower_eigensystem = numpy.linalg.eigh(from_lower(item["B_matrix"]))
-    
+
     direction = item["DiffusionGradientDirection"]
-    
+
     print(
-        "Upper triangular matrix: ", 
-        upper_eigensystem[0].astype(int), 
+        "Upper triangular matrix: ",
+        upper_eigensystem[0].astype(int),
         numpy.dot(direction, upper_eigensystem[1][:,-1]),
-        "\nLower triangular matrix: ", 
+        "\nLower triangular matrix: ",
         lower_eigensystem[0].astype(int),
         numpy.dot(direction, lower_eigensystem[1][:,-1]),
         "\n")

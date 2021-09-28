@@ -16,14 +16,14 @@ dicomifier.dicom_to_nifti.meta_data
    :module: dicomifier.dicom_to_nifti.meta_data
 
    Convert a DICOM element to its NIfTI+JSON representation: the "Value"
-   (or "InlineBinary") attribute of its standard DICOM JSON 
+   (or "InlineBinary") attribute of its standard DICOM JSON
    representation.
 
 
 .. py:function:: get_meta_data(stack, cache=None)
    :module: dicomifier.dicom_to_nifti.meta_data
 
-   Get the meta-data of the current stack 
+   Get the meta-data of the current stack
 
    will keep the priority order for repeting element with the following rules:
    low_priority = per_frame_seq

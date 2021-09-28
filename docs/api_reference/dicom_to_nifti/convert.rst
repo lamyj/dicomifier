@@ -8,7 +8,7 @@ dicomifier.dicom_to_nifti.convert
 .. py:class:: SeriesContext(data_set)
    :module: dicomifier.dicom_to_nifti.convert
 
-   Add series context to logger. 
+   Add series context to logger.
 
 
 
@@ -24,7 +24,7 @@ dicomifier.dicom_to_nifti.convert
 .. py:function:: convert_paths(paths, destination, zip, dtype=None)
    :module: dicomifier.dicom_to_nifti.convert
 
-   Convert the DICOM files found in a collection of paths (files, 
+   Convert the DICOM files found in a collection of paths (files,
    directories, or DICOMDIR) and save the result in the given destination.
 
    :param paths: Collection of paths to scan for DICOM files
@@ -57,4 +57,3 @@ dicomifier.dicom_to_nifti.convert
    :module: dicomifier.dicom_to_nifti.convert
 
    Merge the pixel and meta-data of geometrically coherent images.
-

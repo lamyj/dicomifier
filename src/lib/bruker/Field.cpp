@@ -16,7 +16,7 @@
 
 namespace dicomifier
 {
-    
+
 namespace bruker
 {
 

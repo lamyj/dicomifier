@@ -17,10 +17,10 @@ import odil
 from .. import logger, MetaData
 
 def get_files(paths):
-    """ Return the DICOM files found in the paths. Each path can be a single 
+    """ Return the DICOM files found in the paths. Each path can be a single
         file, a directory (scanned recursively), or a DICOMDIR file.
     """
-    
+
     dicom_files = set()
     for entry in paths:
         entry = os.path.abspath(str(entry))
@@ -37,7 +37,7 @@ def get_files(paths):
             dicom_files.update(get_dicomdir_files(entry))
         else:
             dicom_files.add(entry)
-    
+
     # Make sure we do not have the same file saved under multiple names
     sop_instance_uids = {}
     for dicom_file in dicom_files:
@@ -49,7 +49,7 @@ def get_files(paths):
             logger.info("Could not read {}: {}".format(dicom_file, e))
             continue
         sop_instance_uids.setdefault(
-                header[odil.registry.MediaStorageSOPInstanceUID][0], 
+                header[odil.registry.MediaStorageSOPInstanceUID][0],
                 []
             ).append(dicom_file)
     if any(len(x) > 1 for x in sop_instance_uids.values()):
@@ -60,7 +60,7 @@ def get_files(paths):
 def get_dicomdir_files(path):
     """ Return the list of files indexed in a DICOMDIR file.
     """
-    
+
     dicom_files = []
     dicomdir = odil.Reader.read_file(path)[1]
     for record in dicomdir[odil.registry.DirectoryRecordSequence]:
@@ -74,19 +74,19 @@ def get_dicomdir_files(path):
 
 def write_nifti(nifti_data, destination, zip, series_directory=None):
     """ Write the NIfTI image and meta-data in the given destination.
-    
+
         :param nifti_data: Pair of NIfTI image and meta-data
         :param destination: Destination directory
         :param zip: whether to zip the NIfTI files
-        :param series_directory: if provided, override the automated 
+        :param series_directory: if provided, override the automated
             series-based output directory name
     """
 
     # Write one nii+json per stack
     for index, (image, meta_data) in enumerate(nifti_data):
         destination_directory = os.path.join(
-            str(destination), 
-            series_directory if series_directory is not None 
+            str(destination),
+            series_directory if series_directory is not None
                 else get_series_directory(meta_data))
 
         if not os.path.isdir(destination_directory):
@@ -98,7 +98,7 @@ def write_nifti(nifti_data, destination, zip, series_directory=None):
         if zip:
             suffix += ".gz"
         nibabel.save(image, destination_root + suffix)
-        
+
         json.dump(
             meta_data, open(destination_root + ".json", "w"),
             cls=MetaData.JSONEncoder)
@@ -107,12 +107,12 @@ def get_series_directory(meta_data):
     """ Return the directory associated with the patient, study and series of
         the NIfTI meta-data.
     """
-    
+
     def get_first_item(item):
         while isinstance(item, list):
             item = item[0]
         return item
-    
+
     # Patient directory: <PatientName> or <PatientID> or <StudyInstanceUID>.
     patient_directory = None
     if "PatientName" in meta_data and meta_data["PatientName"]:
@@ -169,10 +169,10 @@ def get_series_directory(meta_data):
             raise Exception("Cannot determine series directory")
 
     series_directory = "_".join(series_directory).replace(os.path.sep, "_")
-    
+
     path = os.path.join(patient_directory, study_directory, series_directory)
     path = "".join(
         c for c in unicodedata.normalize("NFD", path)
         if unicodedata.category(c) != "Mn")
-    
+
     return path

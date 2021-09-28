@@ -9,26 +9,26 @@ import sphinx.ext.autodoc.directive
 def main():
     here = pathlib.Path(__file__).parent
     docs = here
-    
+
     documenter = Autodocumenter(docs)
 
     environment = jinja2.Environment(
         loader=jinja2.FileSystemLoader(documenter.app.srcdir))
     environment.globals["autodoc"] = documenter.autodoc
-    
+
     for path in docs.rglob("*.rst.in"):
         template = environment.get_template(str(path.relative_to(docs)))
         contents = template.render()
-        
+
         destination = path.parent/path.stem
         destination.write_text(contents)
-    
+
     for path in docs.rglob("*.rstw"):
         subprocess.check_call(["pweave", path.name], cwd=path.parent)
 
 class Autodocumenter(object):
     def __init__(self, docs):
-        
+
         self.app = sphinx.application.Sphinx(
             docs, docs, docs/"_build", docs/"_build"/"doctrees", None)
 
@@ -41,13 +41,13 @@ class Autodocumenter(object):
 
     def autodoc(self, object_type, name):
         DocumenterClass = self.app.registry.documenters[object_type]
-        
+
         options = (
-            {"members": None, "undoc-members": None} 
+            {"members": None, "undoc-members": None}
             if object_type in ["class", "module"] else {})
         options = sphinx.ext.autodoc.directive.process_documenter_options(
             DocumenterClass, self.environment.config, options)
-        
+
         params = sphinx.ext.autodoc.directive.DocumenterBridge(
             self.environment, self.reporter, options, 0, self.state)
         documenter = DocumenterClass(params, name)

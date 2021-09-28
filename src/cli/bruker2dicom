@@ -16,7 +16,7 @@ def main():
     print(
       "WARNING: bruker2dicom is deprecated. "
       "Use 'dicomifier to-dicom' instead.")
-    
+
     parser = argparse.ArgumentParser(
         description="Convert Bruker images to DICOM")
     subparsers = parser.add_subparsers(help="Sub-commands help")
@@ -34,8 +34,8 @@ def main():
     convert_parser = subparsers.add_parser(
         "convert", help="Convert Bruker images")
     convert_parser.add_argument(
-        "sources", type=pathlib.Path, nargs="+", 
-        metavar="source", 
+        "sources", type=pathlib.Path, nargs="+",
+        metavar="source",
         help="Directories or PvDataset archives containing the Bruker data")
     convert_parser.add_argument(
         "destination", type=pathlib.Path, help="Output directory")
@@ -57,13 +57,13 @@ def main():
     convert_parser.set_defaults(function=convert)
 
     arguments = vars(parser.parse_args())
-    
+
     if "function" not in arguments:
         parser.error("too few arguments")
 
     verbosity = arguments.pop("verbosity")
     logging.basicConfig(
-        level=verbosity.upper(), 
+        level=verbosity.upper(),
         format="%(levelname)s - %(name)s: %(message)s")
 
     function = arguments.pop("function")
@@ -83,5 +83,5 @@ def convert(sources, destination, transfer_syntax, layout, dicomdir, multiframe)
     return dicomifier.commands.to_dicom.action(
         sources, destination, transfer_syntax, layout, dicomdir, multiframe)
 
-if __name__ == "__main__": 
+if __name__ == "__main__":
     sys.exit(main())

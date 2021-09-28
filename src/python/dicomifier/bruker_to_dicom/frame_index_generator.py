@@ -14,13 +14,13 @@ class FrameIndexGenerator(object):
     """ Generate the indices to iterate through the frame groups of a Bruker
         data set.
     """
-    
+
     def __init__(self, data_set):
         self._frame_groups = []
         self._frames_count = 0
         self._dependent_fields = []
         self._strides = []
-        
+
         frame_groups = []
         for description in data_set.get("VisuFGOrderDesc", []):
             frame_count, name, label, begin, fields_count = description
@@ -29,10 +29,10 @@ class FrameIndexGenerator(object):
                 fields = []
             else:
                 fields = [
-                    x[0] for x in 
+                    x[0] for x in
                     data_set["VisuGroupDepVals"][begin:begin+fields_count]]
             if (
-                    name == "FG_MOVIE" and label == "diffusion" 
+                    name == "FG_MOVIE" and label == "diffusion"
                     and data_set["VisuCreatorVersion"][0] < "6"):
                 # Normalize diffusion frame group of PV < 6
                 name = "FG_DIFFUSION"
@@ -42,42 +42,42 @@ class FrameIndexGenerator(object):
         # order, while FrameIndexGenerator uses outermost-to-innermost order.
         # Invert now, to match the order of FrameIndexGenerator.
         self.frame_groups = frame_groups[::-1]
-    
+
     def __iter__(self):
         return itertools.product(
             *[range(count) for count, _, _ in self.frame_groups])
-    
+
     def get_linear_index(self, index):
         """ Return the linear index associated to the multi-dimensional index.
         """
-        
+
         return numpy.dot(index[::-1], self._strides) if self._frames_count else 0
-    
+
     @property
     def frame_groups(self):
         return self._frame_groups
-    
+
     @frame_groups.setter
     def frame_groups(self, value):
         self._frame_groups = value
-        
+
         shape = [count for count, _, _ in self._frame_groups][::-1]
-        
+
         self._frames_count = numpy.cumprod(shape)[-1] if shape else 0
         self._dependent_fields = list(
             itertools.chain(*[fields for _, _, fields in self.frame_groups]))
         self._strides = numpy.cumprod([1]+shape[:-1])
-    
+
     @property
     def frames_count(self):
         """ Total number of frames.
         """
-        
+
         return max(1, self._frames_count)
-    
+
     @property
     def dependent_fields(self):
         """ Names of all fields mentioned in the frame groups.
         """
-        
+
         return self._dependent_fields

@@ -15,12 +15,12 @@ foreach(test_file ${tests})
         libdicomifier
         ${Boost_LIBRARIES} ${JsonCpp_LIBRARIES})
 
-    file(READ ${test_file} content)    
+    file(READ ${test_file} content)
 
     set(pattern "BOOST_(AUTO|FIXTURE)_TEST_CASE\\(([^),]+)")
-    
+
     string(REGEX MATCHALL ${pattern} cases ${content})
-    
+
     foreach(case ${cases})
         string(REGEX REPLACE ${pattern} "\\2" case ${case})
         add_test("${test}_${case}" "${test}" "--run_test=${case}")

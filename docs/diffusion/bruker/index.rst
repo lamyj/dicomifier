@@ -38,13 +38,13 @@ All meta-data are loaded from the *method* files in each series directory.
     import glob
     import os
     import subprocess
-    
+
     import dicomifier
     import nibabel
     import numpy
     import pandas
     import tabulate
-    
+
     if not os.path.isdir("../../../tests/data/input"):
         subprocess.call(["../../../tests/download_data"])
     root = "../../../tests/data"
@@ -52,9 +52,9 @@ All meta-data are loaded from the *method* files in each series directory.
         "rope": os.path.join(root, "input", "20180818_175759_Rope_ChosenOne_1_2"),
         "rat": os.path.join(root, "input", "20171114_094354_Plateforme_R17_06_1_2")
     }
-    
+
     series = {"rope": [5,6,7], "rat": [6,8,9,10,11,12,13]}
-    
+
     data = {}
     for name in series:
         data[name] = {}
@@ -124,14 +124,14 @@ With those two remarks, it is possible to define the directions of the diffusion
 .. code:: python
 
     directions_subject = {"rope": {}, "rat": {}}
-    
+
     for name, series in data.items():
         for s, d in series.items():
             grad_vec = get_array(d["PVM_DwGradVec"])
             # Avoid divide-by-zero
             grad_vec /= numpy.maximum(
                 1e-20, numpy.linalg.norm(grad_vec, axis=1))[:,None]
-        
+
             orientation = get_array(d["PVM_SPackArrGradOrient"])[0]
             # NOTE: use transpose, cf. previous remark
             directions_subject[name][s] = numpy.einsum(

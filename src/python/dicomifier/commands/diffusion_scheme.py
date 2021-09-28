@@ -14,28 +14,28 @@ import nibabel
 
 def setup(subparsers):
     parser = subparsers.add_parser(
-        "diffusion-scheme", aliases=["diffusion", "diff"], 
-        description="Convert dMRI meta-data stored in JSON", 
+        "diffusion-scheme", aliases=["diffusion", "diff"],
+        description="Convert dMRI meta-data stored in JSON",
         help="Convert dMRI meta-data")
-    
+
     parser.add_argument("source", type=pathlib.Path, help="Source JSON file")
     parser.add_argument(
-        "format", choices=["mrtrix", "fsl"], 
+        "format", choices=["mrtrix", "fsl"],
         help="Output format. MRtrix expects a single scheme file, FSL expects "
             "two files (bvecs and bvals, in that order)")
     parser.add_argument(
-        "destinations", nargs="+", type=pathlib.Path, 
+        "destinations", nargs="+", type=pathlib.Path,
         metavar="destination", help="Output file")
     parser.add_argument(
-        "--image", "-i", type=pathlib.Path, 
+        "--image", "-i", type=pathlib.Path,
         help="Image file for formats using image-based direction coordinates")
-    
+
     return parser
 
 def action(source, format, destinations, image):
     with source.open() as fd:
         data = json.load(fd)
-    
+
     scheme = None
     for name in ["standard", "siemens_csa", "ge_private"]:
         try:
@@ -45,7 +45,7 @@ def action(source, format, destinations, image):
             pass
         if scheme is not None:
             break
-    
+
     if scheme is None:
         raise NotImplementedError("Could not read diffusion data")
     globals()["to_{}".format(format)](scheme, destinations, image)
@@ -57,7 +57,7 @@ def to_mrtrix(scheme, destinations, image):
 def to_fsl(scheme, destinations, image):
     if len(destinations) != 2:
         raise Exception("Destinations must contain bvecs and bvals files")
-    
+
     image = nibabel.load(str(image))
     with destinations[0].open("w") as bvecs_fd, destinations[1].open("w") as bvals_fd:
         dicomifier.nifti.diffusion.to_fsl(

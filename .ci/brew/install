@@ -27,7 +27,7 @@ for PACKAGE in boost cmake ninja odil pkg-config pybind11; do
             COMMAND="upgrade"
         fi
     fi
-    
+
     if [ -n "${COMMAND}" ]; then
         brew ${COMMAND} ${PACKAGE}
     fi

@@ -13,7 +13,7 @@ import odil
 class FlatDICOMWriter(object):
     """ Write DICOM files in a common directory.
     """
-    
+
     def __init__(self, root, iso_9660, transfer_syntax):
         self.root = str(root)
         self.iso_9660 = iso_9660

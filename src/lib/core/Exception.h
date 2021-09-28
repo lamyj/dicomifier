@@ -24,10 +24,10 @@ public:
 
     /// @brief Destructor.
     virtual ~Exception() noexcept;
-    
+
     /// @brief Return the reason for the exception.
     virtual const char* what() const noexcept;
-    
+
 protected:
     /// @brief Message of the exception.
     std::string _message;

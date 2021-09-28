@@ -34,16 +34,16 @@ def mr_image_storage(bruker_data_set, transfer_syntax):
         study.GeneralStudy, study.PatientStudy,
         series.GeneralSeries + [(None, "Modality", 1, lambda d,g,i: ["MR"])],
         frame_of_reference.FrameOfReference,
-        equipment.GeneralEquipment, 
-        image.GeneralImage, image.ImagePlane, image.ImagePixel, 
+        equipment.GeneralEquipment,
+        image.GeneralImage, image.ImagePlane, image.ImagePixel,
         mr.MRImage,
         [
             (
                 None, "PixelValueTransformationSequence", 1,
                 lambda bruker_data_set, generator, frame_index: [
                     convert.convert_module(
-                        bruker_data_set, odil.DataSet(), 
-                        # NOTE: mr.MRDiffusion is a functional group, we use 
+                        bruker_data_set, odil.DataSet(),
+                        # NOTE: mr.MRDiffusion is a functional group, we use
                         # its module only
                         image.PixelValueTransformation[2],
                         frame_index, generator, vr_finder_function)])
@@ -53,37 +53,37 @@ def mr_image_storage(bruker_data_set, transfer_syntax):
                 None, "MRDiffusionSequence", 3,
                 lambda bruker_data_set, generator, frame_index: [
                     convert.convert_module(
-                        # NOTE: mr.MRDiffusion is a functional group, we use 
+                        # NOTE: mr.MRDiffusion is a functional group, we use
                         # its module only
                         bruker_data_set,odil.DataSet(), mr.MRDiffusion[2],
-                        frame_index, generator, vr_finder_function)] 
+                        frame_index, generator, vr_finder_function)]
                     if "FG_DIFFUSION" in [x[1] for x in generator.frame_groups]
                     else None)
         ],
         image.SOPCommon + [
             (
-                None, "SOPClassUID", 1, 
+                None, "SOPClassUID", 1,
                 lambda d, g, i: [odil.registry.MRImageStorage]),
             (
-                None, "ContributingEquipmentSequence", 3, 
+                None, "ContributingEquipmentSequence", 3,
                 lambda d, g, i: [image.get_frame_index(g, i)])]
     ]
 
     vr_finder_object = odil.VRFinder()
     vr_finder_function = lambda tag: vr_finder_object(
         tag, dicom_data_set, transfer_syntax)
-    
+
     generator = FrameIndexGenerator(bruker_data_set)
     for frame_index in generator:
         dicom_data_set = odil.DataSet()
         dicom_data_set.add("SpecificCharacterSet", ["ISO_IR 192"])
-        
+
         for module in modules:
             convert.convert_module(
                 bruker_data_set, dicom_data_set, module,
                 frame_index, generator, vr_finder_function)
-        
-        # FIXME: storing the Bruker meta-data in all instances is rather 
+
+        # FIXME: storing the Bruker meta-data in all instances is rather
         # inefficient. It can amount to over 50 % of the total size of the
         # DICOM file
         # dict_files = {}

@@ -14,12 +14,12 @@ The b-matrix is either missing or encoded in a binary vendor-specific field.
 To validate that the three fields mentioned above are the directions of the diffusion gradient, we can plot them to check that they are distributed on the surface of a sphere.
 
 .. code-block:: python
-    
+
     import matplotlib.pyplot
     from mpl_toolkits.mplot3d import Axes3D
     import numpy
     import odil
-    
+
     data_sets = [
         odil.Reader.read_file("./TEST_DIFF_GEDISCOVERY750w/a/z{}".format(
                 "{:02d}".format(x) if x<100 else x
@@ -30,30 +30,30 @@ To validate that the three fields mentioned above are the directions of the diff
         for d in data_sets
     ])
     origin = numpy.zeros((len(directions), 3))
-    
+
     figure = matplotlib.pyplot.figure(figsize=(8,8))
     plot = figure.add_subplot(1, 1, 1, projection="3d")
     plot.set_proj_type("ortho")
-    
+
     plot.quiver(
         *list(zip(*origin)), *list(zip(*directions)),
         arrow_length_ratio=0, normalize=True)
     plot.scatter(*list(zip(*directions)))
-    
+
     # draw sphere
     u, v = numpy.mgrid[0:2*numpy.pi:20j, 0:numpy.pi:10j]
     x = numpy.cos(u)*numpy.sin(v)
     y = numpy.sin(u)*numpy.sin(v)
     z = numpy.cos(v)
     plot.plot_wireframe(x, y, z, color="k", lw=0.5, alpha=0.5)
-    
+
     plot.set_xlim(-1, 1)
     plot.set_ylim(-1, 1)
     plot.set_zlim(-1, 1)
     plot.set_axis_off()
-    
+
 .. figure:: quiver.png
     :alt: Directions of diffusion gradient
     :scale: 25%
-    
+
     Directions of diffusion gradient

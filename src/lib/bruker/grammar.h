@@ -18,7 +18,7 @@
 
 namespace dicomifier
 {
-    
+
 namespace bruker
 {
 
@@ -37,28 +37,28 @@ private:
     {
         static bool const expect_dot = true;
     };
-    
+
     boost::spirit::qi::rule<TIterator, std::vector<Field>()> dataset;
-    
+
     boost::spirit::qi::rule<TIterator> comment;
-    
+
     boost::spirit::qi::rule<TIterator, Field()> field;
     boost::spirit::qi::rule<TIterator, std::string()> identifier;
     boost::spirit::qi::rule<TIterator, std::vector<int>()> shape;
-    
+
     boost::spirit::qi::rule<TIterator, std::vector<Field::Item>()> value;
-    
+
     boost::spirit::qi::rule<TIterator, std::vector<Field::Item>()> numbers;
     boost::spirit::qi::rule<TIterator, std::vector<Field::Item>()> quoted_strings;
     boost::spirit::qi::rule<TIterator, std::vector<Field::Item>()> atoms;
     boost::spirit::qi::rule<TIterator, std::vector<Field::Item>()> structs;
-    
+
     boost::spirit::qi::rule<TIterator, std::string()> unquoted_string;
     boost::spirit::qi::rule<TIterator, std::vector<Field::Item>()> struct_;
-    
+
     boost::spirit::qi::rule<TIterator, std::string()> quoted_string;
     boost::spirit::qi::rule<TIterator, char()> escaped_char;
-    
+
     boost::spirit::qi::rule<TIterator, std::string()> atom;
 
     boost::spirit::qi::real_parser<double, strict_real_policies<double> > real;

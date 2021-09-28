@@ -102,7 +102,7 @@ BOOST_AUTO_TEST_CASE(Comparison)
     dicomifier::bruker::Field const field4("name", {3,4,5}, {"foo"});
     dicomifier::bruker::Field const field5("name", {1,2}, {"bar"});
     dicomifier::bruker::Field const field6("name", {1,2}, {42L});
-    
+
     BOOST_REQUIRE(field1 == field2); BOOST_REQUIRE(!(field1 != field2));
     BOOST_REQUIRE(field1 != field3); BOOST_REQUIRE(!(field1 == field3));
     BOOST_REQUIRE(field1 != field4); BOOST_REQUIRE(!(field1 == field4));

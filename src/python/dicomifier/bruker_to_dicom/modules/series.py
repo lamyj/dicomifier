@@ -16,7 +16,7 @@ def _get_series_number(data_set, generator, index):
         experiment = int(data_set["VisuExperimentNumber"][0])
         processing = int(data_set["VisuProcessingNumber"][0])
         series_number = (experiment * 2**16)+processing
-    
+
     return [series_number]
 
 GeneralSeries = [ # PS 3.3, C.7.3.1
@@ -42,7 +42,7 @@ GeneralSeries = [ # PS 3.3, C.7.3.1
                     "Head_Supine": "HFS", "Head_Prone": "HFP",
                     "Head_Left" : "HFDL", "Head_Right": "HFDR",
                     "Foot_Supine": "FFS", "Foot_Prone": "FFP",
-                    "Foot_Left": "FFDL", "Foot_Right": "FFDR" 
+                    "Foot_Left": "FFDL", "Foot_Right": "FFDR"
                 }[d["VisuSubjectPosition"][0]]])),
     ("VisuSubjectType", "AnatomicalOrientationType", 3, None),
 ]

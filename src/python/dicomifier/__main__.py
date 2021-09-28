@@ -14,11 +14,11 @@ from . import commands
 
 def main():
     parser = argparse.ArgumentParser(description="Dicomifier")
-    
+
     parser.add_argument(
         "--verbosity", "-v", dest="main_verbosity",
         choices=["warning", "info", "debug"], default="warning")
-    
+
     subparsers = parser.add_subparsers(help="Available commands")
     command_parsers = {}
     for name in ["list", "search", "to_dicom", "to_nifti", "diffusion_scheme"]:
@@ -29,21 +29,21 @@ def main():
             choices=["warning", "info", "debug"], default="warning")
         subparser.set_defaults(action=command.action)
         command_parsers[command.action] = subparser
-    
+
     arguments = vars(parser.parse_args())
-    
+
     if "action" not in arguments:
         parser.print_help()
         return 1
-    
+
     main_verbosity = arguments.pop("main_verbosity").upper()
     child_verbosity = arguments.pop("child_verbosity").upper()
     verbosity = min(
         [getattr(logging, x) for x in [main_verbosity, child_verbosity]])
     logging.basicConfig(
-        level=verbosity, 
+        level=verbosity,
         format="%(levelname)s - %(name)s: %(message)s")
-    
+
     action = arguments.pop("action")
     try:
         action(**arguments)

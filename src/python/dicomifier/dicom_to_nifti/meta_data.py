@@ -14,14 +14,14 @@ import odil
 from .. import MetaData
 
 def get_meta_data(stack, cache=None):
-    """ Get the meta-data of the current stack 
+    """ Get the meta-data of the current stack
 
         will keep the priority order for repeting element with the following rules:
         low_priority = per_frame_seq
         high_priority = top_level (data_set)
         (if the same element is present in both shared and per_frame,
         we will keep the element of the shared seq)
-        
+
         :param stack: collection of data set and an associated frame number for
             multi-frame datasets
         :param cache: optional cache of meta-data for multi-frame data sets
@@ -48,26 +48,26 @@ def get_meta_data(stack, cache=None):
         "PerFrameFunctionalGroupsSequence",
     ]
     skipped = set([getattr(odil.registry, x) for x in skipped])
-    
+
     # Multi-frame groups to keep as-as in the meta-data (the elements of other
     # multi-frame groups are set at top-level).
     no_recurse = [
         "MRDiffusionSequence"
     ]
     no_recurse = set([getattr(odil.registry, x) for x in no_recurse])
-    
+
     if cache is None:
         cache = {}
 
-    # Populate the cache with the elements at top-level and in shared 
+    # Populate the cache with the elements at top-level and in shared
     # functional groups
     for data_set, frame in stack:
         sop_instance_uid = data_set[odil.registry.SOPInstanceUID][0]
         if sop_instance_uid in cache:
             continue
-            
+
         cache[sop_instance_uid] = {}
-        
+
         for tag, value in data_set.items():
             if tag in skipped:
                 continue
@@ -75,8 +75,8 @@ def get_meta_data(stack, cache=None):
         if frame is not None:
             groups = data_set[odil.registry.SharedFunctionalGroupsSequence][0]
             _fill_meta_data_dictionary(
-                groups, 
-                lambda tag, value: cache[sop_instance_uid].update({tag: value}), 
+                groups,
+                lambda tag, value: cache[sop_instance_uid].update({tag: value}),
                 skipped, no_recurse)
 
     # Get the values of all (data_set, frame_index)
@@ -93,19 +93,19 @@ def get_meta_data(stack, cache=None):
             # Fetch frame-specific elements
             groups = data_set[odil.registry.PerFrameFunctionalGroupsSequence][frame]
             _fill_meta_data_dictionary(
-                groups, 
-                lambda tag, value: 
-                    elements.setdefault(tag, {}).update({i: value}), 
+                groups,
+                lambda tag, value:
+                    elements.setdefault(tag, {}).update({i: value}),
                 skipped, no_recurse)
-    
+
     # Convert dictionary with possible holes to list: iteration is quicker.
     elements = {
         tag: [values.get(i) for i in range(len(stack))]
         for tag, values in elements.items()}
-        
+
     meta_data = MetaData()
     specific_character_set = odil.Value.Strings()
-    
+
     # WARNING: we need to process items in tag order since SpecificCharacterSet
     # must be processed before any non-ASCII element is.
     for tag, values in sorted(elements.items()):
@@ -120,25 +120,25 @@ def get_meta_data(stack, cache=None):
             if (specific_character_set
                     and isinstance(specific_character_set[0], list)):
                 value = [
-                    convert_element(x, specific_character_set[i]) 
+                    convert_element(x, specific_character_set[i])
                     for i, x in enumerate(values)]
             else:
                 value = [
-                    convert_element(x, specific_character_set) 
+                    convert_element(x, specific_character_set)
                     for x in values]
 
         if tag == odil.registry.SpecificCharacterSet:
             if value and isinstance(value[0], list):
                 specific_character_set = [
-                    odil.Value.Strings([x.encode() for x in item]) 
+                    odil.Value.Strings([x.encode() for x in item])
                     for item in value]
             else:
                 specific_character_set = odil.Value.Strings(
                     [x.encode() for x in value])
-        
+
         tag_name = get_tag_name(tag)
         meta_data[tag_name] = value
-    
+
     return meta_data
 
 def get_tag_name(tag):
@@ -154,7 +154,7 @@ def get_tag_name(tag):
 
 def convert_element(element, specific_character_set):
     """ Convert a DICOM element to its NIfTI+JSON representation: the "Value"
-        (or "InlineBinary") attribute of its standard DICOM JSON 
+        (or "InlineBinary") attribute of its standard DICOM JSON
         representation.
     """
 

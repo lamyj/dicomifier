@@ -27,4 +27,3 @@ dicomifier.dicom_to_nifti.series
    :module: dicomifier.dicom_to_nifti.series
 
    Split specified DICOM files in series.
-

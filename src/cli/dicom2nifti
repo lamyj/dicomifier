@@ -14,7 +14,7 @@ def main():
     print(
       "WARNING: dicom2nifti is deprecated. "
       "Use 'dicomifier to-nifti' instead.")
-    
+
     parser = argparse.ArgumentParser(description="Convert DICOM to NIfTI")
     parser.add_argument(
         "sources", nargs="+", type=pathlib.Path,
@@ -22,7 +22,7 @@ def main():
     parser.add_argument(
         "destination", type=pathlib.Path, help="Output directory")
     parser.add_argument(
-        "--dtype", "-d", default=None, 
+        "--dtype", "-d", default=None,
         type=lambda x: None if x is None else getattr(numpy, x),
         help="Pixel type")
     parser.add_argument(
@@ -34,7 +34,7 @@ def main():
     arguments = vars(parser.parse_args())
     verbosity = arguments.pop("verbosity")
     logging.basicConfig(
-        level=verbosity.upper(), 
+        level=verbosity.upper(),
         format="%(levelname)s - %(name)s: %(message)s")
 
     try:

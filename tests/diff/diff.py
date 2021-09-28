@@ -18,12 +18,12 @@ def diff(v1, v2, exclusions=None):
             result = differences
     else:
         result = diff_scalars(v1, v2)
-    
+
     return result
 
 def diff_mappings(m1, m2, exclusions=None):
     result = Differences()
-    
+
     keys = set(m1.keys()) | set(m2.keys())
     for key in keys:
         if key in (exclusions or set()):
@@ -36,25 +36,25 @@ def diff_mappings(m1, m2, exclusions=None):
             differences = diff(m1[key], m2[key], exclusions)
             if differences is not None:
                 result.update[key] = differences
-    
+
     return result if any([result.insert, result.remove, result.update]) else None
 
 def diff_sequences(s1, s2, exclusions=set()):
     result = Differences()
-    
+
     length = min(len(s1), len(s2))
     for index in range(length):
         differences = diff(s1[index], s2[index], exclusions)
         if differences is not None:
             result.update[index] = differences
-    
+
     if length == len(s1):
         for index in range(length, len(s2)):
             result.insert[index] = s2[index]
     else:
         for index in range(length, len(s1)):
             result.remove[index] = s1[index]
-    
+
     return result if any([result.insert, result.remove, result.update]) else None
 
 def diff_scalars(s1, s2):
@@ -79,5 +79,5 @@ def print_differences(differences, indent=0):
         for key in sorted(differences):
             print("{}{}".format(indent*"  ", key))
             print_differences(differences[key], 1+indent)
-    else: 
+    else:
         print("{}{}".format(indent*"  ", differences))

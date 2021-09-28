@@ -79,7 +79,7 @@ dw_dir = get_array(data["rope"][5]["PVM_DwDir"])
 effective_b_values = get_array(data["rope"][5]["PVM_DwEffBval"])
 dw_grad_vec = get_array(data["rope"][5]["PVM_DwGradVec"])
 cosines = numpy.einsum(
-    "ij,ij->i", 
+    "ij,ij->i",
     dw_dir, dw_grad_vec[1:]/numpy.linalg.norm(dw_grad_vec[1:], axis=1)[:,None])
 df = pandas.DataFrame({
     "DwEffBval": numpy.round(effective_b_values).astype(int),
@@ -111,7 +111,7 @@ for s, d in data["rope"].items():
     m = get_array(d["PVM_SPackArrGradOrient"])[0].round(1)
     print(
         "- {}: {}".format(
-            s, 
+            s,
             r":math:`\left(\begin{{array}}{{rrr}}{}\end{{array}}\right)`".format(
                 r" \\ ".join([" & ".join([str(x) for x in r]) for r in m]))))
 @
@@ -129,7 +129,7 @@ for name, series in data.items():
         # Avoid divide-by-zero
         grad_vec /= numpy.maximum(
             1e-20, numpy.linalg.norm(grad_vec, axis=1))[:,None]
-    
+
         orientation = get_array(d["PVM_SPackArrGradOrient"])[0]
         # NOTE: use transpose, cf. previous remark
         directions_subject[name][s] = numpy.einsum(
@@ -154,7 +154,7 @@ nifti_paths = {
 }
 
 planes = {
-    "rope": {5: 0, 6: 0, 7: 0}, 
+    "rope": {5: 0, 6: 0, 7: 0},
     "rat": {6: 2, 8: 2, 9: 0, 10: 0, 11: 1, 12: 1, 13: 2}}
 focus = {"rope": "9.99,-1.24,3.96", "rat": "-0.59,-5.38,3.79"}
 intensity = {"rope": 0.2, "rat": 0.4}
@@ -162,7 +162,7 @@ for name, series in data.items():
     for s, d in series.items():
         if os.path.isfile("{}_{}.png".format(name, s)):
             continue
-        
+
         # Write the diffusion scheme in MRtrix format
         directions = directions_subject[name][s]
         b_values = d["PVM_DwEffBval"].value
@@ -171,7 +171,7 @@ for name, series in data.items():
             for direction, b_value in zip(directions, b_values):
                 fd.write(" ".join(str(x) for x in list(direction)+[b_value]))
                 fd.write("\n")
-        
+
         # Estimate the diffusion tensor from the DWI series
         subprocess.check_call([
             "dwi2tensor", "-force", "-quiet", "-grad", "scheme",
@@ -180,15 +180,15 @@ for name, series in data.items():
                 )[0],
             "dt.mif.gz"
         ])
-        
+
         subprocess.check_call([
-            "tensor2metric", "-force", "-quiet", 
+            "tensor2metric", "-force", "-quiet",
             "-vec", "e1.nii.gz", "dt.mif.gz"])
         subprocess.call([
-            "mrview", "e1.nii.gz", 
+            "mrview", "e1.nii.gz",
             "-intensity", "0,{}".format(intensity[name]),
-            "-focus", focus[name], "-plane", str(planes[name][s]), 
-            "-noannotations", "-mode", "1", "-capture.grab", 
+            "-focus", focus[name], "-plane", str(planes[name][s]),
+            "-noannotations", "-mode", "1", "-capture.grab",
             "-exit"])
         os.rename("screenshot0000.png", "{}_{}.png".format(name, s))
 
@@ -226,40 +226,40 @@ comparisons = {"rope": {5: [6, 7]}, "rat": {6: [8, 13], 9: [10], 11: [12]}}
 def register(fixed, moving, destination):
     if os.path.isfile(destination):
         return
-    
+
     subprocess.check_call([
         "ImageMath", "4", "fixed.nii.gz", "ExtractSlice", fixed, "0"])
     subprocess.check_call([
         "ImageMath", "4", "moving.nii.gz", "ExtractSlice", moving, "0"])
     subprocess.check_call([
         "antsRegistrationSyNQuick.sh", "-d", "3",
-        "-f", "fixed.nii.gz", "-m", "moving.nii.gz", "-o", "registered", 
+        "-f", "fixed.nii.gz", "-m", "moving.nii.gz", "-o", "registered",
         "-t", "r", "-n", "4"])
     subprocess.check_call([
-        "antsApplyTransforms", "-e", "time-series", 
-        "-i", moving, "-r", "fixed.nii.gz", "-o", destination, 
+        "antsApplyTransforms", "-e", "time-series",
+        "-i", moving, "-r", "fixed.nii.gz", "-o", destination,
         "-t", "registered0GenericAffine.mat"])
     files = [
         "fixed.nii.gz", "moving.nii.gz", "registered0GenericAffine.mat",
         "registeredWarped.nii.gz", "registeredInverseWarped.nii.gz"]
-    for file_ in files: 
+    for file_ in files:
         os.unlink(file_)
 
 def estimate_tensors(image, directions, b_values, prefix):
     if os.path.isfile("{}_e1.nii.gz".format(prefix)):
         return
-    
+
     b_values = [100*int(x/100) for x in b_values]
     with open("scheme", "w") as fd:
         for direction, b_value in zip(directions, b_values):
             fd.write(" ".join(str(x) for x in list(direction)+[b_value])+"\n")
     subprocess.check_call([
-        "dwi2tensor", "-force", "-quiet", "-grad", "scheme", 
+        "dwi2tensor", "-force", "-quiet", "-grad", "scheme",
         image, "{}_dt.nii.gz".format(prefix)])
     subprocess.check_call([
-        "tensor2metric", "-force", "-quiet", "-modulate", "none", 
+        "tensor2metric", "-force", "-quiet", "-modulate", "none",
         "-vec", "{}_e1.nii.gz".format(prefix), "{}_dt.nii.gz".format(prefix)])
-        
+
     os.unlink("scheme")
 
 for name in comparisons:
@@ -267,7 +267,7 @@ for name in comparisons:
     results = name
     if not os.path.isdir(results):
         os.makedirs(results)
-    
+
     for fixed_series in comparisons[name]:
         fixed = glob.glob("{}/*/*/{}*/1.nii".format(nifti, fixed_series))[0]
         estimate_tensors(
@@ -275,24 +275,24 @@ for name in comparisons:
             data[name][fixed_series]["PVM_DwEffBval"].value,
             "{}/{}".format(results, fixed_series))
         fixed_e1 = nibabel.load("{}/{}_e1.nii.gz".format(results, fixed_series))
-        
+
         for moving_series in comparisons[name][fixed_series]:
             moving = glob.glob(
                 "{}/*/*/{}*/1.nii".format(nifti, moving_series))[0]
             moving_in_fixed = "{}/{}_in_{}".format(
                 results, moving_series, fixed_series)
-            
+
             if os.path.isfile("{}_angle.png".format(moving_in_fixed)):
                 continue
-            
+
             register(fixed, moving, "{}.nii.gz".format(moving_in_fixed))
-            
+
             estimate_tensors(
-                "{}.nii.gz".format(moving_in_fixed), 
+                "{}.nii.gz".format(moving_in_fixed),
                 directions_subject[name][moving_series],
                 data[name][moving_series]["PVM_DwEffBval"].value,
                 moving_in_fixed)
-            
+
             moving_e1 = nibabel.load("{}_e1.nii.gz".format(moving_in_fixed))
             dot = numpy.einsum(
                 "ijkl,ijkl->ijk", fixed_e1.get_data(), moving_e1.get_data())
@@ -300,16 +300,16 @@ for name in comparisons:
             angle[angle>numpy.pi/2] = angle[angle>numpy.pi/2]-numpy.pi
             angle = numpy.abs(angle)
             nibabel.save(
-                nibabel.Nifti1Image(numpy.rad2deg(angle), fixed_e1.affine), 
+                nibabel.Nifti1Image(numpy.rad2deg(angle), fixed_e1.affine),
                 "{}_angle.nii.gz".format(moving_in_fixed))
-            
+
             subprocess.call([
-                "mrview", fixed, 
+                "mrview", fixed,
                 "-overlay.load", "{}_angle.nii.gz".format(moving_in_fixed),
-                "-overlay.intensity", "45,90", "-overlay.threshold_min", "45", 
-                "-overlay.colourmap", "3", 
-                "-focus", focus[name], 
-                "-plane", str(planes[name][fixed_series]), 
+                "-overlay.intensity", "45,90", "-overlay.threshold_min", "45",
+                "-overlay.colourmap", "3",
+                "-focus", focus[name],
+                "-plane", str(planes[name][fixed_series]),
                 "-noannotations", "-mode", "1", "-capture.grab", "-exit"])
             os.rename(
                 "screenshot0000.png", "{}_angle.png".format(moving_in_fixed))

@@ -21,6 +21,6 @@ dicomifier.bruker_to_dicom.io
 .. py:function:: get_bruker_info(directory)
    :module: dicomifier.bruker_to_dicom.io
 
-   Return basic information of a Bruker data set stored in the specified 
-   directory as a DICOM data set with the Patient, General Study, 
+   Return basic information of a Bruker data set stored in the specified
+   directory as a DICOM data set with the Patient, General Study,
    Patient Study, and General Series modules.

@@ -30,4 +30,3 @@ dicomifier.dicom_to_nifti.siemens
    :module: dicomifier.dicom_to_nifti.siemens
 
    Parse (as a nested dictionary) the ASCII version of protocol data.
-

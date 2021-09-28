@@ -13,7 +13,7 @@ GeneralEquipment = [ # PS 3.3, C.7.5.1
     ("VisuInstitution", "InstitutionName", 3, None),
     ("VisuStation", "StationName", 3, None),
     (
-        None, "SoftwareVersions", 3, 
+        None, "SoftwareVersions", 3,
         cached("__SoftwareVersions")(
             lambda d,g,i: d.get("VisuCreator", [])+d.get("VisuCreatorVersion", []))),
     ("VisuSystemOrderNumber", "DeviceSerialNumber", 3, None),

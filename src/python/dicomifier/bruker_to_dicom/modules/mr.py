@@ -17,7 +17,7 @@ MRImage = [ # PS 3.3, C.8.3.1
     (None, "ScanOptions", 2, lambda d,g,i: None),
     ("PVM_SpatDimEnum", "MRAcquisitionType", 2, None),
     (
-        "VisuAcqRepetitionTime", "RepetitionTime", 2, 
+        "VisuAcqRepetitionTime", "RepetitionTime", 2,
         cached("__RepetitionTime")(
             lambda d,g,i: d.get(
                 "VisuAcqRepetitionTime", d.get(
@@ -30,7 +30,7 @@ MRImage = [ # PS 3.3, C.8.3.1
     ("VisuAcqImagingFrequency", "ImagingFrequency", 3, None),
     ("VisuAcqImagedNucleus", "ImagedNucleus", 3, None),
     (
-        "VisuAcqImagingFrequency", "MagneticFieldStrength", 3, 
+        "VisuAcqImagingFrequency", "MagneticFieldStrength", 3,
         cached("__MagneticFieldStrength")(
             lambda d,g,i: [d["VisuAcqImagingFrequency"][0]/42.577480610])),
     (
@@ -51,7 +51,7 @@ EnhancedMRImage = [ # PS 3.3, C.8.13.1
         None, "ImageType", 3,
         cached("__ImageType")(
             lambda d,g,i: [
-                b"ORIGINAL", b"PRIMARY", b"", 
+                b"ORIGINAL", b"PRIMARY", b"",
                 d.get("RECO_image_type", [""])[0].encode("ascii")])),
     (None, "PixelPresentation", 1, lambda d,g,i: ["MONOCHROME"]),
     (None, "VolumetricProperties", 1, lambda d,g,i: ["VOLUME"]),
@@ -59,7 +59,7 @@ EnhancedMRImage = [ # PS 3.3, C.8.13.1
     ("VisuAcqImagedNucleus", "ResonantNucleus", 3, None),
     ("VisuAcqDate", "AcquisitionDateTime", 3, None),
     (
-        "VisuAcqImagingFrequency", "MagneticFieldStrength", 3, 
+        "VisuAcqImagingFrequency", "MagneticFieldStrength", 3,
         cached("__MagneticFieldStrength")(
             lambda d,g,i: [d["VisuAcqImagingFrequency"][0]/42.577480610])),
 ]
@@ -113,7 +113,7 @@ MRPulseSequence = [ # PS 3.3, C.8.13.4
 MRImageFrameType = [ # PS 3.3, C.8.13.5.1
     "MRImageFrameTypeSequence", False,
     [
-        (None, "FrameType", 1, lambda d,g,i: ["ORIGINAL", "PRIMARY"]), 
+        (None, "FrameType", 1, lambda d,g,i: ["ORIGINAL", "PRIMARY"]),
         (None, "PixelPresentation", 1, lambda d,g,i: ["MONOCHROME"]),
         (None, "VolumetricProperties", 1, lambda d,g,i: ["VOLUME"]),
         (None, "VolumeBasedCalculationTechnique", 1, lambda d,g,i : ["NONE"]),
@@ -125,7 +125,7 @@ MRTimingAndRelatedParameters = [ # PS 3.3, C.8.13.5.2
     [
         # WARNING : First argument cannot be None if present if FG
         (
-            "VisuAcqRepetitionTime", "RepetitionTime", 1, 
+            "VisuAcqRepetitionTime", "RepetitionTime", 1,
             cached("__RepetitionTime")(
                 lambda d,g,i: d.get(
                     "VisuAcqRepetitionTime", d.get(
@@ -139,7 +139,7 @@ MRFOVGeometry = [ # PS 3.3, C.8.13.5.3
     "MRFOVGeometrySequence", False,
     [
         (
-            "VisuAcqPhaseEncSteps", "MRAcquisitionPhaseEncodingStepsInPlane", 1, 
+            "VisuAcqPhaseEncSteps", "MRAcquisitionPhaseEncodingStepsInPlane", 1,
             None),
     ]
 ]
@@ -148,9 +148,9 @@ MREcho = [ # PS 3.3, C.8.13.5.4
     "MREchoSequence", False,
     [
         (
-            "VisuAcqEchoTime", "EffectiveEchoTime", 1, 
+            "VisuAcqEchoTime", "EffectiveEchoTime", 1,
             cached("__EffectiveEchoTime")(
-                lambda d,g,i: 
+                lambda d,g,i:
                     d.get("VisuAcqEchoTime", d.get("PVM_EchoTime", None)))),
     ]
 ]
@@ -176,17 +176,17 @@ def get_diffusion_data(data_set, what):
         # depend on the diffusion-sensitization gradient and not on the imaging
         # gradients.
         data_set["__Diffusion"] = [[], [], []]
-        
+
         ideal_b_values = set(data_set["PVM_DwBvalEach"])
         ideal_b_values.add(0)
         ideal_b_values = list(ideal_b_values)
-        
+
         # Map the effective b-values to the ideal b-values
         b_values = numpy.array(data_set["PVM_DwEffBval"])
         closest = numpy.argmin([abs(b_values - x) for x in ideal_b_values], 0)
         individual_b_values = numpy.array(ideal_b_values)[closest]
         data_set["__Diffusion"][0] = individual_b_values
-        
+
         # Normalize the directions, avoid divide-by-zero
         directions = numpy.reshape(data_set["PVM_DwGradVec"], (-1, 3))
         directions /= numpy.maximum(
@@ -197,7 +197,7 @@ def get_diffusion_data(data_set, what):
         # Store in cache
         data_set["__Diffusion"][1] = [
             odil.DataSet(DiffusionGradientOrientation=x) for x in directions]
-        
+
         b_matrices = numpy.reshape(data_set["PVM_DwBMat"], (-1, 3, 3))
         # Convert to patient coordinates
         b_matrices = [orientation.T @ m @ orientation for m in b_matrices]
@@ -205,17 +205,17 @@ def get_diffusion_data(data_set, what):
         data_set["__Diffusion"][2] = [
             odil.DataSet(**dict(zip(
                 [
-                    "DiffusionBValue{}".format(x) 
+                    "DiffusionBValue{}".format(x)
                     for x in ["XX", "XY", "XZ", "YY", "YZ", "ZZ"]],
                 [[x] for x in m[numpy.triu_indices(3)]])))
             for m in b_matrices]
-    
+
     return data_set["__Diffusion"][what]
 
 MRDiffusion = [ # PS 3.3, C.8.13.5.9
     "MRDiffusionSequence", False,
     [
-        # NOTE: VisuAcqDiffusionBMatrix does not exist in PV5. However, the 
+        # NOTE: VisuAcqDiffusionBMatrix does not exist in PV5. However, the
         # diffusion frame group is normalized in order to include it in its
         # dependent fields.
         (

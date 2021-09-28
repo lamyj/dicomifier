@@ -16,13 +16,13 @@ Patient= [ # PS 3.3, C.7.1.1
         "VisuSubjectSex", "PatientSex", 2,
         cached("__PatientSex")(
             lambda d,g,i: [{
-                    "MALE": "M", "FEMALE": "F", "UNDEFINED": "O", "UNKNOWN": "O", 
-                    None: None 
+                    "MALE": "M", "FEMALE": "F", "UNDEFINED": "O", "UNKNOWN": "O",
+                    None: None
                 }[d["VisuSubjectSex"][0]]])),
     ("VisuSubjectComment", "PatientComments", 3, None),
     (None, "PatientBreedDescription", 2, lambda d,g,i: None),
     (None, "PatientBreedCodeSequence", 2, lambda d,g,i: None),
     (None, "BreedRegistrationSequence", 2, lambda d,g,i: None),
     (None, "ResponsiblePerson", 2, lambda d,g,i: None),
-    (None, "ResponsibleOrganization", 2, lambda d,g,i: None) 
+    (None, "ResponsibleOrganization", 2, lambda d,g,i: None)
 ]

@@ -17,23 +17,23 @@ import odil
 
 def setup(subparsers):
     parser = subparsers.add_parser(
-        "to-nifti", aliases=["nifti", "nii"], 
-        description="Convert Bruker or DICOM data to NIfTI", 
+        "to-nifti", aliases=["nifti", "nii"],
+        description="Convert Bruker or DICOM data to NIfTI",
         help="Convert to NIfTI")
-    
+
     parser.add_argument(
         "sources", nargs="+", type=pathlib.Path,
-        help="Bruker directory, DICOM file, directory or DICOMDIR, or '-'", 
+        help="Bruker directory, DICOM file, directory or DICOMDIR, or '-'",
         metavar="source")
     parser.add_argument(
         "destination", type=pathlib.Path, help="Output directory")
     parser.add_argument(
-        "--dtype", "-d", default=None, 
+        "--dtype", "-d", default=None,
         type=lambda x: None if x is None else getattr(numpy, x),
         help="Pixel type")
     parser.add_argument(
         "--zip", "-z", action="store_true", help="Compress NIfTI files")
-    
+
     return parser
 
 def action(sources, destination, dtype, zip):
@@ -47,20 +47,20 @@ def action(sources, destination, dtype, zip):
             bruker_sources.append(source)
         else:
             dicom_sources.append(source)
-    
+
     directory = pathlib.Path(tempfile.mkdtemp())
     try:
         # Convert Bruker sources to DICOM
         for index, source in enumerate(bruker_sources):
             dicom_destination = directory/str(index)
             writer = dicomifier.bruker_to_dicom.io.NestedDICOMWriter(
-                dicom_destination, True, 
+                dicom_destination, True,
                 odil.registry.ImplicitVRLittleEndian)
-            
+
             dicomifier.bruker_to_dicom.convert.convert_directory(
                 source, False, True, writer)
             dicom_sources.append(dicom_destination)
-        
+
         # Convert all sources to NIfTI
         dicomifier.dicom_to_nifti.convert.convert_paths(
             dicom_sources, destination, zip, dtype)

@@ -25,7 +25,7 @@
 
 namespace dicomifier
 {
-    
+
 namespace bruker
 {
 
@@ -36,7 +36,7 @@ grammar<TIterator>
 {
     using boost::phoenix::at_c;
     using boost::phoenix::push_back;
-    
+
     using boost::spirit::qi::as_string;
     using boost::spirit::qi::char_;
     using boost::spirit::qi::eoi;
@@ -47,17 +47,17 @@ grammar<TIterator>
     using boost::spirit::qi::_val;
     using boost::spirit::qi::_1;
     using boost::spirit::qi::ascii::space;
-    
+
     // Do not use implicit action (i.e. %=): comments must be skipped
     dataset = (field[push_back(_val, _1)] | omit[comment]) % eol;
-    
+
     // No parser action: we just ignore comments
     comment = "$$" >> +(~char_("\n"));
-    
+
     // Do not use implicit action (i.e. %=): no shape for "scalar" fields
-    field = identifier[at_c<0>(_val) = _1] >> "=" >> 
+    field = identifier[at_c<0>(_val) = _1] >> "=" >>
         (
-            (shape[at_c<1>(_val) = _1] >> omit[*space] >> value[at_c<2>(_val) = _1]) | 
+            (shape[at_c<1>(_val) = _1] >> omit[*space] >> value[at_c<2>(_val) = _1]) |
             structs[at_c<2>(_val) = _1] |
             quoted_string[push_back(at_c<2>(_val), _1)] |
             // WARNING: for non-shaped, non-struct, unquoted values, the syntax
@@ -67,14 +67,14 @@ grammar<TIterator>
             (long_ >> &(eol|eoi))[push_back(at_c<2>(_val), _1)] |
             unquoted_string[push_back(at_c<2>(_val), _1)]
         );
-    
+
     identifier %= "##" >> +(~char_("="));
     // Shape has mandatory space after parenthesis to make a difference with array
     shape %= "(" >> omit[+space] >> (int_ % ("," >> *space)) >> omit[+space] >> ")";
-    
+
     value %= (numbers | quoted_strings | atoms | structs) >> omit[*char_(" ")];
-    
-    // Numbers and tokens *must* be separated with spaces, strings and 
+
+    // Numbers and tokens *must* be separated with spaces, strings and
     // structures but need not since they have delimiters.
     // Warning: number should be long_long for 32 bits architecture, else cannot parse number > 2^31
     numbers %= (real | long_) % +space;
@@ -82,16 +82,16 @@ grammar<TIterator>
     atoms %= atom % +space;
     // Do not use implicit action, since std::vector<Field::Item> is convertible to Field::Item
     structs = struct_[push_back(_val, _1)] % *space;
-    
+
     // Assume lines have been joined beforehand.
     unquoted_string %= as_string[*(~char_("\n"))];
-    
+
     // Array has no space after parenthesis to make a difference with shape
     struct_ %= "(" >> (real | long_ | quoted_string | struct_) % ("," >> *space) >> ")";
-    
+
     quoted_string %= "<" >> *( escaped_char | ~char_(">")) >> ">";
     escaped_char %= "\\" >> (char_(">\\") | eol);
-    
+
     atom %= +char_("a-zA-Z0-9_");
 }
 

@@ -16,7 +16,7 @@ namespace dicomifier
 
 Exception
 ::Exception(std::string const & message)
-: _message(message) 
+: _message(message)
 {
     // Nothing else.
 }
@@ -27,9 +27,9 @@ Exception
     // Nothing to do.
 }
 
-char const * 
+char const *
 Exception
-::what() const noexcept 
+::what() const noexcept
 {
     return this->_message.c_str();
 }

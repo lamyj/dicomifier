@@ -71,7 +71,7 @@ void wrap_Field(pybind11::module & m)
 {
     using namespace pybind11;
     using namespace dicomifier::bruker;
-    
+
     auto field = class_<Field>(
             m, "Field", R"doc(
                 A field (i.e. record in JCAMP-DX jargon) of a Bruker data set:
@@ -84,19 +84,19 @@ void wrap_Field(pybind11::module & m)
             "value", static_cast<object(*)(Field const &)>(&as_value),
             "Value of the field.")
         .def(
-            "get_string", &Field::get_string,  arg("index"), 
+            "get_string", &Field::get_string,  arg("index"),
             "Return a string item, throw an exception if not string-typed.")
         .def(
-            "get_int", &Field::get_int, arg("index"), 
+            "get_int", &Field::get_int, arg("index"),
             "Return a int-convertible item, throw an exception if not convertible.")
         .def(
-            "get_real", &Field::get_real, arg("index"), 
+            "get_real", &Field::get_real, arg("index"),
             "Return a real-convertible item, throw an exception if not convertible.")
         .def(
-            "get_struct", &Field::get_struct, arg("index"), 
+            "get_struct", &Field::get_struct, arg("index"),
             "Return a struct item, throw an exception if not struct-typed.")
         .def(
-            "is_int", &Field::is_int, arg("index"), 
+            "is_int", &Field::is_int, arg("index"),
             "Test whether item is an int.")
         .def(
             "is_real", &Field::is_real, arg("index"),
@@ -110,7 +110,7 @@ void wrap_Field(pybind11::module & m)
         .def(self == self)
         .def(self != self)
     ;
-    
+
     class_<Field::Item>(field, "Item")
         .def(
             "get_int", &item_get<long>,
@@ -127,10 +127,10 @@ void wrap_Field(pybind11::module & m)
         .def("is_int", &item_is<long>, "Test whether item is an int.")
         .def("is_real", &item_is<double>, "Test whether item is a real.")
         .def(
-            "is_string", &item_is<std::string>, 
+            "is_string", &item_is<std::string>,
             "Test whether item is a string.")
         .def(
-            "is_struct", &item_is<Field::Value>, 
+            "is_struct", &item_is<Field::Value>,
             "Test whether item is a struct.")
         .def_property_readonly(
             "value", static_cast<object(*)(Field::Item const &)>(&as_value))

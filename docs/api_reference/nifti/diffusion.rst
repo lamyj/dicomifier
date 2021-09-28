@@ -4,7 +4,7 @@ dicomifier.nifti.diffusion
 
 .. py:module:: dicomifier.nifti.diffusion
 
-Extract diffusion-related information from JSON meta-data and convert it to 
+Extract diffusion-related information from JSON meta-data and convert it to
 other formats. Unless otherwise specified, all b-values extracted from meta-data
 are expressed in :math:`s/m^2` (i.e. SI units).
 
@@ -33,9 +33,9 @@ are expressed in :math:`s/m^2` (i.e. SI units).
 .. py:function:: to_fsl(scheme, transform, bvecs_fd, bvals_fd)
    :module: dicomifier.nifti.diffusion
 
-   Save a diffusion scheme in FSL bvecs+bvals format. A reference 
-   transform is required as the bvecs are store in image coordinates, not 
-   in patient coordinates. This transform must correspond to an 
+   Save a diffusion scheme in FSL bvecs+bvals format. A reference
+   transform is required as the bvecs are store in image coordinates, not
+   in patient coordinates. This transform must correspond to an
    image-to-patient transform, e.g. what is stored in the *affine* member
    of nibabel images.
 
@@ -44,4 +44,3 @@ are expressed in :math:`s/m^2` (i.e. SI units).
    :module: dicomifier.nifti.diffusion
 
    Save a diffusion scheme in MRtrix format to a file-like object.
-

@@ -38,7 +38,7 @@ class TestConvert(unittest.TestCase):
 
         val = dicomifier.bruker_to_dicom.convert.convert_element(
             bruker_data_set, dicom_data_set,
-            None, "PixelPresentation", 1, lambda d,g,i : [b"MONOCHROME"], 
+            None, "PixelPresentation", 1, lambda d,g,i : [b"MONOCHROME"],
             frame_index, generator, vr_finder_function
         )
 
