@@ -8,7 +8,6 @@
 
 import datetime
 import json
-import re
 
 import numpy
 import odil

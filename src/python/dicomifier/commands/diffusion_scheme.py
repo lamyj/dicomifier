@@ -41,7 +41,7 @@ def action(source, format, destinations, image):
         try:
             getter = getattr(dicomifier.nifti.diffusion, "from_{}".format(name))
             scheme = getter(data)
-        except:
+        except Exception:
             pass
         if scheme is not None:
             break

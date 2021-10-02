@@ -7,13 +7,9 @@
 #########################################################################
 
 import argparse
-import json
 import os
 import pathlib
 import re
-import shutil
-import tempfile
-import zipfile
 
 import dicomifier
 import odil
@@ -89,8 +85,6 @@ class SearchTerm(object):
         return result
         
 def action(sources, search_terms, use_pipe):
-    contents = {}
-    
     max_tag = max(x.tag for x in search_terms)
     halt_condition = lambda x: x>max_tag
     
