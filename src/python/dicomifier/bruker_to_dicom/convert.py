@@ -11,7 +11,7 @@ import itertools
 import logging
 import re
 
-import dateutil
+import dateutil.parser
 import numpy
 import odil
 
