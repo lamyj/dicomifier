@@ -25,7 +25,7 @@ dicomifier.dicom_to_nifti.meta_data
 
    Get the meta-data of the current stack 
 
-   will keep the priority order for repeting element with the following rules:
+   will keep the priority order for repeating element with the following rules:
    low_priority = per_frame_seq
    high_priority = top_level (data_set)
    (if the same element is present in both shared and per_frame,

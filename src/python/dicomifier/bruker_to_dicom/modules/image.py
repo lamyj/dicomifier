@@ -164,7 +164,7 @@ ImagePixel = [ # PS 3.3, C.7.6.3
             }[d["VisuCoreWordType"][0]]])),
     (None, "PixelData", 1, get_pixel_data),
     # WARNING SmallestImagePixelValue and LargestImagePixelValue are either US
-    # or SS and thus cannot accomodate 32 bits values. Use WindowCenter and
+    # or SS and thus cannot accommodate 32 bits values. Use WindowCenter and
     # WindowWidth instead.
     (
         None, "WindowCenter", 3, 

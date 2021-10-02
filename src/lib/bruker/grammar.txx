@@ -62,7 +62,7 @@ grammar<TIterator>
             quoted_string[push_back(at_c<2>(_val), _1)] |
             // WARNING: for non-shaped, non-struct, unquoted values, the syntax
             // is ambiguous. To avoid backtracking errors, match scalar reals
-            // and integers only if they consitute the whole value.
+            // and integers only if they constitute the whole value.
             (real >> &(eol|eoi))[push_back(at_c<2>(_val), _1)] |
             (long_ >> &(eol|eoi))[push_back(at_c<2>(_val), _1)] |
             unquoted_string[push_back(at_c<2>(_val), _1)]

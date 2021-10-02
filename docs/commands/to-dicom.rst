@@ -12,7 +12,7 @@ Arguments
 
 .. option:: source
   
-  Directories to scan for convertible data. This can be a top-level Bruker directory, or a sub-directory containing a single experiment or recontruction.
+  Directories to scan for convertible data. This can be a top-level Bruker directory, or a sub-directory containing a single experiment or reconstruction.
 
 .. option:: destination
   
@@ -34,7 +34,7 @@ Options
 
 .. option:: --multiframe, -m
   
-  Save multiframe DICOM files (one file per serie) instead of the classic single-frame DICOM files (one file per slice)
+  Save multiframe DICOM files (one file per series) instead of the classic single-frame DICOM files (one file per slice)
 
 .. option:: --transfer-syntax <syntax>, -t <syntax>
   

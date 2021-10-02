@@ -53,7 +53,7 @@ dicomifier.dicom_to_nifti.image
    :module: dicomifier.dicom_to_nifti.image
 
    Return the pixel data located in a dataset (and possibly one of its 
-   frame) shaped according to numer of rows, columns and frames.
+   frame) shaped according to number of rows, columns and frames.
 
 
 .. py:function:: get_spacing(stack)
