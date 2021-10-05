@@ -37,12 +37,12 @@ def parse_ascconv(mr_phoenix_protocol):
         MrPhoenixProtocol field stored in the CSA headers.
     """
     
-    ascconv = re.search(
+    ascconv_data = re.search(
             b"### ASCCONV BEGIN ###\s*(.*?)\s*### ASCCONV END ###", 
             mr_phoenix_protocol, flags=re.DOTALL
         ).group(1)
     ascconv = re.findall(
-        b"^(\S+)\s*=\s*(.+)$\s*", mr_phoenix_protocol, flags=re.MULTILINE)
+        b"^(\S+)\s*=\s*(.+)$\s*", ascconv_data, flags=re.MULTILINE)
     
     def parse_value(value, name):
         integers = ["c", "s", "l", "i", "n"]
