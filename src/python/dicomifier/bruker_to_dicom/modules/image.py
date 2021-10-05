@@ -180,16 +180,6 @@ ImagePixel = [ # PS 3.3, C.7.6.3
         ]),
 ]
 
-PixelValueTransformation = [ # PS 3.3, C.7.6.16.2.9
-    (
-        "VisuCoreDataOffs", "RescaleIntercept", 1,
-        lambda d,g,i: [d["VisuCoreDataOffs"][g.get_linear_index(i)]]),
-    (
-        "VisuCoreDataSlope", "RescaleSlope", 1,
-        lambda d,g,i: [d["VisuCoreDataSlope"][g.get_linear_index(i)]]),
-    (None, "RescaleType", 1, lambda d,g,i: ["US"]),
-]
-
 SOPCommon = [ # PS 3.3, C.12.1
     (None, "SOPInstanceUID", 1, lambda d,g,i: [odil.generate_uid()]),
     #SpecificCharacterSet
