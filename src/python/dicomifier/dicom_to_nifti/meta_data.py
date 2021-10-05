@@ -213,8 +213,8 @@ def _fill_meta_data_dictionary(data_set, function, skipped, no_recurse):
                 if not element:
                     continue
                 item = element[0]
-                for item_tag, value in item.items():
+                for item_tag, item_value in item.items():
                     if item_tag not in skipped:
-                        function(item_tag, value)
+                        function(item_tag, item_value)
         else:
             function(tag, value)
