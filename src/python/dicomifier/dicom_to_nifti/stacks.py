@@ -375,30 +375,29 @@ def canon_getter(data_set, tag):
             logger.debug("No ImageComments, b-value={}".format(b_value_element))
             return None
         else:
-            x,y,z = [0,0,0]
             image_comments = b"b=0(0,0,0)"
     else:
         image_comments = data_set[odil.registry.ImageComments][0]
     
-    match = re.match(
-        br"^b=([\d.]+)\("
-            br"(-?[\d.]+),(-?[\d.]+),(-?[\d.]+)"
-        br"\)$",
-        image_comments)
-    if not match:
-        logger.debug("ImageComments not matched: '{}'".format(image_comments))
-        return None
-    
-    try:
-        b_value_comment, x, y, z = [float(x) for x in match.groups()]
-    except ValueError:
-        logger.debug(
-            "b-value discrepancy: {} != {}".format(
-                b_value_element, b_value_comment))
-        return None
-    
-    if not numpy.isclose(b_value_element, b_value_comment):
-        return None
+        match = re.match(
+            br"^b=([\d.]+)\("
+                br"(-?[\d.]+),(-?[\d.]+),(-?[\d.]+)"
+            br"\)$",
+            image_comments)
+        if not match:
+            logger.debug("ImageComments not matched: '{}'".format(image_comments))
+            return None
+        
+        try:
+            b_value_comment, x, y, z = [float(x) for x in match.groups()]
+        except ValueError:
+            logger.debug(
+                "b-value discrepancy: {} != {}".format(
+                    b_value_element, b_value_comment))
+            return None
+        
+        if not numpy.isclose(b_value_element, b_value_comment):
+            return None
     
     return image_comments
 
