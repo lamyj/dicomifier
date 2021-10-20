@@ -61,6 +61,10 @@ def get_image(stack, dtype, cache=None):
     data_set = stack[0][0]
     image_type = data_set.get(odil.registry.ImageType, [])
     if len(stack) == 1 and b"MOSAIC" in image_type and "00291010" in data_set:
+        # NOTE keep the original mosaic shape, we will need it when adjusting
+        # the origin.
+        mosaic_shape = numpy.asarray(pixel_data.shape[-2:])
+        
         item = data_set[odil.Tag(0x0029, 0x1010)][0]
         siemens_data = siemens.parse_csa(item.get_memory_view().tobytes())
 
@@ -85,7 +89,6 @@ def get_image(stack, dtype, cache=None):
         # WARNING: need to invert their rows and columns
         R = direction[:, :2]
         Q = R * spacing[:2]
-        mosaic_shape = numpy.asarray(pixel_data.shape[-2:])
         real_shape = numpy.asarray([rows, columns])
         origin = origin + \
             numpy.dot(Q, (mosaic_shape[::-1] - real_shape[::-1]) / 2.)
