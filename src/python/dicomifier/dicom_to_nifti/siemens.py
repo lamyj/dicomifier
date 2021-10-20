@@ -200,13 +200,15 @@ def parse_protocol(data):
                 r"(a?)((?:{0})?)(\w+)(?:\[(\d+)\])?".format("|".join(types)).encode(), 
                 element)
             is_array, type_, name, index = match.groups()
+            
+            full_name = "{}{}{}".format(is_array.decode(), type_.decode(), name.decode())
+            
             is_array = (is_array == b"a")
-            name = name.decode()
             if index:
                 index = int(index)
-
+            
             if is_array:
-                entry = entry.setdefault(name, [])
+                entry = entry.setdefault(full_name, [])
 
                 if len(entry) <= index:
                     entry.extend((1+index-len(entry))*[None])
@@ -217,8 +219,8 @@ def parse_protocol(data):
                         entry[index] = {}
                     entry = entry[index]
             elif type_ == b"s":
-                entry = entry.setdefault(name, {})
+                entry = entry.setdefault(full_name, {})
             else:
-                entry.setdefault(name, value_parser(type_, value))
+                entry.setdefault(full_name, value_parser(type_, value))
 
     return protocol
