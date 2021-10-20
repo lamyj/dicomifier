@@ -61,6 +61,10 @@ def get_image(stack, dtype, cache=None):
     data_set = stack[0][0]
     image_type = data_set.get(odil.registry.ImageType, [])
     if len(stack) == 1 and b"MOSAIC" in image_type and "00291010" in data_set:
+        # NOTE keep the original mosaic shape, we will need it when adjusting
+        # the origin.
+        mosaic_shape = numpy.asarray(pixel_data.shape[-2:])
+        
         item = data_set[odil.Tag(0x0029, 0x1010)][0]
         siemens_data = siemens.parse_csa(item.get_memory_view().tobytes())
 
@@ -85,7 +89,6 @@ def get_image(stack, dtype, cache=None):
         # WARNING: need to invert their rows and columns
         R = direction[:, :2]
         Q = R * spacing[:2]
-        mosaic_shape = numpy.asarray(pixel_data.shape[-2:])
         real_shape = numpy.asarray([rows, columns])
         origin = origin + \
             numpy.dot(Q, (mosaic_shape[::-1] - real_shape[::-1]) / 2.)
@@ -150,7 +153,7 @@ def get_linear_pixel_data(data_set):
 
 def get_shaped_pixel_data(data_set, frame_index, linear_pixel_data):
     """ Return the pixel data located in a dataset (and possibly one of its 
-        frame) shaped according to numer of rows, columns and frames.
+        frame) shaped according to number of rows, columns and frames.
     """
     
     rows = data_set[odil.registry.Rows][0]
@@ -308,8 +311,6 @@ def get_geometry(stack):
     default_origin = numpy.zeros((3,)).tolist()
     default_spacing = numpy.ones((3,)).tolist()
     default_orientation = numpy.identity(3)
-
-    data_set, first_idx = stack[0]
 
     origin = get_origin(stack)
     if origin is None:

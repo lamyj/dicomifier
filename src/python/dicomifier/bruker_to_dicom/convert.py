@@ -11,7 +11,7 @@ import itertools
 import logging
 import re
 
-import dateutil
+import dateutil.parser
 import numpy
 import odil
 
@@ -184,10 +184,10 @@ def convert_element(
 
 _date_time_expressions = [
     r"^(?P<year>\d{4})-(?P<month>\d{2})-(?P<day>\d{2})"
-        r"[ T]"
-        r"(?P<hour>\d{2}):(?P<minute>\d{2}):(?P<second>\d{2})"
-        r"(?:[.,](?P<microsecond>\d{,6}))?"
-        r"(?P<tzinfo>\+\w+)?", 
+    + r"[ T]"
+    + r"(?P<hour>\d{2}):(?P<minute>\d{2}):(?P<second>\d{2})"
+    + r"(?:[.,](?P<microsecond>\d{,6}))?"
+    + r"(?P<tzinfo>\+\w+)?",
     r"(?P<year>\d{4})(?P<month>\d{2})(?P<day>\d{2})",
 ]
 _date_time_expressions = [re.compile(x) for x in _date_time_expressions]

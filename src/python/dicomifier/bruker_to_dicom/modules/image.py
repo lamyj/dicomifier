@@ -8,7 +8,6 @@
 
 import datetime
 import json
-import re
 
 import numpy
 import odil
@@ -164,7 +163,7 @@ ImagePixel = [ # PS 3.3, C.7.6.3
             }[d["VisuCoreWordType"][0]]])),
     (None, "PixelData", 1, get_pixel_data),
     # WARNING SmallestImagePixelValue and LargestImagePixelValue are either US
-    # or SS and thus cannot accomodate 32 bits values. Use WindowCenter and
+    # or SS and thus cannot accommodate 32 bits values. Use WindowCenter and
     # WindowWidth instead.
     (
         None, "WindowCenter", 3, 
@@ -179,16 +178,6 @@ ImagePixel = [ # PS 3.3, C.7.6.3
             d["VisuCoreDataMax"][g.get_linear_index(i)]
             -d["VisuCoreDataMax"][g.get_linear_index(i)]
         ]),
-]
-
-PixelValueTransformation = [ # PS 3.3, C.7.6.16.2.9
-    (
-        "VisuCoreDataOffs", "RescaleIntercept", 1,
-        lambda d,g,i: [d["VisuCoreDataOffs"][g.get_linear_index(i)]]),
-    (
-        "VisuCoreDataSlope", "RescaleSlope", 1,
-        lambda d,g,i: [d["VisuCoreDataSlope"][g.get_linear_index(i)]]),
-    (None, "RescaleType", 1, lambda d,g,i: ["US"]),
 ]
 
 SOPCommon = [ # PS 3.3, C.12.1

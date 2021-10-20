@@ -5,6 +5,13 @@ dicomifier.dicom_to_nifti.siemens
 .. py:module:: dicomifier.dicom_to_nifti.siemens
 
 
+.. py:function:: parse_ascconv(mr_phoenix_protocol)
+   :module: dicomifier.dicom_to_nifti.siemens
+
+   Return the acquisition settings stored in the ASCCONV section of the
+   MrPhoenixProtocol field stored in the CSA headers.
+
+
 .. py:function:: parse_csa(csa)
    :module: dicomifier.dicom_to_nifti.siemens
 

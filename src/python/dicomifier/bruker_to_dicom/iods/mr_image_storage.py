@@ -6,11 +6,6 @@
 # for details.
 #########################################################################
 
-import itertools
-import os
-
-import dateutil.parser
-import numpy
 import odil
 
 from ..modules import (

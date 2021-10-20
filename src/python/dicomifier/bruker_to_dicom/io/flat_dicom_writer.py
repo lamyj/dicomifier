@@ -7,7 +7,6 @@
 #########################################################################
 
 import os
-import re
 import odil
 
 class FlatDICOMWriter(object):

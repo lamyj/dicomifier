@@ -8,9 +8,7 @@
 
 import collections
 import logging
-import multiprocessing
 import os
-import traceback
 
 import nibabel
 import numpy
