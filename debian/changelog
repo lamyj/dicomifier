@@ -1,3 +1,10 @@
+dicomifier (2.2.1-1) unstable; urgency=medium
+
+  * New upstream release.
+  * Address Lintian warnings
+
+ -- Julien Lamy <lamy@unistra.fr>  Wed, 20 Oct 2021 17:11:21 +0200
+
 dicomifier (2.2.0-1) unstable; urgency=medium
 
   * New upstream release.
