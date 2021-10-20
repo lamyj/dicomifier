@@ -1,0 +1,32 @@
+Description: Fix python interpreter path
+Author: Julien Lamy <lamy@unistra.fr>
+Index: dicomifier/src/cli/bruker2dicom
+===================================================================
+--- dicomifier.orig/src/cli/bruker2dicom
++++ dicomifier/src/cli/bruker2dicom
+@@ -1,4 +1,4 @@
+-#!${PYTHON_EXECUTABLE}
++#!/usr/bin/python3
+ 
+ import argparse
+ import logging
+Index: dicomifier/src/cli/dicom2nifti
+===================================================================
+--- dicomifier.orig/src/cli/dicom2nifti
++++ dicomifier/src/cli/dicom2nifti
+@@ -1,4 +1,4 @@
+-#!${PYTHON_EXECUTABLE}
++#!/usr/bin/python3
+ 
+ import argparse
+ import logging
+Index: dicomifier/src/cli/dicomifier
+===================================================================
+--- dicomifier.orig/src/cli/dicomifier
++++ dicomifier/src/cli/dicomifier
+@@ -1,4 +1,4 @@
+-#!${PYTHON_EXECUTABLE}
++#!/usr/bin/python3
+ import re
+ import sys
+ from dicomifier.__main__ import main

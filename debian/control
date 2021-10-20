@@ -3,7 +3,7 @@ Maintainer: Julien Lamy <lamy@unistra.fr>
 Section: science
 Testsuite: autopkgtest-pkg-python
 Priority: optional
-Build-Depends: debhelper (>= 9),
+Build-Depends: debhelper-compat (= 12),
                d-shlibs,
                dh-python,
                cmake,
@@ -23,7 +23,7 @@ Build-Depends: debhelper (>= 9),
                python3-pybind11,
                zlib1g-dev,
                libboost-test-dev
-Standards-Version: 4.5.1
+Standards-Version: 4.6.0.1
 Vcs-Browser: https://github.com/lamyj/dicomifier
 Vcs-Git: https://github.com/lamyj/dicomifier.git
 Homepage: https://github.com/lamyj/dicomifier
