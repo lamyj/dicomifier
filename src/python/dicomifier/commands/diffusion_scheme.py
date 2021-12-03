@@ -57,7 +57,10 @@ def to_mrtrix(scheme, destinations, image):
 def to_fsl(scheme, destinations, image):
     if len(destinations) != 2:
         raise Exception("Destinations must contain bvecs and bvals files")
-    
+
+    if image is None:
+        raise Exception("Image must be provided")
+
     image = nibabel.load(str(image))
     with destinations[0].open("w") as bvecs_fd, destinations[1].open("w") as bvals_fd:
         dicomifier.nifti.diffusion.to_fsl(
