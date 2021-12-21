@@ -85,12 +85,12 @@ def diff_directories(baseline, test):
                                 relative_filename))
                         diff.print_differences(differences, 1)
                     
-                    encaspulated_documents = [
+                    encapsulated_documents = [
                         [
                             json.loads(base64.b64decode(x).strip(b"\x00").decode()) 
                             for x in m.get("EncapsulatedDocument", [])]
                         for m in meta_data]
-                    for documents in zip(*encaspulated_documents):
+                    for documents in zip(*encapsulated_documents):
                         differences = diff.diff(*documents)
                         if differences:
                             different = True
