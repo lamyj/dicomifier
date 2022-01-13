@@ -68,7 +68,7 @@ dicomifier.dicom_to_nifti.stacks
    Return the stacks contained in the data sets. The result is a dictionary
    in which the values are pairs of (data_set, frame_index) (in the case
    of single-frame data sets, frame_index is None), and in which the keys
-   are tuples of selectors. In this context, a selector is defined a 
+   are tuples of selectors. In this context, a selector is defined as 
    a pair of (group sequence, group, tag) (group sequence and group being
    None for single-frame data sets), and a value.
 
