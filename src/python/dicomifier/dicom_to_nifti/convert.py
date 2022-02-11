@@ -20,7 +20,7 @@ from .stacks import get_stacks, sort
 
 from .. import logger, MetaData
 
-def convert_paths(paths, destination, zip, dtype=None):
+def convert_paths(paths, destination, zip, dtype=None, extra_splitters=None):
     """ Convert the DICOM files found in a collection of paths (files, 
         directories, or DICOMDIR) and save the result in the given destination.
         
@@ -28,6 +28,8 @@ def convert_paths(paths, destination, zip, dtype=None):
         :param destination: Destination directory
         :param zip: whether to zip the NIfTI files
         :param dtype: if not None, force the dtype of the result image
+        :param extra_splitters: additional splitters to be used when building
+            stacks
     """
     
     if os.path.isdir(str(destination)) and len(os.listdir(str(destination))) > 0:
@@ -63,7 +65,8 @@ def convert_paths(paths, destination, zip, dtype=None):
                 series_directories[finder] += "_{}".format(1+i)
     
     for finder, series_files in series.items():
-        nifti_data = convert_series(series_files, dtype, finder)
+        nifti_data = convert_series(
+            series_files, dtype, finder, extra_splitters)
         if nifti_data is not None:
             io.write_nifti(
                 nifti_data, destination, zip, series_directories[finder])
@@ -138,13 +141,15 @@ class SeriesContext(logging.Filter):
             value = None
         return value
 
-def convert_series(series_files, dtype=None, finder=None):
+def convert_series(series_files, dtype=None, finder=None, extra_splitters=None):
     """ Return the NIfTI image and meta-data from the files containing a single
         series.
         
         :param dtype: if not None, force the dtype of the result image
         :param finder: if not None, series finder object to overwrite the Series
             Instance UID
+        :param extra_splitters: additional splitters to be used when building
+            stacks
     """
     
     logger.info(
@@ -169,23 +174,25 @@ def convert_series(series_files, dtype=None, finder=None):
         logger.warning("No image in series")
         nifti_data = None
     else:
-        nifti_data = convert_series_data_sets(data_sets, dtype)
+        nifti_data = convert_series_data_sets(data_sets, dtype, extra_splitters)
     
     # Restore the logging
     logger.removeFilter(series_context)
     
     return nifti_data
 
-def convert_series_data_sets(data_sets, dtype=None):
+def convert_series_data_sets(data_sets, dtype=None, extra_splitters=None):
     """ Convert a list of dicom data sets into Nfiti
 
         :param data_sets: list of dicom data sets to convert
         :param dtype: if not None, force the dtype of the result image
+        :param extra_splitters: additional splitters to be used when building
+            stacks
     """
     
     nifti_data = []
 
-    stacks = get_stacks(data_sets)
+    stacks = get_stacks(data_sets, extra_splitters)
     logger.info(
         "Found {} stack{}".format(len(stacks), "s" if len(stacks) > 1 else ""))
 
