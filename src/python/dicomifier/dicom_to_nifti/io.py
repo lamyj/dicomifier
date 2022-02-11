@@ -145,7 +145,9 @@ def get_series_directory(meta_data):
     series_directory = []
     if "SeriesNumber" in meta_data and meta_data["SeriesNumber"]:
         software = meta_data.get("SoftwareVersions", [""])[0]
-        series_number = numpy.ravel([x for x in meta_data["SeriesNumber"] if x])[0]
+        series_number = numpy.ravel(
+                [x for x in meta_data["SeriesNumber"] if x is not None]
+            )[0]
         if software == "ParaVision" and series_number > 2**16:
             # Bruker ID based on experiment number and reconstruction number is
             # not readable: separate the two values
