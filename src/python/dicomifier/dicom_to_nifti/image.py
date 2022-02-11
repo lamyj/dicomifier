@@ -178,17 +178,37 @@ def get_shaped_pixel_data(data_set, frame_index, linear_pixel_data):
     else:
         pixel_data = reshape(linear_pixel_data, (rows, cols, samples_per_pixel))
 
-    # Rescale: look for Pixel Value Transformation sequence then Rescale Slope
-    # and Rescale Intercept
-    rescale = data_set
-    if odil.registry.SharedFunctionalGroupsSequence in data_set:
-        rescale = data_set[odil.registry.SharedFunctionalGroupsSequence][0]
-    if odil.registry.PixelValueTransformationSequence in rescale:
-        rescale = rescale[odil.registry.PixelValueTransformationSequence][0]
     
-    slope = rescale.get(odil.registry.RescaleSlope, [None])[0]
-    intercept = rescale.get(odil.registry.RescaleIntercept, [None])[0]
-    if None not in [slope, intercept] and not numpy.allclose([slope, intercept], [1, 0]):
+    # Rescale: look for Rescale Slope and Rescale Intercept in
+    # - the top-level of the data set
+    # - Pixel Value Transformation Sequence at the top-level of the data set
+    # - Pixel Value Transformation Sequence in Shared Functional Groups Sequence
+    # - Pixel Value Transformation Sequence in Per-frame Functional Groups Sequence
+    # The most specific one takes precedence.
+    containers = [
+        data_set,
+        data_set.get(
+                odil.registry.PixelValueTransformationSequence, [odil.DataSet()]
+            )[0],
+        data_set.get(
+                odil.registry.SharedFunctionalGroupsSequence, 
+                [odil.DataSet(PixelValueTransformationSequence=[odil.DataSet()])]
+            )[0].get(odil.registry.PixelValueTransformationSequence, [odil.DataSet()])[0],
+        data_set.get(
+                odil.registry.PerFrameFunctionalGroupsSequence, 
+                (1+frame_index)*[
+                    odil.DataSet(PixelValueTransformationSequence=[odil.DataSet()])]
+            )[frame_index].get(odil.registry.PixelValueTransformationSequence, [odil.DataSet()])[0]
+    ]
+    rescale = [None, None]
+    for item in containers:
+        slope = item.get(odil.registry.RescaleSlope, [None])[0]
+        intercept = item.get(odil.registry.RescaleIntercept, [None])[0]
+        if None not in (slope, intercept):
+            rescale = [slope, intercept]
+    
+    slope, intercept = rescale
+    if not numpy.allclose([slope, intercept], [1, 0]):
         pixel_data = pixel_data * numpy.float32(slope) + numpy.float32(intercept)
 
     return pixel_data
