@@ -332,11 +332,18 @@ def ge_diffusion_getter(data_set, tag):
     if direction and not(isinstance(direction[0], (int, float))):
         return None
     
-    b_value = data_set.get(odil.Tag(gems_parm+0x39), [None])[0]
-    if b_value is None:
-        b_value = data_set.get(odil.registry.DiffusionBValue, [None])[0]
-    if b_value and not(isinstance(b_value, (int, float))):
+    # WARNING: this is the *maximal* b-value. The real b-value is determined
+    # by the square of the norm of the gradient direction (at on RX29.0).
+    # This is still not enough for multiple b=0 in the same series
+    maximal_b_value = data_set.get(odil.Tag(gems_parm+0x39), [None])[0]
+    if maximal_b_value is None:
+        maximal_b_value = data_set.get(odil.registry.DiffusionBValue, [None])[0]
+    if maximal_b_value and not(isinstance(maximal_b_value, (int, float))):
         return None
+    
+    # b-value, rounded to nearest multiple of 5
+    b_value = maximal_b_value * numpy.linalg.norm(direction)**2
+    b_value = 5 * round(b_value/5)
     
     return direction, b_value
 
