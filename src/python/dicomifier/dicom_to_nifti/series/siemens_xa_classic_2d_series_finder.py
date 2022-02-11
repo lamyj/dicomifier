@@ -27,7 +27,7 @@ class SiemensXAClassic2DSeriesFinder(SeriesFinder):
         is_mfsplit = data_set.get(odil.registry.ImageType, [b""])[0]
         
         if software.startswith(b"syngo MR XA") and is_mfsplit:
-            for item in data_set[odil.registry.RelatedSeriesSequence]:
+            for item in data_set.get(odil.registry.RelatedSeriesSequence, []):
                 # Look for Alternate SOP Class instance
                 # http://dicom.nema.org/medical/dicom/current/output/chtml/part16/chapter_D.html#DCM_121326
                 purpose = item[odil.registry.PurposeOfReferenceCodeSequence][0]
