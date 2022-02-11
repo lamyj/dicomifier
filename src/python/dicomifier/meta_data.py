@@ -6,12 +6,12 @@
 # for details.
 #########################################################################
 
-import collections
+import collections.abc
 import json
 
 import numpy
 
-class MetaData(collections.MutableMapping):
+class MetaData(collections.abc.MutableMapping):
     """ Meta-data for an n-dimensional data set, behaves like a dictionary.
         
         The meta-data is stored in compressed form: assuming the data-set is
