@@ -203,8 +203,8 @@ def get_shaped_pixel_data(data_set, frame_index, linear_pixel_data):
                         odil.DataSet(PixelValueTransformationSequence=[odil.DataSet()])]
                 )[frame_index].get(
                     odil.registry.PixelValueTransformationSequence, [odil.DataSet()]
-                )[0]
-        )
+                )[0])
+    
     rescale = [None, None]
     for item in containers:
         slope = item.get(odil.registry.RescaleSlope, [None])[0]
@@ -213,7 +213,7 @@ def get_shaped_pixel_data(data_set, frame_index, linear_pixel_data):
             rescale = [slope, intercept]
     
     slope, intercept = rescale
-    if not numpy.allclose([slope, intercept], [1, 0]):
+    if None not in rescale and not numpy.allclose([slope, intercept], [1, 0]):
         pixel_data = pixel_data * numpy.float32(slope) + numpy.float32(intercept)
 
     return pixel_data
