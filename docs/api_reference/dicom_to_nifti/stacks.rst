@@ -12,15 +12,21 @@ dicomifier.dicom_to_nifti.stacks
    in the actual orientation.
 
 
-   .. py:method:: OrientationGetter.orientations
+   .. py:property:: OrientationGetter.orientations
       :module: dicomifier.dicom_to_nifti.stacks
-      :property:
 
 
 .. py:function:: frame_group_index_getter(data_set, tag)
    :module: dicomifier.dicom_to_nifti.stacks
 
    Return bruker_to_dicom-specific frame group information.
+
+
+
+.. py:function:: ge_complex_image_component_getter(data_set, tag)
+   :module: dicomifier.dicom_to_nifti.stacks
+
+   Return GE-specific Complex Image Component data.
 
 
 
@@ -62,7 +68,7 @@ dicomifier.dicom_to_nifti.stacks
    Index.
 
 
-.. py:function:: get_stacks(data_sets)
+.. py:function:: get_stacks(data_sets, extra_splitters=None)
    :module: dicomifier.dicom_to_nifti.stacks
 
    Return the stacks contained in the data sets. The result is a dictionary
@@ -71,6 +77,10 @@ dicomifier.dicom_to_nifti.stacks
    are tuples of selectors. In this context, a selector is defined as 
    a pair of (group sequence, group, tag) (group sequence and group being
    None for single-frame data sets), and a value.
+
+   :param data_sets: list of dicom data sets
+   :param extra_splitters: additional splitters to be used when building
+       stacks
 
 
 .. py:function:: siemens_coil_getter(data_set, tag)

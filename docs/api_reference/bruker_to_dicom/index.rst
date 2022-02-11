@@ -13,27 +13,25 @@ dicomifier.bruker_to_dicom
 
 .. py:class:: FrameIndexGenerator(data_set)
    :module: dicomifier.bruker_to_dicom
+   :canonical: dicomifier.bruker_to_dicom.frame_index_generator.FrameIndexGenerator
 
    Generate the indices to iterate through the frame groups of a Bruker
    data set.
 
 
-   .. py:method:: FrameIndexGenerator.dependent_fields
+   .. py:property:: FrameIndexGenerator.dependent_fields
       :module: dicomifier.bruker_to_dicom
-      :property:
 
       Names of all fields mentioned in the frame groups.
 
 
 
-   .. py:method:: FrameIndexGenerator.frame_groups
+   .. py:property:: FrameIndexGenerator.frame_groups
       :module: dicomifier.bruker_to_dicom
-      :property:
 
 
-   .. py:method:: FrameIndexGenerator.frames_count
+   .. py:property:: FrameIndexGenerator.frames_count
       :module: dicomifier.bruker_to_dicom
-      :property:
 
       Total number of frames.
 

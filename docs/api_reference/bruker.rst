@@ -103,9 +103,8 @@ dicomifier.bruker
          Test whether item is a struct.
 
 
-      .. py:method:: Field.Item.value
+      .. py:property:: Field.Item.value
          :module: dicomifier.bruker
-         :property:
 
 
    .. py:method:: Field.get_int(self: dicomifier.bruker.Field, index: int) -> int
@@ -156,22 +155,19 @@ dicomifier.bruker
       Test whether item is a struct.
 
 
-   .. py:method:: Field.name
+   .. py:property:: Field.name
       :module: dicomifier.bruker
-      :property:
 
       Name of the field.
 
 
-   .. py:method:: Field.shape
+   .. py:property:: Field.shape
       :module: dicomifier.bruker
-      :property:
 
       Shape of the field.
 
 
-   .. py:method:: Field.value
+   .. py:property:: Field.value
       :module: dicomifier.bruker
-      :property:
 
       Value of the field.

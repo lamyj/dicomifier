@@ -21,7 +21,7 @@ dicomifier.dicom_to_nifti.convert
       If deemed appropriate, the record may be modified in-place.
 
 
-.. py:function:: convert_paths(paths, destination, zip, dtype=None)
+.. py:function:: convert_paths(paths, destination, zip, dtype=None, extra_splitters=None)
    :module: dicomifier.dicom_to_nifti.convert
 
    Convert the DICOM files found in a collection of paths (files, 
@@ -31,9 +31,11 @@ dicomifier.dicom_to_nifti.convert
    :param destination: Destination directory
    :param zip: whether to zip the NIfTI files
    :param dtype: if not None, force the dtype of the result image
+   :param extra_splitters: additional splitters to be used when building
+       stacks
 
 
-.. py:function:: convert_series(series_files, dtype=None, finder=None)
+.. py:function:: convert_series(series_files, dtype=None, finder=None, extra_splitters=None)
    :module: dicomifier.dicom_to_nifti.convert
 
    Return the NIfTI image and meta-data from the files containing a single
@@ -42,15 +44,19 @@ dicomifier.dicom_to_nifti.convert
    :param dtype: if not None, force the dtype of the result image
    :param finder: if not None, series finder object to overwrite the Series
        Instance UID
+   :param extra_splitters: additional splitters to be used when building
+       stacks
 
 
-.. py:function:: convert_series_data_sets(data_sets, dtype=None)
+.. py:function:: convert_series_data_sets(data_sets, dtype=None, extra_splitters=None)
    :module: dicomifier.dicom_to_nifti.convert
 
    Convert a list of dicom data sets into Nfiti
 
    :param data_sets: list of dicom data sets to convert
    :param dtype: if not None, force the dtype of the result image
+   :param extra_splitters: additional splitters to be used when building
+       stacks
 
 
 .. py:function:: merge_images_and_meta_data(images_and_meta_data)
