@@ -347,6 +347,18 @@ def ge_diffusion_getter(data_set, tag):
     
     return direction, b_value
 
+def ge_complex_image_component_getter(data_set, tag):
+    """ Return GE-specific Complex Image Component data.
+    """
+    
+    if data_set[odil.registry.Manufacturer][0] != b"GE MEDICAL SYSTEMS":
+        return None
+    
+    gems_parm = _find_private_creator(data_set, b"GEMS_PARM_01", 0x0043)
+    if gems_parm is None:
+        return None
+    return (data_set.get(odil.Tag(gems_parm+0x2f), [None])[0], )
+
 def siemens_coil_getter(data_set, tag):
     """ Return Siemens-specific coil identifier.
     """
@@ -526,6 +538,7 @@ def _get_splitters(data_sets):
     
     if any(d.get(odil.registry.Manufacturer, [None])[0] == b"GE MEDICAL SYSTEMS" for d in data_sets):
         splitters.append(((None, None), ge_diffusion_getter))
+        splitters.append(((None, None), ge_complex_image_component_getter))
     if any(d.get(odil.registry.Manufacturer, [None])[0] == b"SIEMENS" for d in data_sets):
         splitters.append(((None, None), siemens_coil_getter))
     if any(d.get(odil.registry.Manufacturer, [None])[0] == b"CANON_MEC" for d in data_sets):
