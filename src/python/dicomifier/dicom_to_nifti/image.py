@@ -194,12 +194,17 @@ def get_shaped_pixel_data(data_set, frame_index, linear_pixel_data):
                 odil.registry.SharedFunctionalGroupsSequence, 
                 [odil.DataSet(PixelValueTransformationSequence=[odil.DataSet()])]
             )[0].get(odil.registry.PixelValueTransformationSequence, [odil.DataSet()])[0],
-        data_set.get(
-                odil.registry.PerFrameFunctionalGroupsSequence, 
-                (1+frame_index)*[
-                    odil.DataSet(PixelValueTransformationSequence=[odil.DataSet()])]
-            )[frame_index].get(odil.registry.PixelValueTransformationSequence, [odil.DataSet()])[0]
     ]
+    if frame_index is not None:
+        containers.append(
+            data_set.get(
+                    odil.registry.PerFrameFunctionalGroupsSequence, 
+                    (1+frame_index)*[
+                        odil.DataSet(PixelValueTransformationSequence=[odil.DataSet()])]
+                )[frame_index].get(
+                    odil.registry.PixelValueTransformationSequence, [odil.DataSet()]
+                )[0]
+        )
     rescale = [None, None]
     for item in containers:
         slope = item.get(odil.registry.RescaleSlope, [None])[0]
