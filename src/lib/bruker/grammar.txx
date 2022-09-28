@@ -11,14 +11,11 @@
 
 #include "grammar.h"
 
-#include <boost/spirit/include/phoenix_core.hpp>
-#include <boost/spirit/include/phoenix_fusion.hpp>
-#include <boost/spirit/include/phoenix_operator.hpp>
-#include <boost/spirit/include/phoenix_stl.hpp>
-
 #include <string>
 #include <vector>
 
+#include <boost/fusion/include/std_pair.hpp>
+#include <boost/spirit/include/phoenix.hpp>
 #include <boost/spirit/include/qi.hpp>
 
 #include "Field.h"
@@ -35,6 +32,8 @@ grammar<TIterator>
 : grammar::base_type(dataset)
 {
     using boost::phoenix::at_c;
+    using boost::phoenix::end;
+    using boost::phoenix::insert;
     using boost::phoenix::push_back;
     
     using boost::spirit::qi::as_string;
@@ -74,12 +73,17 @@ grammar<TIterator>
     
     value %= (numbers | quoted_strings | atoms | structs) >> omit[*char_(" ")];
     
-    // Numbers and tokens *must* be separated with spaces, strings and 
-    // structures but need not since they have delimiters.
-    // Warning: number should be long_long for 32 bits architecture, else cannot parse number > 2^31
-    numbers %= (real | long_) % +space;
+    // No implicit action due to RLE
+    numbers = (
+            (real | long_)
+                [push_back(_val, _1)]
+            | rle
+                [insert(_val, end(_val), at_c<0>(_1), at_c<1>(_1))]
+        ) % +space;
+    
     quoted_strings %= quoted_string % *space;
     atoms %= atom % +space;
+    
     // Do not use implicit action, since std::vector<Field::Item> is convertible to Field::Item
     structs = struct_[push_back(_val, _1)] % *space;
     
@@ -88,6 +92,8 @@ grammar<TIterator>
     
     // Array has no space after parenthesis to make a difference with shape
     struct_ %= "(" >> (real | long_ | quoted_string | struct_) % ("," >> *space) >> ")";
+    
+    rle %= "@" >> long_ >> "*(" >> (real | long_) >> ")";
     
     quoted_string %= "<" >> *( escaped_char | ~char_(">")) >> ">";
     escaped_char %= "\\" >> (char_(">\\") | eol);

@@ -62,6 +62,7 @@ private:
     boost::spirit::qi::rule<TIterator, std::string()> atom;
 
     boost::spirit::qi::real_parser<double, strict_real_policies<double> > real;
+    boost::spirit::qi::rule<TIterator, std::pair<long, Field::Item>()> rle;
 };
 
 } // namespace bruker

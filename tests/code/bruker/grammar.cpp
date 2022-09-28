@@ -147,3 +147,16 @@ BOOST_AUTO_TEST_CASE(Structure)
     BOOST_REQUIRE(
         fields[0].value == dicomifier::bruker::Field::Value({{item}}));
 }
+
+BOOST_AUTO_TEST_CASE(RLE)
+{
+    std::string const value = "##FieldName=( 7 )\n12.34 @3*(12) @2*(3.14) 42";
+    auto const fields = parse(value);
+
+    BOOST_REQUIRE_EQUAL(fields.size(), 1);
+    BOOST_REQUIRE_EQUAL(fields[0].name, "FieldName");
+    BOOST_REQUIRE(fields[0].shape == dicomifier::bruker::Field::Shape({7}));
+    BOOST_REQUIRE(
+        fields[0].value == dicomifier::bruker::Field::Value({
+            12.34, 12L, 12L, 12L, 3.14, 3.14, 42L}));
+}
