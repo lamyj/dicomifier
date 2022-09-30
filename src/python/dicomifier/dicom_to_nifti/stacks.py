@@ -329,16 +329,18 @@ def ge_diffusion_getter(data_set, tag):
         direction = tuple(
             data_set.get(odil.Tag(gems_acq+x), [None])[0]
             for x in [0xbb, 0xbc, 0xbd])
-    if direction and not(isinstance(direction[0], (int, float))):
+    if direction is None or not(isinstance(direction[0], (int, float))):
         return None
     
     # WARNING: this is the *maximal* b-value. The real b-value is determined
     # by the square of the norm of the gradient direction (at on RX29.0).
     # This is still not enough for multiple b=0 in the same series
-    maximal_b_value = data_set.get(odil.Tag(gems_parm+0x39), [None])[0]
+    maximal_b_value = None
+    if gems_parm is not None:
+        data_set.get(odil.Tag(gems_parm+0x39), [None])[0]
     if maximal_b_value is None:
         maximal_b_value = data_set.get(odil.registry.DiffusionBValue, [None])[0]
-    if maximal_b_value and not(isinstance(maximal_b_value, (int, float))):
+    if not isinstance(maximal_b_value, (int, float)):
         return None
     
     # b-value, rounded to nearest multiple of 5
@@ -357,7 +359,10 @@ def ge_complex_image_component_getter(data_set, tag):
     gems_parm = _find_private_creator(data_set, b"GEMS_PARM_01", 0x0043)
     if gems_parm is None:
         return None
-    return (data_set.get(odil.Tag(gems_parm+0x2f), [None])[0], )
+    content = data_set.get(odil.Tag(gems_parm+0x2f), [None])[0]
+    if isinstance(content, odil.Value.BinaryItem):
+        content = content.get_memory_view().tobytes()
+    return (content, )
 
 def siemens_coil_getter(data_set, tag):
     """ Return Siemens-specific coil identifier.
@@ -537,10 +542,10 @@ def _get_splitters(data_sets):
     ))
     
     if any(d.get(odil.registry.Manufacturer, [None])[0] == b"GE MEDICAL SYSTEMS" for d in data_sets):
-        splitters.append(((None, None), ge_diffusion_getter))
-        splitters.append(((None, None), ge_complex_image_component_getter))
+        splitters.append(((None, "GE_diffusion"), ge_diffusion_getter))
+        splitters.append(((None, "GE_component"), ge_complex_image_component_getter))
     if any(d.get(odil.registry.Manufacturer, [None])[0] == b"SIEMENS" for d in data_sets):
-        splitters.append(((None, None), siemens_coil_getter))
+        splitters.append(((None, "Siemens_coil"), siemens_coil_getter))
     if any(d.get(odil.registry.Manufacturer, [None])[0] == b"CANON_MEC" for d in data_sets):
         splitters.append(((None, None), canon_getter))
     
