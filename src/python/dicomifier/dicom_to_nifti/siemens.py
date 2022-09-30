@@ -38,28 +38,33 @@ def parse_ascconv(mr_phoenix_protocol):
     """
     
     ascconv_data = re.search(
-            b"### ASCCONV BEGIN ###\s*(.*?)\s*### ASCCONV END ###", 
+            b"### ASCCONV BEGIN(?:.+?)###\s*(.*?)\s*### ASCCONV END ###", 
             mr_phoenix_protocol, flags=re.DOTALL
         ).group(1)
     ascconv = re.findall(
         b"^(\S+)\s*=\s*(.+)$\s*", ascconv_data, flags=re.MULTILINE)
     
     def parse_value(value, name):
-        integers = ["c", "s", "l", "i", "n"]
-        integers.extend(["u"+x for x in integers])
-        if any(name.startswith(x) for x in integers):
-            return int(value, 0)
-        elif any(name.startswith(x) for x in ["d", "fl"]):
-            return float(value)
-        elif name.startswith("b"):
-            return bool(int(value, 0))
-        elif name.startswith("t"):
-            return value[2:-2].decode()
-        elif name.startswith("a"):
-            return parse_value(value, name[1:])
+        
+        if value.startswith(b"0x"):
+            return int(value.split()[0], 16)
+        elif value.startswith(b"\""):
+            return re.findall(br'""(.*)""', value)[0].decode()
         else:
-            print(name, value)
-            return value.decode()
+            int_match = re.match(br"^[+-]?\d+$", value)
+            float_match = re.match(
+                br"""[-+]?       # optional sign 
+                    (?=\d|\.\d)    # followed by a number with at least one digit
+                    \d*          # optional integer part
+                    (\.\d*)?     # optional fractional part
+                    (e[-+]?\d+)? # optional exponent
+                """, value, flags=re.VERBOSE | re.IGNORECASE)
+            if int_match:
+                return int(value)
+            elif float_match:
+                return float(value)
+            else:
+                raise Exception("Cannot parse {}".format(value))
     
     data = {}
     for key, value in ascconv:
