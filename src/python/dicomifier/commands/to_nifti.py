@@ -10,10 +10,13 @@ import pathlib
 import shutil
 import tempfile
 import sys
+import zipfile
 
 import dicomifier
 import numpy
 import odil
+
+from . import to_dicom
 
 def setup(subparsers):
     parser = subparsers.add_parser(
@@ -45,6 +48,12 @@ def action(sources, destination, dtype, zip):
             dicom_sources.extend(paths)
         elif source.is_dir() and list(source.rglob("2dseq")):
             bruker_sources.append(source)
+        elif zipfile.is_zipfile(source):
+            with zipfile.ZipFile(source, "r") as fd:
+                if any(pathlib.Path(x).name == "2dseq" for x in fd.namelist()):
+                    bruker_sources.append(source)
+                else:
+                    dicom_sources.append(source)
         else:
             dicom_sources.append(source)
     
@@ -53,12 +62,10 @@ def action(sources, destination, dtype, zip):
         # Convert Bruker sources to DICOM
         for index, source in enumerate(bruker_sources):
             dicom_destination = directory/str(index)
-            writer = dicomifier.bruker_to_dicom.io.NestedDICOMWriter(
-                dicom_destination, True, 
-                odil.registry.ImplicitVRLittleEndian)
-            
-            dicomifier.bruker_to_dicom.convert.convert_directory(
-                source, False, True, writer)
+            to_dicom.action(
+                [source], dicom_destination,
+                odil.registry.ImplicitVRLittleEndian, "nested",
+                dicomdir=False, multiframe=True)
             dicom_sources.append(dicom_destination)
         
         # Convert all sources to NIfTI

@@ -57,6 +57,7 @@ def action(sources, destination, transfer_syntax, layout, dicomdir, multiframe):
     try:
         for source in sources:
             if zipfile.is_zipfile(str(source)):
+                dicomifier.logger.info("Decompressing {}".format(source))
                 with zipfile.ZipFile(str(source)) as archive:
                     archive.extractall(str(directory/source.name))
                     source = directory/source.name
