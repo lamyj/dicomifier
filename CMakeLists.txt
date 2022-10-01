@@ -1,8 +1,13 @@
 cmake_minimum_required(VERSION 3.5)
+if(${CMAKE_VERSION} VERSION_LESS 3.12)
+    cmake_policy(VERSION ${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION})
+else()
+    cmake_policy(SET CMP0074 NEW)
+endif()
 
 project(dicomifier)
 
-set(dicomifier_VERSION 2.3.0)
+set(dicomifier_VERSION 2.3.1)
 string(REGEX MATCH "^([0-9]+)\\.([0-9]+)\\.([0-9]+)" _ "${dicomifier_VERSION}")
 set(dicomifier_MAJOR_VERSION "${CMAKE_MATCH_1}")
 set(dicomifier_MINOR_VERSION "${CMAKE_MATCH_2}")
