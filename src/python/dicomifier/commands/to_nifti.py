@@ -48,7 +48,7 @@ def action(sources, destination, dtype, zip):
             dicom_sources.extend(paths)
         elif source.is_dir() and list(source.rglob("2dseq")):
             bruker_sources.append(source)
-        elif zipfile.is_zipfile(source):
+        elif source.is_file() and zipfile.is_zipfile(source):
             with zipfile.ZipFile(source, "r") as fd:
                 if any(pathlib.Path(x).name == "2dseq" for x in fd.namelist()):
                     bruker_sources.append(source)
