@@ -12,7 +12,7 @@ from ..modules import (
     patient, study, series, frame_of_reference, equipment, image, mr)
 from .. import convert, FrameIndexGenerator
 
-def mr_image_storage(bruker_data_set, transfer_syntax):
+def mr_image_storage(bruker_data_set, transfer_syntax, ideal_b_values):
     """ Function to convert specific burker images into dicom
 
         :param bruker_data_set: bruker data set to convert
@@ -50,7 +50,8 @@ def mr_image_storage(bruker_data_set, transfer_syntax):
                     convert.convert_module(
                         # NOTE: mr.MRDiffusion is a functional group, we use 
                         # its module only
-                        bruker_data_set,odil.DataSet(), mr.MRDiffusion[2],
+                        bruker_data_set,odil.DataSet(),
+                        mr.MRDiffusionFactory(ideal_b_values)[2],
                         frame_index, generator, vr_finder_function)] 
                     if "FG_DIFFUSION" in [x[1] for x in generator.frame_groups]
                     else None)

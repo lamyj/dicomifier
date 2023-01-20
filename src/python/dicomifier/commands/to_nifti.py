@@ -36,10 +36,14 @@ def setup(subparsers):
         help="Pixel type")
     parser.add_argument(
         "--zip", "-z", action="store_true", help="Compress NIfTI files")
+    parser.add_argument(
+        "--effective-b-values", "-e",
+        action="store_false", dest="ideal_b_values",
+        help="Store effective b-values instead of ideal ones")
     
     return parser
 
-def action(sources, destination, dtype, zip):
+def action(sources, ideal_b_values, destination, dtype, zip):
     bruker_sources = []
     dicom_sources = []
     for source in sources:
@@ -63,7 +67,7 @@ def action(sources, destination, dtype, zip):
         for index, source in enumerate(bruker_sources):
             dicom_destination = directory/str(index)
             to_dicom.action(
-                [source], dicom_destination,
+                [source], ideal_b_values, dicom_destination,
                 odil.registry.ImplicitVRLittleEndian, "nested",
                 dicomdir=False, multiframe=True)
             dicom_sources.append(dicom_destination)

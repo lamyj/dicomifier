@@ -38,6 +38,10 @@ def setup(subparsers):
         type=lambda x: getattr(odil.registry, x),
         default="ImplicitVRLittleEndian",
         help="Transfer syntax of the output files")
+    parser.add_argument(
+        "--effective-b-values", "-e",
+        action="store_false", dest="ideal_b_values",
+        help="Store effective b-values instead of ideal ones")
     
     return parser
 
@@ -47,7 +51,9 @@ def writer_from_name(name):
         "flat": dicomifier.bruker_to_dicom.io.FlatDICOMWriter}
     return writers[name]
 
-def action(sources, destination, transfer_syntax, layout, dicomdir, multiframe):
+def action(
+        sources, ideal_b_values, destination, transfer_syntax, layout, dicomdir,
+        multiframe):
     if destination.is_dir() and list(destination.iterdir()):
         dicomifier.logger.warning("{} is not empty".format(destination))
     
@@ -62,6 +68,6 @@ def action(sources, destination, transfer_syntax, layout, dicomdir, multiframe):
                     archive.extractall(str(directory/source.name))
                     source = directory/source.name
             dicomifier.bruker_to_dicom.convert.convert_directory(
-                source, dicomdir, multiframe, writer)
+                source, ideal_b_values, dicomdir, multiframe, writer)
     finally:
         shutil.rmtree(str(directory))

@@ -18,7 +18,7 @@ import odil
 from .. import bruker, logger
 from . import io
 
-def convert_directory(source, dicomdir, multiframe, writer):
+def convert_directory(source, ideal_b_values, dicomdir, multiframe, writer):
     """ Convert a Bruker directory to DICOM and write the files.
         
         :param source: source directory
@@ -74,7 +74,8 @@ def convert_directory(source, dicomdir, multiframe, writer):
                 modality = "MR"
             
             convert_reconstruction(
-                data_set, converters[(modality, multiframe)], writer)
+                data_set, converters[(modality, multiframe)], ideal_b_values,
+                writer)
         except Exception as e:
             logger.error("Could not convert: {}".format(e))
             logger.debug("Stack trace", exc_info=True)
@@ -85,7 +86,7 @@ def convert_directory(source, dicomdir, multiframe, writer):
         io.create_dicomdir(
             writer.files, writer.root, [], [], ["SeriesDescription:3"], [])
 
-def convert_reconstruction(data_set, iod_converter, writer):
+def convert_reconstruction(data_set, iod_converter, ideal_b_values, writer):
     """ Convert and save a single reconstruction.
 
         :param iod_converter: conversion function
@@ -97,7 +98,8 @@ def convert_reconstruction(data_set, iod_converter, writer):
         data_set.get("RECO_mode", ["none"])[0]
     ))
     
-    dicom_data_sets = iod_converter(data_set, writer.transfer_syntax)
+    dicom_data_sets = iod_converter(
+        data_set, writer.transfer_syntax, ideal_b_values)
     
     for dicom_data_set in dicom_data_sets:
         writer(dicom_data_set)

@@ -17,7 +17,7 @@ from ..modules import (
 from .. import FrameIndexGenerator
 from .. import convert
 
-def enhanced_mr_image_storage(bruker_data_set, transfer_syntax):
+def enhanced_mr_image_storage(bruker_data_set, transfer_syntax, ideal_b_values):
     """ Convert bruker_data_set into dicom_data_set by using the correct 
         transfer_syntax.
         This function will create one data_set per reconstruction 
@@ -85,7 +85,7 @@ def enhanced_mr_image_storage(bruker_data_set, transfer_syntax):
     ]
 
     if "FG_DIFFUSION" in [x[1] for x in generator.frame_groups]:
-        groups.append(mr.MRDiffusion)
+        groups.append(mr.MRDiffusionFactory(ideal_b_values))
 
     for module in frame_independent_modules:
         convert.convert_module(

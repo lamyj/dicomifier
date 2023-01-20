@@ -172,10 +172,8 @@ MRImagingModifier = [ # PS 3.3, C.8.13.5.6
 def get_diffusion_data(data_set, what):
     if "__Diffusion" not in data_set:
         # Cache the "ideal" b-values, directions of diffusion gradient, and
-        # b-matrices. This assumes that the b-values are large enough to mostly
-        # depend on the diffusion-sensitization gradient and not on the imaging
-        # gradients.
-        data_set["__Diffusion"] = [[], [], []]
+        # b-matrices.
+        data_set["__Diffusion"] = [[], [], [], []]
         
         ideal_b_values = set(data_set["PVM_DwBvalEach"])
         ideal_b_values.add(0)
@@ -186,6 +184,9 @@ def get_diffusion_data(data_set, what):
         closest = numpy.argmin([abs(b_values - x) for x in ideal_b_values], 0)
         individual_b_values = numpy.array(ideal_b_values)[closest]
         data_set["__Diffusion"][0] = individual_b_values
+        
+        # Keep the effective b-values
+        data_set["__Diffusion"][3] = b_values
         
         # Normalize the directions, avoid divide-by-zero
         directions = numpy.reshape(data_set["PVM_DwGradVec"], (-1, 3))
@@ -212,24 +213,30 @@ def get_diffusion_data(data_set, what):
     
     return data_set["__Diffusion"][what]
 
-MRDiffusion = [ # PS 3.3, C.8.13.5.9
-    "MRDiffusionSequence", False,
-    [
-        # NOTE: VisuAcqDiffusionBMatrix does not exist in PV5. However, the 
-        # diffusion frame group is normalized in order to include it in its
-        # dependent fields.
-        (
-            "VisuAcqDiffusionBMatrix", "DiffusionBValue", 1,
-            lambda d, g, i: get_diffusion_data(d, 0)),
-        (None, "DiffusionDirectionality", 1, lambda d,g,i: ["DIRECTIONAL"]),
-        (
-            "VisuAcqDiffusionBMatrix", "DiffusionGradientDirectionSequence", 1,
-            lambda d, g, i: get_diffusion_data(d, 1)),
-        (
-            "VisuAcqDiffusionBMatrix", "DiffusionBMatrixSequence", 1,
-            lambda d, g, i: get_diffusion_data(d, 2))
+def MRDiffusionFactory(ideal_b_values):
+    """ Return the MR Diffusion module (PS 3.3, C.8.13.5.9) with either the
+        ideal b-values (mapped from PVM_DwEffBval to PVM_DwBvalEach) or the
+        effective b-values (PVM_DwEffBval).
+    """
+    
+    return [ # PS 3.3, C.8.13.5.9
+        "MRDiffusionSequence", False,
+        [
+            # NOTE: VisuAcqDiffusionBMatrix does not exist in PV5. However, the 
+            # diffusion frame group is normalized in order to include it in its
+            # dependent fields.
+            (
+                "VisuAcqDiffusionBMatrix", "DiffusionBValue", 1,
+                lambda d, g, i: get_diffusion_data(d, 0 if ideal_b_values else 3)),
+            (None, "DiffusionDirectionality", 1, lambda d,g,i: ["DIRECTIONAL"]),
+            (
+                "VisuAcqDiffusionBMatrix", "DiffusionGradientDirectionSequence", 1,
+                lambda d, g, i: get_diffusion_data(d, 1)),
+            (
+                "VisuAcqDiffusionBMatrix", "DiffusionBMatrixSequence", 1,
+                lambda d, g, i: get_diffusion_data(d, 2))
+        ]
     ]
-]
 
 MRAverages = [# PS 3.3, C.8.13.5.10
     "MRAveragesSequence", False,
