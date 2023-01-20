@@ -165,8 +165,11 @@ def to_fsl(scheme, transform, bvecs_fd, bvals_fd):
     
     directions = numpy.array([direction for b_value, direction in scheme])
     # Convert from patient coordinates to image coordinates
-    # WARNING: for highly anisotropic images and non axis-aligned transforms,
-    # this seem to introduce a slight bias in the directions.
+    # WARNING: the transform may contain scaling. Remove it to keep only the
+    # rotation part, otherwise the directions won't be correct
+    transform = transform.copy()
+    for column in range(transform.shape[1]):
+        transform[:, column] /= numpy.linalg.norm(transform[:,column])
     bvecs = numpy.array([numpy.linalg.inv(transform) @ d for d in directions])
     
     if numpy.linalg.det(transform)>0:
