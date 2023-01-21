@@ -60,7 +60,7 @@ def from_siemens_csa(data):
         elements (CSA Image Header Info (0029,xx10)).
     """
     
-    logger.warning(
+    logger.debug(
         "The coordinate system of the gradient direction is unspecified. "
         "Results may be wrong on non-axial images.")
     

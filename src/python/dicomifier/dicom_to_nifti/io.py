@@ -81,7 +81,8 @@ def write_nifti(nifti_data, destination, zip, series_directory=None):
         :param series_directory: if provided, override the automated 
             series-based output directory name
     """
-
+    
+    nifti_files = []
     # Write one nii+json per stack
     for index, (image, meta_data) in enumerate(nifti_data):
         destination_directory = os.path.join(
@@ -97,11 +98,15 @@ def write_nifti(nifti_data, destination, zip, series_directory=None):
         suffix = ".nii"
         if zip:
             suffix += ".gz"
-        nibabel.save(image, destination_root + suffix)
+        nifti_file = destination_root + suffix
+        nibabel.save(image, nifti_file)
+        nifti_files.append(nifti_file)
         
         json.dump(
             meta_data, open(destination_root + ".json", "w"),
             cls=MetaData.JSONEncoder)
+    
+    return nifti_files
 
 def get_series_directory(meta_data):
     """ Return the directory associated with the patient, study and series of

@@ -64,12 +64,15 @@ def convert_paths(paths, destination, zip, dtype=None, extra_splitters=None):
             for i, finder in enumerate(finders):
                 series_directories[finder] += "_{}".format(1+i)
     
+    all_nifti_files = []
     for finder, series_files in series.items():
         nifti_data = convert_series(
             series_files, dtype, finder, extra_splitters)
         if nifti_data is not None:
-            io.write_nifti(
+            nifti_files = io.write_nifti(
                 nifti_data, destination, zip, series_directories[finder])
+            all_nifti_files.extend(nifti_files)
+    return all_nifti_files
 
 class SeriesContext(logging.Filter):
     """ Add series context to logger. 

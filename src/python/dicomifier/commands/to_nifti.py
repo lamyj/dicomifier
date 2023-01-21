@@ -7,6 +7,7 @@
 #########################################################################
 
 import pathlib
+import re
 import shutil
 import tempfile
 import sys
@@ -16,7 +17,7 @@ import dicomifier
 import numpy
 import odil
 
-from . import to_dicom
+from . import diffusion_scheme, to_dicom
 
 def setup(subparsers):
     parser = subparsers.add_parser(
@@ -40,10 +41,12 @@ def setup(subparsers):
         "--effective-b-values", "-e",
         action="store_false", dest="ideal_b_values",
         help="Store effective b-values instead of ideal ones")
-    
+    parser.add_argument(
+        "--diffusion-scheme", "-s", choices=["mrtrix", "fsl"],
+        dest="diffusion_format", help="Save diffusion data in specified format")
     return parser
 
-def action(sources, ideal_b_values, destination, dtype, zip):
+def action(sources, destination, dtype, zip, ideal_b_values, diffusion_format):
     bruker_sources = []
     dicom_sources = []
     for source in sources:
@@ -73,7 +76,29 @@ def action(sources, ideal_b_values, destination, dtype, zip):
             dicom_sources.append(dicom_destination)
         
         # Convert all sources to NIfTI
-        dicomifier.dicom_to_nifti.convert.convert_paths(
+        nifti_files = dicomifier.dicom_to_nifti.convert.convert_paths(
             dicom_sources, destination, zip, dtype)
+        
+        if diffusion_format:
+            for nifti_file in nifti_files:
+                root = re.match(r"^(.+)\.nii(\.gz)?$", nifti_file).group(1)
+                
+                meta_data_file = "{}.json".format(root)
+                
+                if diffusion_format == "mrtrix":
+                    destinations = ["{}.scheme".format(root)]
+                elif diffusion_format == "fsl":
+                    destinations = [
+                        "{}.{}".format(root, suffix)
+                        for suffix in ["bvec", "bval"]]
+                destinations = [pathlib.Path(x) for x in destinations]
+                
+                try:
+                    diffusion_scheme.action(
+                        pathlib.Path(meta_data_file), diffusion_format,
+                        destinations, nifti_file)
+                except Exception as e:
+                    dicomifier.logger.debug(
+                        "No usable diffusion in {}: {}".format(root, e))
     finally:
         shutil.rmtree(str(directory))
