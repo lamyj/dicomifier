@@ -44,9 +44,13 @@ def setup(subparsers):
     parser.add_argument(
         "--diffusion-scheme", "-s", choices=["mrtrix", "fsl"],
         dest="diffusion_format", help="Save diffusion data in specified format")
+    parser.add_argument(
+        "--layout", "-l", help="Set the layout of the destination directory")
     return parser
 
-def action(sources, destination, dtype, zip, ideal_b_values, diffusion_format):
+def action(
+        sources, destination, dtype, zip, ideal_b_values, diffusion_format,
+        layout):
     bruker_sources = []
     dicom_sources = []
     for source in sources:
@@ -77,7 +81,7 @@ def action(sources, destination, dtype, zip, ideal_b_values, diffusion_format):
         
         # Convert all sources to NIfTI
         nifti_files = dicomifier.dicom_to_nifti.convert.convert_paths(
-            dicom_sources, destination, zip, dtype)
+            dicom_sources, destination, zip, dtype, layout=layout)
         
         if diffusion_format:
             for nifti_file in nifti_files:

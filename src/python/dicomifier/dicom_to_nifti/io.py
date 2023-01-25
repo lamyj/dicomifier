@@ -8,6 +8,7 @@
 
 import json
 import os
+import re
 import unicodedata
 
 import nibabel
@@ -87,9 +88,8 @@ def write_nifti(nifti_data, destination, zip, series_directory=None):
     for index, (image, meta_data) in enumerate(nifti_data):
         destination_directory = os.path.join(
             str(destination), 
-            series_directory if series_directory is not None 
-                else get_series_directory(meta_data))
-
+            get_series_directory(meta_data, series_directory))
+        
         if not os.path.isdir(destination_directory):
             os.makedirs(destination_directory)
 
@@ -108,76 +108,94 @@ def write_nifti(nifti_data, destination, zip, series_directory=None):
     
     return nifti_files
 
-def get_series_directory(meta_data):
+def get_series_directory(meta_data, layout=None):
     """ Return the directory associated with the patient, study and series of
         the NIfTI meta-data.
     """
     
-    def get_first_item(item):
-        while isinstance(item, list):
-            item = item[0]
-        return item
-    
-    # Patient directory: <PatientName> or <PatientID> or <StudyInstanceUID>.
-    patient_directory = None
-    if "PatientName" in meta_data and meta_data["PatientName"]:
-        patient_directory = get_first_item(meta_data["PatientName"])["Alphabetic"]
-    elif "PatientID" in meta_data and meta_data["PatientID"]:
-        patient_directory = meta_data["PatientID"][0]
-    elif "StudyInstanceUID" in meta_data and meta_data["StudyInstanceUID"]:
-        patient_directory = meta_data["StudyInstanceUID"][0]
+    if layout:
+        # TODO: allow a sequence of tags and keywords, separated by "|", e.g.
+        # PatientName|PatientID so that the layout can default to another value
+        layout = re.split(r"\{([^}]+)\}", layout)
+        for index in range(1, len(layout), 2):
+            value = meta_data.get(layout[index], [""])[0]
+            if isinstance(value, dict) and "Alphabetic" in value:
+                value = value["Alphabetic"]
+            layout[index] = str(value)
+        path = "".join(layout)
     else:
-        raise Exception("Cannot determine patient directory")
-
-    # Study directory: <StudyID>_<StudyDescription>, both parts are
-    # optional. If both tags are missing or empty, raise an exception
-    study_directory = []
-    if "StudyID" in meta_data and meta_data["StudyID"]:
-        study_directory.append(numpy.ravel([x for x in meta_data["StudyID"] if x])[0])
-    if "StudyDescription" in meta_data and meta_data["StudyDescription"]:
-        study_directory.append(numpy.ravel([x for x in meta_data["StudyDescription"] if x])[0])
-
-    if not study_directory:
-        if "StudyInstanceUID" in meta_data and meta_data["StudyInstanceUID"]:
-            study_directory = [meta_data["StudyInstanceUID"][0]]
+        def get_first_item(item):
+            while isinstance(item, list):
+                item = item[0]
+            return item
+        
+        # Patient directory: <PatientName> or <PatientID> or <StudyInstanceUID>.
+        patient_directory = None
+        if "PatientName" in meta_data and meta_data["PatientName"]:
+            patient_directory = get_first_item(
+                meta_data["PatientName"])["Alphabetic"]
+        elif "PatientID" in meta_data and meta_data["PatientID"]:
+            patient_directory = meta_data["PatientID"][0]
+        elif "StudyInstanceUID" in meta_data and meta_data["StudyInstanceUID"]:
+            patient_directory = meta_data["StudyInstanceUID"][0]
         else:
-            raise Exception("Cannot determine study directory")
+            raise Exception("Cannot determine patient directory")
 
-    study_directory = "_".join(study_directory).replace(os.path.sep, "_")
+        # Study directory: <StudyID>_<StudyDescription>, both parts are
+        # optional. If both tags are missing or empty, raise an exception
+        study_directory = []
+        if "StudyID" in meta_data and meta_data["StudyID"]:
+            study_directory.append(
+                numpy.ravel([x for x in meta_data["StudyID"] if x])[0])
+        if "StudyDescription" in meta_data and meta_data["StudyDescription"]:
+            study_directory.append(
+                numpy.ravel([x for x in meta_data["StudyDescription"] if x])[0])
 
-    # Study directory: <SeriesNumber>_<SeriesDescription>, both
-    # parts are optional. If both tags are missing or empty, raise an exception
-    series_directory = []
-    if "SeriesNumber" in meta_data and meta_data["SeriesNumber"]:
-        software = meta_data.get("SoftwareVersions", [""])[0]
-        series_number = numpy.ravel(
-                [x for x in meta_data["SeriesNumber"] if x is not None]
-            )[0]
-        if software == "ParaVision" and series_number > 2**16:
-            # Bruker ID based on experiment number and reconstruction number is
-            # not readable: separate the two values
-            series_directory.extend(
-                str(x) for x in divmod(series_number, 2**16))
-        elif software.startswith("ParaVision") and series_number > 10000:
-            # Same processing for Bruker-generated DICOM
-            series_directory.extend(
-                str(x) for x in divmod(series_number, 10000))
-        else:
-            series_directory.append(str(series_number))
-    if "SeriesDescription" in meta_data and meta_data["SeriesDescription"]:
-        series_directory.append(numpy.ravel([x for x in meta_data["SeriesDescription"] if x])[0])
-    elif "ProtocolName" in meta_data and meta_data["ProtocolName"]:
-        series_directory.append(numpy.ravel([x for x in meta_data["ProtocolName"] if x])[0])
+        if not study_directory:
+            if "StudyInstanceUID" in meta_data and meta_data["StudyInstanceUID"]:
+                study_directory = [meta_data["StudyInstanceUID"][0]]
+            else:
+                raise Exception("Cannot determine study directory")
 
-    if not series_directory:
-        if "SeriesInstanceUID" in meta_data and meta_data["SeriesInstanceUID"]:
-            series_directory = [meta_data["SeriesInstanceUID"][0]]
-        else:
-            raise Exception("Cannot determine series directory")
+        study_directory = "_".join(study_directory).replace(os.path.sep, "_")
 
-    series_directory = "_".join(series_directory).replace(os.path.sep, "_")
+        # Study directory: <SeriesNumber>_<SeriesDescription>, both parts are
+        # optional. If both tags are missing or empty, raise an exception
+        series_directory = []
+        if "SeriesNumber" in meta_data and meta_data["SeriesNumber"]:
+            software = meta_data.get("SoftwareVersions", [""])[0]
+            series_number = numpy.ravel(
+                    [x for x in meta_data["SeriesNumber"] if x is not None]
+                )[0]
+            if software == "ParaVision" and series_number > 2**16:
+                # Bruker ID based on experiment number and reconstruction number
+                # is not readable: separate the two values
+                series_directory.extend(
+                    str(x) for x in divmod(series_number, 2**16))
+            elif software.startswith("ParaVision") and series_number > 10000:
+                # Same processing for Bruker-generated DICOM
+                series_directory.extend(
+                    str(x) for x in divmod(series_number, 10000))
+            else:
+                series_directory.append(str(series_number))
+        if "SeriesDescription" in meta_data and meta_data["SeriesDescription"]:
+            series_directory.append(
+                numpy.ravel(
+                    [x for x in meta_data["SeriesDescription"] if x])[0])
+        elif "ProtocolName" in meta_data and meta_data["ProtocolName"]:
+            series_directory.append(
+                numpy.ravel([x for x in meta_data["ProtocolName"] if x])[0])
+
+        if not series_directory:
+            if "SeriesInstanceUID" in meta_data and meta_data["SeriesInstanceUID"]:
+                series_directory = [meta_data["SeriesInstanceUID"][0]]
+            else:
+                raise Exception("Cannot determine series directory")
+
+        series_directory = "_".join(series_directory).replace(os.path.sep, "_")
+        
+        path = os.path.join(patient_directory, study_directory, series_directory)
     
-    path = os.path.join(patient_directory, study_directory, series_directory)
     path = "".join(
         c for c in unicodedata.normalize("NFD", path)
         if unicodedata.category(c) != "Mn")

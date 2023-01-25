@@ -20,7 +20,8 @@ from .stacks import get_stacks, sort
 
 from .. import logger, MetaData
 
-def convert_paths(paths, destination, zip, dtype=None, extra_splitters=None):
+def convert_paths(
+        paths, destination, zip, dtype=None, extra_splitters=None, layout=None):
     """ Convert the DICOM files found in a collection of paths (files, 
         directories, or DICOMDIR) and save the result in the given destination.
         
@@ -30,6 +31,7 @@ def convert_paths(paths, destination, zip, dtype=None, extra_splitters=None):
         :param dtype: if not None, force the dtype of the result image
         :param extra_splitters: additional splitters to be used when building
             stacks
+        :param layout: Override the destination layout
     """
     
     if os.path.isdir(str(destination)) and len(os.listdir(str(destination))) > 0:
@@ -53,7 +55,7 @@ def convert_paths(paths, destination, zip, dtype=None, extra_splitters=None):
             path, halt_condition=lambda x:x>odil.registry.SeriesNumber)[1]
         data_set = meta_data.convert_data_set(
             data_set, data_set.get("SpecificCharacterSet", odil.Value.Strings()))
-        directory = io.get_series_directory(data_set)
+        directory = io.get_series_directory(data_set, layout)
         
         series_directories[finder] = directory
         directories_series.setdefault(directory, []).append(finder)
