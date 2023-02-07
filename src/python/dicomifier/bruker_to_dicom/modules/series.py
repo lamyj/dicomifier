@@ -33,7 +33,7 @@ GeneralSeries = [ # PS 3.3, C.7.3.1
         cached("__SeriesTime")(
             lambda d,g,i: d.get("VisuSeriesDate") or d.get("VisuAcqDate"))),
     ("OWNER", "PerformingPhysicianName", 3, None),
-    ("VisuAcquisitionProtocol", "ProtocolName", 3, None),
+    ("VisuSeriesComment", "ProtocolName", 3, None),
     ("VisuAcquisitionProtocol", "SeriesDescription", 3, None),
     (
         "VisuSubjectPosition", "PatientPosition", 2,
