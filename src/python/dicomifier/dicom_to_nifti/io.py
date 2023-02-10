@@ -127,7 +127,10 @@ def get_series_directory(meta_data, layout=None):
             value = ""
             for item in selector.split("|"):
                 if item in meta_data:
-                    value = meta_data[item][0]
+                    if item == "SeriesNumber":
+                        value = str(get_series_number(meta_data))
+                    else:
+                        value = meta_data[item][0]
                     break
             
             if isinstance(value, dict) and "Alphabetic" in value:
@@ -175,21 +178,7 @@ def get_series_directory(meta_data, layout=None):
         # optional. If both tags are missing or empty, raise an exception
         series_directory = []
         if "SeriesNumber" in meta_data and meta_data["SeriesNumber"]:
-            software = meta_data.get("SoftwareVersions", [""])[0]
-            series_number = numpy.ravel(
-                    [x for x in meta_data["SeriesNumber"] if x is not None]
-                )[0]
-            if software == "ParaVision" and series_number > 2**16:
-                # Bruker ID based on experiment number and reconstruction number
-                # is not readable: separate the two values
-                series_directory.extend(
-                    str(x) for x in divmod(series_number, 2**16))
-            elif software.startswith("ParaVision") and series_number > 10000:
-                # Same processing for Bruker-generated DICOM
-                series_directory.extend(
-                    str(x) for x in divmod(series_number, 10000))
-            else:
-                series_directory.append(str(series_number))
+            series_directory.append(str(get_series_number(meta_data)))
         if "SeriesDescription" in meta_data and meta_data["SeriesDescription"]:
             series_directory.append(
                 numpy.ravel(
@@ -213,3 +202,21 @@ def get_series_directory(meta_data, layout=None):
         if unicodedata.category(c) != "Mn")
     
     return path
+
+def get_series_number(meta_data):
+    """ Return a human readble series number for Bruker data, or the raw series
+        number for non-Bruker data.
+    """
+    
+    software = meta_data.get("SoftwareVersions", [""])[0]
+    series_number = numpy.ravel(
+            [x for x in meta_data["SeriesNumber"] if x is not None]
+        )[0]
+    if software == "ParaVision" and series_number > 2**16:
+        # Bruker ID based on experiment number and reconstruction number
+        # is not readable: separate the two values
+        series_number = "_".join([str(x) for x in divmod(series_number, 2**16)])
+    elif software.startswith("ParaVision") and series_number > 10000:
+        # Same processing for Bruker-generated DICOM
+        series_number = "_".join([str(x) for x in divmod(series_number, 10000)])
+    return series_number
