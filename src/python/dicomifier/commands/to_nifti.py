@@ -45,7 +45,13 @@ def setup(subparsers):
         "--diffusion-scheme", "-s", choices=["mrtrix", "fsl"],
         dest="diffusion_format", help="Save diffusion data in specified format")
     parser.add_argument(
-        "--layout", "-l", help="Set the layout of the destination directory")
+        "--layout", "-l",
+        help="Set the layout of the destination directory. Values between "
+            "braces are replaced by the value of the corresponding meta-data "
+            "item. A set of pipe-separated items can be specified in the "
+            "braces, in which case the first item present in the meta-data "
+            "will be used. If no corresponding item is found in the meta-data, "
+            "the empty string will be used.")
     return parser
 
 def action(

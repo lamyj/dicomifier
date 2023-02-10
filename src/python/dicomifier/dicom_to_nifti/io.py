@@ -111,17 +111,29 @@ def write_nifti(nifti_data, destination, zip, series_directory=None):
 def get_series_directory(meta_data, layout=None):
     """ Return the directory associated with the patient, study and series of
         the NIfTI meta-data.
+        
+        :param layout: template for the directory name. Values between braces
+            are replaced by the value of the corresponding meta-data item. A set
+            of pipe-separated items can be specified in the braces, in which
+            case the first item present in the meta-data will be used. If no
+            corresponding item is found in the meta-data, the empty string will
+            be used.
     """
     
     if layout:
-        # TODO: allow a sequence of tags and keywords, separated by "|", e.g.
-        # PatientName|PatientID so that the layout can default to another value
         layout = re.split(r"\{([^}]+)\}", layout)
         for index in range(1, len(layout), 2):
-            value = meta_data.get(layout[index], [""])[0]
+            selector = layout[index]
+            value = ""
+            for item in selector.split("|"):
+                if item in meta_data:
+                    value = meta_data[item][0]
+                    break
+            
             if isinstance(value, dict) and "Alphabetic" in value:
                 value = value["Alphabetic"]
             layout[index] = str(value)
+        
         path = "".join(layout)
     else:
         def get_first_item(item):
