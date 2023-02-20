@@ -28,11 +28,14 @@ def setup(subparsers):
         metavar="destination", help="Output file")
     parser.add_argument(
         "--image", "-i", type=pathlib.Path, 
-        help="Image file for formats using image-based direction coordinates")
+        help="Image file. Mandatory for formats using image-based direction "
+            "coordinates, may be used if the diffusion scheme is ambiguous.")
     
     return parser
 
 def action(source, format, destinations, image):
+    if image is not None:
+        image = nibabel.load(image)
     with source.open() as fd:
         data = json.load(fd)
     
@@ -41,6 +44,11 @@ def action(source, format, destinations, image):
         try:
             getter = getattr(dicomifier.nifti.diffusion, "from_{}".format(name))
             scheme = getter(data)
+            if (
+                    len(scheme) == 1
+                    and image is not None
+                    and image.ndim >= 4 and image.shape[3] > 1):
+                scheme = image.shape[3] * scheme
         except Exception:
             pass
         if scheme is not None:
@@ -61,7 +69,6 @@ def to_fsl(scheme, destinations, image):
     if image is None:
         raise Exception("Image must be provided")
 
-    image = nibabel.load(str(image))
     with destinations[0].open("w") as bvecs_fd, destinations[1].open("w") as bvals_fd:
         dicomifier.nifti.diffusion.to_fsl(
             scheme, image.affine[:3,:3], bvecs_fd, bvals_fd)

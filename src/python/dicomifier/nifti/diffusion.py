@@ -26,7 +26,10 @@ def from_standard(data):
         elements (MR Diffusion Sequence).
     """
     
-    diffusion_data = data["MRDiffusionSequence"]
+    # Make sure to get the standard form using nested sequences. A 1D object
+    # can happen if diffusion encoding is the same for all volumes and the
+    # meta-data gets squashed as 1D.
+    diffusion_data = numpy.atleast_2d(data["MRDiffusionSequence"])
     
     scheme = []
     for entry in diffusion_data:
