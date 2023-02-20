@@ -46,8 +46,8 @@ def get_pixel_data(data_set, generator, frame_index):
                 -1, data_set["VisuCoreSize"][0]*data_set["VisuCoreSize"][1])
         if data_set["PIXELDATA"].dtype == numpy.single:
             # Map to uint32
-            min = data_set["PIXELDATA"].min()
-            max = data_set["PIXELDATA"].max()
+            min = numpy.nanmin(data_set["PIXELDATA"])
+            max = numpy.nanmax(data_set["PIXELDATA"])
             
             data_set["PIXELDATA"] -= min
             data_set["PIXELDATA"] *= (1<<32)/(max-min)
