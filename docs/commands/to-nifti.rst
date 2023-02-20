@@ -29,6 +29,18 @@ Options
   
   Compress NIfTI files
 
+.. option:: --layout <layout>, -l <layout>
+  
+  Set the layout of the destination directory. Values between braces are replaced by the value of the corresponding meta-data item. A set of pipe-separated items can be specified in the braces, in which case the first item present in the meta-data will be used. If no corresponding item is found in the meta-data, the empty string will be used
+
+.. option:: --effective-b-values, -e
+  
+  Store effective b-values (i.e. accounting for imaging gradients) instead of ideal ones. This option should be enabled the imaging gradients add a non-trivial part of diffusion weighting (e.g. stimulated echoes). Note that the ideal b-values may still be stored in private data fields
+
+.. option:: --diffusion-scheme <format>, -s <format>
+  
+  Save diffusion data in specified format (*mrtrix* or *fsl*), along with the NIfTI and JSON files
+
 .. option:: -v <level>, --verbose <level>
   
   Verbosity level (*warning*, *info*, or *debug*)

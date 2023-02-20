@@ -33,7 +33,7 @@ Options
 
 .. option:: -i <image>, --image <image>
   
-  Image file for formats using image-based direction coordinates
+  Image file for formats using image-based direction coordinates. Mandatory for formats using image-based direction coordinates, optional but recommended in other cases
 
 .. option:: -v <level>, --verbose <level>
   
