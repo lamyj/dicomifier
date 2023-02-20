@@ -100,7 +100,7 @@ def action(
                 elif diffusion_format == "fsl":
                     destinations = [
                         "{}.{}".format(root, suffix)
-                        for suffix in ["bvec", "bval"]]
+                        for suffix in ["bvecs", "bvals"]]
                 destinations = [pathlib.Path(x) for x in destinations]
                 
                 try:
