@@ -6,7 +6,7 @@ import sys
 
 workspace = os.environ["WORKSPACE"]
 build_dir = os.environ.get("BUILD_DIR", os.path.join(workspace, "build"))
-install_dir = os.environ.get("BUILD_DIR", os.path.join(workspace, "install"))
+install_dir = os.environ.get("INSTALL_DIR", os.path.join(workspace, "install"))
 
 for dir in [build_dir, install_dir]:
     if not os.path.isdir(dir):
