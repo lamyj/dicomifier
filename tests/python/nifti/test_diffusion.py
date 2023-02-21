@@ -78,7 +78,7 @@ class TestDiffusion(unittest.TestCase):
         transform = numpy.array([
             [0, 1, 0],
             [0, 0, 1],
-            [1, 0, 0]])
+            [1, 0, 0]], dtype=float)
         
         bvecs_stream = io.StringIO()
         bvals_stream = io.StringIO()
@@ -107,7 +107,7 @@ class TestDiffusion(unittest.TestCase):
         transform = numpy.array([
             [0, -1, 0],
             [0,  0, 1],
-            [1,  0, 0]])
+            [1,  0, 0]], dtype=float)
         
         bvecs_stream = io.StringIO()
         bvals_stream = io.StringIO()
