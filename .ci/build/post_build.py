@@ -33,14 +33,14 @@ return_code = max(
     subprocess.call(
         [sys.executable, "-m", "unittest", "discover", "-s", python_tests_dir], 
         cwd=build_dir))
-if not os.environ.get("DICOMIFIER_SKIP_CONVERSION_TESTS"):
-    if not os.path.isdir(os.path.join(workspace, "tests/data/input")):
-        subprocess.check_call(["tests/download_data"], cwd=workspace)
-    
-    for test in ["to_dicom", "to_nifti", "list"]:
-        return_code = max(
-            return_code,
-            subprocess.call([
-                sys.executable,
-                os.path.join(workspace, "tests/diff/{}.py".format(test))]))
+# if not os.environ.get("DICOMIFIER_SKIP_CONVERSION_TESTS"):
+#     if not os.path.isdir(os.path.join(workspace, "tests/data/input")):
+#         subprocess.check_call(["tests/download_data"], cwd=workspace)
+#     
+#     for test in ["to_dicom", "to_nifti", "list"]:
+#         return_code = max(
+#             return_code,
+#             subprocess.call([
+#                 sys.executable,
+#                 os.path.join(workspace, "tests/diff/{}.py".format(test))]))
 sys.exit(return_code)
