@@ -8,8 +8,6 @@ Installing pre-compiled packages
 
 If you have `Anaconda <https://anaconda.org>`_ installed, a pre-built package is available on `conda-forge <https://conda-forge.org/>`_: running ``conda install -c conda-forge dicomifier`` will install the latest stable version.
 
-Debian and Ubuntu user can also use unofficial packages: following the `instructions to set up the unofficial repository <https://github.com/lamyj/packages>`_, and install the *dicomifier-cli* package with the usual tools provided by your distribution. The latest stable version of Dicomifier is available for the two latest long-term support versions of Ubuntu and for the two latest versions of Debian. Old versions of Ubuntu and Debian may be supported, but may not have the latest version of Dicomifier.
-
 Compiling from source
 ---------------------
 
@@ -22,7 +20,25 @@ If you need to compile Dicomifier from scratch, you will need
 - `Odil <https://odil.readthedocs.io>`_ ≥ 0.12.0
 - The `dateutil <https://pypi.org/project/py-dateutil/>`_, `nibabel <https://nipy.org/nibabel/>`_ and `numpy <https://numpy.org/>`_ Python modules
 
-The compilation process follows the usual CMake workflow: create a build directory, run ``cmake`` to configure the build environment, and run ``cmake --build .`` to build Dicomifier.
+If using Conda, all dependencies can be installed by ``conda install --yes -c conda-forge boost cmake nibabel numpy odil pkg-config pybind11 python-dateutil``
+
+The compilation process follows the usual CMake workflow: 
+
+- Specify which Python interpreter you use. It can be ``python``, ``python3``, or a more specific version, e.g. ``python3.10``. Store it in an environement variable, e.g. ``export PYTHON_EXECUTABLE=$(which python3)``
+- Choose an install destination. It can be within the source directory, or in any other directory that you can write into. Store it in an environement variable, e.g. ``export DICOMIFIER=${HOME}/src/dicomifier/install``
+- Create a ``build`` directory in the source directory.
+- From the source directory, run ``cmake -DPYTHON_EXECUTABLE="${PYTHON_EXECUTABLE}" -DCMAKE_INSTALL_PREFIX="${DICOMIFIER}" -S . -B build`` to configure the build environment.
+- Run ``cmake --build build --parallel`` to build Dicomifier.
+- Finally, run ``cmake --install build`` to install Dicomifier to your specified location.
+
+You may need to adjust your environment before you can use Dicomifier:
+
+.. code:: bash
+    
+    export PATH="${DICOMIFIER}/bin:${PATH}"
+    export LD_LIBRARY_PATH="${DICOMIFIER}/lib:${LD_LIBRARY_PATH}"
+    PYTHONPREFIX=$(grep PYTHON_SITE_PACKAGES foo-build/CMakeCache.txt | cut -d= -f2)
+    export PYTHONPATH="${DICOMIFIER}/${PYTHONPREFIX}:${PYTHONPATH}"
 
 You may also refer to the `continuous integration scripts <https://github.com/lamyj/dicomifier/tree/master/.ci>`_ to see working examples.
 
