@@ -16,11 +16,13 @@ endif()
 
 execute_process(
     COMMAND ${PYTHON_EXECUTABLE}
-      -c "import os; \
-        from distutils.sysconfig import *; \
-        print(get_python_lib(True, prefix='').replace(os.path.sep, '/'))"
+        -c "import os; import sysconfig; \
+        print(\ 
+            sysconfig.get_path('platlib', os.name+'_user', {'userbase': '.'})\
+            .replace('\\\\', '/'))"
     OUTPUT_VARIABLE PYTHON_SITE_PACKAGES
     OUTPUT_STRIP_TRAILING_WHITESPACE)
+
 set(
     PYTHON_SITE_PACKAGES "${PYTHON_SITE_PACKAGES}" 
     CACHE INTERNAL "Relative package path")
