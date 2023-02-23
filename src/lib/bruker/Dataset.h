@@ -27,6 +27,9 @@ public:
     /// @brief Load dataset from file, update any existing field.
     void load(std::string const & path);
     
+    /// @brief Load dataset from file content, update any existing field.
+    void loads(std::string const & data);
+    
     /// @brief Test if dataset contains a given field.
     bool has_field(std::string const & name) const;
     
@@ -49,6 +52,9 @@ public:
 private:
     std::map<std::string, Field> _fields;
     std::vector<std::string> _used_files;
+    
+    void _load(
+        std::string::const_iterator begin, std::string::const_iterator end);
 };
 
 } // namespace bruker

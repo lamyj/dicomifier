@@ -36,7 +36,7 @@ Dataset
     {
         throw Exception("Could not open file: " + path);
     }
-    _used_files.push_back(path);
+    this->_used_files.push_back(path);
     std::string data(
         (std::istreambuf_iterator<typename std::string::value_type>(stream)),
         (std::istreambuf_iterator<typename std::string::value_type>()));
@@ -46,34 +46,20 @@ Dataset
     data = boost::regex_replace(data, boost::regex(R"(\\?\R(?!##|\$\$))"), "");
     
     // Parse the data
-    std::string::const_iterator begin = data.begin();
-    std::string::const_iterator const end = data.end();
-    
-    std::vector<Field> fields;
-    grammar<std::string::const_iterator> g;
-    bool const parsed = boost::spirit::qi::parse(begin, end, g, fields);
-    
-    if(!parsed)
-    {
-        throw Exception("Could not parse file");
-    }
-    
-    if(begin != end)
-    {
-        throw Exception("File was parsed incompletely");
-    }
-
-    // Fill the fields map
-    for(auto & field: fields)
-    {
-        if(field.name[0] == '$')
-        {
-            field.name = field.name.substr(1);
-        }
-        this->set_field(field);
-    }
+    this->_load(data.begin(), data.end());
 }
 
+void
+Dataset
+::loads(std::string const & data)
+{
+    // Join multi-line elements
+    auto const joined_data = boost::regex_replace(
+        data, boost::regex(R"(\\?\R(?!##|\$\$))"), "");
+    
+    // Parse the data
+    this->_load(joined_data.begin(), joined_data.end());
+}
 
 std::vector<std::string> const &
 Dataset
@@ -108,6 +94,35 @@ Dataset
 ::set_field(Field const & field)
 {
     this->_fields[field.name] = field;
+}
+
+void
+Dataset
+::_load(std::string::const_iterator begin, std::string::const_iterator end)
+{
+    std::vector<Field> fields;
+    grammar<std::string::const_iterator> g;
+    bool const parsed = boost::spirit::qi::parse(begin, end, g, fields);
+    
+    if(!parsed)
+    {
+        throw Exception("Could not parse file");
+    }
+    
+    if(begin != end)
+    {
+        throw Exception("File was parsed incompletely");
+    }
+
+    // Fill the fields map
+    for(auto & field: fields)
+    {
+        if(field.name[0] == '$')
+        {
+            field.name = field.name.substr(1);
+        }
+        this->set_field(field);
+    }
 }
 
 } // namespace bruker

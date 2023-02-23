@@ -27,13 +27,18 @@ void wrap_Dataset(pybind11::module & m)
             "load", &Dataset::load, arg("path"),
             "Load dataset from file, update any existing field.")
         .def(
+            "loads", &Dataset::loads, arg("data"),
+            "Load dataset from file content, update any existing field.")
+        .def(
             "has_field", &Dataset::has_field, arg("name"),
             "Test if dataset contains a given field.")
         .def(
             "get_field", &Dataset::get_field, arg("name"),
             return_value_policy::reference_internal,
             "Return the field, throw an exception if field is missing.")
-        // TODO? set_field
+        .def(
+            "set_field", &Dataset::set_field, arg("field"),
+            "Add a field to the dataset or modify an existing field.")
         .def(
             "get_used_files", &Dataset::get_used_files, 
             return_value_policy::reference_internal, R"doc(
