@@ -1,11 +1,36 @@
 to-nifti
 ========
 
-Convert Bruker or DICOM data to NIfTI (aliases: *nifti*, *nii*).
+Convert Bruker or DICOM data to NIfTI+JSON (aliases: *nifti*, *nii*).
 
 **Usage**::
   
   dicomifier to-nifti [options] source [source ...] destination
+
+All files are saved in the ``destination`` directory, with a user-definable layout based on DICOM tag names. If no layout is specified, a *Subject/Study/Series* hierarchy is used. A user-specific layout can e.g.g skip the subject and study levels and to only keep the series number and description: 
+
+.. code:: bash
+  
+  dicomifier to-nifti -l {SeriesNumber}_{SeriesDescription} source_directory/ destination_directory
+
+Fallback elements are also supported: to use the contents of *PatientName*, and, if missing, use the contents of *PatientID*, the call would be
+
+.. code:: bash
+  
+  dicomifier to-nifti -l '{PatientName|PatientID}'/{SeriesNumber} source_directory/ destination_directory
+
+In the leaf directory of the layout, NIfTI and JSON files will be saved with a incremental numeric name: since NIfTI can only accomodate one affine matrix per file, data sets with multiple image orientation (e.g. scout images) will be saved as ``1.nii``, ``2.nii``, etc.
+
+The JSON file contains most of the fields present in the source DICOM data (Bruker data is implicitely converted to DICOM using :doc:`to-dicom`). The JSON data is a dictionary of the DICOM elements: elements with a public name (e.g. *PatientName*) will be recorded under this name, other elements (e.g. private elements) will be recorded using their numeric tag (e.g. *00291010*). The value of each entry will always be an array, in order to keep a consistent representation between single-valued items (e.g. *AcquisitionDate*) and multiple-valued items (e.g. *ImageType*). The dimension and the shape of the array depend on the organization of the image data:
+
+- An *ImageType* element with value *["ORIGINAL", "PRIMARY"]* is a 1D array: it applies to the whole NIfTI data
+- An *EchoTime* element with value *[[10], [20]]* is a 2D array: for a 4D NIfTI, each item of the top-level array (respectively *[10]* and *[20]*) applies to a 3D volume of the NIfTI data. The first volume will have an associated echo time of 10 ms, and the second volume an associated echo time of 20 ms.
+
+More complex meta-data rarely happen, but follow the same rules: a 3D array accompanying a 4D NIfTI file describes slice-dependent data.
+
+The semantics of the elements is driven by the DICOM standard: echo times are in milliseconds, flip angles in degrees, etc.
+
+DICOM elements stored as part of the NIfTI header will not appear in the JSON file. This is the case for *Rows*, *Columns*, *ImageOrientationPatient*, *ImagePositionPatient*, *PixelSpacing*, *SliceLocation* , *PixelRepresentation*, *HighBit*, *BitsStored*, *BitsAllocated*, and *PixelData*.
 
 Arguments
 ---------
