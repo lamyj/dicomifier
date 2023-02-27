@@ -1,7 +1,7 @@
 Diffusion-related meta data in GE files
 =======================================
 
-As opposed to :ref:`Siemens data <diffusion_siemens>`, there seem to be no structured private DICOM field in GE data. Even though the *Diffusion b-value* public field (0018,9087) sometimes appear at the top-level in DICOM files, this is not always the case and the direction of the diffusion gradient is neither at the top-level, nor in the standard *MR Diffusion Sequence* field.
+As opposed to :doc:`Siemens data <../siemens/index>`, there seem to be no structured private DICOM field in GE data. Even though the *Diffusion b-value* public field (0018,9087) sometimes appear at the top-level in DICOM files, this is not always the case and the direction of the diffusion gradient is neither at the top-level, nor in the standard *MR Diffusion Sequence* field.
 
 We can however run through all tags and identify those which are coherent within volumes and may correspond to either the b-value or the direction of the diffusion gradient. Using the `diff-testing tools of Dicomifier <https://github.com/lamyj/dicomifier/blob/master/tests/diff/diff.py>`_ on two arbitrary data sets, this yields the following.
 
