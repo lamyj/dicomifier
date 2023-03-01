@@ -208,7 +208,7 @@ def get_series_number(meta_data):
         number for non-Bruker data.
     """
     
-    software = meta_data.get("SoftwareVersions", [""])[0]
+    software = (meta_data.get("SoftwareVersions") or [""])[0]
     series_number = numpy.ravel(
             [x for x in meta_data["SeriesNumber"] if x is not None]
         )[0]

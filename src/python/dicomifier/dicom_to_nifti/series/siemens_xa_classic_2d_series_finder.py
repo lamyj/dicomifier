@@ -23,7 +23,7 @@ class SiemensXAClassic2DSeriesFinder(SeriesFinder):
     def __call__(self, data_set):
         self.series_instance_uid = None
         
-        software = data_set.get(odil.registry.SoftwareVersions, [b""])[0]
+        software = (data_set.get(odil.registry.SoftwareVersions) or [b""])[0]
         is_mfsplit = data_set.get(odil.registry.ImageType, [b""])[0]
         
         if software.startswith(b"syngo MR XA") and is_mfsplit:
