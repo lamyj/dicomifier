@@ -12,6 +12,9 @@ import odil
 from . import cached
 
 MRImage = [ # PS 3.3, C.8.3.1
+    (
+        "VisuAcqScanTime", "AcquisitionDuration", 3,
+        lambda d, g, i: [d["VisuAcqScanTime"][0]/1e3]),
     (None, "ScanningSequence", 1, lambda d,g,i: ["RM"]),
     (None, "SequenceVariant", 1, lambda d,g,i: ["NONE"]),
     (None, "ScanOptions", 2, lambda d,g,i: None),
@@ -47,6 +50,9 @@ MRImage = [ # PS 3.3, C.8.3.1
 ]
 
 EnhancedMRImage = [ # PS 3.3, C.8.13.1
+    (
+        "VisuAcqScanTime", "AcquisitionDuration", 3,
+        lambda d, g, i: [d["VisuAcqScanTime"][0]/1e3]),
     (
         None, "ImageType", 3,
         cached("__ImageType")(
