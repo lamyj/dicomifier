@@ -15,16 +15,16 @@ def main():
     
     cases = itertools.chain(
         input_.glob("*"), 
-        *[baseline.glob("*.dcm{}".format(suffix)) for suffix in ["", ".multi"]])
+        *[baseline.glob(f"*.dcm{suffix}") for suffix in ["", ".multi"]])
     
     for path in cases:
-        print("Checking {}".format(path))
+        print(f"Checking {path}")
         data = subprocess.check_output([
             "dicomifier", 
             # "-v", "debug", 
             "list", "--json", str(path)])
         case_output = json.loads(data.decode())
-        case_baseline = json.loads((baseline/"{}.json".format(path.name)).read_text())
+        case_baseline = json.loads((baseline/f"{path.name}.json").read_text())
         
         differences = diff.diff(case_baseline, case_output)
         if differences:

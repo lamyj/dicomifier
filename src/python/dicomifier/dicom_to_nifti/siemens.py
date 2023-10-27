@@ -64,7 +64,7 @@ def parse_ascconv(mr_phoenix_protocol):
             elif float_match:
                 return float(value)
             else:
-                raise Exception("Cannot parse {}".format(value))
+                raise Exception(f"Cannot parse {value}")
     
     data = {}
     for key, value in ascconv:
@@ -202,7 +202,7 @@ def parse_protocol(data):
         entry = protocol
         for element in key.split(b"."):
             match = re.match(
-                br"(a?)((?:{0})?)(\w+)(?:\[(\d+)\])?".format("|".join(types)).encode(),
+                br"(a?)((?:{})?)(\w+)(?:\[(\d+)\])?".format("|".join(types)).encode(),
                 element)
             is_array, type_, name, index = match.groups()
             

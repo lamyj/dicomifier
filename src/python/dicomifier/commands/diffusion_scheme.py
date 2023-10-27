@@ -42,7 +42,7 @@ def action(source, format, destinations, image):
     scheme = None
     for name in ["standard", "siemens_csa", "ge_private"]:
         try:
-            getter = getattr(dicomifier.nifti.diffusion, "from_{}".format(name))
+            getter = getattr(dicomifier.nifti.diffusion, f"from_{name}")
             scheme = getter(data)
             if (
                     len(scheme) == 1
@@ -56,7 +56,7 @@ def action(source, format, destinations, image):
     
     if scheme is None:
         raise NotImplementedError("Could not read diffusion data")
-    globals()["to_{}".format(format)](scheme, destinations, image)
+    globals()[f"to_{format}"](scheme, destinations, image)
 
 def to_mrtrix(scheme, destinations, image):
     with destinations[0].open("w") as fd:

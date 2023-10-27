@@ -45,7 +45,7 @@ def convert_directory(source, ideal_b_values, dicomdir, multiframe, writer):
                     try:
                         data_set.load(str(file_))
                     except Exception as e:
-                        logger.info("Could not load {}: {}".format(file_, e))
+                        logger.info("Could not load %s: %s", file_, e)
         
         reco_files = data_set.get_used_files()
         data_set = {k:v.value for k,v in data_set.items()}
@@ -53,7 +53,7 @@ def convert_directory(source, ideal_b_values, dicomdir, multiframe, writer):
         data_set["reco_files"] = reco_files
         
         if not all(x in data_set for x in ["VisuStudyUid", "VisuUid"]):
-            logger.info("Skipping {}: missing UIDs".format(path.parent))
+            logger.info("Skipping %s: missing UIDs", path.parent)
             continue
         
         data_sets[path.parent] = data_set
@@ -77,7 +77,7 @@ def convert_directory(source, ideal_b_values, dicomdir, multiframe, writer):
                 data_set, converters[(modality, multiframe)], ideal_b_values,
                 writer)
         except Exception as e:
-            logger.error("Could not convert: {}".format(e))
+            logger.error("Could not convert: %s", e)
             logger.debug("Stack trace", exc_info=True)
         
         logger.removeFilter(logger_context)
@@ -93,10 +93,10 @@ def convert_reconstruction(data_set, iod_converter, ideal_b_values, writer):
         :param writer: writer object from the io module
     """
     
-    logger.info("Converting {} ({})".format(
+    logger.info("Converting %s (%s)",
         data_set.get("VisuAcquisitionProtocol", ["(none)"])[0],
         data_set.get("RECO_mode", ["none"])[0]
-    ))
+    )
     
     dicom_data_sets = iod_converter(
         data_set, writer.transfer_syntax, ideal_b_values)
@@ -165,7 +165,7 @@ def convert_element(
     
     if value is None:
         if type_ == 1:
-            raise Exception("{} must be present".format(dicom_name))
+            raise Exception(f"{dicom_name} must be present")
         elif type_ == 2:
             dicom_data_set.add(tag)
     else:
@@ -293,8 +293,8 @@ class ReconstructionContext(logging.Filter):
     
     def __init__(self, path):
         logging.Filter.__init__(self)
-        self.prefix = "{} - ".format(path)
+        self.prefix = f"{path} - "
         
     def filter(self, record):
-        record.msg = "{}{}".format(self.prefix, record.msg)
+        record.msg = f"{self.prefix}{record.msg}"
         return True

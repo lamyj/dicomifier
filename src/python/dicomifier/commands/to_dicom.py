@@ -55,7 +55,7 @@ def action(
         sources, ideal_b_values, destination, transfer_syntax, layout, dicomdir,
         multiframe):
     if destination.is_dir() and list(destination.iterdir()):
-        dicomifier.logger.warning("{} is not empty".format(destination))
+        dicomifier.logger.warning("%s is not empty", destination)
     
     writer = writer_from_name(layout)(destination, True, transfer_syntax)
     
@@ -63,7 +63,7 @@ def action(
     try:
         for source in sources:
             if zipfile.is_zipfile(str(source)):
-                dicomifier.logger.info("Decompressing {}".format(source))
+                dicomifier.logger.info("Decompressing %s", source)
                 with zipfile.ZipFile(str(source)) as archive:
                     archive.extractall(str(directory/source.name))
                     source = directory/source.name

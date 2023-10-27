@@ -46,7 +46,7 @@ class SearchTerm:
                 tag = int(items[0], 16)
             except ValueError:
                 raise argparse.ArgumentTypeError(
-                    "Invalid DICOM tag '{}'".format(items[0]))
+                    f"Invalid DICOM tag '{items[0]}'")
             else:
                 self.tag = odil.Tag(tag)
         

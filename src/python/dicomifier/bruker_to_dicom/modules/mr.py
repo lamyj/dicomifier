@@ -212,7 +212,7 @@ def get_diffusion_data(data_set, what):
         data_set["__Diffusion"][2] = [
             odil.DataSet(**dict(zip(
                 [
-                    "DiffusionBValue{}".format(x) 
+                    f"DiffusionBValue{x}"
                     for x in ["XX", "XY", "XZ", "YY", "YZ", "ZZ"]],
                 [[x] for x in m[numpy.triu_indices(3)]])))
             for m in b_matrices]

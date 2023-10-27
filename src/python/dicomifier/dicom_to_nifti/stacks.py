@@ -162,8 +162,8 @@ def sort(key, frames):
         frames.sort(key=ordering)
     else:
         logger.warning(
-            "Cannot sort frames for the moment, available tags : {}".format(
-                [x[0][2].get_name() for x in key]))
+            "Cannot sort frames for the moment, available tags : %s",
+                [x[0][2].get_name() for x in key])
 
 def get_frame_position(data_set, frame_index):
     """ Get the position of the specified frame.
@@ -280,13 +280,13 @@ def get_diffusion(data_set, tag):
         elif directionality == b"BMATRIX":
             item = value[0][odil.registry.DiffusionBMatrixSequence][0]
             sensitization = tuple(
-                item[getattr(odil.registry, "DiffusionBValue{}".format(x))][0]
+                item[getattr(odil.registry, f"DiffusionBValue{x}")][0]
                 for x in ["XX", "XY", "XZ", "YY", "YZ", "ZZ"])
         elif directionality == b"ISOTROPIC" or directionality == b"NONE":
             return None
         else:
             raise Exception(
-                "Unknown directionality: {}".format(directionality))
+                f"Unknown directionality: {directionality}")
         value = (b_value, sensitization)
     return value
 
@@ -404,7 +404,7 @@ def canon_getter(data_set, tag):
     
     if odil.registry.ImageComments not in data_set:
         if b_value_element != 0:
-            logger.debug("No ImageComments, b-value={}".format(b_value_element))
+            logger.debug("No ImageComments, b-value=%f", b_value_element)
             return None
         else:
             image_comments = b"b=0(0,0,0)"
@@ -417,15 +417,14 @@ def canon_getter(data_set, tag):
             br"\)$",
             image_comments)
         if not match:
-            logger.debug("ImageComments not matched: '{}'".format(image_comments))
+            logger.debug("ImageComments not matched: '%s'", image_comments)
             return None
         
         try:
-            b_value_comment, x, y, z = [float(x) for x in match.groups()]
+            b_value_comment, x, y, z = (float(x) for x in match.groups())
         except ValueError:
             logger.debug(
-                "b-value discrepancy: {} != {}".format(
-                    b_value_element, b_value_comment))
+                f"b-value discrepancy: {b_value_element} != {b_value_comment}")
             return None
         
         if not numpy.isclose(b_value_element, b_value_comment):
