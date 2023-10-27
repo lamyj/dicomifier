@@ -204,7 +204,7 @@ def get_series_directory(meta_data, layout=None):
     return path
 
 def get_series_number(meta_data):
-    """ Return a human readble series number for Bruker data, or the raw series
+    """ Return a human readable series number for Bruker data, or the raw series
         number for non-Bruker data.
     """
     
