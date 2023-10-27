@@ -38,11 +38,11 @@ def parse_ascconv(mr_phoenix_protocol):
     """
     
     ascconv_data = re.search(
-            b"### ASCCONV BEGIN(?:.+?)###\s*(.*?)\s*### ASCCONV END ###", 
+            br"### ASCCONV BEGIN(?:.+?)###\s*(.*?)\s*### ASCCONV END ###",
             mr_phoenix_protocol, flags=re.DOTALL
         ).group(1)
     ascconv = re.findall(
-        b"^(\S+)\s*=\s*(.+)$\s*", ascconv_data, flags=re.MULTILINE)
+        br"^(\S+)\s*=\s*(.+)$\s*", ascconv_data, flags=re.MULTILINE)
     
     def parse_value(value, name):
         
@@ -202,7 +202,7 @@ def parse_protocol(data):
         entry = protocol
         for element in key.split(b"."):
             match = re.match(
-                r"(a?)((?:{0})?)(\w+)(?:\[(\d+)\])?".format("|".join(types)).encode(), 
+                br"(a?)((?:{0})?)(\w+)(?:\[(\d+)\])?".format("|".join(types)).encode(),
                 element)
             is_array, type_, name, index = match.groups()
             
