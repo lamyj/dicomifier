@@ -26,7 +26,7 @@ def main():
     for path in docs.rglob("*.rstw"):
         subprocess.check_call(["pweave", path.name], cwd=path.parent)
 
-class Autodocumenter(object):
+class Autodocumenter:
     def __init__(self, docs):
         
         self.app = sphinx.application.Sphinx(

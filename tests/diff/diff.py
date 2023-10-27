@@ -1,6 +1,6 @@
 import numpy
 
-class Differences(object):
+class Differences:
     def __init__(self):
         self.insert = {}
         self.remove = {}

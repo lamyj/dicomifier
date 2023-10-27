@@ -36,7 +36,7 @@ def setup(subparsers):
     
     return parser
 
-class SearchTerm(object):
+class SearchTerm:
     def __init__(self, argument):
         items = argument.split("=", 2)
         if items[0] in dir(odil.registry):

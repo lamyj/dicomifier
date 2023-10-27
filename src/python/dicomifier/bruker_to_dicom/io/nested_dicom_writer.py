@@ -10,7 +10,7 @@ import os
 import re
 import odil
 
-class NestedDICOMWriter(object):
+class NestedDICOMWriter:
     """ Write DICOM files in a patient/study/series/reconstruction hierarchy.
     """
     

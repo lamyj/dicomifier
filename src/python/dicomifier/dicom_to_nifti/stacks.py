@@ -203,7 +203,7 @@ def get_in_stack_position_index(data_set):
     else:
         return None
 
-class OrientationGetter(object):
+class OrientationGetter:
     """ Return the ideal orientation of a data set, i.e. allow small variations
         in the actual orientation.
     """

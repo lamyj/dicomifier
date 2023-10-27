@@ -6,7 +6,7 @@
 # for details.
 #########################################################################
 
-class SeriesFinder(object):
+class SeriesFinder:
     """ Base class for all series finders.
     """
     
