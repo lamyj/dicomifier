@@ -132,7 +132,19 @@ def sort(key, frames):
     
     ordering = None
     for (_, _, tag), value in key:
-        if tag == odil.registry.DimensionIndexValues:
+        # NOTE: prefer Image Orientation to In-Stack Position as there is no
+        # guarantee that In-Stack Position follows the stack normal.
+        if tag == odil.registry.ImageOrientationPatient:
+            data_set, frame_idx = frames[0]
+            if get_frame_position(data_set, frame_idx) is not None:
+                normal = numpy.cross(value[:3], value[3:])
+                ordering = lambda x: numpy.dot(get_frame_position(*x), normal)
+                break
+            else:
+                logger.warning(
+                    "Orientation found but no position available to sort frames")
+            break
+        elif tag == odil.registry.DimensionIndexValues:
             # sort by In-Stack Position
             position = []
             for data_set, frame_index in frames:
@@ -145,16 +157,6 @@ def sort(key, frames):
             
             keydict = dict(zip((id(x) for x in frames), numpy.argsort(position)))
             ordering = lambda x: keydict[id(x)]
-            break
-        if tag == odil.registry.ImageOrientationPatient:
-            data_set, frame_idx = frames[0]
-            if get_frame_position(data_set, frame_idx) is not None:
-                normal = numpy.cross(value[:3], value[3:])
-                ordering = lambda x: numpy.dot(get_frame_position(*x), normal)
-                break
-            else:
-                logger.warning(
-                    "Orientation found but no position available to sort frames")
     
     if ordering is not None:
         frames.sort(key=ordering)
