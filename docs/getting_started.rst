@@ -24,8 +24,8 @@ If using Conda, all dependencies can be installed by ``conda install --yes -c co
 
 The compilation process follows the usual CMake workflow: 
 
-- Specify which Python interpreter you use. It can be ``python``, ``python3``, or a more specific version, e.g. ``python3.10``. Store it in an environement variable, e.g. ``export PYTHON_EXECUTABLE=$(which python3)``
-- Choose an install destination. It can be within the source directory, or in any other directory that you can write into. Store it in an environement variable, e.g. ``export DICOMIFIER=${HOME}/src/dicomifier/install``
+- Specify which Python interpreter you use. It can be ``python``, ``python3``, or a more specific version, e.g. ``python3.10``. Store it in an environment variable, e.g. ``export PYTHON_EXECUTABLE=$(which python3)``
+- Choose an install destination. It can be within the source directory, or in any other directory that you can write into. Store it in an environment variable, e.g. ``export DICOMIFIER=${HOME}/src/dicomifier/install``
 - Create a ``build`` directory in the source directory.
 - From the source directory, run ``cmake -DPYTHON_EXECUTABLE="${PYTHON_EXECUTABLE}" -DCMAKE_INSTALL_PREFIX="${DICOMIFIER}" -S . -B build`` to configure the build environment.
 - Run ``cmake --build build --parallel`` to build Dicomifier.
