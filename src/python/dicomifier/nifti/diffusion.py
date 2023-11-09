@@ -122,22 +122,21 @@ def from_ge_private(data):
         if tag>"004300ff" or None not in [gems_acq, gems_parm]:
             break
     
-    directions = None
+    directions = []
     if gems_acq is not None:
         directions = numpy.squeeze(
             numpy.transpose([data[gems_acq+x] for x in ["bb", "bc", "bd"]]))
-        norm = numpy.maximum(1e-30, numpy.linalg.norm(directions, axis=1))
-        directions /= norm[:,None]
+        directions = numpy.reshape(directions, (-1, 3))
+        norms = numpy.linalg.norm(directions, axis=-1)
+        directions = directions / numpy.maximum(norms, 1e-30)[:, None]
     
-    b_values = None
+    b_values = []
     if gems_parm is not None:
-        b_values = data.get(gems_parm+"39")
-        if b_values is not None:
-            b_values = [x[0] for x in b_values]
-    if b_values is None:
-        b_values = [x[0] if x else 0 for x in data.get("DiffusionBValue")]
-    # Convert from s/mm^2 to s/m^2
-    b_values = [x*1e6 for x in b_values]
+        maximal_b_value = numpy.reshape(data[gems_parm+"39"], (-1, 4))[:,0].max()
+        b_values = maximal_b_value * norms**2
+        b_values = 10 * numpy.round(b_values/10)
+        # Convert from s/mm^2 to s/m^2
+        b_values *= 1e6
     
     return list(zip(b_values, directions))
 
