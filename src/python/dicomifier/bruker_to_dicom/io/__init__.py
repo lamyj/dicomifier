@@ -71,13 +71,13 @@ def create_dicomdir(
 
     directory = os.path.abspath(directory)
     if not all(x.startswith(directory) for x in files):
-        raise Exception("All files must be under {}".format(directory))
+        raise Exception(f"All files must be under {directory}")
 
     files = [x[len(directory)+1:] for x in files]
 
     keys = {}
     for level in ["patient", "study", "series", "image"]:
-        for entry in locals()["{}_key".format(level)]:
+        for entry in locals()[f"{level}_key"]:
             if ":" in entry:
                 tag, type_ = entry.split(":")
             else:

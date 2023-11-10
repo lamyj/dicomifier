@@ -30,12 +30,12 @@ def main():
     for path in inputs:
         for suffix in ["", ".multi"]:
             tests.append([
-                os.path.join(baseline, "{}.dcm{}".format(path, suffix)),
-                os.path.join(baseline, "{}.nii{}".format(path, suffix))])
+                os.path.join(baseline, f"{path}.dcm{suffix}"),
+                os.path.join(baseline, f"{path}.nii{suffix}")])
     
     different = False
     for case_input, case_baseline in tests:
-        print("Checking {}".format(case_baseline))
+        print(f"Checking {case_baseline}")
         
         case_output = tempfile.mkdtemp()
         try:
@@ -69,7 +69,7 @@ def diff_directories(baseline, test):
             relative_filename = os.path.join(relative_pathname, filename)
             
             if not os.path.isfile(os.path.join(test_pathname, filename)):
-                print("{} missing in test".format(relative_filename))
+                print(f"{relative_filename} missing in test")
             else:
                 if filename.endswith(".json"):
                     meta_data = [
@@ -80,9 +80,7 @@ def diff_directories(baseline, test):
                         *meta_data, exclusions=["EncapsulatedDocument"])
                     if differences:
                         different = True
-                        print(
-                            "Meta-data differences in {}".format(
-                                relative_filename))
+                        print(f"Meta-data differences in {relative_filename}")
                         diff.print_differences(differences, 1)
                     
                     encapsulated_documents = [
@@ -94,9 +92,7 @@ def diff_directories(baseline, test):
                         differences = diff.diff(*documents)
                         if differences:
                             different = True
-                            print(
-                                "Encapsulated document differences in {}".format(
-                                    relative_filename))
+                            print(f"Encapsulated document differences in {relative_filename}")
                             diff.print_differences(differences, 1)
                 elif filename.endswith(".nii") or filename.endswith(".nii.gz"):
                     images = [
@@ -108,16 +104,12 @@ def diff_directories(baseline, test):
                     differences = diff.diff(*meta_data)
                     if differences:
                         different = True
-                        print(
-                            "Geometry differences in {}".format(
-                                relative_filename))
+                        print(f"Geometry differences in {relative_filename}")
                         diff.print_differences(differences, 1)
                     pixel_data = [numpy.asanyarray(x.dataobj) for x in images]
                     if not numpy.allclose(*pixel_data):
                         different = True
-                        print(
-                            "Pixel data differences in {}".format(
-                                relative_filename))
+                        print(f"Pixel data differences in {relative_filename")
                 else:
                     try:
                         subprocess.check_output(

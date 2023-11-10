@@ -10,7 +10,7 @@ import itertools
 
 import numpy
 
-class FrameIndexGenerator(object):
+class FrameIndexGenerator:
     """ Generate the indices to iterate through the frame groups of a Bruker
         data set.
     """

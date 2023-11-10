@@ -9,7 +9,7 @@
 import os
 import odil
 
-class FlatDICOMWriter(object):
+class FlatDICOMWriter:
     """ Write DICOM files in a common directory.
     """
     

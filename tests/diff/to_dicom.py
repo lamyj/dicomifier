@@ -29,11 +29,11 @@ def main():
             tests.append([
                 options, 
                 os.path.join(input_, path), 
-                os.path.join(baseline, "{}{}".format(path, suffix))])
+                os.path.join(baseline, f"{path}{suffix}")])
     
     different = False
     for arguments, case_input, case_baseline in tests:
-        print("Checking {}".format(case_baseline))
+        print(f"Checking {case_baseline}")
         
         case_output = tempfile.mkdtemp()
         try:
@@ -75,7 +75,7 @@ def diff_directories(baseline, test):
             relative_filename = os.path.join(relative_pathname, filename)
             
             if not os.path.isfile(os.path.join(test_pathname, filename)):
-                print("{} missing in test".format(relative_filename))
+                print(f"{relative_filename} missing in test")
             elif filename == "DICOMDIR":
                 different |= check_dicomdir(
                     baseline_filename, test_filename, relative_filename)
@@ -107,14 +107,14 @@ def check_file(baseline, test, exclusions, relative):
         *[json.loads(odil.as_json(x[0])) for x in [d1, d2]], exclusions)
     if differences:
         different = True
-        print("Header differences in {}".format(relative))
+        print(f"Header differences in {relative}")
         diff.print_differences(differences, 1)
     
     differences = diff.diff(
         *[json.loads(odil.as_json(x[1])) for x in [d1, d2]], exclusions)
     if differences:
         different = True
-        print("Data set differences in {}".format(relative))
+        print(f"Data set differences in {relative}")
         diff.print_differences(differences, 1)
     
     return different
@@ -134,14 +134,14 @@ def check_dicomdir(baseline, test, relative):
         *[json.loads(odil.as_json(x[0])) for x in [d1, d2]], exclusions)
     if differences:
         different = True
-        print("Header differences in {}".format(relative))
+        print(f"Header differences in {relative}")
         diff.print_differences(differences, 1)
     
     differences = diff.diff(
         *[json.loads(odil.as_json(x[1])) for x in [d1, d2]], exclusions)
     if differences:
         different = True
-        print("Data set differences in {}".format(relative))
+        print(f"Data set differences in {relative}")
         diff.print_differences(differences, 1)
         
     tested = [
@@ -174,7 +174,7 @@ def check_dicomdir(baseline, test, relative):
     differences = diff.diff(*records)
     if differences:
         different = True
-        print("Record differences in {}".format(relative))
+        print(f"Record differences in {relative}")
         diff.print_differences(differences, 1)
     
     return different
@@ -191,7 +191,7 @@ def check_encapsulated_document(baseline, test, relative):
         differences = diff.diff(baseline_bruker, test_bruker)
         if differences:
             different = True
-            print("Encapsulated document differences in {}".format(relative))
+            print(f"Encapsulated document differences in {relative}")
             diff.print_differences(differences, 1)
     
     return different

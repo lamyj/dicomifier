@@ -67,8 +67,8 @@ class TestDataset(unittest.TestCase):
                     ["int", int], ["real", float], ["string", str], 
                     ["struct", list]]
                 for typename, type_ in type_info:
-                    test = "is_{}".format(typename)
-                    getter = "get_{}".format(typename)
+                    test = f"is_{typename}"
+                    getter = f"get_{typename}"
                     
                     if getattr(field, test)(index):
                         internal_item = getattr(field, getter)(index)

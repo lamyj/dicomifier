@@ -93,13 +93,13 @@ def action(
             for nifti_file in nifti_files:
                 root = re.match(r"^(.+)\.nii(\.gz)?$", nifti_file).group(1)
                 
-                meta_data_file = "{}.json".format(root)
+                meta_data_file = f"{root}.json"
                 
                 if diffusion_format == "mrtrix":
-                    destinations = ["{}.scheme".format(root)]
+                    destinations = [f"{root}.scheme"]
                 elif diffusion_format == "fsl":
                     destinations = [
-                        "{}.{}".format(root, suffix)
+                        f"{root}.{suffix}"
                         for suffix in ["bvecs", "bvals"]]
                 destinations = [pathlib.Path(x) for x in destinations]
                 
@@ -109,6 +109,6 @@ def action(
                         destinations, nifti_file)
                 except Exception as e:
                     dicomifier.logger.debug(
-                        "No usable diffusion in {}: {}".format(root, e))
+                        "No usable diffusion in %s: %s", root, e)
     finally:
         shutil.rmtree(str(directory))

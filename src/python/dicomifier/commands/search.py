@@ -36,7 +36,7 @@ def setup(subparsers):
     
     return parser
 
-class SearchTerm(object):
+class SearchTerm:
     def __init__(self, argument):
         items = argument.split("=", 2)
         if items[0] in dir(odil.registry):
@@ -46,7 +46,7 @@ class SearchTerm(object):
                 tag = int(items[0], 16)
             except ValueError:
                 raise argparse.ArgumentTypeError(
-                    "Invalid DICOM tag '{}'".format(items[0]))
+                    f"Invalid DICOM tag '{items[0]}'")
             else:
                 self.tag = odil.Tag(tag)
         

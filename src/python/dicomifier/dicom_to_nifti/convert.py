@@ -35,12 +35,12 @@ def convert_paths(
     """
     
     if os.path.isdir(str(destination)) and len(os.listdir(str(destination))) > 0:
-        logger.warning("{} is not empty".format(destination))
+        logger.warning("%s is not empty", destination)
 
     dicom_files = io.get_files(paths)
     series = split_series(dicom_files)
 
-    logger.info("{} series found".format(len(series)))
+    logger.info("%d series found", len(series))
     
     # Look for duplicate output directories. This may happen with data having 
     # the same Series Number and Series Description, as seen on a Siemens 
@@ -64,7 +64,7 @@ def convert_paths(
     for directory, finders in directories_series.items():
         if len(finders) > 1:
             for i, finder in enumerate(finders):
-                series_directories[finder] += "_{}".format(1+i)
+                series_directories[finder] += f"_{1+i}"
     
     all_nifti_files = []
     for finder, series_files in series.items():
@@ -110,7 +110,7 @@ class SeriesContext(logging.Filter):
                     series[0] = "{}:{}".format(
                         *[str(x) for x in divmod(series[0], 10000)])
                 else:
-                    series[0] = "{}".format(series[0])
+                    series[0] = str(series[0])
             
             if series[1] is None:
                 series[1] = SeriesContext._get_element(
@@ -126,11 +126,11 @@ class SeriesContext(logging.Filter):
             
             self.prefix = "{}: ".format(" / ".join(elements))
         except Exception as e:
-            logger.debug("Series context configuration error: \"{}\"".format(e))
+            logger.debug("Series context configuration error: \"%s\"", e)
             self.prefix = ""
         
     def filter(self, record):
-        record.msg = "{}{}".format(self.prefix, record.msg)
+        record.msg = f"{self.prefix}{record.msg}"
         return True
     
     @staticmethod
@@ -158,8 +158,8 @@ def convert_series(series_files, dtype=None, finder=None, extra_splitters=None):
     """
     
     logger.info(
-        "Reading {} DICOM file{}".format(
-            len(series_files), "s" if len(series_files) > 1 else ""))
+        "Reading %d DICOM file%s",
+            len(series_files), "s" if len(series_files) > 1 else "")
     data_sets = [odil.Reader.read_file(x)[1] for x in series_files]
 
     # Add series context to the logging as soon as we can
@@ -167,8 +167,8 @@ def convert_series(series_files, dtype=None, finder=None, extra_splitters=None):
     logger.addFilter(series_context)
     
     if not isinstance(finder, DefaultSeriesFinder):
-        logger.debug("Setting Series Instance UID to {}".format(
-            finder.series_instance_uid.decode()))
+        logger.debug("Setting Series Instance UID to %s",
+            finder.series_instance_uid.decode())
         for data_set in data_sets:
             data_set[odil.registry.SeriesInstanceUID][0] = finder.series_instance_uid
     
@@ -199,7 +199,7 @@ def convert_series_data_sets(data_sets, dtype=None, extra_splitters=None):
 
     stacks = get_stacks(data_sets, extra_splitters)
     logger.info(
-        "Found {} stack{}".format(len(stacks), "s" if len(stacks) > 1 else ""))
+        "Found %d stack%s", len(stacks), "s" if len(stacks) > 1 else "")
 
     # Set up progress information
     stacks_count = {}
@@ -231,7 +231,7 @@ def convert_series_data_sets(data_sets, dtype=None, extra_splitters=None):
         else:
             stack_info = ""
         if stack_info:
-            logger.debug("Converting stack {}".format(stack_info))
+            logger.debug("Converting stack %s", stack_info)
         stacks_converted[series_instance_uid] += 1
 
         sort(key, stack)
@@ -270,8 +270,8 @@ def convert_series_data_sets(data_sets, dtype=None, extra_splitters=None):
         for _, stack in mergeable.items():
             if len(stack) > 1:
                 logger.info(
-                    "Merging {} stack{}".format(
-                        len(stack), "s" if len(stack) > 1 else ""))
+                    "Merging %d stack%s",
+                        len(stack), "s" if len(stack) > 1 else "")
                 merged = merge_images_and_meta_data(stack)
                 merged_stacks.append(merged)
             else:

@@ -47,14 +47,14 @@ def get_meta_data(stack, cache=None):
         "SharedFunctionalGroupsSequence",
         "PerFrameFunctionalGroupsSequence",
     ]
-    skipped = set([getattr(odil.registry, x) for x in skipped])
+    skipped = {getattr(odil.registry, x) for x in skipped}
     
     # Multi-frame groups to keep as-as in the meta-data (the elements of other
     # multi-frame groups are set at top-level).
     no_recurse = [
         "MRDiffusionSequence"
     ]
-    no_recurse = set([getattr(odil.registry, x) for x in no_recurse])
+    no_recurse = {getattr(odil.registry, x) for x in no_recurse}
     
     if cache is None:
         cache = {}
