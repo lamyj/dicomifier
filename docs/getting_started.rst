@@ -6,7 +6,7 @@ Getting started
 Installing pre-compiled packages
 --------------------------------
 
-If you have `Anaconda <https://anaconda.org>`_ installed, a pre-built package is available on `conda-forge <https://conda-forge.org/>`_: running ``conda install -c conda-forge dicomifier`` will install the latest stable version.
+If you are using a Conda-like environment (e.g. `Anaconda <https://anaconda.org>`_, `Miniconda <https://docs.conda.io/projects/miniconda>`_, `Micromamba <https://mamba.readthedocs.io/>`_), a pre-built package is available on `conda-forge <https://conda-forge.org/>`_: running ``conda install -c conda-forge dicomifier`` will install the latest stable version.
 
 Compiling from source
 ---------------------
@@ -25,20 +25,23 @@ If using Conda, all dependencies can be installed by ``conda install --yes -c co
 The compilation process follows the usual CMake workflow: 
 
 - Specify which Python interpreter you use. It can be ``python``, ``python3``, or a more specific version, e.g. ``python3.10``. Store it in an environment variable, e.g. ``export PYTHON_EXECUTABLE=$(which python3)``
-- Choose an install destination. It can be within the source directory, or in any other directory that you can write into. Store it in an environment variable, e.g. ``export DICOMIFIER=${HOME}/src/dicomifier/install``
+- Choose an install directory. It can be within the source directory, or in any other directory that you can write into. Store it in an environment variable, e.g. ``export DICOMIFIER=${HOME}/src/dicomifier/install``
 - Create a ``build`` directory in the source directory.
 - From the source directory, run ``cmake -DPYTHON_EXECUTABLE="${PYTHON_EXECUTABLE}" -DCMAKE_INSTALL_PREFIX="${DICOMIFIER}" -S . -B build`` to configure the build environment.
 - Run ``cmake --build build --parallel`` to build Dicomifier.
 - Finally, run ``cmake --install build`` to install Dicomifier to your specified location.
 
-You may need to adjust your environment before you can use Dicomifier:
+You may need to adjust your environment (e.g. by modifying your *.bashrc* file) before you can use Dicomifier:
 
-.. code:: bash
+- From the build directory, run ``grep PYTHON_SITE_PACKAGES CMakeCache.txt | cut -d= -f2`` to determine the path to the Python files within the install directory
+- Modify the search paths so that they include the install directory. In the following code sample, the first line must match the install directory, and in the last line, the ``lib/python3.11/site-packages`` part must match the output of the previous command
     
-    export PATH="${DICOMIFIER}/bin:${PATH}"
-    export LD_LIBRARY_PATH="${DICOMIFIER}/lib:${LD_LIBRARY_PATH}"
-    PYTHONPREFIX=$(grep PYTHON_SITE_PACKAGES foo-build/CMakeCache.txt | cut -d= -f2)
-    export PYTHONPATH="${DICOMIFIER}/${PYTHONPREFIX}:${PYTHONPATH}"
+    .. code:: bash
+        
+        export DICOMIFIER=${HOME}/src/dicomifier/install
+        export PATH="${DICOMIFIER}/bin:${PATH}"
+        export LD_LIBRARY_PATH="${DICOMIFIER}/lib:${LD_LIBRARY_PATH}"
+        export PYTHONPATH="${DICOMIFIER}/lib/python3.11/site-packages:${PYTHONPATH}"
 
 You may also refer to the `continuous integration scripts <https://github.com/lamyj/dicomifier/tree/master/.ci>`_ to see working examples.
 
