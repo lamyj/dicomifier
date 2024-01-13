@@ -109,7 +109,7 @@ def diff_directories(baseline, test):
                     pixel_data = [numpy.asanyarray(x.dataobj) for x in images]
                     if not numpy.allclose(*pixel_data):
                         different = True
-                        print(f"Pixel data differences in {relative_filename")
+                        print(f"Pixel data differences in {relative_filename}")
                 else:
                     try:
                         subprocess.check_output(
