@@ -14,10 +14,8 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - { os: "ubuntu-latest", packaging: "apt", container: "debian:stretch", python: "python3" }
-          - { os: "ubuntu-latest", packaging: "apt", container: "debian:buster", python: "python3" }
           - { os: "ubuntu-latest", packaging: "apt", container: "debian:bullseye", python: "python3" }
-          - { os: "ubuntu-latest", packaging: "apt", container: "ubuntu:bionic", python: "python3" }
+          - { os: "ubuntu-latest", packaging: "apt", container: "debian:bookworm", python: "python3" }
           - { os: "ubuntu-latest", packaging: "apt", container: "ubuntu:focal", python: "python3" }
           - { os: "ubuntu-latest", packaging: "apt", container: "ubuntu:jammy", python: "python3" }
           - { os: "macos-latest", packaging: "conda", python: "python3" }
