@@ -15,6 +15,8 @@ from . import commands
 def main():
     parser = argparse.ArgumentParser(description="Dicomifier")
     
+    parser.add_argument("--version", action="version", version="%(prog)s 2.4.0")
+    
     parser.add_argument(
         "--verbosity", "-v", dest="main_verbosity",
         choices=["warning", "info", "debug"], default="warning")
