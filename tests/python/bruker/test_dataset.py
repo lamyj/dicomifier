@@ -35,9 +35,7 @@ class TestDataset(unittest.TestCase):
         dataset = dicomifier.bruker.Dataset()
         dataset.load(self.path)
         
-        fields = []
-        for name, value in dataset.items():
-            fields.append([name, value])
+        fields = [[name, value] for name, value in dataset.items()]
         self.assertEqual([x[0] for x in fields], [x for x in dataset])
         
         expected_fields = [

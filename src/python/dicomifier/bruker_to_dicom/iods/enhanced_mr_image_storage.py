@@ -110,10 +110,10 @@ def enhanced_mr_image_storage(bruker_data_set, transfer_syntax, ideal_b_values):
     
     merge_shared_groups(dicom_data_set, groups)
     
-    pixel_data_list = []
-    for i, frame_index in enumerate(generator):
-        pixel_data_list.append(
-            image.get_pixel_data(bruker_data_set, generator, frame_index)[0])
+    pixel_data_list = [
+        image.get_pixel_data(bruker_data_set, generator, frame_index)[0]
+        for frame_index in generator
+    ]
     
     dicom_data_set.add(
         odil.registry.PixelData, 
