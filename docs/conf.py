@@ -2,7 +2,7 @@ import os
 import re
 
 project = "Dicomifier"
-copyright = "2020, Julien Lamy"
+copyright = "2014-2024, Université de Strasbourg-CNRS"
 author = "Julien Lamy"
 
 # The short X.Y version
@@ -20,5 +20,11 @@ extensions = ["sphinx.ext.autodoc", "sphinx.ext.doctest", "sphinx.ext.mathjax"]
 templates_path = ["_templates"]
 exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
 
-html_theme = "sphinx_rtd_theme"
+html_theme = "furo"
 html_static_path = ["_static"]
+html_css_files = ["css/style.css"]
+html_title = project
+
+mathjax3_config = {
+    "HTML-CSS": {"scale": 95},
+}
