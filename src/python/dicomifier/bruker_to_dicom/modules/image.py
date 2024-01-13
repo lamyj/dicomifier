@@ -114,6 +114,7 @@ GeneralImage = [ # PS 3.3, C.7.6.1
                 [int(d["VisuCoreFrameCount"])[0]*d["VisuCoreSize"][2]]
                 if d["VisuCoreDim"]==3
                 else [int(x) for x in d["VisuCoreFrameCount"]])),
+    ("VisuFGElemComment", "ImageComments", 3, None),
 ]
 
 ImagePlane = [ # PS 3.3, C.7.6.2
@@ -232,6 +233,7 @@ FrameContent = [ # PS 3.3, C.7.6.16.2.2
     "FrameContentSequence", True,
     [
         (None, "FrameAcquisitionNumber", 3, get_acquisition_number),
+        ("VisuFGElemComment", "FrameComments", 3, None),
         (
             None, "FrameLabel", 3, 
             lambda d, g, i: 
