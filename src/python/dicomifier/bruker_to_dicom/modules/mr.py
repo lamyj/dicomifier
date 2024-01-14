@@ -181,41 +181,47 @@ def get_diffusion_data(data_set, what):
         # b-matrices.
         data_set["__Diffusion"] = [[], [], [], []]
         
-        ideal_b_values = set(data_set["PVM_DwBvalEach"])
-        ideal_b_values.add(0)
-        ideal_b_values = list(ideal_b_values)
-        
-        # Map the effective b-values to the ideal b-values
-        b_values = numpy.array(data_set["PVM_DwEffBval"])
-        closest = numpy.argmin([abs(b_values - x) for x in ideal_b_values], 0)
-        individual_b_values = numpy.array(ideal_b_values)[closest]
-        data_set["__Diffusion"][0] = individual_b_values
-        
-        # Keep the effective b-values
-        data_set["__Diffusion"][3] = b_values
-        
-        # Normalize the directions, avoid divide-by-zero
-        directions = numpy.reshape(data_set["PVM_DwGradVec"], (-1, 3))
-        directions /= numpy.maximum(
-            1e-20, numpy.linalg.norm(directions, axis=1))[:,None]
-        # Convert to patient coordinates
-        orientation = numpy.reshape(data_set["PVM_SPackArrGradOrient"], (3,3))
-        directions = [orientation.T @ d for d in directions]
-        # Store in cache
-        data_set["__Diffusion"][1] = [
-            odil.DataSet(DiffusionGradientOrientation=x) for x in directions]
-        
-        b_matrices = numpy.reshape(data_set["PVM_DwBMat"], (-1, 3, 3))
-        # Convert to patient coordinates
-        b_matrices = [orientation.T @ m @ orientation for m in b_matrices]
-        # Store in cache
-        data_set["__Diffusion"][2] = [
-            odil.DataSet(**dict(zip(
-                [
-                    f"DiffusionBValue{x}"
-                    for x in ["XX", "XY", "XZ", "YY", "YZ", "ZZ"]],
-                [[x] for x in m[numpy.triu_indices(3)]])))
-            for m in b_matrices]
+        if "PVM_DwBvalEach" in data_set:
+            # NOTE: even though FG_DIFFUSION may be in the frame groups, 
+            # PVM_DwBvalEach may not be present (custom diffusion sequences)
+            ideal_b_values = set(data_set["PVM_DwBvalEach"])
+            ideal_b_values.add(0)
+            ideal_b_values = list(ideal_b_values)
+            
+            # Map the effective b-values to the ideal b-values
+            b_values = numpy.array(data_set["PVM_DwEffBval"])
+            closest = numpy.argmin(
+                [abs(b_values - x) for x in ideal_b_values], 0)
+            individual_b_values = numpy.array(ideal_b_values)[closest]
+            data_set["__Diffusion"][0] = individual_b_values
+            
+            # Keep the effective b-values
+            data_set["__Diffusion"][3] = b_values
+            
+            # Normalize the directions, avoid divide-by-zero
+            directions = numpy.reshape(data_set["PVM_DwGradVec"], (-1, 3))
+            directions /= numpy.maximum(
+                1e-20, numpy.linalg.norm(directions, axis=1))[:,None]
+            # Convert to patient coordinates
+            orientation = numpy.reshape(
+                data_set["PVM_SPackArrGradOrient"], (3,3))
+            directions = [orientation.T @ d for d in directions]
+            # Store in cache
+            data_set["__Diffusion"][1] = [
+                odil.DataSet(DiffusionGradientOrientation=x)
+                for x in directions]
+            
+            b_matrices = numpy.reshape(data_set["PVM_DwBMat"], (-1, 3, 3))
+            # Convert to patient coordinates
+            b_matrices = [orientation.T @ m @ orientation for m in b_matrices]
+            # Store in cache
+            data_set["__Diffusion"][2] = [
+                odil.DataSet(**dict(zip(
+                    [
+                        f"DiffusionBValue{x}"
+                        for x in ["XX", "XY", "XZ", "YY", "YZ", "ZZ"]],
+                    [[x] for x in m[numpy.triu_indices(3)]])))
+                for m in b_matrices]
     
     return data_set["__Diffusion"][what]
 
