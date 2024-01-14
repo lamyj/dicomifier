@@ -145,7 +145,7 @@ MRFOVGeometry = [ # PS 3.3, C.8.13.5.3
     "MRFOVGeometrySequence", False,
     [
         (
-            "VisuAcqPhaseEncSteps", "MRAcquisitionPhaseEncodingStepsInPlane", 1, 
+            "VisuAcqPhaseEncSteps", "MRAcquisitionPhaseEncodingStepsInPlane", 3, 
             None),
     ]
 ]
