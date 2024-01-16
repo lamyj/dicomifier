@@ -11,8 +11,10 @@
 void wrap_Dataset(pybind11::module &);
 void wrap_Field(pybind11::module &);
 
-PYBIND11_MODULE(bruker, bruker)
+void wrap_bruker(pybind11::module & m)
 {
+    auto bruker = m.def_submodule("bruker");
+    
     wrap_Dataset(bruker);
     wrap_Field(bruker);
 }

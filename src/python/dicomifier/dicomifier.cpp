@@ -10,8 +10,12 @@
 
 #include "core/Exception.h"
 
+void wrap_bruker(pybind11::module &);
+
 PYBIND11_MODULE(_dicomifier, _dicomifier)
 {
     pybind11::register_exception<dicomifier::Exception>(
         _dicomifier, "Exception");
+    
+    wrap_bruker(_dicomifier);
 }
