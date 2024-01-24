@@ -165,19 +165,23 @@ def get_shaped_pixel_data(data_set, frame_index, linear_pixel_data):
         except ValueError:
             return array[:-1].reshape(shape)
 
-    samples_per_pixel = data_set[odil.registry.SamplesPerPixel][0]
-    if samples_per_pixel == 1:
-        if (
-                odil.registry.PerFrameFunctionalGroupsSequence in data_set
-                and odil.registry.NumberOfFrames in data_set):
-            number_of_frames = data_set[odil.registry.NumberOfFrames][0]
-            pixel_data = reshape(linear_pixel_data, (number_of_frames, rows, cols))
-            pixel_data = pixel_data[frame_index, :]
-        else:
-            pixel_data = reshape(linear_pixel_data, (rows, cols))
+    shape = [rows, cols]
+    if (
+            odil.registry.PerFrameFunctionalGroupsSequence in data_set
+            and odil.registry.NumberOfFrames in data_set):
+        number_of_frames = data_set[odil.registry.NumberOfFrames][0]
+        shape.insert(0, number_of_frames)
     else:
-        pixel_data = reshape(linear_pixel_data, (rows, cols, samples_per_pixel))
-
+        number_of_frames = None
+    
+    samples_per_pixel = data_set[odil.registry.SamplesPerPixel][0]
+    if samples_per_pixel > 1:
+        shape.append(samples_per_pixel)
+    
+    pixel_data = reshape(linear_pixel_data, shape)
+    
+    if number_of_frames is not None:
+        pixel_data = pixel_data[frame_index, :]
     
     # Rescale: look for Rescale Slope and Rescale Intercept in
     # - the top-level of the data set
