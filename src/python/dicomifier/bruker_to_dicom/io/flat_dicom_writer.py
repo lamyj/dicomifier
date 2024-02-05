@@ -9,6 +9,8 @@
 import os
 import odil
 
+from ... import logger
+
 class FlatDICOMWriter:
     """ Write DICOM files in a common directory.
     """
@@ -29,6 +31,11 @@ class FlatDICOMWriter:
             filename = data_set[odil.registry.SOPInstanceUID][0].decode()
 
         destination = os.path.join(self.root, filename)
+        if data_set.get_transfer_syntax():
+            logger.info("Overriding requested transfer syntax")
+            transfer_syntax = data_set.get_transfer_syntax()
+        else:
+            transfer_syntax = self.transfer_syntax
         odil.Writer.write_file(
-            data_set, destination, odil.DataSet(), self.transfer_syntax)
+            data_set, destination, odil.DataSet(), transfer_syntax)
         self.files.append(destination)
