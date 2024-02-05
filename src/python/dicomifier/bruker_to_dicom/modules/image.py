@@ -41,9 +41,12 @@ def get_pixel_data(data_set, generator, frame_index):
         
         # Read the file
         with open(str(data_set["PIXELDATA"][0]), "rb") as fd:
-            pixel_data = numpy.fromfile(fd, dtype)
-            data_set["PIXELDATA"] = pixel_data.reshape(
-                -1, data_set["VisuCoreSize"][0]*data_set["VisuCoreSize"][1])
+            data_set["PIXELDATA"] = numpy.fromfile(fd, dtype)
+        
+        frame_size = data_set["VisuCoreSize"][0]*data_set["VisuCoreSize"][1]
+        data_set["PIXELDATA"].resize(
+            len(data_set["PIXELDATA"])//frame_size, frame_size)
+        
         if data_set["PIXELDATA"].dtype == numpy.single:
             # Map to uint32
             min = numpy.nanmin(data_set["PIXELDATA"])
@@ -65,19 +68,34 @@ def get_pixel_data(data_set, generator, frame_index):
     
     if data_set.get("VisuCoreDiskSliceOrder", [None])[0] == "disk_reverse_slice_order":
         # Volumes are always in order, but slice order depends on
-        # VisuCoreDiskSliceOrder
-        non_slice = [g for g in generator.frame_groups if g[1] != "FG_SLICE"]
-        if len(non_slice) == 0:
-            slices_per_frame = data_set["VisuCoreFrameCount"][0]
-        else:
-            slices_per_frame = int(
-                data_set["VisuCoreFrameCount"][0]
-                / numpy.cumprod([x[0] for x in non_slice])[-1])
-        frame_index = generator.get_linear_index(frame_index)
-        volume, slice_index = divmod(frame_index, slices_per_frame)
-        frame_index = volume*slices_per_frame+(slices_per_frame-slice_index-1)
-    else:
-        frame_index = generator.get_linear_index(frame_index)
+        # VisuCoreDiskSliceOrder. Re-order in place, then proceed as in the
+        # non-reversed case.
+        # NOTE: this assumes that the number of slices per volume is constant
+        # across volumes. This should be the case given the syntax of
+        # VisuFGOrderDesc.
+        
+        # Get the frame groups before the slice group
+        volume_groups = []
+        for group in generator.frame_groups:
+            if group[1] != "FG_SLICE":
+                volume_groups.append(group)
+            else:
+                break
+        
+        # Invert the slice order
+        view = numpy.reshape(
+            data_set["PIXELDATA"],
+            (
+                numpy.cumprod([x[0] for x in volume_groups])[-1], -1,
+                data_set["PIXELDATA"].shape[-1]),
+            "A")
+        for index in numpy.ndindex(view.shape[:-2]):
+            view[index, :] = view[index][::-1, :]
+        
+        # Mark slice order as normal
+        data_set["VisuCoreDiskSliceOrder"] = ["disk_normal_slice_order"]
+    
+    frame_index = generator.get_linear_index(frame_index)
     frame_data = data_set["PIXELDATA"][frame_index]
     
     return [bytearray(frame_data.tobytes())]
