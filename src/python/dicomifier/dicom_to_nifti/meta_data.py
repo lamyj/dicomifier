@@ -88,7 +88,11 @@ def get_meta_data(stack, cache=None):
             raise
         # Fetch non-frame-specific elements from cache
         for tag, element in cache[sop_instance_uid].items():
-            elements.setdefault(tag, {})[i] = element
+            if isinstance(element, odil.Element):
+                elements.setdefault(tag, {})[i] = element
+            else:
+                # Already converted
+                elements[tag] = element
         if frame is not None:
             # Fetch frame-specific elements
             groups = data_set[odil.registry.PerFrameFunctionalGroupsSequence][frame]
@@ -100,7 +104,10 @@ def get_meta_data(stack, cache=None):
     
     # Convert dictionary with possible holes to list: iteration is quicker.
     elements = {
-        tag: [values.get(i) for i in range(len(stack))]
+        tag: 
+            [values.get(i) for i in range(len(stack))]
+                if isinstance(values, dict)
+            else values # Already converted
         for tag, values in elements.items()}
         
     meta_data = MetaData()
@@ -109,32 +116,40 @@ def get_meta_data(stack, cache=None):
     # WARNING: we need to process items in tag order since SpecificCharacterSet
     # must be processed before any non-ASCII element is.
     for tag, values in sorted(elements.items()):
-        # Check whether all values are the same
-        all_equal = (values.count(values[0]) == len(values))
-        if all_equal:
-            # Only use the unique value.
-            value = convert_element(values[0], specific_character_set)
+        if isinstance(values, list) and isinstance(values[0], odil.Element):
+            # Check whether all values are the same
+            all_equal = (values.count(values[0]) == len(values))
+            if all_equal:
+                # Only use the unique value.
+                value = convert_element(values[0], specific_character_set)
+            else:
+                # Convert each value. If we have multiple values of Specific
+                # Character Set, use the one from the corresponding data set.
+                if (specific_character_set
+                        and isinstance(specific_character_set[0], list)):
+                    value = [
+                        convert_element(x, specific_character_set[i]) 
+                        for i, x in enumerate(values)]
+                else:
+                    value = [
+                        convert_element(x, specific_character_set) 
+                        for x in values]
+            
+            if tag in cache[sop_instance_uid]:
+                # Replace the cache item with the converted data
+                cache[sop_instance_uid][tag] = value
+            
+            if tag == odil.registry.SpecificCharacterSet:
+                if value and isinstance(value[0], list):
+                    specific_character_set = [
+                        odil.Value.Strings([x.encode() for x in item]) 
+                        for item in value]
+                else:
+                    specific_character_set = odil.Value.Strings(
+                        [x.encode() for x in value])
         else:
-            # Convert each value. If we have multiple values of Specific
-            # Character Set, use the one from the corresponding data set.
-            if (specific_character_set
-                    and isinstance(specific_character_set[0], list)):
-                value = [
-                    convert_element(x, specific_character_set[i]) 
-                    for i, x in enumerate(values)]
-            else:
-                value = [
-                    convert_element(x, specific_character_set) 
-                    for x in values]
-
-        if tag == odil.registry.SpecificCharacterSet:
-            if value and isinstance(value[0], list):
-                specific_character_set = [
-                    odil.Value.Strings([x.encode() for x in item]) 
-                    for item in value]
-            else:
-                specific_character_set = odil.Value.Strings(
-                    [x.encode() for x in value])
+            # Already converted
+            value = values
         
         tag_name = get_tag_name(tag)
         meta_data[tag_name] = value
