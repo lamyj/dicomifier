@@ -1,3 +1,4 @@
+find_package(Odil REQUIRED)
 find_package(PythonInterp 3.5 REQUIRED)
 find_package(pybind11 2.0 REQUIRED)
 
@@ -21,7 +22,7 @@ if(APPLE)
     set_target_properties(pydicomifier_dicomifier PROPERTIES SUFFIX ".so")
 endif()
 
-target_link_libraries(pydicomifier_dicomifier PUBLIC libdicomifier)
+target_link_libraries(pydicomifier_dicomifier PUBLIC libdicomifier Odil::libodil)
 
 execute_process(
     COMMAND ${PYTHON_EXECUTABLE}

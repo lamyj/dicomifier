@@ -14,8 +14,8 @@ import odil
 
 from ..modules import (
     patient, study, series, frame_of_reference, equipment, image, mr)
-from .. import FrameIndexGenerator
-from .. import convert
+from .. import convert, FrameIndexGenerator
+from ... import convert_pixel_data
 
 def enhanced_mr_image_storage(bruker_data_set, transfer_syntax, ideal_b_values):
     """ Convert bruker_data_set into dicom_data_set by using the correct 
@@ -110,16 +110,10 @@ def enhanced_mr_image_storage(bruker_data_set, transfer_syntax, ideal_b_values):
     
     merge_shared_groups(dicom_data_set, groups)
     
-    pixel_data_list = [
-        image.get_pixel_data(bruker_data_set, generator, frame_index)[0]
-        for frame_index in generator
-    ]
+    # Make sure that the pixel data has been re-ordered if needed
+    image.get_pixel_data(bruker_data_set, generator, next(iter(generator)))
+    convert_pixel_data(bruker_data_set, dicom_data_set)
     
-    dicom_data_set.add(
-        odil.registry.PixelData, 
-        [odil.Value.BinaryItem(b"".join(pixel_data_list))], 
-        vr_finder_function("PixelData"))
-
     # Add the raw Bruker meta-data, convert paths to Unicode if needed
     paths = [
         x.decode() if hasattr(x, "decode") else x
