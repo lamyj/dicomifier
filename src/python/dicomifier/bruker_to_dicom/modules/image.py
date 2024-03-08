@@ -52,8 +52,13 @@ def get_pixel_data(data_set, generator, frame_index):
             min = numpy.nanmin(data_set["PIXELDATA"])
             max = numpy.nanmax(data_set["PIXELDATA"])
             
+            # WARNING: whe using float32, all numbers between (2**32-128) and
+            # (2**32+256) have the same representation, which can yield to
+            # invalid values when converting to integer. Use the immediately
+            # inferior value as an upper bound of the integer range.
+            scale = numpy.nextafter(numpy.single(2**32), numpy.single(0)) / (max-min)
             data_set["PIXELDATA"] -= min
-            data_set["PIXELDATA"] *= (1<<32)/(max-min)
+            data_set["PIXELDATA"] *= scale
             data_set["PIXELDATA"] = data_set["PIXELDATA"].astype(numpy.uint32)
             
             data_set["VisuCoreDataOffs"] = [0]*len(data_set["VisuCoreDataOffs"])
@@ -64,7 +69,7 @@ def get_pixel_data(data_set, generator, frame_index):
                     x+min for x in data_set["VisuCoreDataOffs"]]
             if "VisuCoreDataSlope" in data_set:
                 data_set["VisuCoreDataSlope"] = [
-                    x/((1<<32)/(max-min)) for x in data_set["VisuCoreDataSlope"]]
+                    x/scale for x in data_set["VisuCoreDataSlope"]]
     
     if data_set.get("VisuCoreDiskSliceOrder", [None])[0] == "disk_reverse_slice_order":
         # Volumes are always in order, but slice order depends on
