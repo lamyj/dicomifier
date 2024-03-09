@@ -1,10 +1,10 @@
 find_package(Odil)
 if(NOT "${Odil_FOUND}")
-    find_file(Odil_INCLUDE odil/odil.h)
+    find_file(Odil_INCLUDE odil/odil.h REQUIRED)
     # Get grand-parent of include file
     get_filename_component(Odil_INCLUDE_DIRS "${Odil_INCLUDE}" DIRECTORY)
     get_filename_component(Odil_INCLUDE_DIRS "${Odil_INCLUDE_DIRS}" DIRECTORY)
-    find_library(Odil_LIBRARIES odil)
+    find_library(Odil_LIBRARIES odil REQUIRED)
 endif()
 find_package(PythonInterp 3.5 REQUIRED)
 find_package(pybind11 2.0 REQUIRED)

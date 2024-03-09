@@ -31,6 +31,6 @@ subprocess.check_call([
     "build-essential", "cmake", "ninja-build", "pkg-config", "python3", 
     "libboost-dev", "libboost-date-time-dev", "libboost-exception-dev",
     "libboost-filesystem-dev", "libboost-regex-dev", "libboost-system-dev",
-    "zlib1g-dev", "pybind11-dev", "python3-dev", "python3-dateutil",
-    "python3-nibabel", "python3-numpy", "python3-odil", "python3-requests",
-    "libboost-test-dev"])
+    "libodil-dev", "zlib1g-dev", "pybind11-dev", "python3-dev",
+    "python3-dateutil", "python3-nibabel", "python3-numpy", "python3-odil",
+    "python3-requests", "libboost-test-dev"])
