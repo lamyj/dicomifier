@@ -284,7 +284,7 @@ def convert_series_data_sets(data_sets, dtype=None, extra_splitters=None):
                 uid = data_set[odil.registry.SOPInstanceUID][0]
                 frame_rescale = rescale[uid, frame_index]
                 
-                is_mosaic = b"MOSAIC" in data_set[odil.registry.ImageType]
+                is_mosaic = b"MOSAIC" in data_set.get(odil.registry.ImageType, [])
                 source = slice(None) if is_mosaic else frame_index
                 destination = (
                     volume_index if is_mosaic

@@ -20,10 +20,10 @@ def get_slice_image(data_set, shape, cache=None):
     """ Return a slice of an n-dimensional image.
     """
     
-    uid = data_set[odil.registry.SOPInstanceUID][0]
+    uid = data_set.get(odil.registry.SOPInstanceUID, [None])[0]
     
     array = None
-    if cache is not None and uid not in cache:
+    if cache is None or uid not in cache:
         dtype = get_data_set_dtype(data_set)
         array = convert_pixel_data(data_set, dtype).reshape((-1, *shape))
         
@@ -31,7 +31,7 @@ def get_slice_image(data_set, shape, cache=None):
         bits_stored = data_set[odil.registry.BitsStored][0]
         array = numpy.bitwise_and(array, 2**bits_stored - 1, dtype=array.dtype)
         
-        if b"MOSAIC" in data_set[odil.registry.ImageType]:
+        if b"MOSAIC" in data_set.get(odil.registry.ImageType, []):
             item = data_set[odil.Tag(0x0029, 0x1010)][0]
             siemens_data = siemens.parse_csa(item.get_memory_view().tobytes())
             
@@ -49,7 +49,8 @@ def get_slice_image(data_set, shape, cache=None):
             array = array[:number_of_tiles]
             
         # Populate the cache
-        cache[uid] = array
+        if cache is not None:
+            cache[uid] = array
     else:
         array = cache[uid]
     
@@ -97,7 +98,7 @@ def get_shape(stack):
     
     data_set = stack[0][0]
     
-    if b"MOSAIC" in data_set[odil.registry.ImageType]:
+    if b"MOSAIC" in data_set.get(odil.registry.ImageType, []):
         item = data_set[odil.Tag(0x0029, 0x1010)][0]
         siemens_data = siemens.parse_csa(item.get_memory_view().tobytes())
         
@@ -267,6 +268,9 @@ def get_spacing(stack):
                 slice_thickness = container[odil.registry.SliceThickness]
                 if slice_thickness:
                     spacing.append(slice_thickness[0])
+    else:
+        logger.warning("No spacing found, using default")
+        spacing = [1., 1.]
     
     if spacing and len(spacing) == 2:
         logger.warning("No slice thickness, using default")
@@ -298,7 +302,7 @@ def get_geometry(stack):
         spacing = default_spacing
     
     data_set = stack[0][0]
-    if b"MOSAIC" in data_set[odil.registry.ImageType]:
+    if b"MOSAIC" in data_set.get(odil.registry.ImageType, []):
         item = data_set[odil.Tag(0x0029, 0x1010)][0]
         siemens_data = siemens.parse_csa(item.get_memory_view().tobytes())
         
