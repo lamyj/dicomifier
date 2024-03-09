@@ -20,7 +20,7 @@ jobs:
           # - { os: "ubuntu-latest", packaging: "apt", container: "ubuntu:focal", python: "python3" }
           # - { os: "ubuntu-latest", packaging: "apt", container: "ubuntu:jammy", python: "python3" }
           - { os: "ubuntu-latest", packaging: "apt", container: "ubuntu:noble", python: "python3" }
-          - { os: "macos-latest", packaging: "conda", python: "python3" }
+          - { os: "macos-latest", packaging: "conda", python: "python" }
     env:
       WORKSPACE: "${{ github.workspace }}"
     steps:
