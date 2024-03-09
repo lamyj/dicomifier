@@ -82,6 +82,46 @@ void convert_pixel_data(
         odil::registry::PixelData, std::move(value), odil::VR::OB);
 }
 
+pybind11::handle convert_pixel_data(
+    odil::DataSet & data_set, pybind11::object dtype_)
+{
+    if(!PyArray_DescrCheck(dtype_.ptr()))
+    {
+        throw std::runtime_error("Not a dtype");
+    }
+    auto dtype = reinterpret_cast<PyArray_Descr*>(dtype_.ptr());
+    
+    auto const & pixel_data = data_set.as_binary(odil::registry::PixelData);
+    
+    // Get number of bytes
+    npy_intp size = std::accumulate(
+        pixel_data.cbegin(), pixel_data.cend(), 0L,
+        [](npy_intp const & a, odil::Value::Binary::value_type const & b)
+        {
+            return a + b.size();
+        });
+    
+    // Get number of elements
+    if(size % dtype->elsize != 0)
+    {
+        throw std::runtime_error("Incompatible dtype");
+    }
+    size /= dtype->elsize;
+    
+    auto array = PyArray_SimpleNewFromDescr(1, &size, dtype);
+    
+    auto it = PyArray_BYTES((PyArrayObject*)array);
+    for(auto && item: pixel_data)
+    {
+        std::memcpy(it, item.data(), item.size());
+        it += item.size();
+    }
+    
+    data_set.remove(odil::registry::PixelData);
+    
+    return array;
+}
+
 PYBIND11_MODULE(_dicomifier, _dicomifier)
 {
     if (_import_array() < 0)
@@ -99,5 +139,9 @@ PYBIND11_MODULE(_dicomifier, _dicomifier)
     _dicomifier.def(
         "convert_pixel_data",
         pybind11::detail::overload_cast_impl<pybind11::dict &, odil::DataSet &>()(
+            &convert_pixel_data));
+    _dicomifier.def(
+        "convert_pixel_data",
+        pybind11::detail::overload_cast_impl<odil::DataSet &, pybind11::object>()(
             &convert_pixel_data));
 }

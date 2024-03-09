@@ -12,183 +12,117 @@ import nibabel
 import numpy
 import odil
 
+from .. import convert_pixel_data
 from .. import logger
 from . import siemens
 
-def get_image(stack, dtype, cache=None):
-    """ Get the NIfTI image of the given stack
-        
-        :param stack: collection of data set and an associated frame number for
-            multi-frame datasets
-        :param dtype: if not None, force the dtype of the result image
-        :param cache: optional cache of linear pixel data for multi-frame data 
-            sets
+def get_slice_image(data_set, shape, cache=None):
+    """ Return a slice of an n-dimensional image.
     """
     
-    if cache is None:
-        cache = {}
-
-    # Cache the linear pixel data since this is a time-consuming operation for
-    # large data sets and needs to be repeated for multi-frame data sets.
-    for data_set, _ in stack:
-        if data_set[odil.registry.SOPInstanceUID][0] not in cache:
-            linear_array = get_linear_pixel_data(data_set)
-            cache[data_set[odil.registry.SOPInstanceUID][0]] = linear_array
+    uid = data_set[odil.registry.SOPInstanceUID][0]
     
-    pixel_data_list = [
-        get_shaped_pixel_data(
-            data_set, frame_index, 
-            cache[data_set[odil.registry.SOPInstanceUID][0]])
-        for data_set, frame_index in stack]
-
-    if dtype is None:
-        if any(numpy.dtype(x.dtype).kind == "f" for x in pixel_data_list):
-            dtype = numpy.float32
-        else:
-            # WARNING: Assume all data sets have the same type
-            dtype = pixel_data_list[0].dtype
-        logger.debug("dtype set to: %s", dtype)
-
-    pixel_data = numpy.ndarray(
-        (len(stack),) + pixel_data_list[0].shape, dtype=dtype)
-    for i, data in enumerate(pixel_data_list):
-        pixel_data[i] = data
-
-    scanner_transform = numpy.identity(4)
-
-    origin, spacing, direction = get_geometry(stack)
-
-    data_set = stack[0][0]
-    image_type = data_set.get(odil.registry.ImageType, [])
-    if len(stack) == 1 and b"MOSAIC" in image_type and "00291010" in data_set:
-        # NOTE keep the original mosaic shape, we will need it when adjusting
-        # the origin.
-        mosaic_shape = numpy.asarray(pixel_data.shape[-2:])
+    array = None
+    if cache is not None and uid not in cache:
+        dtype = get_data_set_dtype(data_set)
+        array = convert_pixel_data(data_set, dtype).reshape((-1, *shape))
         
-        item = data_set[odil.Tag(0x0029, 0x1010)][0]
-        siemens_data = siemens.parse_csa(item.get_memory_view().tobytes())
-
-        number_of_tiles = siemens_data["NumberOfImagesInMosaic"][0]
-        tiles_per_line = int(math.ceil(math.sqrt(number_of_tiles)))
-
-        rows = round(pixel_data.shape[-2] / tiles_per_line)
-        columns = round(pixel_data.shape[-1] / tiles_per_line)
+        # Mask the data using Bits Stored, cf. PS 3.5, 8.1.1
+        bits_stored = data_set[odil.registry.BitsStored][0]
+        array = numpy.bitwise_and(array, 2**bits_stored - 1, dtype=array.dtype)
         
-        # Re-arrange array so that tiles are contiguous
-        pixel_data = pixel_data.reshape(
-            tiles_per_line, rows, tiles_per_line, columns)
-        pixel_data = pixel_data.transpose((0, 2, 1, 3))
-        pixel_data = pixel_data.reshape(tiles_per_line**2, rows, columns)
-        
-        # Remove the black tiles. WARNING: assume those are /always/ at the end 
-        # of the mosaic
-        pixel_data = pixel_data[:number_of_tiles]
-
-        # Get the origin of the tiles (i.e. origin of the first tile), cf.
-        # http://nipy.org/nibabel/dicom/dicom_mosaic.html
-        # WARNING: need to invert their rows and columns
-        R = direction[:, :2]
-        Q = R * spacing[:2]
-        real_shape = numpy.asarray([rows, columns])
-        origin = origin + \
-            numpy.dot(Q, (mosaic_shape[::-1] - real_shape[::-1]) / 2.)
-
-        direction[:, 2] = siemens_data["SliceNormalVector"]
-
-    samples = data_set[odil.registry.SamplesPerPixel][0]
-    is_rgb = (
-        samples == 3 
-        and data_set[odil.registry.PhotometricInterpretation][0] == b"RGB")
+        if b"MOSAIC" in data_set[odil.registry.ImageType]:
+            item = data_set[odil.Tag(0x0029, 0x1010)][0]
+            siemens_data = siemens.parse_csa(item.get_memory_view().tobytes())
+            
+            number_of_tiles = siemens_data["NumberOfImagesInMosaic"][0]
+            tiles_per_line = int(math.ceil(math.sqrt(number_of_tiles)))
+            
+            # Re-arrange array so that tiles are contiguous
+            array = array.reshape(
+                tiles_per_line, shape[-2], tiles_per_line, shape[-1])
+            array = array.transpose((0, 2, 1, 3))
+            array = array.reshape(tiles_per_line**2, *shape[-2:])
+            
+            # Remove the black tiles. WARNING: assume they are always at the end 
+            # of the mosaic
+            array = array[:number_of_tiles]
+            
+        # Populate the cache
+        cache[uid] = array
+    else:
+        array = cache[uid]
     
-    if samples == 1:
-        lps_to_ras = [
-            [-1,  0, 0],
-            [0, -1, 0],
-            [0,  0, 1]
-        ]
+    return array
 
-        scanner_transform[:3, :3] = numpy.dot(lps_to_ras, direction)
-        scanner_transform[:3, :3] = numpy.dot(
-            scanner_transform[:3, :3], numpy.diag(spacing))
-        scanner_transform[:3, 3] = numpy.dot(lps_to_ras, origin)
-    elif is_rgb:
-        if dtype != numpy.uint8:
-            logger.warning(
-                "Invalid dtype %s for RGB, re-sampling", dtype)
-            min = pixel_data.min((0,1,2))
-            max = pixel_data.max((0,1,2))
-            pixel_data = ((pixel_data-min)/(max-min)*255).round().astype(numpy.uint8)
-        pixel_data = pixel_data.view(
-                nibabel.nifti1.data_type_codes.dtype["RGB"]
-            ).reshape(pixel_data.shape[:3])
-
-    # WARNING: ArrayWriter.to_fileobj is Fortran-order by default whereas numpy
-    # is C-order by default
-    return nibabel.Nifti1Image(pixel_data.T, scanner_transform)
-
-def get_linear_pixel_data(data_set):
-    """Return a linear numpy array containing the pixel data."""
+def get_data_set_dtype(data_set):
+    """ Return the numpy dtype of the PixelData stored in a DICOM data set.
+    """
     
     byte_order = ">" if data_set[odil.registry.HighBit][0] == 0 else "<"
     is_unsigned = (data_set.get(odil.registry.PixelRepresentation, [0])[0] == 0)
-
+    
     bits_allocated = data_set[odil.registry.BitsAllocated][0]
     if bits_allocated % 8 != 0:
         raise NotImplementedError("Cannot handle non-byte types")
-
-    dtype = numpy.dtype(
+    
+    return numpy.dtype(
         "{}{}{}".format(
-            byte_order, "u" if is_unsigned else "i", int(bits_allocated / 8)))
+            byte_order, "u" if is_unsigned else "i", bits_allocated // 8))
 
-    pixel_data = data_set.as_binary(odil.registry.PixelData)[0]
-    view = pixel_data.get_memory_view()
-    linear_array = numpy.frombuffer(view.tobytes(), byte_order + dtype.char)
-    
-    # Mask the data using Bits Stored, cf. PS 3.5, 8.1.1
-    bits_stored = data_set[odil.registry.BitsStored][0]
-    linear_array = numpy.bitwise_and(
-        linear_array, 2**bits_stored - 1, dtype=linear_array.dtype)
-    
-    return linear_array
-
-def get_shaped_pixel_data(data_set, frame_index, linear_pixel_data):
-    """ Return the pixel data located in a dataset (and possibly one of its 
-        frame) shaped according to number of rows, columns and frames.
+def find_common_dtype(dtypes):
+    """ Return the dtype which encompasses all provided dtypes.
     """
     
-    rows = data_set[odil.registry.Rows][0]
-    cols = data_set[odil.registry.Columns][0]
+    kinds = set(x.kind for x in dtypes)
+    itemsizes = set(x.itemsize for x in dtypes)
     
-    def reshape(array, shape):
-        try:
-            return array.reshape(shape)
-        except ValueError:
-            return array[:-1].reshape(shape)
-
-    shape = [rows, cols]
-    if (
-            odil.registry.PerFrameFunctionalGroupsSequence in data_set
-            and odil.registry.NumberOfFrames in data_set):
-        number_of_frames = data_set[odil.registry.NumberOfFrames][0]
-        shape.insert(0, number_of_frames)
+    if len(kinds) == 1:
+        # Single kind. Use it, with largest item size.
+        return numpy.dtype(f"{kinds.pop()}{max(itemsizes)}")
+    elif all(k in "iuf" for k in kinds):
+        # Mixed signed and unsigned integers: promote to float
+        # Mixed integers and floats: promote to float
+        return numpy.dtype(f"f{max(itemsizes)}")
+    elif all(k in "iufc" for k in kinds):
+        # Same as above, but includes complex: promote to complex
+        return numpy.dtype(f"c{max(itemsizes)}")
     else:
-        number_of_frames = None
+        # Non-numeric dtype
+        raise Exception("Cannot find common dtype")
+
+def get_shape(stack):
+    """ Return the shape of the image data contained in the stack.
+    """
     
+    data_set = stack[0][0]
+    
+    if b"MOSAIC" in data_set[odil.registry.ImageType]:
+        item = data_set[odil.Tag(0x0029, 0x1010)][0]
+        siemens_data = siemens.parse_csa(item.get_memory_view().tobytes())
+        
+        number_of_tiles = siemens_data["NumberOfImagesInMosaic"][0]
+        tiles_per_line = int(math.ceil(math.sqrt(number_of_tiles)))
+        
+        rows = data_set[odil.registry.Rows][0] // tiles_per_line
+        cols = data_set[odil.registry.Columns][0] // tiles_per_line
+        shape = [number_of_tiles*len(stack), rows, cols]
+    else:
+        rows = data_set[odil.registry.Rows][0]
+        cols = data_set[odil.registry.Columns][0]
+        shape = [len(stack), rows, cols]
+        
     samples_per_pixel = data_set[odil.registry.SamplesPerPixel][0]
     if samples_per_pixel > 1:
         shape.append(samples_per_pixel)
     
-    pixel_data = reshape(linear_pixel_data, shape)
+    return tuple(shape)
+
+def get_rescale(data_set, frame_index=None):
+    """ Return the rescale information contained in a data set, as
+        (slope, intercept). If rescale is not present, return None.
+    """
     
-    if number_of_frames is not None:
-        pixel_data = pixel_data[frame_index, :]
-    
-    # Rescale: look for Rescale Slope and Rescale Intercept in
-    # - the top-level of the data set
-    # - Pixel Value Transformation Sequence at the top-level of the data set
-    # - Pixel Value Transformation Sequence in Shared Functional Groups Sequence
-    # - Pixel Value Transformation Sequence in Per-frame Functional Groups Sequence
-    # The most specific one takes precedence.
     containers = [
         data_set,
         data_set.get(
@@ -208,19 +142,17 @@ def get_shaped_pixel_data(data_set, frame_index, linear_pixel_data):
                 )[frame_index].get(
                     odil.registry.PixelValueTransformationSequence, [odil.DataSet()]
                 )[0])
-    
-    rescale = [None, None]
+    rescale = None
     for item in containers:
         slope = item.get(odil.registry.RescaleSlope, [None])[0]
         intercept = item.get(odil.registry.RescaleIntercept, [None])[0]
         if None not in (slope, intercept):
-            rescale = [slope, intercept]
+            rescale = (slope, intercept)
     
-    slope, intercept = rescale
-    if None not in rescale and not numpy.allclose([slope, intercept], [1, 0]):
-        pixel_data = pixel_data * numpy.float32(slope) + numpy.float32(intercept)
-
-    return pixel_data
+    if rescale is not None and not numpy.allclose(rescale, [1, 0]):
+        return rescale
+    else:
+        return None
 
 def find_element(data_set, frame_index, tag, sequence):
     """ Return a data set, potentially nested inside the given data set and
@@ -245,7 +177,11 @@ def find_element(data_set, frame_index, tag, sequence):
     return container
 
 def get_origin(stack):
-    """Compute the origin of the stack."""
+    """ Compute the origin of the stack.
+        
+        NOTE: if the stack contains mosaic data set, the return value of this
+        function is unmodified by the mosaic info (cf. code in get_geometry).
+    """
     
     data_set, index = stack[0]
     
@@ -261,7 +197,12 @@ def get_origin(stack):
     return origin
 
 def get_orientation(stack):
-    """Compute the orientation of the stack."""
+    """
+        Compute the orientation of the stack.
+        
+        NOTE: if the stack contains mosaic data set, the return value of this
+        function is unmodified by the mosaic info (cf. code in get_geometry).
+    """
     
     data_set, index = stack[0]
     
@@ -331,7 +272,7 @@ def get_spacing(stack):
         logger.warning("No slice thickness, using default")
         spacing.append(1.)
     
-    return spacing
+    return tuple(spacing)
 
 def get_geometry(stack):
     """ Compute the geometry (origin, spacing, orientation) for the given stack.
@@ -356,4 +297,25 @@ def get_geometry(stack):
         logger.warning("No spacing found, using default")
         spacing = default_spacing
     
+    data_set = stack[0][0]
+    if b"MOSAIC" in data_set[odil.registry.ImageType]:
+        item = data_set[odil.Tag(0x0029, 0x1010)][0]
+        siemens_data = siemens.parse_csa(item.get_memory_view().tobytes())
+        
+        number_of_tiles = siemens_data["NumberOfImagesInMosaic"][0]
+        tiles_per_line = int(math.ceil(math.sqrt(number_of_tiles)))
+        
+        # Get the origin of the tiles (i.e. origin of the first tile), cf.
+        # http://nipy.org/nibabel/dicom/dicom_mosaic.html
+        # NOTE: shapes are expressed in Fortran order, as is the orientation
+        mosaic_shape = numpy.asarray([
+            data_set[odil.registry.Columns][0],
+            data_set[odil.registry.Rows][0]])
+        R = orientation[:, :2]
+        Q = R * spacing[:2]
+        real_shape = mosaic_shape // tiles_per_line
+        origin = origin + numpy.dot(Q, (mosaic_shape - real_shape) / 2.)
+        
+        orientation[:, 2] = siemens_data["SliceNormalVector"]
+        
     return origin, spacing, orientation

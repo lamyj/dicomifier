@@ -201,15 +201,6 @@ def convert_series_data_sets(data_sets, dtype=None, extra_splitters=None):
     logger.info(
         "Found %d stack%s", len(stacks), "s" if len(stacks) > 1 else "")
 
-    # Set up progress information
-    stacks_count = {}
-    stacks_converted = {}
-    for key, frames in stacks.items():
-        series_instance_uid = frames[0][0][odil.registry.SeriesInstanceUID][0]
-        stacks_count.setdefault(series_instance_uid, 0)
-        stacks_count[series_instance_uid] += 1
-        stacks_converted[series_instance_uid] = 0
-
     meta_data_cache = {}
     pixel_data_cache = {}
     # Try to preserve the original stacks order (multi-frame)
@@ -223,27 +214,22 @@ def convert_series_data_sets(data_sets, dtype=None, extra_splitters=None):
         data_set = stack[0][0]
         
         # Update progress information
-        series_instance_uid = data_set[odil.registry.SeriesInstanceUID][0]
-        if stacks_count[series_instance_uid] > 1:
-            stack_info = "{}/{}".format(
-                1 + stacks_converted[series_instance_uid],
-                stacks_count[series_instance_uid])
+        if len(stacks) > 1:
+            stack_info = "{}/{}".format(1 + stack_index, len(stacks))
         else:
             stack_info = ""
         if stack_info:
             logger.debug("Converting stack %s", stack_info)
-        stacks_converted[series_instance_uid] += 1
 
         sort(key, stack)
-        nifti_img = image.get_image(stack, dtype, pixel_data_cache)
         nifti_meta_data = meta_data.get_meta_data(stack, meta_data_cache)
-        nifti_data.append((nifti_img, nifti_meta_data))
+        nifti_data.append((stack, nifti_meta_data))
 
     # Try to preserve the original stacks order (single-frame)
     nifti_data.sort(
         key=lambda x: numpy.ravel(x[1].get("InstanceNumber", [None])).min())
 
-    for nifti_img, nifti_meta_data in nifti_data:
+    for stack, nifti_meta_data in nifti_data:
         skipped = [
             "InstanceNumber",
         ]
@@ -251,49 +237,96 @@ def convert_series_data_sets(data_sets, dtype=None, extra_splitters=None):
             if x in nifti_meta_data:
                 del nifti_meta_data[x]
 
-    series = {}
-    for nitfi_img, nifti_meta_data in nifti_data:
-        series.setdefault(nifti_meta_data["SeriesInstanceUID"][0], []).append(
-            (nitfi_img, nifti_meta_data))
-
+    # Use OrderedDict to keep the relative order
+    mergeable = collections.OrderedDict()
+    for stack, nifti_meta_data in nifti_data:
+        origin, spacing, orientation = image.get_geometry(stack)
+        affine = numpy.diag([*spacing, 1])
+        affine[:3, :3] = orientation @ affine[:3, :3]
+        affine[:3, 3] = origin
+        
+        shape = image.get_shape(stack)
+        
+        key = (*shape, *affine.ravel())
+        mergeable.setdefault(key, []).append((stack, nifti_meta_data))
+    
     merged_stacks = []
-    for stacks in series.values():
-        # Use OrderedDict to keep the relative order
-        mergeable = collections.OrderedDict()
-        for nifti_img, nifti_meta_data in stacks:
-            geometry = nifti_img.shape + \
-                tuple(nifti_img.affine.ravel().tolist())
-            dt = nifti_img.dataobj.dtype
-            mergeable.setdefault((geometry, dt), []).append(
-                (nifti_img, nifti_meta_data))
-
-        for _, stack in mergeable.items():
-            if len(stack) > 1:
-                logger.info(
-                    "Merging %d stack%s",
-                        len(stack), "s" if len(stack) > 1 else "")
-                merged = merge_images_and_meta_data(stack)
-                merged_stacks.append(merged)
-            else:
-                merged_stacks.append(stack[0])
+    pixel_data_cache = {}
+    for image_info, stacks_and_meta_data in mergeable.items():
+        shape = (len(stacks_and_meta_data), *image_info[:-16])
+        
+        dtypes = set()
+        rescale = {}
+        for volume_index, (stack, _) in enumerate(stacks_and_meta_data):
+            for slice_index, (data_set, frame_index) in enumerate(stack):
+                dtypes.add(image.get_data_set_dtype(data_set))
+        if dtype is None:
+            deduced_dtype = image.find_common_dtype(dtypes)
+            for stack, _ in stacks_and_meta_data:
+                for data_set, frame_index in stack:
+                    uid = data_set[odil.registry.SOPInstanceUID][0]
+                    if (uid, frame_index) not in rescale:
+                        rescale[(uid, frame_index)] = image.get_rescale(
+                            data_set, frame_index)
+            if any(rescale.values()):
+                # Rescaling will create floats
+                deduced_dtype = image.find_common_dtype(
+                    [numpy.dtype("f4"), deduced_dtype])
+        else:
+            deduced_dtype = None
+        
+        nifti_data = numpy.zeros(shape, dtype or deduced_dtype)
+        
+        for volume_index, (stack, _) in enumerate(stacks_and_meta_data):
+            for slice_index, (data_set, frame_index) in enumerate(stack):
+                array = image.get_slice_image(
+                    data_set, shape[-2:], pixel_data_cache)
+                uid = data_set[odil.registry.SOPInstanceUID][0]
+                frame_rescale = rescale[uid, frame_index]
+                
+                is_mosaic = b"MOSAIC" in data_set[odil.registry.ImageType]
+                source = slice(None) if is_mosaic else frame_index
+                destination = (
+                    volume_index if is_mosaic
+                    else (volume_index, slice_index))
+                if frame_rescale:
+                    slope, intercept = frame_rescale
+                    nifti_data[destination] = array[source] * slope + intercept
+                else:
+                    nifti_data[destination] = array[source]
+        
+        data_set = stacks_and_meta_data[0][0][0][0]
+        is_rgb = (
+            data_set[odil.registry.SamplesPerPixel][0] == 3 
+            and data_set[odil.registry.PhotometricInterpretation][0] == b"RGB")
+        if is_rgb:
+            rgb_dtype = numpy.dtype([
+                (x, f"{nifti_data.dtype.kind}{nifti_data.dtype.itemsize}")
+                for x in "RGB"])
+            nifti_data = nifti_data.view(rgb_dtype).copy().squeeze(-1)
+        
+        # Convert from LPS (used by DICOM) to RAS (used by NIfTI)
+        affine = numpy.reshape(image_info[-16:], (4, 4))
+        lps_to_ras = numpy.diag([-1, -1, 1, 1])
+        affine = lps_to_ras @ affine
+        
+        # Convert to 3D image if there is only one volume which is not RGB
+        if len(stacks_and_meta_data) == 1:
+            nifti_data = nifti_data[0, ...]
+        
+        # Convert to Fortran-order, expected by nibabel
+        nifti_image = nibabel.Nifti1Image(numpy.transpose(nifti_data), affine)
+        
+        nifti_meta_data = merge_meta_data([x[1] for x in stacks_and_meta_data])
+        
+        merged_stacks.append((nifti_image, nifti_meta_data))
     
     return merged_stacks
 
-def merge_images_and_meta_data(images_and_meta_data):
-    """ Merge the pixel and meta-data of geometrically coherent images.
+def merge_meta_data(meta_data):
+    """ Merge the meta-data of geometrically coherent images.
     """
 
-    images = [x[0] for x in images_and_meta_data]
-
-    pixel_data = numpy.ndarray(
-        images[0].shape + (len(images),),
-        dtype=images[0].dataobj.dtype, order="F")
-    for i, image in enumerate(images):
-        pixel_data[...,i] = image.dataobj
-
-    merged_image = nibabel.Nifti1Image(pixel_data, images[0].affine)
-    
-    meta_data = [x[1] for x in images_and_meta_data]
     merged_meta_data = MetaData()
     keys = set()
     for m in meta_data:
@@ -304,4 +337,4 @@ def merge_images_and_meta_data(images_and_meta_data):
             value = value[0]
         merged_meta_data[key] = value
 
-    return merged_image, merged_meta_data
+    return merged_meta_data
