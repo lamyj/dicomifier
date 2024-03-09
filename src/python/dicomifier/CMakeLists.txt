@@ -1,4 +1,11 @@
-find_package(Odil REQUIRED)
+find_package(Odil)
+if(NOT "${Odil_FOUND}")
+    find_file(Odil_INCLUDE odil/odil.h)
+    # Get grand-parent of include file
+    get_filename_component(Odil_INCLUDE_DIRS "${Odil_INCLUDE}" DIRECTORY)
+    get_filename_component(Odil_INCLUDE_DIRS "${Odil_INCLUDE_DIRS}" DIRECTORY)
+    find_library(Odil_LIBRARIES odil)
+endif()
 find_package(PythonInterp 3.5 REQUIRED)
 find_package(pybind11 2.0 REQUIRED)
 
@@ -22,7 +29,15 @@ if(APPLE)
     set_target_properties(pydicomifier_dicomifier PROPERTIES SUFFIX ".so")
 endif()
 
-target_link_libraries(pydicomifier_dicomifier PUBLIC libdicomifier Odil::libodil)
+if("${Odil_FOUND}")
+    target_link_libraries(
+        pydicomifier_dicomifier PUBLIC libdicomifier Odil::libodil)
+else()
+    target_include_directories(
+        pydicomifier_dicomifier PUBLIC ${Odil_INCLUDE_DIRS}) 
+    target_link_libraries(
+        pydicomifier_dicomifier PUBLIC libdicomifier ${Odil_LIBRARIES})
+endif()
 
 execute_process(
     COMMAND ${PYTHON_EXECUTABLE}
