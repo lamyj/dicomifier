@@ -29,6 +29,7 @@ if(APPLE)
     set_target_properties(pydicomifier_dicomifier PROPERTIES SUFFIX ".so")
 endif()
 
+target_link_libraries(pydicomifier_dicomifier PUBLIC Python::NumPy)
 if("${Odil_FOUND}")
     target_link_libraries(
         pydicomifier_dicomifier PUBLIC libdicomifier Odil::libodil)

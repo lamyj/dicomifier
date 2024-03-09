@@ -1,10 +1,6 @@
 name: Build
 on: push
 
-defaults:
-  run:
-    shell: bash -i -l -e -o pipefail {0}
-
 jobs:
   build:
     runs-on: ${{ matrix.os }}
@@ -40,7 +36,7 @@ jobs:
         uses: mamba-org/setup-micromamba@v1
         with:
           init-shell: bash powershell
-          environment-name: sycomore
+          environment-name: dicomifier
           create-args: python=3.11
         if: ${{ contains(matrix.packaging, 'conda') }}
       
