@@ -14,10 +14,12 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - { os: "ubuntu-latest", packaging: "apt", container: "debian:bullseye", python: "python3" }
+          # WARNING: requires odil ≥ 0.12.2
+          # - { os: "ubuntu-latest", packaging: "apt", container: "debian:bullseye", python: "python3" }
           - { os: "ubuntu-latest", packaging: "apt", container: "debian:bookworm", python: "python3" }
-          - { os: "ubuntu-latest", packaging: "apt", container: "ubuntu:focal", python: "python3" }
-          - { os: "ubuntu-latest", packaging: "apt", container: "ubuntu:jammy", python: "python3" }
+          # - { os: "ubuntu-latest", packaging: "apt", container: "ubuntu:focal", python: "python3" }
+          # - { os: "ubuntu-latest", packaging: "apt", container: "ubuntu:jammy", python: "python3" }
+          - { os: "ubuntu-latest", packaging: "apt", container: "ubuntu:noble", python: "python3" }
           - { os: "macos-latest", packaging: "conda", python: "python3" }
     env:
       WORKSPACE: "${{ github.workspace }}"
@@ -27,7 +29,7 @@ jobs:
         # Linux we are running in minimal containers.
         run: |
           apt-get update
-          apt-get install -y git python3
+          DEBIAN_FRONTEND=noninteractive apt-get install -y git python3
         if: ${{ contains(matrix.container, 'debian') || contains(matrix.container, 'ubuntu') }}
       
       - name: Provision (macOS)
