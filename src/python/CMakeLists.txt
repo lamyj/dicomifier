@@ -1,4 +1,4 @@
-find_package(Python COMPONENTS Interpreter REQUIRED)
+find_package(Python 3 COMPONENTS Interpreter REQUIRED)
 
 execute_process(
     COMMAND ${Python_EXECUTABLE}

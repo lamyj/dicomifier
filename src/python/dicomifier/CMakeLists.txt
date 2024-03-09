@@ -6,7 +6,7 @@ if(NOT "${Odil_FOUND}")
     get_filename_component(Odil_INCLUDE_DIRS "${Odil_INCLUDE_DIRS}" DIRECTORY)
     find_library(Odil_LIBRARIES odil REQUIRED)
 endif()
-find_package(Python COMPONENTS Interpreter Development NumPy REQUIRED)
+find_package(Python 3 COMPONENTS Interpreter Development NumPy REQUIRED)
 find_package(pybind11 2.0 REQUIRED)
 
 include_directories(${CMAKE_SOURCE_DIR}/src/lib ${PYTHON_INCLUDE_DIRS})

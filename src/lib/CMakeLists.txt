@@ -1,5 +1,5 @@
 find_package(Boost COMPONENTS date_time filesystem system regex REQUIRED)
-find_package(Python COMPONENTS Development REQUIRED)
+find_package(Python 3 COMPONENTS Development REQUIRED)
 
 file(GLOB_RECURSE headers "*.h")
 file(GLOB_RECURSE templates "*.txx")
