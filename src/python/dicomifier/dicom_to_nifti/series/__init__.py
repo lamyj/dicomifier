@@ -38,7 +38,8 @@ def split_series(files):
             getattr(odil.registry, x) for x in [
                 "ImplicitVRLittleEndian",
                 "ExplicitVRLittleEndian",
-                "ExplicitVRBigEndian"
+                "ExplicitVRBigEndian",
+                "EncapsulatedUncompressedExplicitVRLittleEndian"
             ]]
         if header[odil.registry.TransferSyntaxUID][0] not in uncompressed_ts:
             logger.warning(
