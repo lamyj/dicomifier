@@ -1,4 +1,4 @@
-set(tools "bruker2dicom" "dicom2nifti" "dicomifier")
+set(tools "dicomifier")
 foreach(tool ${tools})
     configure_file(${tool} ${tool})
     install(PROGRAMS ${CMAKE_CURRENT_BINARY_DIR}/${tool} DESTINATION bin)
