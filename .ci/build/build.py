@@ -4,6 +4,8 @@ import re
 import subprocess
 import sys
 
+print(f"Building with {sys.executable}")
+
 workspace = os.environ["WORKSPACE"]
 build_dir = os.environ.get("BUILD_DIR", os.path.join(workspace, "build"))
 install_dir = os.environ.get("INSTALL_DIR", os.path.join(workspace, "install"))

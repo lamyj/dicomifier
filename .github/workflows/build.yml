@@ -52,7 +52,10 @@ jobs:
           git checkout ${{ github.ref_name }}
       
       - name: Set-up (${{ matrix.packaging }})
-        run: ${{ matrix.python }} .ci/build/${{ matrix.packaging }}.py
+        run: |
+          echo "Python interpreters"
+          which -a ${{ matrix.python }}
+          ${{ matrix.python }} .ci/build/${{ matrix.packaging }}.py
       
       - name: Build
         run: ${{ matrix.python }} ./.ci/build/build.py
