@@ -13,11 +13,11 @@ Compiling from source
 
 If you need to compile Dicomifier from scratch, you will need
 
-- A build environment with a C++11 compiler and Python ≥ 3.5
+- A build environment with a C++11 compiler and Python ≥ 3.6
 - `CMake <https://cmake.org>`_ ≥ 3.5
 - The `Boost libraries <https://boost.org>`_ ≥ 1.58
 - `Pybind11 <https://pybind11.readthedocs.io>`_ ≥ 2.0.1
-- `Odil <https://odil.readthedocs.io>`_ ≥ 0.12.0
+- `Odil <https://odil.readthedocs.io>`_ ≥ 0.12.2
 - The `dateutil <https://pypi.org/project/py-dateutil/>`_, `nibabel <https://nipy.org/nibabel/>`_ and `numpy <https://numpy.org/>`_ Python modules
 
 If using Conda, all dependencies can be installed by ``conda install --yes -c conda-forge boost cmake nibabel numpy odil pkg-config pybind11 python-dateutil``

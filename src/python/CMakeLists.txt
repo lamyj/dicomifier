@@ -1,25 +1,11 @@
-find_package(PythonInterp 3.5 REQUIRED)
+find_package(Python COMPONENTS Interpreter REQUIRED)
 
 execute_process(
-    COMMAND 
-        ${PYTHON_EXECUTABLE} -c "import odil; help(odil.Reader.read_file)"
-    OUTPUT_VARIABLE ODIL_READ_FILE)
-string(
-    REGEX MATCH 
-    "read_file\\(file_name: str" ODIL_READ_FILE_STR "${ODIL_READ_FILE}")
-if("${ODIL_READ_FILE_STR}" STREQUAL "")
-    message(
-        SEND_ERROR 
-        "Could NOT find a supported Odil version\n"
-        "(odil.Reader.read_file(file_name: str, ...) is missing")
-endif()
-
-execute_process(
-    COMMAND ${PYTHON_EXECUTABLE}
+    COMMAND ${Python_EXECUTABLE}
         -c "import os; import sysconfig; \
-        print(\ 
-            sysconfig.get_path('platlib', os.name+'_user', {'userbase': '.'})\
-            .replace('\\\\', '/'))"
+            scheme = {'posix': 'posix_prefix', 'nt': 'nt'}[os.name]; \
+            path = sysconfig.get_path('purelib', scheme, {'base': '.'}); \
+            print(path.replace(os.path.sep, '/'))"
     OUTPUT_VARIABLE PYTHON_SITE_PACKAGES
     OUTPUT_STRIP_TRAILING_WHITESPACE)
 

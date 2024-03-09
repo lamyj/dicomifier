@@ -16,7 +16,7 @@ subprocess.check_call(
     [
         "cmake", 
         "-G", "Ninja",
-        "-DPYTHON_EXECUTABLE={}".format(sys.executable),
+        "-DPython_EXECUTABLE={}".format(sys.executable),
         "-DCMAKE_INSTALL_PREFIX={}".format(install_dir), 
         workspace],
     cwd=build_dir)

@@ -1,4 +1,4 @@
-#!${PYTHON_EXECUTABLE}
+#!${Python_EXECUTABLE}
 import re
 import sys
 from dicomifier.__main__ import main

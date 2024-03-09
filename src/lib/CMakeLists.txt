@@ -1,4 +1,4 @@
-find_package(Boost 1.58 COMPONENTS date_time filesystem system regex REQUIRED)
+find_package(Boost COMPONENTS date_time filesystem system regex REQUIRED)
 find_package(Python COMPONENTS Development REQUIRED)
 
 file(GLOB_RECURSE headers "*.h")

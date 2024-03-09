@@ -6,7 +6,7 @@ if(NOT "${Odil_FOUND}")
     get_filename_component(Odil_INCLUDE_DIRS "${Odil_INCLUDE_DIRS}" DIRECTORY)
     find_library(Odil_LIBRARIES odil REQUIRED)
 endif()
-find_package(PythonInterp 3.5 REQUIRED)
+find_package(Python COMPONENTS Interpreter Development NumPy REQUIRED)
 find_package(pybind11 2.0 REQUIRED)
 
 include_directories(${CMAKE_SOURCE_DIR}/src/lib ${PYTHON_INCLUDE_DIRS})
@@ -38,15 +38,6 @@ else()
     target_link_libraries(
         pydicomifier_dicomifier PUBLIC libdicomifier ${Odil_LIBRARIES})
 endif()
-
-execute_process(
-    COMMAND ${PYTHON_EXECUTABLE}
-        -c "import os; import sysconfig; \
-        print(\ 
-            sysconfig.get_path('platlib', os.name+'_user', {'userbase': '.'})\
-            .replace('\\\\', '/'))"
-    OUTPUT_VARIABLE PYTHON_SITE_PACKAGES
-    OUTPUT_STRIP_TRAILING_WHITESPACE)
 
 install(
     TARGETS pydicomifier_dicomifier
