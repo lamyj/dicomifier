@@ -7,24 +7,26 @@ import odil
 import dicomifier
 
 class TestImage(unittest.TestCase):
-    def test_get_linear_pixel_data(self):
-        buffer = numpy.linspace(1, 11, 10, dtype=numpy.uint16)
+    def test_get_shape(self):
         data_set = odil.DataSet(
-            odil.registry.ImplicitVRLittleEndian,
-            HighBit=[15], BitsAllocated=[16], BitsStored=[15], 
-            PixelData=[odil.Value.BinaryItem(buffer.tobytes())])
+            Rows=[5], Columns=[2], SamplesPerPixel=[1],
+            BitsAllocated=[16], BitsStored=[16], HighBit=[15])
         numpy.testing.assert_almost_equal(
-            dicomifier.dicom_to_nifti.image.get_linear_pixel_data(data_set),
-            buffer)
+            dicomifier.dicom_to_nifti.image.get_shape([[data_set, None]]),
+            (1, 5, 2))
     
-    def test_get_shaped_pixel_data(self):
-        data_set = odil.DataSet(
-            Rows=[5], Columns=[2], SamplesPerPixel=[1], BitsStored=[16])
+    def test_get_slice_image(self):
         buffer = numpy.linspace(1, 11, 10, dtype=numpy.uint16)
+        data_set = odil.DataSet(
+            Rows=[5], Columns=[2], SamplesPerPixel=[1],
+            BitsAllocated=[16], BitsStored=[16], HighBit=[15],
+            PixelData=[odil.Value.BinaryItem(buffer.tobytes())])
+        
         numpy.testing.assert_almost_equal(
-            dicomifier.dicom_to_nifti.image.get_shaped_pixel_data(
-                data_set, None, buffer),
-            buffer.reshape(5,2))
+            dicomifier.dicom_to_nifti.image.get_slice_image(
+                data_set,
+                dicomifier.dicom_to_nifti.image.get_shape([[data_set, None]])),
+            buffer.reshape(1, 1, 5,2))
     
     def test_get_origin(self):
         data_set = odil.DataSet(ImagePositionPatient=[1,2,3])
