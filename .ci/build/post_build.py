@@ -11,8 +11,8 @@ bin_dir = os.path.join(install_dir, "bin")
 lib_dir = os.path.join(install_dir, "lib")
 python_lib_dir = os.path.join(
     install_dir,
-    sysconfig.get_path("platlib", os.name+"_user", {"userbase": "."})
-        .replace("\\", "/"))
+    sysconfig.get_path(
+        "purelib", {"posix":"posix_prefix", "nt":"nt"}[os.name], {"base": "."}))
 python_tests_dir = os.path.join(workspace, "tests", "python")
 
 # Set-up environment: C++ library, Python module and test data location.
@@ -28,20 +28,13 @@ os.environ["DICOMIFIER_TEST_DATA"] = os.path.join(workspace, "tests", "data")
 # Run C++ and Python tests even if the former fails, return non-zero if any
 # failed.
 return_code = 0
-return_code = max(return_code, subprocess.call(["ctest"], cwd=build_dir))
+return_code = max(
+    return_code,
+    subprocess.call(["ctest"], cwd=build_dir, stderr=subprocess.STDOUT))
 return_code = max(
     return_code,
     subprocess.call(
         [sys.executable, "-m", "unittest", "discover", "-s", python_tests_dir], 
-        cwd=build_dir))
-# if not os.environ.get("DICOMIFIER_SKIP_CONVERSION_TESTS"):
-#     if not os.path.isdir(os.path.join(workspace, "tests/data/input")):
-#         subprocess.check_call(["tests/download_data"], cwd=workspace)
-#     
-#     for test in ["to_dicom", "to_nifti", "list"]:
-#         return_code = max(
-#             return_code,
-#             subprocess.call([
-#                 sys.executable,
-#                 os.path.join(workspace, "tests/diff/{}.py".format(test))]))
+        cwd=build_dir, stderr=subprocess.STDOUT))
+
 sys.exit(return_code)
