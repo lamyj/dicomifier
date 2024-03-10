@@ -1,4 +1,5 @@
 find_package(Python 3.6 COMPONENTS Interpreter REQUIRED)
+message("Python interpreter: ${Python_EXECUTABLE}")
 
 execute_process(
     COMMAND ${Python_EXECUTABLE}

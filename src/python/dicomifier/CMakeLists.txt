@@ -7,6 +7,7 @@ if(NOT "${Odil_FOUND}")
     find_library(Odil_LIBRARIES odil REQUIRED)
 endif()
 find_package(Python 3.6 COMPONENTS Interpreter Development NumPy REQUIRED)
+message("Python interpreter: ${Python_EXECUTABLE}")
 find_package(pybind11 2.0 REQUIRED)
 
 include_directories(${CMAKE_SOURCE_DIR}/src/lib ${PYTHON_INCLUDE_DIRS})
