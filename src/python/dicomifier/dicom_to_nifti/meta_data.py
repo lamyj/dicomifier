@@ -96,11 +96,13 @@ def get_meta_data(stack, cache=None):
         if frame is not None:
             # Fetch frame-specific elements
             groups = data_set[odil.registry.PerFrameFunctionalGroupsSequence][frame]
-            _fill_meta_data_dictionary(
-                groups, 
-                lambda tag, value: 
-                    elements.setdefault(tag, {}).update({i: value}), 
-                skipped, no_recurse)
+            if tag not in elements or isinstance(elements[tag], dict):
+                _fill_meta_data_dictionary(
+                    groups, 
+                    lambda tag, value: 
+                        elements.setdefault(tag, {}).update({i: value}), 
+                    skipped, no_recurse)
+            # Otherwise element has already been converted
     
     # Convert dictionary with possible holes to list: iteration is quicker.
     elements = {
