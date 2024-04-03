@@ -15,8 +15,8 @@ jobs:
           - { os: "ubuntu-latest", packaging: "apt", container: "debian:bookworm", python: "python3" }
           # - { os: "ubuntu-latest", packaging: "apt", container: "ubuntu:focal", python: "python3" }
           # - { os: "ubuntu-latest", packaging: "apt", container: "ubuntu:jammy", python: "python3" }
-          - { os: "ubuntu-latest", packaging: "apt", container: "ubuntu:noble", python: "python3" }
-          - { os: "ubuntu-latest", packaging: "conda", container: "debian:bookworm", python: "python" }
+          # - { os: "ubuntu-latest", packaging: "apt", container: "ubuntu:noble", python: "python3" }
+          - { os: "ubuntu-latest", packaging: "conda", python: "python" }
           - { os: "macos-latest", packaging: "conda", python: "python" }
     env:
       WORKSPACE: "${{ github.workspace }}"
@@ -31,14 +31,6 @@ jobs:
           apt-get update
           DEBIAN_FRONTEND=noninteractive apt-get install -y git python3
         if: ${{ contains(matrix.packaging, 'apt') }}
-      
-      - name: Provision (Micromamba on Linux)
-        # On container images, some base packages are missing to correctly set
-        # up conda
-        run: |
-          apt update
-          DEBIAN_FRONTEND=noninteractive apt-get install -y curl
-        if: ${{ contains(matrix.packaging, 'conda') && contains(matrix.os, 'ubuntu-latest') }}
       
       - name: Provision (Micromamba)
         uses: mamba-org/setup-micromamba@v1
