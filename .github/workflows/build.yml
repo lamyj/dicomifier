@@ -32,6 +32,14 @@ jobs:
           DEBIAN_FRONTEND=noninteractive apt-get install -y git python3
         if: ${{ contains(matrix.packaging, 'apt') }}
       
+      - name: Provision (Micromamba on Linux)
+        # On container images, some base packages are missing to correctly set
+        # up conda
+        run: |
+          apt update
+          DEBIAN_FRONTEND=noninteractive apt-get install -y curl
+        if: ${{ contains(matrix.packaging, 'conda') && contains(matrix.os, 'ubuntu-latest') }}
+      
       - name: Provision (Micromamba)
         uses: mamba-org/setup-micromamba@v1
         with:
