@@ -7,7 +7,7 @@ endif()
 
 project(dicomifier)
 
-set(dicomifier_VERSION 2.5.0)
+set(dicomifier_VERSION 2.5.1)
 string(REGEX MATCH "^([0-9]+)\\.([0-9]+)\\.([0-9]+)" _ "${dicomifier_VERSION}")
 set(dicomifier_MAJOR_VERSION "${CMAKE_MATCH_1}")
 set(dicomifier_MINOR_VERSION "${CMAKE_MATCH_2}")
