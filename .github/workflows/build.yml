@@ -16,7 +16,7 @@ jobs:
           # - { os: "ubuntu-latest", packaging: "apt", container: "ubuntu:focal", python: "python3" }
           # - { os: "ubuntu-latest", packaging: "apt", container: "ubuntu:jammy", python: "python3" }
           - { os: "ubuntu-latest", packaging: "apt", container: "ubuntu:noble", python: "python3" }
-          - { os: "ubuntu-latest", packaging: "conda", python: "python" }
+          - { os: "ubuntu-latest", packaging: "conda", container: "debian:bookworm", python: "python" }
           - { os: "macos-latest", packaging: "conda", python: "python" }
     env:
       WORKSPACE: "${{ github.workspace }}"
