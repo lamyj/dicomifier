@@ -94,14 +94,20 @@ def get_meta_data(stack, cache=None):
                 # Already converted
                 elements[tag] = element
         if frame is not None:
-            # Fetch frame-specific elements. Each frame will be part of only one
-            # stack, so caching is meaningless here
+            # Fetch frame-specific elements. If an element is present both in
+            # cache and at frame level, the frame-level element overrides the
+            # cached element.
             groups = data_set[odil.registry.PerFrameFunctionalGroupsSequence][frame]
-            _fill_meta_data_dictionary(
-                groups, 
-                lambda tag, value: 
-                    elements.setdefault(tag, {}).update({i: value}), 
-                skipped, no_recurse)
+            def updater(tag, value):
+                if tag in cache[sop_instance_uid]:
+                    # A frame-dependent element is also present in the cache
+                    # (this may happen e.g. for PixelRepresentation in Enhanced
+                    # MR): remove from cache before processing so that
+                    # frame-dependent values take precedence
+                    del cache[sop_instance_uid][tag]
+                elements.setdefault(tag, {}).update({i: value})
+            
+            _fill_meta_data_dictionary(groups, updater, skipped, no_recurse)
     
     # Convert dictionary with possible holes to list: iteration is quicker.
     elements = {
