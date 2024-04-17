@@ -94,7 +94,7 @@ def get_pixel_data(data_set, generator, frame_index):
                 numpy.cumprod([x[0] for x in volume_groups])[-1], -1,
                 data_set["PIXELDATA"].shape[-1]),
             "A")
-        view = view.flip(axis=1)
+        view = numpy.flip(view, axis=1)
         
         # Mark slice order as normal
         data_set["VisuCoreDiskSliceOrder"] = ["disk_normal_slice_order"]
