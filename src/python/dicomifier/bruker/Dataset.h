@@ -13,7 +13,7 @@
 #include <string>
 #include <vector>
 
-#include "Field.h"
+#include "dicomifier/bruker/Field.h"
 
 namespace dicomifier
 {

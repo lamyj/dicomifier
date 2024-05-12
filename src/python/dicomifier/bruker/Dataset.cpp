@@ -6,56 +6,125 @@
  * for details.
  ************************************************************************/
 
-#include <pybind11/pybind11.h>
-#include <pybind11/operators.h>
-#include <pybind11/stl.h>
+#include "Dataset.h"
 
-#include "bruker/Dataset.h"
+#include <fstream>
+#include <iterator>
+#include <map>
+#include <string>
+#include <vector>
 
-void wrap_Dataset(pybind11::module & m)
+#include <boost/regex.hpp>
+
+#include "dicomifier/bruker/Field.h"
+#include "dicomifier/bruker/grammar.h"
+#include "dicomifier/Exception.h"
+
+namespace dicomifier
 {
-    using namespace pybind11;
-    using namespace dicomifier::bruker;
     
-    class_<Dataset>(
-            m, "Dataset", R"doc(
-                A Bruker dataset. This objects implements part of the mapping 
-                protocol: ``"foo" in d``, ``d["foo"]`` and ``for x in d``
-                are valid constructs.)doc")
-        .def(init<>(), "init docstring")
-        .def(
-            "load", &Dataset::load, arg("path"),
-            "Load dataset from file, update any existing field.")
-        .def(
-            "loads", &Dataset::loads, arg("data"),
-            "Load dataset from file content, update any existing field.")
-        .def(
-            "has_field", &Dataset::has_field, arg("name"),
-            "Test if dataset contains a given field.")
-        .def(
-            "get_field", &Dataset::get_field, arg("name"),
-            return_value_policy::reference_internal,
-            "Return the field, throw an exception if field is missing.")
-        .def(
-            "set_field", &Dataset::set_field, arg("field"),
-            "Add a field to the dataset or modify an existing field.")
-        .def(
-            "get_used_files", &Dataset::get_used_files, 
-            return_value_policy::reference_internal, R"doc(
-                Return a set of files used to create the dataset 
-                (except the PixelData file))doc")
-        .def("__contains__", &Dataset::has_field)
-        .def(
-            "__getitem__", &Dataset::get_field, 
-            return_value_policy::reference_internal)
-        .def(
-            "__iter__", 
-            [](Dataset const & d) { 
-                return make_key_iterator(d.begin(), d.end()); },
-            keep_alive<0, 1>())
-        .def(
-            "items", 
-            [](Dataset const & d) { return make_iterator(d.begin(), d.end()); },
-            keep_alive<0, 1>(), "Iterate on fields")
-    ;
+namespace bruker
+{
+
+void
+Dataset
+::load(std::string const & path)
+{
+    // Read the file
+    std::ifstream stream(path);
+    if(stream.fail())
+    {
+        throw Exception("Could not open file: " + path);
+    }
+    this->_used_files.push_back(path);
+    std::string data(
+        (std::istreambuf_iterator<typename std::string::value_type>(stream)),
+        (std::istreambuf_iterator<typename std::string::value_type>()));
+    stream.close();
+
+    // Join multi-line elements
+    data = boost::regex_replace(data, boost::regex(R"(\\?\R(?!##|\$\$))"), "");
+    
+    // Parse the data
+    this->_load(data.begin(), data.end());
 }
+
+void
+Dataset
+::loads(std::string const & data)
+{
+    // Join multi-line elements
+    auto const joined_data = boost::regex_replace(
+        data, boost::regex(R"(\\?\R(?!##|\$\$))"), "");
+    
+    // Parse the data
+    this->_load(joined_data.begin(), joined_data.end());
+}
+
+std::vector<std::string> const &
+Dataset
+::get_used_files() const
+{
+    return this->_used_files;
+}
+
+bool
+Dataset
+::has_field(std::string const & name) const
+{
+    auto const field_it = this->_fields.find(name);
+    return (field_it != this->_fields.end());
+}
+
+Field const &
+Dataset
+::get_field(std::string const & name) const
+{
+    auto const field_it = this->_fields.find(name);
+    if(field_it == this->_fields.end())
+    {
+        throw Exception("No such field: "+name);
+    }
+    
+    return field_it->second;
+}
+
+void
+Dataset
+::set_field(Field const & field)
+{
+    this->_fields[field.name] = field;
+}
+
+void
+Dataset
+::_load(std::string::const_iterator begin, std::string::const_iterator end)
+{
+    std::vector<Field> fields;
+    grammar<std::string::const_iterator> g;
+    bool const parsed = boost::spirit::qi::parse(begin, end, g, fields);
+    
+    if(!parsed)
+    {
+        throw Exception("Could not parse file");
+    }
+    
+    if(begin != end)
+    {
+        throw Exception("File was parsed incompletely");
+    }
+
+    // Fill the fields map
+    for(auto & field: fields)
+    {
+        if(field.name[0] == '$')
+        {
+            field.name = field.name.substr(1);
+        }
+        this->set_field(field);
+    }
+}
+
+} // namespace bruker
+
+} // namespace dicomifier

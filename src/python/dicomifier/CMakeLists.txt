@@ -1,3 +1,4 @@
+find_package(Boost COMPONENTS date_time filesystem system regex REQUIRED)
 find_package(ZLIB REQUIRED)
 find_package(Odil)
 if(NOT "${Odil_FOUND}")
@@ -10,8 +11,6 @@ endif()
 find_package(Python 3.6 COMPONENTS Interpreter Development NumPy REQUIRED)
 message("Python interpreter: ${Python_EXECUTABLE}")
 find_package(pybind11 2.0 REQUIRED)
-
-include_directories(${CMAKE_SOURCE_DIR}/src/lib ${PYTHON_INCLUDE_DIRS})
 
 file(GLOB_RECURSE header_files "*.h")
 file(GLOB_RECURSE template_files "*.txx")
@@ -26,20 +25,27 @@ pybind11_add_module(
     pydicomifier_dicomifier 
     ${header_files} ${source_files} ${template_files})
 
+target_include_directories(
+    pydicomifier_dicomifier
+    PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../> $<INSTALL_INTERFACE:>)
+    
 set_target_properties(pydicomifier_dicomifier PROPERTIES OUTPUT_NAME _dicomifier)
 if(APPLE)
     set_target_properties(pydicomifier_dicomifier PROPERTIES SUFFIX ".so")
 endif()
 
-target_link_libraries(pydicomifier_dicomifier PUBLIC Python::NumPy)
+target_link_libraries(
+    pydicomifier_dicomifier
+    PUBLIC
+        Boost::date_time Boost::filesystem Boost::regex Boost::system
+        Python::NumPy)
 if("${Odil_FOUND}")
-    target_link_libraries(
-        pydicomifier_dicomifier PUBLIC libdicomifier Odil::libodil)
+    target_link_libraries(pydicomifier_dicomifier PUBLIC Odil::libodil)
 else()
     target_include_directories(
         pydicomifier_dicomifier PUBLIC ${Odil_INCLUDE_DIRS}) 
     target_link_libraries(
-        pydicomifier_dicomifier PUBLIC libdicomifier ${Odil_LIBRARIES})
+        pydicomifier_dicomifier PUBLIC ${Odil_LIBRARIES})
 endif()
 
 install(
