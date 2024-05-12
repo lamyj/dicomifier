@@ -96,6 +96,13 @@ Dataset
     this->_fields[field.name] = field;
 }
 
+std::size_t
+Dataset
+::size() const
+{
+    return this->_fields.size();
+}
+
 void
 Dataset
 ::_load(std::string::const_iterator begin, std::string::const_iterator end)

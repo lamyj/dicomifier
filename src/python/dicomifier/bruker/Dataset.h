@@ -44,6 +44,8 @@ public:
      * (except the PixelData file)
      */
     std::vector<std::string> const & get_used_files() const;
+    
+    std::size_t size() const;
 
     typedef std::map<std::string, Field>::const_iterator const_iterator;
     const_iterator begin() const { return this->_fields.begin(); }

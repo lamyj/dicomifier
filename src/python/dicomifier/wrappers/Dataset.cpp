@@ -44,12 +44,18 @@ void wrap_Dataset(pybind11::module & m)
             return_value_policy::reference_internal, R"doc(
                 Return a set of files used to create the dataset 
                 (except the PixelData file))doc")
+        .def("__len__",  &Dataset::size)
         .def("__contains__", &Dataset::has_field)
         .def(
             "__getitem__", &Dataset::get_field, 
             return_value_policy::reference_internal)
         .def(
             "__iter__", 
+            [](Dataset const & d) { 
+                return make_key_iterator(d.begin(), d.end()); },
+            keep_alive<0, 1>())
+        .def(
+            "keys", 
             [](Dataset const & d) { 
                 return make_key_iterator(d.begin(), d.end()); },
             keep_alive<0, 1>())
