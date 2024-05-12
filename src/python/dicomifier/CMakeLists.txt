@@ -1,3 +1,4 @@
+find_package(ZLIB REQUIRED)
 find_package(Odil)
 if(NOT "${Odil_FOUND}")
     find_file(Odil_INCLUDE odil/odil.h REQUIRED)
@@ -22,7 +23,7 @@ list(SORT template_files)
 add_definitions(-DBOOST_ALL_DYN_LINK)
 
 pybind11_add_module(
-    pydicomifier_dicomifier SHARED
+    pydicomifier_dicomifier 
     ${header_files} ${source_files} ${template_files})
 
 set_target_properties(pydicomifier_dicomifier PROPERTIES OUTPUT_NAME _dicomifier)
