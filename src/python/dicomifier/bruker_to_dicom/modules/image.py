@@ -52,7 +52,7 @@ def get_pixel_data(data_set, generator, frame_index):
             min = numpy.nanmin(data_set["PIXELDATA"])
             max = numpy.nanmax(data_set["PIXELDATA"])
             
-            # WARNING: whe using float32, all numbers between (2**32-128) and
+            # WARNING: when using float32, all numbers between (2**32-128) and
             # (2**32+256) have the same representation, which can yield to
             # invalid values when converting to integer. Use the immediately
             # inferior value as an upper bound of the integer range.
