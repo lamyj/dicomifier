@@ -15,7 +15,7 @@ import diff
 
 def main():
     root = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "data"))
-    input_ = os.path.join(root, "baseline")
+    _input = os.path.join(root, "baseline")
     baseline = os.path.join(root, "baseline")
     
     inputs = [
@@ -45,7 +45,7 @@ def main():
                     # "-v", "debug", 
                     "to-nifti", 
                     case_input, case_output])
-            except subprocess.CalledProcessError as e:
+            except subprocess.CalledProcessError:
                 return 1
             
             different = different or diff_directories(case_baseline, case_output)
@@ -115,7 +115,7 @@ def diff_directories(baseline, test):
                         subprocess.check_output(
                             ["diff", baseline_filename, test_filename],
                             stderr=subprocess.STDOUT)
-                    except subprocess.CalledProcessError as e:
+                    except subprocess.CalledProcessError:
                         different = True
                         print("Differences on {}".format(
                             os.path.join(relative_pathname, filename)))

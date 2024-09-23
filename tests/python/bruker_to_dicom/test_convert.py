@@ -78,7 +78,7 @@ class TestConvert(unittest.TestCase):
             tag, odil.DataSet(), odil.registry.ImplicitVRLittleEndian)
 
         with self.assertRaises(Exception) as context:
-            val = dicomifier.bruker_to_dicom.convert.convert_element(
+            _ = dicomifier.bruker_to_dicom.convert.convert_element(
                 bruker_data_set, dicom_data_set,
                 "VisuSubjectName", "PatientName", 1, None,
                 frame_index, generator, vr_finder_function

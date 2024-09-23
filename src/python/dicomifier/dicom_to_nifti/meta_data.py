@@ -84,7 +84,7 @@ def get_meta_data(stack, cache=None):
     for i, (data_set, frame) in enumerate(stack):
         try:
             sop_instance_uid = data_set[odil.registry.SOPInstanceUID][0]
-        except Exception as e:
+        except Exception:
             raise
         # Fetch non-frame-specific elements from cache
         for tag, element in cache[sop_instance_uid].items():
@@ -170,7 +170,7 @@ def get_tag_name(tag):
 
     try:
         tag_name = tag.get_name()
-    except odil.Exception as e:
+    except odil.Exception:
         tag_name = str(tag)
     return tag_name
 

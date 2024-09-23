@@ -45,7 +45,7 @@ def main():
                         "to-dicom", "--dicomdir"]
                     +arguments
                     +[case_input, case_output])
-            except subprocess.CalledProcessError as e:
+            except subprocess.CalledProcessError:
                 return 1
             
             different |= diff_directories(case_baseline, case_output)
