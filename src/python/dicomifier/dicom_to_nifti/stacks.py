@@ -91,10 +91,10 @@ def get_stacks(data_sets, extra_splitters=None):
     
     # Normalize the keys so that all stacks have the same key fields
     key_items = set()
-    for key in stacks.keys():
+    for key in stacks:
         key_items.update(x[0] for x in key)
     normalized_keys = {}
-    for key in stacks.keys():
+    for key in stacks:
         normalized_keys[key] = list(key)
         for key_item in key_items:
             if key_item not in [x[0] for x in key]:
