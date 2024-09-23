@@ -1,6 +1,5 @@
 import unittest
 
-import numpy
 import odil
 
 import dicomifier

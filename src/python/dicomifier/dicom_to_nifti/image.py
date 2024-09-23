@@ -9,7 +9,6 @@
 import math
 import re
 
-import nibabel
 import numpy
 import odil
 

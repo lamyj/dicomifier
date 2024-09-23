@@ -1,7 +1,5 @@
 import unittest
 
-import numpy
-
 import dicomifier
 
 class TestMetaData(unittest.TestCase):

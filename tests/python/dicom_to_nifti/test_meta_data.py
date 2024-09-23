@@ -1,8 +1,6 @@
 import base64
 import unittest
 
-import numpy
-
 import dicomifier
 import odil
 

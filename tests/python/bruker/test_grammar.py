@@ -1,7 +1,5 @@
 import os
-import pathlib
 import tempfile
-import textwrap
 import unittest
 
 import dicomifier
