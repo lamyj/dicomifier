@@ -26,7 +26,8 @@ class FlatDICOMWriter:
             os.makedirs(self.root)
 
         if self.iso_9660:
-            filename = "{:08d}.dcm".format(1+len(self.files))
+            count = 1 + len(self.files)
+            filename = f"{count:08}.dcm"
         else:
             filename = data_set[odil.registry.SOPInstanceUID][0].decode()
 

@@ -30,7 +30,8 @@ class NestedDICOMWriter:
 
         self._counts.setdefault(directory, 0)
         if self.iso_9660:
-            filename = "IM{:06d}".format(1+self._counts[directory])
+            count = 1 + self._counts[directory]
+            filename = f"IM{count:06}"
         else:
             filename = data_set[odil.registry.SOPInstanceUID][0].decode()
 

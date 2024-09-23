@@ -115,8 +115,7 @@ def diff_directories(baseline, test):
                             stderr=subprocess.STDOUT)
                     except subprocess.CalledProcessError:
                         different = True
-                        print("Differences on {}".format(
-                            os.path.join(relative_pathname, filename)))
+                        print(f"Differences on {relative_filename}")
     
     # Walk the test to find files missing in baseline (the difference between 
     # files has already been tested).
@@ -126,8 +125,8 @@ def diff_directories(baseline, test):
         for filename in filenames:
             if not os.path.isfile(os.path.join(baseline_pathname, filename)):
                 different = True
-                print("{} missing in baseline".format(
-                    os.path.join(relative_pathname, filename)))
+                relative_filename = os.path.join(relative_pathname, filename)
+                print(f"{relative_filename} missing in baseline")
     
     return different
 

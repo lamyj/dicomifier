@@ -138,9 +138,9 @@ def parse_item(csa, start):
     length = struct.unpack(format, csa[start:start+header_size])
 
     format = ("<"    # Little endian
-              "{}s" # Content
-              "{}s" # Padding (?)
-             ).format(length[1], (4-length[1]%4)%4)
+              f"{length[1]}s" # Content
+              f"{(4-length[1]%4)%4}s" # Padding (?)
+             )
     content_size = struct.calcsize(format)
     content, padding = struct.unpack(
         format, csa[start+header_size:start+header_size+content_size])
@@ -206,7 +206,7 @@ def parse_protocol(data):
                 element)
             is_array, type_, name, index = match.groups()
             
-            full_name = "{}{}{}".format(is_array.decode(), type_.decode(), name.decode())
+            full_name = f"{is_array.decode()}{type_.decode()}{name.decode()}"
             
             is_array = (is_array == b"a")
             if index:
