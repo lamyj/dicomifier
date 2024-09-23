@@ -93,7 +93,7 @@ def diff_directories(baseline, test):
                             different = True
                             print(f"Encapsulated document differences in {relative_filename}")
                             diff.print_differences(differences, 1)
-                elif filename.endswith(".nii") or filename.endswith(".nii.gz"):
+                elif filename.endswith((".nii", ".nii.gz")):
                     images = [
                         nibabel.load(x)
                         for x in [baseline_filename, test_filename]]
