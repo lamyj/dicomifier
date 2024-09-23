@@ -56,7 +56,7 @@ class TestMetaData(unittest.TestCase):
         self.assertEqual(
             dicomifier.dicom_to_nifti.meta_data.convert_element(
                 element, ["ISO_IR 126"]), 
-            [{u"Alphabetic" : u"\x03\x91"}])
+            [{"Alphabetic" : "\x03\x91"}])
         
         element = odil.Element(
             [odil.Value.BinaryItem(b"\01\x02\x03\x04")], odil.VR.OB)
