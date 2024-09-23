@@ -138,8 +138,8 @@ def parse_item(csa, start):
     length = struct.unpack(format, csa[start:start+header_size])
 
     format = ("<"    # Little endian
-              "{0}s" # Content
-              "{1}s" # Padding (?)
+              "{}s" # Content
+              "{}s" # Padding (?)
              ).format(length[1], (4-length[1]%4)%4)
     content_size = struct.calcsize(format)
     content, padding = struct.unpack(
