@@ -69,54 +69,53 @@ def diff_directories(baseline, test):
             
             if not os.path.isfile(os.path.join(test_pathname, filename)):
                 print(f"{relative_filename} missing in test")
+            elif filename.endswith(".json"):
+                meta_data = [
+                    json.load(open(baseline_filename)), 
+                    json.load(open(test_filename))]
+                # Process EncapsulatedDocument separately
+                differences = diff.diff(
+                    *meta_data, exclusions=["EncapsulatedDocument"])
+                if differences:
+                    different = True
+                    print(f"Meta-data differences in {relative_filename}")
+                    diff.print_differences(differences, 1)
+                
+                encapsulated_documents = [
+                    [
+                        json.loads(base64.b64decode(x).strip(b"\x00").decode()) 
+                        for x in m.get("EncapsulatedDocument", [])]
+                    for m in meta_data]
+                for documents in zip(*encapsulated_documents):
+                    differences = diff.diff(*documents)
+                    if differences:
+                        different = True
+                        print(f"Encapsulated document differences in {relative_filename}")
+                        diff.print_differences(differences, 1)
+            elif filename.endswith((".nii", ".nii.gz")):
+                images = [
+                    nibabel.load(x)
+                    for x in [baseline_filename, test_filename]]
+                meta_data = [
+                    [x.affine.shape, x.affine.ravel().tolist(), x.shape] 
+                    for x in images]
+                differences = diff.diff(*meta_data)
+                if differences:
+                    different = True
+                    print(f"Geometry differences in {relative_filename}")
+                    diff.print_differences(differences, 1)
+                pixel_data = [numpy.asanyarray(x.dataobj) for x in images]
+                if not numpy.allclose(*pixel_data):
+                    different = True
+                    print(f"Pixel data differences in {relative_filename}")
             else:
-                if filename.endswith(".json"):
-                    meta_data = [
-                        json.load(open(baseline_filename)), 
-                        json.load(open(test_filename))]
-                    # Process EncapsulatedDocument separately
-                    differences = diff.diff(
-                        *meta_data, exclusions=["EncapsulatedDocument"])
-                    if differences:
-                        different = True
-                        print(f"Meta-data differences in {relative_filename}")
-                        diff.print_differences(differences, 1)
-                    
-                    encapsulated_documents = [
-                        [
-                            json.loads(base64.b64decode(x).strip(b"\x00").decode()) 
-                            for x in m.get("EncapsulatedDocument", [])]
-                        for m in meta_data]
-                    for documents in zip(*encapsulated_documents):
-                        differences = diff.diff(*documents)
-                        if differences:
-                            different = True
-                            print(f"Encapsulated document differences in {relative_filename}")
-                            diff.print_differences(differences, 1)
-                elif filename.endswith((".nii", ".nii.gz")):
-                    images = [
-                        nibabel.load(x)
-                        for x in [baseline_filename, test_filename]]
-                    meta_data = [
-                        [x.affine.shape, x.affine.ravel().tolist(), x.shape] 
-                        for x in images]
-                    differences = diff.diff(*meta_data)
-                    if differences:
-                        different = True
-                        print(f"Geometry differences in {relative_filename}")
-                        diff.print_differences(differences, 1)
-                    pixel_data = [numpy.asanyarray(x.dataobj) for x in images]
-                    if not numpy.allclose(*pixel_data):
-                        different = True
-                        print(f"Pixel data differences in {relative_filename}")
-                else:
-                    try:
-                        subprocess.check_output(
-                            ["diff", baseline_filename, test_filename],
-                            stderr=subprocess.STDOUT)
-                    except subprocess.CalledProcessError:
-                        different = True
-                        print(f"Differences on {relative_filename}")
+                try:
+                    subprocess.check_output(
+                        ["diff", baseline_filename, test_filename],
+                        stderr=subprocess.STDOUT)
+                except subprocess.CalledProcessError:
+                    different = True
+                    print(f"Differences on {relative_filename}")
     
     # Walk the test to find files missing in baseline (the difference between 
     # files has already been tested).
