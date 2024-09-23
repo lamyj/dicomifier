@@ -182,9 +182,7 @@ def convert_element(element, specific_character_set):
 
     result = None
     # element can be None because a get is called above
-    if element is None:
-        result = None
-    elif element.empty():
+    if element is None or element.empty():
         result = None
     elif element.is_int() or element.is_real():
         result = list(element)
