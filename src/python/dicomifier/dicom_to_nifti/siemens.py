@@ -48,7 +48,7 @@ def parse_ascconv(mr_phoenix_protocol):
         
         if value.startswith(b"0x"):
             return int(value.split()[0], 16)
-        elif value.startswith(b"\""):
+        elif value.startswith(b'"'):
             return re.findall(br'""(.*)""', value)[0].decode()
         else:
             int_match = re.match(br"^[+-]?\d+$", value)

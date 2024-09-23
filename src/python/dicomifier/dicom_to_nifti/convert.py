@@ -126,7 +126,7 @@ class SeriesContext(logging.Filter):
             
             self.prefix = "{}: ".format(" / ".join(elements))
         except Exception as e:
-            logger.debug("Series context configuration error: \"%s\"", e)
+            logger.debug('Series context configuration error: "%s"', e)
             self.prefix = ""
         
     def filter(self, record):
