@@ -559,7 +559,7 @@ def _find_private_creator(data_set, private_creator, group):
     
     tag = odil.Tag(group, 0x0000)
     private_group = None
-    for element in range(0, 256):
+    for element in range(256):
         tag.element = element
         
         # Get the content of the potential private creator. It may be stored as
