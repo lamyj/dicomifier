@@ -24,12 +24,13 @@ def main():
         "lb_140721.Bx1"
     ]
     
-    tests = []
-    for path in inputs:
-        for suffix in ["", ".multi"]:
-            tests.append([
-                os.path.join(baseline, f"{path}.dcm{suffix}"),
-                os.path.join(baseline, f"{path}.nii{suffix}")])
+    tests = [
+		[
+            os.path.join(baseline, f"{path}.dcm{suffix}"),
+            os.path.join(baseline, f"{path}.nii{suffix}")]
+        for path in inputs
+        for suffix in ("", ".multi")
+    ]
     
     different = False
     for case_input, case_baseline in tests:

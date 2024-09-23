@@ -62,16 +62,14 @@ def get_dicomdir_files(path):
     """ Return the list of files indexed in a DICOMDIR file.
     """
     
-    dicom_files = []
     dicomdir = odil.Reader.read_file(path)[1]
-    for record in dicomdir[odil.registry.DirectoryRecordSequence]:
-        if record[odil.registry.DirectoryRecordType][0] == b"IMAGE":
-            dicom_files.append(
-                os.path.join(
-                    os.path.dirname(path),
-                    *[x.decode() for x in record[odil.registry.ReferencedFileID]]))
-
-    return dicom_files
+    return [
+		os.path.join(
+            os.path.dirname(path),
+            *[x.decode() for x in record[odil.registry.ReferencedFileID]])
+		for record in dicomdir[odil.registry.DirectoryRecordSequence]
+		if record[odil.registry.DirectoryRecordType][0] == b"IMAGE"
+    ]
 
 def write_nifti(nifti_data, destination, zip, series_directory=None):
     """ Write the NIfTI image and meta-data in the given destination.
