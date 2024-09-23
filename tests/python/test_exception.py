@@ -5,11 +5,11 @@ import dicomifier
 class TestException(unittest.TestCase):
     def test_python_generic(self):
         with self.assertRaises(Exception):
-            raise dicomifier.Exception()
+            raise dicomifier.Exception
     
     def test_python_specific(self):
         with self.assertRaises(dicomifier.Exception):
-            raise dicomifier.Exception()
+            raise dicomifier.Exception
 
     def test_cpp_generic(self):
         with self.assertRaises(Exception):
