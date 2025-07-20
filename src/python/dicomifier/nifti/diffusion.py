@@ -177,7 +177,8 @@ def to_fsl(scheme, transform, bvecs_fd, bvals_fd):
     if numpy.linalg.det(transform)>0:
         bvecs[:,0] *= -1
     
-    bvecs[bvecs == numpy.NZERO] = 0
+    # Normalize negative-zero values to positive-zero values
+    bvecs[bvecs == -0.0] = 0.0
     
     # Re-normalize (not required by FSL)
     norm = numpy.maximum(1e-20, numpy.linalg.norm(bvecs, axis=1))
