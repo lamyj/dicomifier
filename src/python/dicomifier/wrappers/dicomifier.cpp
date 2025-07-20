@@ -20,6 +20,11 @@
 
 void wrap_bruker(pybind11::module &);
 
+// Not defined in numpy<2
+#if NPY_ABI_VERSION < 0x02000000
+#define PyDataType_ELSIZE(descr) ((descr)->elsize)
+#endif
+
 void convert_pixel_data(
     pybind11::dict & bruker_data_set, odil::DataSet & dicom_data_set)
 {
@@ -102,11 +107,11 @@ pybind11::handle convert_pixel_data(
         });
     
     // Get number of elements
-    if(size % dtype->elsize != 0)
+    if(size % PyDataType_ELSIZE(dtype) != 0)
     {
         throw std::runtime_error("Incompatible dtype");
     }
-    size /= dtype->elsize;
+    size /= PyDataType_ELSIZE(dtype);
     
     auto array = PyArray_SimpleNewFromDescr(1, &size, dtype);
     
