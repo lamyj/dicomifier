@@ -7,6 +7,7 @@
 #########################################################################
 
 import math
+import re
 
 import nibabel
 import numpy
@@ -29,7 +30,10 @@ def get_slice_image(data_set, shape, cache=None):
         
         # Mask the data using Bits Stored, cf. PS 3.5, 8.1.1
         bits_stored = data_set[odil.registry.BitsStored][0]
-        array = numpy.bitwise_and(array, 2**bits_stored - 1, dtype=array.dtype)
+        # WARNING: masking the high bits requires an unsigned dtype
+        unsigned_dtype = re.sub(r"i(\d)$", r"u\1", dtype.str)
+        array = numpy.bitwise_and(
+            array.view(unsigned_dtype), 2**bits_stored - 1, out=array)
         
         if b"MOSAIC" in data_set.get(odil.registry.ImageType, []):
             item = data_set[odil.Tag(0x0029, 0x1010)][0]
