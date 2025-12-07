@@ -13,7 +13,7 @@ from .series_finder import SeriesFinder
 class SiemensXAClassic2DSeriesFinder(SeriesFinder):
     """ Siemens MRI scanners with version XA have an export option which causes
         multi-volume series (e.g. fMRI or diffusion) to be exported as separate
-        series with differente Series Instance UIDs, but with the same Series
+        series with different Series Instance UIDs, but with the same Series
         Number.
     """
     
