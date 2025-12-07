@@ -1,6 +1,4 @@
-import multiprocessing
 import os
-import re
 import subprocess
 import sys
 
@@ -18,8 +16,8 @@ subprocess.check_call(
     [
         "cmake", 
         "-G", "Ninja",
-        "-DPython_EXECUTABLE={}".format(sys.executable),
-        "-DCMAKE_INSTALL_PREFIX={}".format(install_dir), 
+        f"-DPython_EXECUTABLE={sys.executable}",
+        f"-DCMAKE_INSTALL_PREFIX={install_dir}", 
         workspace],
     cwd=build_dir)
 

@@ -91,10 +91,10 @@ def get_stacks(data_sets, extra_splitters=None):
     
     # Normalize the keys so that all stacks have the same key fields
     key_items = set()
-    for key in stacks.keys():
+    for key in stacks:
         key_items.update(x[0] for x in key)
     normalized_keys = {}
-    for key in stacks.keys():
+    for key in stacks:
         normalized_keys[key] = list(key)
         for key_item in key_items:
             if key_item not in [x[0] for x in key]:
@@ -559,7 +559,7 @@ def _find_private_creator(data_set, private_creator, group):
     
     tag = odil.Tag(group, 0x0000)
     private_group = None
-    for element in range(0, 256):
+    for element in range(256):
         tag.element = element
         
         # Get the content of the potential private creator. It may be stored as

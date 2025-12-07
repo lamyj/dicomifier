@@ -1,7 +1,5 @@
 import unittest
 
-import numpy
-
 import dicomifier
 
 class TestMetaData(unittest.TestCase):
@@ -16,7 +14,7 @@ class TestMetaData(unittest.TestCase):
         value = meta_data.expand("ImageType", (2, 3))
         self.assertEqual(value.shape, (2, 3, 2))
         self.assertTrue(
-            all([all(x == ["ORIGINAL", "PRIMARY"]) for x in value.reshape(-1, 2)])
+            all(all(x == ["ORIGINAL", "PRIMARY"]) for x in value.reshape(-1, 2))
         )
 
     def test_expand_1d(self):

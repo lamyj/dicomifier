@@ -62,16 +62,14 @@ def get_dicomdir_files(path):
     """ Return the list of files indexed in a DICOMDIR file.
     """
     
-    dicom_files = []
     dicomdir = odil.Reader.read_file(path)[1]
-    for record in dicomdir[odil.registry.DirectoryRecordSequence]:
-        if record[odil.registry.DirectoryRecordType][0] == b"IMAGE":
-            dicom_files.append(
-                os.path.join(
-                    os.path.dirname(path),
-                    *[x.decode() for x in record[odil.registry.ReferencedFileID]]))
-
-    return dicom_files
+    return [
+		os.path.join(
+            os.path.dirname(path),
+            *[x.decode() for x in record[odil.registry.ReferencedFileID]])
+		for record in dicomdir[odil.registry.DirectoryRecordSequence]
+		if record[odil.registry.DirectoryRecordType][0] == b"IMAGE"
+    ]
 
 def write_nifti(nifti_data, destination, zip, series_directory=None):
     """ Write the NIfTI image and meta-data in the given destination.
@@ -146,12 +144,12 @@ def get_series_directory(meta_data, layout=None):
         
         # Patient directory: <PatientName> or <PatientID> or <StudyInstanceUID>.
         patient_directory = None
-        if "PatientName" in meta_data and meta_data["PatientName"]:
+        if meta_data.get("PatientName"):
             patient_directory = get_first_item(
                 meta_data["PatientName"])["Alphabetic"]
-        elif "PatientID" in meta_data and meta_data["PatientID"]:
+        elif meta_data.get("PatientID"):
             patient_directory = meta_data["PatientID"][0]
-        elif "StudyInstanceUID" in meta_data and meta_data["StudyInstanceUID"]:
+        elif meta_data.get("StudyInstanceUID"):
             patient_directory = meta_data["StudyInstanceUID"][0]
         else:
             raise Exception("Cannot determine patient directory")
@@ -159,15 +157,15 @@ def get_series_directory(meta_data, layout=None):
         # Study directory: <StudyID>_<StudyDescription>, both parts are
         # optional. If both tags are missing or empty, raise an exception
         study_directory = []
-        if "StudyID" in meta_data and meta_data["StudyID"]:
+        if meta_data.get("StudyID"):
             study_directory.append(
                 numpy.ravel([x for x in meta_data["StudyID"] if x])[0])
-        if "StudyDescription" in meta_data and meta_data["StudyDescription"]:
+        if meta_data.get("StudyDescription"):
             study_directory.append(
                 numpy.ravel([x for x in meta_data["StudyDescription"] if x])[0])
 
         if not study_directory:
-            if "StudyInstanceUID" in meta_data and meta_data["StudyInstanceUID"]:
+            if meta_data.get("StudyInstanceUID"):
                 study_directory = [meta_data["StudyInstanceUID"][0]]
             else:
                 raise Exception("Cannot determine study directory")
@@ -177,18 +175,18 @@ def get_series_directory(meta_data, layout=None):
         # Study directory: <SeriesNumber>_<SeriesDescription>, both parts are
         # optional. If both tags are missing or empty, raise an exception
         series_directory = []
-        if "SeriesNumber" in meta_data and meta_data["SeriesNumber"]:
+        if meta_data.get("SeriesNumber"):
             series_directory.append(str(get_series_number(meta_data)))
-        if "SeriesDescription" in meta_data and meta_data["SeriesDescription"]:
+        if meta_data.get("SeriesDescription"):
             series_directory.append(
                 numpy.ravel(
                     [x for x in meta_data["SeriesDescription"] if x])[0])
-        elif "ProtocolName" in meta_data and meta_data["ProtocolName"]:
+        elif meta_data.get("ProtocolName"):
             series_directory.append(
                 numpy.ravel([x for x in meta_data["ProtocolName"] if x])[0])
 
         if not series_directory:
-            if "SeriesInstanceUID" in meta_data and meta_data["SeriesInstanceUID"]:
+            if meta_data.get("SeriesInstanceUID"):
                 series_directory = [meta_data["SeriesInstanceUID"][0]]
             else:
                 raise Exception("Cannot determine series directory")

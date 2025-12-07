@@ -36,7 +36,7 @@ class TestDataset(unittest.TestCase):
         dataset.load(self.path)
         
         fields = [[name, value] for name, value in dataset.items()]
-        self.assertEqual([x[0] for x in fields], [x for x in dataset])
+        self.assertEqual([x[0] for x in fields], list(dataset))
         
         expected_fields = [
             ["FieldName", [], ["1 Field Value"]],

@@ -9,7 +9,6 @@
 import math
 import re
 
-import nibabel
 import numpy
 import odil
 
@@ -40,7 +39,7 @@ def get_slice_image(data_set, shape, cache=None):
             siemens_data = siemens.parse_csa(item.get_memory_view().tobytes())
             
             number_of_tiles = siemens_data["NumberOfImagesInMosaic"][0]
-            tiles_per_line = int(math.ceil(math.sqrt(number_of_tiles)))
+            tiles_per_line = math.ceil(math.sqrt(number_of_tiles))
             
             # Re-arrange array so that tiles are contiguous
             array = array.reshape(
@@ -107,7 +106,7 @@ def get_shape(stack):
         siemens_data = siemens.parse_csa(item.get_memory_view().tobytes())
         
         number_of_tiles = siemens_data["NumberOfImagesInMosaic"][0]
-        tiles_per_line = int(math.ceil(math.sqrt(number_of_tiles)))
+        tiles_per_line = math.ceil(math.sqrt(number_of_tiles))
         
         rows = data_set[odil.registry.Rows][0] // tiles_per_line
         cols = data_set[odil.registry.Columns][0] // tiles_per_line
@@ -311,7 +310,7 @@ def get_geometry(stack):
         siemens_data = siemens.parse_csa(item.get_memory_view().tobytes())
         
         number_of_tiles = siemens_data["NumberOfImagesInMosaic"][0]
-        tiles_per_line = int(math.ceil(math.sqrt(number_of_tiles)))
+        tiles_per_line = math.ceil(math.sqrt(number_of_tiles))
         
         # Get the origin of the tiles (i.e. origin of the first tile), cf.
         # http://nipy.org/nibabel/dicom/dicom_mosaic.html

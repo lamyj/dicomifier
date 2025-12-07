@@ -126,7 +126,7 @@ class SeriesContext(logging.Filter):
             
             self.prefix = "{}: ".format(" / ".join(elements))
         except Exception as e:
-            logger.debug("Series context configuration error: \"%s\"", e)
+            logger.debug('Series context configuration error: "%s"', e)
             self.prefix = ""
         
     def filter(self, record):
@@ -215,11 +215,7 @@ def convert_series_data_sets(data_sets, dtype=None, extra_splitters=None):
         
         # Update progress information
         if len(stacks) > 1:
-            stack_info = "{}/{}".format(1 + stack_index, len(stacks))
-        else:
-            stack_info = ""
-        if stack_info:
-            logger.debug("Converting stack %s", stack_info)
+            logger.debug(f"Converting stack {1 + stack_index}/{len(stacks)}")
 
         sort(key, stack)
         nifti_meta_data = meta_data.get_meta_data(stack, meta_data_cache)

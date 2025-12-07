@@ -1,6 +1,5 @@
 import os
 import subprocess
-import sys
 import tempfile
 import urllib.request
 
@@ -14,16 +13,16 @@ codename = subprocess.check_output(["lsb_release", "-cs"]).strip().decode()
 repository = "https://iris-packages.s3.unistra.fr"
 
 try:
-   urllib.request.urlopen("{}/apt/dists/{}/Release".format(repository, codename))
+   urllib.request.urlopen(f"{repository}/apt/dists/{codename}/Release")
 except urllib.request.HTTPError:
     pass
 else:
     with tempfile.NamedTemporaryFile() as fd:
-        fd.write(urllib.request.urlopen("{}/gpg.key".format(repository)).read())
+        fd.write(urllib.request.urlopen(f"{repository}/gpg.key").read())
         fd.flush()
         subprocess.check_call(["apt-key", "add", fd.name])
     subprocess.check_call([
-        "add-apt-repository", "deb {}/apt {} main".format(repository, codename)])
+        "add-apt-repository", f"deb {repository}/apt {codename} main"])
     subprocess.check_call(["apt-get", "update"])
 
 subprocess.check_call([

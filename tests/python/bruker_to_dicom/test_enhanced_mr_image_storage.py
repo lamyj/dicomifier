@@ -1,7 +1,5 @@
 import unittest
 
-import numpy
-
 from dicomifier.bruker_to_dicom.iods.enhanced_mr_image_storage import merge_shared_groups
 import dicomifier
 import odil

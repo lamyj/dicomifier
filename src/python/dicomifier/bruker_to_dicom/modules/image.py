@@ -108,7 +108,7 @@ def get_frame_index(generator, frame_index):
     contribution = [
         [fg[1], frame_index[i]]
         for i, fg in enumerate(generator.frame_groups) 
-        if fg[1] != 'FG_SLICE']
+        if fg[1] != "FG_SLICE"]
         
     return odil.DataSet(
         PurposeOfReferenceCodeSequence=[odil.DataSet(

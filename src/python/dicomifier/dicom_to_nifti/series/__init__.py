@@ -21,8 +21,8 @@ def split_series(files):
     """
     
     logger.info(
-        "Splitting %d DICOM file%s in series",
-            len(files), "s" if len(files) > 1 else "")
+        "Splitting {} DICOM file{} in series".format(
+            len(files), "s" if len(files) > 1 else ""))
     
     series = {}
     for file_ in files:
@@ -31,7 +31,7 @@ def split_series(files):
                 file_,  
                 halt_condition=lambda x: x>odil.registry.SeriesInstanceUID)
         except odil.Exception as e:
-            logger.warning("Could not read %s: %s" % (file_, e))
+            logger.warning(f"Could not read {file_}: {e}")
             continue
         
         uncompressed_ts = [
@@ -43,7 +43,7 @@ def split_series(files):
             ]]
         if header[odil.registry.TransferSyntaxUID][0] not in uncompressed_ts:
             logger.warning(
-                "Could not read %s: compressed transfer syntax", file_)
+                f"Could not read {file_}: compressed transfer syntax")
             continue
         
         series_instance_uid = None
@@ -55,13 +55,13 @@ def split_series(files):
                 series_instance_uid = finder(data_set)
             except Exception as e:
                 logger.warning(
-                    "Could not run %s: %s" % (finder_class.__name__, e))
+                    f"Could not run {finder_class.__name__}: {e}")
                 continue
             if series_instance_uid is not None:
                 break
         
         if series_instance_uid is None:
-            logger.warning("Could not find a series for %s", file_)
+            logger.warning(f"Could not find a series for {file_}")
             continue
         
         series.setdefault(finder, []).append(file_)
