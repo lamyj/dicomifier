@@ -1,3 +1,7 @@
+# Important Note
+
+As of November 11 2026, Dicomifier is no longer supported or updated. Current opened issues will stay unresolved, and current pull requests will stay unmerged. Many thanks to all contributors!
+
 # Dicomifier
 
 [![Conda Version](https://img.shields.io/conda/v/conda-forge/dicomifier.svg)](https://anaconda.org/conda-forge/dicomifier) [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.4459178.svg)](https://doi.org/10.5281/zenodo.4459178)
